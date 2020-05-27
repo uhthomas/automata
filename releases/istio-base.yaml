@@ -9,4 +9,4 @@ spec:
   chart:
     git: git@github.com:istio/istio
     path: manifests/charts/base
-    ref: v1.6.0
+    ref: 1.6.0
