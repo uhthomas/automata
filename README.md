@@ -42,3 +42,9 @@ $ fluxctl identity --k8s-fwd-ns flux
 ---
 
 Flux should then sync the cluster to the state of the git repository.
+
+## Creating secrets
+
+```sh
+$ kubectl create secret generic kipp --dry-run=client --from-file=filesystem=some-file -o yaml | kubeseal --controller-name sealed-secrets -o yaml > secrets/kipp.yaml
+```

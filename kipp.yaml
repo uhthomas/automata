@@ -23,8 +23,8 @@ spec:
         - name: FILESYSTEM_URL
           valueFrom:
             secretKeyRef:
-              name: kipp-filesystem
-              key: url
+              name: kipp
+              key: filesystem
         args: ["--filesystem", "$(FILESYSTEM_URL)"]
 ---
 apiVersion: v1
