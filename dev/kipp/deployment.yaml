@@ -21,17 +21,25 @@ spec:
     spec:
       containers:
       - name: kipp
-        image: uhthomas/kipp
+        image: uhthomas/kipp:1590618895
         imagePullPolicy: Always
         ports:
         - containerPort: 80
         env:
-        - name: FILESYSTEM_URL
+        - name: DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: kipp
+              key: database
+        - name: FILESYSTEM
           valueFrom:
             secretKeyRef:
               name: kipp
               key: filesystem
-        args: ["--filesystem", "$(FILESYSTEM_URL)"]
+        args: [
+          "--database", "$(DATABASE)",
+          "--filesystem", "$(FILESYSTEM)"
+        ]
         resources:
           requests:
             memory: 32Mi
