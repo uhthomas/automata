@@ -1,0 +1,29 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kipp
+  namespace: dev
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: kipp
+  template:
+    metadata:
+      labels:
+        name: kipp
+    spec:
+      containers:
+      - name: kipp
+        image: uhthomas/kipp
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        env:
+        - name: FILESYSTEM_URL
+          valueFrom:
+            secretKeyRef:
+              name: kipp
+              key: filesystem
+        args: ["--filesystem", "$(FILESYSTEM_URL)"]

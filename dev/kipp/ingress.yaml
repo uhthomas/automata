@@ -1,0 +1,22 @@
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+  namespace: dev
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/proxy-body-size: 150m
+spec:
+  tls:
+    - hosts:
+        - dev.kipp.6f.io
+      secretName: nginx-kubernetes-tls
+  rules:
+    - host: dev.kipp.6f.io
+      http:
+        paths:
+          - backend:
+              serviceName: kipp
+              servicePort: 80

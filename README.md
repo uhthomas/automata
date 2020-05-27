@@ -4,7 +4,7 @@
 
 ### Install doctl
 ```sh
-$ yaourt doctl --noconfirm
+$ yay doctl
 ```
 
 ### Authenticate with doctl
@@ -14,7 +14,7 @@ $ doctl auth init
 
 ### Save k8s cluster credentials
 ```sh
-doctl kubernetes cluster kubeconfig save <clusterName>
+$ doctl kubernetes cluster kubeconfig save <clusterName>
 ```
 
 ## Setup
