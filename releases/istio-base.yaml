@@ -1,0 +1,12 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: istio-base
+  namespace: istio-system
+spec:
+  releaseName: istio-base
+  chart:
+    git: git@github.com:istio/istio
+    path: manifests/charts/base
+    ref: v1.6.0
