@@ -10,6 +10,7 @@ spec:
     git: git@github.com:istio/istio
     path: manifests/charts/istio-control/istio-discovery
     ref: 1.6.0
+    timeout: 60
   valuesFrom:
   - chartFileRef:
       path: manifests/charts/global.yaml
