@@ -6,8 +6,8 @@ metadata:
   namespace: dev
 spec:
   ports:
-    - name: http
-      port: 80
-      targetPort: 80
+  - name: http
+    port: 80
+    targetPort: 80
   selector:
     name: kipp
