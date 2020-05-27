@@ -12,8 +12,8 @@ jobs:
         with:
           helmRelease: .
           helmVersion: v3
-          kubernetesVersion: ${{ KUBERNETES_VERSION }}
+          kubernetesVersion: ${{ env.KUBERNETES_VERSION }}
       - name: Validate k8s manifests
         uses: instrumenta/kubeval-action@master
         with:
-          version: ${{ KUBERNETES_VERSION }}
+          version: ${{ env.KUBERNETES_VERSION }}
