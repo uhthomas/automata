@@ -14,11 +14,11 @@ spec:
         name: kipp
     spec:
       containers:
-        - name: kipp
-          image: uhthomas/kipp
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 80
+      - name: kipp
+        image: uhthomas/kipp
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
 ---
 apiVersion: v1
 kind: Service
@@ -26,9 +26,9 @@ metadata:
   name: kipp
 spec:
   ports:
-    - name: http
-      port: 80
-      targetPort: 80
+  - name: http
+    port: 80
+    targetPort: 80
   selector:
     name: kipp
 ---
@@ -41,13 +41,13 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   tls:
-    - hosts:
-      - dev.kipp.6f.io
-      secretName: kipp-kubernetes-tls
+  - hosts:
+    - dev.kipp.6f.io
+    secretName: kipp-kubernetes-tls
   rules:
-    - host: dev.kipp.6f.io
-      http:
-        paths:
-          - backend:
-              serviceName: kipp
-              servicePort: 80
+  - host: dev.kipp.6f.io
+    http:
+      paths:
+      - backend:
+          serviceName: kipp
+          servicePort: 80
