@@ -2,13 +2,13 @@
 apiVersion: helm.fluxcd.io/v1
 kind: HelmRelease
 metadata:
-  name: helm-operator
+  name: flux
   namespace: flux
 spec:
-  releaseName: helm-operator
+  releaseName: flux
   chart:
     repository: https://charts.fluxcd.io
-    name: helm-operator
+    name: flux
     version: v1.3.0
   values:
     git:
