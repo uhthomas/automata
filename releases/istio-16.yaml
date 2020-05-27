@@ -12,4 +12,4 @@ spec:
     ref: 1.6.0
   valuesFrom:
   - chartFileRef:
-      path: manifests/charts/global.yaml
+      path: ../../global.yaml
