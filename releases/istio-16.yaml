@@ -6,7 +6,6 @@ metadata:
   namespace: istio-system
 spec:
   releaseName: istio-16
-  timeout: 60
   chart:
     git: git@github.com:istio/istio
     path: manifests/charts/istio-control/istio-discovery

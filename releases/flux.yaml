@@ -1,0 +1,15 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: helm-operator
+  namespace: flux
+spec:
+  releaseName: helm-operator
+  chart:
+    repository: https://charts.fluxcd.io
+    name: helm-operator
+    version: v1.3.0
+  values:
+    git:
+      url: git@github.com:uhthomas/k8s
