@@ -5,7 +5,6 @@ metadata:
   name: kipp
   namespace: dev
 spec:
-  replicas: 3
   selector:
     matchLabels:
       name: kipp
