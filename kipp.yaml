@@ -19,6 +19,13 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 80
+        env:
+        - name: FILESYSTEM_URL
+          valueFrom:
+            secretKeyRef:
+              name: kipp-filesystem
+              key: url
+        args: ["--filesystem", "$(FILESYSTEM_URL)"]
 ---
 apiVersion: v1
 kind: Service
