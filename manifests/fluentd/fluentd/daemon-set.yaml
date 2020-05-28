@@ -26,13 +26,11 @@ spec:
         env:
         - name: FLUENTD_SYSTEMD_CONF
           value: disable
-        - name: LOGZIO_LOG_LISTENER
-          value: https://listener-eu.logz.io:8071
-        - name: LOGZIO_LOG_SHIPPING_TOKEN
+        - name: LOGZIO_TOKEN
           valueFrom:
             secretKeyRef:
-              name: logzio-logs-secret
-              key: logzio-log-shipping-token
+              name: logzio
+              key: token
         resources:
           limits:
             memory: 512Mi
