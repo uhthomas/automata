@@ -16,3 +16,4 @@ spec:
       path: manifests
     syncGarbageCollection:
       enabled: true
+    logFormat: json
