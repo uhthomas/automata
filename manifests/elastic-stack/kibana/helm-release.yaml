@@ -23,7 +23,7 @@ spec:
       tls:
       - hosts:
         - kibana.6f.io
-        secretName: kibana-kubernetes-tls
+        secretName: kibana-tls
       hosts:
       - kibana.6f.io
     podAnnotations:

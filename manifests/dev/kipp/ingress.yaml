@@ -15,7 +15,7 @@ spec:
   tls:
   - hosts:
     - kipp.dev.6f.io
-    secretName: kipp-kubernetes-tls
+    secretName: kipp-tls
   rules:
   - host: kipp.dev.6f.io
     http:

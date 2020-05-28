@@ -1,0 +1,42 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: oauth2-proxy
+  namespace: oauth2-proxy
+spec:
+  releaseName: oauth2-proxy
+  chart:
+    repository: https://kubernetes-charts.storage.googleapis.com
+    name: oauth2-proxy
+    version: 1.39.0
+  values:
+    config:
+      existingSecret: oauth2-proxy
+      extraArgs:
+        skip-provider-button: true
+        whitelist-domain: .6f.io
+      configFile: |-
+        email_domains = [ "6f.io" ]
+        upstreams = [ "file:///dev/null" ]
+    image:
+      repository: quay.io/oauth2-proxy/oauth2-proxy
+      tag: v5.1.0
+    ingress:
+      enabled: true
+      hosts:
+      - ss.6f.io
+      annotations:
+        kubernetes.io/ingress.class: nginx
+        cert-manager.io/cluster-issuer: letsencrypt
+        nginx.ingress.kubernetes.io/proxy-body-size: 150m
+        nginx.ingress.kubernetes.io/configuration-snippet: |
+          proxy_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+          grpc_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+      tls:
+        enabled: true
+        secretName: oauth2-proxy-tls
+        hosts:
+        - sso.6f.io
+    podAnnotations:
+      linkerd.io/inject: enabled

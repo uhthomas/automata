@@ -48,3 +48,18 @@ Flux should then sync the cluster to the state of the git repository.
 ```sh
 $ kubectl create secret generic kipp --dry-run=client --from-file=filesystem=some-file -o yaml | kubeseal --controller-name sealed-secrets -o yaml > secrets/kipp.yaml
 ```
+
+### Creating the Linkerd2 trust anchor
+```sh
+$ step certificate create identity.linkerd.cluster.local ca.crt ca.key \
+    --profile root-ca \
+    --no-password \
+    --insecure
+$ kubectl create secret tls linkerd-trust-anchor \
+    --dry-run=client \
+    --cert=ca.crt \
+    --key=ca.key \
+    --namespace=linkerd -o yaml \
+    | kubeseal --controller-name sealed-secrets -o yaml \
+    > manifests/linkerd/linkerd2/sealed-secret.yaml
+```
