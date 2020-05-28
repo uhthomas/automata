@@ -27,3 +27,4 @@ spec:
     identity:
       issuer:
         scheme: kubernetes.io/tls
+    installNamespace: false
