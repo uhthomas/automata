@@ -9,7 +9,7 @@ spec:
   chart:
     repository: https://kubernetes-charts.storage.googleapis.com
     name: fluentd
-    version: 2.4.1
+    version: 2.4.0
   values:
     image:
       repository: logzio/logzio-k8s:1.1.0
