@@ -26,6 +26,8 @@ spec:
         env:
         - name: FLUENTD_SYSTEMD_CONF
           value: disable
+        - name: LOGZIO_LOGTYPE
+          value: my_type
         - name: LOGZIO_TOKEN
           valueFrom:
             secretKeyRef:
