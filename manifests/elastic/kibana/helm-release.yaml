@@ -2,11 +2,11 @@
 apiVersion: helm.fluxcd.io/v1
 kind: HelmRelease
 metadata:
-  name: elasticsearch
+  name: kibana
   namespace: elastic
 spec:
-  releaseName: elasticsearch
+  releaseName: kibana
   chart:
     repository: https://helm.elastic.co
-    name: elasticsearch
+    name: kibana
     version: 7.7.0
