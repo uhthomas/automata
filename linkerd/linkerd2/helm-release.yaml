@@ -1,0 +1,26 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: linkerd2
+  namespace: linkerd
+spec:
+  releaseName: linkerd2
+  chart:
+    repository: https://helm.linkerd.io/stable
+    name: linkerd2
+    version: v2.7.1
+  values:
+    global:
+      identityTrustAnchorsPEM: |
+        -----BEGIN CERTIFICATE-----
+        MIIBgzCCASmgAwIBAgIBATAKBggqhkjOPQQDAjApMScwJQYDVQQDEx5pZGVudGl0
+        eS5saW5rZXJkLmNsdXN0ZXIubG9jYWwwHhcNMjAwNTI4MTEzODI2WhcNMjEwNTI4
+        MTEzODQ2WjApMScwJQYDVQQDEx5pZGVudGl0eS5saW5rZXJkLmNsdXN0ZXIubG9j
+        YWwwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAARaLUMpOXQ8jjDgg1FzGLhsxWYE
+        W16prPyYrinlmWEWAjVmJs+MehoCqOaRrgL/nH24vkxFooyNIt8WdZV2LTXOo0Iw
+        QDAOBgNVHQ8BAf8EBAMCAQYwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMC
+        MA8GA1UdEwEB/wQFMAMBAf8wCgYIKoZIzj0EAwIDSAAwRQIgK2AL9aTWf6rnDNVW
+        TnefeglURXyoRonUM1EC8N7pMm0CIQDn5egDjqmdcS7AAjbbuAo2fleX2MmtPneO
+        5Apo50YgeQ==
+        -----END CERTIFICATE-----
