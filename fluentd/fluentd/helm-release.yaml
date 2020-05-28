@@ -12,7 +12,8 @@ spec:
     version: 2.4.0
   values:
     image:
-      repository: logzio/logzio-k8s:1.1.0
+      repository: logzio/logzio-k8s
+      tag: 1.1.0
     autoscaling:
       enabled: true
   extraEnvVars:
