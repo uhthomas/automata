@@ -11,4 +11,8 @@ spec:
     name: nginx-ingress
     version: 1.39.0
   values:
-    controller.publishService.enabled: true
+    autoscaling:
+      enabled: true
+    controller:
+      publishService:
+        enabled: true
