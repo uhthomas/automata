@@ -10,3 +10,6 @@ spec:
     repository: https://helm.elastic.co
     name: elasticsearch
     version: 7.7.0
+  values:
+    podAnnotations:
+      linkerd.io/inject: enabled

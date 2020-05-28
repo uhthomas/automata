@@ -1,0 +1,9 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: elasticsearch
+  namespace: fluentd
+spec:
+  type: ExternalName
+  externalName: elasticsearch-master.elastic-stack.svc.cluster.local

@@ -26,3 +26,5 @@ spec:
         secretName: kibana-kubernetes-tls
       hosts:
       - kibana.6f.io
+    podAnnotations:
+      linkerd.io/inject: enabled

@@ -14,6 +14,8 @@ spec:
     metadata:
       labels:
         app: fluentd
+      annotations:
+        linkerd.io/inject: enabled
     spec:
       serviceAccount: fluentd
       serviceAccountName: fluentd
@@ -25,7 +27,7 @@ spec:
         image: fluent/fluentd-kubernetes-daemonset:v1.10.4-debian-elasticsearch7-1.0
         env:
         - name:  FLUENT_ELASTICSEARCH_HOST
-          value: elasticsearch-master.elastic-stack.svc.cluster.local
+          value: elasticsearch
         - name:  FLUENT_ELASTICSEARCH_PORT
           value: 9200
         - name: FLUENT_ELASTICSEARCH_SCHEME
