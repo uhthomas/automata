@@ -29,7 +29,7 @@ spec:
         - name:  FLUENT_ELASTICSEARCH_HOST
           value: elasticsearch
         - name:  FLUENT_ELASTICSEARCH_PORT
-          value: 9200
+          value: "9200"
         - name: FLUENT_ELASTICSEARCH_SCHEME
           value: http
         - name: FLUENTD_SYSTEMD_CONF
