@@ -13,5 +13,6 @@ spec:
   values:
     git:
       url: git@github.com:uhthomas/k8s
+      path: manifests
     syncGarbageCollection:
       enabled: true
