@@ -11,10 +11,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - dev.kipp.6f.io
+    - kipp.dev.6f.io
     secretName: kipp-kubernetes-tls
   rules:
-  - host: dev.kipp.6f.io
+  - host: kipp.dev.6f.io
     http:
       paths:
       - backend:
