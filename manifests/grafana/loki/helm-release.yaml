@@ -15,7 +15,7 @@ spec:
       linkerd.io/inject: enabled
     persistence:
       enabled: true
-      size: 100Gi
+      size: 10Gi
     config:
       table_manager:
         retention_deletes_enabled: true
