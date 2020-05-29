@@ -16,3 +16,5 @@ spec:
         enabled: true
       publishService:
         enabled: true
+      podAnnotations:
+        linkerd.io/inject: enabled
