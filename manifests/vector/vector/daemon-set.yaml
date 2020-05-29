@@ -36,10 +36,10 @@ spec:
               fieldPath: spec.nodeName
         resources:
           limits:
-            memory: 512Mi
+            memory: 64Mi
           requests:
-            cpu: 100m
-            memory: 200Mi
+            cpu: 50m
+            memory: 32Mi
         volumeMounts:
         - name: varlog
           mountPath: /var/log
