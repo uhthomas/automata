@@ -13,3 +13,10 @@ spec:
   values:
     podAnnotations:
       linkerd.io/inject: enabled
+    persistence:
+      enabled: true
+      size: 100Gi
+    config:
+      table_manager:
+        retention_deletes_enabled: true
+        retention_period: 720h
