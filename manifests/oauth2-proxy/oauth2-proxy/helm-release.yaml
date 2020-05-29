@@ -16,6 +16,7 @@ spec:
       extraArgs:
         provider: google
         skip-provider-button: true
+        exclude-logging-paths: "/ping"
         whitelist-domain: .6f.io
         cookie-domain: .6f.io
         set-authorization-header: true
