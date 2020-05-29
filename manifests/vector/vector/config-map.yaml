@@ -4,7 +4,7 @@ kind: ConfigMap
 metadata:
   name: vector
   namespace: vector
-spec:
+data:
   vector.toml: |
     data_dir = "/var/lib/vector"
     [sources.kubernetes]
