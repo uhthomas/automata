@@ -35,9 +35,8 @@ spec:
           proxy_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
           grpc_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
       tls:
-        enabled: true
-        secretName: oauth2-proxy-tls
-        hosts:
+      - hosts:
         - sso.6f.io
+        secretName: oauth2-proxy-tls
     podAnnotations:
       linkerd.io/inject: enabled
