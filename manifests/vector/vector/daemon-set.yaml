@@ -2,38 +2,38 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: fluentd
-  namespace: fluentd
+  name: vector
+  namespace: vector
   labels:
-    app: fluentd
+    app: vector
 spec:
   selector:
     matchLabels:
-      app: fluentd
+      app: vector
   template:
     metadata:
       labels:
-        app: fluentd
+        app: vector
       annotations:
         linkerd.io/inject: enabled
     spec:
-      serviceAccount: fluentd
-      serviceAccountName: fluentd
+      serviceAccount: vector
+      serviceAccountName: vector
       tolerations:
       - key: node-role.kubernetes.io/master
         effect: NoSchedule
       containers:
-      - name: fluentd
-        image: fluent/fluentd-kubernetes-daemonset:v1.10.4-debian-elasticsearch7-1.0
+      - name: vector
+        image: timberio/vector:0.9.1-alpine
         env:
-        - name:  FLUENT_ELASTICSEARCH_HOST
-          value: elasticsearch
-        - name:  FLUENT_ELASTICSEARCH_PORT
-          value: "9200"
-        - name: FLUENT_ELASTICSEARCH_SCHEME
-          value: http
-        - name: FLUENTD_SYSTEMD_CONF
-          value: disable
+        - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
         resources:
           limits:
             memory: 512Mi
@@ -46,6 +46,10 @@ spec:
         - name: varlibdockercontainers
           mountPath: /var/lib/docker/containers
           readOnly: true
+        - name: vector.toml
+          mountPath: /etc/vector/vector.toml
+          readOnly: true
+          subPath: vector.toml
       terminationGracePeriodSeconds: 30
       volumes:
       - name: varlog
@@ -54,3 +58,6 @@ spec:
       - name: varlibdockercontainers
         hostPath:
           path: /var/lib/docker/containers
+      - name: vector.toml
+        configMap:
+          name: vector

@@ -19,8 +19,8 @@ spec:
         nginx.ingress.kubernetes.io/configuration-snippet: |
           proxy_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
           grpc_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
-        nginx.ingress.kubernetes.io/auth-url: "https://sso.6f.io/oauth2/auth"
-        nginx.ingress.kubernetes.io/auth-signin: "https://sso.6f.io/oauth2/start?rd=https://$host$request_uri"
+        nginx.ingress.kubernetes.io/auth-url: https://sso.6f.io/oauth2/auth
+        nginx.ingress.kubernetes.io/auth-signin: https://sso.6f.io/oauth2/start?rd=https://$host$request_uri
       tls:
       - hosts:
         - kibana.6f.io

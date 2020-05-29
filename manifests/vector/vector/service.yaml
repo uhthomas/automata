@@ -1,0 +1,9 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: loki
+  namespace: vector
+spec:
+  type: ExternalName
+  externalName: loki.grafana.svc.cluster.local

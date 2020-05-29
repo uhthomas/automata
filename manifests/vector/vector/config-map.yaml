@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: ConfigMap
+name: vector
+spec:
+  vector.toml: |
+    data_dir = "/var/lib/vector"
+    [sources.kubernetes]
+      type = "kubernetes"
+    [sinks.console]
+      type = "console"
+      inputs = ["kubernetes"]
+    [sinks.out]
+      endpoint = "http://loki
+      inputs = ["in"]
+      type = "loki"
