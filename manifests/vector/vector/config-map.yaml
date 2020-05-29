@@ -1,7 +1,9 @@
 ---
 apiVersion: v1
 kind: ConfigMap
-name: vector
+metadata:
+  name: vector
+  namespace: vector
 spec:
   vector.toml: |
     data_dir = "/var/lib/vector"
