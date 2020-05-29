@@ -50,6 +50,9 @@ spec:
           mountPath: /etc/vector/vector.toml
           readOnly: true
           subPath: vector.toml
+        - name: data
+          path: /var/lib/vector
+          type: DirectoryOrCreate
       terminationGracePeriodSeconds: 30
       volumes:
       - name: varlog
