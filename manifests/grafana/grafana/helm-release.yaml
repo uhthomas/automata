@@ -43,3 +43,5 @@ spec:
           type: loki
           access: proxy
           url: http://loki:3100
+    persistence:
+      enabled: true
