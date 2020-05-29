@@ -9,9 +9,6 @@ data:
     data_dir = "/var/lib/vector"
     [sources.kubernetes]
       type = "kubernetes"
-    [sinks.console]
-      type = "console"
-      inputs = ["kubernetes"]
     [sinks.out]
       inputs = ["kubernetes"]
       endpoint = "http://loki:3100"
