@@ -13,6 +13,10 @@ spec:
   values:
     image:
       tag: 7.0.1
+    grafana.ini:
+      auth:
+        anonymous:
+          enabled: true
     ingress:
       enabled: true
       annotations:
