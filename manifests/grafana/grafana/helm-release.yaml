@@ -36,7 +36,10 @@ spec:
       podAnnotations:
         linkerd.io/inject: enabled
     datasources:
-    - name: Loki
-      type: loki
-      access: proxy
-      url: http://loki:3100
+      datasources.yaml:
+        apiVersion: 1
+        datasources:
+        - name: Loki
+          type: loki
+          access: proxy
+          url: http://loki:3100
