@@ -14,8 +14,7 @@ spec:
     image:
       tag: 7.0.1
     grafana.ini:
-      auth:
-        anonymous:
+      auth.anonymous:
           enabled: true
     ingress:
       enabled: true
