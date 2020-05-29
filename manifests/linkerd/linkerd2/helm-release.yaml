@@ -12,7 +12,6 @@ spec:
     version: v2.7.1
   values:
     global:
-      grafanaUrl: http://grafana:3000
       identityTrustAnchorsPEM: |
         -----BEGIN CERTIFICATE-----
         MIIBlTCCATugAwIBAgIQZ1YfLX4wLYV7PX4NTBmFRTAKBggqhkjOPQQDAjApMScw
@@ -31,3 +30,5 @@ spec:
     installNamespace: false
     grafana:
       enabled: false
+    web:
+      replicas: 0
