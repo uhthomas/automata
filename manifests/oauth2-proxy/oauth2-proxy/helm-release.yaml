@@ -9,7 +9,7 @@ spec:
   chart:
     repository: https://kubernetes-charts.storage.googleapis.com
     name: oauth2-proxy
-    version: 1.39.0
+    version: 3.1.0
   values:
     config:
       existingSecret: oauth2-proxy
