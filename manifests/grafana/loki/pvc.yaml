@@ -5,7 +5,7 @@ metadata:
   name: loki
   namespace: grafana
   finalizers:
-    - kubernetes.io/pvc-protection
+  - kubernetes.io/pvc-protection
 spec:
   accessModes:
   - ReadWriteOnce
