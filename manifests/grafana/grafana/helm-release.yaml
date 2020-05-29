@@ -35,3 +35,8 @@ spec:
       - grafana.6f.io
       podAnnotations:
         linkerd.io/inject: enabled
+    datasources:
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki:3100
