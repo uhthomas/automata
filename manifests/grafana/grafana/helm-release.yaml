@@ -15,7 +15,8 @@ spec:
       tag: 7.0.1
     grafana.ini:
       auth.anonymous:
-          enabled: true
+        enabled: true
+        org_role: Admin
     ingress:
       enabled: true
       annotations:
