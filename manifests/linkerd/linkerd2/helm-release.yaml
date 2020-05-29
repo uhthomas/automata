@@ -28,3 +28,5 @@ spec:
       issuer:
         scheme: kubernetes.io/tls
     installNamespace: false
+    grafana:
+      enabled: false
