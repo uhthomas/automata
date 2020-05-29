@@ -1,0 +1,9 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: linkerd
+spec:
+  type: ExternalName
+  externalName: grafana.grafana.svc.cluster.local
