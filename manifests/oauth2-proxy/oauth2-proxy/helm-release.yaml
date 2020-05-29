@@ -13,19 +13,19 @@ spec:
   values:
     config:
       existingSecret: oauth2-proxy
-      extraArgs:
-        provider: google
-        skip-provider-button: true
-        exclude-logging-paths: "/ping"
-        whitelist-domain: .6f.io
-        cookie-domain: .6f.io
-        set-authorization-header: true
-        set-xauthrequest: true
-        reverse-proxy: true
-        pass-user-headers: true
       configFile: |-
         email_domains = [ "6f.io" ]
         upstreams = [ "file:///dev/null" ]
+    extraArgs:
+      provider: google
+      skip-provider-button: true
+      exclude-logging-paths: "/ping"
+      whitelist-domain: .6f.io
+      cookie-domain: .6f.io
+      set-authorization-header: true
+      set-xauthrequest: true
+      reverse-proxy: true
+      pass-user-headers: true
     image:
       repository: quay.io/oauth2-proxy/oauth2-proxy
       tag: v5.1.0
