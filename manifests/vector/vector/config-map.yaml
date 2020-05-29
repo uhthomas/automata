@@ -13,6 +13,6 @@ data:
       type = "console"
       inputs = ["kubernetes"]
     [sinks.out]
-      endpoint = "http://loki
+      endpoint = "http://loki:3100"
       inputs = ["in"]
       type = "loki"
