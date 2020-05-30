@@ -1,0 +1,15 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: prometheus
+  namespace: prometheus
+spec:
+  releaseName: prometheus
+  chart:
+    repository: https://kubernetes-charts.storage.googleapis.com
+    name: prometheus
+    version: 11.3.0
+  values:
+    alertmanager:
+      enabled: false
