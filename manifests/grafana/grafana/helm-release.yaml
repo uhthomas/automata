@@ -51,5 +51,3 @@ spec:
       enabled: true
     deploymentStrategy:
       type: Recreate
-    plugins:
-    - grafana-kubernetes-app
