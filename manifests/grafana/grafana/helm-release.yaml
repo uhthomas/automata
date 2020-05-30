@@ -49,3 +49,5 @@ spec:
           url: http://prometheus:9100
     persistence:
       enabled: true
+    deploymentStrategy:
+      type: Recreate
