@@ -16,8 +16,6 @@ spec:
       name: kipp
   template:
     metadata:
-      annotations:
-        linkerd.io/inject: enabled
       labels:
         name: kipp
     spec:
