@@ -10,11 +10,11 @@ jobs:
       - name: Validate Helm Releases
         uses: stefanprodan/hrval-action@9dce45ff21910cc28b28b8504fcd68aeb18f1e8c
         with:
-          helmRelease: manifests
+          helmRelease: clusters
           helmVersion: v3
           kubernetesVersion: ${{ env.KUBERNETES_VERSION }}
       - name: Validate k8s manifests
         uses: instrumenta/kubeval-action@5915e4adba5adccac07cb156b82e54c3fed74921
         with:
           version: ${{ env.KUBERNETES_VERSION }}
-          files: manifests
+          files: clusters

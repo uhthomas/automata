@@ -17,3 +17,5 @@ spec:
     syncGarbageCollection:
       enabled: true
     logFormat: json
+    prometheus:
+      enabled: true
