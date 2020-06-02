@@ -13,7 +13,7 @@ spec:
   values:
     git:
       url: git@github.com:uhthomas/k8s
-      path: manifests
+      path: clusters/k8s-1-17-5-do-0-lon1-1590534650926
     syncGarbageCollection:
       enabled: true
     logFormat: json
