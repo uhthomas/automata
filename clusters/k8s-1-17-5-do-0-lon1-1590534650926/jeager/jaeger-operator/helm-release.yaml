@@ -9,7 +9,7 @@ spec:
   chart:
     repository: https://jaegertracing.github.io/helm-charts
     name: jaeger-operator
-    version: v1.3.0
+    version: 2.15.0
   values:
     jaeger:
       create: true
