@@ -21,3 +21,5 @@ spec:
       table_manager:
         retention_deletes_enabled: true
         retention_period: 672h
+    tracing:
+      jaegerAgentHost: jaeger.jaeger
