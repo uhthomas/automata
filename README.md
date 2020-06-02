@@ -29,7 +29,7 @@ $ sudo pacman -S kubectl fluxctl helm
 $ helm repo add fluxcd https://charts.fluxcd.io
 $ kubectl apply -f https://raw.githubusercontent.com/fluxcd/helm-operator/v1.1.0/deploy/crds.yaml
 $ kubectl create namespace flux
-$ helm upgrade -i flux fluxcd/flux --set git.url=git@github.com:uhthomas/k8s --namespace flux
+$ helm upgrade -i flux fluxcd/flux --set git.url=git@github.com:uhthomas/manifests --namespace flux
 $ helm upgrade -i helm-operator fluxcd/helm-operator --set git.ssh.secretName=flux-git-deploy --namespace flux --set helm.versions=v3
 ```
 

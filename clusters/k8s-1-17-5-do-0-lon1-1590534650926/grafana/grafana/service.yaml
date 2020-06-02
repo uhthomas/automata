@@ -6,4 +6,4 @@ metadata:
   namespace: grafana
 spec:
   type: ExternalName
-  externalName: prometheus-server.prometheus.svc.cluster.local
+  externalName: prometheus-server.prometheus
