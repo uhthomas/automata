@@ -28,7 +28,7 @@ spec:
         ports:
         - containerPort: 80
         env:
-        - name: AWS_CONFIG_FILE
+        - name: AWS_SHARED_CREDENTIALS_FILE
           value: /aws-config
         - name: DATABASE
           valueFrom:
