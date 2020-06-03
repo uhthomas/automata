@@ -28,19 +28,16 @@ spec:
         ports:
         - containerPort: 80
         env:
+        - name: AWS_CONFIG_FILE
+          value: /aws-config
         - name: DATABASE
           valueFrom:
             secretKeyRef:
               name: kipp
               key: database
-        - name: FILESYSTEM
-          valueFrom:
-            secretKeyRef:
-              name: kipp
-              key: filesystem
         args: [
           "--database", "$(DATABASE)",
-          "--filesystem", "$(FILESYSTEM)"
+          "--filesystem", "s3:///kipp-dev"
         ]
         resources:
           requests:
@@ -49,3 +46,12 @@ spec:
           limits:
             memory: 64Mi
             cpu: 100m
+        volumeMounts:
+        - name: kipp
+          mountPath: /aws-config
+          readOnly: true
+          subPath: aws-config
+      volumes:
+      - name: kipp
+        secret:
+          secretName: kipp

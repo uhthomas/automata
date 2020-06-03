@@ -50,5 +50,5 @@ $ kubectl create secret tls linkerd-trust-anchor \
     --key=ca.key \
     --namespace=linkerd -o yaml \
     | kubeseal --controller-name sealed-secrets -o yaml \
-    > manifests/linkerd/linkerd2/sealed-secret.yaml
+    > clusters/casper/linkerd/linkerd2/sealed-secret.yaml
 ```
