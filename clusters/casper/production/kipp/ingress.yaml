@@ -15,10 +15,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - kipp.stg.6f.io
+    - kipp.6f.io
     secretName: kipp-tls
   rules:
-  - host: kipp.stg.6f.io
+  - host: kipp.6f.io
     http:
       paths:
       - backend:
