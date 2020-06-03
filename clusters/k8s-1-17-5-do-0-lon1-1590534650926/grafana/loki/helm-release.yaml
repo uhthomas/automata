@@ -22,4 +22,4 @@ spec:
         retention_deletes_enabled: true
         retention_period: 672h
     tracing:
-      jaegerAgentHost: jaeger.jaeger
+      jaegerAgentHost: jaeger.jaeger:9411
