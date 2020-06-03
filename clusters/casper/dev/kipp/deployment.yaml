@@ -1,0 +1,51 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kipp
+  namespace: dev
+spec:
+  revisionHistoryLimit: 5
+  progressDeadlineSeconds: 120
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
+  minReadySeconds: 1
+  selector:
+    matchLabels:
+      name: kipp
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: enabled
+      labels:
+        name: kipp
+    spec:
+      containers:
+      - name: kipp
+        image: uhthomas/kipp:1590623331
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        env:
+        - name: DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: kipp
+              key: database
+        - name: FILESYSTEM
+          valueFrom:
+            secretKeyRef:
+              name: kipp
+              key: filesystem
+        args: [
+          "--database", "$(DATABASE)",
+          "--filesystem", "$(FILESYSTEM)"
+        ]
+        resources:
+          requests:
+            memory: 32Mi
+            cpu: 50m
+          limits:
+            memory: 64Mi
+            cpu: 100m

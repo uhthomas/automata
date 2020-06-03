@@ -1,0 +1,34 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: linkerd2
+  namespace: linkerd
+spec:
+  releaseName: linkerd2
+  chart:
+    repository: https://helm.linkerd.io/stable
+    name: linkerd2
+    version: v2.7.1
+  values:
+    global:
+      identityTrustAnchorsPEM: |
+        -----BEGIN CERTIFICATE-----
+        MIIBlTCCATugAwIBAgIQZ1YfLX4wLYV7PX4NTBmFRTAKBggqhkjOPQQDAjApMScw
+        JQYDVQQDEx5pZGVudGl0eS5saW5rZXJkLmNsdXN0ZXIubG9jYWwwHhcNMjAwNTI4
+        MTE1NDU1WhcNMzAwNTI2MTE1NDU1WjApMScwJQYDVQQDEx5pZGVudGl0eS5saW5r
+        ZXJkLmNsdXN0ZXIubG9jYWwwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATe2FNU
+        SSVU1lmuybwhhLsLg+HuPRbQf9TG62bIhbdEYS1EnBQFQ94YEBW1EFlqEKJNZD7L
+        XazPsKCibUxnpVlUo0UwQzAOBgNVHQ8BAf8EBAMCAQYwEgYDVR0TAQH/BAgwBgEB
+        /wIBATAdBgNVHQ4EFgQUL/r1WSTMm/+nvxWw3aKJLKbufPMwCgYIKoZIzj0EAwID
+        SAAwRQIgB7GyH1w9Pa8/x6Z42ai5gKIksTDFEZ8URleQOB70j7oCIQCDQ0HZFVfJ
+        EpXXJUAml8xTpVWSp0H9QeOAExF8Jtd2Dg==
+        -----END CERTIFICATE-----
+    identity:
+      issuer:
+        scheme: kubernetes.io/tls
+    installNamespace: false
+    grafana:
+      enabled: false
+    web:
+      replicas: 0

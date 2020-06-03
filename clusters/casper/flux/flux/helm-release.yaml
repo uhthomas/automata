@@ -1,0 +1,21 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: flux
+  namespace: flux
+spec:
+  releaseName: flux
+  chart:
+    repository: https://charts.fluxcd.io
+    name: flux
+    version: v1.3.0
+  values:
+    git:
+      url: git@github.com:uhthomas/manifests
+      path: clusters/casper
+    syncGarbageCollection:
+      enabled: true
+    logFormat: json
+    prometheus:
+      enabled: true

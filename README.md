@@ -1,22 +1,5 @@
 # 6f.io k8s manifests
 
-## Authenticate
-
-### Install doctl
-```sh
-$ yay doctl
-```
-
-### Authenticate with doctl
-```sh
-$ doctl auth init 
-```
-
-### Save k8s cluster credentials
-```sh
-$ doctl kubernetes cluster kubeconfig save <clusterName>
-```
-
 ## Setup
 
 ### Install kubectl, fluxctl and helm
@@ -29,8 +12,14 @@ $ sudo pacman -S kubectl fluxctl helm
 $ helm repo add fluxcd https://charts.fluxcd.io
 $ kubectl apply -f https://raw.githubusercontent.com/fluxcd/helm-operator/v1.1.0/deploy/crds.yaml
 $ kubectl create namespace flux
-$ helm upgrade -i flux fluxcd/flux --set git.url=git@github.com:uhthomas/manifests --namespace flux
-$ helm upgrade -i helm-operator fluxcd/helm-operator --set git.ssh.secretName=flux-git-deploy --namespace flux --set helm.versions=v3
+$ helm upgrade -i flux fluxcd/flux \
+    --set git.url=git@github.com:uhthomas/manifests \
+    --set git.path=clusters/casper \
+    --namespace flux
+$ helm upgrade -i helm-operator fluxcd/helm-operator \
+    --set git.ssh.secretName=flux-git-deploy \
+    --set helm.versions=v3 \
+    --namespace flux
 ```
 
 ### Give flux write access to the git repo

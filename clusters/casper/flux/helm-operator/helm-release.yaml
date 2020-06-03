@@ -1,0 +1,20 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: helm-operator
+  namespace: flux
+spec:
+  releaseName: helm-operator
+  chart:
+    repository: https://charts.fluxcd.io
+    name: helm-operator
+    version: 1.0.2
+  values:
+    helm:
+      versions: v3
+    git:
+      timeout: 2m
+      ssh:
+        secretName: flux-git-deploy
+    logFormat: json

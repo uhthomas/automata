@@ -1,0 +1,9 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: prometheus
+  namespace: grafana
+spec:
+  type: ExternalName
+  externalName: prometheus-server.prometheus
