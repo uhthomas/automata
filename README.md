@@ -7,6 +7,13 @@
 $ sudo pacman -S kubectl fluxctl helm
 ```
 
+### Install the Sealed Secrets controller, and renew secrets
+Any manifest labeled `kind: SealedSecret` must be renewed for the new cluster.
+```sh
+$ helm upgrade -i sealed-secrets stable/sealed-secrets \
+    --namespace kube-system
+```
+
 ### Install Flux and Helm Operator
 ```sh
 $ helm repo add fluxcd https://charts.fluxcd.io
