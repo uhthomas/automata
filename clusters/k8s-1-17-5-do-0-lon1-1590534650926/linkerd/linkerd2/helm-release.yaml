@@ -9,7 +9,7 @@ spec:
   chart:
     repository: https://helm.linkerd.io/stable
     name: linkerd2
-    version: v2.7.1
+    version: 2.7.1
   values:
     global:
       identityTrustAnchorsPEM: |
