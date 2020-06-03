@@ -1,0 +1,1 @@
+{"jobID":"e9678182-2128-5352-e027-1d133d6c385c","spec":{"type":"policy","cause":{"Message":"","User":"Thomas \u003c9749173+uhthomas@users.noreply.github.com\u003e"},"spec":{"dev:deployment/kipp":{"add":{},"remove":{"locked":"true","locked_msg":"true","locked_user":"true"}}}},"result":null}
