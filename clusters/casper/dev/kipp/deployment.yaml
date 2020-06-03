@@ -35,10 +35,7 @@ spec:
             secretKeyRef:
               name: kipp
               key: database
-        args: [
-          "--database", "$(DATABASE)",
-          "--filesystem", "s3:///kipp-dev"
-        ]
+        args: ["--database", "$(DATABASE)", "--filesystem", "s3:///kipp-dev"]
         resources:
           requests:
             memory: 32Mi
