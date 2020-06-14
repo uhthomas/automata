@@ -48,7 +48,7 @@ spec:
         - name: Prometheus
           type: prometheus
           access: proxy
-          url: http://prometheus-server:9090
+          url: http://prometheus-operator-prometheus:9090
     persistence:
       enabled: true
     deploymentStrategy:
