@@ -2,14 +2,16 @@
 apiVersion: helm.fluxcd.io/v1
 kind: HelmRelease
 metadata:
-  name: prometheus
+  name: prometheus-operator
   namespace: telemetry
 spec:
-  releaseName: prometheus
+  releaseName: prometheus-operator
   chart:
     repository: https://kubernetes-charts.storage.googleapis.com
-    name: prometheus
-    version: 11.3.0
+    name: prometheus-operator
+    version: 8.14.0
   values:
     alertmanager:
+      enabled: false
+    grafana:
       enabled: false
