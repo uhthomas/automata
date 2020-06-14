@@ -1,0 +1,48 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scheduler-ubuntu16-04
+  namespace: buildbarn
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scheduler
+      instance: ubuntu16-04
+  template:
+    metadata:
+      labels:
+        app: scheduler
+        instance: ubuntu16-04
+    spec:
+      containers:
+      - args:
+        - /config/scheduler.jsonnet
+        image: buildbarn/bb-scheduler:20200514T171931Z-2cb6875
+        name: scheduler
+        ports:
+        - containerPort: 8982
+          protocol: TCP
+        - containerPort: 8983
+          protocol: TCP
+        - containerPort: 80
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /config/
+          name: configs
+          readOnly: true
+      volumes:
+      - name: configs
+        projected:
+          sources:
+          - configMap:
+              name: scheduler
+              items:
+              - key: scheduler.jsonnet
+                path: scheduler.jsonnet
+          - configMap:
+              name: common
+              items:
+              - key: common.libsonnet
+                path: common.libsonnet

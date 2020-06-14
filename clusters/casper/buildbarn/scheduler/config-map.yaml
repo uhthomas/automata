@@ -1,0 +1,22 @@
+---
+apiVersion: v1
+data:
+  scheduler.jsonnet: |
+    local common = import 'common.libsonnet';
+    {
+      httpListenAddress: common.httpListenAddress,
+      clientGrpcServers: [{
+        listenAddresses: [':8982'],
+        authenticationPolicy: { allow: {} },
+      }],
+      workerGrpcServers: [{
+        listenAddresses: [':8983'],
+        authenticationPolicy: { allow: {} },
+      }],
+      contentAddressableStorage: common.blobstore.contentAddressableStorage,
+      maximumMessageSizeBytes: common.maximumMessageSizeBytes,
+    }
+kind: ConfigMap
+metadata:
+  name: scheduler
+  namespace: buildbarn
