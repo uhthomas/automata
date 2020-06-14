@@ -18,7 +18,7 @@ spec:
         enabled: true
         org_role: Admin
       tracing.jaeger:
-        address: jaeger.jaeger:9411
+        address: jaeger:9411
     ingress:
       enabled: true
       annotations:
