@@ -3,7 +3,7 @@ apiVersion: helm.fluxcd.io/v1
 kind: HelmRelease
 metadata:
   name: prometheus
-  namespace: prometheus
+  namespace: telemetry
 spec:
   releaseName: prometheus
   chart:

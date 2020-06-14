@@ -3,7 +3,7 @@ apiVersion: helm.fluxcd.io/v1
 kind: HelmRelease
 metadata:
   name: fluent-bit
-  namespace: grafana
+  namespace: telemetry
 spec:
   releaseName: fluent-bit
   chart:

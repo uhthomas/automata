@@ -3,7 +3,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: loki
-  namespace: grafana
+  namespace: telemetry
   finalizers:
   - kubernetes.io/pvc-protection
 spec:

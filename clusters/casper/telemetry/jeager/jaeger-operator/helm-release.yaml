@@ -3,7 +3,7 @@ apiVersion: helm.fluxcd.io/v1
 kind: HelmRelease
 metadata:
   name: jaeger-operator
-  namespace: jaeger
+  namespace: telemetry
 spec:
   releaseName: jaeger-operator
   chart:
