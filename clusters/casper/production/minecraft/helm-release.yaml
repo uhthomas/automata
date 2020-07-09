@@ -11,8 +11,16 @@ spec:
     name: minecraft
     version: 2.0.2
   values:
+    resources:
+      requests:
+        memory: 1Gi
+        cpu: 750m
     minecraftServer:
       eula: true
       version: 1.16.1
-      ops: DDHxDevils
+      ops: DDHxDevils,Mai_Huynh
       difficulty: normal
+      memory: 1G
+    persistence:
+      dataDir:
+        enabled: true
