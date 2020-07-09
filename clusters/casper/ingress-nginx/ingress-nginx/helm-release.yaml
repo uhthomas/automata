@@ -19,4 +19,4 @@ spec:
       service:
         externalTrafficPolicy: Local
     tcp:
-      25565: production/minecraft:25565
+      25565: production/minecraft-minecraft:25565
