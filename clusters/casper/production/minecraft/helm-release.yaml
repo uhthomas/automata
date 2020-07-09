@@ -13,3 +13,4 @@ spec:
   values:
     minecraftServer:
       eula: true
+      version: 1.16.1
