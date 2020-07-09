@@ -1,0 +1,15 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: minecraft
+  namespace: production
+spec:
+  releaseName: minecraft
+  chart:
+    repository: https://itzg.github.io/minecraft-server-charts
+    name: minecraft
+    version: 2.0.2
+  values:
+    minecraftServer:
+      eula: true
