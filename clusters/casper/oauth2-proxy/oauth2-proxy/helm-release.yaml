@@ -30,7 +30,7 @@ spec:
       pass-user-headers: true
     image:
       repository: quay.io/oauth2-proxy/oauth2-proxy
-      tag: v5.1.0
+      tag: latest-armv6
     ingress:
       enabled: true
       hosts:
