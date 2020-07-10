@@ -4,6 +4,8 @@ kind: HelmRelease
 metadata:
   name: linkerd2
   namespace: linkerd
+  annotations:
+    fluxcd.io/automated: "true"
 spec:
   releaseName: linkerd2
   chart:

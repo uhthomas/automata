@@ -4,6 +4,8 @@ kind: HelmRelease
 metadata:
   name: oauth2-proxy
   namespace: oauth2-proxy
+  annotations:
+    fluxcd.io/automated: "true"
 spec:
   releaseName: oauth2-proxy
   chart:

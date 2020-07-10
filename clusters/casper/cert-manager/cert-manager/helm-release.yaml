@@ -4,6 +4,8 @@ kind: HelmRelease
 metadata:
   name: cert-manager
   namespace: cert-manager
+  annotations:
+    fluxcd.io/automated: "true"
 spec:
   releaseName: cert-manager
   chart:

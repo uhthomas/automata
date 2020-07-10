@@ -4,6 +4,8 @@ kind: HelmRelease
 metadata:
   name: prometheus-operator
   namespace: telemetry
+  annotations:
+    fluxcd.io/automated: "true"
 spec:
   releaseName: prometheus-operator
   chart:

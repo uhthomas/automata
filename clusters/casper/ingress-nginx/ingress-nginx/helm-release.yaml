@@ -4,6 +4,8 @@ kind: HelmRelease
 metadata:
   name: ingress-nginx
   namespace: ingress-nginx
+  annotations:
+    fluxcd.io/automated: "true"
 spec:
   releaseName: ingress-nginx
   chart:

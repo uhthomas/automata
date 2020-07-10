@@ -4,6 +4,8 @@ kind: HelmRelease
 metadata:
   name: metrics-server
   namespace: kube-system
+  annotations:
+    fluxcd.io/automated: "true"
 spec:
   releaseName: metrics-server
   chart:

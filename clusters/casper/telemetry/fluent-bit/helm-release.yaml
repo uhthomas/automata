@@ -4,6 +4,8 @@ kind: HelmRelease
 metadata:
   name: fluent-bit
   namespace: telemetry
+  annotations:
+    fluxcd.io/automated: "true"
 spec:
   releaseName: fluent-bit
   chart:
