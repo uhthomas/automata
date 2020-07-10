@@ -9,7 +9,7 @@ spec:
   chart:
     repository: https://charts.fluxcd.io
     name: helm-operator
-    version: 1.0.2
+    version: 1.1.0
   values:
     helm:
       versions: v3
