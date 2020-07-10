@@ -12,6 +12,9 @@ spec:
     version: 2.4.0
   values:
     controller:
+      config:
+        proxy-buffers-number: 8
+        proxy-buffer-size: 16k
       autoscaling:
         enabled: true
       publishService:
