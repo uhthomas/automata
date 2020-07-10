@@ -18,8 +18,10 @@ spec:
     minecraftServer:
       eula: true
       version: 1.16.1
+      whitelist: DDHxDevils,Mai_Huynh
       ops: DDHxDevils,Mai_Huynh
       difficulty: normal
+      motd: "&cWelcome!"
       memory: 1G
     persistence:
       dataDir:
