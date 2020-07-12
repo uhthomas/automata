@@ -39,10 +39,18 @@ $ fluxctl identity --k8s-fwd-ns flux
 
 Flux should then sync the cluster to the state of the git repository.
 
-## Creating secrets
+## Secrets
+
+### Creating
 
 ```sh
-$ kubectl create secret generic kipp --dry-run=client --from-file=filesystem=some-file -o yaml | kubeseal --controller-name sealed-secrets -o yaml > secrets/kipp.yaml
+$ kubectl create secret generic kipp --dry-run=client --from-file=filesystem=some-file -oyaml | kubeseal --controller-name sealed-secrets -oyaml > sealed-secret.yaml
+```
+
+### Viewing
+
+```sh
+$ kubeseal --controller-name sealed-secrets < sealed-secret.yaml
 ```
 
 ### Creating the Linkerd2 trust anchor

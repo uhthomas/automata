@@ -12,18 +12,6 @@ spec:
     repository: https://grafana.github.io/loki/charts
     name: loki
     version: 0.29.0
-  values:
-    podAnnotations:
-      linkerd.io/inject: enabled
-    persistence:
-      enabled: true
-    config:
-      chunk_store_config:
-        max_look_back_period: 672h
-      table_manager:
-        retention_deletes_enabled: true
-        retention_period: 672h
-    tracing:
-      jaegerAgentHost: jaeger.jaeger:9411
-    image:
-      tag: 1.5.0
+  valuesFrom:
+  - secretKeyRef:
+      name: loki
