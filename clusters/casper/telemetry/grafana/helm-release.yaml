@@ -51,7 +51,5 @@ spec:
           type: prometheus
           access: proxy
           url: http://prometheus-operator-prometheus:9090
-    persistence:
-      enabled: true
     deploymentStrategy:
       type: Recreate
