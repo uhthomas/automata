@@ -6,6 +6,7 @@ metadata:
   namespace: oauth2-proxy
   annotations:
     fluxcd.io/automated: "true"
+    filter.fluxcd.io/chart-image: semver:*
 spec:
   releaseName: oauth2-proxy
   chart:
