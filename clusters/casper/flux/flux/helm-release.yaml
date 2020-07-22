@@ -21,3 +21,5 @@ spec:
     logFormat: json
     prometheus:
       enabled: true
+    dashboard:
+      enabled: true
