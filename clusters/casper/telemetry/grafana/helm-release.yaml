@@ -6,6 +6,7 @@ metadata:
   namespace: telemetry
   annotations:
     fluxcd.io/automated: "true"
+    filter.fluxcd.io/chart-image: semver:~7
 spec:
   releaseName: grafana
   chart:
