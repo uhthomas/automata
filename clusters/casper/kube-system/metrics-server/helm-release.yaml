@@ -13,6 +13,17 @@ spec:
     name: metrics-server
     version: 2.11.1
   values:
+    rbac:
+      pspEnabled: true
     args:
     - --kubelet-preferred-address-types=InternalIP
     - --kubelet-insecure-tls
+    podAnnotations:
+      linkerd.io/inject: enabled
+    service:
+      labels:
+        kubernetes.io/cluster-service: "true"
+        kubernetes.io/name: "Metrics-server"
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: 1
