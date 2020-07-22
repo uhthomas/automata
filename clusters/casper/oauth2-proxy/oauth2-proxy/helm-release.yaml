@@ -31,7 +31,7 @@ spec:
       pass-user-headers: true
     image:
       repository: quay.io/oauth2-proxy/oauth2-proxy
-      tag: v6.0.0
+      tag: v5.1.1
     ingress:
       enabled: true
       hosts:
