@@ -13,10 +13,18 @@ spec:
     name: helm-operator
     version: 1.1.0
   values:
+    createCRD: true
+    logReleaseDiffs: true
+    logFormat: json
     helm:
       versions: v3
     git:
       timeout: 2m
       ssh:
         secretName: flux-git-deploy
-    logFormat: json
+    rbac:
+      pspEnabled: true
+    prometheus:
+      enabled: true
+    dashboards:
+      enabled: true
