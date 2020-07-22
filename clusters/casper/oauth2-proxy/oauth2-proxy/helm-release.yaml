@@ -6,7 +6,7 @@ metadata:
   namespace: oauth2-proxy
   annotations:
     fluxcd.io/automated: "true"
-    filter.fluxcd.io/chart-image: semver:~5
+    filter.fluxcd.io/chart-image: semver:~6
 spec:
   releaseName: oauth2-proxy
   chart:
@@ -22,7 +22,6 @@ spec:
     extraArgs:
       provider: google
       skip-provider-button: true
-      exclude-logging-paths: /ping
       whitelist-domain: .6f.io
       cookie-domain: .6f.io
       set-authorization-header: true
