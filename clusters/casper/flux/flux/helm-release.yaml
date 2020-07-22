@@ -19,6 +19,8 @@ spec:
     syncGarbageCollection:
       enabled: true
     logFormat: json
+    sops:
+      enabled: true
     prometheus:
       enabled: true
     dashboard:
