@@ -45,6 +45,4 @@ spec:
       - hosts:
         - sso.6f.io
         secretName: oauth2-proxy-tls
-    podAnnotations:
-      linkerd.io/inject: enabled
     replicaCount: 2

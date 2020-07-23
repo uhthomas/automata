@@ -2,6 +2,10 @@
 
 ## Setup
 
+### Considerations
+Flux and helm-operator don't play well with any resources which it didn't
+create. Such, the resources should be re-created after setup.
+
 ### Install kubectl, fluxctl and helm
 ```sh
 $ sudo pacman -S kubectl fluxctl helm
@@ -44,26 +48,11 @@ Flux should then sync the cluster to the state of the git repository.
 ### Creating
 
 ```sh
-$ kubectl create secret generic kipp --dry-run=client --from-file=filesystem=some-file -oyaml | kubeseal --controller-name sealed-secrets -oyaml > sealed-secret.yaml
+$ kubectl create secret generic --dry-run=client loki-helm-release --from-file=values.yaml -oyaml -n telemetry | kubeseal --controller-name sealed-secrets -oyaml > sealed-secret.yaml
 ```
 
 ### Viewing
 
 ```sh
-$ kubeseal --controller-name sealed-secrets < sealed-secret.yaml
-```
-
-### Creating the Linkerd2 trust anchor
-```sh
-$ step certificate create identity.linkerd.cluster.local ca.crt ca.key \
-    --profile root-ca \
-    --no-password \
-    --insecure
-$ kubectl create secret tls linkerd-trust-anchor \
-    --dry-run=client \
-    --cert=ca.crt \
-    --key=ca.key \
-    --namespace=linkerd -o yaml \
-    | kubeseal --controller-name sealed-secrets -o yaml \
-    > clusters/casper/linkerd/linkerd2/sealed-secret.yaml
+$ kubectl -n telemetry get secret loki-helm-release -oyaml | yq '.data["values.yaml"]' -r | base64 --decode -
 ```

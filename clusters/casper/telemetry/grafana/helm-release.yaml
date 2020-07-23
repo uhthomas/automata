@@ -38,8 +38,6 @@ spec:
         secretName: grafana-tls
       hosts:
       - grafana.6f.io
-      podAnnotations:
-        linkerd.io/inject: enabled
     datasources:
       datasources.yaml:
         apiVersion: 1

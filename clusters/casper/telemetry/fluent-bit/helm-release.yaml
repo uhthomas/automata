@@ -15,5 +15,3 @@ spec:
   values:
     loki:
       serviceName: loki
-    podAnnotations:
-      linkerd.io/inject: enabled
