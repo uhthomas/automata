@@ -36,7 +36,7 @@ spec:
         args: [
           "--database", "$(DATABASE)",
           "--filesystem", "s3://fr-par/kipp?endpoint=s3.fr-par.scw.cloud",
-          "--lifetime", "168h"
+          "--lifetime", "0"
         ]
         resources:
           requests:
