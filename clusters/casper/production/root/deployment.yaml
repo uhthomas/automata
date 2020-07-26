@@ -1,0 +1,39 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: root
+  namespace: production
+  annotations:
+    fluxcd.io/automated: "true"
+    filter.fluxcd.io/chart-image: semver:*
+spec:
+  revisionHistoryLimit: 5
+  progressDeadlineSeconds: 120
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
+  minReadySeconds: 1
+  selector:
+    matchLabels:
+      app: root
+  template:
+    metadata:
+      labels:
+        app: root
+    spec:
+      containers:
+      - name: root
+        image: docker.pkg.github.com/uhthomas/6f.io/root:v1.0.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: 8Mi
+            cpu: 2m
+          limits:
+            memory: 16Mi
+            cpu: 5m
+      imagePullSecrets:
+      - name: regcred
