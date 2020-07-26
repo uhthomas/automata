@@ -40,11 +40,11 @@ spec:
         ]
         resources:
           requests:
-            memory: 32Mi
-            cpu: 50m
+            memory: 8Mi
+            cpu: 2m
           limits:
-            memory: 64Mi
-            cpu: 100m
+            memory: 24Mi
+            cpu: 10m
         volumeMounts:
         - name: kipp
           mountPath: /aws-config
