@@ -38,9 +38,6 @@ spec:
       annotations:
         kubernetes.io/ingress.class: nginx
         cert-manager.io/cluster-issuer: letsencrypt
-        nginx.ingress.kubernetes.io/configuration-snippet: |
-          proxy_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
-          grpc_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
       tls:
       - hosts:
         - sso.6f.io
