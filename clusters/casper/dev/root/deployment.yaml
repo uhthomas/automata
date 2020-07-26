@@ -33,7 +33,7 @@ spec:
             memory: 2Mi
             cpu: 2m
           limits:
-            memory: 4Mi
-            cpu: 2m
+            memory: 6Mi
+            cpu: 4m
       imagePullSecrets:
       - name: regcred
