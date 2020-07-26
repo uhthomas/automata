@@ -6,7 +6,7 @@ metadata:
   namespace: production
   annotations:
     fluxcd.io/automated: "true"
-    fluxcd.io/tag.root: semver:*
+    fluxcd.io/tag.root: semver:~1
 spec:
   revisionHistoryLimit: 5
   progressDeadlineSeconds: 120
