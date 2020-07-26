@@ -36,11 +36,11 @@ spec:
         args: ["--database", "$(DATABASE)", "--filesystem", "s3://fr-par/kipp-dev?endpoint=s3.fr-par.scw.cloud"]
         resources:
           requests:
-            memory: 32Mi
-            cpu: 50m
+            memory: 8Mi
+            cpu: 2m
           limits:
-            memory: 64Mi
-            cpu: 100m
+            memory: 16Mi
+            cpu: 5m
         volumeMounts:
         - name: kipp
           mountPath: /aws-config
