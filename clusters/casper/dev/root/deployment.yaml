@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - name: root
-        image: docker.pkg.github.com/uhthomas/6f.io/root:v1.2.3
+        image: docker.pkg.github.com/uhthomas/6f.io/root:v1.2.4
         imagePullPolicy: Always
         ports:
         - containerPort: 80
