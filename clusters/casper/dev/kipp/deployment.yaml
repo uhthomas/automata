@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: kipp
-        image: uhthomas/kipp:1590623331
+        image: uhthomas/kipp:1600385376
         imagePullPolicy: Always
         ports:
         - containerPort: 80
