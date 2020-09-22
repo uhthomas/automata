@@ -1,0 +1,41 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adya
+  namespace: production
+  annotations:
+    fluxcd.io/automated: "true"
+    fluxcd.io/tag.sfc: semver:*
+spec:
+  revisionHistoryLimit: 5
+  progressDeadlineSeconds: 120
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
+  minReadySeconds: 1
+  selector:
+    matchLabels:
+      app: adya
+  template:
+    metadata:
+      labels:
+        app: adya
+    spec:
+      containers:
+      - name: adya
+        image: uhthomas/adya:v1.0.0
+        imagePullPolicy: Always
+        env:
+        - name: TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: adya
+              key: token
+        resources:
+          requests:
+            memory: 8Mi
+            cpu: 20m
+          limits:
+            memory: 24Mi
+            cpu: 50m
