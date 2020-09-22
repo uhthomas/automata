@@ -18,8 +18,8 @@ spec:
     minecraftServer:
       eula: true
       version: 1.16.3
-      whitelist: DDHxDevils,Mai_Huynh
-      ops: DDHxDevils,Mai_Huynh
+      whitelist: DDHxDevils,Mai_Huynh,cs64
+      ops: DDHxDevils,Mai_Huynh,cs64
       difficulty: normal
       motd: "&cWelcome!"
       memory: 1G
