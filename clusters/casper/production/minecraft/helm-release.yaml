@@ -17,7 +17,7 @@ spec:
         cpu: 750m
     minecraftServer:
       eula: true
-      version: 1.16.1
+      version: 1.16.3
       whitelist: DDHxDevils,Mai_Huynh
       ops: DDHxDevils,Mai_Huynh
       difficulty: normal
