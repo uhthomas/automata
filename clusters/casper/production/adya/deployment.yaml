@@ -33,7 +33,7 @@ spec:
               name: adya
               key: token
         - name: ADMINS
-          value: "757735651419488347"
+          value: "105750004563509248"
         resources:
           requests:
             memory: 8Mi
