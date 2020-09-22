@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: kipp
-        image: uhthomas/kipp:1600386179
+        image: uhthomas/kipp:1600770834
         imagePullPolicy: Always
         ports:
         - containerPort: 80
@@ -50,6 +50,18 @@ spec:
           mountPath: /aws-config
           readOnly: true
           subPath: aws-config
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 3
       volumes:
       - name: kipp
         secret:
