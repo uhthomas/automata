@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - name: adya
-        image: docker.pkg.github.com/uhthomas/adya/adya:v1.0.9
+        image: docker.pkg.github.com/uhthomas/adya/adya:v1.0.10
         imagePullPolicy: Always
         env:
         - name: TOKEN
