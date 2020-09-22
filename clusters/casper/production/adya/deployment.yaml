@@ -8,11 +8,11 @@ metadata:
     fluxcd.io/automated: "true"
     fluxcd.io/tag.sfc: semver:*
 spec:
+  replicas: 1
   revisionHistoryLimit: 5
   progressDeadlineSeconds: 120
   strategy:
-    rollingUpdate:
-      maxUnavailable: 1
+    type: Recreate
   minReadySeconds: 1
   selector:
     matchLabels:
