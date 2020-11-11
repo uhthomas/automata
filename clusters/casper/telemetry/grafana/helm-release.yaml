@@ -12,10 +12,10 @@ spec:
   chart:
     repository: https://kubernetes-charts.storage.googleapis.com
     name: grafana
-    version: 5.0.26
+    version: 6.1.4
   values:
     image:
-      tag: 7.0.1
+      tag: 7.3.1
     grafana.ini:
       auth.anonymous:
         enabled: true
