@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - name: root
-        image: docker.pkg.github.com/uhthomas/6f.io/root:v1.2.5
+        image: ghcr.io/uhthomas/6f.io:v1.2.7
         imagePullPolicy: Always
         ports:
         - containerPort: 80
@@ -35,5 +35,3 @@ spec:
           limits:
             memory: 8Mi
             cpu: 5m
-      imagePullSecrets:
-      - name: regcred
