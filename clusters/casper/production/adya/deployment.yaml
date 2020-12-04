@@ -6,7 +6,7 @@ metadata:
   namespace: production
   annotations:
     fluxcd.io/automated: "true"
-    fluxcd.io/tag.sfc: semver:*
+    fluxcd.io/tag.adya: semver:*
 spec:
   replicas: 1
   revisionHistoryLimit: 5
