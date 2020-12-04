@@ -9,19 +9,6 @@ metadata:
 spec:
   releaseName: metrics-server
   chart:
-    repository: https://kubernetes-charts.storage.googleapis.com
+    repository: https://charts.bitnami.com/bitnami
     name: metrics-server
-    version: 2.11.1
-  values:
-    rbac:
-      pspEnabled: true
-    args:
-    - --kubelet-preferred-address-types=InternalIP
-    - --kubelet-insecure-tls
-    service:
-      labels:
-        kubernetes.io/cluster-service: "true"
-        kubernetes.io/name: "Metrics-server"
-    podDisruptionBudget:
-      enabled: true
-      minAvailable: 1
+    version: 5.3.1
