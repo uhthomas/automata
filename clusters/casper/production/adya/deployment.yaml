@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - name: adya
-        image: ghcr.io/uhthomas/adya:70256c2c974e7d00f934eb232779f3bc51c41662
+        image: ghcr.io/uhthomas/adya:v1.0.11
         imagePullPolicy: IfNotPresent
         env:
         - name: TOKEN
