@@ -25,7 +25,7 @@ spec:
       containers:
       - name: adya
         image: ghcr.io/uhthomas/adya:v1.0.11
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         env:
         - name: TOKEN
           valueFrom:

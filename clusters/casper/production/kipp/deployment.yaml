@@ -22,7 +22,7 @@ spec:
       containers:
       - name: kipp
         image: uhthomas/kipp@sha256:65c2257485a91b621e51b48f2c32d819b02a7cb4e883ce61a74767a8bf87d0ba
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
         env:
