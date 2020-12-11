@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: kipp
-        image: uhthomas/kipp@sha256:d73c739a05ee2b7da0bf0204ed7d0cfdfff5b4283f4e0cccbbdbd5ff18860243
+        image: uhthomas/kipp@sha256:98b3183754f13f9e225f3d59a127acd3f836108ababc22a0788f55452b7786ea
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
@@ -36,11 +36,11 @@ spec:
         args: ["--database", "$(DATABASE)", "--filesystem", "s3://fr-par/kipp-dev?endpoint=s3.fr-par.scw.cloud"]
         resources:
           requests:
-            memory: 24Mi
-            cpu: 5m
+            memory: 16Mi
+            cpu: 150m
           limits:
-            memory: 32Mi
-            cpu: 10m
+            memory: 64Mi
+            cpu: 400m
         volumeMounts:
         - name: kipp
           mountPath: /aws-config
