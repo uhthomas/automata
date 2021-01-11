@@ -7,6 +7,7 @@ metadata:
   annotations:
     fluxcd.io/automated: "true"
     fluxcd.io/tag.tesla-exporter: semver:*
+    prometheus.io/scape: "true"
 spec:
   replicas: 1
   revisionHistoryLimit: 5
@@ -26,6 +27,8 @@ spec:
       - name: tesla-exporter
         image: ghcr.io/uhthomas/tesla_exporter:v0.2.0
         imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
         env:
         - name: TOKEN
           valueFrom:
