@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: tesla-exporter
-  namespace: production
+  namespace: tesla-exporter
   annotations:
     fluxcd.io/automated: "true"
     fluxcd.io/tag.tesla-exporter: semver:*
