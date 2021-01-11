@@ -21,6 +21,7 @@ spec:
     metadata:
       annotations:
         prometheus.io/scrape: "true"
+        prometheus.io/port: "80"
       labels:
         app: tesla-exporter
     spec:
