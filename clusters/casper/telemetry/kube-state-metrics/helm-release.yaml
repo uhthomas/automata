@@ -7,7 +7,7 @@ metadata:
   annotations:
     fluxcd.io/automated: "true"
 spec:
-  releaseName: ingress-nginx
+  releaseName: kube-state-metrics
   chart:
     repository: https://kubernetes.github.io/kube-state-metrics
     name: kube-state-metrics
