@@ -1,0 +1,42 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tesla-exporter
+  namespace: production
+  annotations:
+    fluxcd.io/automated: "true"
+    fluxcd.io/tag.tesla-exporter: semver:*
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  progressDeadlineSeconds: 120
+  strategy:
+    type: Recreate
+  minReadySeconds: 1
+  selector:
+    matchLabels:
+      app: tesla-exporter
+  template:
+    metadata:
+      labels:
+        app: tesla-exporter
+    spec:
+      containers:
+      - name: tesla-exporter
+        image: ghcr.io/uhthomas/tesla_exporter:v0.2.0
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: tesla-exporter
+              key: token
+        args: ["--token", "$TOKEN"]
+        resources:
+          requests:
+            memory: 8Mi
+            cpu: 10m
+          limits:
+            memory: 16Mi
+            cpu: 20m
