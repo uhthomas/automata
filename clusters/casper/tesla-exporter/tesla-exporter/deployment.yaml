@@ -8,6 +8,7 @@ metadata:
     fluxcd.io/automated: "true"
     fluxcd.io/tag.tesla-exporter: semver:*
     prometheus.io/scrape: "true"
+    prometheus.io/port: "80"
 spec:
   replicas: 1
   revisionHistoryLimit: 5
