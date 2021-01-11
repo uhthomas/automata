@@ -7,8 +7,6 @@ metadata:
   annotations:
     fluxcd.io/automated: "true"
     fluxcd.io/tag.tesla-exporter: semver:*
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "80"
 spec:
   replicas: 1
   revisionHistoryLimit: 5
@@ -21,6 +19,8 @@ spec:
       app: tesla-exporter
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
       labels:
         app: tesla-exporter
     spec:
