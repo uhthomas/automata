@@ -1,0 +1,19 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: prometheus
+  namespace: telemetry
+  annotations:
+    fluxcd.io/automated: "true"
+spec:
+  releaseName: prometheus
+  chart:
+    repository: https://prometheus-community.github.io/helm-charts
+    name: prometheus
+    version: 13.1.0
+  values:
+    podSecurityPolicy:
+      enabled: true
+    kubeStateMetrics:
+      enabled: false
