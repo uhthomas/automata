@@ -10,12 +10,10 @@ metadata:
 spec:
   releaseName: grafana
   chart:
-    repository: https://kubernetes-charts.storage.googleapis.com
+    repository: https://grafana.github.io/helm-charts
     name: grafana
-    version: 6.1.4
+    version: 6.1.17
   values:
-    image:
-      tag: 7.3.1
     grafana.ini:
       auth.anonymous:
         enabled: true
@@ -46,6 +44,6 @@ spec:
         - name: Prometheus
           type: prometheus
           access: proxy
-          url: http://prometheus-operator-prometheus:9090
+          url: http://prometheus-server:9090
     deploymentStrategy:
       type: Recreate
