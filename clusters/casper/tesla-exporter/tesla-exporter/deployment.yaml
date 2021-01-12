@@ -37,7 +37,7 @@ spec:
             secretKeyRef:
               name: tesla-exporter
               key: token
-        args: ["--token", "$TOKEN"]
+        args: ["--token", "$(TOKEN)"]
         resources:
           requests:
             memory: 8Mi
