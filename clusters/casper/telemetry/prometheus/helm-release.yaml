@@ -22,13 +22,6 @@ spec:
       - name: thanos-sidecar
         # v0.17.2
         image: quay.io/thanos/thanos@sha256:46c6a75b884818bd02a93772e9cf6dd638ca2b8cbabfb6935b9e19eac6a1ce9e
-        resources:
-          requests:
-            memory: "4Gi"
-            cpu: "2"
-          limits:
-            memory: "4Gi"
-            cpu: "2"
         args:
         - "sidecar"
         - "--log.level=debug"
@@ -59,7 +52,7 @@ spec:
       configPath: /etc/prometheus-shared/prometheus.yml
       replicaCount: 2
       persistentVolume:
-        size: 100Gi
+        size: 1Gi
       extraVolumes:
       - name: prometheus-config-shared
         emptyDir: {}
