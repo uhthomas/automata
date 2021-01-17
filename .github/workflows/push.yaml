@@ -15,4 +15,4 @@ jobs:
         method: service-account
         k8s-url: ${{ secrets.K8S_URL }}
         k8s-secret: ${{ secrets.K8S_SECRET }}
-    - run: kubectl apply -f clusters/casper --prune
+    - run: kubectl apply -f clusters/casper --prune --all
