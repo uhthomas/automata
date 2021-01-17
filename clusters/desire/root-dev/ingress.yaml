@@ -17,5 +17,6 @@ spec:
     http:
       paths:
       - backend:
-          serviceName: root
-          servicePort: 80
+          service:
+            name: root
+            port: 80

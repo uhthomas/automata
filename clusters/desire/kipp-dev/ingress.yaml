@@ -19,5 +19,6 @@ spec:
     http:
       paths:
       - backend:
-          serviceName: kipp
-          servicePort: 80
+          service:
+            name: kipp
+            port: 80

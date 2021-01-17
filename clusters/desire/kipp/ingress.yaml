@@ -24,11 +24,13 @@ spec:
     http:
       paths:
       - backend:
-          serviceName: kipp
-          servicePort: 80
+          service:
+            nameame: kipp
+            port: 80
   - host: conf.6f.io
     http:
       paths:
       - backend:
-          serviceName: kipp
-          servicePort: 80
+          service:
+            nameame: kipp
+            port: 80
