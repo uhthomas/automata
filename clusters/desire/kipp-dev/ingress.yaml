@@ -21,4 +21,5 @@ spec:
       - backend:
           service:
             name: kipp
-            port: 80
+            port:
+              name: http
