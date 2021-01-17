@@ -1,10 +1,17 @@
 name: Push
-on: [push]
+on:
+  push:
+    branches:
+    - master
 jobs:
   apply:
     name: Apply
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: azure/setup-kubectl@v1
-      - run: kubectl apply -f clusters/casper --prune
+    - uses: actions/checkout@v2
+    - uses: azure/setup-kubectl@v1
+    - uses: azure/k8s-set-context@v1
+      with:
+        method: kubeconfig
+        kubeconfig:
+    - run: kubectl apply -f clusters/casper --prune
