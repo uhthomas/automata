@@ -16,6 +16,6 @@ jobs:
         k8s-url: ${{ secrets.K8S_URL }}
         k8s-secret: ${{ secrets.K8S_SECRET }}
     - run: |
-        k apply -f clusters/desire -R --dry-run=client -ojson \
+        kubectl apply -f clusters/desire -R --dry-run=client -ojson \
         | jq '.items[].metadata.labels."app.kubernetes.io/managed-by" = "git-manifests"' \
-        | k apply -f - -l app.kubernetes.io/managed=git-manifests
+        | kubectl apply -f - -l app.kubernetes.io/managed=git-manifests
