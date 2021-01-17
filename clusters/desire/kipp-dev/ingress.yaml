@@ -10,6 +10,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: 150m
     nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
 spec:
+  class: nginx
   tls:
   - hosts:
     - kipp.dev.6f.io

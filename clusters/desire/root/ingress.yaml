@@ -8,6 +8,7 @@ metadata:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt
 spec:
+  class: nginx
   tls:
   - hosts:
     - 6f.io

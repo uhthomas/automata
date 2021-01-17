@@ -14,6 +14,7 @@ metadata:
         return 301 $scheme://kipp.6f.io$request_uri;
       }
 spec:
+  class: nginx
   tls:
   - hosts:
     - kipp.6f.io
