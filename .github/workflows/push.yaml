@@ -1,7 +1,7 @@
 name: Push
 on: [push]
 jobs:
-  push:
+  apply:
     name: Apply
     runs-on: ubuntu-latest
     steps:
