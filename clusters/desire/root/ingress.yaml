@@ -16,7 +16,8 @@ spec:
   - host: 6f.io
     http:
       paths:
-      - backend:
+      - pathType: ImplementationSpecific
+        backend:
           service:
             name: root
             port:

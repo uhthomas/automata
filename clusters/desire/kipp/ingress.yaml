@@ -23,7 +23,8 @@ spec:
   - host: kipp.6f.io
     http:
       paths:
-      - backend:
+      - pathType: ImplementationSpecific
+        backend:
           service:
             name: kipp
             port:
@@ -31,7 +32,8 @@ spec:
   - host: conf.6f.io
     http:
       paths:
-      - backend:
+      - pathType: ImplementationSpecific
+        backend:
           service:
             name: kipp
             port:
