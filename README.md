@@ -24,9 +24,8 @@ $ helm repo add fluxcd https://charts.fluxcd.io
 $ k apply -f https://raw.githubusercontent.com/fluxcd/helm-operator/v1.1.0/deploy/crds.yaml
 $ k create namespace flux
 $ helm upgrade -i helm-operator fluxcd/helm-operator \
-    --set git.ssh.secretName=flux-git-deploy \
-    --set helm.versions=v3 \
-    --namespace flux
+    -n flux \
+    --set helm.versions=v3
 ```
 
 ### Create a cluster role for GitHub Actions
