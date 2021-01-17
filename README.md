@@ -35,7 +35,7 @@ token as a repository secret.
 ```sh
 $ k --namespace default create serviceaccount git-manifests
 $ k create clusterrolebinding git-manifests --clusterrole cluster-admin --serviceaccount=default:git-manifests
-$  k get secret $(k get sa git-manifests -ojson | jq -r '.secrets[0].name') -ojson | jq -r '.data.token' | base64 --decode
+$ k get secret $(k get sa git-manifests -ojson | jq -r '.secrets[0].name') -oyaml
 ```
 
 ---
