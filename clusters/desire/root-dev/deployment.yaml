@@ -3,10 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: root
-  namespace: dev
-  annotations:
-    fluxcd.io/automated: "true"
-    fluxcd.io/tag.root: semver:*
+  namespace: root-dev
 spec:
   revisionHistoryLimit: 5
   progressDeadlineSeconds: 120
