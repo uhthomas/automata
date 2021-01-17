@@ -66,13 +66,6 @@ spec:
       extraVolumeMounts:
       - name: prometheus-config-shared
         mountPath: /etc/prometheus-shared/
-      resources:
-        limits:
-          cpu: 4
-          memory: 20Gi
-        requests:
-          cpu: 4
-          memory: 20Gi
       global:
         scrape_interval: 5s
         scrape_timeout: 4s
