@@ -12,6 +12,7 @@ jobs:
     - uses: azure/setup-kubectl@v1
     - uses: azure/k8s-set-context@v1
       with:
-        method: kubeconfig
-        kubeconfig:
+        method: service-account
+        k8s-url: ${{ secrets.K8S_URL }}
+        k8s-secret: ${{ secrets.K8S_SECRET }}
     - run: kubectl apply -f clusters/casper --prune

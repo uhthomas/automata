@@ -3,12 +3,12 @@
 ## Setup
 
 ### Considerations
-Flux and helm-operator don't play well with any resources which it didn't
+Helm-operator doesn't play well with any resources which it didn't
 create. Such, the resources should be re-created after setup.
 
-### Install kubectl, fluxctl and helm
+### Install kubectl and helm
 ```sh
-$ sudo pacman -S kubectl fluxctl helm
+$ sudo pacman -S kubectl helm
 ```
 
 ### Install the Sealed Secrets controller, and renew secrets
@@ -18,41 +18,38 @@ $ helm upgrade -i sealed-secrets stable/sealed-secrets \
     --namespace kube-system
 ```
 
-### Install Flux and Helm Operator
+### Install Helm Operator
 ```sh
 $ helm repo add fluxcd https://charts.fluxcd.io
-$ kubectl apply -f https://raw.githubusercontent.com/fluxcd/helm-operator/v1.1.0/deploy/crds.yaml
-$ kubectl create namespace flux
-$ helm upgrade -i flux fluxcd/flux \
-    --set git.url=git@github.com:uhthomas/manifests \
-    --set git.path=clusters/casper \
-    --namespace flux
+$ k apply -f https://raw.githubusercontent.com/fluxcd/helm-operator/v1.1.0/deploy/crds.yaml
+$ k create namespace flux
 $ helm upgrade -i helm-operator fluxcd/helm-operator \
     --set git.ssh.secretName=flux-git-deploy \
     --set helm.versions=v3 \
     --namespace flux
 ```
 
-### Give flux write access to the git repo
-Copy the public key, and make a new deploy key with write access on the git repository.
+### Create a cluster role for GitHub Actions
+Create a service account, bind to a cluster role and store the service account's
+token as a repository secret.
 ```sh
-$ fluxctl identity --k8s-fwd-ns flux
+$ k --namespace default create serviceaccount git-manifests
+$ k create clusterrolebinding git-manifests --clusterrole cluster-admin --serviceaccount=default:git-manifests
+$  k get secret $(k get sa git-manifests -ojson | jq -r '.secrets[0].name') -ojson | jq -r '.data.token' | base64 --decode
 ```
 
 ---
-
-Flux should then sync the cluster to the state of the git repository.
 
 ## Secrets
 
 ### Creating
 
 ```sh
-$ kubectl create secret generic --dry-run=client loki-helm-release --from-file=values.yaml -oyaml -n telemetry | kubeseal --controller-name sealed-secrets -oyaml > sealed-secret.yaml
+$ k create secret generic --dry-run=client loki-helm-release --from-file=values.yaml -oyaml -n telemetry | kubeseal --controller-name sealed-secrets -oyaml > sealed-secret.yaml
 ```
 
 ### Viewing
 
 ```sh
-$ kubectl -n telemetry get secret loki-helm-release -oyaml | yq '.data["values.yaml"]' -r | base64 --decode -
+$ k -n telemetry get secret loki-helm-release -oyaml | yq '.data["values.yaml"]' -r | base64 --decode -
 ```
