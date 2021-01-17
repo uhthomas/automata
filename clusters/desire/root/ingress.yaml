@@ -5,10 +5,9 @@ metadata:
   name: root
   namespace: root
   annotations:
-    kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt
 spec:
-  class: nginx
+  ingressClassName: nginx
   tls:
   - hosts:
     - 6f.io

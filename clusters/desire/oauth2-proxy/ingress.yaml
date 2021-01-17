@@ -5,10 +5,9 @@ metadata:
   name: oauth2-proxy
   namespace: oauth2-proxy
   annotations:
-    kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt
 spec:
-  class: nginx
+  ingressClassName: nginx
   tls:
   - hosts:
     - sso.6f.io

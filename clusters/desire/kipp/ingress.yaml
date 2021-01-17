@@ -5,7 +5,6 @@ metadata:
   name: kipp
   namespace: kipp
   annotations:
-    kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt
     nginx.ingress.kubernetes.io/proxy-body-size: 150m
     nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
@@ -14,7 +13,7 @@ metadata:
         return 301 $scheme://kipp.6f.io$request_uri;
       }
 spec:
-  class: nginx
+  ingressClassName: nginx
   tls:
   - hosts:
     - kipp.6f.io
