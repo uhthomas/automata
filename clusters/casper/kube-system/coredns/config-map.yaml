@@ -12,15 +12,15 @@ data:
           lameduck 5s
         }
         ready
-        kubernetes CLUSTER_DOMAIN REVERSE_CIDRS {
+        kubernetes cluster.local in-addr.arpa ip6.arpa {
           fallthrough in-addr.arpa ip6.arpa
         }
         prometheus :9153
-        forward . UPSTREAMNAMESERVER {
+        forward . /etc/resolv.conf {
           max_concurrent 1000
         }
         cache 30
         loop
         reload
         loadbalance
-    }STUBDOMAINS
+    }
