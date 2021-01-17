@@ -74,11 +74,11 @@ spec:
           prometheus_replica: '$(HOSTNAME)'
         evaluation_interval: 5s
       extraSecretMounts:
-      - name: thanos-sidecar
+      - name: thanos-storage-secret
         mountPath: /etc/secret/
         subPath: sa
         readOnly: false
-        secretName: thanos-storage-secret
+        secretName: thanos-sidecar
     configmapReload:
       image:
         repository: gcr.io/google-containers/pause-amd64
