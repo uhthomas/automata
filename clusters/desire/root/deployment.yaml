@@ -1,0 +1,36 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: root
+  namespace: root
+spec:
+  revisionHistoryLimit: 5
+  progressDeadlineSeconds: 120
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
+  minReadySeconds: 1
+  selector:
+    matchLabels:
+      app: root
+  template:
+    metadata:
+      labels:
+        app: root
+    spec:
+      containers:
+      - name: root
+        image: ghcr.io/uhthomas/6f.io:v1.2.7
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: 2Mi
+            cpu: 2m
+          limits:
+            memory: 8Mi
+            cpu: 5m
+      imagePullSecrets:
+      - name: regcred

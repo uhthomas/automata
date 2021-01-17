@@ -11,6 +11,6 @@ spec:
     name: cilium
     version: 1.9.1
   values:
-    etc:
+    etcd:
       enabled: true
       managed: true

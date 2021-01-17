@@ -1,0 +1,21 @@
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: root
+  namespace: dev
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  tls:
+  - hosts:
+    - dev.6f.io
+    secretName: root-tls
+  rules:
+  - host: dev.6f.io
+    http:
+      paths:
+      - backend:
+          serviceName: root
+          servicePort: 80

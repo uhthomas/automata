@@ -14,17 +14,18 @@ $ sudo pacman -S kubectl helm
 ### Install the Sealed Secrets controller, and renew secrets
 Any manifest labeled `kind: SealedSecret` must be renewed for the new cluster.
 ```sh
-$ helm upgrade -i sealed-secrets stable/sealed-secrets \
+$ helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
+$ helm upgrade -i sealed-secrets sealed-secrets/sealed-secrets \
     --namespace kube-system
 ```
 
 ### Install Helm Operator
 ```sh
 $ helm repo add fluxcd https://charts.fluxcd.io
-$ k apply -f https://raw.githubusercontent.com/fluxcd/helm-operator/v1.1.0/deploy/crds.yaml
+$ k apply -f https://raw.githubusercontent.com/fluxcd/helm-operator/v1.2.0/deploy/crds.yaml
 $ k create namespace flux
 $ helm upgrade -i helm-operator fluxcd/helm-operator \
-    -n flux \
+    -n helm-operator \
     --set helm.versions=v3
 ```
 
@@ -51,4 +52,9 @@ $ k create secret generic --dry-run=client loki-helm-release --from-file=values.
 
 ```sh
 $ k -n telemetry get secret loki-helm-release -oyaml | yq '.data["values.yaml"]' -r | base64 --decode -
+```
+
+### View and transfer between clusters
+```sh
+find . -name 'sealed-secret.yaml' | xargs yq r -
 ```
