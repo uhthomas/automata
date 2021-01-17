@@ -1,0 +1,16 @@
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: cilium
+  namespace: kube-system
+spec:
+  releaseName: cilium
+  chart:
+    repository: https://kubernetes-charts.storage.googleapis.com
+    name: cilium
+    version: 1.9.1
+  values:
+    etc:
+      enabled: true
+      managed: true

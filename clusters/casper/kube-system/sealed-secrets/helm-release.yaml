@@ -4,8 +4,6 @@ kind: HelmRelease
 metadata:
   name: sealed-secrets
   namespace: kube-system
-  annotations:
-    fluxcd.io/automated: "true"
 spec:
   releaseName: sealed-secrets
   chart:
