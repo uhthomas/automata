@@ -53,8 +53,3 @@ $ k create secret generic --dry-run=client loki-helm-release --from-file=values.
 ```sh
 $ k -n telemetry get secret loki-helm-release -oyaml | yq '.data["values.yaml"]' -r | base64 --decode -
 ```
-
-### View and transfer between clusters
-```sh
-find . -name 'sealed-secret.yaml' | xargs yq r -
-```
