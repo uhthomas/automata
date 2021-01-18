@@ -42,3 +42,6 @@ spec:
           url: http://prometheus-server
     deploymentStrategy:
       type: Recreate
+    persistence:
+      enabled: true
+      size: 500Mi
