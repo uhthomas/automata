@@ -44,4 +44,4 @@ spec:
       type: Recreate
     persistence:
       enabled: true
-      size: 500Mi
+      size: 1Gi
