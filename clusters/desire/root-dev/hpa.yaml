@@ -10,5 +10,5 @@ spec:
     kind: Deployment
     name: root
   minReplicas: 1
-  maxReplicas: 2
+  maxReplicas: 3
   targetCPUUtilizationPercentage: 75
