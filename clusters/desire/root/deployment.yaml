@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: root
-        image: ghcr.io/uhthomas/6f.io@sha256:9ab11bef6639c9a052ca29112ef4f42d4b30c2841d09af451f2f1ce88fc16b64
+        image: ghcr.io/uhthomas/6f.io@sha256:bcf8a7da9e4efecede3d61c920225cb5036fd0a645bf7ca9c6942df83c6fd41a
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
