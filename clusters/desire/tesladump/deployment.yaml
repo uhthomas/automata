@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: tesladump
-        image: ghcr.io/uhthomas/tesladump:v0.1.7
+        image: ghcr.io/uhthomas/tesladump:v0.1.8
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
