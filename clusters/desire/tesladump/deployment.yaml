@@ -30,8 +30,11 @@ spec:
           valueFrom:
             secretKeyRef:
               name: tesladump
-              key: token
-        args: ["--mongo-uri", "$(MONGO_URI)"]
+              key: mongo-uri
+        args:
+        -- --mongo-uri=$(MONGO_URI)
+        -- --oauth2-config-path=/etc/secret/oauth2_config.json
+        -- --oauth2-token-path=/etc/secret/oauth2_token.json
         resources:
           requests:
             memory: 8Mi
@@ -39,3 +42,15 @@ spec:
           limits:
             memory: 16Mi
             cpu: 20m
+        volumeMounts:
+        - name: tesladump
+          mountPath: /etc/secret
+          readOnly: true
+      volumes:
+      - name: tesladump
+        secret:
+          secretName: tesladump
+          items:
+          - key: oauth2_config.json
+          - key: oauth2_token.json
+
