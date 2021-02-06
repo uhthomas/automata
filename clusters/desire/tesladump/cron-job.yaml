@@ -3,6 +3,7 @@ apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
   name: tesladump-curl
+  namespace: tesladump
 spec:
   schedule: "*/1 * * * *"
   concurrencyPolicy: Forbid
