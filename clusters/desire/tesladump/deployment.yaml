@@ -52,5 +52,7 @@ spec:
           secretName: tesladump
           items:
           - key: oauth2_config.json
+            path: oauth2_config.json
           - key: oauth2_token.json
+            path: oauth2_token.json
 
