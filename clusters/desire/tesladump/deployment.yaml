@@ -32,9 +32,9 @@ spec:
               name: tesladump
               key: mongo-uri
         args:
-        -- --mongo-uri=$(MONGO_URI)
-        -- --oauth2-config-path=/etc/secret/oauth2_config.json
-        -- --oauth2-token-path=/etc/secret/oauth2_token.json
+        - --mongo-uri=$(MONGO_URI)
+        - --oauth2-config-path=/etc/secret/oauth2_config.json
+        - --oauth2-token-path=/etc/secret/oauth2_token.json
         resources:
           requests:
             memory: 8Mi
