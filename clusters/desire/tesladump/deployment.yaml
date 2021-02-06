@@ -1,0 +1,41 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tesladump
+  namespace: tesladump
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  progressDeadlineSeconds: 120
+  strategy:
+    type: Recreate
+  minReadySeconds: 1
+  selector:
+    matchLabels:
+      app: tesladump
+  template:
+    metadata:
+      labels:
+        app: tesladump
+    spec:
+      containers:
+      - name: tesladump
+        image: ghcr.io/uhthomas/tesladump:v0.1.1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        env:
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: tesladump
+              key: token
+        args: ["--mongo-uri", "$(MONGO_URI)"]
+        resources:
+          requests:
+            memory: 8Mi
+            cpu: 10m
+          limits:
+            memory: 16Mi
+            cpu: 20m
