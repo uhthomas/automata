@@ -33,11 +33,10 @@ spec:
             secretKeyRef:
               name: kipp
               key: database
-        args: [
-          "--database", "$(DATABASE)",
-          "--filesystem", "s3://fr-par/kipp?endpoint=s3.fr-par.scw.cloud",
-          "--lifetime", "0"
-        ]
+        args:
+        - --database=$(DATABASE)
+        - --filesystem=s3://fr-par/kipp?endpoint=s3.fr-par.scw.cloud
+        - --lifetime=0
         resources:
           requests:
             memory: 16Mi
