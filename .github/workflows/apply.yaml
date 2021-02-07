@@ -13,14 +13,7 @@ jobs:
       run: curl -L "https://github.com/bazelbuild/bazelisk/releases/download/v1.7.4/bazelisk-linux-amd64" | install -D /dev/stdin "${GITHUB_WORKSPACE}/bin/bazel"
     # would like to use bazel test //..., but we don't have any test targets (yet)
     - run: bazel build //...
-    - uses: azure/setup-kubectl@v1
     - uses: azure/k8s-set-context@v1
       with:
-        method: service-account
-        k8s-url: ${{ secrets.K8S_URL }}
-        k8s-secret: ${{ secrets.K8S_SECRET }}
-    - run: kubectl config view --minify -o 'jsonpath={.clusters[*].name}'
+        kubeconfig: ${{ secrets.KUBE_CONFIG }}
     - run: bazel run //clusters/desire:objects.apply
-      env:
-        # azure/k8s-set-context sets the default name as "cluster"
-        CLUSTER: cluster
