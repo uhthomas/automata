@@ -9,9 +9,9 @@ spec:
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
+  suspend: true
   jobTemplate:
     spec:
-      suspend: true
       template:
         spec:
           containers:
