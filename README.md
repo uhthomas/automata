@@ -1,6 +1,17 @@
-# 6f.io k8s manifests
+# Automata
 
-## Setup
+## Getting started
+
+### Prerequisites
+* [Bazel](https://build.bazel)
+
+### Apply manifests
+
+```sh
+bazel run //clusters/desire:objects.apply
+```
+
+## Starting a new cluster
 
 ### Considerations
 Helm-operator doesn't play well with any resources which it didn't

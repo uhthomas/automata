@@ -1,2 +1,0 @@
-build --stamp
-build --workspace_status_command hack/workspace-status.sh
