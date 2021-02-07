@@ -11,6 +11,7 @@ spec:
   failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
+      suspend: true
       template:
         spec:
           containers:
