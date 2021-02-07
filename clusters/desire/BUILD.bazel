@@ -1,0 +1,28 @@
+load("@k8s_desire//:defaults.bzl", "k8s_desire")
+
+k8s_desire(
+    name = "cluster_issuer",
+    kind = "ClusterIssuer",
+    template = "cluster-issuer.yaml",
+)
+
+load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
+
+k8s_objects(
+    name = "objects",
+    objects = [
+        "//clusters/desire/adya:objects",
+        "//clusters/desire/cert-manager:objects",
+        "//clusters/desire/helm-operator:objects",
+        "//clusters/desire/ingress-nginx:objects",
+        "//clusters/desire/kipp:objects",
+        "//clusters/desire/kipp-dev:objects",
+        "//clusters/desire/kube-system:objects",
+        "//clusters/desire/oauth2-proxy:objects",
+        "//clusters/desire/root:objects",
+        "//clusters/desire/root-dev:objects",
+        "//clusters/desire/telemetry:objects",
+        "//clusters/desire/tesla-exporter:objects",
+        "//clusters/desire/tesladump:objects",
+    ],
+)

@@ -1,0 +1,33 @@
+load("@k8s_desire//:defaults.bzl", "k8s_desire")
+
+k8s_desire(
+    name = "namespace",
+    kind = "Namespace",
+    template = "namespace.yaml",
+)
+
+k8s_desire(
+    name = "deployment",
+    kind = "Deployment",
+    namespace = "tesla-exporter",
+    template = "deployment.yaml",
+)
+
+k8s_desire(
+    name = "sealed_secret",
+    kind = "SealedSecret",
+    namespace = "tesla-exporter",
+    template = "sealed-secret.yaml",
+)
+
+load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
+
+k8s_objects(
+    name = "objects",
+    objects = [
+        ":namespace",
+        ":sealed_secret",
+        ":deployment",
+    ],
+    visibility = ["//visibility:public"],
+)

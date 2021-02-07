@@ -1,0 +1,66 @@
+load("@k8s_desire//:defaults.bzl", "k8s_desire")
+
+k8s_desire(
+    name = "api_service",
+    kind = "APIService",
+    namespace = "kube-system",
+    template = "api-service.yaml",
+)
+
+k8s_desire(
+    name = "cluster_role_binding",
+    kind = "ClusterRoleBinding",
+    namespace = "kube-system",
+    template = "cluster-role-binding.yaml",
+)
+
+k8s_desire(
+    name = "cluster_role",
+    kind = "ClusterRole",
+    namespace = "kube-system",
+    template = "cluster-role.yaml",
+)
+
+k8s_desire(
+    name = "deployment",
+    kind = "Deployment",
+    namespace = "kube-system",
+    template = "deployment.yaml",
+)
+
+k8s_desire(
+    name = "role_binding",
+    kind = "RoleBinding",
+    namespace = "kube-system",
+    template = "role-binding.yaml",
+)
+
+k8s_desire(
+    name = "service_account",
+    kind = "ServiceAccount",
+    namespace = "kube-system",
+    template = "service-account.yaml",
+)
+
+k8s_desire(
+    name = "service",
+    kind = "Service",
+    namespace = "kube-system",
+    template = "service.yaml",
+)
+
+load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
+
+k8s_objects(
+    name = "objects",
+    objects = [
+        ":api_service",
+        ":cluster_role",
+        ":cluster_role_binding",
+        ":service_account",
+        ":role_binding",
+        ":deployment",
+        ":service",
+    ],
+    visibility = ["//visibility:public"],
+)

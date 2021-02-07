@@ -1,0 +1,57 @@
+load("@k8s_desire//:defaults.bzl", "k8s_desire")
+
+k8s_desire(
+    name = "namespace",
+    kind = "Namespace",
+    template = "namespace.yaml",
+)
+
+k8s_desire(
+    name = "deployment",
+    kind = "Deployment",
+    namespace = "kipp",
+    template = "deployment.yaml",
+)
+
+k8s_desire(
+    name = "hpa",
+    kind = "HorizontalPodAutoscaler",
+    namespace = "kipp",
+    template = "hpa.yaml",
+)
+
+k8s_desire(
+    name = "ingress",
+    kind = "Ingress",
+    namespace = "kipp",
+    template = "ingress.yaml",
+)
+
+k8s_desire(
+    name = "sealed_secret",
+    kind = "SealedSecret",
+    namespace = "kipp",
+    template = "sealed-secret.yaml",
+)
+
+k8s_desire(
+    name = "service",
+    kind = "Service",
+    namespace = "kipp",
+    template = "service.yaml",
+)
+
+load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
+
+k8s_objects(
+    name = "objects",
+    objects = [
+        ":namespace",
+        ":sealed_secret",
+        ":deployment",
+        ":hpa",
+        ":service",
+        ":ingress",
+    ],
+    visibility = ["//visibility:public"],
+)

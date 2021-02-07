@@ -1,0 +1,25 @@
+load("@k8s_desire//:defaults.bzl", "k8s_desire")
+
+k8s_desire(
+    name = "namespace",
+    kind = "Namespace",
+    template = "namespace.yaml",
+)
+
+k8s_desire(
+    name = "helm_release",
+    kind = "HelmRelease",
+    namespace = "ingress-nginx",
+    template = "helm-release.yaml",
+)
+
+load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
+
+k8s_objects(
+    name = "objects",
+    objects = [
+        ":namespace",
+        ":helm_release",
+    ],
+    visibility = ["//visibility:public"],
+)

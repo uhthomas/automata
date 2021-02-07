@@ -9,6 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Install bazelisk
+      run: curl -L "https://github.com/bazelbuild/bazelisk/releases/download/v1.7.4/bazelisk-linux-amd64" | install -D /dev/stdin "${GITHUB_WORKSPACE}/bin/bazel"
+    - run: bazel test //...
     - uses: azure/setup-kubectl@v1
     - uses: azure/k8s-set-context@v1
       with:
@@ -16,3 +19,4 @@ jobs:
         k8s-url: ${{ secrets.K8S_URL }}
         k8s-secret: ${{ secrets.K8S_SECRET }}
     - run: kubectl apply -f clusters/desire -R --all
+    - run: bazel run //clusters/desire:objects.apply
