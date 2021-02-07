@@ -21,3 +21,6 @@ jobs:
         k8s-secret: ${{ secrets.K8S_SECRET }}
     - run: kubectl apply -f clusters/desire -R --all
     - run: bazel run //clusters/desire:objects.apply
+      env:
+        # azure/k8s-set-context sets the default name as "cluster"
+        CLUSTER: cluster
