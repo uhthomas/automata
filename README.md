@@ -33,9 +33,9 @@ $ helm upgrade -i helm-operator fluxcd/helm-operator \
 Create a service account, bind to a cluster role and store the service account's
 token as a repository secret.
 ```sh
-$ k --namespace default create serviceaccount git-manifests
-$ k create clusterrolebinding git-manifests --clusterrole cluster-admin --serviceaccount=default:git-manifests
-$ k get secret $(k get sa git-manifests -ojson | jq -r '.secrets[0].name') -oyaml
+$ k --namespace default create serviceaccount automata
+$ k create clusterrolebinding automata --clusterrole cluster-admin --serviceaccount=default:automata
+$ k get secret $(k get sa automata -ojson | jq -r '.secrets[0].name') -oyaml
 ```
 
 ---
