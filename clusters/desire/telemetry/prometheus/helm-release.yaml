@@ -16,6 +16,8 @@ spec:
     kubeStateMetrics:
       enabled: false
     server:
+      strategy:
+        type: Recreate
       retention: 1y
     # server:
     #   sidecarContainers:
