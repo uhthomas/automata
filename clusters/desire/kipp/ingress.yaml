@@ -12,6 +12,10 @@ metadata:
       if ($host = 'conf.6f.io') {
         return 301 $scheme://kipp.6f.io$request_uri;
       }
+
+      location /healthz /metrics {
+        internal
+      }
 spec:
   ingressClassName: nginx
   tls:
