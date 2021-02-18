@@ -14,11 +14,11 @@ metadata:
       }
 
       location /healthz {
-        internal
+        internal;
       }
 
       location /metrics {
-        internal
+        internal;
       }
 spec:
   ingressClassName: nginx
