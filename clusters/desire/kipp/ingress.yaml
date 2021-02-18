@@ -13,7 +13,11 @@ metadata:
         return 301 $scheme://kipp.6f.io$request_uri;
       }
 
-      location /healthz /metrics {
+      location /healthz {
+        internal
+      }
+
+      location /metrics {
         internal
       }
 spec:
