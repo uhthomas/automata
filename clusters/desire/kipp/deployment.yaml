@@ -18,13 +18,14 @@ spec:
     metadata:
       annotations:
         prometheus.io/scrape: "true"
+        prometheus.io/path: /varz
       labels:
         app: kipp
     spec:
       containers:
       - name: kipp
-        # v0.2.0
-        image: uhthomas/kipp@sha256:584de5f2501506d18d1db84aeb503e73fffea57e374dd5f7863d019f65eca2c8
+        # v0.2.1
+        image: uhthomas/kipp@sha256:1c1ab66793cd2232552ec3e6fe08588297cec5ed45b7de84e6a057148c874263
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80

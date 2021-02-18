@@ -17,7 +17,7 @@ metadata:
         internal;
       }
 
-      location /metrics {
+      location /varz {
         internal;
       }
 spec:
