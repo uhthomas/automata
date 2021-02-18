@@ -16,6 +16,8 @@ spec:
       app: kipp
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
       labels:
         app: kipp
     spec:
