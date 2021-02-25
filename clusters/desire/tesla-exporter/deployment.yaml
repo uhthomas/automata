@@ -24,8 +24,8 @@ spec:
     spec:
       containers:
       - name: tesla-exporter
-        # v0.6.0
-        image: ghcr.io/uhthomas/tesla_exporter@sha256:9719ec67dcda5d0ce4908132fbf40447f36d81622820f8784517dc204e561cf0
+        # v0.6.1
+        image: ghcr.io/uhthomas/tesla_exporter@sha256:4ab6bf5300dea7a5b92c5da0a6cd08ec4a286a4b97ab141e924e80eb9fde2f3a
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
