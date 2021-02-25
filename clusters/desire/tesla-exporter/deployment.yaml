@@ -24,17 +24,14 @@ spec:
     spec:
       containers:
       - name: tesla-exporter
-        image: ghcr.io/uhthomas/tesla_exporter:v0.5.6
+        # v0.6.0
+        image: ghcr.io/uhthomas/tesla_exporter@sha256:9719ec67dcda5d0ce4908132fbf40447f36d81622820f8784517dc204e561cf0
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
-        env:
-        - name: TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: tesla-exporter
-              key: token
-        args: ["--token", "$(TOKEN)"]
+        args:
+        - --oauth2-config-path=/etc/secret/oauth2_config.json
+        - --oauth2-token-path=/etc/secret/oauth2_token.json
         resources:
           requests:
             memory: 8Mi
@@ -42,3 +39,16 @@ spec:
           limits:
             memory: 16Mi
             cpu: 20m
+        volumeMounts:
+        - name: tesla-exporter
+          mountPath: /etc/secret
+          readOnly: true
+      volumes:
+      - name: tesla-exporter
+        secret:
+          secretName: tesla-exporter
+          items:
+          - key: oauth2_config.json
+            path: oauth2_config.json
+          - key: oauth2_token.json
+            path: oauth2_token.json
