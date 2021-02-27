@@ -57,7 +57,7 @@ func Main(ctx context.Context) error {
 	// undefined flags.
 	flag.String("stamp-info-file", "", "One or more Bazel stamp info files.")
 	flag.String("image_chroot", "", "The repository under which to chroot image references when publishing them.")
-	p = flag.String("template", "", "The k8s YAML template file to resolve.")
+	p := flag.String("template", "", "The k8s YAML template file to resolve.")
 	flag.String("substitutions", "", "A file with a list of substitutions that were made in the YAML template. Any stamp values that appear are stamped by the resolver.")
 	flag.Parse()
 
