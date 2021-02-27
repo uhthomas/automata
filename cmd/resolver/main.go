@@ -53,7 +53,12 @@ func createNode(n *yaml.Node, value string, keys ...string) {
 }
 
 func Main(ctx context.Context) error {
-	p := flag.String("template", "", "Template file path")
+	// we don't need all these flags, but the flag parser doesn't like
+	// undefined flags.
+	flag.String("stamp-info-file", "", "One or more Bazel stamp info files.")
+	flag.String("image_chroot", "", "The repository under which to chroot image references when publishing them.")
+	p = flag.String("template", "", "The k8s YAML template file to resolve.")
+	flag.String("substitutions", "", "A file with a list of substitutions that were made in the YAML template. Any stamp values that appear are stamped by the resolver.")
 	flag.Parse()
 
 	f, err := os.Open(filepath.Clean(*p))
