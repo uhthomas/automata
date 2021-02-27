@@ -28,7 +28,8 @@ spec:
         image: uhthomas/kipp@sha256:1c1ab66793cd2232552ec3e6fe08588297cec5ed45b7de84e6a057148c874263
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 80
+        - name: http
+          containerPort: 80
         env:
         - name: AWS_SHARED_CREDENTIALS_FILE
           value: /aws-config
@@ -56,13 +57,13 @@ spec:
         livenessProbe:
           httpGet:
             path: /healthz
-            port: 80
+            port: http
           initialDelaySeconds: 5
           periodSeconds: 3
         readinessProbe:
           httpGet:
             path: /healthz
-            port: 80
+            port: http
           initialDelaySeconds: 5
           periodSeconds: 3
       volumes:
