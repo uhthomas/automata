@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: thanos
+  namespace: telemetry
+spec:
+  ports:
+  - name: thanos-grpc
+    port: 50051
+    targetPort: thanos-grpc
+  - name: thanos-http
+    port: 80
+    targetPort: thanos-http
+  selector:
+    app: thanos
