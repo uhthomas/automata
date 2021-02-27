@@ -18,7 +18,6 @@ spec:
     metadata:
       annotations:
         prometheus.io/scrape: "true"
-        prometheus.io/port: http
       labels:
         app: query-frontend
     spec:
