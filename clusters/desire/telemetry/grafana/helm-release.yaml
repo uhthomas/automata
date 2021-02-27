@@ -40,6 +40,10 @@ spec:
           type: prometheus
           access: proxy
           url: http://prometheus-server
+        - name: Thanos
+          type: prometheus
+          access: proxy
+          url: http://query.thanos.svc
     deploymentStrategy:
       type: Recreate
     persistence:
