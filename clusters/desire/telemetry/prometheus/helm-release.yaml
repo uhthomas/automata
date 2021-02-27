@@ -55,6 +55,18 @@ spec:
           readOnly: true
         - name: config-volume
           mountPath: /etc/config
+        livenessProbe:
+          httpGet:
+            path: /-/healthy
+            port: thanos-http
+          initialDelaySeconds: 5
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /-/ready
+            port: thanos-http
+          initialDelaySeconds: 5
+          periodSeconds: 3
       extraSecretMounts:
       - name: thanos
         mountPath: /etc/secret
