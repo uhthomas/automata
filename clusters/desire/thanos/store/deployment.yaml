@@ -45,7 +45,7 @@ spec:
             memory: 64Mi
             cpu: 200m
         volumeMounts:
-        - name: kipp
+        - name: thanos
           mountPath: /objstore.yaml
           readOnly: true
           subPath: objstore.yaml
