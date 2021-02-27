@@ -24,7 +24,8 @@ spec:
         image: ghcr.io/uhthomas/tesladump:v0.1.10
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 80
+        - name: http
+          containerPort: 80
         env:
         - name: MONGO_URI
           valueFrom:
