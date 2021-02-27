@@ -22,6 +22,7 @@ k8s_objects(
         ":sealed_secret",
         "//clusters/desire/thanos/store:objects",
         "//clusters/desire/thanos/query:objects",
+        "//clusters/desire/thanos/query-frontend:objects",
     ],
     visibility = ["//visibility:public"],
 )
