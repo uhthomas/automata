@@ -40,7 +40,7 @@ spec:
         - --http-address=:80
         - --http-grace-period=5s
         - --store=dnssrv+_grpc._tcp.store.thanos.svc
-        - --store=dnssrv+_grpc._tcp.prometheus-server.telemetry.svc
+        - --store=dnssrv+_grpc._tcp.thanos.telemetry.svc
         - --query.replica-label=replica
         resources:
           requests:
