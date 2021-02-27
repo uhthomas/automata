@@ -35,7 +35,7 @@ spec:
         - sidecar
         - --grpc-address=:50051
         - --grpc-grace-period=5s
-        - --http-address=:81
+        - --http-address=:8080
         - --http-grace-period=5s
         - --tsdb.path=/data
         - --prometheus.url=http://127.0.0.1:9090
@@ -44,7 +44,7 @@ spec:
         - --shipper.upload-compacted
         ports:
         - name: thanos-http
-          containerPort: 80
+          containerPort: 8080
         - name: thanos-grpc
           containerPort: 50051
         volumeMounts:

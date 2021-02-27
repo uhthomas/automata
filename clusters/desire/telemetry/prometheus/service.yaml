@@ -6,11 +6,8 @@ metadata:
   namespace: telemetry
 spec:
   ports:
-  - name: thanos-grpc
+  - name: grpc
     port: 50051
     targetPort: thanos-grpc
-  - name: thanos-http
-    port: 80
-    targetPort: thanos-http
   selector:
     app: prometheus
