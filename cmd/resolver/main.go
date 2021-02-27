@@ -49,7 +49,6 @@ func createNode(n *yaml.Node, value string, keys ...string) {
 		return
 	}
 	createNode(appendMap(n, keys[0]), value, keys[1:]...)
-	return
 }
 
 func Main(ctx context.Context) error {
