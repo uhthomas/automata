@@ -33,6 +33,10 @@ spec:
         image: quay.io/thanos/thanos@sha256:b94171aed499b2f1f81b6d3d385e0eeeca885044c59cef28ce6a9a9e8a827217
         args:
         - sidecar
+        - --grpc-address=:50051
+        - --grpc-grace-period=5s
+        - --http-address=:81
+        - --http-grace-period=5s
         - --tsdb.path=/data
         - --prometheus.url=http://127.0.0.1:9090
         - --objstore.config-file=/etc/secret/objstore.yaml
