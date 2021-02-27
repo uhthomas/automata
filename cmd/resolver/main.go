@@ -2,16 +2,12 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 
 	"gopkg.in/yaml.v3"
 )
-
-const strTag = "str"
 
 func appendValue(n *yaml.Node, key, value string) {
 	n.Content = append(n.Content, &yaml.Node{
@@ -52,22 +48,8 @@ func createNode(n *yaml.Node, value string, keys ...string) {
 }
 
 func Main(ctx context.Context) error {
-	// we don't need all these flags, but the flag parser doesn't like
-	// undefined flags.
-	flag.String("stamp-info-file", "", "One or more Bazel stamp info files.")
-	flag.String("image_chroot", "", "The repository under which to chroot image references when publishing them.")
-	p := flag.String("template", "", "The k8s YAML template file to resolve.")
-	flag.String("substitutions", "", "A file with a list of substitutions that were made in the YAML template. Any stamp values that appear are stamped by the resolver.")
-	flag.Parse()
-
-	f, err := os.Open(filepath.Clean(*p))
-	if err != nil {
-		return fmt.Errorf("open: %w", err)
-	}
-	defer f.Close()
-
 	var n yaml.Node
-	if err := yaml.NewDecoder(f).Decode(&n); err != nil {
+	if err := yaml.NewDecoder(os.Stdin).Decode(&n); err != nil {
 		return fmt.Errorf("yaml decode: %w", err)
 	}
 
