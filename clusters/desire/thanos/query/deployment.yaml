@@ -42,6 +42,18 @@ spec:
         - --store=dnssrv+_grpc._tcp.store.thanos.svc
         - --store=dnssrv+_grpc._tcp.thanos.telemetry.svc
         - --query.replica-label=replica
+        livenessProbe:
+          httpGet:
+            path: /-/healthy
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /-/ready
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 3
         resources:
           requests:
             memory: 32Mi
