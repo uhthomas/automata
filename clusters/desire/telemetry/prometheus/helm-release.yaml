@@ -26,6 +26,7 @@ spec:
       - web.enable-lifecycle
       - storage.tsdb.min-block-duration=2h
       - storage.tsdb.max-block-duration=2h
+      configPath: /etc/config/prometheus.yaml
       sidecarContainers:
       - name: thanos-sidecar
         # v0.18.0
@@ -62,12 +63,6 @@ spec:
             port: thanos-http
           initialDelaySeconds: 5
           periodSeconds: 3
-      extraVolumes:
-      - name: share
-        emptyDir: {}
-      extraVolumeMounts:
-      - name: share
-        mountPath: /etc/share
       extraSecretMounts:
       - name: thanos
         mountPath: /etc/secret
