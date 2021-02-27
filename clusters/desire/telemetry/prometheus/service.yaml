@@ -13,4 +13,4 @@ spec:
     port: 80
     targetPort: thanos-http
   selector:
-    app: thanos
+    app: prometheus
