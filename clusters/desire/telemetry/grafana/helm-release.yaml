@@ -40,6 +40,9 @@ spec:
           type: prometheus
           access: proxy
           url: http://query-frontend.thanos.svc
+        deleteDatasources:
+        - name: Prometheus
+          orgId: 1
     deploymentStrategy:
       type: Recreate
     persistence:
