@@ -39,7 +39,7 @@ spec:
         - --grpc-grace-period=5s
         - --http-address=:80
         - --http-grace-period=5s
-        - --objstore.config-file=/objstore.yaml
+        - --objstore.config-file=/etc/secret/objstore.yaml
         resources:
           requests:
             memory: 32Mi
@@ -49,9 +49,8 @@ spec:
             cpu: 200m
         volumeMounts:
         - name: thanos
-          mountPath: /objstore.yaml
+          mountPath: /etc/secret
           readOnly: true
-          subPath: objstore.yaml
         livenessProbe:
           httpGet:
             path: /-/healthy
