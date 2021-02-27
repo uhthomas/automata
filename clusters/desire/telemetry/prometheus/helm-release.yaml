@@ -44,7 +44,7 @@ spec:
         - --shipper.upload-compacted
         ports:
         - name: thanos-http
-          containerPort: 81
+          containerPort: 80
         - name: thanos-grpc
           containerPort: 50051
         volumeMounts:
