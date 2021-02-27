@@ -17,6 +17,9 @@ spec:
   replicas: 1
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: http
       labels:
         app: query
     spec:
