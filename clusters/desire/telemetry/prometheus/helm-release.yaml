@@ -26,7 +26,6 @@ spec:
       - web.enable-lifecycle
       - storage.tsdb.min-block-duration=2h
       - storage.tsdb.max-block-duration=2h
-      configPath: /etc/config/prometheus.yaml
       sidecarContainers:
       - name: thanos-sidecar
         # v0.18.0
@@ -36,7 +35,7 @@ spec:
         - --tsdb.path=/data
         - --prometheus.url=http://127.0.0.1:9090
         - --objstore.config-file=/etc/secret/objstore.yaml
-        - --reloader.config-file=/etc/config/prometheus.yaml
+        - --reloader.config-file=/etc/config/prometheus.yml
         - --shipper.upload-compacted
         ports:
         - name: thanos-http
