@@ -7,10 +7,20 @@ k8s_desire(
     template = "helm-release.yaml",
 )
 
+k8s_desire(
+    name = "sealed_secret",
+    kind = "SealedSecret",
+    namespace = "telemetry",
+    template = "sealed-secret.yaml",
+)
+
 load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
 
 k8s_objects(
     name = "objects",
-    objects = [":helm_release"],
+    objects = [
+        ":sealed_secret",
+        ":helm_release",
+    ],
     visibility = ["//visibility:public"],
 )
