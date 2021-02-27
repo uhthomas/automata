@@ -25,7 +25,8 @@ spec:
         image: ghcr.io/uhthomas/6f.io@sha256:d973de42ea3d59cf941055add6de823c9a86b7cbb8d3a23caf85bbdbd0423991
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 80
+        - name: http
+          containerPort: 80
         resources:
           requests:
             memory: 2Mi
@@ -33,5 +34,3 @@ spec:
           limits:
             memory: 8Mi
             cpu: 5m
-      imagePullSecrets:
-      - name: regcred
