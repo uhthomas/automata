@@ -26,6 +26,10 @@ spec:
       - web.enable-lifecycle
       - storage.tsdb.min-block-duration=2h
       - storage.tsdb.max-block-duration=2h
+      service:
+        grpc:
+          enabled: true
+          servicePort: thanos-grpc
       sidecarContainers:
       - name: thanos-sidecar
         # v0.18.0
