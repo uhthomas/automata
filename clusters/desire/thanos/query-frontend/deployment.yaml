@@ -27,6 +27,7 @@ spec:
         # v0.18.0
         image: quay.io/thanos/thanos@sha256:b94171aed499b2f1f81b6d3d385e0eeeca885044c59cef28ce6a9a9e8a827217
         imagePullPolicy: IfNotPresent
+        ports:
         - name: http
           containerPort: 80
         args:
