@@ -8,6 +8,13 @@ k8s_desire(
 )
 
 k8s_desire(
+    name = "hpa",
+    kind = "HorizontalPodAutoscaler",
+    namespace = "thanos",
+    template = "hpa.yaml",
+)
+
+k8s_desire(
     name = "service",
     kind = "Service",
     namespace = "thanos",
@@ -20,6 +27,7 @@ k8s_objects(
     name = "objects",
     objects = [
         ":deployment",
+        ":hpa",
         ":service",
     ],
     visibility = ["//visibility:public"],
