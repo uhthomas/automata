@@ -22,6 +22,8 @@ spec:
       replicaCount: 2
       global:
         scrape_interval: 15s
+        external_labels:
+          replica: $(POD_NAME)
       extraFlags:
       - web.enable-lifecycle
       - storage.tsdb.min-block-duration=2h
