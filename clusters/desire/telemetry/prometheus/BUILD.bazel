@@ -14,11 +14,19 @@ k8s_desire(
     template = "sealed-secret.yaml",
 )
 
+k8s_desire(
+    name = "service",
+    kind = "Service",
+    namespace = "telemetry",
+    template = "service.yaml",
+)
+
 load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
 
 k8s_objects(
     name = "objects",
     objects = [
+        ":service",
         ":sealed_secret",
         ":helm_release",
     ],
