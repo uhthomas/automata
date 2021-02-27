@@ -25,7 +25,8 @@ spec:
         image: quay.io/oauth2-proxy/oauth2-proxy@sha256:791aef35b8d1d2a325028b188d5a650605d69985a0dab1233c06079e7321eee0
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 4180
+        - name: http
+          containerPort: 4180
         env:
         - name: CLIENT_ID
           valueFrom:
