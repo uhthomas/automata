@@ -25,5 +25,6 @@ k8s_objects(
         "//clusters/desire/telemetry:objects",
         "//clusters/desire/tesla-exporter:objects",
         "//clusters/desire/tesladump:objects",
+        "//clusters/desire/thanos:objects",
     ],
 )
