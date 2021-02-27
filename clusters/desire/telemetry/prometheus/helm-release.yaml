@@ -19,7 +19,6 @@ spec:
       strategy:
         type: Recreate
       retention: 1y
-      replicaCount: 2
       global:
         scrape_interval: 15s
         external_labels:
