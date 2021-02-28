@@ -18,6 +18,7 @@ spec:
     server:
       strategy:
         type: Recreate
+      retention: 4h
       global:
         scrape_interval: 15s
         external_labels:
