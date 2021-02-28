@@ -20,6 +20,7 @@ k8s_objects(
         "//clusters/desire/kipp-dev:objects",
         "//clusters/desire/kube-system:objects",
         "//clusters/desire/oauth2-proxy:objects",
+        "//clusters/desire/promlens:objects",
         "//clusters/desire/root:objects",
         "//clusters/desire/root-dev:objects",
         "//clusters/desire/telemetry:objects",
