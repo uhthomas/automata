@@ -25,7 +25,7 @@ spec:
       global:
         scrape_interval: 15s
         external_labels:
-          cluster: automata
+          cluster: desire
           replica: $(POD_NAME)
       extraFlags:
       - web.enable-lifecycle
