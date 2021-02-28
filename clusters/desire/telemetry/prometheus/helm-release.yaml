@@ -27,11 +27,6 @@ spec:
       - web.enable-lifecycle
       - storage.tsdb.min-block-duration=2h
       - storage.tsdb.max-block-duration=2h
-      env:
-      - name: POD_NAME
-        valueFrom:
-          fieldRef:
-            fieldPath: metadata.name
       configPath: /etc/config/prometheus.reload.yaml
       sidecarContainers:
       - name: thanos-sidecar
@@ -53,6 +48,11 @@ spec:
           containerPort: 8080
         - name: thanos-grpc
           containerPort: 50051
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
         volumeMounts:
         - name: storage-volume
           mountPath: /data
