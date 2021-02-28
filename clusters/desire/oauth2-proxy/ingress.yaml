@@ -6,7 +6,6 @@ metadata:
   namespace: oauth2-proxy
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
-    nginx.ingress.kubernetes.io/enable-cors: "true"
 spec:
   ingressClassName: nginx
   tls:

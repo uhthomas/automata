@@ -57,6 +57,7 @@ spec:
         - --set-xauthrequest=true
         - --reverse-proxy=true
         - --pass-user-headers=true
+        - --cookie-samesite=none
         resources:
           requests:
             memory: 16Mi
