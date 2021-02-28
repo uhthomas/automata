@@ -59,8 +59,8 @@ spec:
         - --pass-user-headers=true
         resources:
           requests:
-            memory: 8Mi
-            cpu: 10m
-          limits:
             memory: 16Mi
-            cpu: 20m
+            cpu: 50m
+          limits:
+            memory: 32Mi
+            cpu: 200m
