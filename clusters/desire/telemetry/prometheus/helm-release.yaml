@@ -16,7 +16,8 @@ spec:
     kubeStateMetrics:
       enabled: false
     configmapReload:
-      enabled: false
+      prometheus:
+        enabled: false
     server:
       strategy:
         type: Recreate
