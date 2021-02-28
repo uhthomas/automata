@@ -21,11 +21,17 @@ spec:
       global:
         scrape_interval: 15s
         external_labels:
-          replica: $(POD_NAME)
+          cluster: automata
+          replica: ${POD_NAME}
       extraFlags:
       - web.enable-lifecycle
       - storage.tsdb.min-block-duration=2h
       - storage.tsdb.max-block-duration=2h
+      env:
+      - name: POD_NAME
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.name
       sidecarContainers:
       - name: thanos-sidecar
         # v0.18.0
