@@ -82,6 +82,9 @@ spec:
       extraVolumes:
       - name: config-reload
         emptyDir: {}
+      extraVolumeMounts:
+      - name: config-reload
+        mountPath: /etc/config-reload
       extraSecretMounts:
       - name: thanos
         mountPath: /etc/secret
