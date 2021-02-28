@@ -30,7 +30,7 @@ spec:
         args:
         - --web.listen-address=:80
         - --web.external-url=http://promlens.6f.io
-        - --web.default-prometheus-url=http://query-frontend.thanos.svc
+        - --web.default-prometheus-url=https://thanos.6f.io
         resources:
           requests:
             memory: 16Mi
