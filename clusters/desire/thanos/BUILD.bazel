@@ -20,6 +20,7 @@ k8s_objects(
     objects = [
         ":namespace",
         ":sealed_secret",
+        "//clusters/desire/thanos/compact:objects",
         "//clusters/desire/thanos/store:objects",
         "//clusters/desire/thanos/query:objects",
         "//clusters/desire/thanos/query-frontend:objects",
