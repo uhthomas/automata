@@ -22,7 +22,7 @@ spec:
         scrape_interval: 15s
         external_labels:
           cluster: automata
-          replica: ${POD_NAME}
+          replica: $(POD_NAME)
       extraFlags:
       - web.enable-lifecycle
       - storage.tsdb.min-block-duration=2h
@@ -32,6 +32,7 @@ spec:
         valueFrom:
           fieldRef:
             fieldPath: metadata.name
+      configPath: /etc/config/prometheus.reload.yaml
       sidecarContainers:
       - name: thanos-sidecar
         # v0.18.0
@@ -46,6 +47,7 @@ spec:
         - --prometheus.url=http://127.0.0.1:9090
         - --objstore.config-file=/etc/secret/objstore.yaml
         - --reloader.config-file=/etc/config/prometheus.yml
+        - --reloader.config-envsubst-file=/etc/config/prometheus.reload.yaml
         ports:
         - name: thanos-http
           containerPort: 8080
