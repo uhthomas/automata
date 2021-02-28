@@ -22,7 +22,7 @@ spec:
       containers:
       - name: promlens
         # v0.11.1
-        image: promlens/promlens@sha256:69aaabd1a7f3236074d6d10910dc41b016200d4159986d893c205920e76b31e7
+        image: promlabs/promlens@sha256:69aaabd1a7f3236074d6d10910dc41b016200d4159986d893c205920e76b31e7
         imagePullPolicy: IfNotPresent
         ports:
         - name: http
