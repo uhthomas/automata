@@ -28,6 +28,7 @@ spec:
         - name: http
           containerPort: 80
         args:
+        - --web.listen-address=:80
         - --web.external-url=http://promlens.6f.io
         - --web.default-prometheus-url=http://query-frontend.thanos.svc
         resources:
