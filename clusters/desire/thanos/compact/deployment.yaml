@@ -39,11 +39,11 @@ spec:
         - --deduplication.replica-label=replica
         resources:
           requests:
-            memory: 32Mi
+            memory: 256Mi
             cpu: 50m
             ephemeral-storage: 10Gi
           limits:
-            memory: 64Mi
+            memory: 512Mi
             cpu: 350m
             ephemeral-storage: 10Gi
         volumeMounts:
