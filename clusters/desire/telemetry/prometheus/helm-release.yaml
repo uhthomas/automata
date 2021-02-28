@@ -28,7 +28,7 @@ spec:
       - web.enable-lifecycle
       - storage.tsdb.min-block-duration=2h
       - storage.tsdb.max-block-duration=2h
-      configPath: /etc/config/prometheus.reload.yaml
+      configPath: /etc/config-reload/prometheus.yaml
       sidecarContainers:
       - name: thanos-sidecar
         # v0.18.0
@@ -43,7 +43,7 @@ spec:
         - --prometheus.url=http://127.0.0.1:9090
         - --objstore.config-file=/etc/secret/objstore.yaml
         - --reloader.config-file=/etc/config/prometheus.yml
-        - --reloader.config-envsubst-file=/etc/config/prometheus.reload.yaml
+        - --reloader.config-envsubst-file=/etc/config-reload/prometheus.yaml
         ports:
         - name: thanos-http
           containerPort: 8080
@@ -62,6 +62,8 @@ spec:
           readOnly: true
         - name: config-volume
           mountPath: /etc/config
+        - name: config-reload
+          mountPath: /etc/config-reload
         livenessProbe:
           httpGet:
             path: /-/healthy
@@ -74,6 +76,9 @@ spec:
             port: thanos-http
           initialDelaySeconds: 5
           periodSeconds: 3
+      extraVolumes:
+      - name: config-reload
+        emptyDir: {}
       extraSecretMounts:
       - name: thanos
         mountPath: /etc/secret
