@@ -11,12 +11,16 @@ import (
 corev1.#List & {
 	apiVersion: "v1"
 	kind:       "List"
-	items:      [
-			namespace,
-			sealed_secret,
-	] +
-		compact.items +
-		query.items +
-		query_frontend.items +
-		store.items
+	items: [...{
+		metadata: namespace: "thanos"
+	}]
 }
+
+items: [
+	namespace,
+	sealed_secret,
+] +
+	compact.items +
+	query.items +
+	query_frontend.items +
+	store.items

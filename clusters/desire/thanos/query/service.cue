@@ -5,10 +5,7 @@ import corev1 "k8s.io/api/core/v1"
 service: corev1.#Service & {
 	apiVersion: "v1"
 	kind:       "Service"
-	metadata: {
-		name:      "query"
-		namespace: "thanos"
-	}
+	metadata: name: "query"
 	spec: {
 		ports: [{
 			name:       "grpc"

@@ -5,10 +5,7 @@ import appsv1 "k8s.io/api/apps/v1"
 deployment: appsv1.#Deployment & {
 	apiVersion: "apps/v1"
 	kind:       "Deployment"
-	metadata: {
-		name:      "query"
-		namespace: "thanos"
-	}
+	metadata: name: "query"
 	spec: {
 		revisionHistoryLimit:    5
 		progressDeadlineSeconds: 120

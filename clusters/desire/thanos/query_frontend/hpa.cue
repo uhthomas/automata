@@ -5,10 +5,7 @@ import autoscalingv1 "k8s.io/api/autoscaling/v1"
 hpa: autoscalingv1.#HorizontalPodAutoscaler & {
 	apiVersion: "autoscaling/v1"
 	kind:       "HorizontalPodAutoscaler"
-	metadata: {
-		name:      "query-frontend"
-		namespace: "thanos"
-	}
+	metadata: name: "query-frontend"
 	spec: {
 		scaleTargetRef: {
 			apiVersion: "apps/v1"

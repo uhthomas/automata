@@ -6,8 +6,7 @@ ingress: networkingv1.#Ingress & {
 	apiVersion: "networking.k8s.io/v1"
 	kind:       "Ingress"
 	metadata: {
-		name:      "query-frontend"
-		namespace: "thanos"
+		name: "query-frontend"
 		annotations: {
 			"cert-manager.io/cluster-issuer":          "letsencrypt"
 			"nginx.ingress.kubernetes.io/auth-url":    "https://sso.6f.io/oauth2/auth"
