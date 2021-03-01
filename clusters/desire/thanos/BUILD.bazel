@@ -1,29 +1,19 @@
-load("@k8s_desire//:defaults.bzl", "k8s_desire")
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
 
-k8s_desire(
-    name = "namespace",
-    kind = "Namespace",
-    template = "namespace.yaml",
-)
-
-k8s_desire(
-    name = "sealed_secret",
-    kind = "SealedSecret",
-    namespace = "thanos",
-    template = "sealed-secret.yaml",
-)
-
-load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
-
-k8s_objects(
-    name = "objects",
-    objects = [
-        ":namespace",
-        ":sealed_secret",
-        "//clusters/desire/thanos/compact:objects",
-        "//clusters/desire/thanos/store:objects",
-        "//clusters/desire/thanos/query:objects",
-        "//clusters/desire/thanos/query-frontend:objects",
+cue_library(
+    name = "cue_thanos_library",
+    srcs = [
+        "list.cue",
+        "namespace.cue",
+        "sealed-secret.cue",
     ],
+    importpath = "github.com/uhthomas/automata/clusters/desire/thanos",
     visibility = ["//visibility:public"],
+    deps = [
+        "//clusters/desire/thanos/compact:cue_compact_library",
+        "//clusters/desire/thanos/query:cue_query_library",
+        "//clusters/desire/thanos/query_frontend:cue_query_frontend_library",
+        "//clusters/desire/thanos/store:cue_store_library",
+        "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
+    ],
 )

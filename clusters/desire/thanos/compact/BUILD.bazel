@@ -1,16 +1,15 @@
-load("@k8s_desire//:defaults.bzl", "k8s_desire")
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
 
-k8s_desire(
-    name = "deployment",
-    kind = "Deployment",
-    namespace = "thanos",
-    template = "deployment.yaml",
-)
-
-load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
-
-k8s_objects(
-    name = "objects",
-    objects = [":deployment"],
+cue_library(
+    name = "cue_compact_library",
+    srcs = [
+        "deployment.cue",
+        "list.cue",
+    ],
+    importpath = "github.com/uhthomas/automata/clusters/desire/thanos/compact",
     visibility = ["//visibility:public"],
+    deps = [
+        "//cue.mod/gen/k8s.io/api/apps/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
+    ],
 )

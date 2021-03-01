@@ -1,6 +1,7 @@
 import (
 	corev1 "k8s.io/api/core/v1"
 	"github.com/uhthomas/automata/clusters/desire/root_dev"
+	"github.com/uhthomas/automata/clusters/desire/thanos"
 )
 
 corev1.#List & {
@@ -13,4 +14,4 @@ corev1.#List & {
 	}]
 }
 
-items: root_dev.items
+items: root_dev.items + thanos.items

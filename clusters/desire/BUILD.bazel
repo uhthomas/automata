@@ -6,6 +6,7 @@ cue_export(
     visibility = ["//visibility:public"],
     deps = [
         "//clusters/desire/root_dev:cue_root_dev_library",
+        "//clusters/desire/thanos:cue_thanos_library",
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
     ],
 )
@@ -44,6 +45,5 @@ k8s_objects(
         "//clusters/desire/telemetry:objects",
         "//clusters/desire/tesla-exporter:objects",
         "//clusters/desire/tesladump:objects",
-        "//clusters/desire/thanos:objects",
     ],
 )
