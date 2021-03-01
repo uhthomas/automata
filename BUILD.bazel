@@ -1,7 +1,15 @@
-load("@bazel_gazelle//:def.bzl", "gazelle")
+load("@bazel_gazelle//:def.bzl", "DEFAULT_LANGUAGES", "gazelle", "gazelle_binary")
+
+gazelle_binary(
+    name = "gazelle_binary",
+    languages = DEFAULT_LANGUAGES + ["@com_github_tnarg_rules_cue//gazelle/cue"],
+)
 
 # gazelle:prefix github.com/uhthomas/automata
-gazelle(name = "gazelle")
+gazelle(
+    name = "gazelle",
+    gazelle = ":gazelle_binary",
+)
 
 load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
 

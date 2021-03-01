@@ -15,6 +15,10 @@ load("//:go_deps.bzl", "go_dependencies")
 
 go_dependencies()
 
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+
+gazelle_dependencies()
+
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
 
 rules_proto_dependencies()
@@ -28,10 +32,6 @@ container_repositories()
 load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
 
 container_deps()
-
-load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
-
-gazelle_dependencies()
 
 load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_repositories")
 
@@ -48,3 +48,11 @@ k8s_defaults(
     cluster = "desire",
     resolver = "//tools/resolver",
 )
+
+load("@com_github_tnarg_rules_cue//:go.bzl", cue_go_deps = "go_modules")
+
+cue_go_deps()
+
+load("@com_github_tnarg_rules_cue//cue:deps.bzl", "cue_register_toolchains")
+
+cue_register_toolchains(version = "0.3.0-beta.5")

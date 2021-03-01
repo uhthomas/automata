@@ -1,0 +1,13 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_resource_library",
+    srcs = [
+        "amount_go_gen.cue",
+        "math_go_gen.cue",
+        "quantity_go_gen.cue",
+        "suffix_go_gen.cue",
+    ],
+    importpath = "k8s.io/apimachinery/pkg/api/resource",
+    visibility = ["//visibility:public"],
+)

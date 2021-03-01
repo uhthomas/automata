@@ -1,0 +1,15 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_watch_library",
+    srcs = [
+        "doc_go_gen.cue",
+        "filter_go_gen.cue",
+        "mux_go_gen.cue",
+        "streamwatcher_go_gen.cue",
+        "watch_go_gen.cue",
+    ],
+    importpath = "k8s.io/apimachinery/pkg/watch",
+    visibility = ["//visibility:public"],
+    deps = ["//cue.mod/gen/k8s.io/apimachinery/pkg/runtime:cue_runtime_library"],
+)

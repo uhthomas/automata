@@ -1,3 +1,15 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_export")
+
+cue_export(
+    name = "desire",
+    src = "desire.cue",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//clusters/desire/root_dev:cue_root_dev_library",
+        "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
+    ],
+)
+
 load("@k8s_desire//:defaults.bzl", "k8s_desire")
 
 k8s_desire(
@@ -6,12 +18,19 @@ k8s_desire(
     template = "cluster-issuer.yaml",
 )
 
+k8s_desire(
+    name = "desire_object",
+    kind = "Deployment",
+    template = ":desire",
+)
+
 load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
 
 k8s_objects(
     name = "objects",
     objects = [
         ":cluster_issuer",
+        ":desire_object",
         "//clusters/desire/adya:objects",
         "//clusters/desire/cert-manager:objects",
         "//clusters/desire/helm-operator:objects",
@@ -22,7 +41,6 @@ k8s_objects(
         "//clusters/desire/oauth2-proxy:objects",
         "//clusters/desire/promlens:objects",
         "//clusters/desire/root:objects",
-        "//clusters/desire/root-dev:objects",
         "//clusters/desire/telemetry:objects",
         "//clusters/desire/tesla-exporter:objects",
         "//clusters/desire/tesladump:objects",

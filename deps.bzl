@@ -13,7 +13,13 @@ def dependencies():
         name = "com_github_bazelbuild_buildtools",
         sha256 = "0d3ca4ed434958dda241fb129f77bd5ef0ce246250feed2d5a5470c6f29a77fa",
         strip_prefix = "buildtools-4.0.0",
-        url = "https://github.com/bazelbuild/buildtools/archive/4.0.0.tar.gz",
+        urls = ["https://github.com/bazelbuild/buildtools/archive/4.0.0.tar.gz"],
+    )
+    http_archive(
+        name = "com_github_tnarg_rules_cue",
+        sha256 = "a22bb62dbe4086fbb4fde5be0e36b773ee88edb0330dbb8595c03293b0b4b709",
+        strip_prefix = "rules_cue-46863d61bf1fc3fab38033642a541d4fb82bf71b",
+        urls = ["https://github.com/uhthomas/rules_cue/archive/46863d61bf1fc3fab38033642a541d4fb82bf71b.tar.gz"],
     )
     http_archive(
         name = "rules_proto",
@@ -42,7 +48,7 @@ def dependencies():
     )
     http_archive(
         name = "io_bazel_rules_k8s",
+        sha256 = "51f0977294699cd547e139ceff2396c32588575588678d2054da167691a227ef",
         strip_prefix = "rules_k8s-0.6",
         urls = ["https://github.com/bazelbuild/rules_k8s/archive/v0.6.tar.gz"],
-        sha256 = "51f0977294699cd547e139ceff2396c32588575588678d2054da167691a227ef",
     )
