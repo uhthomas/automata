@@ -47,11 +47,11 @@ deployment: appsv1.#Deployment & {
 					resources: {
 						requests: {
 							memory: "128Mi"
-							cpu:    "50m"
+							cpu:    "250m"
 						}
 						limits: {
 							memory: "256Mi"
-							cpu:    "400m"
+							cpu:    "1000m"
 						}
 					}
 					volumeMounts: [{

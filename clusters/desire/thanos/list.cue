@@ -17,5 +17,6 @@ corev1.#List & {
 	] +
 		compact.items +
 		query.items +
-		query_frontend.items + store.items
+		query_frontend.items +
+		store.items
 }
