@@ -9,9 +9,7 @@ corev1.#List & {
 	apiVersion: "v1"
 	kind:       "List"
 	items: [...{
-		metadata: labels: {
-			"app.kubernetes.io/managed-by": "automata"
-		}
+		metadata: labels: "app.kubernetes.io/managed-by": "automata"
 	}]
 }
 
