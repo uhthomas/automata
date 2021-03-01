@@ -1,10 +1,19 @@
-load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_export")
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_export", "cue_library")
+
+
+cue_library(
+    name = "cue_desire_library",
+    srcs = ["cluster-issuer.cue"],
+    importpath = "github.com/uhthomas/automata/clusters/desire",
+    visibility = ["//visibility:public"],
+)
 
 cue_export(
-    name = "desire",
-    src = "desire.cue",
+    name = "list",
+    src = "list.cue",
     visibility = ["//visibility:public"],
     deps = [
+        ":cue_desire_library",
         "//clusters/desire/root_dev:cue_root_dev_library",
         "//clusters/desire/thanos:cue_thanos_library",
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
@@ -14,15 +23,9 @@ cue_export(
 load("@k8s_desire//:defaults.bzl", "k8s_desire")
 
 k8s_desire(
-    name = "cluster_issuer",
-    kind = "ClusterIssuer",
-    template = "cluster-issuer.yaml",
-)
-
-k8s_desire(
-    name = "desire_object",
+    name = "list_object",
     kind = "Deployment",
-    template = ":desire",
+    template = ":list",
 )
 
 load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
@@ -30,8 +33,7 @@ load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
 k8s_objects(
     name = "objects",
     objects = [
-        ":cluster_issuer",
-        ":desire_object",
+        ":list_object",
         "//clusters/desire/adya:objects",
         "//clusters/desire/cert-manager:objects",
         "//clusters/desire/helm-operator:objects",
