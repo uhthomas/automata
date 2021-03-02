@@ -6,8 +6,7 @@ ingress: networkingv1.#Ingress & {
 	apiVersion: "networking.k8s.io/v1"
 	kind:       "Ingress"
 	metadata: {
-		name:      "root"
-		namespace: "root-dev"
+		name: "root"
 		annotations: "cert-manager.io/cluster-issuer": "letsencrypt"
 	}
 	spec: {

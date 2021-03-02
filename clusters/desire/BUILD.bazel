@@ -1,9 +1,8 @@
 load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_export", "cue_library")
 
-
 cue_library(
     name = "cue_desire_library",
-    srcs = ["cluster-issuer.cue"],
+    srcs = ["cluster_issuer.cue"],
     importpath = "github.com/uhthomas/automata/clusters/desire",
     visibility = ["//visibility:public"],
 )
@@ -14,7 +13,19 @@ cue_export(
     visibility = ["//visibility:public"],
     deps = [
         ":cue_desire_library",
+        "//clusters/desire/adya:cue_adya_library",
+        "//clusters/desire/cert_manager:cue_cert_manager_library",
+        "//clusters/desire/helm_operator:cue_helm_operator_library",
+        "//clusters/desire/ingress_nginx:cue_ingress_nginx_library",
+        "//clusters/desire/kipp:cue_kipp_library",
+        "//clusters/desire/kipp_dev:cue_kipp_dev_library",
+        "//clusters/desire/oauth2_proxy:cue_oauth2_proxy_library",
+        "//clusters/desire/promlens:cue_promlens_library",
+        "//clusters/desire/root:cue_root_library",
         "//clusters/desire/root_dev:cue_root_dev_library",
+        "//clusters/desire/telemetry:cue_telemetry_library",
+        "//clusters/desire/tesla_exporter:cue_tesla_exporter_library",
+        "//clusters/desire/tesladump:cue_tesladump_library",
         "//clusters/desire/thanos:cue_thanos_library",
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
     ],
@@ -34,18 +45,6 @@ k8s_objects(
     name = "objects",
     objects = [
         ":list_object",
-        "//clusters/desire/adya:objects",
-        "//clusters/desire/cert-manager:objects",
-        "//clusters/desire/helm-operator:objects",
-        "//clusters/desire/ingress-nginx:objects",
-        "//clusters/desire/kipp:objects",
-        "//clusters/desire/kipp-dev:objects",
         "//clusters/desire/kube-system:objects",
-        "//clusters/desire/oauth2-proxy:objects",
-        "//clusters/desire/promlens:objects",
-        "//clusters/desire/root:objects",
-        "//clusters/desire/telemetry:objects",
-        "//clusters/desire/tesla-exporter:objects",
-        "//clusters/desire/tesladump:objects",
     ],
 )

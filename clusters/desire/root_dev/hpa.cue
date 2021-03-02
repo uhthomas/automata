@@ -5,10 +5,7 @@ import autoscalingv1 "k8s.io/api/autoscaling/v1"
 hpa: autoscalingv1.#HorizontalPodAutoscaler & {
 	apiVersion: "autoscaling/v1"
 	kind:       "HorizontalPodAutoscaler"
-	metadata: {
-		name:      "root"
-		namespace: "root-dev"
-	}
+	metadata: name: "root"
 	spec: {
 		scaleTargetRef: {
 			apiVersion: "apps/v1"

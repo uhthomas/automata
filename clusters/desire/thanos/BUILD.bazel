@@ -5,7 +5,7 @@ cue_library(
     srcs = [
         "list.cue",
         "namespace.cue",
-        "sealed-secret.cue",
+        "sealed_secret.cue",
     ],
     importpath = "github.com/uhthomas/automata/clusters/desire/thanos",
     visibility = ["//visibility:public"],

@@ -1,34 +1,14 @@
-load("@k8s_desire//:defaults.bzl", "k8s_desire")
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
 
-k8s_desire(
-    name = "helm_release",
-    kind = "HelmRelease",
-    namespace = "telemetry",
-    template = "helm-release.yaml",
-)
-
-k8s_desire(
-    name = "sealed_secret",
-    kind = "SealedSecret",
-    namespace = "telemetry",
-    template = "sealed-secret.yaml",
-)
-
-k8s_desire(
-    name = "service",
-    kind = "Service",
-    namespace = "telemetry",
-    template = "service.yaml",
-)
-
-load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
-
-k8s_objects(
-    name = "objects",
-    objects = [
-        ":service",
-        ":sealed_secret",
-        ":helm_release",
+cue_library(
+    name = "cue_prometheus_library",
+    srcs = [
+        "helm_release.cue",
+        "list.cue",
+        "sealed_secret.cue",
+        "service.cue",
     ],
+    importpath = "github.com/uhthomas/automata/clusters/desire/telemetry/prometheus",
     visibility = ["//visibility:public"],
+    deps = ["//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library"],
 )
