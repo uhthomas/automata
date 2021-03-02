@@ -5,10 +5,7 @@ import corev1 "k8s.io/api/core/v1"
 service: corev1.#Service & {
 	apiVersion: "v1"
 	kind:       "Service"
-	metadata: {
-		name:      "oauth2-proxy"
-		namespace: "oauth2-proxy"
-	}
+	metadata: name: "oauth2-proxy"
 	spec: {
 		ports: [{
 			name:       "http"
