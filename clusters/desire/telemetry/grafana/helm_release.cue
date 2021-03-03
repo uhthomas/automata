@@ -9,9 +9,11 @@ helm_release: {
 		chart: {
 			repository: "https://grafana.github.io/helm-charts"
 			name:       "grafana"
-			version:    "6.1.17"
+			version:    "6.4.5"
 		}
 		values: {
+			// 7.4.3
+			image: sha: "16dc29783ec7d4a23fa19207507586344c6797023604347eb3e8ea5ae431e181"
 			"grafana.ini": "auth.anonymous": {
 				enabled:  true
 				org_role: "Admin"
