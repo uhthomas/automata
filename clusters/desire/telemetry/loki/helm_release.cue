@@ -9,7 +9,7 @@ helm_release: {
 		chart: {
 			repository: "https://grafana.github.io/loki/charts"
 			name:       "loki"
-			version:    "2.0.2"
+			version:    "2.3.0"
 		}
 	}
 }
