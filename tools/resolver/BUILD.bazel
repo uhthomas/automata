@@ -1,9 +1,0 @@
-sh_binary(
-    name = "resolver",
-    srcs = ["resolver.sh"],
-    data = [
-        "//cmd/resolver",
-        "@io_bazel_rules_k8s//k8s/go/cmd/resolver",
-    ],
-    visibility = ["//visibility:public"],
-)
