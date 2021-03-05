@@ -79,16 +79,16 @@ daemon_set: [{
 						mountPath: "/etc/vector"
 						readOnly:  true
 					}, {
-						name:      "run"
-						mountPath: "/run/vector"
+						name:      "var-lib-vector"
+						mountPath: "/var/lib/vector"
 					}]
 				}]
 				volumes: [{
 					name: "var-log"
-					hostPath: path: "/var/log"
+					hostPath: path: "/var/log/"
 				}, {
 					name: "var-lib"
-					hostPath: path: "/var/lib"
+					hostPath: path: "/var/lib/"
 				}, {
 					name: "proc"
 					hostPath: path: "/proc"
@@ -99,8 +99,8 @@ daemon_set: [{
 					name: "config"
 					configMap: name: "vector"
 				}, {
-					name: "run"
-					hostPath: path: "/run/vector"
+					name: "var-lib-vector"
+					hostPath: path: "/var/lib/vector/"
 				}]
 			}
 		}

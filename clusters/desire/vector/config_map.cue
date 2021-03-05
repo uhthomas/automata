@@ -13,7 +13,7 @@ config_map: [{
 	kind:       "ConfigMap"
 	metadata: name: "vector"
 	data: "vector.json": json.Marshal({
-		data_dir: "/run/vector"
+		data_dir: "/var/lib/vector"
 		log_schema: {
 			host_key:        "host"
 			message_key:     "message"
