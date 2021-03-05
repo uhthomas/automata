@@ -8,6 +8,7 @@ cue_library(
         "config_map.cue",
         "daemon_set.cue",
         "list.cue",
+        "namespace.cue",
         "service_account.cue",
     ],
     importpath = "github.com/uhthomas/automata/clusters/desire/vector",

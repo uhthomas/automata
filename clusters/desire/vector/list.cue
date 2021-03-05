@@ -10,7 +10,8 @@ corev1.#List & {
 	}]
 }
 
-items: service_account +
+items: namespace +
+	service_account +
 	cluster_role +
 	cluster_role_binding +
 	config_map +

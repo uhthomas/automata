@@ -16,7 +16,7 @@ daemon_set: [{
 		template: {
 			metadata: {
 				annotations: "prometheus.io/scrape": "true"
-				labels: app: "vector"
+				labels: app:                         "vector"
 			}
 			spec: {
 				serviceAccountName: "vector"
