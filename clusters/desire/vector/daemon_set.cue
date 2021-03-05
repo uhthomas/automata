@@ -14,7 +14,10 @@ daemon_set: [{
 		minReadySeconds: 1
 		selector: matchLabels: app: "vector"
 		template: {
-			metadata: labels: app: "vector"
+			metadata: {
+				annotations: "prometheus.io/scrape": "true"
+				labels: app: "vector"
+			}
 			spec: {
 				serviceAccountName: "vector"
 				tolerations: [{
