@@ -16,6 +16,7 @@ import (
 	"github.com/uhthomas/automata/clusters/desire/tesla_exporter"
 	"github.com/uhthomas/automata/clusters/desire/tesladump"
 	"github.com/uhthomas/automata/clusters/desire/thanos"
+	"github.com/uhthomas/automata/clusters/desire/vector"
 )
 
 corev1.#List & {
@@ -41,4 +42,5 @@ items: [desire.cluster_issuer] +
 	telemetry.items +
 	tesla_exporter.items +
 	tesladump.items +
-	thanos.items
+	thanos.items +
+	vector.items
