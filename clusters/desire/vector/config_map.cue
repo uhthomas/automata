@@ -28,7 +28,7 @@ config_map: [{
 		sinks: {
 			prometheus: {
 				type:    "prometheus"
-				address: ":9090"
+				address: "0.0.0.0:9090"
 				inputs: ["internal_metrics", "host_metrics"]
 			}
 			loki: {
