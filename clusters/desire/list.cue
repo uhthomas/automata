@@ -7,6 +7,7 @@ import (
 	"github.com/uhthomas/automata/clusters/desire/ingress_nginx"
 	"github.com/uhthomas/automata/clusters/desire/kipp"
 	"github.com/uhthomas/automata/clusters/desire/kipp_dev"
+	"github.com/uhthomas/automata/clusters/desire/kube_system"
 	"github.com/uhthomas/automata/clusters/desire/oauth2_proxy"
 	"github.com/uhthomas/automata/clusters/desire/promlens"
 	"github.com/uhthomas/automata/clusters/desire/root"
@@ -32,6 +33,7 @@ items: [desire.cluster_issuer] +
 	ingress_nginx.items +
 	kipp.items +
 	kipp_dev.items +
+	kube_system.items +
 	oauth2_proxy.items +
 	promlens.items +
 	root.items +
