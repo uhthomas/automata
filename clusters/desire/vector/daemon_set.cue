@@ -29,6 +29,7 @@ daemon_set: [{
 					// 0.11.1-distroless-static
 					image:           "timberio/vector@sha256:68225be393f729060ddcb6a1666679f6dfe43f0745463490ea77bce969303fdd"
 					imagePullPolicy: "IfNotPresent"
+					args: ["--config=/etc/vector/vector.json"]
 					env: [{
 						name: "VECTOR_SELF_NODE_NAME"
 						valueFrom: fieldRef: fieldPath: "spec.nodeName"
