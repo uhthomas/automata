@@ -11,6 +11,7 @@ config_map: [...corev1.#ConfigMap]
 config_map: [{
 	apiVersion: "v1"
 	kind:       "ConfigMap"
+	metadata: name: "vector"
 	data: "vector.json": json.Marshal({
 		data_dir: "/run/vector"
 		log_schema: {
