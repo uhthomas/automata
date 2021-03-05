@@ -41,14 +41,6 @@ load("@io_bazel_rules_k8s//k8s:k8s_go_deps.bzl", k8s_go_deps = "deps")
 
 k8s_go_deps()
 
-load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_defaults")
-
-k8s_defaults(
-    name = "k8s_desire",
-    cluster = "desire",
-    resolver = "//tools/resolver",
-)
-
 load("@com_github_tnarg_rules_cue//:go.bzl", cue_go_deps = "go_modules")
 
 cue_go_deps()
