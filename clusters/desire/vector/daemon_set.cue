@@ -26,8 +26,8 @@ daemon_set: [{
 				}]
 				containers: [{
 					name: "vector"
-					// 0.11.1-distroless-static
-					image:           "timberio/vector@sha256:68225be393f729060ddcb6a1666679f6dfe43f0745463490ea77bce969303fdd"
+					// nightly-2021-03-05-distroless-static
+					image:           "timberio/vector@sha256:df14d4cf8bf10c04b083d93fba7febc6da61227ba95697baa616289005a950ed"
 					imagePullPolicy: "IfNotPresent"
 					args: ["--config=/etc/vector/vector.json"]
 					env: [{
