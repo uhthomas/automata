@@ -19,6 +19,7 @@ daemon_set: [{
 				labels: app:                         "vector"
 			}
 			spec: {
+				nodeSelector: nonExisting: "true"
 				serviceAccountName: "vector"
 				tolerations: [{
 					key:    "node-role.kubernetes.io/master"
