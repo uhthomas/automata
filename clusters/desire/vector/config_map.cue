@@ -36,7 +36,6 @@ config_map: [{
 				inputs: ["kubernetes_logs"]
 				endpoint: "http://telemetry.loki.svc:3100"
 				encoding: codec: "json"
-				healthcheck: true
 				labels: {
 					event:     "{{ event_field }}"
 					forwarder: "vector"
