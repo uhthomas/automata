@@ -11,7 +11,7 @@ config_map: [...corev1.#ConfigMap]
 config_map: [{
 	apiVersion: "v1"
 	kind:       "ConfigMap"
-	metadata: name: "vector"
+	metadata: name:      "vector"
 	data: "vector.json": json.Marshal({
 		data_dir: "/var/lib/vector"
 		log_schema: {
@@ -36,7 +36,7 @@ config_map: [{
 				inputs: ["kubernetes_logs"]
 				endpoint: "http://telemetry.loki.svc:3100"
 				encoding: codec:      "json"
-				healthcheck: enabled: "true"
+				healthcheck: enabled: true
 			}
 		}
 	})
