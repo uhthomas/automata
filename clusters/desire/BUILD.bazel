@@ -1,4 +1,5 @@
 load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_export", "cue_library")
+load("@io_bazel_rules_k8s//k8s:object.bzl", "k8s_object")
 
 cue_library(
     name = "cue_desire_library",
@@ -33,10 +34,9 @@ cue_export(
     ],
 )
 
-load("@io_bazel_rules_k8s//k8s:object.bzl", "k8s_object")
-
 k8s_object(
     name = "object",
+    args = ["-l=app.kubernetes.io/managed-by=automata"],
     cluster = "desire",
     kind = "Deployment",
     template = ":list",

@@ -11,9 +11,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install bazelisk
       run: curl -L "https://github.com/bazelbuild/bazelisk/releases/download/v1.7.4/bazelisk-linux-amd64" | install -D /dev/stdin "${GITHUB_WORKSPACE}/bin/bazel"
-    # would like to use bazel test //..., but we don't have any test targets (yet)
-    - run: bazel build //...
+    - run: bazel test //...
     - uses: azure/k8s-set-context@v1
       with:
         kubeconfig: ${{ secrets.KUBE_CONFIG }}
-    - run: bazel run //clusters/desire:object.apply
+    - run: bazel run //clusters/desire:object.apply -- --prune
