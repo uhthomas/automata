@@ -40,6 +40,7 @@ config_map: [{
 					event:     "{{ event_field }}"
 					forwarder: "vector"
 				}
+				request: in_flight_limit: 1
 			}
 		}
 	})
