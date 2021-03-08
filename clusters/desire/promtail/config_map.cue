@@ -18,8 +18,8 @@ config_map: [{
 			http_listen_port: 3101
 		}
 		client: url:        "http://loki.telemetry.svc:3100/loki/api/v1/push"
-		position: filename: "/run/promtail/positions.yaml"
-		scrapeConfigs: [{
+		positions: filename: "/run/promtail/positions.yaml"
+		scrape_configs: [{
 			// See also https://github.com/grafana/loki/blob/master/production/ksonnet/promtail/scrape_config.libsonnet for reference
 			// Pods with a label 'app.kubernetes.io/name'
 			job_name: "kubernetes-pods-app-kubernetes-io-name"
