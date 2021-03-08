@@ -30,7 +30,6 @@ cue_export(
         "//clusters/desire/tesla_exporter:cue_tesla_exporter_library",
         "//clusters/desire/tesladump:cue_tesladump_library",
         "//clusters/desire/thanos:cue_thanos_library",
-        "//clusters/desire/vector:cue_vector_library",
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
     ],
 )
