@@ -19,12 +19,22 @@ config_map: [{
 		}
 		client: url:         "http://loki.telemetry.svc:3100/loki/api/v1/push"
 		positions: filename: "/run/promtail/positions.yaml"
+		json: {
+			expressions: {
+				output: "log"
+				stream: "stream"
+				timestamp: "time"
+			}
+		}
 		scrape_configs: [{
 			// See also https://github.com/grafana/loki/blob/master/production/ksonnet/promtail/scrape_config.libsonnet for reference
 			// Pods with a label 'app.kubernetes.io/name'
 			job_name: "kubernetes-pods-app-kubernetes-io-name"
 			pipeline_stages: [{
-				cri: {}}]
+				docker: {}
+			},{
+				cri: {}
+			}]
 			kubernetes_sd_configs: [{
 				role: "pod"
 			}]
@@ -96,7 +106,10 @@ config_map: [{
 			// Pods with a label 'app'
 			job_name: "kubernetes-pods-app"
 			pipeline_stages: [{
-				cri: {}}]
+				docker: {}
+			},{
+				cri: {}
+			}]
 			kubernetes_sd_configs: [{
 				role: "pod"
 			}]
@@ -175,7 +188,10 @@ config_map: [{
 			// Pods with direct controllers, such as StatefulSet
 			job_name: "kubernetes-pods-direct-controllers"
 			pipeline_stages: [{
-				cri: {}}]
+				docker: {}
+			},{
+				cri: {}
+			}]
 			kubernetes_sd_configs: [{
 				role: "pod"
 			}]
@@ -250,7 +266,10 @@ config_map: [{
 			// Pods with indirect controllers, such as Deployment
 			job_name: "kubernetes-pods-indirect-controller"
 			pipeline_stages: [{
-				cri: {}}]
+				docker: {}
+			},{
+				cri: {}
+			}]
 			kubernetes_sd_configs: [{
 				role: "pod"
 			}]
@@ -326,7 +345,10 @@ config_map: [{
 			// All remaining pods not yet covered
 			job_name: "kubernetes-other"
 			pipeline_stages: [{
-				cri: {}}]
+				docker: {}
+			},{
+				cri: {}
+			}]
 			kubernetes_sd_configs: [{
 				role: "pod"
 			}]
