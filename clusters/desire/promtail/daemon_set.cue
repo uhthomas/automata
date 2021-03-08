@@ -19,8 +19,11 @@ daemon_set: [{
 				labels: app:                         "promtail"
 			}
 			spec: {
-				nodeSelector: nonExisting: "true"
 				serviceAccountName: "promtail"
+				tolerations: [{
+					key:    "node-role.kubernetes.io/master"
+					effect: "NoSchedule"
+				}]
 				containers: [{
 					name: "promtail"
 					// master-4f27c75
