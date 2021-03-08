@@ -29,7 +29,7 @@ daemon_set: [{
 					// master-4f27c75
 					image:           "grafana/promtail@sha256:2c1d84ba581b4ff2b8f3377e3ec76fd0df7ad2a4837488878d06748c47798d54"
 					imagePullPolicy: "IfNotPresent"
-					args: ["--config=/etc/promtail/promtail.yaml"]
+					args: ["--config.file=/etc/promtail/promtail.yaml"]
 					env: [{
 						name: "HOSTNAME"
 						valueFrom: fieldRef: fieldPath: "spec.nodeName"
