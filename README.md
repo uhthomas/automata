@@ -1,4 +1,5 @@
 # Automata
+Monorepo for 6f.io and subsidiaries.
 
 ## Getting started
 
@@ -8,7 +9,8 @@
 ### Apply manifests
 
 ```sh
-bazel run //clusters/desire:objects.apply
+# the managed-by label is pre-applied, so pruning is safe
+bazel run //clusters/desire:object.apply -- --prune
 ```
 
 ## Starting a new cluster
