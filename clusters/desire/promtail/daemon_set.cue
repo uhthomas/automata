@@ -27,7 +27,7 @@ daemon_set: [{
 				containers: [{
 					name: "promtail"
 					// master-4f27c75
-					image:           "grafana/promtail@sha256:e0482c3e3b383d273191e4ed79209328b27b17c7c02a49775c098f69a545293b"
+					image:           "grafana/promtail@sha256:2c1d84ba581b4ff2b8f3377e3ec76fd0df7ad2a4837488878d06748c47798d54"
 					imagePullPolicy: "IfNotPresent"
 					args: ["--config=/etc/promtail/promtail.yaml"]
 					env: [{
