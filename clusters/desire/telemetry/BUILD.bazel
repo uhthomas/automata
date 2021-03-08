@@ -9,7 +9,6 @@ cue_library(
     importpath = "github.com/uhthomas/automata/clusters/desire/telemetry",
     visibility = ["//visibility:public"],
     deps = [
-        "//clusters/desire/telemetry/fluent_bit:cue_fluent_bit_library",
         "//clusters/desire/telemetry/grafana:cue_grafana_library",
         "//clusters/desire/telemetry/kube_state_metrics:cue_kube_state_metrics_library",
         "//clusters/desire/telemetry/loki:cue_loki_library",
