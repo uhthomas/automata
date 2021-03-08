@@ -23,6 +23,7 @@ cue_export(
         "//clusters/desire/kube_system:cue_kube_system_library",
         "//clusters/desire/oauth2_proxy:cue_oauth2_proxy_library",
         "//clusters/desire/promlens:cue_promlens_library",
+        "//clusters/desire/promtail:cue_promtail_library",
         "//clusters/desire/root:cue_root_library",
         "//clusters/desire/root_dev:cue_root_dev_library",
         "//clusters/desire/telemetry:cue_telemetry_library",

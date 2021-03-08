@@ -10,6 +10,7 @@ import (
 	"github.com/uhthomas/automata/clusters/desire/kube_system"
 	"github.com/uhthomas/automata/clusters/desire/oauth2_proxy"
 	"github.com/uhthomas/automata/clusters/desire/promlens"
+	"github.com/uhthomas/automata/clusters/desire/promtail"
 	"github.com/uhthomas/automata/clusters/desire/root"
 	"github.com/uhthomas/automata/clusters/desire/root_dev"
 	"github.com/uhthomas/automata/clusters/desire/telemetry"
@@ -37,6 +38,7 @@ items: [desire.cluster_issuer] +
 	kube_system.items +
 	oauth2_proxy.items +
 	promlens.items +
+	promtail.items +
 	root.items +
 	root_dev.items +
 	telemetry.items +
