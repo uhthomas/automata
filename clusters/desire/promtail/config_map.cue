@@ -25,7 +25,7 @@ config_map: [{
 			job_name: "kubernetes-pods-app-kubernetes-io-name"
 			pipeline_stages: [{
 				docker: {}
-			},{
+			}, {
 				cri: {}
 			}]
 			kubernetes_sd_configs: [{
@@ -100,7 +100,7 @@ config_map: [{
 			job_name: "kubernetes-pods-app"
 			pipeline_stages: [{
 				docker: {}
-			},{
+			}, {
 				cri: {}
 			}]
 			kubernetes_sd_configs: [{
@@ -182,7 +182,7 @@ config_map: [{
 			job_name: "kubernetes-pods-direct-controllers"
 			pipeline_stages: [{
 				docker: {}
-			},{
+			}, {
 				cri: {}
 			}]
 			kubernetes_sd_configs: [{
@@ -260,7 +260,7 @@ config_map: [{
 			job_name: "kubernetes-pods-indirect-controller"
 			pipeline_stages: [{
 				docker: {}
-			},{
+			}, {
 				cri: {}
 			}]
 			kubernetes_sd_configs: [{
@@ -339,7 +339,7 @@ config_map: [{
 			job_name: "kubernetes-other"
 			pipeline_stages: [{
 				docker: {}
-			},{
+			}, {
 				cri: {}
 			}]
 			kubernetes_sd_configs: [{
