@@ -25,7 +25,7 @@ $ k get secret $(k get sa automata -ojson | jq -r '.secrets[0].name') -oyaml
 # token
 $ k get secret $(k get sa automata -ojson | jq -r '.secrets[0].name') -ojson | jq -r '.data.token'| base64 --decode
 # ca.crt
-k get secret $(k get sa automata -ojson | jq -r '.secrets[0].name') -ojson | jq -r '.data["ca.crt"]' | base64 --decode | xxd -p | tr -d \\n
+k get secret $(k get sa automata -ojson | jq -r '.secrets[0].name') -ojson | jq -r '.data["ca.crt"]' | base64 --decode
 ```
 
 ---

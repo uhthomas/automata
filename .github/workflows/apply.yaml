@@ -15,4 +15,6 @@ jobs:
     - uses: azure/k8s-set-context@v1
       with:
         kubeconfig: ${{ secrets.KUBE_CONFIG }}
-    - run: bazel run //clusters:objects.apply -- --prune
+    # https://github.com/bazelbuild/rules_k8s/issues/640
+    - run: bazel run //clusters/desire:object.apply -- --prune
+    - run: bazel run //clusters/mahalo:object.apply -- --prune
