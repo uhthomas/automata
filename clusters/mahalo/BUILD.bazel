@@ -1,0 +1,18 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_export")
+load("@io_bazel_rules_k8s//k8s:object.bzl", "k8s_object")
+
+cue_export(
+    name = "list",
+    src = "list.cue",
+    visibility = ["//visibility:public"],
+    deps = ["//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library"],
+)
+
+k8s_object(
+    name = "object",
+    args = ["-l=app.kubernetes.io/managed-by=automata"],
+    context = "mahalo",
+    kind = "Deployment",
+    template = ":list",
+    visibility = ["//visibility:public"],
+)

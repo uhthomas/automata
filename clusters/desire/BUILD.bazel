@@ -37,7 +37,8 @@ cue_export(
 k8s_object(
     name = "object",
     args = ["-l=app.kubernetes.io/managed-by=automata"],
-    cluster = "desire",
+    context = "desire",
     kind = "Deployment",
     template = ":list",
+    visibility = ["//visibility:public"],
 )
