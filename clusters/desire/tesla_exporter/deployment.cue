@@ -24,8 +24,8 @@ deployment: appsv1.#Deployment & {
 			spec: {
 				containers: [{
 					name: "tesla-exporter"
-					// v0.6.3
-					image:           "ghcr.io/uhthomas/tesla_exporter@sha256:295f4d7d25432ff314e339b507c0bf2435a5e0efe6ba9a00c20be66a2a7d8fb7"
+					// v0.6.4
+					image:           "ghcr.io/uhthomas/tesla_exporter@sha256:d6becb1828a6ad59996936b0b9c6e6223cb9644261d0d09a6f118a0911e8eac3"
 					imagePullPolicy: "IfNotPresent"
 					ports: [{
 						containerPort: 80
