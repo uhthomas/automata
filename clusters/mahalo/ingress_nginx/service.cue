@@ -34,6 +34,7 @@ service: [{
 	kind:       "Service"
 	metadata: {
 		name: "ingress-nginx-controller"
+		annotations: "service.beta.kubernetes.io/scw-loadbalancer-proxy-protocol-v2": "true"
 		labels: {
 			"app.kubernetes.io/name":      "ingress-nginx"
 			"app.kubernetes.io/instance":  "ingress-nginx"
