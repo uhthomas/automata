@@ -15,7 +15,6 @@ deployment: [{
 			"app.kubernetes.io/instance":  "cert-manager"
 			"app.kubernetes.io/name":      "cainjector"
 		}
-		namespace: "cert-manager"
 	}
 	spec: {
 		replicas: 1

@@ -16,4 +16,9 @@ config_map: [{
 			"app.kubernetes.io/component": "controller"
 		}
 	}
+	data: {
+		"use-proxy-protocol": "true"
+		"proxy-buffer-size": "16k",
+                "proxy-buffers-number": "8"
+	}
 }]
