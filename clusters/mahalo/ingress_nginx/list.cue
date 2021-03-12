@@ -19,4 +19,5 @@ items: namespace +
 	role_binding +
 	service +
 	deployment +
+	job +
 	validating_webhook_configuration

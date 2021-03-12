@@ -7,6 +7,7 @@ cue_library(
         "cluster_role_binding.cue",
         "config_map.cue",
         "deployment.cue",
+        "job.cue",
         "list.cue",
         "namespace.cue",
         "role.cue",
@@ -20,6 +21,7 @@ cue_library(
     deps = [
         "//cue.mod/gen/k8s.io/api/admissionregistration/v1:cue_v1_library",
         "//cue.mod/gen/k8s.io/api/apps/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/api/batch/v1:cue_v1_library",
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
         "//cue.mod/gen/k8s.io/api/rbac/v1:cue_v1_library",
     ],
