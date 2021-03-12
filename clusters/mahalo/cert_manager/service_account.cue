@@ -34,7 +34,7 @@ service_account: [{
 	apiVersion: "v1"
 	kind:       "ServiceAccount"
 	metadata: {
-		name: "webhook"
+		name: "cert-manager-webhook"
 		labels: {
 			app:                           "webhook"
 			"app.kubernetes.io/name":      "webhook"
