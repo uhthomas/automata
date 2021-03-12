@@ -8,7 +8,7 @@ role: [{
 	apiVersion: "rbac.authorization.k8s.io/v1"
 	kind:       "Role"
 	metadata: {
-		name: "cert-manager-cainjector-leader-election"
+		name: "cert-manager-cainjector:leaderelection"
 		labels: {
 			app:                           "cainjector"
 			"app.kubernetes.io/component": "cainjector"
