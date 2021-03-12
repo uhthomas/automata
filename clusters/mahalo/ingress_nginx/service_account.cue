@@ -1,8 +1,8 @@
 package ingress_nginx
 
-import corev1 "k8s.io/api/core/v1"
+import "k8s.io/api/core/v1"
 
-service_account: [...corev1.#ServiceAccount]
+service_account: [...v1.#ServiceAccount]
 
 service_account: [{
 	apiVersion: "v1"

@@ -1,4 +1,5 @@
 import (
+	"github.com/uhthomas/automata/clusters/mahalo/cert_manager"
 	"github.com/uhthomas/automata/clusters/mahalo/ingress_nginx"
 	"k8s.io/api/core/v1"
 )
@@ -11,4 +12,5 @@ v1.#List & {
 	}]
 }
 
-items: ingress_nginx.items
+items: cert_manager.items +
+	ingress_nginx.items
