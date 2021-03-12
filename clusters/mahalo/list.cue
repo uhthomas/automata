@@ -14,7 +14,7 @@ v1.#List & {
 	}]
 }
 
-items: mahalo.cluster_issuer +
-	cert_manager.items +
+items:  cert_manager.items +
 	ingress_nginx.items +
+	mahalo.cluster_issuer +
 	io_6f_dev.items

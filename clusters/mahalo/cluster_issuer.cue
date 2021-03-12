@@ -1,7 +1,7 @@
 package mahalo
 
 cluster_issuer: [{
-	apiVersion: "cert-manager.io/v1alpha2"
+	apiVersion: "cert-manager.io/v1"
 	kind:       "ClusterIssuer"
 	metadata: name: "letsencrypt"
 	spec: acme: {
