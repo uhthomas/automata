@@ -1,4 +1,4 @@
-load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_export")
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_export", "cue_library")
 load("@io_bazel_rules_k8s//k8s:object.bzl", "k8s_object")
 
 cue_export(
@@ -6,6 +6,7 @@ cue_export(
     src = "list.cue",
     visibility = ["//visibility:public"],
     deps = [
+        ":cue_mahalo_library",
         "//clusters/mahalo/cert_manager:cue_cert_manager_library",
         "//clusters/mahalo/ingress_nginx:cue_ingress_nginx_library",
         "//clusters/mahalo/io_6f_dev:cue_io_6f_dev_library",
@@ -19,5 +20,12 @@ k8s_object(
     context = "mahalo",
     kind = "Deployment",
     template = ":list",
+    visibility = ["//visibility:public"],
+)
+
+cue_library(
+    name = "cue_mahalo_library",
+    srcs = ["cluster_issuer.cue"],
+    importpath = "github.com/uhthomas/automata/clusters/mahalo",
     visibility = ["//visibility:public"],
 )

@@ -1,4 +1,5 @@
 import (
+	"github.com/uhthomas/automata/clusters/mahalo"
 	"github.com/uhthomas/automata/clusters/mahalo/cert_manager"
 	"github.com/uhthomas/automata/clusters/mahalo/ingress_nginx"
 	"github.com/uhthomas/automata/clusters/mahalo/io_6f_dev"
@@ -13,6 +14,7 @@ v1.#List & {
 	}]
 }
 
-items: cert_manager.items +
+items: mahalo.cluster_issuer +
+	cert_manager.items +
 	ingress_nginx.items +
 	io_6f_dev.items
