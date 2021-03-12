@@ -7,13 +7,13 @@ service: [...v1.#Service]
 service: [{
 	apiVersion: "v1"
 	kind:       "Service"
-	metadata: name: "io_6f"
+	metadata: name: "io-6f"
 	spec: {
 		ports: [{
 			name:       "http"
 			port:       80
 			targetPort: "http"
 		}]
-		selector: app: "io_6f"
+		selector: app: "io-6f"
 	}
 }]

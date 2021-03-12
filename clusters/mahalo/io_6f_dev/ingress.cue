@@ -8,7 +8,7 @@ ingress: [{
 	apiVersion: "networking.k8s.io/v1"
 	kind:       "Ingress"
 	metadata: {
-		name: "io_6f"
+		name: "io-6f"
 		annotations: "cert-manager.io/cluster-issuer": "letsencrypt"
 	}
 	spec: {
@@ -24,7 +24,7 @@ ingress: [{
 			http: paths: [{
 				pathType: "ImplementationSpecific"
 				backend: service: {
-					name: "io_6f"
+					name: "io-6f"
 					port: name: "http"
 				}
 			}]

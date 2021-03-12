@@ -7,12 +7,12 @@ horizontal_pod_autoscaler: [...autoscalingv1.#HorizontalPodAutoscaler]
 horizontal_pod_autoscaler: [{
 	apiVersion: "autoscaling/v1"
 	kind:       "HorizontalPodAutoscaler"
-	metadata: name: "io_6f"
+	metadata: name: "io-6f"
 	spec: {
 		scaleTargetRef: {
 			apiVersion: "apps/v1"
 			kind:       "Deployment"
-			name:       "io_6f"
+			name:       "io-6f"
 		}
 		minReplicas:                    1
 		maxReplicas:                    3
