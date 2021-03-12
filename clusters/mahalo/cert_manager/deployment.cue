@@ -12,8 +12,8 @@ deployment: [{
 		labels: {
 			app:                           "cainjector"
 			"app.kubernetes.io/component": "cainjector"
-			"app.kubernetes.io/instance": "cert-manager"
-			"app.kubernetes.io/name": "cainjector"
+			"app.kubernetes.io/instance":  "cert-manager"
+			"app.kubernetes.io/name":      "cainjector"
 		}
 		namespace: "cert-manager"
 	}
@@ -154,8 +154,8 @@ deployment: [{
 							port:   6080
 							scheme: "HTTP"
 						}
-						initialDelaySeconds: 60,
-						 periodSeconds: 10
+						initialDelaySeconds: 60
+						periodSeconds:       10
 						successThreshold:    1
 						timeoutSeconds:      1
 					}

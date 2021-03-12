@@ -11,13 +11,13 @@ v1.#List & {
 }
 
 items: namespace +
-        service_account +
-        custom_resource_definition + 
+	service_account +
+	custom_resource_definition +
 	cluster_role +
 	cluster_role_binding +
 	role +
 	role_binding +
 	service +
 	deployment +
-        validating_webhook_configuration + 
+	validating_webhook_configuration +
 	mutating_webhook_configuration

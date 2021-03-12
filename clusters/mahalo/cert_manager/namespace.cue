@@ -7,5 +7,8 @@ namespace: [...v1.#Namespace]
 namespace: [{
 	apiVersion: "v1"
 	kind:       "Namespace"
-	metadata: name: "cert-manager"
+	metadata: {
+		name: "cert-manager"
+		labels: "certmanager.k8s.io/disable-validation": "true"
+	}
 }]

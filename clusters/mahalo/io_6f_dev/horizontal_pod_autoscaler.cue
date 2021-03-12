@@ -2,7 +2,7 @@ package io_6f_dev
 
 import autoscalingv1 "k8s.io/api/autoscaling/v1"
 
-horizontal_pod_autoscaler: [...autoscalingv1.#HorizontalPodAutoscaler] 
+horizontal_pod_autoscaler: [...autoscalingv1.#HorizontalPodAutoscaler]
 
 horizontal_pod_autoscaler: [{
 	apiVersion: "autoscaling/v1"
