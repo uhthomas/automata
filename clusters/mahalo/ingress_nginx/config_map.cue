@@ -8,7 +8,7 @@ config_map: [{
 	apiVersion: "v1"
 	kind:       "ConfigMap"
 	metadata: {
-		name: "ingress-nginx"
+		name: "ingress-nginx-controller"
 		labels: {
 			"app.kubernetes.io/name":      "ingress-nginx"
 			"app.kubernetes.io/instance":  "ingress-nginx"
