@@ -30,7 +30,7 @@ ingress: [{
 			secretName: "grafana-tls"
 		}]
 		rules: [{
-			host: "grafana.6f.io"
+			host: "grafana.mahalo.6f.io"
 			http: paths: [{
 				pathType: "ImplementationSpecific"
 				backend: service: {
