@@ -42,13 +42,13 @@ deployment: [{
 						containerPort: 3000
 					}]
 					env: [{
-						name: "GRAFANA_DATABASE_PASSWORD"
+						name: "GF_DATABASE_PASSWORD"
 						valueFrom: secretKeyRef: {
 							name: "grafana"
 							key:  "database_password"
 						}
 					}, {
-						name: "GRAFANA_DATABASE_URL"
+						name: "GF_DATABASE_URL"
 						valueFrom: secretKeyRef: {
 							name: "grafana"
 							key:  "database_url"
