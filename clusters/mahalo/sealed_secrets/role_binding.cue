@@ -9,7 +9,7 @@ role_binding: [{
 	kind:       "RoleBinding"
 	metadata: {
 		labels: name: "sealed-secrets-service-proxier"
-		name:      "sealed-secrets-service-proxier"
+		name: "sealed-secrets-service-proxier"
 	}
 	roleRef: {
 		apiGroup: "rbac.authorization.k8s.io"

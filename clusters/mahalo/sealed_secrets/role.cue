@@ -9,7 +9,7 @@ role: [{
 	kind:       "Role"
 	metadata: {
 		labels: name: "sealed-secrets-key-admin"
-		name:      "sealed-secrets-key-admin"
+		name: "sealed-secrets-key-admin"
 	}
 	rules: [{
 		apiGroups: [
@@ -29,7 +29,7 @@ role: [{
 	metadata: {
 		annotations: {}
 		labels: name: "sealed-secrets-service-proxier"
-		name:      "sealed-secrets-service-proxier"
+		name: "sealed-secrets-service-proxier"
 	}
 	rules: [{
 		apiGroups: [

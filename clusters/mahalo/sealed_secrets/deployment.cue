@@ -9,7 +9,7 @@ deployment: [{
 	kind:       "Deployment"
 	metadata: {
 		labels: name: "sealed-secrets-controller"
-		name:      "sealed-secrets-controller"
+		name: "sealed-secrets-controller"
 	}
 	spec: {
 		minReadySeconds:      30
