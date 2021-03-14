@@ -1,8 +1,8 @@
 package oauth2_proxy
 
-import corev1 "k8s.io/api/core/v1"
+import "k8s.io/api/core/v1"
 
-service: [...corev1.#Service]
+service: [...v1.#Service]
 
 service: [{
 	apiVersion: "v1"
