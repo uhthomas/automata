@@ -45,6 +45,12 @@ deployment: [{
 						name: "GF_DEFAULT_INSTANCE_NAME"
 						valueFrom: fieldRef: fieldPath: "metadata.name"
 					}, {
+						name: "GF_DATABASE_USER"
+						valueFrom: secretKeyRef: {
+							name: "grafana"
+							key:  "database_user"
+						}
+					}, {
 						name: "GF_DATABASE_PASSWORD"
 						valueFrom: secretKeyRef: {
 							name: "grafana"
