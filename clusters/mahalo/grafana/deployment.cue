@@ -42,6 +42,9 @@ deployment: [{
 						containerPort: 3000
 					}]
 					env: [{
+						name: "GF_DEFAULT_INSTANCE_NAME"
+						valueFrom: fieldRef: fieldPath: "metadata.name"
+					}, {
 						name: "GF_DATABASE_PASSWORD"
 						valueFrom: secretKeyRef: {
 							name: "grafana"
