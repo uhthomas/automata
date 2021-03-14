@@ -44,7 +44,7 @@ deployment: [{
 					env: [{
 						name: "GRAFANA_DATABASE_PASSWORD"
 						valueFrom: secretKeyRef: {
-							name: "secret"
+							name: "grafana"
 							key:  "database_password"
 						}
 					}, {
