@@ -22,6 +22,10 @@ service: [{
 			port:       80
 			targetPort: "http"
 		}]
-		selector: app: "grafana"
+		selector: {
+			"app.kubernetes.io/name":      "grafana"
+			"app.kubernetes.io/instance":  "grafana"
+			"app.kubernetes.io/component": "grafana"
+		}
 	}
 }]
