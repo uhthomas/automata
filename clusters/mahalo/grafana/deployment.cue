@@ -12,7 +12,7 @@ deployment: [{
 		labels: {
 			"app.kubernetes.io/name":      "grafana"
 			"app.kubernetes.io/instance":  "grafana"
-			"app.kubernetes.io/version":   "7.4.2"
+			"app.kubernetes.io/version":   "7.4.3"
 			"app.kubernetes.io/component": "grafana"
 		}
 	}
@@ -35,7 +35,7 @@ deployment: [{
 			spec: {
 				containers: [{
 					name:            "grafana"
-					image:           "grafana/grafana:7.4.2@sha256:16dc29783ec7d4a23fa19207507586344c6797023604347eb3e8ea5ae431e181"
+					image:           "grafana/grafana:7.4.3@sha256:16dc29783ec7d4a23fa19207507586344c6797023604347eb3e8ea5ae431e181"
 					imagePullPolicy: "IfNotPresent"
 					ports: [{
 						name:          "http"

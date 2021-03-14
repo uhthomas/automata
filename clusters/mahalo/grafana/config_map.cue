@@ -16,7 +16,7 @@ config_map: [{
 		labels: {
 			"app.kubernetes.io/name":      "grafana"
 			"app.kubernetes.io/instance":  "grafana"
-			"app.kubernetes.io/version":   "7.4.2"
+			"app.kubernetes.io/version":   "7.4.3"
 			"app.kubernetes.io/component": "grafana"
 		}
 	}
