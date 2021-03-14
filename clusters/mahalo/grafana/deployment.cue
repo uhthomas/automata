@@ -50,7 +50,7 @@ deployment: [{
 					}, {
 						name: "GRAFANA_DATABASE_URL"
 						valueFrom: secretKeyRef: {
-							name: "secret"
+							name: "grafana"
 							key:  "database_url"
 						}
 					}]
@@ -79,9 +79,6 @@ deployment: [{
 				volumes: [{
 					name: "config"
 					configMap: name: "grafana"
-				}, {
-					name: "secret"
-					secret: secretName: "grafana"
 				}]
 			}
 		}
