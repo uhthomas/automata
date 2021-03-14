@@ -70,7 +70,7 @@ deployment: [{
 						readOnly:  true
 						subPath:   "grafana.ini"
 					}, {
-						name:      "datasources"
+						name:      "config"
 						mountPath: "/etc/grafana/provisioning/datasources/datasources.yaml"
 						readOnly:  true
 						subPath:   "datasources.yaml"
