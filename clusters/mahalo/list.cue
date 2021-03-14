@@ -3,6 +3,7 @@ import (
 	"github.com/uhthomas/automata/clusters/mahalo/cert_manager"
 	"github.com/uhthomas/automata/clusters/mahalo/ingress_nginx"
 	"github.com/uhthomas/automata/clusters/mahalo/io_6f_dev"
+	"github.com/uhthomas/automata/clusters/mahalo/sealed_secrets"
 	"k8s.io/api/core/v1"
 )
 
@@ -17,4 +18,5 @@ v1.#List & {
 items: cert_manager.items +
 	ingress_nginx.items +
 	mahalo.cluster_issuer +
-	io_6f_dev.items
+	io_6f_dev.items +
+	sealed_secrets.items
