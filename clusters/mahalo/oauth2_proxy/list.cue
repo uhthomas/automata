@@ -14,4 +14,5 @@ items: namespace +
 	sealed_secret +
 	service +
 	deployment +
-	horizontal_pod_autoscaler
+	horizontal_pod_autoscaler +
+	ingress
