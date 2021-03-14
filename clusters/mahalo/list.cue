@@ -3,6 +3,7 @@ import (
 	"github.com/uhthomas/automata/clusters/mahalo/cert_manager"
 	"github.com/uhthomas/automata/clusters/mahalo/ingress_nginx"
 	"github.com/uhthomas/automata/clusters/mahalo/io_6f_dev"
+	"github.com/uhthomas/automata/clusters/mahalo/oauth2_proxy"
 	"github.com/uhthomas/automata/clusters/mahalo/sealed_secrets"
 	"k8s.io/api/core/v1"
 )
@@ -15,8 +16,21 @@ v1.#List & {
 	}]
 }
 
-items: cert_manager.items +
+// items are grouped by dependency requirements, and sorted lexicographically
+// where possible.
+items:
+	cert_manager.items +
 	ingress_nginx.items +
+
+	// requires:
+	// - cert_manager: Custom Resource Definition
+	// - ingress_nginx: HTTP-01 solver
 	mahalo.cluster_issuer +
-	io_6f_dev.items +
-	sealed_secrets.items
+
+	sealed_secrets.items +
+
+	// requires:
+	// - sealed_secrets
+	oauth2_proxy.items +
+
+	io_6f_dev.items
