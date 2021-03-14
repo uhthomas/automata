@@ -45,6 +45,12 @@ deployment: [{
 						name: "GF_DEFAULT_INSTANCE_NAME"
 						valueFrom: fieldRef: fieldPath: "metadata.name"
 					}, {
+						name: "GF_DATABASE_URL"
+						valueFrom: secretKeyRef: {
+							name: "grafana"
+							key:  "database_url"
+						}
+					}, {
 						name: "GF_DATABASE_USER"
 						valueFrom: secretKeyRef: {
 							name: "grafana"
@@ -55,12 +61,6 @@ deployment: [{
 						valueFrom: secretKeyRef: {
 							name: "grafana"
 							key:  "database_password"
-						}
-					}, {
-						name: "GF_DATABASE_URL"
-						valueFrom: secretKeyRef: {
-							name: "grafana"
-							key:  "database_url"
 						}
 					}]
 					readinessProbe: {
