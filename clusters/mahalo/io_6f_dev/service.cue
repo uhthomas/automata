@@ -1,6 +1,6 @@
 package io_6f_dev
 
-import v1 "k8s.io/api/core/v1"
+import "k8s.io/api/core/v1"
 
 service: [...v1.#Service]
 

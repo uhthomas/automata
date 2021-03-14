@@ -17,8 +17,8 @@ config_map: [{
 		}
 	}
 	data: {
-		"use-proxy-protocol": "true"
-		"proxy-buffer-size": "16k",
-                "proxy-buffers-number": "8"
+		"use-proxy-protocol":   "true"
+		"proxy-buffer-size":    "16k"
+		"proxy-buffers-number": "8"
 	}
 }]

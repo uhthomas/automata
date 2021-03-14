@@ -1,6 +1,7 @@
 import (
 	"github.com/uhthomas/automata/clusters/mahalo"
 	"github.com/uhthomas/automata/clusters/mahalo/cert_manager"
+	"github.com/uhthomas/automata/clusters/mahalo/grafana"
 	"github.com/uhthomas/automata/clusters/mahalo/ingress_nginx"
 	"github.com/uhthomas/automata/clusters/mahalo/io_6f_dev"
 	"github.com/uhthomas/automata/clusters/mahalo/oauth2_proxy"
@@ -30,7 +31,17 @@ items:
 	sealed_secrets.items +
 
 	// requires:
+	// cert_manager
+	// - ingress_nginx
 	// - sealed_secrets
 	oauth2_proxy.items +
 
+	// requires:
+	// - ingress_nginx
+	// - oauth2_proxy
+	// - sealed_secrets
+	grafana.items +
+
+	// requires:
+	// - ingress_nginx
 	io_6f_dev.items
