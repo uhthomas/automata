@@ -110,7 +110,6 @@ deployment: [{
 					volumeMounts: [{
 						name:      "storage"
 						mountPath: "/data"
-						readOnly:  true
 					}, {
 						name:      "thanos-sidecar"
 						mountPath: "/etc/secret"
