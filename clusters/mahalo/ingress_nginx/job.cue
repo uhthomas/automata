@@ -1,6 +1,9 @@
 package ingress_nginx
 
-import batchv1 "k8s.io/api/batch/v1"
+import (
+	"k8s.io/api/core/v1"
+	batchv1 "k8s.io/api/batch/v1"
+)
 
 job: [...batchv1.#Job]
 
@@ -30,7 +33,7 @@ job: [{
 			containers: [{
 				name:            "create"
 				image:           "docker.io/jettech/kube-webhook-certgen:v1.5.1"
-				imagePullPolicy: "IfNotPresent"
+				imagePullPolicy: v1.#PullIfNotPresent
 				args: [
 					"create",
 					"--host=ingress-nginx-controller-admission,ingress-nginx-controller-admission.$(POD_NAMESPACE).svc",
@@ -42,7 +45,7 @@ job: [{
 					valueFrom: fieldRef: fieldPath: "metadata.namespace"
 				}]
 			}]
-			restartPolicy:      "OnFailure"
+			restartPolicy:      v1.#RestartPolicyOnFailure
 			serviceAccountName: "ingress-nginx-admission"
 			securityContext: {
 				runAsNonRoot: true
@@ -76,7 +79,7 @@ job: [{
 			containers: [{
 				name:            "patch"
 				image:           "docker.io/jettech/kube-webhook-certgen:v1.5.1"
-				imagePullPolicy: "IfNotPresent"
+				imagePullPolicy: v1.#PullIfNotPresent
 				args: [
 					"patch",
 					"--webhook-name=ingress-nginx-admission",
@@ -90,7 +93,7 @@ job: [{
 					valueFrom: fieldRef: fieldPath: "metadata.namespace"
 				}]
 			}]
-			restartPolicy:      "OnFailure"
+			restartPolicy:      v1.#RestartPolicyOnFailure
 			serviceAccountName: "ingress-nginx-admission"
 			securityContext: {
 				runAsNonRoot: true

@@ -1,6 +1,9 @@
 package sealed_secrets
 
-import appsv1 "k8s.io/api/apps/v1"
+import (
+	"k8s.io/api/core/v1"
+	appsv1 "k8s.io/api/apps/v1"
+)
 
 deployment: [...appsv1.#Deployment]
 
@@ -30,8 +33,8 @@ deployment: [{
 					command: [
 						"controller",
 					]
-					image:           "quay.io/bitnami/sealed-secrets-controller:v0.15.0"
-					imagePullPolicy: "Always"
+					image:           "quay.io/bitnami/sealed-secrets-controller:v0.15.0@sha256:f9c749a3fb897f8599d9b1710ba2678b26264a33aa3c7a3b4291fcca3036e423"
+					imagePullPolicy: v1.#PullIfNotPresent
 					livenessProbe: httpGet: {
 						path: "/healthz"
 						port: "http"

@@ -1,6 +1,9 @@
 package io_6f_dev
 
-import appsv1 "k8s.io/api/apps/v1"
+import (
+	"k8s.io/api/core/v1"
+	appsv1 "k8s.io/api/apps/v1"
+)
 
 deployment: [...appsv1.#Deployment]
 
@@ -17,10 +20,9 @@ deployment: [{
 		template: {
 			metadata: labels: app: "io-6f"
 			spec: containers: [{
-				name: "io-6f"
-				// v1.4.0
-				image:           "ghcr.io/uhthomas/6f.io@sha256:142d56f20b64593c91131c66cefdd74fa06a8dab6607d46e2f9a910f9ac4d4eb"
-				imagePullPolicy: "IfNotPresent"
+				name:            "io-6f"
+				image:           "ghcr.io/uhthomas/6f.io:v1.4.0@sha256:142d56f20b64593c91131c66cefdd74fa06a8dab6607d46e2f9a910f9ac4d4eb"
+				imagePullPolicy: v1.#PullIfNotPresent
 				ports: [{
 					name:          "http"
 					containerPort: 80

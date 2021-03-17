@@ -17,6 +17,6 @@ service: [{
 			targetPort: 8080
 		}]
 		selector: name: "sealed-secrets-controller"
-		type: "ClusterIP"
+		type: v1.#ServiceTypeClusterIP
 	}
 }]

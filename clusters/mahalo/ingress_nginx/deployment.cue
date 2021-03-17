@@ -1,6 +1,9 @@
 package ingress_nginx
 
-import appsv1 "k8s.io/api/apps/v1"
+import (
+	"k8s.io/api/core/v1"
+	appsv1 "k8s.io/api/apps/v1"
+)
 
 deployment: [...appsv1.#Deployment]
 
@@ -31,11 +34,11 @@ deployment: [{
 				"app.kubernetes.io/component": "controller"
 			}
 			spec: {
-				dnsPolicy: "ClusterFirst"
+				dnsPolicy: v1.#DNSClusterFirst
 				containers: [{
 					name:            "controller"
 					image:           "k8s.gcr.io/ingress-nginx/controller:v0.44.0@sha256:3dd0fac48073beaca2d67a78c746c7593f9c575168a17139a9955a82c63c4b9a"
-					imagePullPolicy: "IfNotPresent"
+					imagePullPolicy: v1.#PullIfNotPresent
 					lifecycle: preStop: exec: command: [
 						"/wait-shutdown",
 					]

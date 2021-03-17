@@ -1,6 +1,9 @@
 package cert_manager
 
-import appsv1 "k8s.io/api/apps/v1"
+import (
+	"k8s.io/api/core/v1"
+	appsv1 "k8s.io/api/apps/v1"
+)
 
 deployment: [...appsv1.#Deployment]
 
@@ -41,7 +44,7 @@ deployment: [{
 						valueFrom: fieldRef: fieldPath: "metadata.namespace"
 					}]
 					image:           "quay.io/jetstack/cert-manager-cainjector:v1.2.0"
-					imagePullPolicy: "IfNotPresent"
+					imagePullPolicy: v1.#PullIfNotPresent
 					name:            "cert-manager"
 				}]
 				serviceAccountName: "cert-manager-cainjector"
@@ -93,7 +96,7 @@ deployment: [{
 						valueFrom: fieldRef: fieldPath: "metadata.namespace"
 					}]
 					image:           "quay.io/jetstack/cert-manager-controller:v1.2.0"
-					imagePullPolicy: "IfNotPresent"
+					imagePullPolicy: v1.#PullIfNotPresent
 					name:            "cert-manager"
 					ports: [{
 						containerPort: 9402
@@ -144,7 +147,7 @@ deployment: [{
 						valueFrom: fieldRef: fieldPath: "metadata.namespace"
 					}]
 					image:           "quay.io/jetstack/cert-manager-webhook:v1.2.0"
-					imagePullPolicy: "IfNotPresent"
+					imagePullPolicy: v1.#PullIfNotPresent
 					livenessProbe: {
 						failureThreshold: 3
 						httpGet: {

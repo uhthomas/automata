@@ -1,6 +1,9 @@
 package grafana
 
-import appsv1 "k8s.io/api/apps/v1"
+import (
+	"k8s.io/api/core/v1"
+	appsv1 "k8s.io/api/apps/v1"
+)
 
 deployment: [...appsv1.#Deployment]
 
@@ -36,7 +39,7 @@ deployment: [{
 				containers: [{
 					name:            "grafana"
 					image:           "grafana/grafana:7.4.3@sha256:16dc29783ec7d4a23fa19207507586344c6797023604347eb3e8ea5ae431e181"
-					imagePullPolicy: "IfNotPresent"
+					imagePullPolicy: v1.#PullIfNotPresent
 					ports: [{
 						name:          "http"
 						containerPort: 3000

@@ -1,6 +1,9 @@
 package oauth2_proxy
 
-import appsv1 "k8s.io/api/apps/v1"
+import (
+	"k8s.io/api/core/v1"
+	appsv1 "k8s.io/api/apps/v1"
+)
 
 deployment: [...appsv1.#Deployment]
 
@@ -17,10 +20,9 @@ deployment: [{
 		template: {
 			metadata: labels: app: "oauth2-proxy"
 			spec: containers: [{
-				name: "oauth2-proxy"
-				// v6.1.1
-				image:           "quay.io/oauth2-proxy/oauth2-proxy@sha256:791aef35b8d1d2a325028b188d5a650605d69985a0dab1233c06079e7321eee0"
-				imagePullPolicy: "IfNotPresent"
+				name:            "oauth2-proxy"
+				image:           "quay.io/oauth2-proxy/oauth2-proxy:v6.1.1@sha256:791aef35b8d1d2a325028b188d5a650605d69985a0dab1233c06079e7321eee0"
+				imagePullPolicy: v1.#PullIfNotPresent
 				ports: [{
 					name:          "http"
 					containerPort: 4180

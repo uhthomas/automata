@@ -17,7 +17,7 @@ service: [{
 		}
 	}
 	spec: {
-		type: "ClusterIP"
+		type: v1.#ServiceTypeClusterIP
 		ports: [{
 			name:       "https-webhook"
 			port:       443
@@ -46,17 +46,17 @@ service: [{
 		}
 	}
 	spec: {
-		type:                  "LoadBalancer"
-		externalTrafficPolicy: "Local"
+		type:                  v1.#ServiceTypeLoadBalancer
+		externalTrafficPolicy: v1.#ServiceExternalTrafficPolicyTypeLocal
 		ports: [{
 			name:       "http"
 			port:       80
-			protocol:   "TCP"
+			protocol:   v1.#ProtocolTCP
 			targetPort: "http"
 		}, {
 			name:       "https"
 			port:       443
-			protocol:   "TCP"
+			protocol:   v1.#ProtocolTCP
 			targetPort: "https"
 		}]
 		selector: {

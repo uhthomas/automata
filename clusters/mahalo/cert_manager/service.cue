@@ -26,7 +26,7 @@ service: [{
 			"app.kubernetes.io/instance":  "cert-manager"
 			"app.kubernetes.io/name":      "cert-manager"
 		}
-		type: "ClusterIP"
+		type: v1.#ServiceTypeClusterIP
 	}
 }, {
 	apiVersion: "v1"
@@ -50,6 +50,6 @@ service: [{
 			"app.kubernetes.io/instance":  "cert-manager"
 			"app.kubernetes.io/name":      "webhook"
 		}
-		type: "ClusterIP"
+		type: v1.#ServiceTypeClusterIP
 	}
 }]
