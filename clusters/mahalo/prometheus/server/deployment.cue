@@ -53,16 +53,16 @@ deployment: [{
 						"--storage.tsdb.max-block-duration=2h",
 					]
 					volumeMounts: [{
-						name: "storage"
+						name:      "storage"
 						mountPath: "/data"
 					}, {
 						name:      "config"
 						mountPath: "/etc/config"
 						readOnly:  true
 					}, {
-						name: "config-reload"
+						name:      "config-reload"
 						mountPath: "/etc/config-reload"
-						readOnly: true
+						readOnly:  true
 					}]
 					livenessProbe: {
 						httpGet: {
@@ -110,7 +110,7 @@ deployment: [{
 					volumeMounts: [{
 						name:      "storage"
 						mountPath: "/data"
-						readOnly: true
+						readOnly:  true
 					}, {
 						name:      "thanos-sidecar"
 						mountPath: "/etc/secret"
@@ -118,7 +118,7 @@ deployment: [{
 					}, {
 						name:      "config"
 						mountPath: "/etc/config"
-						readOnly: true
+						readOnly:  true
 					}, {
 						name:      "config-reload"
 						mountPath: "/etc/config-reload"
@@ -154,6 +154,12 @@ deployment: [{
 					name: "thanos-sidecar"
 					secret: secretName: "thanos-sidecar"
 				}]
+				securityContext: {
+					fsGroup:      65534
+					runAsGroup:   65534
+					runAsNonRoot: true
+					runAsUser:    65534
+				}
 				serviceAccountName: "server"
 			}
 		}
