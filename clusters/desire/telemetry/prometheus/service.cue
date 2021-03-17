@@ -14,7 +14,7 @@ service: corev1.#Service & {
 		}, {
 			name:       "grpc"
 			port:       50051
-			targetPort: "thanos-sidecar-grpc"
+			targetPort: "grpc"
 		}]
 		selector: {
 			"app.kubernetes.io/name":      "prometheus"
