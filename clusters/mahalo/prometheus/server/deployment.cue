@@ -107,14 +107,14 @@ deployment: [{
 						valueFrom: fieldRef: fieldPath: "metadata.name"
 					}]
 					volumeMounts: [{
-						name:      "storage-volume"
+						name:      "storage"
 						mountPath: "/data"
 					}, {
 						name:      "thanos-sidecar"
 						mountPath: "/etc/secret"
 						readOnly:  true
 					}, {
-						name:      "config-volume"
+						name:      "config"
 						mountPath: "/etc/config"
 					}, {
 						name:      "config-reload"
@@ -123,7 +123,7 @@ deployment: [{
 					livenessProbe: {
 						httpGet: {
 							path: "/-/healthy"
-							port: "thanos-sidecar-http"
+							port: "thanos-http"
 						}
 						initialDelaySeconds: 5
 						periodSeconds:       3
@@ -131,7 +131,7 @@ deployment: [{
 					readinessProbe: {
 						httpGet: {
 							path: "/-/ready"
-							port: "thanos-sidecar-http"
+							port: "thanos-http"
 						}
 						initialDelaySeconds: 5
 						periodSeconds:       3
