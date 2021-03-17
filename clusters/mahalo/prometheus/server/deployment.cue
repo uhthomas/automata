@@ -151,6 +151,7 @@ deployment: [{
 					name: "thanos-sidecar"
 					secret: secretName: "thanos-sidecar"
 				}]
+				serviceAccountName: "server"
 			}
 		}
 	}

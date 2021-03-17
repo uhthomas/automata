@@ -9,6 +9,7 @@ cue_library(
         "persistent_volume_claim.cue",
         "sealed_secret.cue",
         "service.cue",
+        "service_account.cue",
     ],
     importpath = "github.com/uhthomas/automata/clusters/mahalo/prometheus/server",
     visibility = ["//visibility:public"],
