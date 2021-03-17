@@ -53,10 +53,16 @@ deployment: [{
 						"--storage.tsdb.max-block-duration=2h",
 					]
 					volumeMounts: [{
+						name: "storage"
+						mountPath: "/data"
+					}, {
 						name:      "config"
-						mountPath: "/etc/config/prometheus.yaml"
+						mountPath: "/etc/config"
 						readOnly:  true
-						subPath:   "prometheus.ini"
+					}, {
+						name: "config-reload"
+						mountPath: "/etc/config-reload"
+						readOnly: true
 					}]
 					livenessProbe: {
 						httpGet: {
@@ -104,6 +110,7 @@ deployment: [{
 					volumeMounts: [{
 						name:      "storage"
 						mountPath: "/data"
+						readOnly: true
 					}, {
 						name:      "thanos-sidecar"
 						mountPath: "/etc/secret"
@@ -111,6 +118,7 @@ deployment: [{
 					}, {
 						name:      "config"
 						mountPath: "/etc/config"
+						readOnly: true
 					}, {
 						name:      "config-reload"
 						mountPath: "/etc/config-reload"
