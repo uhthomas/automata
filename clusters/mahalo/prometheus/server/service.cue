@@ -18,6 +18,10 @@ service: [{
 			port:       50051
 			targetPort: "thanos-grpc"
 		}]
-		selector: app: "server"
+		selector: {
+			"app.kubernetes.io/name":      "prometheus"
+			"app.kubernetes.io/instance":  "prometheus"
+			"app.kubernetes.io/component": "server"
+		}
 	}
 }]

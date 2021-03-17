@@ -4,7 +4,7 @@ cue_library(
     name = "cue_query_library",
     srcs = [
         "deployment.cue",
-        "hpa.cue",
+        "horizontal_pod_autoscaler.cue",
         "list.cue",
         "service.cue",
     ],
