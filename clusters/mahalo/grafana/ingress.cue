@@ -12,7 +12,7 @@ ingress: [{
 		annotations: {
 			"cert-manager.io/cluster-issuer":          "letsencrypt"
 			"nginx.ingress.kubernetes.io/auth-url":    "http://oauth2-proxy.oauth2-proxy.svc.cluster.local/oauth2/auth"
-			"nginx.ingress.kubernetes.io/auth-signin": "https://oauth2-proxy.mahalo.6f.io/oauth2/start?rd=https://$host$request_uri"
+			"nginx.ingress.kubernetes.io/auth-signin": "https://oauth2-proxy.mahalo.6f.io/oauth2/start?rd=$escaped_request_uri"
 		}
 		labels: {
 			"app.kubernetes.io/name":      "grafana"

@@ -1,0 +1,15 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_compact_library",
+    srcs = [
+        "deployment.cue",
+        "list.cue",
+    ],
+    importpath = "github.com/uhthomas/automata/clusters/mahalo/thanos/compact",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//cue.mod/gen/k8s.io/api/apps/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
+    ],
+)

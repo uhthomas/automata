@@ -7,6 +7,7 @@ import (
 	"github.com/uhthomas/automata/clusters/mahalo/oauth2_proxy"
 	"github.com/uhthomas/automata/clusters/mahalo/prometheus"
 	"github.com/uhthomas/automata/clusters/mahalo/sealed_secrets"
+	"github.com/uhthomas/automata/clusters/mahalo/thanos"
 	"k8s.io/api/core/v1"
 )
 
@@ -49,4 +50,11 @@ items:
 
 	// requires:
 	// - sealed_secrets
-	prometheus.items
+	prometheus.items +
+
+	// requires:
+	// - ingress_nginx
+	// - oauth2_proxy
+	// - prometheus
+	// - sealed_secrets
+	thanos.items
