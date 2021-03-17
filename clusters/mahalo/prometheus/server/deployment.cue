@@ -84,10 +84,10 @@ deployment: [{
 					name:  "thanos-sidecar"
 					image: "quay.io/thanos/thanos:v0.18.0@sha256:b94171aed499b2f1f81b6d3d385e0eeeca885044c59cef28ce6a9a9e8a827217"
 					ports: [{
-						name:          "thanos-sidecar-http"
+						name:          "thanos-http"
 						containerPort: 8080
 					}, {
-						name:          "thanos-sidecar-grpc"
+						name:          "thanos-grpc"
 						containerPort: 50051
 					}]
 					args: [

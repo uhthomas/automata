@@ -16,7 +16,7 @@ service: [{
 		}, {
 			name:       "grpc"
 			port:       50051
-			targetPort: "grpc"
+			targetPort: "thanos-grpc"
 		}]
 		selector: app: "server"
 	}
