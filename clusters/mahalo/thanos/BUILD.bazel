@@ -10,10 +10,10 @@ cue_library(
     importpath = "github.com/uhthomas/automata/clusters/mahalo/thanos",
     visibility = ["//visibility:public"],
     deps = [
-        "//clusters/desire/thanos/compact:cue_compact_library",
-        "//clusters/desire/thanos/query:cue_query_library",
-        "//clusters/desire/thanos/query_frontend:cue_query_frontend_library",
-        "//clusters/desire/thanos/store:cue_store_library",
+        "//clusters/mahalo/thanos/compact:cue_compact_library",
+        "//clusters/mahalo/thanos/query:cue_query_library",
+        "//clusters/mahalo/thanos/query_frontend:cue_query_frontend_library",
+        "//clusters/mahalo/thanos/store:cue_store_library",
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
     ],
 )
