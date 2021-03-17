@@ -143,7 +143,7 @@ deployment: [{
 					persistentVolumeClaim: claimName: "server"
 				}, {
 					name: "config"
-					configMap: name: "prometheus"
+					configMap: name: "server"
 				}, {
 					name: "config-reload"
 					emptyDir: {}
