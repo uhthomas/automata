@@ -1,4 +1,7 @@
 # Automata
+
+[![Push](https://github.com/uhthomas/automata/actions/workflows/apply.yaml/badge.svg)](https://github.com/uhthomas/automata/actions/workflows/apply.yaml)
+
 Monorepo for 6f.io and subsidiaries.
 
 ## Getting started
@@ -13,7 +16,7 @@ Monorepo for 6f.io and subsidiaries.
 bazel run //clusters:objects.apply -- --prune
 ```
 
-## Starting a new cluster
+## Creating a new cluster
 
 ### Create a cluster role for GitHub Actions
 Create a service account, bind to a cluster role and store the service account's
@@ -26,20 +29,4 @@ $ k get secret $(k get sa automata -ojson | jq -r '.secrets[0].name') -oyaml
 $ k get secret $(k get sa automata -ojson | jq -r '.secrets[0].name') -ojson | jq -r '.data.token'| base64 --decode
 # ca.crt
 k get secret $(k get sa automata -ojson | jq -r '.secrets[0].name') -ojson | jq -r '.data["ca.crt"]' | base64 --decode
-```
-
----
-
-## Secrets
-
-### Creating
-
-```sh
-$ k create secret generic --dry-run=client loki-helm-release --from-file=values.yaml -oyaml -n telemetry | kubeseal --controller-name sealed-secrets -oyaml > sealed-secret.yaml
-```
-
-### Viewing
-
-```sh
-$ k -n telemetry get secret loki-helm-release -oyaml | yq '.data["values.yaml"]' -r | base64 --decode -
 ```
