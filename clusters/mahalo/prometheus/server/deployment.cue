@@ -54,14 +54,9 @@ deployment: [{
 					]
 					volumeMounts: [{
 						name:      "config"
-						mountPath: "/etc/prometheus/prometheus.ini"
+						mountPath: "/etc/config/prometheus.yaml"
 						readOnly:  true
 						subPath:   "prometheus.ini"
-					}, {
-						name:      "config"
-						mountPath: "/etc/prometheus/provisioning/datasources/datasources.yaml"
-						readOnly:  true
-						subPath:   "datasources.yaml"
 					}]
 					livenessProbe: {
 						httpGet: {
