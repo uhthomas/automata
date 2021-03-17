@@ -17,7 +17,7 @@ persistent_volume_claim: [{
 		}
 	}
 	spec: {
-		accessModes: [v1.#ReadWriteMany]
+		accessModes: [v1.#ReadWriteOnce]
 		resources: requests: storage: "4Gi"
 	}
 }]
