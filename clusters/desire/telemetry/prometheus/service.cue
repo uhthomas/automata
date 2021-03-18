@@ -8,8 +8,8 @@ service: corev1.#Service & {
 	metadata: name: "server"
 	spec: {
 		ports: [{
-			name: "http"
-			port: 80
+			name:       "http"
+			port:       80
 			targetPort: "http"
 		}, {
 			name:       "grpc"

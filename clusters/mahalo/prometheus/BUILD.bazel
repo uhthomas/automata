@@ -9,6 +9,7 @@ cue_library(
     importpath = "github.com/uhthomas/automata/clusters/mahalo/prometheus",
     visibility = ["//visibility:public"],
     deps = [
+        "//clusters/mahalo/prometheus/node_exporter:cue_node_exporter_library",
         "//clusters/mahalo/prometheus/server:cue_server_library",
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
     ],
