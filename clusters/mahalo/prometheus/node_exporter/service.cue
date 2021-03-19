@@ -8,7 +8,7 @@ service: [{
 	apiVersion: "v1"
 	kind:       "Service"
 	metadata: {
-		name: "server"
+		name: "node-exporter"
 		annotations: "prometheus.io/scrape": "true"
 		labels: {
 			"app.kubernetes.io/name":      "prometheus"
