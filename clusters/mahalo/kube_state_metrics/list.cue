@@ -24,4 +24,5 @@ items:
 	service_account +
 	cluster_role +
 	cluster_role_binding +
+	service +
 	deployment

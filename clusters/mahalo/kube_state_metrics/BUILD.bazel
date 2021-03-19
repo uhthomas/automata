@@ -8,6 +8,7 @@ cue_library(
         "deployment.cue",
         "list.cue",
         "namespace.cue",
+        "service.cue",
         "service_account.cue",
     ],
     importpath = "github.com/uhthomas/automata/clusters/mahalo/kube_state_metrics",
