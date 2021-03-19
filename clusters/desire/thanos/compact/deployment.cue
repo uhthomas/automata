@@ -12,7 +12,7 @@ deployment: appsv1.#Deployment & {
 		strategy: type: "Recreate"
 		minReadySeconds: 1
 		selector: matchLabels: app: "compact"
-		replicas: 1
+		replicas: 0 // managed by mahalo
 		template: {
 			metadata: {
 				annotations: "prometheus.io/scrape": "true"
