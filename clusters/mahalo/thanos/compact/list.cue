@@ -13,4 +13,6 @@ v1.#List & {
 	}]
 }
 
-items: deployment
+items:
+	persistent_volume_claim +
+	deployment

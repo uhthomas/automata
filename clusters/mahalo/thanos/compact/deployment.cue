@@ -89,13 +89,7 @@ deployment: [{
 					secret: secretName: "thanos"
 				}, {
 					name: "scratch"
-					ephemeral: volumeClaimTemplate: spec: {
-						accessModes: [v1.#ReadWriteOnce]
-						resources: {
-							requests: storage: 30Gi
-							limits: storage:   30Gi
-						}
-					}
+					persistentVolumeClaim: claimName: "compact"
 				}]
 			}
 		}

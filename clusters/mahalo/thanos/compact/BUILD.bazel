@@ -5,6 +5,7 @@ cue_library(
     srcs = [
         "deployment.cue",
         "list.cue",
+        "persistent_volume_claim.cue",
     ],
     importpath = "github.com/uhthomas/automata/clusters/mahalo/thanos/compact",
     visibility = ["//visibility:public"],
