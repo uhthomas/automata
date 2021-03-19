@@ -154,6 +154,12 @@ deployment: [{
 					secret: secretName: "thanos-sidecar"
 				}]
 				serviceAccountName: "server"
+				securityContext: {
+					fsGroup:      65534
+					runAsGroup:   65534
+					runAsNonRoot: true
+					runAsUser:    65534
+				}
 			}
 		}
 	}
