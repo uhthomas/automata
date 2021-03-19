@@ -9,5 +9,6 @@ v1.#List & {
 		service_account +
 		role +
 		role_binding +
+		service +
 		daemon_set
 }

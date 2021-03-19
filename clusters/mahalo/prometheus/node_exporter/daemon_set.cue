@@ -29,13 +29,10 @@ daemon_set: [{
 			"app.kubernetes.io/component": "node-exporter"
 		}
 		template: {
-			metadata: {
-				annotations: "prometheus.io/scrape": "true"
-				labels: {
-					"app.kubernetes.io/name":      "prometheus"
-					"app.kubernetes.io/instance":  "prometheus"
-					"app.kubernetes.io/component": "node-exporter"
-				}
+			metadata: labels: {
+				"app.kubernetes.io/name":      "prometheus"
+				"app.kubernetes.io/instance":  "prometheus"
+				"app.kubernetes.io/component": "node-exporter"
 			}
 			spec: {
 				serviceAccountName: "node-exporter"

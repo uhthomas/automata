@@ -1,4 +1,4 @@
-package server
+package node_exporter
 
 import "k8s.io/api/core/v1"
 
@@ -9,27 +9,24 @@ service: [{
 	kind:       "Service"
 	metadata: {
 		name: "server"
+		annotations: "prometheus.io/scrape": "true"
 		labels: {
 			"app.kubernetes.io/name":      "prometheus"
 			"app.kubernetes.io/instance":  "prometheus"
-			"app.kubernetes.io/version":   "2.25.1"
-			"app.kubernetes.io/component": "server"
+			"app.kubernetes.io/version":   "1.2.2"
+			"app.kubernetes.io/component": "node-exporter"
 		}
 	}
 	spec: {
 		ports: [{
-			name:       "http"
-			port:       80
-			targetPort: "http"
-		}, {
-			name:       "grpc"
-			port:       50051
-			targetPort: "thanos-grpc"
+			name:       "metrics"
+			port:       9100
+			targetPort: "metrics"
 		}]
 		selector: {
 			"app.kubernetes.io/name":      "prometheus"
 			"app.kubernetes.io/instance":  "prometheus"
-			"app.kubernetes.io/component": "server"
+			"app.kubernetes.io/component": "node-exporter"
 		}
 	}
 }]
