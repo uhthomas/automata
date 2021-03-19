@@ -4,6 +4,7 @@ import (
 	"github.com/uhthomas/automata/clusters/mahalo/grafana"
 	"github.com/uhthomas/automata/clusters/mahalo/ingress_nginx"
 	"github.com/uhthomas/automata/clusters/mahalo/io_6f_dev"
+	"github.com/uhthomas/automata/clusters/mahalo/kube_state_metrics"
 	"github.com/uhthomas/automata/clusters/mahalo/oauth2_proxy"
 	"github.com/uhthomas/automata/clusters/mahalo/prometheus"
 	"github.com/uhthomas/automata/clusters/mahalo/sealed_secrets"
@@ -38,17 +39,10 @@ items:
 	// - sealed_secrets
 	oauth2_proxy.items +
 
-	// requires:
-	// - ingress_nginx
-	// - oauth2_proxy
-	// - sealed_secrets
-	grafana.items +
+	kube_state_metrics.items +
 
 	// requires:
-	// - ingress_nginx
-	io_6f_dev.items +
-
-	// requires:
+	// - kube_state_metrics
 	// - sealed_secrets
 	prometheus.items +
 
@@ -57,4 +51,15 @@ items:
 	// - oauth2_proxy
 	// - prometheus
 	// - sealed_secrets
-	thanos.items
+	thanos.items +
+
+	// requires:
+	// - ingress_nginx
+	// - oauth2_proxy
+	// - sealed_secrets
+	// - thanos
+	grafana.items +
+
+	// requires:
+	// - ingress_nginx
+	io_6f_dev.items

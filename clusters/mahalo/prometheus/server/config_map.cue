@@ -405,7 +405,7 @@ config_map: [{
 			bearer_token_file: "/var/run/secrets/kubernetes.io/serviceaccount/token"
 			relabel_configs: [{
 				source_labels: ["__meta_kubernetes_namespace"]
-				regex:  "telemetry"
+				regex:  "prometheus"
 				action: "keep"
 			}, {
 				source_labels: ["__meta_kubernetes_pod_label_app"]
