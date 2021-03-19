@@ -20,8 +20,7 @@ deployment: [{
 			"app.kubernetes.io/instance":  "thanos"
 			"app.kubernetes.io/component": "store"
 		}
-		// desire is currently in charge of Thanos compact
-		replicas: 0
+		replicas: 1
 		template: {
 			metadata: {
 				annotations: "prometheus.io/scrape": "true"
@@ -52,12 +51,12 @@ deployment: [{
 						requests: {
 							memory:              "256Mi"
 							cpu:                 "50m"
-							"ephemeral-storage": "10Gi"
+							"ephemeral-storage": "30Gi"
 						}
 						limits: {
 							memory:              "512Mi"
 							cpu:                 "350m"
-							"ephemeral-storage": "10Gi"
+							"ephemeral-storage": "30Gi"
 						}
 					}
 					volumeMounts: [{
