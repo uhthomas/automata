@@ -18,7 +18,7 @@ deployment: [{
 		selector: matchLabels: {
 			"app.kubernetes.io/name":      "thanos"
 			"app.kubernetes.io/instance":  "thanos"
-			"app.kubernetes.io/component": "store"
+			"app.kubernetes.io/component": "compact"
 		}
 		replicas: 1
 		template: {
@@ -27,7 +27,7 @@ deployment: [{
 				labels: {
 					"app.kubernetes.io/name":      "thanos"
 					"app.kubernetes.io/instance":  "thanos"
-					"app.kubernetes.io/component": "store"
+					"app.kubernetes.io/component": "compact"
 				}
 			}
 			spec: {
