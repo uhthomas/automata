@@ -1,8 +1,8 @@
 package node_exporter
 
 import (
-	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/api/core/v1"
+	appsv1 "k8s.io/api/apps/v1"
 )
 
 daemon_set: [...appsv1.#DaemonSet]
@@ -10,15 +10,6 @@ daemon_set: [...appsv1.#DaemonSet]
 daemon_set: [{
 	apiVersion: "apps/v1"
 	kind:       "DaemonSet"
-	metadata: {
-		name: "node-exporter"
-		labels: {
-			"app.kubernetes.io/name":      "prometheus"
-			"app.kubernetes.io/instance":  "prometheus"
-			"app.kubernetes.io/version":   "1.2.2"
-			"app.kubernetes.io/component": "node-exporter"
-		}
-	}
 	spec: {
 		revisionHistoryLimit: 5
 		updateStrategy: type: "RollingUpdate"
@@ -35,14 +26,13 @@ daemon_set: [{
 				"app.kubernetes.io/component": "node-exporter"
 			}
 			spec: {
-				serviceAccountName: "node-exporter"
 				tolerations: [{
 					key:    "node-role.kubernetes.io/master"
-					effect: "NoSchedule"
+					effect: v1.#TaintEffectNoSchedule
 				}]
 				containers: [{
 					name:  "node-exporter"
-					image: "quay.io/prometheus/node-exporter:v1.2.2@sha256:22fbde17ab647ddf89841e5e464464eece111402b7d599882c2a3393bc0d2810"
+					image: "quay.io/prometheus/node-exporter:v1.1.2@sha256:22fbde17ab647ddf89841e5e464464eece111402b7d599882c2a3393bc0d2810"
 
 					ports: [{
 						name:          "metrics"
@@ -94,6 +84,13 @@ daemon_set: [{
 					name: "root"
 					hostPath: path: "/"
 				}]
+				serviceAccountName: "node-exporter"
+				securityContext: {
+					fsGroup:      65534
+					runAsGroup:   65534
+					runAsNonRoot: true
+					runAsUser:    65534
+				}
 			}
 		}
 	}
