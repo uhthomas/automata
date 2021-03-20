@@ -16,7 +16,7 @@ config_map: [{
 			log_level:        "info"
 			http_listen_port: 3101
 		}
-		client: url:         "http://loki.telemetry.svc:3100/loki/api/v1/push"
+		client: url:         "http://loki.loki.svc:3100/loki/api/v1/push"
 		positions: filename: "/run/promtail/positions.yaml"
 		scrape_configs: [{
 			// See also https://github.com/grafana/loki/blob/master/production/ksonnet/promtail/scrape_config.libsonnet for reference
