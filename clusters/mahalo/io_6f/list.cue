@@ -6,7 +6,7 @@ v1.#List & {
 	apiVersion: "v1"
 	kind:       "List"
 	items: [...{
-		metadata: namespace: "io-6f-dev"
+		metadata: namespace: "io-6f"
 	}]
 }
 
