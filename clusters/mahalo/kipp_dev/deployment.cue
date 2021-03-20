@@ -90,7 +90,7 @@ deployment: [{
 				}]
 				volumes: [{
 					name: "secret"
-					secret: secretName: "kipp"
+					secret: secretName: "kipp-dev"
 				}]
 			}
 		}
