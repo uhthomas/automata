@@ -13,6 +13,10 @@ service: [{
 			port:       80
 			targetPort: "http"
 		}]
-		selector: app: "io-6f"
+		selector: {
+			"app.kubernetes.io/name":      "io-6f"
+			"app.kubernetes.io/instance":  "io-6f"
+			"app.kubernetes.io/component": "io-6f"
+		}
 	}
 }]
