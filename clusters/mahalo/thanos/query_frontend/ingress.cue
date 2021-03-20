@@ -17,12 +17,12 @@ ingress: [{
 		ingressClassName: "nginx"
 		tls: [{
 			hosts: [
-				"thanos.mahalo.6f.io",
+				"thanos.6f.io",
 			]
 			secretName: "query-frontend-tls"
 		}]
 		rules: [{
-			host: "thanos.mahalo.6f.io"
+			host: "thanos.6f.io"
 			http: paths: [{
 				pathType: "ImplementationSpecific"
 				backend: service: {
