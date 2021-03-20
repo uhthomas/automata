@@ -5,7 +5,7 @@ import rbacv1 "k8s.io/api/rbac/v1"
 role: [...rbacv1.#Role]
 
 role: [{
-	apiVersion: "rbac.authorization.k8s.io/v1beta1"
+	apiVersion: "rbac.authorization.k8s.io/v1"
 	kind:       "Role"
 	metadata: {
 		labels: name: "sealed-secrets-key-admin"
@@ -24,7 +24,7 @@ role: [{
 		]
 	}]
 }, {
-	apiVersion: "rbac.authorization.k8s.io/v1beta1"
+	apiVersion: "rbac.authorization.k8s.io/v1"
 	kind:       "Role"
 	metadata: {
 		annotations: {}

@@ -27,7 +27,6 @@ custom_resource_definition: [{
 				}
 				conversionReviewVersions: [
 					"v1",
-					"v1beta1",
 				]
 			}
 		}

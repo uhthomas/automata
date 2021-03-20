@@ -5,7 +5,7 @@ import rbacv1 "k8s.io/api/rbac/v1"
 role_binding: [...rbacv1.#RoleBinding]
 
 role_binding: [{
-	apiVersion: "rbac.authorization.k8s.io/v1beta1"
+	apiVersion: "rbac.authorization.k8s.io/v1"
 	kind:       "RoleBinding"
 	metadata: {
 		labels: name: "sealed-secrets-service-proxier"
@@ -22,7 +22,7 @@ role_binding: [{
 		name:     "system:authenticated"
 	}]
 }, {
-	apiVersion: "rbac.authorization.k8s.io/v1beta1"
+	apiVersion: "rbac.authorization.k8s.io/v1"
 	kind:       "RoleBinding"
 	metadata: {
 		annotations: {}
