@@ -3,6 +3,7 @@ import (
 	"github.com/uhthomas/automata/clusters/mahalo/cert_manager"
 	"github.com/uhthomas/automata/clusters/mahalo/grafana"
 	"github.com/uhthomas/automata/clusters/mahalo/ingress_nginx"
+	"github.com/uhthomas/automata/clusters/mahalo/io_6f"
 	"github.com/uhthomas/automata/clusters/mahalo/io_6f_dev"
 	"github.com/uhthomas/automata/clusters/mahalo/kube_state_metrics"
 	"github.com/uhthomas/automata/clusters/mahalo/loki"
@@ -71,4 +72,5 @@ items:
 
 	// requires:
 	// - ingress_nginx
+	io_6f.items +
 	io_6f_dev.items
