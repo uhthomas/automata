@@ -25,12 +25,12 @@ ingress: [{
 		ingressClassName: "nginx"
 		tls: [{
 			hosts: [
-				"grafana.mahalo.6f.io",
+				"grafana.6f.io",
 			]
 			secretName: "grafana-tls"
 		}]
 		rules: [{
-			host: "grafana.mahalo.6f.io"
+			host: "grafana.6f.io"
 			http: paths: [{
 				pathType: "ImplementationSpecific"
 				backend: service: {
