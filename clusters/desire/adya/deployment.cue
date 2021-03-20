@@ -7,7 +7,8 @@ deployment: appsv1.#Deployment & {
 	kind:       "Deployment"
 	metadata: name: "adya"
 	spec: {
-		replicas:                1
+		// managed by mahalo
+		replicas:                0
 		revisionHistoryLimit:    5
 		progressDeadlineSeconds: 120
 		strategy: type: "Recreate"

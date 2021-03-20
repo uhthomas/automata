@@ -23,6 +23,7 @@ cue_export(
     visibility = ["//visibility:public"],
     deps = [
         ":cue_mahalo_library",
+        "//clusters/mahalo/adya:cue_adya_library",
         "//clusters/mahalo/cert_manager:cue_cert_manager_library",
         "//clusters/mahalo/grafana:cue_grafana_library",
         "//clusters/mahalo/ingress_nginx:cue_ingress_nginx_library",

@@ -1,5 +1,6 @@
 import (
 	"github.com/uhthomas/automata/clusters/mahalo"
+	"github.com/uhthomas/automata/clusters/mahalo/adya"
 	"github.com/uhthomas/automata/clusters/mahalo/cert_manager"
 	"github.com/uhthomas/automata/clusters/mahalo/grafana"
 	"github.com/uhthomas/automata/clusters/mahalo/ingress_nginx"
@@ -75,7 +76,7 @@ items:
 
 	// requires:
 	// - sealed_secrets
-	tesla_exporter.items +
+	adya.items +
 
 	// requires:
 	// - ingress_nginx
@@ -86,4 +87,8 @@ items:
 	// - ingress_nginx
 	// - sealed_secrets
 	kipp.items +
-	kipp_dev.items
+	kipp_dev.items +
+
+	// requires:
+	// - sealed_secrets
+	tesla_exporter.items
