@@ -7,10 +7,10 @@ sealed_secret: [{
 		name:      "thanos-sidecar"
 		namespace: "prometheus"
 		labels: {
-			"app.kubernetes.io/name":      "prometheus"
-			"app.kubernetes.io/instance":  "prometheus"
-			"app.kubernetes.io/version":   "2.25.1"
-			"app.kubernetes.io/component": "server"
+			"app.kubernetes.io/component": "sidecar"
+			"app.kubernetes.io/instance":  "thanos"
+			"app.kubernetes.io/name":      "thanos"
+			"app.kubernetes.io/version":   "0.18.0"
 		}
 	}
 	spec: {
