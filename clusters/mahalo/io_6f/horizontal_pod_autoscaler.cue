@@ -7,7 +7,6 @@ horizontal_pod_autoscaler: [...autoscalingv1.#HorizontalPodAutoscaler]
 horizontal_pod_autoscaler: [{
 	apiVersion: "autoscaling/v1"
 	kind:       "HorizontalPodAutoscaler"
-	metadata: name: "io-6f"
 	spec: {
 		scaleTargetRef: {
 			apiVersion: "apps/v1"

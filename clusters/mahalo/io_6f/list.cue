@@ -6,7 +6,16 @@ v1.#List & {
 	apiVersion: "v1"
 	kind:       "List"
 	items: [...{
-		metadata: namespace: "io-6f"
+		metadata: {
+			name:      "io-6f"
+			namespace: "io-6f"
+			labels: {
+				"app.kubernetes.io/name":      "io-6f"
+				"app.kubernetes.io/instance":  "io-6f"
+				"app.kubernetes.io/version":   "1.4.0"
+				"app.kubernetes.io/component": "io-6f"
+			}
+		}
 	}]
 }
 

@@ -10,7 +10,6 @@ deployment: [...appsv1.#Deployment]
 deployment: [{
 	apiVersion: "apps/v1"
 	kind:       "Deployment"
-	metadata: name: "io-6f"
 	spec: {
 		revisionHistoryLimit:    5
 		progressDeadlineSeconds: 120

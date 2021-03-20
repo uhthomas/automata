@@ -7,7 +7,6 @@ service: [...v1.#Service]
 service: [{
 	apiVersion: "v1"
 	kind:       "Service"
-	metadata: name: "io-6f"
 	spec: {
 		ports: [{
 			name:       "http"

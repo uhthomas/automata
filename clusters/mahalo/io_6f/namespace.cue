@@ -7,5 +7,4 @@ namespace: [...corev1.#Namespace]
 namespace: [{
 	apiVersion: "v1"
 	kind:       "Namespace"
-	metadata: name: "io-6f-dev"
 }]
