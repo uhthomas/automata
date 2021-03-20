@@ -12,6 +12,7 @@ import (
 	"github.com/uhthomas/automata/clusters/mahalo/prometheus"
 	"github.com/uhthomas/automata/clusters/mahalo/promtail"
 	"github.com/uhthomas/automata/clusters/mahalo/sealed_secrets"
+	"github.com/uhthomas/automata/clusters/mahalo/tesla_exporter"
 	"github.com/uhthomas/automata/clusters/mahalo/thanos"
 	"k8s.io/api/core/v1"
 )
@@ -70,6 +71,10 @@ items:
 	// - sealed_secrets
 	// - thanos
 	grafana.items +
+
+	// requires:
+	// - sealed_secrets
+	tesla_exporter.items +
 
 	// requires:
 	// - ingress_nginx

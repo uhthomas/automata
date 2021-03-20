@@ -35,6 +35,7 @@ cue_export(
         "//clusters/mahalo/prometheus:cue_prometheus_library",
         "//clusters/mahalo/promtail:cue_promtail_library",
         "//clusters/mahalo/sealed_secrets:cue_sealed_secrets_library",
+        "//clusters/mahalo/tesla_exporter:cue_tesla_exporter_library",
         "//clusters/mahalo/thanos:cue_thanos_library",
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
     ],
