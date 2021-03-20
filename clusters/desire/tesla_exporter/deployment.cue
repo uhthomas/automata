@@ -7,7 +7,8 @@ deployment: appsv1.#Deployment & {
 	kind:       "Deployment"
 	metadata: name: "tesla-exporter"
 	spec: {
-		replicas:                1
+		// running in mahalo
+		replicas:                0
 		revisionHistoryLimit:    5
 		progressDeadlineSeconds: 120
 		strategy: type: "Recreate"
