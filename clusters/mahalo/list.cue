@@ -8,6 +8,7 @@ import (
 	"github.com/uhthomas/automata/clusters/mahalo/loki"
 	"github.com/uhthomas/automata/clusters/mahalo/oauth2_proxy"
 	"github.com/uhthomas/automata/clusters/mahalo/prometheus"
+	"github.com/uhthomas/automata/clusters/mahalo/promtail"
 	"github.com/uhthomas/automata/clusters/mahalo/sealed_secrets"
 	"github.com/uhthomas/automata/clusters/mahalo/thanos"
 	"k8s.io/api/core/v1"
@@ -57,7 +58,12 @@ items:
 	loki.items +
 
 	// requires:
+	// - loki
+	promtail.items +
+
+	// requires:
 	// - ingress_nginx
+	// - loki
 	// - oauth2_proxy
 	// - sealed_secrets
 	// - thanos
