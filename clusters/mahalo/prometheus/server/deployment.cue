@@ -29,10 +29,16 @@ deployment: [{
 			"app.kubernetes.io/component": "server"
 		}
 		template: {
-			metadata: labels: {
-				"app.kubernetes.io/name":      "prometheus"
-				"app.kubernetes.io/instance":  "prometheus"
-				"app.kubernetes.io/component": "server"
+			metadata: {
+				annotations: {
+					"prometheus.io/scrape": "true"
+					"prometheus.io/port":   "thanos-http"
+				}
+				labels: {
+					"app.kubernetes.io/name":      "prometheus"
+					"app.kubernetes.io/instance":  "prometheus"
+					"app.kubernetes.io/component": "server"
+				}
 			}
 			spec: {
 				containers: [{

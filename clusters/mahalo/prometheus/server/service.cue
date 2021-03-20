@@ -32,29 +32,4 @@ service: [{
 			"app.kubernetes.io/component": "server"
 		}
 	}
-}, {
-	apiVersion: "v1"
-	kind:       "Service"
-	metadata: {
-		name: "thanos-sidecar-telemetry"
-		annotations: "prometheus.io/scrape": "true"
-		labels: {
-			"app.kubernetes.io/component": "sidecar"
-			"app.kubernetes.io/instance":  "thanos"
-			"app.kubernetes.io/name":      "thanos"
-			"app.kubernetes.io/version":   "0.18.0"
-		}
-	}
-	spec: {
-		ports: [{
-			name:       "http-metrics"
-			port:       80
-			targetPort: "thanos-http"
-		}]
-		selector: {
-			"app.kubernetes.io/name":      "prometheus"
-			"app.kubernetes.io/instance":  "prometheus"
-			"app.kubernetes.io/component": "server"
-		}
-	}
 }]
