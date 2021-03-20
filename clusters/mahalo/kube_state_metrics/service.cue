@@ -14,10 +14,10 @@ service: [{
 			port:       8080
 			targetPort: "http-metrics"
 		}, {
-                        name: "telemetry"
-                        port: 8081
-                        targetPort: "telemetry"
-                }]
+			name:       "telemetry"
+			port:       8081
+			targetPort: "telemetry"
+		}]
 		selector: {
 			"app.kubernetes.io/name":      "kube-state-metrics"
 			"app.kubernetes.io/instance":  "kube-state-metrics"

@@ -5,6 +5,7 @@ import (
 	"github.com/uhthomas/automata/clusters/mahalo/ingress_nginx"
 	"github.com/uhthomas/automata/clusters/mahalo/io_6f_dev"
 	"github.com/uhthomas/automata/clusters/mahalo/kube_state_metrics"
+	"github.com/uhthomas/automata/clusters/mahalo/loki"
 	"github.com/uhthomas/automata/clusters/mahalo/oauth2_proxy"
 	"github.com/uhthomas/automata/clusters/mahalo/prometheus"
 	"github.com/uhthomas/automata/clusters/mahalo/sealed_secrets"
@@ -52,6 +53,8 @@ items:
 	// - prometheus
 	// - sealed_secrets
 	thanos.items +
+
+	loki.items +
 
 	// requires:
 	// - ingress_nginx
