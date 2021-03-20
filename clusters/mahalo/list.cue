@@ -5,6 +5,7 @@ import (
 	"github.com/uhthomas/automata/clusters/mahalo/ingress_nginx"
 	"github.com/uhthomas/automata/clusters/mahalo/io_6f"
 	"github.com/uhthomas/automata/clusters/mahalo/io_6f_dev"
+	"github.com/uhthomas/automata/clusters/mahalo/kipp"
 	"github.com/uhthomas/automata/clusters/mahalo/kipp_dev"
 	"github.com/uhthomas/automata/clusters/mahalo/kube_state_metrics"
 	"github.com/uhthomas/automata/clusters/mahalo/loki"
@@ -84,4 +85,5 @@ items:
 	// requires:
 	// - ingress_nginx
 	// - sealed_secrets
+	kipp.items +
 	kipp_dev.items

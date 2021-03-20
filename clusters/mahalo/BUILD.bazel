@@ -28,6 +28,7 @@ cue_export(
         "//clusters/mahalo/ingress_nginx:cue_ingress_nginx_library",
         "//clusters/mahalo/io_6f:cue_io_6f_library",
         "//clusters/mahalo/io_6f_dev:cue_io_6f_dev_library",
+        "//clusters/mahalo/kipp:cue_kipp_library",
         "//clusters/mahalo/kipp_dev:cue_kipp_dev_library",
         "//clusters/mahalo/kube_state_metrics:cue_kube_state_metrics_library",
         "//clusters/mahalo/loki:cue_loki_library",
