@@ -50,7 +50,7 @@ deployment: [{
 					}, {
 						name: "DATABASE"
 						valueFrom: secretKeyRef: {
-							name: "secret"
+							name: "kipp-dev"
 							key:  "database"
 						}
 					}]
