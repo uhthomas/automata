@@ -86,6 +86,12 @@ deployment: [{
 					name: "storage"
 					persistentVolumeClaim: claimName: "loki"
 				}]
+				securityContext: {
+					fsGroup:      65534
+					runAsGroup:   65534
+					runAsNonRoot: true
+					runAsUser:    65534
+				}
 			}
 		}
 	}
