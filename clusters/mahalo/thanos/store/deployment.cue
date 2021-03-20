@@ -57,7 +57,7 @@ deployment: [{
 							cpu:    "250m"
 						}
 						limits: {
-							memory: "256Mi"
+							memory: "512Mi"
 							cpu:    "1000m"
 						}
 					}
