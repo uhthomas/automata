@@ -85,8 +85,8 @@ daemon_set: [{
 					hostPath: path: "/"
 				}]
 				serviceAccountName: "node-exporter"
-				hostNetwork: true
-				hostPID: true
+				hostNetwork:        true
+				hostPID:            true
 				securityContext: {
 					fsGroup:      65534
 					runAsGroup:   65534
