@@ -12,7 +12,7 @@ v1.#List & {
 			labels: {
 				"app.kubernetes.io/name":      "tesla-exporter"
 				"app.kubernetes.io/instance":  "tesla-exporter"
-				"app.kubernetes.io/version":   "0.7.0"
+				"app.kubernetes.io/version":   "0.7.1"
 				"app.kubernetes.io/component": "tesla-exporter"
 			}
 		}
