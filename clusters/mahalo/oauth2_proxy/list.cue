@@ -6,7 +6,16 @@ v1.#List & {
 	apiVersion: "v1"
 	kind:       "List"
 	items: [...{
-		metadata: namespace: "oauth2-proxy"
+		metadata: {
+			name:      "oauth2-proxy"
+			namespace: "oauth2-proxy"
+			labels: {
+				"app.kubernetes.io/name":      "oauth2-proxy"
+				"app.kubernetes.io/instance":  "oauth2-proxy"
+				"app.kubernetes.io/version":   "7.0.1"
+				"app.kubernetes.io/component": "oauth2-proxy"
+			}
+		}
 	}]
 }
 

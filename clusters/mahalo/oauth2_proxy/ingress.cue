@@ -7,10 +7,7 @@ ingress: [...networkingv1.#Ingress]
 ingress: [{
 	apiVersion: "networking.k8s.io/v1"
 	kind:       "Ingress"
-	metadata: {
-		name: "oauth2-proxy"
-		annotations: "cert-manager.io/cluster-issuer": "letsencrypt"
-	}
+	metadata: annotations: "cert-manager.io/cluster-issuer": "letsencrypt"
 	spec: {
 		ingressClassName: "nginx"
 		tls: [{

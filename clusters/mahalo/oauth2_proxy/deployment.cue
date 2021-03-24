@@ -10,18 +10,25 @@ deployment: [...appsv1.#Deployment]
 deployment: [{
 	apiVersion: "apps/v1"
 	kind:       "Deployment"
-	metadata: name: "oauth2-proxy"
 	spec: {
 		revisionHistoryLimit:    5
 		progressDeadlineSeconds: 120
 		strategy: rollingUpdate: maxUnavailable: 1
 		minReadySeconds: 1
-		selector: matchLabels: app: "oauth2-proxy"
+		selector: matchLabels: {
+			"app.kubernetes.io/name":      "oauth2-proxy"
+			"app.kubernetes.io/instance":  "oauth2-proxy"
+			"app.kubernetes.io/component": "oauth2-proxy"
+		}
 		template: {
-			metadata: labels: app: "oauth2-proxy"
+			metadata: labels: {
+				"app.kubernetes.io/name":      "oauth2-proxy"
+				"app.kubernetes.io/instance":  "oauth2-proxy"
+				"app.kubernetes.io/component": "oauth2-proxy"
+			}
 			spec: containers: [{
 				name:            "oauth2-proxy"
-				image:           "quay.io/oauth2-proxy/oauth2-proxy:v6.1.1@sha256:791aef35b8d1d2a325028b188d5a650605d69985a0dab1233c06079e7321eee0"
+				image:           "quay.io/oauth2-proxy/oauth2-proxy:v7.0.1@sha256:15eaf47e0ca8b15d668f5cb5da67f028abe251a2855a6b1c9344080c5735b59a"
 				imagePullPolicy: v1.#PullIfNotPresent
 				ports: [{
 					name:          "http"

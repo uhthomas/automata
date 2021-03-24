@@ -39,7 +39,7 @@ deployment: [{
 					args: [
 						"--database=$(DATABASE)",
 						"--filesystem=s3://fr-par/kipp?endpoint=s3.fr-par.scw.cloud",
-						"--lifetime=0"
+						"--lifetime=0",
 					]
 					ports: [{
 						name:          "http"
