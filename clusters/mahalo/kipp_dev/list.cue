@@ -20,9 +20,10 @@ v1.#List & {
 }
 
 items:
-	namespace +
-	sealed_secret +
-	service +
-	deployment +
-	horizontal_pod_autoscaler +
-	ingress
+	namespace.items +
+	network_policy.items +
+	sealed_secret.items +
+	service.items +
+	deployment.items +
+	horizontal_pod_autoscaler.items +
+	ingress.items

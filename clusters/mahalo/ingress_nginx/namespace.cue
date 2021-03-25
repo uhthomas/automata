@@ -7,5 +7,8 @@ namespace: [...v1.#Namespace]
 namespace: [{
 	apiVersion: "v1"
 	kind:       "Namespace"
-	metadata: name: "ingress-nginx"
+	metadata: {
+		name: "ingress-nginx"
+		labels: "app.kubernetes.io/name": "ingress-nginx"
+	}
 }]

@@ -2,9 +2,12 @@ package kipp_dev
 
 import networkingv1 "k8s.io/api/networking/v1"
 
-ingress: [...networkingv1.#Ingress]
+ingress: networkingv1.#IngressList & {
+	apiVersion: "v1"
+	kind:       "List"
+}
 
-ingress: [{
+ingress: items: [{
 	apiVersion: "networking.k8s.io/v1"
 	kind:       "Ingress"
 	metadata: annotations: {

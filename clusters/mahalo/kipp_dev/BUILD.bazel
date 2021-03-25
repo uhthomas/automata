@@ -8,6 +8,7 @@ cue_library(
         "ingress.cue",
         "list.cue",
         "namespace.cue",
+        "network_policy.cue",
         "sealed_secret.cue",
         "service.cue",
     ],

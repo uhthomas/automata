@@ -5,9 +5,12 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 )
 
-deployment: [...appsv1.#Deployment]
+deployment: appsv1.#DeploymentList & {
+	apiVersion: "v1"
+	kind:       "List"
+}
 
-deployment: [{
+deployment: items: [{
 	apiVersion: "apps/v1"
 	kind:       "Deployment"
 	spec: {
