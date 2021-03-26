@@ -5,11 +5,13 @@ import networkingv1 "k8s.io/api/networking/v1"
 ingressList: networkingv1.#IngressList & {
 	apiVersion: "networking.k8s.io/v1"
 	kind:       "IngressList"
+	items: [...{
+		apiVersion: "networking.k8s.io/v1"
+		kind:       "Ingress"
+	}]
 }
 
 ingressList: items: [{
-	apiVersion: "networking.k8s.io/v1"
-	kind:       "Ingress"
 	metadata: annotations: "cert-manager.io/cluster-issuer": "letsencrypt"
 	spec: {
 		ingressClassName: "nginx"
