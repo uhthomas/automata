@@ -6,8 +6,8 @@ import (
 )
 
 deploymentList: appsv1.#DeploymentList & {
-	apiVersion: "v1"
-	kind:       "List"
+	apiVersion: "apps/v1"
+	kind:       "DeploymentList"
 }
 
 deploymentList: items: [{

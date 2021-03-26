@@ -3,8 +3,8 @@ package io_6f
 import networkingv1 "k8s.io/api/networking/v1"
 
 ingressList: networkingv1.#IngressList & {
-	apiVersion: "v1"
-	kind:       "List"
+	apiVersion: "networking.k8s.io/v1"
+	kind:       "IngressList"
 }
 
 ingressList: items: [{
