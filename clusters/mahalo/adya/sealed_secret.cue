@@ -1,6 +1,13 @@
 package adya
 
-sealed_secret: [{
+import "k8s.io/api/core/v1"
+
+sealedSecretList: v1.#List & {
+	apiVersion: "v1"
+	kind:       "List"
+}
+
+sealedSecretList: items: [{
 	apiVersion: "bitnami.com/v1alpha1"
 	kind:       "SealedSecret"
 	spec: {
