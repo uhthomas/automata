@@ -4,7 +4,7 @@ import "k8s.io/api/core/v1"
 
 sealedSecretList: v1.#List & {
 	apiVersion: "v1"
-	kind: "List"
+	kind:       "List"
 }
 
 sealedSecretList: items: [{
