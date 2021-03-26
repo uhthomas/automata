@@ -2,29 +2,29 @@ package io_6f_dev
 
 import networkingv1 "k8s.io/api/networking/v1"
 
-ingress: [...networkingv1.#Ingress]
+ingressList: networkingv1.#IngressList & {
+	apiVersion: "v1"
+	kind:       "List"
+}
 
-ingress: [{
+ingressList: items: [{
 	apiVersion: "networking.k8s.io/v1"
 	kind:       "Ingress"
-	metadata: {
-		name: "io-6f"
-		annotations: "cert-manager.io/cluster-issuer": "letsencrypt"
-	}
+	metadata: annotations: "cert-manager.io/cluster-issuer": "letsencrypt"
 	spec: {
 		ingressClassName: "nginx"
 		tls: [{
 			hosts: [
 				"dev.6f.io",
 			]
-			secretName: "io-6f-tls"
+			secretName: "io-6f-dev-tls"
 		}]
 		rules: [{
 			host: "dev.6f.io"
 			http: paths: [{
 				pathType: "ImplementationSpecific"
 				backend: service: {
-					name: "io-6f"
+					name: "io-6f-dev"
 					port: name: "http"
 				}
 			}]

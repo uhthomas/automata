@@ -6,12 +6,21 @@ v1.#List & {
 	apiVersion: "v1"
 	kind:       "List"
 	items: [...{
-		metadata: namespace: "io-6f-dev"
+		metadata: {
+			name:      "io-6f-dev"
+			namespace: "io-6f-dev"
+			labels: {
+				"app.kubernetes.io/name":      "io-6f-dev"
+				"app.kubernetes.io/instance":  "io-6f-dev"
+				"app.kubernetes.io/version":   "1.4.0"
+				"app.kubernetes.io/component": "io-6f-dev"
+			}
+		}
 	}]
 }
 
-items: namespace +
-	service +
-	deployment +
-	horizontal_pod_autoscaler +
-	ingress
+items: namespaceList.items +
+	serviceList.items +
+	deploymentList.items +
+	horizontalPodAutoscalerList.items +
+	ingressList.items

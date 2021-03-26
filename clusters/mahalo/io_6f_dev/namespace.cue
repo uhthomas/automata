@@ -1,11 +1,13 @@
 package io_6f_dev
 
-import corev1 "k8s.io/api/core/v1"
+import "k8s.io/api/core/v1"
 
-namespace: [...corev1.#Namespace]
+namespaceList: v1.#NamespaceList & {
+	apiVersion: "v1"
+	kind:       "List"
+}
 
-namespace: [{
+namespaceList: items: [{
 	apiVersion: "v1"
 	kind:       "Namespace"
-	metadata: name: "io-6f-dev"
 }]
