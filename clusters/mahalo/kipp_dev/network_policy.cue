@@ -39,7 +39,7 @@ network_policy: items: [{
 			}]
 		}]
 		egress: [{
-			to: [{ 
+			to: [{
 				ipBlock: cidr: "0.0.0.0/0"
 			}]
 		}]
