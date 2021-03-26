@@ -2,12 +2,12 @@ package kipp_dev
 
 import "k8s.io/api/core/v1"
 
-service: v1.#ServiceList & {
+serviceList: v1.#ServiceList & {
 	apiVersion: "v1"
 	kind:       "List"
 }
 
-service: items: [{
+serviceList: items: [{
 	apiVersion: "v1"
 	kind:       "Service"
 	spec: {

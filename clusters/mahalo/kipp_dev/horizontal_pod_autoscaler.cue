@@ -2,12 +2,12 @@ package kipp_dev
 
 import autoscalingv1 "k8s.io/api/autoscaling/v1"
 
-horizontal_pod_autoscaler: autoscalingv1.#HorizontalPodAutoscalerList & {
+horizontalPodAutoscalerList: autoscalingv1.#HorizontalPodAutoscalerList & {
 	apiVersion: "v1"
 	kind:       "List"
 }
 
-horizontal_pod_autoscaler: items: [{
+horizontalPodAutoscalerList: items: [{
 	apiVersion: "autoscaling/v1"
 	kind:       "HorizontalPodAutoscaler"
 	spec: {

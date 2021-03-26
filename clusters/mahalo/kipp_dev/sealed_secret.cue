@@ -1,6 +1,6 @@
 package kipp_dev
 
-sealed_secret: items: [{
+sealedSecretList: items: [{
 	apiVersion: "bitnami.com/v1alpha1"
 	kind:       "SealedSecret"
 	spec: {
