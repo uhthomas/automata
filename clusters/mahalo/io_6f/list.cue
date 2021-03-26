@@ -19,8 +19,8 @@ v1.#List & {
 	}]
 }
 
-items: namespace +
-	service +
-	deployment +
-	horizontal_pod_autoscaler +
-	ingress
+items: namespaceList.items +
+	serviceList.items +
+	deploymentList.items +
+	horizontalPodAutoscalerList.items +
+	ingressList.items

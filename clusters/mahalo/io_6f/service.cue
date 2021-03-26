@@ -2,9 +2,12 @@ package io_6f
 
 import "k8s.io/api/core/v1"
 
-service: [...v1.#Service]
+serviceList: v1.#ServiceList & {
+	apiVersion: "v1"
+	kind:       "List"
+}
 
-service: [{
+serviceList: items: [{
 	apiVersion: "v1"
 	kind:       "Service"
 	spec: {
