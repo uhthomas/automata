@@ -14,7 +14,7 @@ ingressList: networkingv1.#IngressList & {
 ingressList: items: [{
 	metadata: annotations: {
 		"cert-manager.io/cluster-issuer":          "letsencrypt"
-		"nginx.ingress.kubernetes.io/auth-url":    "http://oauth2-proxy.mahalo.6f.io/oauth2/auth"
+		"nginx.ingress.kubernetes.io/auth-url":    "https://oauth2-proxy.mahalo.6f.io/oauth2/auth"
 		"nginx.ingress.kubernetes.io/auth-signin": "https://oauth2-proxy.mahalo.6f.io/oauth2/start?rd=$escaped_request_uri"
 	}
 	spec: {
