@@ -3,8 +3,8 @@ package kipp_dev
 import networkingv1 "k8s.io/api/networking/v1"
 
 networkPolicyList: networkingv1.#NetworkPolicyList & {
-	apiVersion: "v1"
-	kind:       "List"
+	apiVersion: "networking.k8s.io/v1"
+	kind:       "NetworkPolicyList"
 }
 
 networkPolicyList: items: [{
