@@ -4,7 +4,7 @@ import "k8s.io/api/core/v1"
 
 serviceList: v1.#ServiceList & {
 	apiVersion: "v1"
-	kind:       "List"
+	kind:       "ServiceList"
 }
 
 serviceList: items: [{
