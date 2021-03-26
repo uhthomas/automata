@@ -8,11 +8,13 @@ import (
 deploymentList: appsv1.#DeploymentList & {
 	apiVersion: "apps/v1"
 	kind:       "DeploymentList"
+	items: [...{
+		apiVersion: "apps/v1"
+		kind:       "Deployment"
+	}]
 }
 
 deploymentList: items: [{
-	apiVersion: "apps/v1"
-	kind:       "Deployment"
 	spec: {
 		replicas:                1
 		revisionHistoryLimit:    5
