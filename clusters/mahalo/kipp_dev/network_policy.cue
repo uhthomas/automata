@@ -11,7 +11,6 @@ networkPolicyList: items: [{
 	apiVersion: "networking.k8s.io/v1"
 	kind:       "NetworkPolicy"
 	spec: {
-		podSelector: {}
 		policyTypes: [
 			networkingv1.#PolicyTypeIngress,
 			networkingv1.#PolicyTypeEgress,

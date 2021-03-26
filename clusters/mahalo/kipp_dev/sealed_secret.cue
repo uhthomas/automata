@@ -5,11 +5,13 @@ import "k8s.io/api/core/v1"
 sealedSecretList: v1.#List & {
 	apiVersion: "v1"
 	kind:       "List"
+	items: [...{
+		apiVersion: "bitnami.com/v1alpha1"
+		kind:       "SealedSecret"
+	}]
 }
 
 sealedSecretList: items: [{
-	apiVersion: "bitnami.com/v1alpha1"
-	kind:       "SealedSecret"
 	spec: {
 		encryptedData: {
 			"aws-config": "AgCFxpaq+a2nXdwm2XYYLWiH6PLKTzjizK/H7PrEgYc2evKYmjvJF/5eODZaaz3r+BMSo8zCLIkmcK+v/mQxDe9l9FY5HEq2UJeRLXWqZcFCH3wtcKKZL/LZp7TP+PlLqTCAEUS1tWisBVYOnjRVbQ/9QN+u/b1Sc7PiYX0zsn+xHUkZj+z3FlHwPvqTPeP8jF6JgIfURWXm/THx1PvIU0t1Ug1lIH600MiPUPKRV+zxcvNLoJgRNn86ud64EDKpsz/IyhRebb2TfM19pQ//FkY5Z1pILUmKF1PQ4lajd8ho42w73DE73sC1gCS3SBMjW0lasG50iOLUfwq8Vw8dqjP/j5zUrElhJeM03cCzR027AOP86bRRIJMvYOzThBJBiZrSA1b2a6WiIGeBSbvptI0Cefx3CEjYsVPtoW39LfM7CCQSTqTF0IE1beFJrhh5sWaEQhjsllV+ogPk9aAjvptonpdvGqx/e3TAUjrG++u/ScZHxQ0AofPaQqJdZzSBDhMO22TRuBvLj75FOWlPOnWRbbX0kWlYTW140QtH0VWXi3CbhDx/p8wfCLCaRPjykVNYqU5mb6k2R+Sw19VELMAVFHU8NkNYgkikVgmrotUCep/5vHw7p+cNU6+Hk/kylQa+Vaq1ZQBPtsOpd6I6gT+YY2Pt9XLtor/N/1JHZBmo2ghObeVvHASx2F6t1cJMPCHUqsbk0gS61d5wKkWe89PZN4b1XB3ek6ryyPSVLXl5KUN4m/bJ1F1J8vu2DkSRT67cEZE1/fnfuTt6DbI+/owpjOftI6KDFdItxUF+vyjcIsVT5UAq+AbI22oNYVg8F3xw8VSYhRn7FUb7hZnDP4Gz"
