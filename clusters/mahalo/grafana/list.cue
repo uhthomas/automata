@@ -6,14 +6,23 @@ v1.#List & {
 	apiVersion: "v1"
 	kind:       "List"
 	items: [...{
-		metadata: namespace: "grafana"
+		metadata: {
+			name:      "grafana"
+			namespace: "grafana"
+			labels: {
+				"app.kubernetes.io/name":      "grafana"
+				"app.kubernetes.io/instance":  "grafana"
+				"app.kubernetes.io/version":   "7.4.3"
+				"app.kubernetes.io/component": "grafana"
+			}
+		}
 	}]
 }
 
-items: namespace +
-	sealed_secret +
-	config_map +
-	service +
-	deployment +
-	horizontal_pod_autoscaler +
-	ingress
+items: namespaceList.items +
+	sealedSecretList.items +
+	configMapList.items +
+	serviceList.items +
+	deploymentList.items +
+	horizontalPodAutoscalerList.items +
+	ingressList.items

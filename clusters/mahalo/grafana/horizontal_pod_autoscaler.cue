@@ -2,20 +2,16 @@ package grafana
 
 import autoscalingv1 "k8s.io/api/autoscaling/v1"
 
-horizontal_pod_autoscaler: [...autoscalingv1.#HorizontalPodAutoscaler]
-
-horizontal_pod_autoscaler: [{
+horizontalPodAutoscalerList: autoscalingv1.#HorizontalPodAutoscalerList & {
 	apiVersion: "autoscaling/v1"
-	kind:       "HorizontalPodAutoscaler"
-	metadata: {
-		name: "grafana"
-		labels: {
-			"app.kubernetes.io/name":      "grafana"
-			"app.kubernetes.io/instance":  "grafana"
-			"app.kubernetes.io/version":   "7.4.3"
-			"app.kubernetes.io/component": "grafana"
-		}
-	}
+	kind:       "HorizontalPodAutoscalerList"
+	items: [...{
+		apiVersion: "autoscaling/v1"
+		kind:       "HorizontalPodAutoscaler"
+	}]
+}
+
+horizontalPodAutoscalerList: items: [{
 	spec: {
 		scaleTargetRef: {
 			apiVersion: "apps/v1"

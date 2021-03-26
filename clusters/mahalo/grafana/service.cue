@@ -2,20 +2,16 @@ package grafana
 
 import "k8s.io/api/core/v1"
 
-service: [...v1.#Service]
-
-service: [{
+serviceList: v1.#ServiceList & {
 	apiVersion: "v1"
-	kind:       "Service"
-	metadata: {
-		name: "grafana"
-		labels: {
-			"app.kubernetes.io/name":      "grafana"
-			"app.kubernetes.io/instance":  "grafana"
-			"app.kubernetes.io/version":   "7.4.3"
-			"app.kubernetes.io/component": "grafana"
-		}
-	}
+	kind:       "ServiceList"
+	items: [...{
+		apiVersion: "v1"
+		kind:       "Service"
+	}]
+}
+
+serviceList: items: [{
 	spec: {
 		ports: [{
 			name:       "http"

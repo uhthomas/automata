@@ -6,20 +6,16 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-config_map: [...v1.#ConfigMap]
-
-config_map: [{
+configMapList: v1.#ConfigMapList & {
 	apiVersion: "v1"
-	kind:       "ConfigMap"
-	metadata: {
-		name: "grafana"
-		labels: {
-			"app.kubernetes.io/name":      "grafana"
-			"app.kubernetes.io/instance":  "grafana"
-			"app.kubernetes.io/version":   "7.4.3"
-			"app.kubernetes.io/component": "grafana"
-		}
-	}
+	kind:       "ConfigMapList"
+	items: [...{
+		apiVersion: "v1"
+		kind:       "ConfigMap"
+	}]
+}
+
+configMapList: items: [{
 	data: {
 		"datasources.yaml": yaml.Marshal({
 			apiVersion: 1

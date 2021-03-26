@@ -1,9 +1,17 @@
 package grafana
 
-sealed_secret: [{
-	apiVersion: "bitnami.com/v1alpha1"
-	kind:       "SealedSecret"
-	metadata: name: "grafana"
+import "k8s.io/api/core/v1"
+
+sealedSecretList: v1.#List & {
+	apiVersion: "v1"
+	kind:       "List"
+	items: [...{
+		apiVersion: "bitnami.com/v1alpha1"
+		kind:       "SealedSecret"
+	}]
+}
+
+sealedSecretList: items: [{
 	spec: {
 		encryptedData: {
 			database_host:     "AgC2ddAzIeDwGhR1C01cdwVc8XOykGtZpebVN8910m4LXozi4jOsrtpl6g2ATaHQ0NE6i372jhuEEWFihUbm2KsxDb+SpIXcC+sAP+ul88fiRW39wTpjt/FVPSYjncS5wlqWxjeZFbAn1GrNi+NwhZA6MPjbsZ06rjQMafWbIGS81LrWyumC7LrvN5Gy6CtiZTg4SIB2GTK1Ru+udUMKFW9NLN0Tk8wCvnMc2twqueTDxqNOzAnFMGfrO5fiaTrH7JfV4b+T0IkGyN7e3J6/+hMLxhFJk91fRD4+JOQMs+X8PevpXNSGOVqttsAjuSQa1uX6levLgMFN8ukoMRR/JdK7CRxFPwpvvhCt62Nn+EO9nlO1j8ZnUmaGYcYd2viZk/PzAFlsPA0dGtC9RVW+mB7ABx7t2L7SKD4dyTNosunwThO6BYxzeb5PCeOQpMV29X4u44a4b+nQv+KWhtAiD71UgqcwZZ0eaA7tT7gbYTX3VCSL9UUAS2BWtJz0/dlSufRnqiBDhj8nD7rAA3g7CNgsdqmHYW9tkM+lxAKGYWpnAqMxMyZyiHsFeDwptHYUo+G5uumvqvD8hKhwsxa8+AhgyCN1v8c54aeR+np24yfp+FJDlTxdKDfyIdKYVSPl6Ri/UD0jupW56gznsNEr7ID7073/XLe7y/I6iYSKlXaJmNLiYTvCjOENiMcVlwEy8kwdsWXOQnyTNelpbU9Iza1sRWA="

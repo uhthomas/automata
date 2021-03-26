@@ -5,20 +5,16 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-deployment: [...appsv1.#Deployment]
-
-deployment: [{
+deploymentList: appsv1.#DeploymentList & {
 	apiVersion: "apps/v1"
-	kind:       "Deployment"
-	metadata: {
-		name: "grafana"
-		labels: {
-			"app.kubernetes.io/name":      "grafana"
-			"app.kubernetes.io/instance":  "grafana"
-			"app.kubernetes.io/version":   "7.4.3"
-			"app.kubernetes.io/component": "grafana"
-		}
-	}
+	kind:       "DeploymentList"
+	items: [...{
+		apiVersion: "apps/v1"
+		kind:       "Deployment"
+	}]
+}
+
+deploymentList: items: [{
 	spec: {
 		revisionHistoryLimit:    5
 		progressDeadlineSeconds: 120
