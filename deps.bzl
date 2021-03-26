@@ -34,9 +34,9 @@ def dependencies():
     )
     http_archive(
         name = "io_bazel_rules_docker",
-        sha256 = "893726fd83049cece8bfec873091c43877449f28987adf5c13b17801ecf0a788",
-        strip_prefix = "rules_docker-e15c9ebf203b7fa708e69ff5f1cdcf427d7edf6f",
-        urls = ["https://github.com/bazelbuild/rules_docker/archive/e15c9ebf203b7fa708e69ff5f1cdcf427d7edf6f.tar.gz"],
+        sha256 = "95d39fd84ff4474babaf190450ee034d958202043e366b9fc38f438c9e6c3334",
+        strip_prefix = "rules_docker-0.16.0",
+        urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.16.0/rules_docker-v0.16.0.tar.gz"],
     )
     http_archive(
         name = "io_bazel_rules_go",
