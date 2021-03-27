@@ -14,7 +14,7 @@ v1.#List & {
 }
 
 items:
-	service +
-	deployment +
-	horizontal_pod_autoscaler +
-	ingress
+	serviceList.items +
+	deploymentList.items +
+	horizontalPodAutoscalerList.items +
+	ingressList.items
