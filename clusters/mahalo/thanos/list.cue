@@ -13,6 +13,7 @@ v1.#List & {
 	kind:       "List"
 	items: [...{
 		metadata: {
+			name:      string | *"thanos"
 			namespace: "thanos"
 			labels: {
 				"app.kubernetes.io/name":     "thanos"
@@ -24,8 +25,8 @@ v1.#List & {
 }
 
 items:
-	namespace +
-	sealed_secret +
+	namespaceList.items +
+	sealedSecretList.items +
 	compact.items +
 	query.items +
 	query_frontend.items +
