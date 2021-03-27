@@ -2,7 +2,7 @@ package compact
 
 import "k8s.io/api/core/v1"
 
-v1.#List & close({
+v1.#List & {
 	apiVersion: "v1"
 	kind:       "List"
 	items: [...{
@@ -11,8 +11,8 @@ v1.#List & close({
 			labels: "app.kubernetes.io/component": "compact"
 		}
 	}]
-})
+}
 
 items:
-	persistent_volume_claim +
-	deployment
+	persistentVolumeClaimList.items +
+	deploymentList.items
