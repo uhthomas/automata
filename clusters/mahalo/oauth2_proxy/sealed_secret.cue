@@ -1,8 +1,17 @@
 package oauth2_proxy
 
-sealed_secret: [{
-	apiVersion: "bitnami.com/v1alpha1"
-	kind:       "SealedSecret"
+import "k8s.io/api/core/v1"
+
+sealedSecretList: v1.#List & {
+	apiVersion: "v1"
+	kind:       "List"
+	items: [...{
+		apiVersion: "bitnami.com/v1alpha1"
+		kind:       "SealedSecret"
+	}]
+}
+
+sealedSecretList: items: [{
 	spec: {
 		encryptedData: {
 			"client-id":     "AgCnGo2h1HdtriD5EszqUkFW5nvV4TezesnWs77+bAK0NMPLQ/QFWEXgZTaCi6qwzq2pITvq01ETuDtTcsfdKFGnZjkvgg8idBxcGfQ2ua8gBdp6VPsG+3N23XyUT9wFk7oFW7EjXK6v/dobPeI1j1lGhp0U12ZAJyyukkjVI56tLAvQQu+VzxZPSa9NhfFVESG5oT76DSG63TsgQ6nC8TQTZSJXFKzbSCzELe4n/iSx4Fui/itUwtRi03GljaOjYexCYrpcuVxuBBGpIV3fDWW4yHiVTxc9gJeD5zxp9HSuaaKoMTykm1sThhl0PD/RtrIjqJwDGEuK+vthp9PVXNT9kBi7S3/d+gvV6hauDA4FmJRetcXsGRv0o1yTNmAP8F6GThAB3DWpMrQY6ApVl/WdPDqKRxIDPGR8Z0Ue5sNH1LDg5U3OYDirxDGEibg/5sxE08UmQlrBAVjg0Mgl67HIyuV+M0w23CqRwHdoAhq2smpcNmjwGE7/Do2cFle19BkMC0B7mebGYEki9hCsovNnubf68W3Fk/ACvTucQ534WrFc7Cb0B5nd9/gtSlax8CjB4Zyj4wJEhJyQ8Ncjfz/DOqDCGQT56WbnXcb5jC74CYeanpZqMzJcGKzJvfWm8wqweVJSLGsfkTsaIXWzUXZ817cyvWemJ1VSweD5dPwlJVLmohZctgh6RXWCWCfG7viLLdwRL4iz4k3673vJ9HAgv1oOhuaZjAp36K+H15kEplU5BIE1fdSfcnL0gSpsiDZ5U2X/JCYBZ1jdJf5M4Kvs2Z5ySmfyeFM="

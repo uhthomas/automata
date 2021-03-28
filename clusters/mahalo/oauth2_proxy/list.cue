@@ -19,9 +19,10 @@ v1.#List & {
 	}]
 }
 
-items: namespace +
-	sealed_secret +
-	service +
-	deployment +
-	horizontal_pod_autoscaler +
-	ingress
+items:
+	namespaceList.items +
+	sealedSecretList.items +
+	serviceList.items +
+	deploymentList.items +
+	horizontalPodAutoscalerList.items +
+	ingressList.items
