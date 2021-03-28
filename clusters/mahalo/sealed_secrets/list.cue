@@ -10,12 +10,13 @@ v1.#List & {
 	}]
 }
 
-items: namespace +
-	service_account +
-	custom_resource_definition +
-	cluster_role +
-	cluster_role_binding +
-	role +
-	role_binding +
-	service +
-	deployment
+items:
+	namespaceList.items +
+	serviceAccountList.items +
+	customResourceDefinitionList.items +
+	clusterRoleList.items +
+	clusterRoleBindingList.items +
+	roleList.items +
+	roleBindingList.items +
+	serviceList.items +
+	deploymentList.items

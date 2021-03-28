@@ -2,11 +2,16 @@ package sealed_secrets
 
 import rbacv1 "k8s.io/api/rbac/v1"
 
-role_binding: [...rbacv1.#RoleBinding]
-
-role_binding: [{
+roleBindingList: rbacv1.#RoleBindingList & {
 	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "RoleBinding"
+	kind:       "RoleBindingList"
+	items: [...{
+		apiVersion: "rbac.authorization.k8s.io/v1"
+		kind:       "RoleBinding"
+	}]
+}
+
+roleBindingList: items: [{
 	metadata: {
 		labels: name: "sealed-secrets-service-proxier"
 		name: "sealed-secrets-service-proxier"
@@ -22,10 +27,7 @@ role_binding: [{
 		name:     "system:authenticated"
 	}]
 }, {
-	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "RoleBinding"
 	metadata: {
-		annotations: {}
 		labels: name: "sealed-secrets-controller"
 		name:      "sealed-secrets-controller"
 		namespace: "sealed-secrets"

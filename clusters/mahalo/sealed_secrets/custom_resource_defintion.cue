@@ -2,11 +2,16 @@ package sealed_secrets
 
 import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 
-custom_resource_definition: [...apiextensionsv1.#CustomResourceDefinition]
-
-custom_resource_definition: [{
+customResourceDefinitionList: apiextensionsv1.#CustomResourceDefinitionList & {
 	apiVersion: "apiextensions.k8s.io/v1"
-	kind:       "CustomResourceDefinition"
+	kind:       "CustomResourceDefinitionList"
+	items: [...{
+		apiVersion: "apiextensions.k8s.io/v1"
+		kind:       "CustomResourceDefinition"
+	}]
+}
+
+customResourceDefinitionList: items: [{
 	metadata: name: "sealedsecrets.bitnami.com"
 	spec: {
 		group: "bitnami.com"
