@@ -32,20 +32,20 @@ configMapList: items: [{
 			}]
 		})
 		"grafana.ini": """
-				[auth.anonymous]
-				enabled = true
-				org_role = Admin
+			[auth.anonymous]
+			enabled = true
+			org_role = Admin
 
-				[database]
-				type = postgres
-				ssl_mode = require
+			[database]
+			type = postgres
+			ssl_mode = require
 
-				[security]
-				cookie_secure = true
-				cookie_samesite = strict 
-				
-				[log]
-				mode = console
+			[security]
+			cookie_secure = true
+			cookie_samesite = strict 
+			
+			[log]
+			mode = console
 			"""
 	}
 }]
