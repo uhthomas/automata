@@ -2,11 +2,16 @@ package kube_state_metrics
 
 import rbacv1 "k8s.io/api/rbac/v1"
 
-cluster_role_binding: [...rbacv1.#ClusterRoleBinding]
-
-cluster_role_binding: [{
+clusterRoleBindingList: rbacv1.#ClusterRoleBindingList & {
 	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "ClusterRoleBinding"
+	kind:       "ClusterRoleBindingList"
+	items: [...{
+		apiVersion: "rbac.authorization.k8s.io/v1"
+		kind:       "ClusterRoleBinding"
+	}]
+}
+
+clusterRoleBindingList: items: [{
 	roleRef: {
 		apiGroup: "rbac.authorization.k8s.io"
 		kind:     "ClusterRole"

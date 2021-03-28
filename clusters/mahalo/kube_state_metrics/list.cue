@@ -20,9 +20,9 @@ v1.#List & {
 }
 
 items:
-	namespace +
-	service_account +
-	cluster_role +
-	cluster_role_binding +
-	service +
-	deployment
+	namespaceList.items +
+	serviceAccountList.items +
+	clusterRoleList.items +
+	clusterRoleBindingList.items +
+	serviceList.items +
+	deploymentList.items
