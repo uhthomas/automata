@@ -2,11 +2,16 @@ package server
 
 import "k8s.io/api/core/v1"
 
-persistent_volume_claim: [...v1.#PersistentVolumeClaim]
-
-persistent_volume_claim: [{
+persistentVolumeClaimList: v1.#PersistentVolumeClaimList & {
 	apiVersion: "v1"
-	kind:       "PersistentVolumeClaim"
+	kind:       "PersistentVolumeClaimList"
+	items: [...{
+		apiVersion: "v1"
+		kind:       "PersistentVolumeClaim"
+	}]
+}
+
+persistentVolumeClaimList: items: [{
 	metadata: {
 		name: "server"
 		labels: {
