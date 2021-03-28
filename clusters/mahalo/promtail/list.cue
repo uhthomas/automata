@@ -19,9 +19,9 @@ v1.#List & {
 	}]
 }
 
-items: namespace +
-	service_account +
-	cluster_role +
-	cluster_role_binding +
-	config_map +
-	daemon_set
+items: namespaceList.items +
+	serviceAccountList.items +
+	clusterRoleList.items +
+	clusterRoleBindingList.items +
+	configMapList.items +
+	daemonSetList.items

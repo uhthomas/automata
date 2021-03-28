@@ -5,11 +5,16 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 )
 
-daemon_set: [...appsv1.#DaemonSet]
-
-daemon_set: [{
+daemonSetList: appsv1.#DaemonSetList & {
 	apiVersion: "apps/v1"
-	kind:       "DaemonSet"
+	kind:       "DaemonSetList"
+	items: [...{
+		apiVersion: "apps/v1"
+		kind:       "DaemonSet"
+	}]
+}
+
+daemonSetList: items: [{
 	spec: {
 		revisionHistoryLimit: 5
 		updateStrategy: type: "RollingUpdate"
