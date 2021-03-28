@@ -20,6 +20,6 @@ v1.#List & {
 }
 
 items:
-	namespace +
-	sealed_secret +
-	deployment
+	namespaceList.items +
+	sealedSecretList.items +
+	deploymentList.items

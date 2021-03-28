@@ -1,9 +1,17 @@
 package tesla_exporter
 
-sealed_secret: [{
-	apiVersion: "bitnami.com/v1alpha1"
-	kind:       "SealedSecret"
-	metadata: name: "tesla-exporter"
+import "k8s.io/api/core/v1"
+
+sealedSecretList: v1.#List & {
+	apiVersion: "v1"
+	kind:       "List"
+	items: [...{
+		apiVersion: "bitnami.com/v1alpha1"
+		kind:       "SealedSecret"
+	}]
+}
+
+sealedSecretList: items: [{
 	spec: {
 		encryptedData: {
 			"oauth2_config.json": "AgCSMOgAItm7Mjdb1uRU3YM4n/BYUrVuPGeX3xF0P/UNaAg8+1alNcDLNz6zlvEkwmwLlgcBOS1iKGiZOW8VSDVmFZn63LmXpAtYNp379ku8paFydLOkdXNjCvdeZppiAj3uUAr2lZg0ltZr17PpFty3++u4JSOZB7FOj9W30S1KUtrQ5MruMIQqeJg+jG3OZXnQ8b93ALfEm5qMDiX7tVu9i9GNtdc1/g1XIhSQLr7663SImR9UZbEkICBSyBuo53MWSq1dZWn+MTxr4bNfXl1zAitcDmNmaj9qDwsumInOnJlxDmLGQETnYZMQhIi6motoNU9+p91KUVUoZ1ivPSFYIFadbYZvIOK5pcL4Sgo3MDdhzr0euepJF1jmfUOspDs1Y8M2NQS61H+ImwD6zrX6o+4f1dmIeuNkT4zzzX0TWogXlzUjS530x43bw0vGKe75IPQrEC0/Ev84MdUlXk6/npB2TIjPUAVQ/dTeA4fP5E+BV/+KWnRTTNnaAJbyh87z7cZTl6o0DvyUQ+qHlw9uq/xdoFy82pLCKe7ELgko5ajOEeywc24BlCIUSS+mKv5/S0GbAmwj0VrnFTlS8kG8Uw6kznJUql6D8gpD/OYNpx2otoNQrcQwroR3ctOk29FXS+3x5RhoZcOAZ0OTMOBzkzKd2cschTjik+arWJ45YsnyNDZ9zGIG2Pzm2vdwQ+rkHWrEiyhzdlovTMuPm2DZuxFK+Ka8aGPA0PT6JSALqBkwuuYGVrrx4vfQXoRDMo4TzNysVBxM3yUJvJeroCohPV5akZzI7AKb1nGdW7NEsYuJyzPrsU8cX7g51VlcIoScrP5JUOMaXwBAHA6YF4gMYOAMU9IJoMpOPH1VfMWhXo6cPbGJjmPWzqG5ia8RY/19+/t5e0gz/7p/JOGVaPAB7Gqyz2QC6kWlX9CFfl6L27uGTHvhXLCJMoghLuIBeXfa0sDidgec2Zil4ED6fz9nO5DR0evWH2Sr8FCFWTk8mM4jxbvUP0YANVc0DW4Nd0c8CceQGV27zlXYrdg5ssAskRVreNqva2f1TKy5C7sY6dmdg7WYGugQ+If7Du0Q7+ee7xTaogzC9e4J6GvE0P05fHRV3U4umR6u8HM72GGhDca2OxGl/uAwGiKeqXLC1Oz2i7ivGpEFvG9uU18YA6zQFssFWFbNKKwZAF4jVkJ23RFHdcyghBLiRtAczMYJyO9BpHQBrbJkGK5sbG7zSFsNl2YoA/3R/70/FA=="

@@ -5,11 +5,16 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 )
 
-deployment: [...appsv1.#Deployment]
-
-deployment: [{
+deploymentList: appsv1.#DeploymentList & {
 	apiVersion: "apps/v1"
-	kind:       "Deployment"
+	kind:       "DeploymentList"
+	items: [...{
+		apiVersion: "apps/v1"
+		kind:       "Deployment"
+	}]
+}
+
+deploymentList: items: [{
 	spec: {
 		replicas:                1
 		revisionHistoryLimit:    5
