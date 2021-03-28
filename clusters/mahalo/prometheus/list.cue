@@ -15,6 +15,6 @@ v1.#List & {
 }
 
 items:
-	namespace +
+	namespaceList.items +
 	node_exporter.items +
 	server.items
