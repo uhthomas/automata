@@ -10,14 +10,14 @@ v1.#List & {
 	}]
 }
 
-items: namespace +
-	service_account +
-	config_map +
-	cluster_role +
-	cluster_role_binding +
-	role +
-	role_binding +
-	service +
-	deployment +
-	job +
-	validating_webhook_configuration
+items: namespaceList.items +
+	serviceAccountList.items +
+	configMapList.items +
+	clusterRoleList.items +
+	clusterRoleBindingList.items +
+	roleList.items +
+	roleBindingList.items +
+	serviceList.items +
+	deploymentList.items +
+	jobList.items +
+	validatingWebhookConfigurationList.items

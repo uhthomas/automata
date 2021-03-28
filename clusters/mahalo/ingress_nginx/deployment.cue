@@ -5,11 +5,16 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-deployment: [...appsv1.#Deployment]
-
-deployment: [{
+deploymentList: appsv1.#DeploymentList & {
 	apiVersion: "apps/v1"
-	kind:       "Deployment"
+	kind:       "DeploymentList"
+	items: [...{
+		apiVersion: "apps/v1"
+		kind:       "Deployment"
+	}]
+}
+
+deploymentList: items: [{
 	metadata: {
 		name: "ingress-nginx-controller"
 		labels: {

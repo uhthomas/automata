@@ -2,11 +2,16 @@ package ingress_nginx
 
 import rbacv1 "k8s.io/api/rbac/v1"
 
-cluster_role_binding: [...rbacv1.#ClusterRoleBinding]
-
-cluster_role_binding: [{
+clusterRoleBindingList: rbacv1.#ClusterRoleBindingList & {
 	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "ClusterRoleBinding"
+	kind:       "ClusterRoleBindingList"
+	items: [...{
+		apiVersion: "rbac.authorization.k8s.io/v1"
+		kind:       "ClusterRoleBinding"
+	}]
+}
+
+clusterRoleBindingList: items: [{
 	metadata: {
 		name: "ingress-nginx"
 		labels: {
@@ -26,8 +31,6 @@ cluster_role_binding: [{
 		namespace: "ingress-nginx"
 	}]
 }, {
-	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "ClusterRoleBinding"
 	metadata: {
 		name: "ingress-nginx-admission"
 		labels: {

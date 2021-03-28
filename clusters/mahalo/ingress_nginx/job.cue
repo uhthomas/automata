@@ -5,11 +5,16 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 )
 
-job: [...batchv1.#Job]
-
-job: [{
+jobList: batchv1.#JobList & {
 	apiVersion: "batch/v1"
-	kind:       "Job"
+	kind:       "JobList"
+	items: [...{
+		apiVersion: "batch/v1"
+		kind:       "Job"
+	}]
+}
+
+jobList: items: [{
 	metadata: {
 		name: "ingress-nginx-admission-create"
 		labels: {
@@ -54,8 +59,6 @@ job: [{
 		}
 	}
 }, {
-	apiVersion: "batch/v1"
-	kind:       "Job"
 	metadata: {
 		name: "ingress-nginx-admission-patch"
 		labels: {

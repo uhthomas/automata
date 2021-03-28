@@ -2,11 +2,16 @@ package ingress_nginx
 
 import "k8s.io/api/core/v1"
 
-service: [...v1.#Service]
-
-service: [{
+serviceList: v1.#ServiceList & {
 	apiVersion: "v1"
-	kind:       "Service"
+	kind:       "ServiceList"
+	items: [...{
+		apiVersion: "v1"
+		kind:       "Service"
+	}]
+}
+
+serviceList: items: [{
 	metadata: {
 		name: "ingress-nginx-controller-admission"
 		labels: {
@@ -30,8 +35,6 @@ service: [{
 		}
 	}
 }, {
-	apiVersion: "v1"
-	kind:       "Service"
 	metadata: {
 		name: "ingress-nginx-controller"
 		annotations: {

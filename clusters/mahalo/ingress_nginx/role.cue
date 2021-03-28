@@ -2,11 +2,16 @@ package ingress_nginx
 
 import rbacv1 "k8s.io/api/rbac/v1"
 
-role: [...rbacv1.#Role]
-
-role: [{
+roleList: rbacv1.#RoleList & {
 	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "Role"
+	kind:       "RoleList"
+	items: [...{
+		apiVersion: "rbac.authorization.k8s.io/v1"
+		kind:       "Role"
+	}]
+}
+
+roleList: items: [{
 	metadata: {
 		name: "ingress-nginx"
 		labels: {
@@ -124,8 +129,6 @@ role: [{
 		]
 	}]
 }, {
-	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "Role"
 	metadata: {
 		name: "ingress-nginx-admission"
 		labels: {

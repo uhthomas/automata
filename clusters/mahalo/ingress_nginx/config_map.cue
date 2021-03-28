@@ -2,11 +2,16 @@ package ingress_nginx
 
 import "k8s.io/api/core/v1"
 
-config_map: [...v1.#ConfigMap]
-
-config_map: [{
+configMapList: v1.#ConfigMapList & {
 	apiVersion: "v1"
-	kind:       "ConfigMap"
+	kind:       "ConfigMapList"
+	items: [...{
+		apiVersion: "v1"
+		kind:       "ConfigMap"
+	}]
+}
+
+configMapList: items: [{
 	metadata: {
 		name: "ingress-nginx-controller"
 		labels: {

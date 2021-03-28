@@ -2,11 +2,16 @@ package ingress_nginx
 
 import admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
 
-validating_webhook_configuration: [...admissionregistrationv1.#ValidatingWebhookConfiguration]
-
-validating_webhook_configuration: [{
+validatingWebhookConfigurationList: admissionregistrationv1.#ValidatingWebhookConfigurationList & {
 	apiVersion: "admissionregistration.k8s.io/v1"
-	kind:       "ValidatingWebhookConfiguration"
+	kind:       "ValidatingWebhookConfigurationList"
+	items: [...{
+		apiVersion: "admissionregistration.k8s.io/v1"
+		kind:       "ValidatingWebhookConfiguration"
+	}]
+}
+
+validatingWebhookConfigurationList: items: [{
 	metadata: {
 		name: "ingress-nginx-admission"
 		labels: {
