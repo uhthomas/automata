@@ -20,8 +20,8 @@ v1.#List & {
 }
 
 items:
-	namespace +
-	config_map +
-	persistent_volume_claim +
-	service +
-	deployment
+	namespaceList.items +
+	configMapList.items +
+	persistentVolumeClaimList.items +
+	serviceList.items +
+	deploymentList.items
