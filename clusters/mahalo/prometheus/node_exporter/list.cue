@@ -20,8 +20,8 @@ v1.#List & {
 }
 
 items:
-	service_account +
-	role +
-	role_binding +
-	service +
-	daemon_set
+	serviceAccountList.items +
+	roleList.items +
+	roleBindingList.items +
+	serviceList.items +
+	daemonSetList.items
