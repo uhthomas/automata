@@ -36,7 +36,7 @@ items:
 	// requires:
 	// - cert_manager: Custom Resource Definition
 	// - ingress_nginx: HTTP-01 solver
-	mahalo.cluster_issuer +
+	mahalo.clusterIssuerList.items +
 
 	sealed_secrets.list.items +
 

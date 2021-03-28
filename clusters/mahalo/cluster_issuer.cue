@@ -1,8 +1,18 @@
 package mahalo
 
-cluster_issuer: [{
+import "k8s.io/api/core/v1"
+
+clusterIssuerList: v1.#List & {
 	apiVersion: "cert-manager.io/v1"
-	kind:       "ClusterIssuer"
+	kind:       "ClusterIssuerList"
+	items: [...{
+		apiVersion: "cert-manager.io/v1"
+		kind:       "ClusterIssuer"
+	}]
+}
+
+clusterIssuerList: items: [{
+	kind: "ClusterIssuer"
 	metadata: name: "letsencrypt"
 	spec: acme: {
 		email:  "mahalo@6f.io"
