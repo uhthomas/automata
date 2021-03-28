@@ -2,7 +2,7 @@ package store
 
 import "k8s.io/api/core/v1"
 
-v1.#List & {
+list: v1.#List & {
 	apiVersion: "v1"
 	kind:       "List"
 	items: [...{
@@ -13,7 +13,7 @@ v1.#List & {
 	}]
 }
 
-items:
+list: items:
 	serviceList.items +
 	deploymentList.items +
 	horizontalPodAutoscalerList.items

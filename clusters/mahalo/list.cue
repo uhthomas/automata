@@ -30,41 +30,41 @@ v1.#List & {
 // items are grouped by dependency requirements, and sorted lexicographically
 // where possible.
 items:
-	cert_manager.items +
-	ingress_nginx.items +
+	cert_manager.list.items +
+	ingress_nginx.list.items +
 
 	// requires:
 	// - cert_manager: Custom Resource Definition
 	// - ingress_nginx: HTTP-01 solver
 	mahalo.cluster_issuer +
 
-	sealed_secrets.items +
+	sealed_secrets.list.items +
 
 	// requires:
 	// cert_manager
 	// - ingress_nginx
 	// - sealed_secrets
-	oauth2_proxy.items +
+	oauth2_proxy.list.items +
 
-	kube_state_metrics.items +
+	kube_state_metrics.list.items +
 
 	// requires:
 	// - kube_state_metrics
 	// - sealed_secrets
-	prometheus.items +
+	prometheus.list.items +
 
 	// requires:
 	// - ingress_nginx
 	// - oauth2_proxy
 	// - prometheus
 	// - sealed_secrets
-	thanos.items +
+	thanos.list.items +
 
-	loki.items +
+	loki.list.items +
 
 	// requires:
 	// - loki
-	promtail.items +
+	promtail.list.items +
 
 	// requires:
 	// - ingress_nginx
@@ -72,23 +72,23 @@ items:
 	// - oauth2_proxy
 	// - sealed_secrets
 	// - thanos
-	grafana.items +
+	grafana.list.items +
 
 	// requires:
 	// - sealed_secrets
-	adya.items +
+	adya.list.items +
 
 	// requires:
 	// - ingress_nginx
-	io_6f.items +
-	io_6f_dev.items +
+	io_6f.list.items +
+	io_6f_dev.list.items +
 
 	// requires:
 	// - ingress_nginx
 	// - sealed_secrets
-	kipp.items +
-	kipp_dev.items +
+	kipp.list.items +
+	kipp_dev.list.items +
 
 	// requires:
 	// - sealed_secrets
-	tesla_exporter.items
+	tesla_exporter.list.items
