@@ -11,4 +11,4 @@ namespaceList: v1.#NamespaceList & {
 	}]
 }
 
-namespace: [{}]
+namespace: items: [{}]
