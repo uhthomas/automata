@@ -2,11 +2,16 @@ package cert_manager
 
 import rbacv1 "k8s.io/api/rbac/v1"
 
-role: [...rbacv1.#Role]
-
-role: [{
+roleList: rbacv1.#RoleList & {
 	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "Role"
+	kind:       "RoleList"
+	items: [...{
+		apiVersion: "rbac.authorization.k8s.io/v1"
+		kind:       "Role"
+	}]
+}
+
+roleList: items: [{
 	metadata: {
 		name: "cert-manager-cainjector:leaderelection"
 		labels: {
@@ -16,7 +21,8 @@ role: [{
 			"app.kubernetes.io/name":      "cainjector"
 		}
 		namespace: "kube-system"
-	}, rules: [{
+	}
+	rules: [{
 		apiGroups: [""]
 		resourceNames: [
 			"cert-manager-cainjector-leader-election",
@@ -38,8 +44,6 @@ role: [{
 		verbs: ["create"]
 	}]
 }, {
-	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "Role"
 	metadata: {
 		name: "cert-manager:leaderelection"
 		labels: {
@@ -49,7 +53,8 @@ role: [{
 			"app.kubernetes.io/name":      "cert-manager"
 		}
 		namespace: "kube-system"
-	}, rules: [{
+	}
+	rules: [{
 		apiGroups: [""]
 		resourceNames: [
 			"cert-manager-controller",
@@ -70,8 +75,6 @@ role: [{
 		verbs: ["create"]
 	}]
 }, {
-	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "Role"
 	metadata: {
 		name: "cert-manager-webhook:dynamic-serving"
 		labels: {
@@ -81,7 +84,8 @@ role: [{
 			"app.kubernetes.io/name":      "webhook"
 		}
 		namespace: "cert-manager"
-	}, rules: [{
+	}
+	rules: [{
 		apiGroups: [""]
 		resourceNames: [
 			"cert-manager-webhook-ca",

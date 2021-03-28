@@ -2,11 +2,16 @@ package cert_manager
 
 import "k8s.io/api/core/v1"
 
-service: [...v1.#Service]
-
-service: [{
+serviceList: v1.#ServiceList & {
 	apiVersion: "v1"
-	kind:       "Service"
+	kind:       "ServiceList"
+	items: [...{
+		apiVersion: "v1"
+		kind:       "Service"
+	}]
+}
+
+serviceList: items: [{
 	metadata: {
 		name: "cert-manager"
 		labels: {
@@ -15,7 +20,8 @@ service: [{
 			"app.kubernetes.io/instance":  "cert-manager"
 			"app.kubernetes.io/name":      "cert-manager"
 		}
-	}, spec: {
+	}
+	spec: {
 		ports: [{
 			port:       9402
 			protocol:   "TCP"
@@ -29,8 +35,6 @@ service: [{
 		type: v1.#ServiceTypeClusterIP
 	}
 }, {
-	apiVersion: "v1"
-	kind:       "Service"
 	metadata: {
 		name: "cert-manager-webhook"
 		labels: {
@@ -39,7 +43,8 @@ service: [{
 			"app.kubernetes.io/instance":  "cert-manager"
 			"app.kubernetes.io/name":      "webhook"
 		}
-	}, spec: {
+	}
+	spec: {
 		ports: [{
 			name:       "https"
 			port:       443

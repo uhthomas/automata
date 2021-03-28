@@ -2,11 +2,16 @@ package cert_manager
 
 import admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
 
-mutating_webhook_configuration: [...admissionregistrationv1.#MutatingWebhookConfiguration]
-
-mutating_webhook_configuration: [{
+mutatingWebhookConfigurationList: admissionregistrationv1.#MutatingWebhookConfigurationList & {
 	apiVersion: "admissionregistration.k8s.io/v1"
-	kind:       "MutatingWebhookConfiguration"
+	kind:       "MutatingWebhookConfigurationList"
+	items: [...{
+		apiVersion: "admissionregistration.k8s.io/v1"
+		kind:       "MutatingWebhookConfiguration"
+	}]
+}
+
+mutatingWebhookConfigurationList: items: [{
 	metadata: {
 		name: "cert-manager-webhook"
 		annotations: "cert-manager.io/inject-ca-from-secret": "cert-manager/cert-manager-webhook-ca"

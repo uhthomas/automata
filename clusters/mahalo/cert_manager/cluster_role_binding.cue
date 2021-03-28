@@ -2,11 +2,16 @@ package cert_manager
 
 import rbacv1 "k8s.io/api/rbac/v1"
 
-cluster_role_binding: [...rbacv1.#ClusterRoleBinding]
-
-cluster_role_binding: [{
+clusterRoleBindingList: rbacv1.#ClusterRoleBindingList & {
 	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "ClusterRoleBinding"
+	kind:       "ClusterRoleBindingList"
+	items: [...{
+		apiVersion: "rbac.authorization.k8s.io/v1"
+		kind:       "ClusterRoleBinding"
+	}]
+}
+
+clusterRoleBindingList: items: [{
 	metadata: {
 		name: "cert-manager-cainjector"
 		labels: {
@@ -27,8 +32,6 @@ cluster_role_binding: [{
 		namespace: "cert-manager"
 	}]
 }, {
-	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "ClusterRoleBinding"
 	metadata: {
 		name: "cert-manager-controller-issuers"
 		labels: {
@@ -49,8 +52,6 @@ cluster_role_binding: [{
 		namespace: "cert-manager"
 	}]
 }, {
-	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "ClusterRoleBinding"
 	metadata: {
 		name: "cert-manager-controller-clusterissuers"
 		labels: {
@@ -71,8 +72,6 @@ cluster_role_binding: [{
 		namespace: "cert-manager"
 	}]
 }, {
-	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "ClusterRoleBinding"
 	metadata: {
 		name: "cert-manager-controller-certificates"
 		labels: {
@@ -93,8 +92,6 @@ cluster_role_binding: [{
 		namespace: "cert-manager"
 	}]
 }, {
-	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "ClusterRoleBinding"
 	metadata: {
 		name: "cert-manager-controller-orders"
 		labels: {
@@ -115,8 +112,6 @@ cluster_role_binding: [{
 		namespace: "cert-manager"
 	}]
 }, {
-	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "ClusterRoleBinding"
 	metadata: {
 		name: "cert-manager-controller-challenges"
 		labels: {
@@ -137,8 +132,6 @@ cluster_role_binding: [{
 		namespace: "cert-manager"
 	}]
 }, {
-	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "ClusterRoleBinding"
 	metadata: {
 		name: "cert-manager-controller-ingress-shim"
 		labels: {

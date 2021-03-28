@@ -2,11 +2,16 @@ package cert_manager
 
 import rbacv1 "k8s.io/api/rbac/v1"
 
-cluster_role: [...rbacv1.#ClusterRole]
-
-cluster_role: [{
+clusterRoleList: rbacv1.#ClusterRoleList & {
 	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "ClusterRole"
+	kind:       "ClusterRoleList"
+	items: [...{
+		apiVersion: "rbac.authorization.k8s.io/v1"
+		kind:       "ClusterRole"
+	}]
+}
+
+clusterRoleList: items: [{
 	metadata: {
 		name: "cert-manager-cainjector"
 		labels: {
@@ -102,8 +107,6 @@ cluster_role: [{
 		]
 	}]
 }, {
-	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "ClusterRole"
 	metadata: {
 		name: "cert-manager-controller-issuers"
 		labels: {
@@ -156,8 +159,6 @@ cluster_role: [{
 		]
 	}]
 }, {
-	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "ClusterRole"
 	metadata: {
 		name: "cert-manager-controller-clusterissuers"
 		labels: {
@@ -210,8 +211,6 @@ cluster_role: [{
 		]
 	}]
 }, {
-	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "ClusterRole"
 	metadata: {
 		name: "cert-manager-controller-certificates"
 		labels: {
@@ -290,8 +289,6 @@ cluster_role: [{
 		]
 	}]
 }, {
-	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "ClusterRole"
 	metadata: {
 		name: "cert-manager-controller-orders"
 		labels: {
@@ -374,8 +371,6 @@ cluster_role: [{
 		]
 	}]
 }, {
-	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "ClusterRole"
 	metadata: {
 		name: "cert-manager-controller-challenges"
 		labels: {
@@ -492,8 +487,6 @@ cluster_role: [{
 		]
 	}]
 }, {
-	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "ClusterRole"
 	metadata: {
 		name: "cert-manager-controller-ingress-shim"
 		labels: {
@@ -560,8 +553,6 @@ cluster_role: [{
 		]
 	}]
 }, {
-	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "ClusterRole"
 	metadata: {
 		name: "cert-manager-view"
 		labels: {
@@ -603,8 +594,6 @@ cluster_role: [{
 		]
 	}]
 }, {
-	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "ClusterRole"
 	metadata: {
 		name: "cert-manager-edit"
 		labels: {

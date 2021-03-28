@@ -2,11 +2,16 @@ package cert_manager
 
 import "k8s.io/api/core/v1"
 
-service_account: [...v1.#ServiceAccount]
-
-service_account: [{
+serviceAccountList: v1.#ServiceAccountList & {
 	apiVersion: "v1"
-	kind:       "ServiceAccount"
+	kind:       "ServiceAccountList"
+	items: [...{
+		apiVersion: "v1"
+		kind:       "ServiceAccount"
+	}]
+}
+
+serviceAccountList: items: [{
 	metadata: {
 		name: "cert-manager-cainjector"
 		labels: {
@@ -18,8 +23,6 @@ service_account: [{
 		}
 	}
 }, {
-	apiVersion: "v1"
-	kind:       "ServiceAccount"
 	metadata: {
 		name: "cert-manager"
 		labels: {
@@ -31,8 +34,6 @@ service_account: [{
 		}
 	}
 }, {
-	apiVersion: "v1"
-	kind:       "ServiceAccount"
 	metadata: {
 		name: "cert-manager-webhook"
 		labels: {
