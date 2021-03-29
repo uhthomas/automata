@@ -642,13 +642,9 @@ customResourceDefinitionList: items: [{
 			subresources: status: {}
 		}]
 	}
-	status: {
-		acceptedNames: {
-			kind:   ""
-			plural: ""
-		}
-		conditions: []
-		storedVersions: []
+	status: acceptedNames: {
+		kind:   ""
+		plural: ""
 	}
 }, {
 	metadata: {
@@ -1991,13 +1987,9 @@ customResourceDefinitionList: items: [{
 			subresources: status: {}
 		}]
 	}
-	status: {
-		acceptedNames: {
-			kind:   ""
-			plural: ""
-		}
-		conditions: []
-		storedVersions: []
+	status: acceptedNames: {
+		kind:   ""
+		plural: ""
 	}
 }, {
 	metadata: {
@@ -5876,13 +5868,9 @@ customResourceDefinitionList: items: [{
 			subresources: status: {}
 		}]
 	}
-	status: {
-		acceptedNames: {
-			kind:   ""
-			plural: ""
-		}
-		conditions: []
-		storedVersions: []
+	status: acceptedNames: {
+		kind:   ""
+		plural: ""
 	}
 }, {
 	metadata: {
@@ -10793,13 +10781,9 @@ customResourceDefinitionList: items: [{
 			subresources: status: {}
 		}]
 	}
-	status: {
-		acceptedNames: {
-			kind:   ""
-			plural: ""
-		}
-		conditions: []
-		storedVersions: []
+	status: acceptedNames: {
+		kind:   ""
+		plural: ""
 	}
 }, {
 	metadata: {
@@ -15710,13 +15694,9 @@ customResourceDefinitionList: items: [{
 			subresources: status: {}
 		}]
 	}
-	status: {
-		acceptedNames: {
-			kind:   ""
-			plural: ""
-		}
-		conditions: []
-		storedVersions: []
+	status: acceptedNames: {
+		kind:   ""
+		plural: ""
 	}
 }, {
 	metadata: {
@@ -16443,12 +16423,8 @@ customResourceDefinitionList: items: [{
 			subresources: status: {}
 		}]
 	}
-	status: {
-		acceptedNames: {
-			kind:   ""
-			plural: ""
-		}
-		conditions: []
-		storedVersions: []
+	status: acceptedNames: {
+		kind:   ""
+		plural: ""
 	}
 }]

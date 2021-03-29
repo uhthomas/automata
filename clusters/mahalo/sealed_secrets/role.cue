@@ -30,7 +30,6 @@ roleList: items: [{
 	}]
 }, {
 	metadata: {
-		annotations: {}
 		labels: name: "sealed-secrets-service-proxier"
 		name: "sealed-secrets-service-proxier"
 	}

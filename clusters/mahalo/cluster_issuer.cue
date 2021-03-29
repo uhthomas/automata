@@ -12,7 +12,6 @@ clusterIssuerList: v1.#List & {
 }
 
 clusterIssuerList: items: [{
-	kind: "ClusterIssuer"
 	metadata: name: "letsencrypt"
 	spec: acme: {
 		email:  "mahalo@6f.io"
