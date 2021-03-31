@@ -4,7 +4,7 @@ cue_library(
     name = "cue_prometheus_library",
     srcs = [
         "list.cue",
-        "namespace.cue",
+        "namespace_list.cue",
     ],
     importpath = "github.com/uhthomas/automata/clusters/mahalo/prometheus",
     visibility = ["//visibility:public"],

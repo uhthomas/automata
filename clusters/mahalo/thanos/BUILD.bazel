@@ -4,8 +4,8 @@ cue_library(
     name = "cue_thanos_library",
     srcs = [
         "list.cue",
-        "namespace.cue",
-        "sealed_secret.cue",
+        "namespace_list.cue",
+        "sealed_secret_list.cue",
     ],
     importpath = "github.com/uhthomas/automata/clusters/mahalo/thanos",
     visibility = ["//visibility:public"],

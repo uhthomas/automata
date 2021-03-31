@@ -3,10 +3,10 @@ load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
 cue_library(
     name = "cue_query_library",
     srcs = [
-        "deployment.cue",
-        "horizontal_pod_autoscaler.cue",
+        "deployment_list.cue",
+        "horizontal_pod_autoscaler_list.cue",
         "list.cue",
-        "service.cue",
+        "service_list.cue",
     ],
     importpath = "github.com/uhthomas/automata/clusters/mahalo/thanos/query",
     visibility = ["//visibility:public"],

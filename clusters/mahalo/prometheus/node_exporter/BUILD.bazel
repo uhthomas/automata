@@ -3,12 +3,12 @@ load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
 cue_library(
     name = "cue_node_exporter_library",
     srcs = [
-        "daemon_set.cue",
+        "daemon_set_list.cue",
         "list.cue",
-        "role.cue",
-        "role_binding.cue",
-        "service.cue",
-        "service_account.cue",
+        "role_binding_list.cue",
+        "role_list.cue",
+        "service_account_list.cue",
+        "service_list.cue",
     ],
     importpath = "github.com/uhthomas/automata/clusters/mahalo/prometheus/node_exporter",
     visibility = ["//visibility:public"],
