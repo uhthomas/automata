@@ -401,6 +401,39 @@ configMapList: items: [{
 			}]
 			scrape_interval: "5m"
 			scrape_timeout:  "30s"
+		}, {
+			job_name: "ingress-nginx-endpoints"
+			kubernetes_sd_configs: [{
+				role: "pod"
+				namespaces: names: [
+					"ingress-nginx",
+				]
+			}]
+			relabel_configs: [{
+				source_labels: ["__meta_kubernetes_pod_annotation_prometheus_io_scrape"]
+				action: "keep"
+				regex:  true
+			}, {
+				source_labels: ["__meta_kubernetes_pod_annotation_prometheus_io_scheme"]
+				action:       "replace"
+				target_label: "__scheme__"
+				regex:        "(https?)"
+			}, {
+				source_labels: ["__meta_kubernetes_pod_annotation_prometheus_io_path"]
+				action:       "replace"
+				target_label: "__metrics_path__"
+				regex:        "(.+)"
+			}, {
+				source_labels: ["__address__", "__meta_kubernetes_pod_annotation_prometheus_io_port"]
+				action:       "replace"
+				target_label: "__address__"
+				regex:        "([^:]+)(?::\\d+)?;(\\d+)"
+				replacement:  "$1:$2"
+			}, {
+				source_labels: ["__meta_kubernetes_service_name"]
+				regex:  "prometheus-server"
+				action: "drop"
+			}]
 		}]
 		alerting: alertmanagers: [{
 			kubernetes_sd_configs: [{
