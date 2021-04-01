@@ -20,5 +20,6 @@ list: items:
 	roleBindingList.items +
 	serviceList.items +
 	deploymentList.items +
+	horizontalPodAutoscalerList.items +
 	jobList.items +
 	validatingWebhookConfigurationList.items

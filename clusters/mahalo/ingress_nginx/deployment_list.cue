@@ -35,8 +35,8 @@ deploymentList: items: [{
 		template: {
 			metadata: {
 				annotations: {
-					"prometheus.io/path": "/metrics"
-					"prometheus.io/port": "10254"
+					"prometheus.io/path":   "/metrics"
+					"prometheus.io/port":   "10254"
 					"prometheus.io/scheme": "http"
 					"prometheus.io/scrape": "true"
 				}
