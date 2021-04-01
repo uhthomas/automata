@@ -35,7 +35,7 @@ horizontalPodAutoscalerList: items: [{
 				name: "cpu"
 				target: {
 					type:               autoscalingv2beta2.#UtilizationMetricType
-					averageUtilization: 75
+					averageUtilization: 80
 				}
 			}
 		}, {
@@ -44,7 +44,7 @@ horizontalPodAutoscalerList: items: [{
 				name: "memory"
 				target: {
 					type:               autoscalingv2beta2.#UtilizationMetricType
-					averageUtilization: 75
+					averageUtilization: 80
 				}
 			}
 		}]

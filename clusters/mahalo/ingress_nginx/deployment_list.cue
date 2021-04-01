@@ -129,9 +129,15 @@ deploymentList: items: [{
 						mountPath: "/usr/local/certificates/"
 						readOnly:  true
 					}]
-					resources: requests: {
-						cpu:    "100m"
-						memory: "90Mi"
+					resources: {
+						requests: {
+							cpu:    "100m"
+							memory: "128Mi"
+						}
+						limits: {
+							cpu:    "200m"
+							memory: "256Mi"
+						}
 					}
 				}]
 				nodeSelector: "kubernetes.io/os": "linux"
