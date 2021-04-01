@@ -33,10 +33,18 @@ deploymentList: items: [{
 		revisionHistoryLimit: 10
 		minReadySeconds:      0
 		template: {
-			metadata: labels: {
-				"app.kubernetes.io/name":      "ingress-nginx"
-				"app.kubernetes.io/instance":  "ingress-nginx"
-				"app.kubernetes.io/component": "controller"
+			metadata: {
+				annotations: {
+					"prometheus.io/path": "/metrics"
+					"prometheus.io/port": "10254"
+					"prometheus.io/scheme": "http"
+					"prometheus.io/scrape": "true"
+				}
+				labels: {
+					"app.kubernetes.io/name":      "ingress-nginx"
+					"app.kubernetes.io/instance":  "ingress-nginx"
+					"app.kubernetes.io/component": "controller"
+				}
 			}
 			spec: {
 				dnsPolicy: v1.#DNSClusterFirst
