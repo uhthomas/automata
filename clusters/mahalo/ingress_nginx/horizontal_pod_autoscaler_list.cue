@@ -25,7 +25,7 @@ horizontalPodAutoscalerList: items: [{
 		scaleTargetRef: {
 			apiVersion: "apps/v1"
 			kind:       "Deployment"
-			name:       "ingress-nginx"
+			name:       "ingress-nginx-controller"
 		}
 		minReplicas: 3
 		maxReplicas: 5
