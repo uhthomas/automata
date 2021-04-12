@@ -45,7 +45,7 @@ deploymentList: items: [{
 					args: [
 						"--oauth2-config-path=/etc/secret/oauth2_config.json",
 						"--oauth2-token-path=/etc/secret/oauth2_token.json",
-						"--expire=1m",
+						"--expire=5m",
 					]
 					resources: {
 						requests: {
