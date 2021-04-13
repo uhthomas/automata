@@ -13,6 +13,7 @@ import (
 	"github.com/uhthomas/automata/clusters/mahalo/oauth2_proxy"
 	"github.com/uhthomas/automata/clusters/mahalo/prometheus"
 	"github.com/uhthomas/automata/clusters/mahalo/promtail"
+	"github.com/uhthomas/automata/clusters/mahalo/rasmus"
 	"github.com/uhthomas/automata/clusters/mahalo/sealed_secrets"
 	"github.com/uhthomas/automata/clusters/mahalo/tesla_exporter"
 	"github.com/uhthomas/automata/clusters/mahalo/thanos"
@@ -91,4 +92,8 @@ items:
 
 	// requires:
 	// - sealed_secrets
-	tesla_exporter.list.items
+	tesla_exporter.list.items +
+
+	// requiresL
+	// - ingress_nginx
+	rasmus.list.items
