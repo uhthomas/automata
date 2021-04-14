@@ -33,7 +33,7 @@ deploymentList: items: [{
 			}
 			spec: containers: [{
 				name:  "rasmus"
-				image: "ghcr.io/uhthomas/rasmus:v0.2.2@sha256:658ef9370c4c2268f626c4c7470b0bf4a3be918202ca11b2e912a6873eedd950"
+				image: "ghcr.io/uhthomas/rasmus:v0.2.3@sha256:7a9762f644f9da178dac93645db9a64fc81a74eb38355d8fd74260949c56cf1a"
 				ports: [{
 					name:          "http"
 					containerPort: 8080
@@ -42,11 +42,11 @@ deploymentList: items: [{
 					name: "POD_IP"
 					valueFrom: fieldRef: fieldPath: "status.podIP"
 				}, {
+					name:  "SERVICE_FQDN"
+					value: "rasmus-headless.rasmus.svc.cluster.local"
+				}, {
 					name:  "RELEASE_NAME"
 					value: "rasmus"
-				}, {
-					name:  "RELEASE_NODE"
-					value: "rasmus-headless@$(POD_IP)"
 				}, {
 					name:  "RELEASE_COOKIE"
 					value: "0123456789abcdef"
