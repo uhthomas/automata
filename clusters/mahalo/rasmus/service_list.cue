@@ -24,4 +24,14 @@ serviceList: items: [{
 			"app.kubernetes.io/component": "rasmus"
 		}
 	}
+}, {
+	metadata: name: "rasmus-headless"
+	spec: {
+		clusterIP: v1.#ClusterIPNone
+		selector: {
+			"app.kubernetes.io/name":      "rasmus"
+			"app.kubernetes.io/instance":  "rasmus"
+			"app.kubernetes.io/component": "rasmus"
+		}
+	}
 }]
