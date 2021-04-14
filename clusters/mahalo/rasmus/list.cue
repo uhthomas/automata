@@ -12,7 +12,7 @@ list: v1.#List & {
 			labels: {
 				"app.kubernetes.io/name":      "rasmus"
 				"app.kubernetes.io/instance":  "rasmus"
-				"app.kubernetes.io/version":   "0.2.3"
+				"app.kubernetes.io/version":   "0.2.4"
 				"app.kubernetes.io/component": "rasmus"
 			}
 		}
