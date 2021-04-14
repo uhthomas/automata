@@ -8,6 +8,7 @@ cue_library(
         "ingress_list.cue",
         "list.cue",
         "namespace_list.cue",
+        "sealed_secret_list.cue",
         "service_list.cue",
     ],
     importpath = "github.com/uhthomas/automata/clusters/mahalo/rasmus",

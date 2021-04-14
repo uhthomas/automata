@@ -21,6 +21,7 @@ list: v1.#List & {
 
 list: items:
 	namespaceList.items +
+	sealedSecretList.items +
 	serviceList.items +
 	deploymentList.items +
 	horizontalPodAutoscalerList.items +
