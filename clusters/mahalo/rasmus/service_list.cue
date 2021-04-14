@@ -27,6 +27,8 @@ serviceList: items: [{
 }, {
 	metadata: name: "rasmus-headless"
 	spec: {
+		// dummy port, libcluster uses UDP any-cast
+		ports: [{port: 1}]
 		clusterIP: v1.#ClusterIPNone
 		selector: {
 			"app.kubernetes.io/name":      "rasmus"
