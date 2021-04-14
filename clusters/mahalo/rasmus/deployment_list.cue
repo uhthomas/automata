@@ -33,7 +33,7 @@ deploymentList: items: [{
 			}
 			spec: containers: [{
 				name:  "rasmus"
-				image: "ghcr.io/uhthomas/rasmus:v0.2.6@sha256:2969714a807b3921e897aab6a8a701bc73cb4ba446b0b21f4d777cbe511ca1a5"
+				image: "ghcr.io/uhthomas/rasmus:v0.2.7@sha256:60e9a8b01c534b2972ed48ac4e83afd3a8c445291e87fc20c6ae983e9cdc65a8"
 				ports: [{
 					name:          "http"
 					containerPort: 8080
