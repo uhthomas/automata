@@ -31,28 +31,25 @@ deploymentList: items: [{
 				"app.kubernetes.io/instance":  "rasmus"
 				"app.kubernetes.io/component": "rasmus"
 			}
-			spec: {
-				containers: [{
-					name:  "rasmus"
-					image: "ghcr.io/uhthomas/rasmus:v0.2.0@sha256:2c8c8c9290249d20cbfe7f7a544629743a39bc5dc6568630ff3940d03e9bcffa"
-
-					ports: [{
-						name:          "http"
-						containerPort: 8080
-					}]
-					resources: {
-						requests: {
-							memory: "16Mi"
-							cpu:    "150m"
-						}
-						limits: {
-							memory: "128Mi"
-							cpu:    "400m"
-						}
-					}
-					imagePullPolicy: v1.#PullIfNotPresent
+			spec: containers: [{
+				name:  "rasmus"
+				image: "ghcr.io/uhthomas/rasmus:v0.2.0@sha256:2c8c8c9290249d20cbfe7f7a544629743a39bc5dc6568630ff3940d03e9bcffa"
+				ports: [{
+					name:          "http"
+					containerPort: 8080
 				}]
-			}
+				resources: {
+					requests: {
+						memory: "16Mi"
+						cpu:    "150m"
+					}
+					limits: {
+						memory: "128Mi"
+						cpu:    "400m"
+					}
+				}
+				imagePullPolicy: v1.#PullIfNotPresent
+			}]
 		}
 	}
 }]
