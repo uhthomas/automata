@@ -38,6 +38,19 @@ deploymentList: items: [{
 					name:          "http"
 					containerPort: 8080
 				}]
+				env: [{
+					name: "POD_IP"
+					valueFrom: fieldRef: fieldPath: "status.podIP"
+				}, {
+					name:  "RELEASE_NAME"
+					value: "rasmus"
+				}, {
+					name:  "RELEASE_NODE"
+					value: "rasmus-headless@$(POD_IP)"
+				}, {
+					name:  "RELEASE_COOKIE"
+					value: "0123456789abcdef"
+				}]
 				resources: {
 					requests: {
 						memory: "16Mi"
