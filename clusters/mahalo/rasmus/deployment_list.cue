@@ -42,6 +42,15 @@ deploymentList: items: [{
 					name: "POD_IP"
 					valueFrom: fieldRef: fieldPath: "status.podIP"
 				}, {
+					name:  "APP"
+					value: "rasmus"
+				}, {
+					name: "NAMESPACE"
+					valueFrom: fieldRef: fieldPath: "metadata.namespace"
+				}, {
+					name:  "SERVICE"
+					value: "rasmus-headless"
+				}, {
 					name: "RELEASE_COOKIE"
 					valueFrom: secretKeyRef: {
 						name: "rasmus"
