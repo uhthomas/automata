@@ -132,7 +132,7 @@ deploymentList: items: [{
 					resources: {
 						requests: {
 							cpu:    "100m"
-							memory: "128Mi"
+							memory: "192Mi"
 						}
 						limits: {
 							cpu:    "200m"
