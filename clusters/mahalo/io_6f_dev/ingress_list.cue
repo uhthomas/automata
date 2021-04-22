@@ -18,7 +18,7 @@ ingressList: items: [{
 		tls: [{
 			hosts: [
 				"dev.6f.io",
-				"io-6f-dev.mahalo.starjunk.net"
+				"io-6f-dev.mahalo.starjunk.net",
 			]
 			secretName: "io-6f-dev-tls"
 		}]
