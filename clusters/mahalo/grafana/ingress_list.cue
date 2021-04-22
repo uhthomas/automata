@@ -15,18 +15,28 @@ ingressList: items: [{
 	metadata: annotations: {
 		"cert-manager.io/cluster-issuer":          "letsencrypt"
 		"nginx.ingress.kubernetes.io/auth-url":    "http://oauth2-proxy.oauth2-proxy.svc.cluster.local/oauth2/auth"
-		"nginx.ingress.kubernetes.io/auth-signin": "https://oauth2-proxy.mahalo.6f.io/oauth2/start?rd=$scheme://$host$request_uri"
+		"nginx.ingress.kubernetes.io/auth-signin": "https://oauth2-proxy.mahalo.starjunk.net/oauth2/start?rd=$scheme://$host$request_uri"
 	}
 	spec: {
 		ingressClassName: "nginx"
 		tls: [{
 			hosts: [
 				"grafana.6f.io",
+				"grafana.mahalo.starjunk.net",
 			]
 			secretName: "grafana-tls"
 		}]
 		rules: [{
 			host: "grafana.6f.io"
+			http: paths: [{
+				pathType: "ImplementationSpecific"
+				backend: service: {
+					name: "grafana"
+					port: name: "http"
+				}
+			}]
+		}, {
+			host: "grafana.mahalo.starjunk.net"
 			http: paths: [{
 				pathType: "ImplementationSpecific"
 				backend: service: {
