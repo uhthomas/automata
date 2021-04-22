@@ -22,11 +22,21 @@ ingressList: items: [{
 		tls: [{
 			hosts: [
 				"kipp.dev.6f.io",
+				"kipp-dev.mahalo.starjunk.net",
 			]
 			secretName: "kipp-dev-tls"
 		}]
 		rules: [{
 			host: "kipp.dev.6f.io"
+			http: paths: [{
+				pathType: "ImplementationSpecific"
+				backend: service: {
+					name: "kipp-dev"
+					port: name: "http"
+				}
+			}]
+		}, {
+			host: "kipp-dev.mahalo.starjunk.net"
 			http: paths: [{
 				pathType: "ImplementationSpecific"
 				backend: service: {
