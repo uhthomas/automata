@@ -22,6 +22,7 @@ serviceList: items: [{
 			port:       80
 			targetPort: "http"
 		}]
+		clusterIP: v1.#ClusterIPNone
 		selector: {
 			"app.kubernetes.io/name":      "thanos"
 			"app.kubernetes.io/instance":  "thanos"
