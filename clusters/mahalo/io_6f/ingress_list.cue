@@ -18,11 +18,21 @@ ingressList: items: [{
 		tls: [{
 			hosts: [
 				"6f.io",
+				"www.6f.io",
 			]
 			secretName: "io-6f-tls"
 		}]
 		rules: [{
 			host: "6f.io"
+			http: paths: [{
+				pathType: "ImplementationSpecific"
+				backend: service: {
+					name: "io-6f"
+					port: name: "http"
+				}
+			}]
+		}, {
+			host: "www.6f.io"
 			http: paths: [{
 				pathType: "ImplementationSpecific"
 				backend: service: {
