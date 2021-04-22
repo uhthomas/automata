@@ -18,11 +18,21 @@ ingressList: items: [{
 		tls: [{
 			hosts: [
 				"rasmus.6f.io",
+				"rasmus.mahalo.starjunk.net",
 			]
 			secretName: "rasmus-tls"
 		}]
 		rules: [{
 			host: "rasmus.6f.io"
+			http: paths: [{
+				pathType: "ImplementationSpecific"
+				backend: service: {
+					name: "rasmus"
+					port: name: "http"
+				}
+			}]
+		}, {
+			host: "rasmus.mahalo.starjunk.net"
 			http: paths: [{
 				pathType: "ImplementationSpecific"
 				backend: service: {
