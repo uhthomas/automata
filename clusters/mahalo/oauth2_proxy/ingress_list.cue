@@ -17,12 +17,12 @@ ingressList: items: [{
 		ingressClassName: "nginx"
 		tls: [{
 			hosts: [
-				"oauth2-proxy.mahalo.6f.io",
+				"oauth2-proxy.mahalo.starjunk.net",
 			]
 			secretName: "oauth2-proxy-tls"
 		}]
 		rules: [{
-			host: "oauth2-proxy.mahalo.6f.io"
+			host: "oauth2-proxy.mahalo.starjunk.net"
 			http: paths: [{
 				pathType: "ImplementationSpecific"
 				backend: service: {
