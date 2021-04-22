@@ -34,12 +34,22 @@ ingressList: items: [{
 		ingressClassName: "nginx"
 		tls: [{
 			hosts: [
-				"kipp.6f.io",
 				"conf.6f.io",
+				"kipp.6f.io",
+				"kipp.mahalo.starjunk.net",
 			]
 			secretName: "kipp-tls"
 		}]
 		rules: [{
+			host: "conf.6f.io"
+			http: paths: [{
+				pathType: "ImplementationSpecific"
+				backend: service: {
+					name: "kipp"
+					port: name: "http"
+				}
+			}]
+		}, {
 			host: "kipp.6f.io"
 			http: paths: [{
 				pathType: "ImplementationSpecific"
@@ -49,7 +59,7 @@ ingressList: items: [{
 				}
 			}]
 		}, {
-			host: "conf.6f.io"
+			host: "kipp.mahalo.starjunk.net"
 			http: paths: [{
 				pathType: "ImplementationSpecific"
 				backend: service: {
