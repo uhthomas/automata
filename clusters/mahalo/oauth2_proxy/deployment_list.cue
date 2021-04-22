@@ -62,6 +62,7 @@ deploymentList: items: [{
 					"--http-address=:4180",
 					"--provider=google",
 					"--email-domain=6f.io",
+					"--email-domain=starjunk.net",
 					"--client-id=$(CLIENT_ID)",
 					"--client-secret=$(CLIENT_SECRET)",
 					"--cookie-secret=$(COOKIE_SECRET)",
