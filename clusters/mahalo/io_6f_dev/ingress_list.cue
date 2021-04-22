@@ -18,11 +18,21 @@ ingressList: items: [{
 		tls: [{
 			hosts: [
 				"dev.6f.io",
+				"io-6f-dev.mahalo.starjunk.net"
 			]
 			secretName: "io-6f-dev-tls"
 		}]
 		rules: [{
 			host: "dev.6f.io"
+			http: paths: [{
+				pathType: "ImplementationSpecific"
+				backend: service: {
+					name: "io-6f-dev"
+					port: name: "http"
+				}
+			}]
+		}, {
+			host: "io-6f-dev.mahalo.starjunk.net"
 			http: paths: [{
 				pathType: "ImplementationSpecific"
 				backend: service: {
