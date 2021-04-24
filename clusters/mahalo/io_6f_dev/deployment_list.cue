@@ -33,7 +33,7 @@ deploymentList: items: [{
 			}
 			spec: containers: [{
 				name:            "io-6f-dev"
-				image:           "ghcr.io/uhthomas/6f.io:v1.4.0@sha256:142d56f20b64593c91131c66cefdd74fa06a8dab6607d46e2f9a910f9ac4d4eb"
+				image:           "ghcr.io/uhthomas/6f.io:v1.4.1@sha256:c701b9470881713d9618a8b9d157a4699921301d583f843f07a52578821137f3"
 				imagePullPolicy: v1.#PullIfNotPresent
 				ports: [{
 					name:          "http"
