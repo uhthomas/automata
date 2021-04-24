@@ -12,7 +12,7 @@ list: v1.#List & {
 			labels: {
 				"app.kubernetes.io/name":      "io-6f-dev"
 				"app.kubernetes.io/instance":  "io-6f-dev"
-				"app.kubernetes.io/version":   "1.4.1"
+				"app.kubernetes.io/version":   "1.4.2"
 				"app.kubernetes.io/component": "io-6f-dev"
 			}
 		}
