@@ -24,7 +24,7 @@ import (
 	spec?: #NetworkPolicySpec @go(Spec) @protobuf(2,bytes,opt)
 }
 
-// Policy Type string describes the NetworkPolicy type
+// PolicyType string describes the NetworkPolicy type
 // This type is beta-level in 1.8
 #PolicyType: string // #enumPolicyType
 
@@ -69,7 +69,7 @@ import (
 	egress?: [...#NetworkPolicyEgressRule] @go(Egress,[]NetworkPolicyEgressRule) @protobuf(3,bytes,rep)
 
 	// List of rule types that the NetworkPolicy relates to.
-	// Valid options are "Ingress", "Egress", or "Ingress,Egress".
+	// Valid options are ["Ingress"], ["Egress"], or ["Ingress", "Egress"].
 	// If this field is not specified, it will default based on the existence of Ingress or Egress rules;
 	// policies that contain an Egress section are assumed to affect Egress, and all policies
 	// (whether or not they contain an Ingress section) are assumed to affect Ingress.
@@ -130,10 +130,21 @@ import (
 	// +optional
 	protocol?: null | v1.#Protocol @go(Protocol,*v1.Protocol) @protobuf(1,bytes,opt,casttype=k8s.io/api/core/v1.Protocol)
 
-	// The port on the given protocol. This can either be a numerical or named port on
-	// a pod. If this field is not provided, this matches all port names and numbers.
+	// The port on the given protocol. This can either be a numerical or named
+	// port on a pod. If this field is not provided, this matches all port names and
+	// numbers.
+	// If present, only traffic on the specified protocol AND port will be matched.
 	// +optional
 	port?: null | intstr.#IntOrString @go(Port,*intstr.IntOrString) @protobuf(2,bytes,opt)
+
+	// If set, indicates that the range of ports from port to endPort, inclusive,
+	// should be allowed by the policy. This field cannot be defined if the port field
+	// is not defined or if the port field is defined as a named (string) port.
+	// The endPort must be equal or greater than port.
+	// This feature is in Alpha state and should be enabled using the Feature Gate
+	// "NetworkPolicyEndPort".
+	// +optional
+	endPort?: null | int32 @go(EndPort,*int32) @protobuf(3,bytes,opt)
 }
 
 // IPBlock describes a particular CIDR (Ex. "192.168.1.1/24","2001:db9::/64") that is allowed
@@ -479,7 +490,45 @@ import (
 	// configuration for the controller. This is optional if the controller does
 	// not require extra parameters.
 	// +optional
-	parameters?: null | v1.#TypedLocalObjectReference @go(Parameters,*v1.TypedLocalObjectReference) @protobuf(2,bytes,opt)
+	parameters?: null | #IngressClassParametersReference @go(Parameters,*IngressClassParametersReference) @protobuf(2,bytes,opt)
+}
+
+// IngressClassParametersReferenceScopeNamespace indicates that the
+// referenced Parameters resource is namespace-scoped.
+#IngressClassParametersReferenceScopeNamespace: "Namespace"
+
+// IngressClassParametersReferenceScopeNamespace indicates that the
+// referenced Parameters resource is cluster-scoped.
+#IngressClassParametersReferenceScopeCluster: "Cluster"
+
+// IngressClassParametersReference identifies an API object. This can be used
+// to specify a cluster or namespace-scoped resource.
+#IngressClassParametersReference: {
+	// APIGroup is the group for the resource being referenced. If APIGroup is
+	// not specified, the specified Kind must be in the core API group. For any
+	// other third-party types, APIGroup is required.
+	// +optional
+	apiGroup?: null | string @go(APIGroup,*string) @protobuf(1,bytes,opt,name=aPIGroup)
+
+	// Kind is the type of resource being referenced.
+	kind: string @go(Kind) @protobuf(2,bytes,opt)
+
+	// Name is the name of resource being referenced.
+	name: string @go(Name) @protobuf(3,bytes,opt)
+
+	// Scope represents if this refers to a cluster or namespace scoped resource.
+	// This may be set to "Cluster" (default) or "Namespace".
+	// Field can be enabled with IngressClassNamespacedParams feature gate.
+	// +optional
+	// +featureGate=IngressClassNamespacedParams
+	scope?: null | string @go(Scope,*string) @protobuf(4,bytes,opt)
+
+	// Namespace is the namespace of the resource being referenced. This field is
+	// required when scope is set to "Namespace" and must be unset when scope is set to
+	// "Cluster".
+	// +optional
+	// +featureGate=IngressClassNamespacedParams
+	namespace?: null | string @go(Namespace,*string) @protobuf(5,bytes,opt)
 }
 
 // IngressClassList is a collection of IngressClasses.

@@ -49,6 +49,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	scope?: null | #ScopeType @go(Scope,*ScopeType) @protobuf(4,bytes,rep)
 }
 
+// ScopeType specifies a scope for a Rule.
 #ScopeType: string // #enumScopeType
 
 #enumScopeType:
@@ -66,6 +67,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // AllScopes means that all scopes are included.
 #AllScopes: #ScopeType & "*"
 
+// FailurePolicyType specifies a failure policy that defines how unrecognized errors from the admission endpoint are handled.
 #FailurePolicyType: string // #enumFailurePolicyType
 
 #enumFailurePolicyType:
@@ -78,19 +80,20 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // Fail means that an error calling the webhook causes the admission to fail.
 #Fail: #FailurePolicyType & "Fail"
 
-// MatchPolicyType specifies the type of match policy
+// MatchPolicyType specifies the type of match policy.
 #MatchPolicyType: string // #enumMatchPolicyType
 
 #enumMatchPolicyType:
 	#Exact |
 	#Equivalent
 
-// Exact means requests should only be sent to the webhook if they exactly match a given rule
+// Exact means requests should only be sent to the webhook if they exactly match a given rule.
 #Exact: #MatchPolicyType & "Exact"
 
 // Equivalent means requests should be sent to the webhook if they modify a resource listed in rules via another API group or version.
 #Equivalent: #MatchPolicyType & "Equivalent"
 
+// SideEffectClass specifies the types of side effects a webhook may have.
 #SideEffectClass: string // #enumSideEffectClass
 
 #enumSideEffectClass:
@@ -276,7 +279,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// SideEffects states whether this webhook has side effects.
 	// Acceptable values are: None, NoneOnDryRun (webhooks created via v1beta1 may also specify Some or Unknown).
 	// Webhooks with side effects MUST implement a reconciliation system, since a request may be
-	// rejected by a future step in the admission change and the side effects therefore need to be undone.
+	// rejected by a future step in the admission chain and the side effects therefore need to be undone.
 	// Requests with the dryRun attribute will be auto-rejected if they match a webhook with
 	// sideEffects == Unknown or Some.
 	sideEffects?: null | #SideEffectClass @go(SideEffects,*SideEffectClass) @protobuf(6,bytes,opt,casttype=SideEffectClass)
@@ -405,7 +408,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// SideEffects states whether this webhook has side effects.
 	// Acceptable values are: None, NoneOnDryRun (webhooks created via v1beta1 may also specify Some or Unknown).
 	// Webhooks with side effects MUST implement a reconciliation system, since a request may be
-	// rejected by a future step in the admission change and the side effects therefore need to be undone.
+	// rejected by a future step in the admission chain and the side effects therefore need to be undone.
 	// Requests with the dryRun attribute will be auto-rejected if they match a webhook with
 	// sideEffects == Unknown or Some.
 	sideEffects?: null | #SideEffectClass @go(SideEffects,*SideEffectClass) @protobuf(6,bytes,opt,casttype=SideEffectClass)
@@ -474,6 +477,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	#Rule
 }
 
+// OperationType specifies an operation for a request.
 #OperationType: string // #enumOperationType
 
 #enumOperationType:
