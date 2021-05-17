@@ -1,0 +1,19 @@
+name: Colmena
+on:
+  push:
+    branches: [main]
+jobs:
+  apply:
+    name: Apply
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: cachix/install-nix-action@v13
+      with:
+        nix_path: nixpkgs=channel:nixos-unstable
+    - name: Install Colmena
+      run: nix-env -f https://github.com/zhaofengli/colmena/archive/main.tar.gz -i
+    - uses: tailscale/github-action@main
+      with:
+        authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+    - run: colmena apply -f nix/hive.nix
