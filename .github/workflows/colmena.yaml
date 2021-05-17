@@ -12,6 +12,7 @@ jobs:
       with:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         name: id_ed25519
+        known_hosts: unnecessary
         config: |
           Host *
             ControlMaster auto
