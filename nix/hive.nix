@@ -22,4 +22,15 @@
 
     networking.hostName = name;
   };
+
+  "44fe941f5c" = { name, nodes, ... }: {
+    imports = [ ./pillowtalk/44fe941f5c ];
+
+    deployment = {
+      targetHost = "${name}.starjunk.net.beta.tailscale.net";
+      tags = [ "provision" "pillowtalk" ];
+    };
+
+    networking.hostName = name;
+  };
 }

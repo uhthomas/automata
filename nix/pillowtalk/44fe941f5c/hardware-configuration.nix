@@ -2,29 +2,31 @@
 # and may be overwritten by future invocations.  Please make changes
 # to /etc/nixos/configuration.nix instead.
 { config, lib, pkgs, modulesPath, ... }:
+
 {
   imports =
     [
       (modulesPath + "/installer/scan/not-detected.nix")
     ];
 
-  boot.initrd.availableKernelModules = [ "ehci_pci" "ahci" "mpt3sas" "isci" "usbhid" "usb_storage" "sd_mod" "sr_mod" ];
+  boot.initrd.availableKernelModules = [ "ehci_pci" "ahci" "megaraid_sas" "usb_storage" "usbhid" "sd_mod" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
     {
-      device = "/dev/disk/by-uuid/02b13724-22b9-488a-a2c3-e06cd9687540";
+      device = "/dev/disk/by-uuid/f5e4da03-2856-4a11-93a7-59cba0a5500e";
       fsType = "ext4";
     };
 
   fileSystems."/boot" =
     {
-      device = "/dev/disk/by-uuid/90AC-FE99";
+      device = "/dev/disk/by-uuid/214B-4A29";
       fsType = "vfat";
     };
 
   swapDevices = [ ];
+
   powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
 }

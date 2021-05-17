@@ -26,14 +26,14 @@
       };
     };
     interfaces = {
-      eno1.useDHCP = true;
-      eno2.useDHCP = true;
-      eno3.useDHCP = true;
-      eno4.useDHCP = true;
       bond0.ipv4.addresses = [{
         address = "10.0.0.3";
         prefixLength = 24;
       }];
+      eno1.useDHCP = true;
+      eno2.useDHCP = true;
+      eno3.useDHCP = true;
+      eno4.useDHCP = true;
     };
   };
 
