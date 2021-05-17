@@ -28,9 +28,21 @@
 
     deployment = {
       targetHost = "${name}.starjunk.net.beta.tailscale.net";
-      tags = [ "provision" "pillowtalk" ];
+      tags = [ "pillowtalk" ];
     };
 
     networking.hostName = name;
+  };
+
+  c28593b8bf = { name, nodes, ... }: {
+    imports = [ ./pillowtalk/c28593b8bf ];
+
+    deployment = {
+      targetHost = "${name}.starjunk.net.beta.tailscale.net";
+      tags = [ "pillowtalk" ];
+    };
+
+    networking.hostName = name;
+
   };
 }
