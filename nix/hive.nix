@@ -43,6 +43,16 @@
     };
 
     networking.hostName = name;
+  };
 
+  f0b8e3e4f7 = { name, nodes, ... }: {
+    imports = [ ./pillowtalk/f0b8e3e4f7 ];
+
+    deployment = {
+      targetHost = "${name}.starjunk.net.beta.tailscale.net";
+      tags = [ "provision" "pillowtalk" ];
+    };
+
+    networking.hostName = name;
   };
 }
