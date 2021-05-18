@@ -1,0 +1,46 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_export", "cue_library")
+load("@io_bazel_rules_k8s//k8s:object.bzl", "k8s_object")
+
+k8s_object(
+    name = "object",
+    args = ["-l=app.kubernetes.io/managed-by=automata"],
+    context = "mahalo",
+    kind = "Deployment",
+    template = ":list",
+    visibility = ["//visibility:public"],
+)
+
+cue_library(
+    name = "cue_mahalo_library",
+    srcs = ["cluster_issuer_list.cue"],
+    importpath = "github.com/uhthomas/automata/k8s/mahalo",
+    visibility = ["//visibility:public"],
+    deps = ["//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library"],
+)
+
+cue_export(
+    name = "list",
+    src = "list.cue",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":cue_mahalo_library",
+        "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
+        "//k8s/mahalo/adya:cue_adya_library",
+        "//k8s/mahalo/cert_manager:cue_cert_manager_library",
+        "//k8s/mahalo/grafana:cue_grafana_library",
+        "//k8s/mahalo/ingress_nginx:cue_ingress_nginx_library",
+        "//k8s/mahalo/io_6f:cue_io_6f_library",
+        "//k8s/mahalo/io_6f_dev:cue_io_6f_dev_library",
+        "//k8s/mahalo/kipp:cue_kipp_library",
+        "//k8s/mahalo/kipp_dev:cue_kipp_dev_library",
+        "//k8s/mahalo/kube_state_metrics:cue_kube_state_metrics_library",
+        "//k8s/mahalo/loki:cue_loki_library",
+        "//k8s/mahalo/oauth2_proxy:cue_oauth2_proxy_library",
+        "//k8s/mahalo/prometheus:cue_prometheus_library",
+        "//k8s/mahalo/promtail:cue_promtail_library",
+        "//k8s/mahalo/rasmus:cue_rasmus_library",
+        "//k8s/mahalo/sealed_secrets:cue_sealed_secrets_library",
+        "//k8s/mahalo/tesla_exporter:cue_tesla_exporter_library",
+        "//k8s/mahalo/thanos:cue_thanos_library",
+    ],
+)

@@ -15,4 +15,4 @@ jobs:
       with:
         kubeconfig: ${{ secrets.KUBE_CONFIG }}
     # https://github.com/bazelbuild/rules_k8s/issues/640
-    - run: bazel run //clusters/mahalo:object.apply -- --prune
+    - run: bazel run //k8s/mahalo:object.apply -- --prune
