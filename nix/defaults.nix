@@ -60,9 +60,9 @@
     };
   };
 
-  virtualisation.cri-o = {
-    enable = true;
-    # extraPackages = with pkgs; [ gvisor ];
-    # runtime = [ "crun" ];
-  };
+  # virtualisation.cri-o = {
+  #   enable = true;
+  #   extraPackages = with pkgs; [ gvisor ];
+  #   runtime = [ "crun" ];
+  # };
 }

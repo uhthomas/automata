@@ -1,5 +1,5 @@
 {
-  meta.nixpkgs = import (import ./sources.nix).nixpkgs;
+  meta.nixpkgs = import (import ./sources.nix).nixpkgs { };
 
   defaults = ./defaults.nix;
 
@@ -52,7 +52,7 @@
 
     deployment = {
       targetHost = "${name}.starjunk.net.beta.tailscale.net";
-      tags = [ "provision" "pillowtalk" ];
+      tags = [ "pillowtalk" ];
     };
 
     networking.hostName = name;
