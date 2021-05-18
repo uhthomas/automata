@@ -2,9 +2,7 @@
 
 [![Bazel](https://github.com/uhthomas/automata/actions/workflows/bazel.yaml/badge.svg)](https://github.com/uhthomas/automata/actions/workflows/bazel.yaml) [![Colmena](https://github.com/uhthomas/automata/actions/workflows/colmena.yaml/badge.svg)](https://github.com/uhthomas/automata/actions/workflows/colmena.yaml)
 
-
-
-Monorepo for 6f.io and subsidiaries.
+Monorepo for Starjunk and subsidiaries.
 
 ## Getting started
 
