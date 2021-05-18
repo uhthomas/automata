@@ -1,4 +1,6 @@
 {
+  meta.nixpkgs = import (import ./sources.nix).nixpkgs;
+
   defaults = ./defaults.nix;
 
   "5dc508ed7c" = { name, nodes, ... }: {
