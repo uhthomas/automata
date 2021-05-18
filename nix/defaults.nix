@@ -60,6 +60,15 @@
     };
   };
 
+  nix = {
+    autoOptimiseStore = true;
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 30d";
+    };
+  };
+
   # virtualisation.cri-o = {
   #   enable = true;
   #   extraPackages = with pkgs; [ gvisor ];
