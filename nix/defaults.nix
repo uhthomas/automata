@@ -11,7 +11,7 @@
   };
 
   environment = {
-    systemPackages = with pkgs; [ tailscale vim ];
+    systemPackages = with pkgs; [ htop tailscale vim ];
     variables = {
       EDITOR = "vim";
       VISUAL = "vim";
