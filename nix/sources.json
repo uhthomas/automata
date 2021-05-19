@@ -1,4 +1,16 @@
 {
+    "colmena": {
+        "branch": "main",
+        "description": "Yet another NixOS deployment tool",
+        "homepage": "",
+        "owner": "zhaofengli",
+        "repo": "colmena",
+        "rev": "99ba8db33525ccba9000b240a401630d05d38e88",
+        "sha256": "19i5bzrlax75pd94j27kk5xq370r0ap4fy721yqlwc2ivkiaj7ay",
+        "type": "tarball",
+        "url": "https://github.com/zhaofengli/colmena/archive/99ba8db33525ccba9000b240a401630d05d38e88.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "niv": {
         "branch": "master",
         "description": "Easy dependency management for Nix projects",

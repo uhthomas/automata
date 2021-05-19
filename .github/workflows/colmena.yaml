@@ -26,9 +26,7 @@ jobs:
       with:
         name: starjunk
         authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-    - name: Install Colmena
-      run: nix-env -f https://github.com/zhaofengli/colmena/archive/main.tar.gz -i
     - uses: tailscale/github-action@main
       with:
         authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
-    - run: colmena apply -f nix/hive.nix
+    - run: nix-shell --run "colmena apply -f nix/hive.nix"
