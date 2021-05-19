@@ -11,7 +11,7 @@
   };
 
   environment = {
-    systemPackages = with pkgs; [ htop tailscale vim ];
+    systemPackages = with pkgs; [ htop kubectl kubernetes tailscale vim ];
     variables = {
       EDITOR = "vim";
       VISUAL = "vim";
