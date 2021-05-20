@@ -14,4 +14,11 @@
     # extraPackages = with pkgs; [ gvisor ];
     runtime = "crun";
   };
+
+  services.iperf3 = {
+    enable = true;
+    openFirewall = true;
+  };
+
+  networking.firewall.allowedUDPPorts = [ 5201 ];
 }
