@@ -3,6 +3,7 @@ package tigera_operator
 import (
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 deploymentList: appsv1.#DeploymentList & {
@@ -29,10 +30,10 @@ deploymentList: items: [{
 				nodeSelector: "kubernetes.io/os": "linux"
 				tolerations: [{
 					effect:   v1.#TaintEffectNoSchedule
-					operator: v1.#LabelSelectorOpExists
+					operator: metav1.#LabelSelectorOpExists
 				}, {
 					effect:   v1.#TaintEffectNoSchedule
-					operator: v1.#LabelSelectorOpExists
+					operator: metav1.#LabelSelectorOpExists
 				}]
 				serviceAccountName: "tigera-operator"
 				hostNetwork:        true

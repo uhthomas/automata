@@ -15,7 +15,7 @@ v1.#List & {
 // items are grouped by dependency requirements, and sorted lexicographically
 // where possible.
 items:
-    tigera_operator.items +
+	tigera_operator.list.items +
 
-    // requires tigera_operator
-    pillowtalk.intallationList.items
+	// requires tigera_operator
+	pillowtalk.installationList.items

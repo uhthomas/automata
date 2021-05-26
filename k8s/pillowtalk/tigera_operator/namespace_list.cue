@@ -11,4 +11,4 @@ namespaceList: v1.#NamespaceList & {
 	}]
 }
 
-namespaceList: items: [{labels: name: "tigera-operator"}]
+namespaceList: items: [{metadata: labels: name: "tigera-operator"}]

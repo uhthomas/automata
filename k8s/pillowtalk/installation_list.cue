@@ -1,4 +1,4 @@
-package tigera_operator
+package pillowtalk
 
 import "k8s.io/api/core/v1"
 

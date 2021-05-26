@@ -7,7 +7,7 @@ list: v1.#List & {
 	kind:       "List"
 	items: [...{
 		metadata: {
-			name:      "tigera-operator"
+			name:      string | *"tigera-operator"
 			namespace: "tigera-operator"
 			labels: {
 				"app.kubernetes.io/name":      "tigera-operator"

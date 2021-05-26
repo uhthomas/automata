@@ -10,21 +10,21 @@ k8s_object(
     visibility = ["//visibility:public"],
 )
 
-cue_library(
-    name = "cue_tigera_operator_library",
-    srcs = ["installation_list.cue"],
-    importpath = "github.com/uhthomas/automata/k8s/pillowtalk:tigera_operator",
-    visibility = ["//visibility:public"],
-    deps = ["//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library"],
-)
-
 cue_export(
     name = "list",
     src = "list.cue",
     visibility = ["//visibility:public"],
     deps = [
+        ":cue_pillowtalk_library",
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
         "//k8s/pillowtalk/tigera_operator:cue_tigera_operator_library",
-        "@com_github_uhthomas_automata//k8s/pillowtalk:cue_pillowtalk_library",
     ],
+)
+
+cue_library(
+    name = "cue_pillowtalk_library",
+    srcs = ["installation_list.cue"],
+    importpath = "github.com/uhthomas/automata/k8s/pillowtalk",
+    visibility = ["//visibility:public"],
+    deps = ["//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library"],
 )
