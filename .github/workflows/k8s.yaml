@@ -4,7 +4,7 @@ on:
     branches: [main]
 jobs:
   mahalo:
-    name: Apply
+    name: Mahalo
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -17,7 +17,7 @@ jobs:
     # https://github.com/bazelbuild/rules_k8s/issues/640
     - run: bazel run //k8s/mahalo:object.apply -- --prune
   pillowtalk:
-    name: Apply
+    name: Pillowtalk
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
