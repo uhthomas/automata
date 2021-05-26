@@ -3,37 +3,37 @@ import clientcmdapiv1 "k8s.io/client-go/tools/clientcmd/api/v1"
 clientcmdapiv1.#Config & {
 	apiVersion: "v1"
 	kind:       "Config"
-	clusters: [{
-		name: "desire"
+	clusters: [ {
+		name: "mahalo"
 		cluster: {
 			"certificate-authority-data": ''
 			server:                       ""
 		}
 	}, {
-		name: "mahalo"
+		name: "pillowtalk"
 		cluster: {
 			"certificate-authority-data": ''
 			server:                       ""
 		}
 	}]
 	users: [{
-		name: "desire"
-		user: token: ""
-	}, {
 		name: "mahalo"
 		user: token: ""
-	}]
-	contexts: [{
-		name: "desire"
-		context: {
-			cluster: "desire"
-			user:    "desire"
-		}
 	}, {
+		name: "pillowtalk"
+		user: token: ""
+	}]
+	contexts: [ {
 		name: "mahalo"
 		context: {
 			cluster: "mahalo"
 			user:    "mahalo"
+		}
+	}, {
+		name: "pillowtalk"
+		context: {
+			cluster: "pillowtalk"
+			user:    "pillowtalk"
 		}
 	}]
 	// overriden by k8s_object
