@@ -42,7 +42,7 @@ items:
 	sealed_secrets.list.items +
 
 	// requires:
-	// cert_manager
+	// - cert_manager
 	// - ingress_nginx
 	// - sealed_secrets
 	oauth2_proxy.list.items +
