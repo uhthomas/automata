@@ -1,4 +1,4 @@
-package tigera-operator
+package tigera_operator
 
 import "k8s.io/api/core/v1"
 
