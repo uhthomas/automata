@@ -11,4 +11,4 @@ list: v1.#List & {
 	items: [...{metadata: namespace: "kube-system"}]
 }
 
-list: items: metrics_server.items
+list: items: metrics_server.list.items

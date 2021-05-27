@@ -2,11 +2,16 @@ package metrics_server
 
 import rbacv1 "k8s.io/api/rbac/v1"
 
-role_binding: [...rbacv1.#RoleBinding]
-
-role_binding: [{
+roleBindingList: rbacv1.#RoleBindingList & {
 	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "RoleBinding"
+	kind:       "RoleBindingList"
+	items: [...{
+		apiVersion: "rbac.authorization.k8s.io/v1"
+		kind:       "RoleBinding"
+	}]
+}
+
+roleBindingList: items: [{
 	metadata: name: "metrics-server-auth-reader"
 	roleRef: {
 		apiGroup: "rbac.authorization.k8s.io"

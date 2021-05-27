@@ -2,11 +2,16 @@ package metrics_server
 
 import apiregistrationv1 "k8s.io/kube-aggregator/pkg/apis/apiregistration/v1"
 
-api_service: [...apiregistrationv1.#APIService]
-
-api_service: [{
+apiServiceList: apiregistrationv1.#APIServiceList & {
 	apiVersion: "apiregistration.k8s.io/v1"
 	kind:       "APIService"
+	items: [...{
+		apiVersion: "apiregistration.k8s.io/v1"
+		kind:       "APIService"
+	}]
+}
+
+apiServiceList: items: [{
 	metadata: name: "v1beta1.metrics.k8s.io"
 	spec: {
 		service: {

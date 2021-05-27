@@ -1,14 +1,16 @@
 package metrics_server
 
-import corev1 "k8s.io/api/core/v1"
+import "k8s.io/api/core/v1"
 
-corev1.#List & {
+list: v1.#List & {
 	apiVersion: "v1"
 	kind:       "List"
-	items:      deployment +
-		service +
-		api_service +
-		role_binding +
-		cluster_role +
-		cluster_role_binding
+	items: [...{metadata: name: string | *"metrics-server"}]
 }
+
+list: items: deploymentList.items +
+	serviceList.items +
+	apiServiceList.items +
+	roleBindingList.items +
+	clusterRoleList.items +
+	clusterRoleBindingList.items

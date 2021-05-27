@@ -1,13 +1,20 @@
 package metrics_server
 
-import appsv1 "k8s.io/api/apps/v1"
+import (
+	appsv1 "k8s.io/api/apps/v1"
+	"k8s.io/api/core/v1"
+)
 
-deployment: [...appsv1.#Deployment]
-
-deployment: [{
+deploymentList: appsv1.#DeploymentList & {
 	apiVersion: "apps/v1"
-	kind:       "Deployment"
-	metadata: name: "metrics-server"
+	kind:       "DeploymentList"
+	items: [...{
+		apiVersion: "apps/v1"
+		kind:       "Deployment"
+	}]
+}
+
+deploymentList: items: [{
 	spec: {
 		revisionHistoryLimit:    5
 		progressDeadlineSeconds: 120
@@ -25,10 +32,9 @@ deployment: [{
 				}]
 				priorityClassName: "system-cluster-critical"
 				containers: [{
-					name: "metrics-server"
-					// v0.4.2
-					image:           "k8s.gcr.io/metrics-server/metrics-server@sha256:dbc33d7d35d2a9cc5ab402005aa7a0d13be6192f3550c7d42cba8d2d5e3a5d62"
-					imagePullPolicy: "IfNotPresent"
+					name:            "metrics-server"
+					image:           "k8s.gcr.io/metrics-server/metrics-server:v0.4.2@sha256:dbc33d7d35d2a9cc5ab402005aa7a0d13be6192f3550c7d42cba8d2d5e3a5d62"
+					imagePullPolicy: v1.#PullIfNotPresent
 					args: [
 						"--cert-dir=/tmp",
 						"--secure-port=4443",

@@ -1,13 +1,17 @@
 package metrics_server
 
-import corev1 "k8s.io/api/core/v1"
+import "k8s.io/api/core/v1"
 
-service: [...corev1.#Service]
-
-service: [{
+serviceList: v1.#ServiceList & {
 	apiVersion: "v1"
-	kind:       "Service"
-	metadata: name: "metrics-server"
+	kind:       "ServiceList"
+	items: [...{
+		apiVersion: "v1"
+		kind:       "Service"
+	}]
+}
+
+serviceList: items: [{
 	spec: {
 		ports: [{
 			name:       "https"
