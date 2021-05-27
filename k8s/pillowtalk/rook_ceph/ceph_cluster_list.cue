@@ -217,10 +217,13 @@ cephClusterList: items: [{
 		//    osd: rook-ceph-osd-priority-class
 		//    mgr: rook-ceph-mgr-priority-class
 		storage: {// cluster level storage configuration and selection
-			useAllNodes:   true
+			useAllNodes:   false
 			useAllDevices: true
-			//deviceFilter:
-			config: null
+			nodes: [
+				{name: "13a0a37008"},
+				{name: "38aab880f5"},
+				{name: "6151c4656b"},
+			]
 		}
 		// crushRoot: "custom-root" # specify a non-default root label for the CRUSH map
 		// metadataDevice: "md0" # specify a non-rotational storage so ceph-volume will use it as block db device of bluestore.
