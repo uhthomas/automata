@@ -16,7 +16,7 @@ installationList: items: [{
 	// Note: The ipPools section cannot be modified post-install.
 	spec: calicoNetwork: ipPools: [{
 		blockSize:     26
-		cidr:          "10.96.0.0/16"
+		cidr:          "100.65.0.0/16"
 		encapsulation: "VXLANCrossSubnet"
 		natOutgoing:   "Enabled"
 		nodeSelector:  "all()"
