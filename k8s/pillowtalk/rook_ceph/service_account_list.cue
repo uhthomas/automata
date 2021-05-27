@@ -16,7 +16,7 @@ serviceAccountList: items: [
 	// The rook system service account used by the operator, agent, and discovery pods
 	{
 		metadata: {
-			namespace: "rook-ceph"
+			name: "rook-ceph-system"
 			labels: {
 				operator:          "rook"
 				"storage-backend": "ceph"
