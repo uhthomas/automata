@@ -206,4 +206,65 @@ deploymentList: items: [{
 			}
 		}
 	}
+}, {
+	metadata: {
+		name: "rook-ceph-tools"
+		labels: app: "rook-ceph-tools"
+	}
+	spec: {
+		replicas: 1
+		selector: matchLabels: app: "rook-ceph-tools"
+		template: {
+			metadata: labels: app: "rook-ceph-tools"
+			spec: {
+				dnsPolicy: v1.#DNSClusterFirstWithHostNet
+				containers: [{
+					name:  "rook-ceph-tools"
+					image: "rook/ceph:v1.6.3@sha256:8c787d33968e685558f1830a7f6a81a4a43b96d4cb2dba65867f09363f3f2d73"
+					command: ["/tini"]
+					args: ["-g", "--", "/usr/local/bin/toolbox.sh"]
+					imagePullPolicy: "IfNotPresent"
+					env: [{
+						name: "ROOK_CEPH_USERNAME"
+						valueFrom: secretKeyRef: {
+							name: "rook-ceph-mon"
+							key:  "ceph-username"
+						}
+					}, {
+						name: "ROOK_CEPH_SECRET"
+						valueFrom: secretKeyRef: {
+							name: "rook-ceph-mon"
+							key:  "ceph-secret"
+						}
+					}]
+					volumeMounts: [{
+						mountPath: "/etc/ceph"
+						name:      "ceph-config"
+					}, {
+						name:      "mon-endpoint-volume"
+						mountPath: "/etc/rook"
+					}]
+				}]
+				volumes: [{
+					name: "mon-endpoint-volume"
+					configMap: {
+						name: "rook-ceph-mon-endpoints"
+						items: [{
+							key:  "data"
+							path: "mon-endpoints"
+						}]
+					}
+				}, {
+					name: "ceph-config"
+					emptyDir: {}
+				}]
+				tolerations: [{
+					key:               "node.kubernetes.io/unreachable"
+					operator:          "Exists"
+					effect:            "NoExecute"
+					tolerationSeconds: 5
+				}]
+			}
+		}
+	}
 }]
