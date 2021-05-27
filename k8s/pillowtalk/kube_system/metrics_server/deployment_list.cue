@@ -33,7 +33,7 @@ deploymentList: items: [{
 				priorityClassName: "system-cluster-critical"
 				containers: [{
 					name:            "metrics-server"
-					image:           "k8s.gcr.io/metrics-server/metrics-server:v0.4.2@sha256:dbc33d7d35d2a9cc5ab402005aa7a0d13be6192f3550c7d42cba8d2d5e3a5d62"
+					image:           "k8s.gcr.io/metrics-server/metrics-server:v0.4.4@sha256:f8643f007c8a604388eadbdac43d76b95b56ccd13f7447dd0934b594b9f7b363"
 					imagePullPolicy: v1.#PullIfNotPresent
 					args: [
 						"--cert-dir=/tmp",
