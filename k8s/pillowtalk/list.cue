@@ -1,6 +1,7 @@
 import (
 	"github.com/uhthomas/automata/k8s/pillowtalk"
 	"github.com/uhthomas/automata/k8s/pillowtalk/kube_state_metrics"
+	"github.com/uhthomas/automata/k8s/pillowtalk/kube_system"
 	"github.com/uhthomas/automata/k8s/pillowtalk/rook_ceph"
 	"github.com/uhthomas/automata/k8s/pillowtalk/sealed_secrets"
 	"github.com/uhthomas/automata/k8s/pillowtalk/tigera_operator"
@@ -21,8 +22,10 @@ items:
 	// requires tigera_operator
 	pillowtalk.installationList.items +
 
-	rook_ceph.list.items +
+	kube_system.list.items +
 
-	sealed_secrets.items +
+	kube_state_metrics.list.items +
 
-	kube_state_metrics.list.items
+	sealed_secrets.list.items +
+
+	rook_ceph.list.items
