@@ -218,12 +218,34 @@ cephClusterList: items: [{
 		//    mgr: rook-ceph-mgr-priority-class
 		storage: {// cluster level storage configuration and selection
 			useAllNodes:   false
-			useAllDevices: true
-			nodes: [
-				{name: "13a0a37008"},
-				{name: "38aab880f5"},
-				{name: "6151c4656b"},
-			]
+			useAllDevices: false
+			nodes: [{
+				name: "13a0a37008"
+				devices: [
+					// WD Red 6TB
+					{name: "/dev/disk/by-uuid/7804e228-a3dc-4720-8770-52603c2193c7"},
+					// WD Red 4TB
+					{name: "/dev/disk/by-uuid/29046f70-d327-4360-8d1e-6e743c471de1"},
+				]
+			}, {
+				name: "6151c4656b"
+				devices: [
+					// WD Red 6TB
+					{name: "/dev/disk/by-uuid/95208618-efd2-4679-b01f-37d87f93cae9"},
+					// WD Red 4TB
+					{name: "/dev/disk/by-uuid/33a5f43a-c484-4e94-847d-bf3c80515c98"},
+				]
+			}, {
+				name: "38aab880f5"
+				devices: [
+					// WD Red 4TB
+					{name: "/dev/disk/by-uuid/a8a2c9e6-8569-46ee-97d9-ce65393f35a5"},
+					// WD Red 4TB
+					{name: "/dev/disk/by-uuid/0099bce4-cd1f-45e3-9d2d-b2639a53d8b2"},
+					// Samsung 2TB
+					{name: "/dev/disk/by-uuid/282b3c96-3a05-4907-9c5f-d6ac610fcadf"},
+				]
+			}]
 		}
 		// crushRoot: "custom-root" # specify a non-default root label for the CRUSH map
 		// metadataDevice: "md0" # specify a non-rotational storage so ceph-volume will use it as block db device of bluestore.
