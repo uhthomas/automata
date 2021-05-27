@@ -8,9 +8,11 @@ list: v1.#List & {
 	items: [...{metadata: name: string | *"metrics-server"}]
 }
 
-list: items: deploymentList.items +
-	serviceList.items +
-	apiServiceList.items +
-	roleBindingList.items +
+list: items:
+	serviceAccountList.items +
 	clusterRoleList.items +
-	clusterRoleBindingList.items
+	clusterRoleBindingList.items +
+	roleBindingList.items +
+	serviceList.items +
+	deploymentList.items +
+	apiServiceList.items
