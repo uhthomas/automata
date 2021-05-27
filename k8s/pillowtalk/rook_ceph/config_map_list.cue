@@ -274,4 +274,10 @@ configMapList: items: [{
 		// Enable volume replication controller
 		CSI_ENABLE_VOLUME_REPLICATION: "false"
 	}
+}, {
+	metadata: name: "rook-config-override"
+	data: config: """
+		[mon]
+		auth_allow_insecure_global_id_reclaim = false
+		"""
 }]
