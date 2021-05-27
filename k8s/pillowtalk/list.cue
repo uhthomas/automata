@@ -1,6 +1,7 @@
 import (
 	"github.com/uhthomas/automata/k8s/pillowtalk"
 	"github.com/uhthomas/automata/k8s/pillowtalk/rook_ceph"
+	"github.com/uhthomas/automata/k8s/pillowtalk/sealed_secrets"
 	"github.com/uhthomas/automata/k8s/pillowtalk/tigera_operator"
 	"k8s.io/api/core/v1"
 )
@@ -19,4 +20,6 @@ items:
 	// requires tigera_operator
 	pillowtalk.installationList.items +
 
-	rook_ceph.list.items
+	rook_ceph.list.items +
+
+	sealed_secrets.items
