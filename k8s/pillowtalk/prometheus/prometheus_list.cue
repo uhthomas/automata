@@ -13,6 +13,7 @@ prometheusList: v1.#List & {
 
 prometheusList: items: [{
 	spec: {
+		serviceAccountName: "prometheus"
 		serviceMonitorSelector: {}
 		podMonitorSelector: {}
 		additionalScrapeConfigs: {
