@@ -8,6 +8,7 @@ cue_library(
         "list.cue",
         "namespace_list.cue",
         "prometheus_list.cue",
+        "secret_list.cue",
         "service_account_list.cue",
     ],
     importpath = "github.com/uhthomas/automata/k8s/pillowtalk/prometheus",
