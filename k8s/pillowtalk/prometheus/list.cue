@@ -23,6 +23,7 @@ list: v1.#List & {
 list: items:
 	namespaceList.items +
 	serviceAccountList.items +
+	secretList.items +
 	clusterRoleList.items +
 	clusterRoleBindingList.items +
 	prometheusList.items
