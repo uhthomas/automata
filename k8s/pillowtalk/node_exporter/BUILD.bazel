@@ -5,6 +5,7 @@ cue_library(
     srcs = [
         "daemon_set_list.cue",
         "list.cue",
+        "namespace_list.cue",
         "role_binding_list.cue",
         "role_list.cue",
         "service_account_list.cue",

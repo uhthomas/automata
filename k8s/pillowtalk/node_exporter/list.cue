@@ -21,6 +21,7 @@ list: v1.#List & {
 }
 
 list: items:
+	namespaceList.items +
 	serviceAccountList.items +
 	roleList.items +
 	roleBindingList.items +
