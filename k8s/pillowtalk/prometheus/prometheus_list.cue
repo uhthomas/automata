@@ -14,6 +14,7 @@ prometheusList: v1.#List & {
 prometheusList: items: [{
 	spec: {
 		serviceMonitorSelector: {}
+		podMonitorSelector: {}
 		additionalScrapeConfigs: {
 			name: "additional-scrape-configs"
 			key:  "prometheus-additional.yaml"
