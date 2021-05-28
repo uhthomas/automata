@@ -2,6 +2,7 @@ import (
 	"github.com/uhthomas/automata/k8s/pillowtalk"
 	"github.com/uhthomas/automata/k8s/pillowtalk/kube_state_metrics"
 	"github.com/uhthomas/automata/k8s/pillowtalk/kube_system"
+	"github.com/uhthomas/automata/k8s/pillowtalk/prometheus"
 	"github.com/uhthomas/automata/k8s/pillowtalk/prometheus_operator"
 	"github.com/uhthomas/automata/k8s/pillowtalk/rook_ceph"
 	"github.com/uhthomas/automata/k8s/pillowtalk/sealed_secrets"
@@ -31,4 +32,5 @@ items:
 
 	rook_ceph.list.items +
 
-	prometheus_operator.list.items
+	prometheus_operator.list.items +
+	prometheus.list.items
