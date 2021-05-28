@@ -17,6 +17,7 @@ cue_export(
     deps = [
         ":cue_pillowtalk_library",
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
+        "//k8s/pillowtalk/cloudflared:cue_cloudflared_library",
         "//k8s/pillowtalk/kube_state_metrics:cue_kube_state_metrics_library",
         "//k8s/pillowtalk/kube_system:cue_kube_system_library",
         "//k8s/pillowtalk/node_exporter:cue_node_exporter_library",

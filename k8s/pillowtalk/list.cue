@@ -1,5 +1,6 @@
 import (
 	"github.com/uhthomas/automata/k8s/pillowtalk"
+	"github.com/uhthomas/automata/k8s/pillowtalk/cloudflared"
 	"github.com/uhthomas/automata/k8s/pillowtalk/kube_state_metrics"
 	"github.com/uhthomas/automata/k8s/pillowtalk/kube_system"
 	"github.com/uhthomas/automata/k8s/pillowtalk/node_exporter"
@@ -26,6 +27,7 @@ items:
 	pillowtalk.installationList.items +
 
 	// none of these really have any dependencies
+	cloudflared.list.items +
 	kube_system.list.items +
 	kube_state_metrics.list.items +
 	node_exporter.list.items +
