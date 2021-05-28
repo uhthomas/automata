@@ -3,6 +3,7 @@ load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
 cue_library(
     name = "cue_rook_ceph_library",
     srcs = [
+        "ceph_block_pool_list.cue",
         "ceph_cluster_list.cue",
         "cluster_role_binding_list.cue",
         "cluster_role_list.cue",
@@ -15,6 +16,7 @@ cue_library(
         "role_binding_list.cue",
         "role_list.cue",
         "service_account_list.cue",
+        "storage_class_list.cue",
     ],
     importpath = "github.com/uhthomas/automata/k8s/pillowtalk/rook_ceph",
     visibility = ["//visibility:public"],

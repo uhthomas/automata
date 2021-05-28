@@ -24,6 +24,7 @@ list: items:
 	podSecurityPolicyList.items +
 	serviceAccountList.items +
 	configMapList.items +
+	storageClassList.items +
 	customResourceDefinitionList.items +
 	clusterRoleList.items +
 	clusterRoleBindingList.items +
@@ -32,4 +33,5 @@ list: items:
 	deploymentList.items +
 
 	// CRDs
-	cephClusterList.items
+	cephClusterList.items +
+	cephBlockPoolList.items
