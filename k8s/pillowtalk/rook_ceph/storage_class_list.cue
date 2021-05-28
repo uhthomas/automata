@@ -1,12 +1,12 @@
 package rook_ceph
 
-import "k8s.io/api/core/v1"
+import storagev1 "k8s.io/api/storage/v1"
 
-storageClassList: v1.#List & {
+storageClassList: storagev1.#StorageClassList & {
 	apiVersion: "v1"
-	kind:       "List"
+	kind:       "StorageClassList"
 	items: [...{
-		apiVersion: "ceph.rook.io/v1"
+		apiVersion: "storage.k8s.io/v1"
 		kind:       "StorageClass"
 	}]
 }
