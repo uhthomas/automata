@@ -279,5 +279,6 @@ configMapList: items: [{
 	data: config: """
 		[mon]
 		auth_allow_insecure_global_id_reclaim = false
+
 		"""
 }]
