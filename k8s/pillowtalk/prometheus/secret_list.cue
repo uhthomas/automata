@@ -15,7 +15,7 @@ secretList: v1.#SecretList & {
 }
 
 secretList: items: [{
-	metadata: name: "additional-scrape-configs"
+	metadata: name:                     "additional-scrape-configs"
 	data: "prometheus-additional.yaml": '\(yaml.Marshal([{
 		job_name: "kubernetes-pods"
 		kubernetes_sd_configs: [{

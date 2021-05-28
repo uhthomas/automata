@@ -19,6 +19,7 @@ cue_export(
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
         "//k8s/pillowtalk/kube_state_metrics:cue_kube_state_metrics_library",
         "//k8s/pillowtalk/kube_system:cue_kube_system_library",
+        "//k8s/pillowtalk/node_exporter:cue_node_exporter_library",
         "//k8s/pillowtalk/prometheus:cue_prometheus_library",
         "//k8s/pillowtalk/prometheus_operator:cue_prometheus_operator_library",
         "//k8s/pillowtalk/rook_ceph:cue_rook_ceph_library",
