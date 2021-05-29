@@ -26,4 +26,8 @@ list: items:
 	secretList.items +
 	clusterRoleList.items +
 	clusterRoleBindingList.items +
-	prometheusList.items
+	prometheusList.items +
+
+	// CRDs
+	podMonitorList.items +
+	serviceMonitorList.items

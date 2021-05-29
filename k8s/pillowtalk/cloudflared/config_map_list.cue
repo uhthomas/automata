@@ -17,7 +17,7 @@ configMapList: v1.#ConfigMapList & {
 configMapList: items: [{
 	data: "config.yaml": yaml.Marshal({
 		// Name of the tunnel you want to run
-		tunnel: "pillowtalk"
+		tunnel:             "pillowtalk"
 		"credentials-file": "/etc/cloudflared/creds/credentials.json"
 		// Serves the metrics server under /metrics and the readiness server under /ready
 		metrics: "0.0.0.0:2000"
