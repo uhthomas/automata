@@ -14,7 +14,7 @@ serviceMonitorList: v1.#List & {
 serviceMonitorList: items: [{
 	spec: {
 		endpoints: [{port: "web"}]
-		selector: labels: {
+		selector: matchLabels: {
 			"app.kubernetes.io/name":      "prometheus"
 			"app.kubernetes.io/instance":  "prometheus"
 			"app.kubernetes.io/component": "prometheus"
@@ -76,5 +76,42 @@ serviceMonitorList: items: [{
 			"app.kubernetes.io/component": "exporter"
 		}
 		namespaceSelector: matchNames: ["node-exporter"]
+	}
+}, {
+	metadata: {
+		name: "rook-ceph-mgr"
+		labels: team: "rook"
+	}
+	spec: {
+		namespaceSelector: matchNames: [ "rook-ceph"]
+		selector: matchLabels: {
+			app:            "rook-ceph-mgr"
+			rook_cluster:   "rook-ceph"
+			ceph_daemon_id: "a"
+		}
+		endpoints: [{
+			port:     "http-metrics"
+			path:     "/metrics"
+			interval: "5s"
+		}]
+	}
+}, {
+	metadata: {
+		name: "csi-metrics"
+		labels: team: "rook"
+	}
+	spec: {
+		namespaceSelector: matchNames: [ "rook-ceph"]
+		selector: matchLabels: app: "csi-metrics"
+		endpoints: [{
+			port:     "csi-http-metrics"
+			path:     "/metrics"
+			interval: "5s"
+		}, {
+			// comment csi-grpc-metrics realated information if csi grpc metrics is not enabled
+			port:     "csi-grpc-metrics"
+			path:     "/metrics"
+			interval: "5s"
+		}]
 	}
 }]

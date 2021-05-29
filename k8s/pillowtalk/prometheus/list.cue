@@ -29,5 +29,4 @@ list: items:
 	prometheusList.items +
 
 	// CRDs
-	podMonitorList.items +
 	serviceMonitorList.items
