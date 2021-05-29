@@ -83,7 +83,7 @@ serviceMonitorList: items: [{
 		labels: team: "rook"
 	}
 	spec: {
-		namespaceSelector: matchNames: [ "rook-ceph"]
+		namespaceSelector: matchNames: ["rook-ceph"]
 		selector: matchLabels: {
 			app:            "rook-ceph-mgr"
 			rook_cluster:   "rook-ceph"
@@ -101,7 +101,7 @@ serviceMonitorList: items: [{
 		labels: team: "rook"
 	}
 	spec: {
-		namespaceSelector: matchNames: [ "rook-ceph"]
+		namespaceSelector: matchNames: ["rook-ceph"]
 		selector: matchLabels: app: "csi-metrics"
 		endpoints: [{
 			port:     "csi-http-metrics"
