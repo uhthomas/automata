@@ -13,12 +13,15 @@ installationList: v1.#List & {
 
 installationList: items: [{
 	metadata: name: "default"
-	// Note: The ipPools section cannot be modified post-install.
-	spec: calicoNetwork: ipPools: [{
-		blockSize:     26
-		cidr:          "100.65.0.0/16"
-		encapsulation: "VXLANCrossSubnet"
-		natOutgoing:   "Enabled"
-		nodeSelector:  "all()"
-	}]
+	spec: calicoNetwork: {
+		// Note: The ipPools section cannot be modified post-install.
+		ipPools: [{
+			blockSize:     26
+			cidr:          "100.65.0.0/16"
+			encapsulation: "VXLANCrossSubnet"
+			natOutgoing:   "Enabled"
+			nodeSelector:  "all()"
+		}]
+		nodeAddressAutodetectionV4: cidrs: ["10.0.0.0/24"]
+	}
 }]
