@@ -12,13 +12,13 @@ serviceList: v1.#ServiceList & {
 }
 
 serviceList: items: [{
-	metadata: annotations: "prometheus.io/scrape": "true"
 	spec: {
 		ports: [{
 			name:       "metrics"
 			port:       9100
 			targetPort: "metrics"
 		}]
+		clusterIP:v1.#ClusterIPNone
 		selector: {
 			"app.kubernetes.io/name":      "prometheus"
 			"app.kubernetes.io/instance":  "prometheus"
