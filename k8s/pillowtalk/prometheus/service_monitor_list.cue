@@ -21,6 +21,17 @@ serviceMonitorList: items: [{
 		}
 	}
 }, {
+	metadata: name: "prometheus-operator"
+	spec: {
+		endpoints: [{port: "http"}]
+		selector: matchLabels: {
+			"app.kubernetes.io/name":      "prometheus-operator"
+			"app.kubernetes.io/instance":  "prometheus-operator"
+			"app.kubernetes.io/component": "controller"
+		}
+		namespaceSelector: matchNames: ["prometheus-operator"]
+	}
+}, {
 	metadata: name: "kube-state-metrics"
 	spec: {
 		endpoints: [{
@@ -30,6 +41,7 @@ serviceMonitorList: items: [{
 				regex:  "(pod|service|endpoint|namespace)"
 			}]
 		}, {port: "telemetry"}]
+		jobLabel: "app.kubernetes.io/name"
 		selector: matchLabels: {
 			"app.kubernetes.io/name":      "kube-state-metrics"
 			"app.kubernetes.io/instance":  "kube-state-metrics"
@@ -57,6 +69,7 @@ serviceMonitorList: items: [{
 				targetLabel: "instance"
 			}]
 		}]
+		jobLabel: "app.kubernetes.io/name"
 		selector: matchLabels: {
 			"app.kubernetes.io/name":      "node-exporter"
 			"app.kubernetes.io/instance":  "node-exporter"
