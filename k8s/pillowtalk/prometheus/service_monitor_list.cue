@@ -12,9 +12,24 @@ serviceMonitorList: v1.#List & {
 }
 
 serviceMonitorList: items: [{
+	spec: {
+		endpoints: [{port: "web"}]
+		selector: labels: {
+			"app.kubernetes.io/name":      "prometheus"
+			"app.kubernetes.io/instance":  "prometheus"
+			"app.kubernetes.io/component": "prometheus"
+		}
+	}
+}, {
 	metadata: name: "kube-state-metrics"
 	spec: {
-		endpoints: [{port: "http-metrics"}, {port: "telemetry"}]
+		endpoints: [{
+			port: "http-metrics"
+			relabelings: [{
+				action: "labeldrop"
+				regex:  "(pod|service|endpoint|namespace)"
+			}]
+		}, {port: "telemetry"}]
 		selector: matchLabels: {
 			"app.kubernetes.io/name":      "kube-state-metrics"
 			"app.kubernetes.io/instance":  "kube-state-metrics"
@@ -32,7 +47,16 @@ serviceMonitorList: items: [{
 }, {
 	metadata: name: "node-exporter"
 	spec: {
-		endpoints: [{port: "metrics"}]
+		endpoints: [{
+			port: "metrics"
+			relabelings: [{
+				action:      "replace"
+				regex:       "(.*)"
+				replacement: "$1"
+				sourceLabels: ["__meta_kubernetes_pod_node_name"]
+				targetLabel: "instance"
+			}]
+		}]
 		selector: matchLabels: {
 			"app.kubernetes.io/name":      "node-exporter"
 			"app.kubernetes.io/instance":  "node-exporter"
