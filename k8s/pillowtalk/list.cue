@@ -8,6 +8,7 @@ import (
 	"github.com/uhthomas/automata/k8s/pillowtalk/prometheus_operator"
 	"github.com/uhthomas/automata/k8s/pillowtalk/rook_ceph"
 	"github.com/uhthomas/automata/k8s/pillowtalk/sealed_secrets"
+	"github.com/uhthomas/automata/k8s/pillowtalk/thanos"
 	"github.com/uhthomas/automata/k8s/pillowtalk/tigera_operator"
 	"k8s.io/api/core/v1"
 )
@@ -35,4 +36,5 @@ items:
 	sealed_secrets.list.items +
 
 	prometheus_operator.list.items +
-	prometheus.list.items
+	prometheus.list.items +
+	thanos.list.items

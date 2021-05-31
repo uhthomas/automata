@@ -128,8 +128,8 @@ storageClassList: items: [{
 	// set the reclaim policy to retain the bucket when its OBC is deleted
 	reclaimPolicy: v1.#PersistentVolumeReclaimRetain
 	parameters: {
-		objectStoreName:      "replicapool"      // port 80 assumed
-		objectStoreNamespace: "rook-ceph" // namespace:cluster
+		objectStoreName:      "replicapool" // port 80 assumed
+		objectStoreNamespace: "rook-ceph"   // namespace:cluster
 		region:               "us-east-1"
 	}
 }]

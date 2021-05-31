@@ -25,6 +25,7 @@ cue_export(
         "//k8s/pillowtalk/prometheus_operator:cue_prometheus_operator_library",
         "//k8s/pillowtalk/rook_ceph:cue_rook_ceph_library",
         "//k8s/pillowtalk/sealed_secrets:cue_sealed_secrets_library",
+        "//k8s/pillowtalk/thanos:cue_thanos_library",
         "//k8s/pillowtalk/tigera_operator:cue_tigera_operator_library",
     ],
 )

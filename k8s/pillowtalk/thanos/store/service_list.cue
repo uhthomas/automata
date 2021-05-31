@@ -1,4 +1,4 @@
-package node_exporter
+package store
 
 import "k8s.io/api/core/v1"
 
@@ -14,15 +14,19 @@ serviceList: v1.#ServiceList & {
 serviceList: items: [{
 	spec: {
 		ports: [{
-			name:       "metrics"
-			port:       9100
-			targetPort: "metrics"
+			name:       "grpc"
+			port:       50051
+			targetPort: "grpc"
+		}, {
+			name:       "http"
+			port:       80
+			targetPort: "http"
 		}]
 		clusterIP: v1.#ClusterIPNone
 		selector: {
-			"app.kubernetes.io/name":      "prometheus"
-			"app.kubernetes.io/instance":  "prometheus"
-			"app.kubernetes.io/component": "node-exporter"
+			"app.kubernetes.io/name":      "thanos"
+			"app.kubernetes.io/instance":  "thanos"
+			"app.kubernetes.io/component": "store"
 		}
 	}
 }]
