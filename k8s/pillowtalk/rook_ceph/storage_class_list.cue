@@ -1,6 +1,9 @@
 package rook_ceph
 
-import storagev1 "k8s.io/api/storage/v1"
+import (
+	"k8s.io/api/core/v1"
+	storagev1 "k8s.io/api/storage/v1"
+)
 
 storageClassList: storagev1.#StorageClassList & {
 	apiVersion: "v1"
@@ -64,5 +67,15 @@ storageClassList: items: [{
 	// to restart your application pods. Therefore, this option is not recommended.
 	//mounter: rbd-nbd
 	allowVolumeExpansion: true
-	reclaimPolicy:        "Delete"
+	reclaimPolicy:        v1.#PersistentVolumeReclaimRetain
+}, {
+	metadata: name: "rook-ceph-bucket"
+	provisioner: "rook-ceph.ceph.rook.io/bucket" // driver:namespace:cluster
+	// set the reclaim policy to retain the bucket when its OBC is deleted
+	reclaimPolicy: v1.#PersistentVolumeReclaimRetain
+	parameters: {
+		objectStoreName:      "replicapool"      // port 80 assumed
+		objectStoreNamespace: "rook-ceph" // namespace:cluster
+		region:               "us-east-1"
+	}
 }]
