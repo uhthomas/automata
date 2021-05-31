@@ -69,7 +69,7 @@ storageClassList: items: [{
 	allowVolumeExpansion: true
 	reclaimPolicy:        v1.#PersistentVolumeReclaimRetain
 }, {
-	metadata: name: "rook-ceph-bucket"
+	metadata: name: "rook-ceph-retain-bucket"
 	provisioner: "rook-ceph.ceph.rook.io/bucket" // driver:namespace:cluster
 	// set the reclaim policy to retain the bucket when its OBC is deleted
 	reclaimPolicy: v1.#PersistentVolumeReclaimRetain
