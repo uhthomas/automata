@@ -48,9 +48,9 @@ deploymentList: items: [{
 					containerPort: 80
 				}]
 				envFrom: [{
-					configMapRef: name: "store"
+					configMapRef: name: "thanos"
 				}, {
-					secretRef: name: "store"
+					secretRef: name: "thanos"
 				}]
 				args: [
 					"store",
@@ -63,6 +63,7 @@ deploymentList: items: [{
 						config:
 							bucket: $(BUCKET_NAME)
 							endpoint: $(BUCKET_HOST):$(BUCKET_PORT)
+							region: $(BUCKET_REGION)
 							access_key: $(AWS_ACCESS_KEY_ID)
 							secret_key: $(AWS_SECRET_ACCESS_KEY)
 						""",

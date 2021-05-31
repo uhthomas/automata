@@ -44,9 +44,9 @@ deploymentList: items: [{
 						containerPort: 80
 					}]
 					envFrom: [{
-						configMapRef: name: "compact"
+						configMapRef: name: "thanos"
 					}, {
-						secretRef: name: "compact"
+						secretRef: name: "thanos"
 					}]
 					args: [
 						"compact",
@@ -58,6 +58,7 @@ deploymentList: items: [{
 						config:
 							bucket: $(BUCKET_NAME)
 							endpoint: $(BUCKET_HOST):$(BUCKET_PORT)
+							region: $(BUCKET_REGION)
 							access_key: $(AWS_ACCESS_KEY_ID)
 							secret_key: $(AWS_SECRET_ACCESS_KEY)
 						""",
@@ -76,10 +77,6 @@ deploymentList: items: [{
 						}
 					}
 					volumeMounts: [{
-						name:      "thanos"
-						mountPath: "/etc/secret"
-						readOnly:  true
-					}, {
 						name:      "scratch"
 						mountPath: "/tmp/scratch"
 					}]

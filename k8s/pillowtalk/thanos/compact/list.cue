@@ -13,6 +13,4 @@ list: v1.#List & {
 	}]
 }
 
-list: items:
-	cephObjectStoreUserList.items +
-	deploymentList.items
+list: items: deploymentList.items
