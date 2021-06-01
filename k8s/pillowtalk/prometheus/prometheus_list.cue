@@ -47,10 +47,10 @@ prometheusList: items: [{
 					cat <<EOF > /etc/thanos/config/objstore.yaml
 					type: S3
 					config:
-						bucket: $(BUCKET_NAME)
-						endpoint: $(BUCKET_HOST):$(BUCKET_PORT)
-						region: $(BUCKET_REGION)
-						insecure: true
+					 bucket: $(BUCKET_NAME)
+					 endpoint: $(BUCKET_HOST):$(BUCKET_PORT)
+					 region: $(BUCKET_REGION)
+					 insecure: true
 					EOF
 					""",
 			]
