@@ -78,11 +78,6 @@ deploymentList: items: [{
 						cpu:    "1000m"
 					}
 				}
-				volumeMounts: [{
-					name:      "thanos"
-					mountPath: "/etc/secret"
-					readOnly:  true
-				}]
 				livenessProbe: {
 					httpGet: {
 						path: "/-/healthy"
