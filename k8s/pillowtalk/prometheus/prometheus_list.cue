@@ -22,26 +22,38 @@ prometheusList: items: [{
 		}
 		replicaExternalLabelName: "replica"
 		externalLabels: cluster: "pillowtalk"
-		thanos: image: "quay.io/thanos/thanos:v0.18.0@sha256:b94171aed499b2f1f81b6d3d385e0eeeca885044c59cef28ce6a9a9e8a827217"
+		thanos: {
+			image:                   "quay.io/thanos/thanos:v0.18.0@sha256:b94171aed499b2f1f81b6d3d385e0eeeca885044c59cef28ce6a9a9e8a827217"
+			objectStorageConfigFile: "/etc/prometheus/config_out/objstore.yaml"
+		}
 		containers: [{
 			name: "thanos-sidecar"
 			envFrom: [{
-				configMapRef: name: "thanos-bucket"
-			}, {
 				secretRef: name: "thanos-bucket"
 			}]
+		}]
+		initContainers: [{
+			name:  "thanos-config"
+			image: "alpine:3.13.5@sha256:69e70a79f2d41ab5d637de98c1e0b055206ba40a8145e7bddb55ccc04e13cf8f"
 			args: [
+				"sh",
+				"-c",
 				"""
-					--objstore.config=type: S3
+					cat <<EOF
+					type: S3
 					config:
 						bucket: $(BUCKET_NAME)
 						endpoint: $(BUCKET_HOST):$(BUCKET_PORT)
 						region: $(BUCKET_REGION)
-						access_key: $(AWS_ACCESS_KEY_ID)
-						secret_key: $(AWS_SECRET_ACCESS_KEY)
 						insecure: true
+					EOF > /etc/prometheus/config_out/objstore.yaml
 					""",
 			]
+			envFrom: [{configMapRef: name: "thanos-bucket"}]
+			volumeMounts: [{
+				name:      "config-out"
+				mountPath: "/etc/prometheus/config_out"
+			}]
 		}]
 	}
 }]
