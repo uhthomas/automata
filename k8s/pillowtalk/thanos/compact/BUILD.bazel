@@ -3,6 +3,7 @@ load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
 cue_library(
     name = "cue_compact_library",
     srcs = [
+        "ceph_object_store_user_list.cue",
         "deployment_list.cue",
         "list.cue",
     ],
