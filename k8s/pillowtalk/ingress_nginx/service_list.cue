@@ -37,10 +37,6 @@ serviceList: items: [{
 }, {
 	metadata: {
 		name: "ingress-nginx-controller"
-		annotations: {
-			"service.beta.kubernetes.io/scw-loadbalancer-proxy-protocol-v2": "true"
-			"service.beta.kubernetes.io/scw-loadbalancer-use-hostname":      "true"
-		}
 		labels: {
 			"app.kubernetes.io/name":      "ingress-nginx"
 			"app.kubernetes.io/instance":  "ingress-nginx"
@@ -49,8 +45,6 @@ serviceList: items: [{
 		}
 	}
 	spec: {
-		type:                  v1.#ServiceTypeLoadBalancer
-		externalTrafficPolicy: v1.#ServiceExternalTrafficPolicyTypeLocal
 		ports: [{
 			name:       "http"
 			port:       80
