@@ -36,11 +36,9 @@ configMapList: items: [{
 			hostname: "prometheus-pillowtalk.starjunk.net"
 			service:  "http://prometheus-operated.prometheus.svc:9090"
 		}, {
-			// This rule sends traffic to the built-in hello-world HTTP server. This can help debug connectivity
-			// issues. If hello.example.com resolves and tunnel.example.com does not, then the problem is
-			// in the connection from cloudflared to your local service, not from the internet to cloudflared.
-			hostname: "hello.example.com"
-			service:  "hello_world"
+			hostname: "ceph-pillowtalk.starjunk.net"
+			service: "https://rook-ceph-mgr-dashboard.rook-ceph.svc:8443"
+			noTLSVerify: true
 		}, {
 			// This rule matches any traffic which didn't match a previous rule, and responds with HTTP 404.
 			service: "http_status:404"
