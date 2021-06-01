@@ -61,11 +61,11 @@ deploymentList: items: [{
 					"""
 						--objstore.config=type: S3
 						config:
-							bucket: $(BUCKET_NAME)
-							endpoint: $(BUCKET_HOST):$(BUCKET_PORT)
-							region: $(BUCKET_REGION)
-							access_key: $(AWS_ACCESS_KEY_ID)
-							secret_key: $(AWS_SECRET_ACCESS_KEY)
+						  bucket: $(BUCKET_NAME)
+						  endpoint: $(BUCKET_HOST):$(BUCKET_PORT)
+						  region: $(BUCKET_REGION)
+						  access_key: $(AWS_ACCESS_KEY_ID)
+						  secret_key: $(AWS_SECRET_ACCESS_KEY)
 						""",
 				]
 				resources: {
