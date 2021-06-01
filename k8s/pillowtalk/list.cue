@@ -3,6 +3,7 @@ import (
 	"github.com/uhthomas/automata/k8s/pillowtalk/cloudflared"
 	"github.com/uhthomas/automata/k8s/pillowtalk/kube_state_metrics"
 	"github.com/uhthomas/automata/k8s/pillowtalk/kube_system"
+	"github.com/uhthomas/automata/k8s/pillowtalk/loki"
 	"github.com/uhthomas/automata/k8s/pillowtalk/node_exporter"
 	"github.com/uhthomas/automata/k8s/pillowtalk/prometheus"
 	"github.com/uhthomas/automata/k8s/pillowtalk/prometheus_operator"
@@ -35,6 +36,7 @@ items:
 	rook_ceph.list.items +
 	sealed_secrets.list.items +
 
+	loki.list.items +
 	prometheus_operator.list.items +
 	prometheus.list.items +
 	thanos.list.items
