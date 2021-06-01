@@ -2,10 +2,10 @@ package thanos
 
 import (
 	"k8s.io/api/core/v1"
-	compact "github.com/uhthomas/automata/k8s/mahalo/thanos/compact"
-	query "github.com/uhthomas/automata/k8s/mahalo/thanos/query"
-	query_frontend "github.com/uhthomas/automata/k8s/mahalo/thanos/query_frontend"
-	store "github.com/uhthomas/automata/k8s/mahalo/thanos/store"
+	compact "github.com/uhthomas/automata/k8s/pillowtalk/thanos/compact"
+	query "github.com/uhthomas/automata/k8s/pillowtalk/thanos/query"
+	query_frontend "github.com/uhthomas/automata/k8s/pillowtalk/thanos/query_frontend"
+	store "github.com/uhthomas/automata/k8s/pillowtalk/thanos/store"
 )
 
 list: v1.#List & {
