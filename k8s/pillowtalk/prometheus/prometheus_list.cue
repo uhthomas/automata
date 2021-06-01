@@ -31,6 +31,11 @@ prometheusList: items: [{
 			envFrom: [{
 				secretRef: name: "thanos-bucket"
 			}]
+			volumeMounts: [{
+				name:      "config-out"
+				mountPath: "/etc/prometheus/config_out"
+				readOnly:  true
+			}]
 		}]
 		initContainers: [{
 			name:  "thanos-config"
