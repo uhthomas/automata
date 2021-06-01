@@ -7,6 +7,7 @@ cue_library(
         "cluster_role_list.cue",
         "list.cue",
         "namespace_list.cue",
+        "object_bucket_claim_list.cue",
         "prometheus_list.cue",
         "secret_list.cue",
         "service_account_list.cue",

@@ -24,6 +24,7 @@ list: items:
 	namespaceList.items +
 	serviceAccountList.items +
 	secretList.items +
+	objectBucketClaimList.items +
 	clusterRoleList.items +
 	clusterRoleBindingList.items +
 	prometheusList.items +
