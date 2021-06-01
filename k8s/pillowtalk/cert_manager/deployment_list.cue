@@ -136,6 +136,7 @@ deploymentList: items: [{
 			}
 			spec: {
 				containers: [{
+					name: "cert-manager"
 					args: [
 						"--v=2",
 						"--secure-port=10250",
@@ -162,7 +163,6 @@ deploymentList: items: [{
 						successThreshold:    1
 						timeoutSeconds:      1
 					}
-					name: "cert-manager"
 					ports: [{
 						containerPort: 10250
 						name:          "https"
@@ -182,6 +182,7 @@ deploymentList: items: [{
 					}
 				}]
 				serviceAccountName: "cert-manager-webhook"
+				hostNetwork: true
 			}
 		}
 	}
