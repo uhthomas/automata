@@ -20,13 +20,7 @@ prometheusList: items: [{
 			name: "additional-scrape-configs"
 			key:  "prometheus-additional.yaml"
 		}
-		thanos: {
-			image: "quay.io/thanos/thanos:v0.18.0@sha256:b94171aed499b2f1f81b6d3d385e0eeeca885044c59cef28ce6a9a9e8a827217"
-			objectStorageConfig: {
-				name: "thanos"
-				key:  "objstore.yaml"
-			}
-		}
+		thanos: image: "quay.io/thanos/thanos:v0.18.0@sha256:b94171aed499b2f1f81b6d3d385e0eeeca885044c59cef28ce6a9a9e8a827217"
 		containers: [{
 			name: "thanos-sidecar"
 			envFrom: [{
@@ -34,6 +28,18 @@ prometheusList: items: [{
 			}, {
 				secretRef: name: "thanos-bucket"
 			}]
+			args: [
+				"""
+					--objstore.config=type: S3
+					config:
+						bucket: $(BUCKET_NAME)
+						endpoint: $(BUCKET_HOST):$(BUCKET_PORT)
+						region: $(BUCKET_REGION)
+						access_key: $(AWS_ACCESS_KEY_ID)
+						secret_key: $(AWS_SECRET_ACCESS_KEY)
+						insecure: true
+					""",
+			]
 		}]
 	}
 }]
