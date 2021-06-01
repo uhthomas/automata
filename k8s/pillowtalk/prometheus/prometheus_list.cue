@@ -20,6 +20,8 @@ prometheusList: items: [{
 			name: "additional-scrape-configs"
 			key:  "prometheus-additional.yaml"
 		}
+		replicaExternalLabelName: "replica"
+		externalLabels: cluster: "pillowtalk"
 		thanos: image: "quay.io/thanos/thanos:v0.18.0@sha256:b94171aed499b2f1f81b6d3d385e0eeeca885044c59cef28ce6a9a9e8a827217"
 		containers: [{
 			name: "thanos-sidecar"
