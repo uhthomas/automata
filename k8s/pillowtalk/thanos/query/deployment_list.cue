@@ -75,12 +75,12 @@ deploymentList: items: [{
 				}
 				resources: {
 					requests: {
-						memory: "128Mi"
-						cpu:    "250m"
+						memory: "512Mi"
+						cpu:    "1000m"
 					}
 					limits: {
-						memory: "256Mi"
-						cpu:    "1000m"
+						memory: "1Gi"
+						cpu:    "2000m"
 					}
 				}
 				imagePullPolicy: v1.#PullIfNotPresent

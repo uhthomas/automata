@@ -70,12 +70,12 @@ deploymentList: items: [{
 				]
 				resources: {
 					requests: {
-						memory: "128Mi"
-						cpu:    "250m"
-					}
-					limits: {
 						memory: "1Gi"
 						cpu:    "1000m"
+					}
+					limits: {
+						memory: "2Gi"
+						cpu:    "2000m"
 					}
 				}
 				livenessProbe: {
