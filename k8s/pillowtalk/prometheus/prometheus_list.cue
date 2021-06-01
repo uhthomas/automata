@@ -24,7 +24,7 @@ prometheusList: items: [{
 		externalLabels: cluster: "pillowtalk"
 		thanos: {
 			image:                   "quay.io/thanos/thanos:v0.18.0@sha256:b94171aed499b2f1f81b6d3d385e0eeeca885044c59cef28ce6a9a9e8a827217"
-			objectStorageConfigFile: "/etc/prometheus/config_out/objstore.yaml"
+			objectStorageConfigFile: "/etc/thanos/config/objstore.yaml"
 		}
 		containers: [{
 			name: "thanos-sidecar"
@@ -32,8 +32,8 @@ prometheusList: items: [{
 				secretRef: name: "thanos-bucket"
 			}]
 			volumeMounts: [{
-				name:      "config-out"
-				mountPath: "/etc/prometheus/config_out"
+				name:      "thanos-config"
+				mountPath: "/etc/thanos/config"
 				readOnly:  true
 			}]
 		}]
@@ -44,21 +44,25 @@ prometheusList: items: [{
 				"sh",
 				"-c",
 				"""
-					cat <<EOF
+					cat <<EOF > /etc/thanos/config/objstore.yaml
 					type: S3
 					config:
 						bucket: $(BUCKET_NAME)
 						endpoint: $(BUCKET_HOST):$(BUCKET_PORT)
 						region: $(BUCKET_REGION)
 						insecure: true
-					EOF > /etc/prometheus/config_out/objstore.yaml
+					EOF
 					""",
 			]
 			envFrom: [{configMapRef: name: "thanos-bucket"}]
 			volumeMounts: [{
-				name:      "config-out"
-				mountPath: "/etc/prometheus/config_out"
+				name:      "thanos-config"
+				mountPath: "/etc/thanos/config"
 			}]
+		}]
+		volumes: [{
+			name: "thanos-config"
+			emptyDir: {}
 		}]
 	}
 }]
