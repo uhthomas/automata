@@ -38,7 +38,7 @@ configMapList: items: [{
 		}, {
 			hostname: "ceph-pillowtalk.starjunk.net"
 			service: "https://rook-ceph-mgr-dashboard.rook-ceph.svc:8443"
-			noTLSVerify: true
+			originRequest: noTLSVerify: true
 		}, {
 			// This rule matches any traffic which didn't match a previous rule, and responds with HTTP 404.
 			service: "http_status:404"
