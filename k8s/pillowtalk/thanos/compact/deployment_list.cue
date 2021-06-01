@@ -44,9 +44,9 @@ deploymentList: items: [{
 						containerPort: 80
 					}]
 					envFrom: [{
-						configMapRef: name: "compact"
+						configMapRef: name: "thanos"
 					}, {
-						secretRef: name: "compact"
+						secretRef: name: "thanos"
 					}]
 					args: [
 						"compact",

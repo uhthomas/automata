@@ -14,7 +14,6 @@ list: v1.#List & {
 }
 
 list: items:
-	cephObjectStoreUserList.items +
 	serviceList.items +
 	deploymentList.items +
 	horizontalPodAutoscalerList.items
