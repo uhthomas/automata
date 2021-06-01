@@ -173,4 +173,34 @@ roleList: items: [{
 		resources: ["leases"]
 		verbs: ["get", "watch", "list", "delete", "update", "create"]
 	}]
+}, {
+	metadata: name: "rook-ceph-monitor"
+	rules: [{
+		apiGroups: [
+			"monitoring.coreos.com",
+		]
+		resources: [
+			"*",
+		]
+		verbs: [
+			"*",
+		]
+	}]
+}, {
+	metadata: name: "rook-ceph-metrics"
+	rules: [{
+		apiGroups: [
+			"",
+		]
+		resources: [
+			"services",
+			"endpoints",
+			"pods",
+		]
+		verbs: [
+			"get",
+			"list",
+			"watch",
+		]
+	}]
 }]

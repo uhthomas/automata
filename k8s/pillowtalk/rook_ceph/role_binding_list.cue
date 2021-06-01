@@ -167,4 +167,28 @@ roleBindingList: items: [{
 		name:     "rbd-external-provisioner-cfg"
 		apiGroup: "rbac.authorization.k8s.io"
 	}
+}, {
+	metadata: name: "rook-ceph-monitor"
+	roleRef: {
+		apiGroup: "rbac.authorization.k8s.io"
+		kind:     "Role"
+		name:     "rook-ceph-monitor"
+	}
+	subjects: [{
+		kind:      "ServiceAccount"
+		name:      "rook-ceph-system"
+		namespace: "rook-ceph"
+	}]
+}, {
+	metadata: name: "rook-ceph-metrics"
+	roleRef: {
+		apiGroup: "rbac.authorization.k8s.io"
+		kind:     "Role"
+		name:     "rook-ceph-metrics"
+	}
+	subjects: [{
+		kind:      "ServiceAccount"
+		name:      "prometheus"
+		namespace: "prometheus"
+	}]
 }]
