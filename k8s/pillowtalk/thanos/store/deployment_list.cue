@@ -66,6 +66,7 @@ deploymentList: items: [{
 						  region: $(BUCKET_REGION)
 						  access_key: $(AWS_ACCESS_KEY_ID)
 						  secret_key: $(AWS_SECRET_ACCESS_KEY)
+						  insecure: true
 						""",
 				]
 				resources: {
