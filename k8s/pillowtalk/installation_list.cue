@@ -17,7 +17,7 @@ installationList: items: [{
 		// Note: The ipPools section cannot be modified post-install.
 		ipPools: [{
 			blockSize:     26
-			cidr:          "100.65.0.0/16"
+			cidr:          "172.16.0.0/16"
 			encapsulation: "VXLANCrossSubnet"
 			natOutgoing:   "Enabled"
 			nodeSelector:  "all()"
