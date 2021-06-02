@@ -1,5 +1,6 @@
 import (
 	"github.com/uhthomas/automata/k8s/pillowtalk"
+	"github.com/uhthomas/automata/k8s/pillowtalk/cert_manager"
 	"github.com/uhthomas/automata/k8s/pillowtalk/cloudflared"
 	"github.com/uhthomas/automata/k8s/pillowtalk/ingress_nginx"
 	"github.com/uhthomas/automata/k8s/pillowtalk/kube_state_metrics"
@@ -27,6 +28,9 @@ v1.#List & {
 items:
 	tigera_operator.list.items +
 	pillowtalk.installationList.items +
+
+	cert_manager.list.items +
+	pillowtalk.clusterIssuerList.items +
 
 	// none of these really have any dependencies
 	cloudflared.list.items +
