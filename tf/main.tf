@@ -191,7 +191,7 @@ resource "cloudflare_access_application" "ceph_pillowtalk" {
 }
 
 resource "cloudflare_access_policy" "allow_gsuite" {
-  application_id = cloudflare_access_application.ceph_pillowtalk
+  application_id = cloudflare_access_application.ceph_pillowtalk.id
   account_id     = var.cloudflare_account_id
   name           = "Allow GSuite"
   precedence     = "1"
