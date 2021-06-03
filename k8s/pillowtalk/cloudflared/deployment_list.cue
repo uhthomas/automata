@@ -18,7 +18,7 @@ deploymentList: items: [{
 	metadata: annotations: "reloader.stakater.com/auto": "true"
 	spec: {
 		selector: matchLabels: app: "cloudflared"
-		replicas: 3 // You could also consider elastic scaling for this deployment
+		replicas: 3
 		template: {
 			metadata: labels: app: "cloudflared"
 			spec: {
@@ -31,9 +31,6 @@ deploymentList: items: [{
 						"/etc/cloudflared/config/config.yaml",
 						"run",
 					]
-					// Points cloudflared to the config file, which configures what
-					// cloudflared will actually do. This file is created by a ConfigMap
-					// below.
 					livenessProbe: {
 						httpGet: {
 							// Cloudflared has a /ready endpoint which returns 200 if and only if
@@ -50,9 +47,6 @@ deploymentList: items: [{
 						mountPath: "/etc/cloudflared/config"
 						readOnly:  true
 					}, {
-						// Each tunnel has an associated "credentials file" which authorizes machines
-						// to run the tunnel. cloudflared will read this file from its local filesystem,
-						// and it'll be stored in a k8s secret.
 						name:      "creds"
 						mountPath: "/etc/cloudflared/creds"
 						readOnly:  true
@@ -61,17 +55,8 @@ deploymentList: items: [{
 				}]
 				volumes: [{
 					name: "creds"
-					secret: {
-						// By default, the credentials file will be created under ~/.cloudflared/<tunnel ID>.json
-						// when you run `cloudflared tunnel create`. You can move it into a secret by using:
-						// ```sh
-						// kubectl create secret generic tunnel-credentials \
-						// --from-file=credentials.json=/Users/yourusername/.cloudflared/<tunnel ID>.json
-						// ```
-						secretName: "tunnel-credentials"
-					}
+					secret:  secretName: "tunnel-credentials"
 				}, {
-					// Create a config.yaml file from the ConfigMap below.
 					name: "config"
 					configMap: {
 						name: "cloudflared"
