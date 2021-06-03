@@ -46,7 +46,6 @@ resource "cloudflare_record" "aaaa" {
   name    = "@"
   value   = "100::"
   type    = "AAAA"
-  ttl     = 1
   proxied = true
 }
 
@@ -55,7 +54,6 @@ resource "cloudflare_record" "www_aaaa" {
   name    = "www"
   value   = "100::"
   type    = "AAAA"
-  ttl     = 1
   proxied = true
 }
 
@@ -87,7 +85,6 @@ resource "cloudflare_record" "mahalo_a" {
   name    = "mahalo"
   value   = "51.159.112.126"
   type    = "A"
-  ttl     = 1
   proxied = true
 }
 
@@ -96,7 +93,6 @@ resource "cloudflare_record" "grafana_mahalo_cname" {
   name    = "grafana.mahalo"
   value   = "mahalo.starjunk.net"
   type    = "CNAME"
-  ttl     = 1
   proxied = true
 }
 
@@ -105,7 +101,6 @@ resource "cloudflare_record" "io_6f_dev_mahalo_cname" {
   name    = "io-6f-dev.mahalo"
   value   = "mahalo.starjunk.net"
   type    = "CNAME"
-  ttl     = 1
   proxied = true
 }
 
@@ -114,7 +109,6 @@ resource "cloudflare_record" "io_6f_mahalo_cname" {
   name    = "io-6f.mahalo"
   value   = "mahalo.starjunk.net"
   type    = "CNAME"
-  ttl     = 1
   proxied = true
 }
 
@@ -123,7 +117,6 @@ resource "cloudflare_record" "kipp_dev_mahalo_cname" {
   name    = "kipp-dev.mahalo"
   value   = "mahalo.starjunk.net"
   type    = "CNAME"
-  ttl     = 1
   proxied = true
 }
 
@@ -132,7 +125,6 @@ resource "cloudflare_record" "kipp_mahalo_cname" {
   name    = "kipp.mahalo"
   value   = "mahalo.starjunk.net"
   type    = "CNAME"
-  ttl     = 1
   proxied = true
 }
 
@@ -141,7 +133,6 @@ resource "cloudflare_record" "oauth2_proxy_mahalo_cname" {
   name    = "oauth2-proxy.mahalo"
   value   = "mahalo.starjunk.net"
   type    = "CNAME"
-  ttl     = 1
   proxied = true
 }
 
@@ -150,7 +141,6 @@ resource "cloudflare_record" "rasmus_mahalo_cname" {
   name    = "rasmus.mahalo"
   value   = "mahalo.starjunk.net"
   type    = "CNAME"
-  ttl     = 1
   proxied = true
 }
 
@@ -159,7 +149,6 @@ resource "cloudflare_record" "thanos_mahalo_cname" {
   name    = "thano.mahalo"
   value   = "mahalo.starjunk.net"
   type    = "CNAME"
-  ttl     = 1
   proxied = true
 }
 
@@ -172,7 +161,6 @@ resource "cloudflare_record" "pillowtalk_cname" {
   # in-place.
   value   = "29d849e6-cec2-4ddc-8672-1edd9eaaf2d2.cfargotunnel.com"
   type    = "CNAME"
-  ttl     = 1
   proxied = true
 }
 
@@ -181,13 +169,12 @@ resource "cloudflare_record" "ceph_pillowtalk_cname" {
   name    = "ceph.pillowtalk"
   value   = "pillowtalk.starjunk.net"
   type    = "CNAME"
-  ttl     = 1
   proxied = true
 }
 
 resource "cloudflare_record" "prometheus_pillowtalk_cname" {
   zone_id = cloudflare_zone.starjunk_net.id
-  name    = "ceph.pillowtalk"
+  name    = "prometheus.pillowtalk"
   value   = "pillowtalk.starjunk.net"
   type    = "CNAME"
   proxied = true
