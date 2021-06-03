@@ -25,8 +25,8 @@ resource "cloudflare_certificate_pack" "advanced_digicert_certificate_pack" {
     var.cloudflare_zone,
     "*.${var.cloudflare_zone}",
 
-    "mahalo.@",
-    "*.mahalo.@",
+    "mahalo.${var.cloudflare_zone}",
+    "*.mahalo.${var.cloudflare_zone}",
 
     "pillowtalk.${var.cloudflare_zone}",
     "*.pillowtalk.${var.cloudflare_zone}",
