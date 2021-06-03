@@ -35,7 +35,6 @@ configMapList: items: [{
 		ingress: [{
 			hostname: "prometheus.pillowtalk.starjunk.net"
 			service:  "http://ingress-nginx-controller.ingress-nginx"
-			originRequest: httpHostHeader: "prometheus.pillowtalk.starjunk.net"
 		}, {
 			hostname: "ceph.pillowtalk.starjunk.net"
 			service:  "https://rook-ceph-mgr-dashboard.rook-ceph.svc:8443"
