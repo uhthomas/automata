@@ -22,14 +22,14 @@ resource "cloudflare_certificate_pack" "advanced_digicert_certificate_pack" {
   zone_id = cloudflare_zone.starjunk_net.id
   type    = "advanced"
   hosts = [
-    cloudflare_zone.starjunk_net.name,
-    "*.${cloudflare_zone.starjunk_net.name}",
+    cloudflare_zone.starjunk_net.zone,
+    "*.${cloudflare_zone.starjunk_net.zone}",
 
-    "mahalo.${cloudflare_zone.starjunk_net.name}",
-    "*.mahalo.${cloudflare_zone.starjunk_net.name}",
+    "mahalo.${cloudflare_zone.starjunk_net.zone}",
+    "*.mahalo.${cloudflare_zone.starjunk_net.zone}",
 
-    "pillowtalk.${cloudflare_zone.starjunk_net.name}",
-    "*.pillowtalk.${cloudflare_zone.starjunk_net.name}",
+    "pillowtalk.${cloudflare_zone.starjunk_net.zone}",
+    "*.pillowtalk.${cloudflare_zone.starjunk_net.zone}",
   ]
   validation_method     = "txt"
   validity_days         = 30
@@ -91,7 +91,7 @@ resource "cloudflare_record" "mahalo_a" {
 resource "cloudflare_record" "grafana_mahalo_cname" {
   zone_id = cloudflare_zone.starjunk_net.id
   name    = "grafana.mahalo"
-  value   = "mahalo.${cloudflare_zone.starjunk_net.name}"
+  value   = "mahalo.${cloudflare_zone.starjunk_net.zone}"
   type    = "CNAME"
   proxied = true
 }
@@ -99,7 +99,7 @@ resource "cloudflare_record" "grafana_mahalo_cname" {
 resource "cloudflare_record" "io_6f_dev_mahalo_cname" {
   zone_id = cloudflare_zone.starjunk_net.id
   name    = "io-6f-dev.mahalo"
-  value   = "mahalo.${cloudflare_zone.starjunk_net.name}"
+  value   = "mahalo.${cloudflare_zone.starjunk_net.zone}"
   type    = "CNAME"
   proxied = true
 }
@@ -107,7 +107,7 @@ resource "cloudflare_record" "io_6f_dev_mahalo_cname" {
 resource "cloudflare_record" "io_6f_mahalo_cname" {
   zone_id = cloudflare_zone.starjunk_net.id
   name    = "io-6f.mahalo"
-  value   = "mahalo.${cloudflare_zone.starjunk_net.name}"
+  value   = "mahalo.${cloudflare_zone.starjunk_net.zone}"
   type    = "CNAME"
   proxied = true
 }
@@ -115,7 +115,7 @@ resource "cloudflare_record" "io_6f_mahalo_cname" {
 resource "cloudflare_record" "kipp_dev_mahalo_cname" {
   zone_id = cloudflare_zone.starjunk_net.id
   name    = "kipp-dev.mahalo"
-  value   = "mahalo.${cloudflare_zone.starjunk_net.name}"
+  value   = "mahalo.${cloudflare_zone.starjunk_net.zone}"
   type    = "CNAME"
   proxied = true
 }
@@ -123,7 +123,7 @@ resource "cloudflare_record" "kipp_dev_mahalo_cname" {
 resource "cloudflare_record" "kipp_mahalo_cname" {
   zone_id = cloudflare_zone.starjunk_net.id
   name    = "kipp.mahalo"
-  value   = "mahalo.${cloudflare_zone.starjunk_net.name}"
+  value   = "mahalo.${cloudflare_zone.starjunk_net.zone}"
   type    = "CNAME"
   proxied = true
 }
@@ -131,7 +131,7 @@ resource "cloudflare_record" "kipp_mahalo_cname" {
 resource "cloudflare_record" "oauth2_proxy_mahalo_cname" {
   zone_id = cloudflare_zone.starjunk_net.id
   name    = "oauth2-proxy.mahalo"
-  value   = "mahalo.${cloudflare_zone.starjunk_net.name}"
+  value   = "mahalo.${cloudflare_zone.starjunk_net.zone}"
   type    = "CNAME"
   proxied = true
 }
@@ -139,7 +139,7 @@ resource "cloudflare_record" "oauth2_proxy_mahalo_cname" {
 resource "cloudflare_record" "rasmus_mahalo_cname" {
   zone_id = cloudflare_zone.starjunk_net.id
   name    = "rasmus.mahalo"
-  value   = "mahalo.${cloudflare_zone.starjunk_net.name}"
+  value   = "mahalo.${cloudflare_zone.starjunk_net.zone}"
   type    = "CNAME"
   proxied = true
 }
@@ -147,7 +147,7 @@ resource "cloudflare_record" "rasmus_mahalo_cname" {
 resource "cloudflare_record" "thanos_mahalo_cname" {
   zone_id = cloudflare_zone.starjunk_net.id
   name    = "thano.mahalo"
-  value   = "mahalo.${cloudflare_zone.starjunk_net.name}"
+  value   = "mahalo.${cloudflare_zone.starjunk_net.zone}"
   type    = "CNAME"
   proxied = true
 }
@@ -167,7 +167,7 @@ resource "cloudflare_record" "pillowtalk_cname" {
 resource "cloudflare_record" "ceph_pillowtalk_cname" {
   zone_id = cloudflare_zone.starjunk_net.id
   name    = "ceph.pillowtalk"
-  value   = "pillowtalk.${cloudflare_zone.starjunk_net.name}"
+  value   = "pillowtalk.${cloudflare_zone.starjunk_net.zone}"
   type    = "CNAME"
   proxied = true
 }
@@ -175,7 +175,7 @@ resource "cloudflare_record" "ceph_pillowtalk_cname" {
 resource "cloudflare_record" "prometheus_pillowtalk_cname" {
   zone_id = cloudflare_zone.starjunk_net.id
   name    = "prometheus.pillowtalk"
-  value   = "pillowtalk.${cloudflare_zone.starjunk_net.name}"
+  value   = "pillowtalk.${cloudflare_zone.starjunk_net.zone}"
   type    = "CNAME"
   proxied = true
 }
@@ -185,7 +185,7 @@ resource "cloudflare_record" "prometheus_pillowtalk_cname" {
 resource "cloudflare_access_application" "ceph_pillowtalk" {
   account_id                = var.cloudflare_account_id
   name                      = "Ceph"
-  domain                    = "ceph.pillowtalk.${cloudflare_zone.starjunk_net.name}"
+  domain                    = "ceph.pillowtalk.${cloudflare_zone.starjunk_net.zone}"
   session_duration          = "24h"
   auto_redirect_to_identity = true
 }
