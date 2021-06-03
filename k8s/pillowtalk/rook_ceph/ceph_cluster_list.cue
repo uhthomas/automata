@@ -77,9 +77,9 @@ cephClusterList: items: [{
 			// serve the dashboard under a subpath (useful when you are accessing the dashboard via a reverse proxy)
 			// urlPrefix: /ceph-dashboard
 			// serve the dashboard at the given port.
-			// port: 8443
+			port: 8080
 			// serve the dashboard using SSL
-			ssl: true
+			ssl: false
 		}
 		// enable prometheus alerting for cluster
 		monitoring: {

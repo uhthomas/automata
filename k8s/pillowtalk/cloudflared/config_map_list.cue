@@ -37,8 +37,7 @@ configMapList: items: [{
 			service:  "http://ingress-nginx-controller.ingress-nginx"
 		}, {
 			hostname: "ceph.pillowtalk.starjunk.net"
-			service:  "https://rook-ceph-mgr-dashboard.rook-ceph.svc:8443"
-			originRequest: noTLSVerify: true
+			service:  "http://rook-ceph-mgr-dashboard.rook-ceph.svc:8080"
 		}, {
 			// This rule matches any traffic which didn't match a previous rule, and responds with HTTP 404.
 			service: "http_status:404"
