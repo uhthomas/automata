@@ -202,3 +202,24 @@ resource "cloudflare_access_policy" "allow_gsuite" {
     login_method = ["4d3f18e8-5e37-444b-80ba-3c40358475fb"]
   }
 }
+
+resource "cloudflare_access_application" "prometheus_pillowtalk" {
+  account_id                = var.cloudflare_account_id
+  name                      = "Prometheus"
+  domain                    = "prometheus.pillowtalk.${cloudflare_zone.starjunk_net.zone}"
+  session_duration          = "24h"
+  auto_redirect_to_identity = true
+}
+
+resource "cloudflare_access_policy" "allow_gsuite" {
+  application_id = cloudflare_access_application.prometheus_pillowtalk.id
+  account_id     = var.cloudflare_account_id
+  name           = "Allow GSuite"
+  precedence     = "1"
+  decision       = "allow"
+
+  include {
+    # TODO(thomas): Provision identiy provider with Terraform
+    login_method = ["4d3f18e8-5e37-444b-80ba-3c40358475fb"]
+  }
+}
