@@ -190,6 +190,5 @@ resource "cloudflare_record" "prometheus_pillowtalk_cname" {
   name    = "ceph.pillowtalk"
   value   = "pillowtalk.starjunk.net"
   type    = "CNAME"
-  ttl     = 1
   proxied = true
 }
