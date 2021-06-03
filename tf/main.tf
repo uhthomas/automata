@@ -198,7 +198,7 @@ resource "cloudflare_access_policy" "allow_gsuite" {
   decision       = "allow"
 
   include {
-    gsuite = {
+    gsuite {
       # TODO(thomas): Provision identiy provider with Terraform
       identity_provider_id = "4d3f18e8-5e37-444b-80ba-3c40358475fb"
     }
