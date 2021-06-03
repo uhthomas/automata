@@ -33,15 +33,12 @@ configMapList: items: [{
 		// from the internet to cloudflared, run `cloudflared tunnel route dns <tunnel> <hostname>`.
 		// E.g. `cloudflared tunnel route dns example-tunnel tunnel.example.com`.
 		ingress: [{
-			hostname: "prometheus-pillowtalk.starjunk.net"
+			hostname: "prometheus.pillowtalk.starjunk.net"
 			service:  "http://prometheus-operated.prometheus.svc:9090"
 		}, {
-			hostname: "ceph-pillowtalk.starjunk.net"
+			hostname: "ceph.pillowtalk.starjunk.net"
 			service:  "https://rook-ceph-mgr-dashboard.rook-ceph.svc:8443"
 			originRequest: noTLSVerify: true
-		}, {
-			hostname: "prometheus.pillowtalk.starjunk.net"
-			service: "tcp://prometheus-operated.prometheus.svc:9090"
 		}, {
 			// This rule matches any traffic which didn't match a previous rule, and responds with HTTP 404.
 			service: "http_status:404"
