@@ -15,6 +15,7 @@ deploymentList: appsv1.#DeploymentList & {
 }
 
 deploymentList: items: [{
+	metadata: annotations: "reloader.stakater.com/auto": "true"
 	spec: {
 		selector: matchLabels: app: "cloudflared"
 		replicas: 3 // You could also consider elastic scaling for this deployment
