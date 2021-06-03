@@ -31,6 +31,7 @@ list: items:
 	roleList.items +
 	roleBindingList.items +
 	deploymentList.items +
+	ingressList.items +
 
 	// CRDs
 	cephClusterList.items +

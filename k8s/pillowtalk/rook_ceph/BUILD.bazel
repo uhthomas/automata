@@ -30,3 +30,11 @@ cue_library(
         "//cue.mod/gen/k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1:cue_v1_library",
     ],
 )
+
+cue_library(
+    name = "cue_prometheus_library",
+    srcs = ["ingress_list.cue"],
+    importpath = "github.com/uhthomas/automata/k8s/pillowtalk/rook_ceph:prometheus",
+    visibility = ["//visibility:public"],
+    deps = ["//cue.mod/gen/k8s.io/api/networking/v1:cue_v1_library"],
+)
