@@ -10,6 +10,7 @@ import (
 	"github.com/uhthomas/automata/k8s/pillowtalk/prometheus"
 	"github.com/uhthomas/automata/k8s/pillowtalk/prometheus_operator"
 	"github.com/uhthomas/automata/k8s/pillowtalk/promtail"
+	"github.com/uhthomas/automata/k8s/pillowtalk/reloader"
 	"github.com/uhthomas/automata/k8s/pillowtalk/rook_ceph"
 	"github.com/uhthomas/automata/k8s/pillowtalk/sealed_secrets"
 	"github.com/uhthomas/automata/k8s/pillowtalk/thanos"
@@ -31,6 +32,8 @@ items:
 
 	cert_manager.list.items +
 	pillowtalk.clusterIssuerList.items +
+
+	reloader.list.items +
 
 	// none of these really have any dependencies
 	cloudflared.list.items +
