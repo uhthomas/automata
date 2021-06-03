@@ -12,10 +12,10 @@ ingressList: networkingv1.#IngressList & {
 }
 
 ingressList: items: [{
-	metadata: annotations: {
-		"nginx.ingress.kubernetes.io/auth-url":    "http://oauth2-proxy.oauth2-proxy.svc.cluster.local/oauth2/auth"
-		"nginx.ingress.kubernetes.io/auth-signin": "https://oauth2-proxy.mahalo.starjunk.net/oauth2/start?rd=$scheme://$host$request_uri"
-	}
+	// metadata: annotations: {
+	// 	"nginx.ingress.kubernetes.io/auth-url":    "http://oauth2-proxy.oauth2-proxy.svc.cluster.local/oauth2/auth"
+	// 	"nginx.ingress.kubernetes.io/auth-signin": "https://oauth2-proxy.mahalo.starjunk.net/oauth2/start?rd=$scheme://$host$request_uri"
+	// }
 	spec: {
 		ingressClassName: "nginx"
 		rules: [{
