@@ -179,7 +179,7 @@ resource "cloudflare_record" "pillowtalk_cname" {
 resource "cloudflare_record" "ceph_pillowtalk_cname" {
   zone_id = cloudflare_zone.starjunk_net.id
   name    = "ceph.pillowtalk"
-  value   = "pillowtalk.@"
+  value   = "pillowtalk.starjunk.net"
   type    = "CNAME"
   ttl     = 1
   proxied = true
@@ -188,7 +188,7 @@ resource "cloudflare_record" "ceph_pillowtalk_cname" {
 resource "cloudflare_record" "prometheus_pillowtalk_cname" {
   zone_id = cloudflare_zone.starjunk_net.id
   name    = "ceph.pillowtalk"
-  value   = "pillowtalk.@"
+  value   = "pillowtalk.starjunk.net"
   type    = "CNAME"
   ttl     = 1
   proxied = true
