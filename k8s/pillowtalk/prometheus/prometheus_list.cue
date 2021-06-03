@@ -66,5 +66,10 @@ prometheusList: items: [{
 			name: "thanos-config"
 			emptyDir: {}
 		}]
+		storage: volumeClaimTemplate: spec: {
+			accessModes: [v1.#ReadWriteOnce]
+			storageClassName: "rook-ceph-replica-retain-block"
+			resources: requests: storage: "10Gi"
+		}
 	}
 }]
