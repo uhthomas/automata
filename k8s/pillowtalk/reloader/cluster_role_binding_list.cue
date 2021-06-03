@@ -12,7 +12,7 @@ clusterRoleBindingList: rbacv1.#ClusterRoleBindingList & {
 }
 
 clusterRoleBindingList: items: [{
-        roleRef: {
+	roleRef: {
 		apiGroup: "rbac.authorization.k8s.io"
 		kind:     "ClusterRole"
 		name:     "reloader"

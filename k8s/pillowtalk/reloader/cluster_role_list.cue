@@ -12,7 +12,7 @@ clusterRoleList: rbacv1.#ClusterRoleList & {
 }
 
 clusterRoleList: items: [{
-        rules: [{
+	rules: [{
 		apiGroups: [
 			"",
 		]

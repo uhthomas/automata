@@ -22,7 +22,9 @@ configMapList: items: [{
 		}
 	}
 	data: {
-		"proxy-buffer-size":    "16k"
-		"proxy-buffers-number": "8"
+		"proxy-buffer-size":     "16k"
+		"proxy-buffers-number":  "8"
+		"use-forwarded-headers": "true"
+		"forwarded-for-header":  "CF-Connecting-IP"
 	}
 }]

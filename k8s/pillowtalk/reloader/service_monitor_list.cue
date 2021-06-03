@@ -14,9 +14,9 @@ serviceMonitorList: v1.#List & {
 serviceMonitorList: items: [{
 	spec: {
 		endpoints: [{
-                        targetPort: "http"
-                        path: "/metrics"
-                }]
+			targetPort: "http"
+			path:       "/metrics"
+		}]
 		jobLabel: "app.kubernetes.io/name"
 		selector: matchLabels: {
 			"app.kubernetes.io/name":      "reloader"

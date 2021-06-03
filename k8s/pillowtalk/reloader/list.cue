@@ -10,8 +10,8 @@ list: v1.#List & {
 			name:      string | *"reloader"
 			namespace: "reloader"
 			labels: {
-				"app.kubernetes.io/name":     "reloader"
-				"app.kubernetes.io/instance": "reloader"
+				"app.kubernetes.io/name":      "reloader"
+				"app.kubernetes.io/instance":  "reloader"
 				"app.kubernetes.io/version":   "0.0.90"
 				"app.kubernetes.io/component": "reloader"
 			}
@@ -27,5 +27,5 @@ list: items:
 	serviceList.items +
 	deploymentList.items +
 
-        // CRDs
-        serviceMonitorList.items
+	// CRDs
+	serviceMonitorList.items
