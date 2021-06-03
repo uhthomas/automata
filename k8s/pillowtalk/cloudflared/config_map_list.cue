@@ -34,7 +34,8 @@ configMapList: items: [{
 		// E.g. `cloudflared tunnel route dns example-tunnel tunnel.example.com`.
 		ingress: [{
 			hostname: "prometheus.pillowtalk.starjunk.net"
-			service:  "http://prometheus-operated.prometheus.svc:9090"
+			service:  "http://ingress-nginx-controller.ingress-nginx"
+			originRequest: httpHostHeader: "prometheus.pillowtalk.starjunk.net"
 		}, {
 			hostname: "ceph.pillowtalk.starjunk.net"
 			service:  "https://rook-ceph-mgr-dashboard.rook-ceph.svc:8443"

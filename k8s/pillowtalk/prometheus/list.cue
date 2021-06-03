@@ -27,6 +27,7 @@ list: items:
 	objectBucketClaimList.items +
 	clusterRoleList.items +
 	clusterRoleBindingList.items +
+	ingressList.items +
 	prometheusList.items +
 
 	// CRDs
