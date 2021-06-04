@@ -241,7 +241,7 @@ resource "cloudflare_access_application" "thanos_pillowtalk" {
 }
 
 resource "cloudflare_access_policy" "thanos_pillowtalk_allow_gsuite" {
-  application_id = cloudflare_access_application.prometheus_pillowtalk.id
+  application_id = cloudflare_access_application.thanos_pillowtalk.id
   account_id     = var.cloudflare_account_id
   name           = "Allow GSuite"
   precedence     = "1"
