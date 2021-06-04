@@ -18,7 +18,7 @@ deploymentList: items: [{
 	metadata: annotations: "reloader.stakater.com/auto": "true"
 	spec: {
 		// TODO(thomas): Auto-scale.
-		replicas: 1
+		replicas:                1
 		revisionHistoryLimit:    5
 		progressDeadlineSeconds: 120
 		strategy: rollingUpdate: maxUnavailable: 1
@@ -37,7 +37,7 @@ deploymentList: items: [{
 			spec: {
 				containers: [{
 					name:            "grafana"
-					image:           "grafana/grafana:7.5.2@sha256:b071787d69cf1e8ece704838475ffd24ccbd46fad6f0b141e5922ee8dd39c30d"
+					image:           "grafana/grafana:8.0.0-beta3@sha256:d914e3b8d48e8551581a92bc925cd20856080ab47de14cd9cbfe1ab33410a9fd"
 					imagePullPolicy: v1.#PullIfNotPresent
 					ports: [{
 						name:          "http"
@@ -68,7 +68,7 @@ deploymentList: items: [{
 						readOnly:  true
 						subPath:   "datasources.yaml"
 					}, {
-						name: "database"
+						name:      "database"
 						mountPath: "/etc/grafana/database"
 					}]
 				}]
