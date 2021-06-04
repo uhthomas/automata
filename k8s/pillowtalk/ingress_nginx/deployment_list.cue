@@ -20,7 +20,6 @@ deploymentList: items: [{
 		labels: {
 			"app.kubernetes.io/name":      "ingress-nginx"
 			"app.kubernetes.io/instance":  "ingress-nginx"
-			"app.kubernetes.io/version":   "0.44.0"
 			"app.kubernetes.io/component": "controller"
 		}
 	}
@@ -50,7 +49,7 @@ deploymentList: items: [{
 				dnsPolicy: v1.#DNSClusterFirst
 				containers: [{
 					name:            "controller"
-					image:           "k8s.gcr.io/ingress-nginx/controller:v0.44.0@sha256:3dd0fac48073beaca2d67a78c746c7593f9c575168a17139a9955a82c63c4b9a"
+					image:           "k8s.gcr.io/ingress-nginx/controller:v0.46.0@sha256:52f0058bed0a17ab0fb35628ba97e8d52b5d32299fbc03cc0f6c7b9ff036b61a"
 					imagePullPolicy: v1.#PullIfNotPresent
 					lifecycle: preStop: exec: command: [
 						"/wait-shutdown",

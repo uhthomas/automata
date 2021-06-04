@@ -17,7 +17,6 @@ roleList: items: [{
 		labels: {
 			"app.kubernetes.io/name":      "ingress-nginx"
 			"app.kubernetes.io/instance":  "ingress-nginx"
-			"app.kubernetes.io/version":   "0.44.0"
 			"app.kubernetes.io/component": "controller"
 		}
 	}
@@ -134,7 +133,6 @@ roleList: items: [{
 		labels: {
 			"app.kubernetes.io/name":      "ingress-nginx"
 			"app.kubernetes.io/instance":  "ingress-nginx"
-			"app.kubernetes.io/version":   "0.44.0"
 			"app.kubernetes.io/component": "admission-webhook"
 		}
 	}
