@@ -76,7 +76,7 @@ deploymentList: items: [{
 					configMap: name: "grafana"
 				}, {
 					name: "database"
-					persistentVolumeClaim: claimName: "database"
+					persistentVolumeClaim: claimName: "grafana"
 				}]
 			}
 		}
