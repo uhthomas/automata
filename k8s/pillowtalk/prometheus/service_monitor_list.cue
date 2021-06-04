@@ -103,10 +103,7 @@ serviceMonitorList: items: [{
 		}]
 	}
 }, {
-	metadata: {
-		name:      "kube-apiserver"
-		labels: "app.kubernetes.io/name": "apiserver"
-	}
+	metadata: name: "kube-apiserver"
 	spec: {
 		endpoints: [{
 			bearerTokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"
@@ -202,10 +199,7 @@ serviceMonitorList: items: [{
 		}
 	}
 }, {
-	metadata: {
-		name:      "coredns"
-		labels: "app.kubernetes.io/name": "coredns"
-	}
+	metadata: name: "coredns"
 	spec: {
 		endpoints: [{
 			bearerTokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"
@@ -219,10 +213,7 @@ serviceMonitorList: items: [{
 		selector: matchLabels: "app.kubernetes.io/name": "kube-dns"
 	}
 }, {
-	metadata: {
-		name:      "kube-controller-manager"
-		labels: "app.kubernetes.io/name": "kube-controller-manager"
-	}
+	metadata: name: "kube-controller-manager"
 	spec: {
 		endpoints: [{
 			bearerTokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"
@@ -293,10 +284,7 @@ serviceMonitorList: items: [{
 		selector: matchLabels: "app.kubernetes.io/name": "kube-controller-manager"
 	}
 }, {
-	metadata: {
-		name:      "kube-scheduler"
-		labels: "app.kubernetes.io/name": "kube-scheduler"
-	}
+	metadata: name: "kube-scheduler"
 	spec: {
 		endpoints: [{
 			bearerTokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"
@@ -314,10 +302,7 @@ serviceMonitorList: items: [{
 }, {
 	apiVersion: "monitoring.coreos.com/v1"
 	kind:       "ServiceMonitor"
-	metadata: {
-		name:      "kubelet"
-		labels: "app.kubernetes.io/name": "kubelet"
-	}
+	metadata: name: "kubelet"
 	spec: {
 		endpoints: [{
 			bearerTokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"
