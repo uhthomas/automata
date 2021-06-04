@@ -15,6 +15,7 @@ deploymentList: appsv1.#DeploymentList & {
 }
 
 deploymentList: items: [{
+	metadata: annotations: "reloader.stakater.com/auto": "true"
 	spec: {
 		// TODO(thomas): Auto-scale.
 		replicas: 1
