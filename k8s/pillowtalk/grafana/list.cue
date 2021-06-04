@@ -21,7 +21,6 @@ list: v1.#List & {
 
 list: items:
 	namespaceList.items +
-	sealedSecretList.items +
 	configMapList.items +
 	persistentVolumeClaimList.items +
 	serviceList.items +

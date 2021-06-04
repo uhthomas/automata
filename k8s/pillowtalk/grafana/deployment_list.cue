@@ -45,30 +45,6 @@ deploymentList: items: [{
 					env: [{
 						name: "GF_DEFAULT_INSTANCE_NAME"
 						valueFrom: fieldRef: fieldPath: "metadata.name"
-					}, {
-						name: "GF_DATABASE_HOST"
-						valueFrom: secretKeyRef: {
-							name: "grafana"
-							key:  "database_host"
-						}
-					}, {
-						name: "GF_DATABASE_NAME"
-						valueFrom: secretKeyRef: {
-							name: "grafana"
-							key:  "database_name"
-						}
-					}, {
-						name: "GF_DATABASE_USER"
-						valueFrom: secretKeyRef: {
-							name: "grafana"
-							key:  "database_user"
-						}
-					}, {
-						name: "GF_DATABASE_PASSWORD"
-						valueFrom: secretKeyRef: {
-							name: "grafana"
-							key:  "database_password"
-						}
 					}]
 					readinessProbe: {
 						failureThreshold: 3
