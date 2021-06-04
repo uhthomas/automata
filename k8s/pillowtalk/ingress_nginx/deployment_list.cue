@@ -32,18 +32,10 @@ deploymentList: items: [{
 		revisionHistoryLimit: 10
 		minReadySeconds:      0
 		template: {
-			metadata: {
-				annotations: {
-					"prometheus.io/path":   "/metrics"
-					"prometheus.io/port":   "10254"
-					"prometheus.io/scheme": "http"
-					"prometheus.io/scrape": "true"
-				}
-				labels: {
-					"app.kubernetes.io/name":      "ingress-nginx"
-					"app.kubernetes.io/instance":  "ingress-nginx"
-					"app.kubernetes.io/component": "controller"
-				}
+			metadata: labels: {
+				"app.kubernetes.io/name":      "ingress-nginx"
+				"app.kubernetes.io/instance":  "ingress-nginx"
+				"app.kubernetes.io/component": "controller"
 			}
 			spec: {
 				dnsPolicy: v1.#DNSClusterFirst
@@ -122,6 +114,9 @@ deploymentList: items: [{
 						name:          "webhook"
 						containerPort: 8443
 						protocol:      "TCP"
+					}, {
+						name:          "metrics"
+						containerPort: 10254
 					}]
 					volumeMounts: [{
 						name:      "webhook-cert"

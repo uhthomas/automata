@@ -25,4 +25,7 @@ list: items:
 	deploymentList.items +
 	horizontalPodAutoscalerList.items +
 	jobList.items +
-	validatingWebhookConfigurationList.items
+	validatingWebhookConfigurationList.items +
+
+	// CRDs
+	serviceMonitorList.items

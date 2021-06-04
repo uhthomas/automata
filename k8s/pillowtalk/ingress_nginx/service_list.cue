@@ -53,6 +53,11 @@ serviceList: items: [{
 			port:       443
 			protocol:   v1.#ProtocolTCP
 			targetPort: "https"
+		}, {
+			name:       "metrics"
+			port:       10254
+			protocol:   v1.#ProtocolTCP
+			targetPort: "metrics"
 		}]
 		selector: {
 			"app.kubernetes.io/name":      "ingress-nginx"
