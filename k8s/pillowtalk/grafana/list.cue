@@ -7,7 +7,7 @@ list: v1.#List & {
 	kind:       "List"
 	items: [...{
 		metadata: {
-			name:      string | *"grafana"
+			name:      "grafana"
 			namespace: "grafana"
 			labels: {
 				"app.kubernetes.io/name":      "grafana"
