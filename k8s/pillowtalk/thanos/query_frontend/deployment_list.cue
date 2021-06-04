@@ -27,13 +27,10 @@ deploymentList: items: [{
 			"app.kubernetes.io/component": "query-frontend"
 		}
 		template: {
-			metadata: {
-				annotations: "prometheus.io/scrape": "true"
-				labels: {
-					"app.kubernetes.io/name":      "thanos"
-					"app.kubernetes.io/instance":  "thanos"
-					"app.kubernetes.io/component": "query-frontend"
-				}
+			metadata: labels: {
+				"app.kubernetes.io/name":      "thanos"
+				"app.kubernetes.io/instance":  "thanos"
+				"app.kubernetes.io/component": "query-frontend"
 			}
 			spec: containers: [{
 				name:  "query-frontend"

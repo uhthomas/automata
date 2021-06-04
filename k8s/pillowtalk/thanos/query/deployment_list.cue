@@ -27,16 +27,10 @@ deploymentList: items: [{
 			"app.kubernetes.io/component": "query"
 		}
 		template: {
-			metadata: {
-				annotations: {
-					"prometheus.io/scrape": "true"
-					"prometheus.io/port":   "http"
-				}
-				labels: {
-					"app.kubernetes.io/name":      "thanos"
-					"app.kubernetes.io/instance":  "thanos"
-					"app.kubernetes.io/component": "query"
-				}
+			metadata: labels: {
+				"app.kubernetes.io/name":      "thanos"
+				"app.kubernetes.io/instance":  "thanos"
+				"app.kubernetes.io/component": "query"
 			}
 			spec: containers: [{
 				name:  "query"

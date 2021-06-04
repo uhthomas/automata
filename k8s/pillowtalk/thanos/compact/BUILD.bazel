@@ -5,6 +5,8 @@ cue_library(
     srcs = [
         "deployment_list.cue",
         "list.cue",
+        "service_list.cue",
+        "service_monitor_list.cue",
     ],
     importpath = "github.com/uhthomas/automata/k8s/pillowtalk/thanos/compact",
     visibility = ["//visibility:public"],

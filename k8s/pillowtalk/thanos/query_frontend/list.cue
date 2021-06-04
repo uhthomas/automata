@@ -17,4 +17,7 @@ list: items:
 	serviceList.items +
 	deploymentList.items +
 	horizontalPodAutoscalerList.items +
-	ingressList.items
+	ingressList.items +
+
+	// CRDs
+	serviceMonitorList.items

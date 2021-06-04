@@ -16,4 +16,7 @@ list: v1.#List & {
 list: items:
 	serviceList.items +
 	deploymentList.items +
-	horizontalPodAutoscalerList.items
+	horizontalPodAutoscalerList.items +
+
+	// CRDs
+	serviceMonitorList.items

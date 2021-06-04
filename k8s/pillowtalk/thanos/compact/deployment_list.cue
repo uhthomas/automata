@@ -28,13 +28,10 @@ deploymentList: items: [{
 		}
 		replicas: 1
 		template: {
-			metadata: {
-				annotations: "prometheus.io/scrape": "true"
-				labels: {
-					"app.kubernetes.io/name":      "thanos"
-					"app.kubernetes.io/instance":  "thanos"
-					"app.kubernetes.io/component": "compact"
-				}
+			metadata: labels: {
+				"app.kubernetes.io/name":      "thanos"
+				"app.kubernetes.io/instance":  "thanos"
+				"app.kubernetes.io/component": "compact"
 			}
 			spec: {
 				containers: [{

@@ -13,4 +13,9 @@ list: v1.#List & {
 	}]
 }
 
-list: items: deploymentList.items
+list: items:
+	serviceList.items +
+	deploymentList.items +
+
+	// CRDs
+	serviceMonitorList.items

@@ -27,16 +27,10 @@ deploymentList: items: [{
 			"app.kubernetes.io/component": "store"
 		}
 		template: {
-			metadata: {
-				annotations: {
-					"prometheus.io/scrape": "true"
-					"prometheus.io/port":   "http"
-				}
-				labels: {
-					"app.kubernetes.io/name":      "thanos"
-					"app.kubernetes.io/instance":  "thanos"
-					"app.kubernetes.io/component": "store"
-				}
+			metadata: labels: {
+				"app.kubernetes.io/name":      "thanos"
+				"app.kubernetes.io/instance":  "thanos"
+				"app.kubernetes.io/component": "store"
 			}
 			spec: containers: [{
 				name:  "store"
