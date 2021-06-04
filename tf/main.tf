@@ -190,7 +190,7 @@ resource "cloudflare_access_application" "ceph_pillowtalk" {
   auto_redirect_to_identity = true
 }
 
-resource "cloudflare_access_policy" "allow_gsuite" {
+resource "cloudflare_access_policy" "ceph_pillowtalk_allow_gsuite" {
   application_id = cloudflare_access_application.ceph_pillowtalk.id
   account_id     = var.cloudflare_account_id
   name           = "Allow GSuite"
@@ -211,7 +211,7 @@ resource "cloudflare_access_application" "prometheus_pillowtalk" {
   auto_redirect_to_identity = true
 }
 
-resource "cloudflare_access_policy" "allow_gsuite" {
+resource "cloudflare_access_policy" "prometheus_pillowtalk_allow_gsuite" {
   application_id = cloudflare_access_application.prometheus_pillowtalk.id
   account_id     = var.cloudflare_account_id
   name           = "Allow GSuite"
