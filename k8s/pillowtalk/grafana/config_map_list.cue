@@ -33,7 +33,7 @@ configMapList: items: [{
 				access: "proxy"
 				name:   "Prometheus"
 				type:   "prometheus"
-				url:    "http://prometheus-operated.prometheus.svc"
+				url:    "http://prometheus-operated.prometheus.svc:9090"
 			}]
 		})
 		"grafana.ini": """
