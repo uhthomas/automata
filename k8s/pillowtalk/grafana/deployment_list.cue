@@ -68,6 +68,10 @@ deploymentList: items: [{
 						readOnly:  true
 						subPath:   "datasources.yaml"
 					}, {
+						name:      "dashboards"
+						mountPath: "/etc/grafana/provisioning/dashboards"
+						readOnly:  true
+					}, {
 						name:      "database"
 						mountPath: "/etc/grafana/database"
 					}]
@@ -75,6 +79,9 @@ deploymentList: items: [{
 				volumes: [{
 					name: "config"
 					configMap: name: "grafana"
+				}, {
+					name: "dashboards"
+					configMap: name: "dashboards"
 				}, {
 					name: "database"
 					persistentVolumeClaim: claimName: "grafana"
