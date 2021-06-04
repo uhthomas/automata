@@ -15,6 +15,7 @@ deploymentList: appsv1.#DeploymentList & {
 }
 
 deploymentList: items: [{
+	metadata: annotations: "reloader.stakater.com/auto": "true"
 	spec: {
 		revisionHistoryLimit:    5
 		progressDeadlineSeconds: 120
