@@ -36,7 +36,7 @@ deploymentList: items: [{
 			spec: {
 				containers: [{
 					name:  "compact"
-					image: "quay.io/thanos/thanos:v0.18.0@sha256:b94171aed499b2f1f81b6d3d385e0eeeca885044c59cef28ce6a9a9e8a827217"
+					image: "quay.io/thanos/thanos:v0.21.0@sha256:04908034d76eaf5bb90f916ade8995a5c74413c86e3c01ef141c10110830654c"
 					ports: [{
 						name:          "http"
 						containerPort: 80

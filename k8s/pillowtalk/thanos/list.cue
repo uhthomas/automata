@@ -18,7 +18,7 @@ list: v1.#List & {
 			labels: {
 				"app.kubernetes.io/name":     "thanos"
 				"app.kubernetes.io/instance": "thanos"
-				"app.kubernetes.io/version":  "0.18.0"
+				"app.kubernetes.io/version":  "0.21.0"
 			}
 		}
 	}]
