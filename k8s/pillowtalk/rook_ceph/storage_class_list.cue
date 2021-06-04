@@ -132,4 +132,14 @@ storageClassList: items: [{
 		objectStoreNamespace: "rook-ceph"   // namespace:cluster
 		region:               "us-east-1"
 	}
+}, {
+	metadata: name: "rook-ceph-replica-retain-bucket-thanos"
+	provisioner:   "rook-ceph.ceph.rook.io/bucket"
+	reclaimPolicy: v1.#PersistentVolumeReclaimRetain
+	parameters: {
+		objectStoreName:      "replicapool"
+		objectStoreNamespace: "rook-ceph"
+		region:               "us-east-1"
+		bucketName:           "thanos"
+	}
 }]

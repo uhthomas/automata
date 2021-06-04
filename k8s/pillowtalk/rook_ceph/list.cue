@@ -36,4 +36,5 @@ list: items:
 	// CRDs
 	cephClusterList.items +
 	cephBlockPoolList.items +
-	cephObjectStoreList.items
+	cephObjectStoreList.items +
+	objectBucketClaimList.items

@@ -14,6 +14,7 @@ cue_library(
         "ingress_list.cue",
         "list.cue",
         "namespace_list.cue",
+        "object_bucket_claim_list.cue",
         "pod_security_policy_list.cue",
         "role_binding_list.cue",
         "role_list.cue",

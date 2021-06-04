@@ -55,7 +55,7 @@ deploymentList: items: [{
 				}]
 				volumes: [{
 					name: "creds"
-					secret:  secretName: "tunnel-credentials"
+					secret: secretName: "tunnel-credentials"
 				}, {
 					name: "config"
 					configMap: {

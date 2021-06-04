@@ -14,6 +14,6 @@ objectBucketClaimList: v1.#List & {
 objectBucketClaimList: items: [{
 	spec: {
 		bucketName:       "thanos"
-		storageClassName: "rook-ceph-replica-retain-bucket"
+		storageClassName: "rook-ceph-replica-retain-bucket-thanos"
 	}
 }]

@@ -1,4 +1,4 @@
-package prometheus
+package rook_ceph
 
 import "k8s.io/api/core/v1"
 
@@ -15,6 +15,6 @@ objectBucketClaimList: items: [{
 	metadata: name: "thanos-bucket"
 	spec: {
 		bucketName:       "thanos"
-		storageClassName: "rook-ceph-replica-retain-bucket-thanos"
+		storageClassName: "rook-ceph-replica-retain-bucket"
 	}
 }]

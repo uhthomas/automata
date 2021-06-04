@@ -19,8 +19,8 @@ configMapList: items: [{
 		tunnel:             "pillowtalk"
 		"credentials-file": "/etc/cloudflared/creds/credentials.json"
 		// Serves the metrics server under /metrics and the readiness server under /ready
-		metrics: "0.0.0.0:2000"
+		metrics:         "0.0.0.0:2000"
 		"no-autoupdate": true
-		ingress: [{service:  "http://ingress-nginx-controller.ingress-nginx"}]
+		ingress: [{service: "http://ingress-nginx-controller.ingress-nginx"}]
 	})
 }]
