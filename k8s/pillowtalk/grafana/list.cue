@@ -23,6 +23,7 @@ list: items:
 	namespaceList.items +
 	sealedSecretList.items +
 	configMapList.items +
+	persistentVolumeClaimList.items +
 	serviceList.items +
 	deploymentList.items +
 	// TODO(thomas): Use the new auto-scaling API.

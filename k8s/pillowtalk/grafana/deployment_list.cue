@@ -90,11 +90,17 @@ deploymentList: items: [{
 						mountPath: "/etc/grafana/provisioning/datasources/datasources.yaml"
 						readOnly:  true
 						subPath:   "datasources.yaml"
+					}, {
+						name: "database"
+						mountPath: "/etc/grafana/database"
 					}]
 				}]
 				volumes: [{
 					name: "config"
 					configMap: name: "grafana"
+				}, {
+					name: "database"
+					persistentVolumeClaim: claimName: "database"
 				}]
 			}
 		}

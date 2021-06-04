@@ -29,21 +29,21 @@ configMapList: items: [{
 				name:   "Thanos"
 				type:   "prometheus"
 				url:    "http://query-frontend.thanos.svc"
+			}, {
+				access: "proxy"
+				name:   "Prometheus"
+				type:   "prometheus"
+				url:    "http://prometheus-operated.prometheus.svc"
 			}]
 		})
 		"grafana.ini": """
+			[database]
+			path = /etc/grafana/database/grafana.db
+
 			[auth.anonymous]
 			enabled = true
 			org_role = Admin
 
-			[database]
-			type = postgres
-			ssl_mode = require
-
-			[security]
-			cookie_secure = true
-			cookie_samesite = strict 
-			
 			[log]
 			mode = console
 			"""

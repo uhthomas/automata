@@ -9,6 +9,7 @@ cue_library(
         "ingress_list.cue",
         "list.cue",
         "namespace_list.cue",
+        "persistent_volume_claim_list.cue",
         "sealed_secret_list.cue",
         "service_list.cue",
     ],
