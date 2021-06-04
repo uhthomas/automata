@@ -54,7 +54,7 @@ deploymentList: items: [{
 					"--http-address=:80",
 					"--http-grace-period=5s",
 					"--store=dnssrv+_grpc._tcp.store",
-					"--store=dnssrv+_grpc._tcp.server.prometheus.svc",
+					"--store=dnssrv+_grpc._tcp.prometheus-operated.prometheus.svc",
 					"--query.replica-label=replica",
 				]
 				livenessProbe: {
