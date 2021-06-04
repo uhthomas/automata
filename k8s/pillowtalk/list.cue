@@ -2,6 +2,7 @@ import (
 	"github.com/uhthomas/automata/k8s/pillowtalk"
 	"github.com/uhthomas/automata/k8s/pillowtalk/cert_manager"
 	"github.com/uhthomas/automata/k8s/pillowtalk/cloudflared"
+	"github.com/uhthomas/automata/k8s/pillowtalk/grafana"
 	"github.com/uhthomas/automata/k8s/pillowtalk/ingress_nginx"
 	"github.com/uhthomas/automata/k8s/pillowtalk/kube_state_metrics"
 	"github.com/uhthomas/automata/k8s/pillowtalk/kube_system"
@@ -37,6 +38,7 @@ items:
 
 	// none of these really have any dependencies
 	cloudflared.list.items +
+	grafana.list.items +
 	ingress_nginx.list.items +
 	kube_system.list.items +
 	kube_state_metrics.list.items +
