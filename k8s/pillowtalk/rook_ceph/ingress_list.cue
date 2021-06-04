@@ -1,4 +1,4 @@
-package prometheus
+package rook_ceph
 
 import networkingv1 "k8s.io/api/networking/v1"
 
