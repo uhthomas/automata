@@ -38,7 +38,7 @@ deploymentList: items: [{
 			spec: {
 				containers: [{
 					name:  "tesla-exporter"
-					image: "ghcr.io/uhthomas/tesla_exporter:v0.7.1@sha256:778730406cf3830b261de156da55bf377522958f342af6b11f03562d3941f67f"
+					image: "ghcr.io/uhthomas/tesla_exporter:v0.7.2@sha256:d3f069386a4cd564d77447e64a1727baeb25bb039fba18edf627680374426edf"
 					ports: [{
 						containerPort: 80
 					}]
