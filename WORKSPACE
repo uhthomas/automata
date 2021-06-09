@@ -47,4 +47,4 @@ cue_go_deps()
 
 load("@com_github_tnarg_rules_cue//cue:deps.bzl", "cue_register_toolchains")
 
-cue_register_toolchains(version = "0.3.0-beta.7")
+cue_register_toolchains()
