@@ -12,7 +12,7 @@ list: v1.#List & {
 			labels: {
 				"app.kubernetes.io/name":      "grafana"
 				"app.kubernetes.io/instance":  "grafana"
-				"app.kubernetes.io/version":   "8.0.0-beta3"
+				"app.kubernetes.io/version":   "8.0.0"
 				"app.kubernetes.io/component": "grafana"
 			}
 		}
