@@ -34,7 +34,7 @@ deploymentList: items: [{
 			spec: {
 				containers: [{
 					name:            "grafana"
-					image:           "grafana/grafana:7.5.2@sha256:b071787d69cf1e8ece704838475ffd24ccbd46fad6f0b141e5922ee8dd39c30d"
+					image:           "grafana/grafana:8.0.0@sha256:e763b7a6e167ae9de617b14843a2fca9a826f4b4b9b042e82688de99f92ec6ac"
 					imagePullPolicy: v1.#PullIfNotPresent
 					ports: [{
 						name:          "http"
