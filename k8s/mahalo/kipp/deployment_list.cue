@@ -62,11 +62,11 @@ deploymentList: items: [{
 					}]
 					resources: {
 						requests: {
-							memory: "16Mi"
+							memory: "32Mi"
 							cpu:    "150m"
 						}
 						limits: {
-							memory: "64Mi"
+							memory: "256Mi"
 							cpu:    "400m"
 						}
 					}
