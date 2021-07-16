@@ -747,6 +747,7 @@ k8s.io/client-go v0.21.0/go.mod h1:nNBytTF9qPFDEhoqgEPaarobC8QPae13bElIVHzIglA=
 k8s.io/client-go v0.21.1 h1:bhblWYLZKUu+pm50plvQF8WpY6TXdRRtcS/K9WauOj4=
 k8s.io/client-go v0.21.1/go.mod h1:/kEw4RgW+3xnBGzvp9IWxKSNA+lXn3A7AuH3gdOAzLs=
 k8s.io/client-go v0.21.2/go.mod h1:HdJ9iknWpbl3vMGtib6T2PyI/VYxiZfq936WNVHBRrA=
+k8s.io/client-go v0.21.3/go.mod h1:+VPhCgTsaFmGILxR/7E1N0S+ryO010QBeNCv5JwRGYU=
 k8s.io/code-generator v0.21.0/go.mod h1:hUlps5+9QaTrKx+jiM4rmq7YmH8wPOIko64uZCHDh6Q=
 k8s.io/code-generator v0.21.1/go.mod h1:hUlps5+9QaTrKx+jiM4rmq7YmH8wPOIko64uZCHDh6Q=
 k8s.io/code-generator v0.21.2/go.mod h1:8mXJDCB7HcRo1xiEQstcguZkbxZaqeUOrO9SsicWs3U=
