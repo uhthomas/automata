@@ -93,7 +93,7 @@ resource "cloudflare_record" "grafana_mahalo_cname" {
   name    = "grafana.mahalo"
   value   = "mahalo.${cloudflare_zone.starjunk_net.zone}"
   type    = "CNAME"
-  proxied = true
+  proxied = false
 }
 
 resource "cloudflare_record" "io_6f_dev_mahalo_cname" {
@@ -117,7 +117,7 @@ resource "cloudflare_record" "kipp_dev_mahalo_cname" {
   name    = "kipp-dev.mahalo"
   value   = "mahalo.${cloudflare_zone.starjunk_net.zone}"
   type    = "CNAME"
-  proxied = true
+  proxied = false
 }
 
 resource "cloudflare_record" "kipp_mahalo_cname" {
@@ -146,10 +146,10 @@ resource "cloudflare_record" "rasmus_mahalo_cname" {
 
 resource "cloudflare_record" "thanos_mahalo_cname" {
   zone_id = cloudflare_zone.starjunk_net.id
-  name    = "thano.mahalo"
+  name    = "thanos.mahalo"
   value   = "mahalo.${cloudflare_zone.starjunk_net.zone}"
   type    = "CNAME"
-  proxied = true
+  proxied = false
 }
 
 # pillowtalk
