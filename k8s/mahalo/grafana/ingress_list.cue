@@ -20,22 +20,10 @@ ingressList: items: [{
 	spec: {
 		ingressClassName: "nginx"
 		tls: [{
-			hosts: [
-				"grafana.6f.io",
-				"grafana.mahalo.starjunk.net",
-			]
+			hosts: ["grafana.mahalo.starjunk.net"]
 			secretName: "grafana-tls"
 		}]
 		rules: [{
-			host: "grafana.6f.io"
-			http: paths: [{
-				pathType: "ImplementationSpecific"
-				backend: service: {
-					name: "grafana"
-					port: name: "http"
-				}
-			}]
-		}, {
 			host: "grafana.mahalo.starjunk.net"
 			http: paths: [{
 				pathType: "ImplementationSpecific"
