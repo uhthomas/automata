@@ -14,10 +14,13 @@ serviceList: v1.#ServiceList & {
 serviceList: items: [{
 	metadata: {
 		name: "ingress-nginx-controller-admission"
+		annotations: {
+			"service.beta.kubernetes.io/scw-loadbalancer-proxy-protocol-v2": "true"
+			"service.beta.kubernetes.io/scw-loadbalancer-use-hostname":      "true"
+		}
 		labels: {
 			"app.kubernetes.io/name":      "ingress-nginx"
 			"app.kubernetes.io/instance":  "ingress-nginx"
-			"app.kubernetes.io/version":   "0.44.0"
 			"app.kubernetes.io/component": "controller"
 		}
 	}
@@ -37,20 +40,13 @@ serviceList: items: [{
 }, {
 	metadata: {
 		name: "ingress-nginx-controller"
-		annotations: {
-			"service.beta.kubernetes.io/scw-loadbalancer-proxy-protocol-v2": "true"
-			"service.beta.kubernetes.io/scw-loadbalancer-use-hostname":      "true"
-		}
 		labels: {
 			"app.kubernetes.io/name":      "ingress-nginx"
 			"app.kubernetes.io/instance":  "ingress-nginx"
-			"app.kubernetes.io/version":   "0.44.0"
 			"app.kubernetes.io/component": "controller"
 		}
 	}
 	spec: {
-		type:                  v1.#ServiceTypeLoadBalancer
-		externalTrafficPolicy: v1.#ServiceExternalTrafficPolicyTypeLocal
 		ports: [{
 			name:       "http"
 			port:       80
@@ -61,6 +57,11 @@ serviceList: items: [{
 			port:       443
 			protocol:   v1.#ProtocolTCP
 			targetPort: "https"
+		}, {
+			name:       "metrics"
+			port:       10254
+			protocol:   v1.#ProtocolTCP
+			targetPort: "metrics"
 		}]
 		selector: {
 			"app.kubernetes.io/name":      "ingress-nginx"

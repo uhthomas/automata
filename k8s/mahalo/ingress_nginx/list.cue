@@ -6,7 +6,10 @@ list: v1.#List & {
 	apiVersion: "v1"
 	kind:       "List"
 	items: [...{
-		metadata: namespace: "ingress-nginx"
+		metadata: {
+			namespace: "ingress-nginx"
+			labels: "app.kubernetes.io/version": "0.46.0"
+		}
 	}]
 }
 
@@ -23,3 +26,7 @@ list: items:
 	horizontalPodAutoscalerList.items +
 	jobList.items +
 	validatingWebhookConfigurationList.items
+
+// CRDs
+// TODO(uhthomas): Uncomment
+// serviceMonitorList.items

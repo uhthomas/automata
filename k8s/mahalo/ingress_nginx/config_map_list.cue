@@ -17,13 +17,13 @@ configMapList: items: [{
 		labels: {
 			"app.kubernetes.io/name":      "ingress-nginx"
 			"app.kubernetes.io/instance":  "ingress-nginx"
-			"app.kubernetes.io/version":   "0.44.0"
 			"app.kubernetes.io/component": "controller"
 		}
 	}
 	data: {
-		"use-proxy-protocol":   "true"
-		"proxy-buffer-size":    "16k"
-		"proxy-buffers-number": "8"
+		"proxy-buffer-size":     "16k"
+		"proxy-buffers-number":  "8"
+		"use-forwarded-headers": "true"
+		"forwarded-for-header":  "CF-Connecting-IP"
 	}
 }]
