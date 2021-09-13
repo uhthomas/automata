@@ -27,6 +27,7 @@ cue_library(
         "//cue.mod/gen/k8s.io/api/autoscaling/v2beta2:cue_v2beta2_library",
         "//cue.mod/gen/k8s.io/api/batch/v1:cue_v1_library",
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/api/networking/v1:cue_v1_library",
         "//cue.mod/gen/k8s.io/api/rbac/v1:cue_v1_library",
     ],
 )
