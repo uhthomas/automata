@@ -12,7 +12,7 @@ list: v1.#List & {
 			labels: {
 				"app.kubernetes.io/name":      "loki"
 				"app.kubernetes.io/instance":  "loki"
-				"app.kubernetes.io/version":   "2.2.0"
+				"app.kubernetes.io/version":   "2.3.0"
 				"app.kubernetes.io/component": "loki"
 			}
 		}

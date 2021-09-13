@@ -38,7 +38,7 @@ deploymentList: items: [{
 			spec: {
 				containers: [{
 					name:  "loki"
-					image: "grafana/loki:2.2.0@sha256:83649aa867ffdc353cea17e9465bfc26b1f172c78c19ac906400b5028576c3f3"
+					image: "grafana/loki:2.3.0@sha256:f63e49ea86a8c180d065b37547525eb8ccc3d51548ee64882d52bf92a485e481"
 					ports: [{
 						name:          "http-metrics"
 						containerPort: 3100
