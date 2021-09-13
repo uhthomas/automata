@@ -48,7 +48,7 @@ deploymentList: items: [{
 						name: "POD_NAMESPACE"
 						valueFrom: fieldRef: fieldPath: "metadata.namespace"
 					}]
-					image:           "quay.io/jetstack/cert-manager-cainjector:v1.2.0"
+					image:           "quay.io/jetstack/cert-manager-cainjector:v1.5.3"
 					imagePullPolicy: v1.#PullIfNotPresent
 					name:            "cert-manager"
 				}]
@@ -98,7 +98,7 @@ deploymentList: items: [{
 						name: "POD_NAMESPACE"
 						valueFrom: fieldRef: fieldPath: "metadata.namespace"
 					}]
-					image:           "quay.io/jetstack/cert-manager-controller:v1.2.0"
+					image:           "quay.io/jetstack/cert-manager-controller:v1.5.3"
 					imagePullPolicy: v1.#PullIfNotPresent
 					name:            "cert-manager"
 					ports: [{
@@ -147,7 +147,7 @@ deploymentList: items: [{
 						name: "POD_NAMESPACE"
 						valueFrom: fieldRef: fieldPath: "metadata.namespace"
 					}]
-					image:           "quay.io/jetstack/cert-manager-webhook:v1.2.0"
+					image:           "quay.io/jetstack/cert-manager-webhook:v1.5.3"
 					imagePullPolicy: v1.#PullIfNotPresent
 					livenessProbe: {
 						failureThreshold: 3
