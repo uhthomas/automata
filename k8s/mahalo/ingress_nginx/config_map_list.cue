@@ -21,6 +21,7 @@ configMapList: items: [{
 		}
 	}
 	data: {
+		"use-proxy-protocol":    "true"
 		"proxy-buffer-size":     "16k"
 		"proxy-buffers-number":  "8"
 		"use-forwarded-headers": "true"
