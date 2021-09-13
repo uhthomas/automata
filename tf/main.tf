@@ -83,7 +83,7 @@ resource "cloudflare_record" "alt_mx" {
 resource "cloudflare_record" "mahalo_a" {
   zone_id = cloudflare_zone.starjunk_net.id
   name    = "mahalo"
-  value   = "51.159.112.126"
+  value   = "51.159.75.26"
   type    = "A"
   proxied = true
 }
