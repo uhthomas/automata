@@ -48,7 +48,7 @@ deploymentList: items: [{
 				dnsPolicy: v1.#DNSClusterFirst
 				containers: [{
 					name:            "controller"
-					image:           "k8s.gcr.io/ingress-nginx/controller:v0.46.0@sha256:52f0058bed0a17ab0fb35628ba97e8d52b5d32299fbc03cc0f6c7b9ff036b61a"
+					image:           "k8s.gcr.io/ingress-nginx/controller:v1.0.0@sha256:0851b34f69f69352bf168e6ccf30e1e20714a264ab1ecd1933e4d8c0fc3215c6"
 					imagePullPolicy: v1.#PullIfNotPresent
 					lifecycle: preStop: exec: command: [
 						"/wait-shutdown",

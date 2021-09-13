@@ -58,10 +58,7 @@ roleList: items: [{
 			"watch",
 		]
 	}, {
-		apiGroups: [
-			"extensions",
-			"networking.k8s.io",
-		] // k8s 1.14+
+		apiGroups: ["networking.k8s.io"]
 		resources: [
 			"ingresses",
 		]
@@ -71,10 +68,7 @@ roleList: items: [{
 			"watch",
 		]
 	}, {
-		apiGroups: [
-			"extensions",
-			"networking.k8s.io",
-		] // k8s 1.14+
+		apiGroups: ["networking.k8s.io"]
 		resources: [
 			"ingresses/status",
 		]
@@ -82,7 +76,7 @@ roleList: items: [{
 			"update",
 		]
 	}, {
-		apiGroups: ["networking.k8s.io"] // k8s 1.14+
+		apiGroups: ["networking.k8s.io"]
 		resources: [
 			"ingressclasses",
 		]

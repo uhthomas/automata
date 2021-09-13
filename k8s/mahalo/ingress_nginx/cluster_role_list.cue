@@ -57,10 +57,7 @@ clusterRoleList: items: [{
 			"watch",
 		]
 	}, {
-		apiGroups: [
-			"extensions",
-			"networking.k8s.io",
-		] // k8s 1.14+
+		apiGroups: ["networking.k8s.io"]
 		resources: [
 			"ingresses",
 		]
@@ -81,10 +78,7 @@ clusterRoleList: items: [{
 			"patch",
 		]
 	}, {
-		apiGroups: [
-			"extensions",
-			"networking.k8s.io",
-		] // k8s 1.14+
+		apiGroups: ["networking.k8s.io"]
 		resources: [
 			"ingresses/status",
 		]
@@ -92,7 +86,7 @@ clusterRoleList: items: [{
 			"update",
 		]
 	}, {
-		apiGroups: ["networking.k8s.io"] // k8s 1.14+
+		apiGroups: ["networking.k8s.io"]
 		resources: [
 			"ingressclasses",
 		]

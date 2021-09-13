@@ -8,7 +8,7 @@ list: v1.#List & {
 	items: [...{
 		metadata: {
 			namespace: "ingress-nginx"
-			labels: "app.kubernetes.io/version": "0.46.0"
+			labels: "app.kubernetes.io/version": "1.0.0"
 		}
 	}]
 }
