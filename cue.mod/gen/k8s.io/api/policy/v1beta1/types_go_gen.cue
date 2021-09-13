@@ -111,6 +111,8 @@ import (
 #PodDisruptionBudget: {
 	metav1.#TypeMeta
 
+	// Standard object's metadata.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
 	// +optional
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
@@ -127,8 +129,12 @@ import (
 #PodDisruptionBudgetList: {
 	metav1.#TypeMeta
 
+	// Standard object's metadata.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
 	// +optional
 	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
+
+	// items list individual PodDisruptionBudget objects
 	items: [...#PodDisruptionBudget] @go(Items,[]PodDisruptionBudget) @protobuf(2,bytes,rep)
 }
 
