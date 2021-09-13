@@ -93,7 +93,7 @@ roleList: items: [{
 			"configmaps",
 		]
 		resourceNames: [
-			"ingress-controller-leader-nginx",
+			"ingress-controller-leader",
 		]
 		verbs: [
 			"get",
