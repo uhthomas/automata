@@ -8,6 +8,7 @@ cue_library(
         "config_map_list.cue",
         "deployment_list.cue",
         "horizontal_pod_autoscaler_list.cue",
+        "ingress_class_list.cue",
         "job_list.cue",
         "list.cue",
         "namespace_list.cue",

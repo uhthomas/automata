@@ -25,7 +25,8 @@ list: items:
 	deploymentList.items +
 	horizontalPodAutoscalerList.items +
 	jobList.items +
-	validatingWebhookConfigurationList.items
+	validatingWebhookConfigurationList.items +
+	ingressClassList.items
 
 // CRDs
 // TODO(uhthomas): Uncomment
