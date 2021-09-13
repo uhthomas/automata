@@ -12,6 +12,6 @@ ingressClassList: networkingv1.#IngressClassList & {
 }
 
 ingressClassList: items: [{
-	name: "nginx"
+	metadata: name: "nginx"
 	spec: controller: "k8s.io/ingress-nginx"
 }]
