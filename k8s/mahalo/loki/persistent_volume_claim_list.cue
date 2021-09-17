@@ -14,6 +14,6 @@ persistentVolumeClaimList: v1.#PersistentVolumeClaimList & {
 persistentVolumeClaimList: items: [{
 	spec: {
 		accessModes: [v1.#ReadWriteOnce]
-		resources: requests: storage: "4Gi"
+		resources: requests: storage: "10Gi"
 	}
 }]
