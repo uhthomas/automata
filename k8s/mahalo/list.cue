@@ -15,7 +15,6 @@ import (
 	"github.com/uhthomas/automata/k8s/mahalo/promtail"
 	"github.com/uhthomas/automata/k8s/mahalo/rasmus"
 	"github.com/uhthomas/automata/k8s/mahalo/sealed_secrets"
-	"github.com/uhthomas/automata/k8s/mahalo/tesla_exporter"
 	"github.com/uhthomas/automata/k8s/mahalo/thanos"
 	"k8s.io/api/core/v1"
 )
@@ -89,10 +88,6 @@ items:
 	// - sealed_secrets
 	kipp.list.items +
 	kipp_dev.list.items +
-
-	// requires:
-	// - sealed_secrets
-	tesla_exporter.list.items +
 
 	// requiresL
 	// - ingress_nginx
