@@ -218,12 +218,34 @@ cephClusterList: items: [{
 		//    mgr: rook-ceph-mgr-priority-class
 		storage: {// cluster level storage configuration and selection
 			useAllNodes:   false
-			useAllDevices: true
-			nodes: [
-				{name: "13a0a37008"},
-				{name: "6151c4656b"},
-				{name: "38aab880f5"},
-			]
+			useAllDevices: false
+			nodes: [{
+				name: "13a0a37008"
+				devices: [
+					// WD Red 6TB
+					{name: "/dev/disk/by-id/scsi-35000c500c9566239"},
+					// WD Red 4TB
+					{name: "/dev/disk/by-id/scsi-350014ee2b3a8b3d7"},
+				]
+			}, {
+				name: "6151c4656b"
+				devices: [
+					// WD Red 6TB
+					{name: "/dev/disk/by-id/scsi-35000c500c95641d1"},
+					// WD Red 4TB
+					{name: "/dev/disk/by-id/scsi-SATA_WDC_WD40EFRX-68W_WD-WCC4E0053359"},
+				]
+			}, {
+				name: "38aab880f5"
+				devices: [
+					// WD Red 4TB
+					{name: "/dev/disk/by-id/scsi-SATA_WDC_WD40EFRX-68W_WD-WCC4E1490907"},
+					// WD Red 4TB
+					{name: "/dev/disk/by-id/scsi-350014ee20a85be27"},
+					// Samsung 2TB
+					{name: "/dev/disk/by-id/scsi-SATA_SAMSUNG_HD204UI_S2H7J9EB308467"},
+				]
+			}]
 		}
 		// crushRoot: "custom-root" # specify a non-default root label for the CRUSH map
 		// metadataDevice: "md0" # specify a non-rotational storage so ceph-volume will use it as block db device of bluestore.
