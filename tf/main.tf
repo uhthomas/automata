@@ -28,6 +28,9 @@ resource "cloudflare_certificate_pack" "advanced_digicert_certificate_pack" {
     "mahalo.${cloudflare_zone.starjunk_net.zone}",
     "*.mahalo.${cloudflare_zone.starjunk_net.zone}",
 
+    "milkshake.${cloudflare_zone.starjunk_net.zone}",
+    "*.milkshake.${cloudflare_zone.starjunk_net.zone}",
+
     "pillowtalk.${cloudflare_zone.starjunk_net.zone}",
     "*.pillowtalk.${cloudflare_zone.starjunk_net.zone}",
   ]
@@ -152,6 +155,26 @@ resource "cloudflare_record" "thanos_mahalo_cname" {
   proxied = false
 }
 
+# milkshake
+
+resource "cloudflare_record" "milkshake_cname" {
+  zone_id = cloudflare_zone.starjunk_net.id
+  name    = "milkshake"
+  # TODO(thomas): Provision the tunnel with Terraform and use its attribute
+  # in-place.
+  value   = "166c6585-c4ae-4c46-b5b9-595aa8b3d17b.cfargotunnel.com"
+  type    = "CNAME"
+  proxied = true
+}
+
+resource "cloudflare_record" "twitch_milkshake_cname" {
+  zone_id = cloudflare_zone.starjunk_net.id
+  name    = "twitch.milkshake"
+  value   = "milkshake.${cloudflare_zone.starjunk_net.zone}"
+  type    = "CNAME"
+  proxied = true
+}
+
 # pillowtalk
 
 resource "cloudflare_record" "pillowtalk_cname" {
@@ -192,26 +215,6 @@ resource "cloudflare_record" "thanos_pillowtalk_cname" {
   zone_id = cloudflare_zone.starjunk_net.id
   name    = "thanos.pillowtalk"
   value   = "pillowtalk.${cloudflare_zone.starjunk_net.zone}"
-  type    = "CNAME"
-  proxied = true
-}
-
-# milkshake
-
-resource "cloudflare_record" "milkshake_cname" {
-  zone_id = cloudflare_zone.starjunk_net.id
-  name    = "milkshake"
-  # TODO(thomas): Provision the tunnel with Terraform and use its attribute
-  # in-place.
-  value   = "166c6585-c4ae-4c46-b5b9-595aa8b3d17b.cfargotunnel.com"
-  type    = "CNAME"
-  proxied = true
-}
-
-resource "cloudflare_record" "twitch_milkshake_cname" {
-  zone_id = cloudflare_zone.starjunk_net.id
-  name    = "twitch.milkshake"
-  value   = "milkshake.${cloudflare_zone.starjunk_net.zone}"
   type    = "CNAME"
   proxied = true
 }
