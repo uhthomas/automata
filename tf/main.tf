@@ -162,7 +162,7 @@ resource "cloudflare_record" "milkshake_cname" {
   name    = "milkshake"
   # TODO(thomas): Provision the tunnel with Terraform and use its attribute
   # in-place.
-  value   = "166c6585-c4ae-4c46-b5b9-595aa8b3d17b.cfargotunnel.com"
+  value   = "077009ac-357f-4adb-837c-f0af617908cd.cfargotunnel.com"
   type    = "CNAME"
   proxied = true
 }
