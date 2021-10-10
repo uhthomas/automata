@@ -63,11 +63,11 @@ deploymentList: items: [{
 					resources: {
 						requests: {
 							memory: "32Mi"
-							cpu:    "150m"
+							cpu:    "500m"
 						}
 						limits: {
-							memory: "256Mi"
-							cpu:    "400m"
+							memory: "512Mi"
+							cpu:    "1000m"
 						}
 					}
 					volumeMounts: [{
