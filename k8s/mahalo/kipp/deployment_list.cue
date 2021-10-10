@@ -66,7 +66,7 @@ deploymentList: items: [{
 							cpu:    "500m"
 						}
 						limits: {
-							memory: "512Mi"
+							memory: "256Mi"
 							cpu:    "1000m"
 						}
 					}
