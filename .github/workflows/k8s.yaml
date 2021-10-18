@@ -9,7 +9,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install Bazelisk
-      run: curl -L "https://github.com/bazelbuild/bazelisk/releases/download/v1.9.0/bazelisk-linux-amd64" | install -D /dev/stdin "${GITHUB_WORKSPACE}/bin/bazel"
+      run: curl -L "https://github.com/bazelbuild/bazelisk/releases/download/v1.10.1/bazelisk-linux-amd64" | install -D /dev/stdin "${GITHUB_WORKSPACE}/bin/bazel"
     - run: bazel build //...
     - uses: azure/k8s-set-context@v1
       with:
@@ -25,7 +25,7 @@ jobs:
       with:
         authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
     - name: Install Bazelisk
-      run: curl -L "https://github.com/bazelbuild/bazelisk/releases/download/v1.9.0/bazelisk-linux-amd64" | install -D /dev/stdin "${GITHUB_WORKSPACE}/bin/bazel"
+      run: curl -L "https://github.com/bazelbuild/bazelisk/releases/download/v1.10.1/bazelisk-linux-amd64" | install -D /dev/stdin "${GITHUB_WORKSPACE}/bin/bazel"
     - run: bazel build //...
     - uses: azure/k8s-set-context@v1
       with:
