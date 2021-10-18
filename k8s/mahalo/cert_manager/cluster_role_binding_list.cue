@@ -151,4 +151,65 @@ clusterRoleBindingList: items: [{
 		name:      "cert-manager"
 		namespace: "cert-manager"
 	}]
+}, {
+	metadata: {
+		name: "cert-manager-controller-approve:cert-manager-io"
+		labels: {
+			app:                           "cert-manager"
+			"app.kubernetes.io/component": "cert-manager"
+			"app.kubernetes.io/instance":  "cert-manager"
+			"app.kubernetes.io/name":      "cert-manager"
+		}
+	}
+	roleRef: {
+		apiGroup: "rbac.authorization.k8s.io"
+		kind:     "ClusterRole"
+		name:     "cert-manager-controller-approve:cert-manager-io"
+	}
+	subjects: [{
+		kind:      "ServiceAccount"
+		name:      "cert-manager"
+		namespace: "cert-manager"
+	}]
+}, {
+	metadata: {
+		name: "cert-manager-controller-certificatesigningrequests"
+		labels: {
+			app:                           "cert-manager"
+			"app.kubernetes.io/component": "cert-manager"
+			"app.kubernetes.io/instance":  "cert-manager"
+			"app.kubernetes.io/name":      "cert-manager"
+		}
+	}
+	roleRef: {
+		apiGroup: "rbac.authorization.k8s.io"
+		kind:     "ClusterRole"
+		name:     "cert-manager-controller-certificatesigningrequests"
+	}
+	subjects: [{
+		kind:      "ServiceAccount"
+		name:      "cert-manager"
+		namespace: "cert-manager"
+	}]
+}, {
+	metadata: {
+		name: "cert-manager-webhook:subjectaccessreviews"
+		labels: {
+			app:                           "webhook"
+			"app.kubernetes.io/component": "webhook"
+			"app.kubernetes.io/instance":  "cert-manager"
+			"app.kubernetes.io/name":      "webhook"
+		}
+	}
+	roleRef: {
+		apiGroup: "rbac.authorization.k8s.io"
+		kind:     "ClusterRole"
+		name:     "cert-manager-webhook:subjectaccessreviews"
+	}
+	subjects: [{
+		apiGroup: ""
+		kind: "ServiceAccount"
+		name: "cert-manager-webhook"
+		namespace: "cert-manager"
+	}]
 }]
