@@ -28,19 +28,23 @@ roleList: items: [{
 			"cert-manager-cainjector-leader-election",
 			"cert-manager-cainjector-leader-election-core",
 		]
-		resources: [
-			"configmaps",
-		]
-		verbs: [
-			"get",
-			"update",
-			"patch",
-		]
+		resources: ["configmaps"]
+		verbs: ["get", "update", "patch"]
 	}, {
 		apiGroups: [""]
-		resources: [
-			"configmaps",
+		resources: ["configmaps"]
+		verbs: ["create"]
+	}, {
+		apiGroups: ["coordination.k8s.io"]
+		resources: ["leases"]
+		resourceNames: [
+			"cert-manager-cainjector-leader-election",
+			"cert-manager-cainjector-leader-election-core",
 		]
+		verbs: ["get", "update", "patch"]
+	}, {
+		apiGroups: ["coordination.k8s.io"]
+		resources: ["leases"]
 		verbs: ["create"]
 	}]
 }, {
@@ -56,22 +60,21 @@ roleList: items: [{
 	}
 	rules: [{
 		apiGroups: [""]
-		resourceNames: [
-			"cert-manager-controller",
-		]
-		resources: [
-			"configmaps",
-		]
-		verbs: [
-			"get",
-			"update",
-			"patch",
-		]
+		resourceNames: ["cert-manager-controller"]
+		resources: ["configmaps"]
+		verbs: ["get", "update", "patch"]
 	}, {
 		apiGroups: [""]
-		resources: [
-			"configmaps",
-		]
+		resources: ["configmaps"]
+		verbs: ["create"]
+	}, {
+		apiGroups: ["coordination.k8s.io"]
+		resources: ["leases"]
+		resourceNames: ["cert-manager-controller"]
+		verbs: ["get", "update", "patch"]
+	}, {
+		apiGroups: ["coordination.k8s.io"]
+		resources: ["leases"]
 		verbs: ["create"]
 	}]
 }, {
@@ -87,23 +90,12 @@ roleList: items: [{
 	}
 	rules: [{
 		apiGroups: [""]
-		resourceNames: [
-			"cert-manager-webhook-ca",
-		]
-		resources: [
-			"secrets",
-		]
-		verbs: [
-			"get",
-			"list",
-			"watch",
-			"update",
-		]
+		resourceNames: [ "cert-manager-webhook-ca"]
+		resources: ["secrets"]
+		verbs: ["get", "list", "watch", "update"]
 	}, {
 		apiGroups: [""]
-		resources: [
-			"secrets",
-		]
+		resources: ["secrets"]
 		verbs: ["create"]
 	}]
 }]
