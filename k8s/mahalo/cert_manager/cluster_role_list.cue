@@ -635,4 +635,63 @@ clusterRoleList: items: [{
 			"watch",
 		]
 	}]
+}, {
+	metadata: {
+		name: "cert-manager-controller-approve:cert-manager-io"
+		labels: {
+			app:                           "cert-manager"
+			"app.kubernetes.io/component": "cert-manager"
+			"app.kubernetes.io/instance":  "cert-manager"
+			"app.kubernetes.io/name":      "cert-manager"
+		}
+	}
+	rules: [{
+		apiGroups: ["cert-manager.io"]
+		resources: ["signers"]
+		verbs: ["approve"]
+		resourceNames: ["issuers.cert-manager.io/*", "clusterissuers.cert-manager.io/*"]
+	}]
+}, {
+	metadata: {
+		name: "cert-manager-controller-certificatesigningrequests"
+		labels: {
+			app:                           "cert-manager"
+			"app.kubernetes.io/component": "cert-manager"
+			"app.kubernetes.io/instance":  "cert-manager"
+			"app.kubernetes.io/name":      "cert-manager"
+		}
+	}
+	rules: [{
+		apiGroups: ["certificates.k8s.io"]
+		resources: ["certificatesigningrequests"]
+		verbs: ["get", "list", "watch", "update"]
+	}, {
+		apiGroups: ["certificates.k8s.io"]
+		resources: ["certificatesigningrequests/status"]
+		verbs: ["update"]
+	}, {
+		apiGroups: ["certificates.k8s.io"]
+		resources: ["signers"]
+		resourceNames: ["issuers.cert-manager.io/*", "clusterissuers.cert-manager.io/*"]
+		verbs: ["sign"]
+	}, {
+		apiGroups: ["authorization.k8s.io"]
+		resources: ["subjectaccessreviews"]
+		verbs: ["create"]
+	}]
+}, {
+	metadata: {
+		name: "cert-manager-webhook:subjectaccessreviews"
+		labels: {
+			app:                           "webhook"
+			"app.kubernetes.io/component": "webhook"
+			"app.kubernetes.io/instance":  "cert-manager"
+			"app.kubernetes.io/name":      "webhook"
+		}
+	}
+	rules: [{
+		apiGroups: ["authorization.k8s.io"]
+		resources: ["subjectaccessreviews"]
+		verbs: ["create"]
+	}]
 }]
