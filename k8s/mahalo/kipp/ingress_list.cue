@@ -18,7 +18,7 @@ ingressList: items: [{
 		"nginx.ingress.kubernetes.io/proxy-request-buffering": "off"
 		"nginx.ingress.kubernetes.io/server-alias": "conf.6f.io,kipp.6f.io"
 		"nginx.ingress.kubernetes.io/configuration-snippet": """
-			if ($host = 'conf.6f.io') {
+			if ($host != 'kipp.6f.io') {
 				return 301 $scheme://kipp.6f.io$request_uri;
 			}
 
