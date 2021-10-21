@@ -44,7 +44,7 @@ ingressList: items: [{
 		rules: [{
 			host: "kipp.mahalo.starjunk.net"
 			http: paths: [{
-				pathType: "ImplementationSpecific"
+				pathType: networkingv1.#PathTypeImplementationSpecific
 				backend: service: {
 					name: "kipp"
 					port: name: "http"
