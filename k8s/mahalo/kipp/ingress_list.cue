@@ -22,6 +22,12 @@ ingressList: items: [{
 				return 301 $scheme://kipp.6f.io$request_uri;
 			}
 
+			location = / {
+				if ($request_method = 'POST') {
+					rewrite ^ http://kipp.internal$request_uri? permanent;
+				}
+			}
+
 			location /healthz {
 				internal;
 			}
@@ -43,6 +49,21 @@ ingressList: items: [{
 		}]
 		rules: [{
 			host: "kipp.mahalo.starjunk.net"
+			http: paths: [{
+				pathType: networkingv1.#PathTypeImplementationSpecific
+				backend: service: {
+					name: "kipp"
+					port: name: "http"
+				}
+			}]
+		}]
+	}
+}, {
+	metadata: name: "kipp-internal"
+	spec: {
+		ingressClassName: "nginx"
+		rules: [{
+			host: "kipp.internal"
 			http: paths: [{
 				pathType: networkingv1.#PathTypeImplementationSpecific
 				backend: service: {

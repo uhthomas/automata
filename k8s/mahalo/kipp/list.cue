@@ -7,7 +7,7 @@ list: v1.#List & {
 	kind:       "List"
 	items: [...{
 		metadata: {
-			name:      "kipp"
+			name:      string | *"kipp"
 			namespace: "kipp"
 			labels: {
 				"app.kubernetes.io/name":      "kipp"
