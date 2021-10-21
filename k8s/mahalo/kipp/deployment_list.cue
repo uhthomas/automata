@@ -125,7 +125,7 @@ deploymentList: items: [{
 			spec: {
 				containers: [{
 					name:  "nginx"
-					image: "nginx:1.21.3@sha256:87a94228f133e2da99cb16d653cd1373c5b4e8689956386c1c12b60a20421a02"
+					image: "nginx:1.21.3@sha256:7250923ba3543110040462388756ef099331822c6172a050b12c7a38361ea46f"
 					ports: [{
 						name:          "http"
 						containerPort: 80
