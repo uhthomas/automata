@@ -5,6 +5,7 @@ cue_library(
     srcs = [
         "register_go_gen.cue",
         "types_go_gen.cue",
+        "well_known_annotations_go_gen.cue",
     ],
     importpath = "k8s.io/api/networking/v1",
     visibility = ["//visibility:public"],

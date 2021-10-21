@@ -79,8 +79,12 @@ ingressList: items: [{
 	spec: {
 		ingressClassName: "nginx"
 		tls: [{
-			hosts: ["kipp.6f.io"]
-			secretName: "kipp-auth-tls"
+			hosts: [
+				"conf.6f.io",
+				"kipp.6f.io",
+				"kipp.mahalo.starjunk.net",
+			]
+			secretName: "kipp-tls"
 		}]
 		rules: [{
 			host: "kipp.mahalo.starjunk.net"

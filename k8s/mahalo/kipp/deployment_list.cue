@@ -101,4 +101,73 @@ deploymentList: items: [{
 			}
 		}
 	}
+}, {
+	metadata: {
+		name: "kipp-static"
+		labels: "app.kubernetes.io/component": "static"
+	}
+	spec: {
+		revisionHistoryLimit:    5
+		progressDeadlineSeconds: 120
+		strategy: rollingUpdate: maxUnavailable: 1
+		minReadySeconds: 1
+		selector: matchLabels: {
+			"app.kubernetes.io/name":      "kipp"
+			"app.kubernetes.io/instance":  "kipp"
+			"app.kubernetes.io/component": "static"
+		}
+		template: {
+			metadata: labels: {
+				"app.kubernetes.io/name":      "kipp"
+				"app.kubernetes.io/instance":  "kipp"
+				"app.kubernetes.io/component": "static"
+			}
+			spec: {
+				containers: [{
+					name:  "nginx"
+					image: "nginx:1.21.3@sha256:87a94228f133e2da99cb16d653cd1373c5b4e8689956386c1c12b60a20421a02"
+					ports: [{
+						name:          "http"
+						containerPort: 80
+					}]
+					resources: {
+						requests: {
+							memory: "2Mi"
+							cpu:    "2m"
+						}
+						limits: {
+							memory: "8Mi"
+							cpu:    "5m"
+						}
+					}
+					volumeMounts: [{
+						name:      "static"
+						mountPath: "/usr/share/nginx/html"
+						readOnly:  true
+					}]
+					livenessProbe: {
+						httpGet: {
+							path: "/healthz"
+							port: "http"
+						}
+						initialDelaySeconds: 5
+						periodSeconds:       3
+					}
+					readinessProbe: {
+						httpGet: {
+							path: "/healthz"
+							port: "http"
+						}
+						initialDelaySeconds: 5
+						periodSeconds:       3
+					}
+					imagePullPolicy: v1.#PullIfNotPresent
+				}]
+				volumes: [{
+					name: "static"
+					configMap: name: "kipp-static"
+				}]
+			}
+		}
+	}
 }]

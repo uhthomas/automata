@@ -13,7 +13,7 @@ list: v1.#List & {
 				"app.kubernetes.io/name":      "kipp"
 				"app.kubernetes.io/instance":  "kipp"
 				"app.kubernetes.io/version":   "0.2.1"
-				"app.kubernetes.io/component": "kipp"
+				"app.kubernetes.io/component": string | *"kipp"
 			}
 		}
 	}]
@@ -22,6 +22,7 @@ list: v1.#List & {
 list: items:
 	namespaceList.items +
 	sealedSecretList.items +
+	configMapList.items +
 	serviceList.items +
 	deploymentList.items +
 	horizontalPodAutoscalerList.items +
