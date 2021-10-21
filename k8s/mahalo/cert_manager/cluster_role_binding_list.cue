@@ -207,9 +207,9 @@ clusterRoleBindingList: items: [{
 		name:     "cert-manager-webhook:subjectaccessreviews"
 	}
 	subjects: [{
-		apiGroup: ""
-		kind: "ServiceAccount"
-		name: "cert-manager-webhook"
+		apiGroup:  ""
+		kind:      "ServiceAccount"
+		name:      "cert-manager-webhook"
 		namespace: "cert-manager"
 	}]
 }]
