@@ -21,14 +21,6 @@ ingressList: items: [{
 			if ($host != 'kipp.6f.io') {
 				return 301 $scheme://kipp.6f.io$request_uri;
 			}
-
-			location /healthz {
-				internal;
-			}
-
-			location /varz {
-				internal;
-			}
 			"""
 	}
 	spec: {
