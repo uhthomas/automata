@@ -69,6 +69,6 @@ configMapList: items: [{
                 </pre>
             </body>
             </html>
-        """
+            """
     }
 }]
