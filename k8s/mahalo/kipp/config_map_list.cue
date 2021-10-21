@@ -44,7 +44,7 @@ configMapList: items: [{
                 served recently which is exciting, but has also introduced a large personal
                 burden. Consider the following statistics:
 
-                The past month
+                The past month:
 
                     53.32 million requests (up 484.76%)
 
