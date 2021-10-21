@@ -16,6 +16,7 @@ ingressList: items: [{
 		"cert-manager.io/cluster-issuer":                      "letsencrypt"
 		"nginx.ingress.kubernetes.io/proxy-body-size":         "150m"
 		"nginx.ingress.kubernetes.io/proxy-request-buffering": "off"
+		"nginx.ingress.kubernetes.io/server-alias": "conf.6f.io,kipp.6f.io"
 		"nginx.ingress.kubernetes.io/configuration-snippet": """
 			if ($host = 'conf.6f.io') {
 				return 301 $scheme://kipp.6f.io$request_uri;
@@ -41,24 +42,6 @@ ingressList: items: [{
 			secretName: "kipp-tls"
 		}]
 		rules: [{
-			host: "conf.6f.io"
-			http: paths: [{
-				pathType: "ImplementationSpecific"
-				backend: service: {
-					name: "kipp"
-					port: name: "http"
-				}
-			}]
-		}, {
-			host: "kipp.6f.io"
-			http: paths: [{
-				pathType: "ImplementationSpecific"
-				backend: service: {
-					name: "kipp"
-					port: name: "http"
-				}
-			}]
-		}, {
 			host: "kipp.mahalo.starjunk.net"
 			http: paths: [{
 				pathType: "ImplementationSpecific"
