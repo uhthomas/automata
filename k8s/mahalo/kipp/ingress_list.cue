@@ -24,7 +24,7 @@ ingressList: items: [{
 
 			location = / {
 				if ($request_method = 'POST') {
-					rewrite ^ http://kipp.internal$request_uri? permanent;
+					rewrite ^ http://kipp.mahalo.starjunk.net/do permanent;
 				}
 			}
 
@@ -59,13 +59,17 @@ ingressList: items: [{
 		}]
 	}
 }, {
-	metadata: name: "kipp-internal"
+	metadata: {
+		name: "kipp-internal"
+		annotations: "nginx.ingress.kubernetes.io/app-root": "/do"
+	}
 	spec: {
 		ingressClassName: "nginx"
 		rules: [{
-			host: "kipp.internal"
+			host: "kipp.mahalo.starjunk.net"
 			http: paths: [{
-				pathType: networkingv1.#PathTypeImplementationSpecific
+				path: "/do"
+				pathType: networkingv1.#PathTypeExact
 				backend: service: {
 					name: "kipp"
 					port: name: "http"
