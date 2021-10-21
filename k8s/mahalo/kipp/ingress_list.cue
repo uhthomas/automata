@@ -22,12 +22,6 @@ ingressList: items: [{
 				return 301 $scheme://kipp.6f.io$request_uri;
 			}
 
-			location = / {
-				if ($request_method = 'POST') {
-					return 301 $scheme://$host/auth$request_uri;
-				}
-			}
-
 			location /healthz {
 				internal;
 			}
