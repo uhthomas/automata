@@ -65,37 +65,4 @@ ingressList: items: [{
 			}]
 		}]
 	}
-}, {
-	metadata: {
-		name: "kipp-auth"
-		annotations: {
-			"cert-manager.io/cluster-issuer":                      "letsencrypt"
-			"nginx.ingress.kubernetes.io/app-root":                "/auth"
-			"nginx.ingress.kubernetes.io/proxy-body-size":         "150m"
-			"nginx.ingress.kubernetes.io/proxy-request-buffering": "off"
-			"nginx.ingress.kubernetes.io/server-alias":            "conf.6f.io,kipp.6f.io"
-		}
-	}
-	spec: {
-		ingressClassName: "nginx"
-		tls: [{
-			hosts: [
-				"conf.6f.io",
-				"kipp.6f.io",
-				"kipp.mahalo.starjunk.net",
-			]
-			secretName: "kipp-tls"
-		}]
-		rules: [{
-			host: "kipp.mahalo.starjunk.net"
-			http: paths: [{
-				path:     "/"
-				pathType: networkingv1.#PathTypeExact
-				backend: service: {
-					name: "kipp"
-					port: name: "http"
-				}
-			}]
-		}]
-	}
 }]
