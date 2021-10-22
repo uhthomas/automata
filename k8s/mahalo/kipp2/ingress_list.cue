@@ -16,7 +16,6 @@ ingressList: items: [{
 		"cert-manager.io/cluster-issuer":                      "letsencrypt"
 		"nginx.ingress.kubernetes.io/auth-type":               "basic"
 		"nginx.ingress.kubernetes.io/auth-secret":             "basic-auth"
-		"nginx.ingress.kubernetes.io/auth-realm":              "Authentication Required"
 		"nginx.ingress.kubernetes.io/proxy-body-size":         "150m"
 		"nginx.ingress.kubernetes.io/proxy-request-buffering": "off"
 		"nginx.ingress.kubernetes.io/server-alias":            "k2.6f.io"
@@ -25,8 +24,8 @@ ingressList: items: [{
 				return 301 $scheme://k2.6f.io$request_uri;
 			}
 
-			location ~ / {
-				auth_basic off;
+			location / {
+				auth_basic "Authentication Required";
 			}
 
 			location /healthz {
