@@ -23,19 +23,49 @@ ingressList: items: [{
 			if ($host != 'k2.6f.io') {
 				return 301 $scheme://k2.6f.io$request_uri;
 			}
-
-			location / {
-				auth_basic "Authentication Required";
-			}
-
-			location /healthz {
-				internal;
-			}
-
-			location /varz {
-				internal;
-			}
 			"""
+	}
+	spec: {
+		ingressClassName: "nginx"
+		tls: [{
+			hosts: [
+				"k2.6f.io",
+				"kipp2.mahalo.starjunk.net",
+			]
+			secretName: "kipp2-tls"
+		}]
+		rules: [{
+			host: "kipp2.mahalo.starjunk.net"
+			http: paths: [{
+				path: "/"
+				pathType: networkingv1.#PathTypeExact
+				backend: service: {
+					name: "kipp2"
+					port: name: "http"
+				}
+			}]
+		}]
+	}
+}, {
+	metadata: {
+		name: "kipp2-public"
+		annotations: {
+			"cert-manager.io/cluster-issuer":                      "letsencrypt"
+			"nginx.ingress.kubernetes.io/server-alias":            "k2.6f.io"
+			"nginx.ingress.kubernetes.io/configuration-snippet": """
+				if ($host != 'k2.6f.io') {
+					return 301 $scheme://k2.6f.io$request_uri;
+				}
+
+				location /healthz {
+					internal;
+				}
+
+				location /varz {
+					internal;
+				}
+				"""
+		}
 	}
 	spec: {
 		ingressClassName: "nginx"
