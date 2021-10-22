@@ -51,6 +51,7 @@ ingressList: items: [{
 	metadata: annotations: {
 		"cert-manager.io/cluster-issuer":           "letsencrypt"
 		"nginx.ingress.kubernetes.io/server-alias": "k2.6f.io"
+		"nginx.ingress.kubernetes.io/use-regex": "true"
 		"nginx.ingress.kubernetes.io/configuration-snippet": """
 			if ($host != 'k2.6f.io') {
 				return 301 $scheme://k2.6f.io$request_uri;
@@ -81,6 +82,7 @@ ingressList: items: [{
 		rules: [{
 			host: "kipp2.mahalo.starjunk.net"
 			http: paths: [{
+				path: "/.+"
 				pathType: networkingv1.#PathTypeImplementationSpecific
 				backend: service: {
 					name: "kipp2"
