@@ -32,6 +32,7 @@ cue_export(
         "//k8s/mahalo/io_6f:cue_io_6f_library",
         "//k8s/mahalo/io_6f_dev:cue_io_6f_dev_library",
         "//k8s/mahalo/kipp:cue_kipp_library",
+        "//k8s/mahalo/kipp2:cue_kipp2_library",
         "//k8s/mahalo/kipp_dev:cue_kipp_dev_library",
         "//k8s/mahalo/kube_state_metrics:cue_kube_state_metrics_library",
         "//k8s/mahalo/loki:cue_loki_library",

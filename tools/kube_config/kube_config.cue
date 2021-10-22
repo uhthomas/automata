@@ -3,7 +3,7 @@ import clientcmdapiv1 "k8s.io/client-go/tools/clientcmd/api/v1"
 clientcmdapiv1.#Config & {
 	apiVersion: "v1"
 	kind:       "Config"
-	clusters: [ {
+	clusters: [{
 		name: "mahalo"
 		cluster: {
 			"certificate-authority-data": ''

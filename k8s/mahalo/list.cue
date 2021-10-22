@@ -8,6 +8,7 @@ import (
 	"github.com/uhthomas/automata/k8s/mahalo/io_6f_dev"
 	"github.com/uhthomas/automata/k8s/mahalo/kipp"
 	"github.com/uhthomas/automata/k8s/mahalo/kipp_dev"
+	"github.com/uhthomas/automata/k8s/mahalo/kipp2"
 	"github.com/uhthomas/automata/k8s/mahalo/kube_state_metrics"
 	"github.com/uhthomas/automata/k8s/mahalo/loki"
 	"github.com/uhthomas/automata/k8s/mahalo/oauth2_proxy"
@@ -88,6 +89,7 @@ items:
 	// - sealed_secrets
 	kipp.list.items +
 	kipp_dev.list.items +
+	kipp2.list.items +
 
 	// requiresL
 	// - ingress_nginx
