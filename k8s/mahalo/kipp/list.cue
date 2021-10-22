@@ -7,13 +7,13 @@ list: v1.#List & {
 	kind:       "List"
 	items: [...{
 		metadata: {
-			name:      string | *"kipp"
+			name:      "kipp"
 			namespace: "kipp"
 			labels: {
 				"app.kubernetes.io/name":      "kipp"
 				"app.kubernetes.io/instance":  "kipp"
 				"app.kubernetes.io/version":   "0.2.1"
-				"app.kubernetes.io/component": string | *"kipp"
+				"app.kubernetes.io/component": "kipp"
 			}
 		}
 	}]
@@ -21,7 +21,6 @@ list: v1.#List & {
 
 list: items:
 	namespaceList.items +
-	sealedSecretList.items +
 	configMapList.items +
 	serviceList.items +
 	deploymentList.items +

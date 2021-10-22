@@ -22,16 +22,4 @@ horizontalPodAutoscalerList: items: [{
 		maxReplicas:                    4
 		targetCPUUtilizationPercentage: 75
 	}
-}, {
-	metadata: name: "kipp-static"
-	spec: {
-		scaleTargetRef: {
-			apiVersion: "apps/v1"
-			kind:       "Deployment"
-			name:       "kipp-static"
-		}
-		minReplicas:                    2
-		maxReplicas:                    4
-		targetCPUUtilizationPercentage: 75
-	}
 }]

@@ -24,18 +24,4 @@ serviceList: items: [{
 			"app.kubernetes.io/component": "kipp"
 		}
 	}
-}, {
-	metadata: name: "kipp-static"
-	spec: {
-		ports: [{
-			name:       "http"
-			port:       80
-			targetPort: "http"
-		}]
-		selector: {
-			"app.kubernetes.io/name":      "kipp"
-			"app.kubernetes.io/instance":  "kipp"
-			"app.kubernetes.io/component": "static"
-		}
-	}
 }]

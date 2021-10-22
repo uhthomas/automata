@@ -12,7 +12,6 @@ configMapList: v1.#ConfigMapList & {
 }
 
 configMapList: items: [{
-	metadata: name: "kipp-static"
 	data: {
 		healthz: "" // liveness/readiness probes
 		"index.html": """
@@ -28,7 +27,7 @@ configMapList: items: [{
 			</head>
 			<body>
 			    <pre>
-			Kipp has had an exciting journey the past few years. The service has quickly
+			Kipp has had an exciting journey the past few years. The project has quickly
 			grown from a small side project, to a service which serves millions of users and
 			many tens of terabytes every month.
 
@@ -60,7 +59,7 @@ configMapList: items: [{
 
 			    1.1 million visitors (up 15.28%)
 
-			Kipp will cease operations effective immeditately. Serviving thousands of files
+			Kipp will cease operations effective immediately. Serving thousands of files
 			and millions of users is not something I wish to continue doing.
 
 			Thank you for making the project fun and successful.
