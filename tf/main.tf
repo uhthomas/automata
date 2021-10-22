@@ -136,7 +136,7 @@ resource "cloudflare_record" "kipp2_mahalo_cname" {
   name    = "kipp2.mahalo"
   value   = "mahalo.${cloudflare_zone.starjunk_net.zone}"
   type    = "CNAME"
-  proxied = true
+  proxied = false
 }
 
 resource "cloudflare_record" "oauth2_proxy_mahalo_cname" {
