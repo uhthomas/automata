@@ -40,7 +40,7 @@ configMapList: items: [{
 			to modifications to the source code, the service was moved to a Kubernetes
 			cluster which allowed for automatic scaling and rich collection of statistics.
 
-			Kipp has seen an exallerated increase in the amount of traffic and content being
+			Kipp has seen an accelerated increase in the amount of traffic and content being
 			served recently which is exciting, but has also introduced a large personal
 			burden. Consider the following statistics:
 
