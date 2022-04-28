@@ -16,7 +16,7 @@ import (
 	"github.com/uhthomas/automata/k8s/mahalo/promtail"
 	"github.com/uhthomas/automata/k8s/mahalo/rasmus"
 	"github.com/uhthomas/automata/k8s/mahalo/sealed_secrets"
-	"github.com/uhthomas/automata/k8s/mahalo/thanos"
+	// "github.com/uhthomas/automata/k8s/mahalo/thanos"
 	"k8s.io/api/core/v1"
 )
 
@@ -59,7 +59,7 @@ items:
 	// - oauth2_proxy
 	// - prometheus
 	// - sealed_secrets
-	thanos.list.items +
+	// thanos.list.items +
 
 	loki.list.items +
 
