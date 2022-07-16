@@ -14,7 +14,12 @@ jobs:
       with:
         kubeconfig: ${{ secrets.KUBE_CONFIG }}
     # https://github.com/bazelbuild/rules_k8s/issues/640
-    - run: bazel run //k8s/mahalo:object.apply -- --prune
+    - name: Apply
+      run: |
+        bazel run \
+        --config=ci \
+        --remote_header=x-buildbuddy-api-key=${{ secrets.BUILDBUDDY_ORG_API_KEY }} \
+        //k8s/mahalo:object.apply -- --prune
   pillowtalk:
     name: Pillowtalk
     runs-on: ubuntu-latest
@@ -30,4 +35,9 @@ jobs:
       with:
         kubeconfig: ${{ secrets.KUBE_CONFIG }}
     # https://github.com/bazelbuild/rules_k8s/issues/640
-    - run: bazel run //k8s/pillowtalk:object.apply -- --prune
+    - name: Apply
+      run: |
+        bazel run \
+        --config=ci \
+        --remote_header=x-buildbuddy-api-key=${{ secrets.BUILDBUDDY_ORG_API_KEY }} \
+        //k8s/pillowtalk:object.apply -- --prune

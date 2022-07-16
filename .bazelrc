@@ -1,0 +1,7 @@
+build:ci --bes_backend=grpcs://remote.buildbuddy.io
+build:ci --bes_results_url=https://app.buildbuddy.io/invocation/
+build:ci --build_metadata=ROLE=CI
+build:ci --build_metadata=VISIBILITY=PUBLIC
+build:ci --remote_cache=grpcs://remote.buildbuddy.io
+build:ci --remote_download_toplevel # Helps remove network bottleneck if caching is enabled
+build:ci --remote_timeout=3600
