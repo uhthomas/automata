@@ -12,22 +12,53 @@ serviceAccountList: v1.#ServiceAccountList & {
 }
 
 serviceAccountList: items: [
-	{metadata: name: "rook-ceph-admission-controller"},
-	// The rook system service account used by the operator, agent, and discovery pods
 	{
+		metadata: {
+			name: "rook-ceph-cmd-reporter"
+			labels: {
+				operator:                    "rook"
+				"storage-backend":           "ceph"
+				"app.kubernetes.io/part-of": "rook-ceph-operator"
+			}
+		}
+	}, {
+		metadata: {
+			name: "rook-ceph-mgr"
+			labels: {
+				operator:                    "rook"
+				"storage-backend":           "ceph"
+				"app.kubernetes.io/part-of": "rook-ceph-operator"
+			}
+		}
+	}, {
+		metadata: {
+			name: "rook-ceph-osd"
+			labels: {
+				operator:                    "rook"
+				"storage-backend":           "ceph"
+				"app.kubernetes.io/part-of": "rook-ceph-operator"
+			}
+		}
+	},  {
+		metadata: {
+			name: "rook-ceph-rgw"
+			labels: {
+				operator:                    "rook"
+				"storage-backend":           "ceph"
+				"app.kubernetes.io/part-of": "rook-ceph-operator"
+			}
+		}
+	}, {
 		metadata: {
 			name: "rook-ceph-system"
 			labels: {
-				operator:          "rook"
-				"storage-backend": "ceph"
+				operator:                    "rook"
+				"storage-backend":           "ceph"
+				"app.kubernetes.io/part-of": "rook-ceph-operator"
 			}
 		}
 	},
-	// Service account for the Ceph OSDs. Must exist and cannot be renamed.
-	{metadata: name: "rook-ceph-osd"},
-	// Service account for the Ceph Mgr. Must exist and cannot be renamed.
-	{metadata: name: "rook-ceph-mgr"},
-	{metadata: name: "rook-ceph-cmd-reporter"},
+	{metadata: name: "rook-ceph-purge-osd"},
 	{metadata: name: "rook-csi-cephfs-plugin-sa"},
 	{metadata: name: "rook-csi-cephfs-provisioner-sa"},
 	{metadata: name: "rook-csi-rbd-plugin-sa"},

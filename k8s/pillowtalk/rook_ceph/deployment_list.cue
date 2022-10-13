@@ -15,44 +15,54 @@ deploymentList: appsv1.#DeploymentList & {
 }
 
 deploymentList: items: [{
-	// CSI_VOLUME_REPLICATION_IMAGE: "quay.io/csiaddons/volumereplication-operator:v0.1.0"
-	// (Optional) Admission controller NodeAffinity.
-	// ADMISSION_CONTROLLER_NODE_AFFINITY: "role=storage-node; storage=rook, ceph"
-	// (Optional) Admission controller tolerations list. Put here list of taints you want to tolerate in YAML format.
-	// Admission controller would be best to start on the same nodes as other ceph daemons.
-	// ADMISSION_CONTROLLER_TOLERATIONS: |
-	//   - effect: NoSchedule
-	//     key: node-role.kubernetes.io/controlplane
-	//     operator: Exists
-	//   - effect: NoExecute
-	//     key: node-role.kubernetes.io/etcd
-	//     operator: Exists
+	// Domain labels define which node labels to use as domains
+	// for CSI nodeplugins to advertise their domains
+	// NOTE: the value here serves as an example and needs to be
+	// updated with node labels that define domains of interest
+	// CSI_TOPOLOGY_DOMAIN_LABELS: "kubernetes.io/hostname,topology.kubernetes.io/zone,topology.rook.io/rack"
 	// OLM: BEGIN OPERATOR DEPLOYMENT
 	metadata: {
-		name: "rook-ceph-operator"
+		name:      "rook-ceph-operator"
 		labels: {
-			operator:          "rook"
-			"storage-backend": "ceph"
+			operator:                      "rook"
+			"storage-backend":             "ceph"
+			"app.kubernetes.io/name":      "rook-ceph"
+			"app.kubernetes.io/instance":  "rook-ceph"
+			"app.kubernetes.io/component": "rook-ceph-operator"
+			"app.kubernetes.io/part-of":   "rook-ceph-operator"
 		}
 	}
 	spec: {
 		selector: matchLabels: app: "rook-ceph-operator"
+		strategy: type: "Recreate"
 		replicas: 1
 		template: {
 			metadata: labels: app: "rook-ceph-operator"
 			spec: {
 				serviceAccountName: "rook-ceph-system"
 				containers: [{
-					name:            "rook-ceph-operator"
-					image:           "rook/ceph:v1.6.3@sha256:8c787d33968e685558f1830a7f6a81a4a43b96d4cb2dba65867f09363f3f2d73"
-					imagePullPolicy: v1.#PullIfNotPresent
+					name:  "rook-ceph-operator"
+					image: "rook/ceph:master"
 					args: ["ceph", "operator"]
+					securityContext: {
+						runAsNonRoot: true
+						runAsUser:    2016
+						runAsGroup:   2016
+					}
 					volumeMounts: [{
 						mountPath: "/var/lib/rook"
 						name:      "rook-config"
 					}, {
 						mountPath: "/etc/ceph"
 						name:      "default-config-dir"
+					}, {
+						mountPath: "/etc/webhook"
+						name:      "webhook-cert"
+					}]
+					ports: [{
+						containerPort: 9443
+						name:          "https-webhook"
+						protocol:      "TCP"
 					}]
 					env: [{
 						// If the operator should only watch for cluster CRDs in the same namespace, set this to "true".
@@ -60,47 +70,6 @@ deploymentList: items: [{
 						name:  "ROOK_CURRENT_NAMESPACE_ONLY"
 						value: "false"
 					}, {
-						// To disable RBAC, uncomment the following:
-						// - name: RBAC_ENABLED
-						//   value: "false"
-						// Rook Agent toleration. Will tolerate all taints with all keys.
-						// Choose between NoSchedule, PreferNoSchedule and NoExecute:
-						// - name: AGENT_TOLERATION
-						//   value: "NoSchedule"
-						// (Optional) Rook Agent toleration key. Set this to the key of the taint you want to tolerate
-						// - name: AGENT_TOLERATION_KEY
-						//   value: "<KeyOfTheTaintToTolerate>"
-						// (Optional) Rook Agent tolerations list. Put here list of taints you want to tolerate in YAML format.
-						// - name: AGENT_TOLERATIONS
-						//   value: |
-						//     - effect: NoSchedule
-						//       key: node-role.kubernetes.io/controlplane
-						//       operator: Exists
-						//     - effect: NoExecute
-						//       key: node-role.kubernetes.io/etcd
-						//       operator: Exists
-						// (Optional) Rook Agent priority class name to set on the pod(s)
-						// - name: AGENT_PRIORITY_CLASS_NAME
-						//   value: "<PriorityClassName>"
-						// (Optional) Rook Agent NodeAffinity.
-						// - name: AGENT_NODE_AFFINITY
-						//   value: "role=storage-node; storage=rook,ceph"
-						// (Optional) Rook Agent mount security mode. Can by `Any` or `Restricted`.
-						// `Any` uses Ceph admin credentials by default/fallback.
-						// For using `Restricted` you must have a Ceph secret in each namespace storage should be consumed from and
-						// set `mountUser` to the Ceph user, `mountSecret` to the Kubernetes secret name.
-						// to the namespace in which the `mountSecret` Kubernetes secret namespace.
-						// - name: AGENT_MOUNT_SECURITY_MODE
-						//   value: "Any"
-						// Set the path where the Rook agent can find the flex volumes
-						// - name: FLEXVOLUME_DIR_PATH
-						//   value: "<PathToFlexVolumes>"
-						// Set the path where kernel modules can be found
-						// - name: LIB_MODULES_DIR_PATH
-						//   value: "<PathToLibModules>"
-						// Mount any extra directories into the agent container
-						// - name: AGENT_MOUNTS
-						//   value: "somemount=/host/path:/container/path,someothermount=/host/path2:/container/path2"
 						// Rook Discover toleration. Will tolerate all taints with all keys.
 						// Choose between NoSchedule, PreferNoSchedule and NoExecute:
 						// - name: DISCOVER_TOLERATION
@@ -112,7 +81,7 @@ deploymentList: items: [{
 						// - name: DISCOVER_TOLERATIONS
 						//   value: |
 						//     - effect: NoSchedule
-						//       key: node-role.kubernetes.io/controlplane
+						//       key: node-role.kubernetes.io/control-plane
 						//       operator: Exists
 						//     - effect: NoExecute
 						//       key: node-role.kubernetes.io/etcd
@@ -126,10 +95,6 @@ deploymentList: items: [{
 						// (Optional) Discover Agent Pod Labels.
 						// - name: DISCOVER_AGENT_POD_LABELS
 						//   value: "key1=value1,key2=value2"
-						// The logging level for the operator: INFO | DEBUG
-						name:  "ROOK_LOG_LEVEL"
-						value: "INFO"
-					}, {
 						// The duration between discovering devices in the rook-discover daemonset.
 						name:  "ROOK_DISCOVER_DEVICES_INTERVAL"
 						value: "60m"
@@ -177,6 +142,9 @@ deploymentList: items: [{
 						name:  "ROOK_UNREACHABLE_NODE_TOLERATION_SECONDS"
 						value: "5"
 					}, {
+						name:  "ROOK_DISABLE_ADMISSION_CONTROLLER"
+						value: "false"
+					}, {
 						// The name of the node to pass with the downward API
 						name: "NODE_NAME"
 						valueFrom: fieldRef: fieldPath: "spec.nodeName"
@@ -190,7 +158,14 @@ deploymentList: items: [{
 						valueFrom: fieldRef: fieldPath: "metadata.namespace"
 					}]
 				}]
-
+				// Recommended resource requests and limits, if desired
+				//resources:
+				//  limits:
+				//    cpu: 500m
+				//    memory: 512Mi
+				//  requests:
+				//    cpu: 100m
+				//    memory: 128Mi
 				//  Uncomment it to run lib bucket provisioner in multithreaded mode
 				//- name: LIB_BUCKET_PROVISIONER_THREADS
 				//  value: "5"
@@ -201,6 +176,9 @@ deploymentList: items: [{
 					emptyDir: {}
 				}, {
 					name: "default-config-dir"
+					emptyDir: {}
+				}, {
+					name: "webhook-cert"
 					emptyDir: {}
 				}]
 			}

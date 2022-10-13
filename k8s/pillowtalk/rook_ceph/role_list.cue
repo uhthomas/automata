@@ -12,12 +12,196 @@ roleList: rbacv1.#RoleList & {
 }
 
 roleList: items: [{
-	// The role for the operator to manage resources in its own namespace
+	metadata: name: "cephfs-external-provisioner-cfg"
+	rules: [{
+		apiGroups: ["coordination.k8s.io"]
+		resources: ["leases"]
+		verbs: ["get", "watch", "list", "delete", "update", "create"]
+	}]
+}, {
+	metadata: name: "rbd-csi-nodeplugin"
+	rules: [{
+		apiGroups: ["csiaddons.openshift.io"]
+		resources: ["csiaddonsnodes"]
+		verbs: ["create"]
+	}]
+}, {
+	metadata: name: "rbd-external-provisioner-cfg"
+	rules: [{
+		apiGroups: ["coordination.k8s.io"]
+		resources: ["leases"]
+		verbs: ["get", "watch", "list", "delete", "update", "create"]
+	}, {
+		apiGroups: ["csiaddons.openshift.io"]
+		resources: ["csiaddonsnodes"]
+		verbs: ["create"]
+	}]
+}, {
+	metadata: name: "rook-ceph-cmd-reporter"
+	rules: [{
+		apiGroups: [
+			"",
+		]
+		resources: [
+			"pods",
+			"configmaps",
+		]
+		verbs: [
+			"get",
+			"list",
+			"watch",
+			"create",
+			"update",
+			"delete",
+		]
+	}]
+}, {
+	metadata: 		name: "rook-ceph-mgr"
+	rules: [{
+		apiGroups: [
+			"",
+		]
+		resources: [
+			"pods",
+			"services",
+			"pods/log",
+		]
+		verbs: [
+			"get",
+			"list",
+			"watch",
+			"create",
+			"update",
+			"delete",
+		]
+	}, {
+		apiGroups: [
+			"batch",
+		]
+		resources: [
+			"jobs",
+		]
+		verbs: [
+			"get",
+			"list",
+			"watch",
+			"create",
+			"update",
+			"delete",
+		]
+	}, {
+		apiGroups: [
+			"ceph.rook.io",
+		]
+		resources: [
+			"cephclients",
+			"cephclusters",
+			"cephblockpools",
+			"cephfilesystems",
+			"cephnfses",
+			"cephobjectstores",
+			"cephobjectstoreusers",
+			"cephobjectrealms",
+			"cephobjectzonegroups",
+			"cephobjectzones",
+			"cephbuckettopics",
+			"cephbucketnotifications",
+			"cephrbdmirrors",
+			"cephfilesystemmirrors",
+			"cephfilesystemsubvolumegroups",
+			"cephblockpoolradosnamespaces",
+		]
+		verbs: [
+			"get",
+			"list",
+			"watch",
+			"create",
+			"update",
+			"delete",
+		]
+	}, {
+		apiGroups: [
+			"apps",
+		]
+		resources: [
+			"deployments/scale",
+			"deployments",
+		]
+		verbs: [
+			"patch",
+			"delete",
+		]
+	}, {
+		apiGroups: [
+			"",
+		]
+		resources: [
+			"persistentvolumeclaims",
+		]
+		verbs: [
+			"delete",
+		]
+	}]
+}, {
+	metadata: name: "rook-ceph-osd"
+	rules: [{
+		// this is needed for rook's "key-management" CLI to fetch the vault token from the secret when
+		// validating the connection details
+		apiGroups: [""]
+		resources: ["secrets"]
+		verbs: ["get"]
+	}, {
+		apiGroups: [""]
+		resources: ["configmaps"]
+		verbs: ["get", "list", "watch", "create", "update", "delete"]
+	}, {
+		apiGroups: ["ceph.rook.io"]
+		resources: ["cephclusters", "cephclusters/finalizers"]
+		verbs: ["get", "list", "create", "update", "delete"]
+	}]
+}, {
+	// Aspects of ceph osd purge job that require access to the cluster namespace
+	metadata: name: "rook-ceph-purge-osd"
+	rules: [{
+		apiGroups: [""]
+		resources: ["configmaps"]
+		verbs: ["get"]
+	}, {
+		apiGroups: ["apps"]
+		resources: ["deployments"]
+		verbs: ["get", "delete"]
+	}, {
+		apiGroups: ["batch"]
+		resources: ["jobs"]
+		verbs: ["get", "list", "delete"]
+	}, {
+		apiGroups: [""]
+		resources: ["persistentvolumeclaims"]
+		verbs: ["get", "update", "delete", "list"]
+	}]
+}, {
+	metadata: name: "rook-ceph-rgw"
+	rules: [{
+		// Placeholder role so the rgw service account will
+		// be generated in the csv. Remove this role and role binding
+		// when fixing https://github.com/rook/rook/issues/10141.
+		apiGroups: [
+			"",
+		]
+		resources: [
+			"configmaps",
+		]
+		verbs: [
+			"get",
+		]
+	}]
+}, {
 	metadata: {
 		name: "rook-ceph-system"
 		labels: {
-			operator:          "rook"
-			"storage-backend": "ceph"
+			operator:                    "rook"
+			"storage-backend":           "ceph"
+			"app.kubernetes.io/part-of": "rook-ceph-operator"
 		}
 	}
 	rules: [{
@@ -66,141 +250,18 @@ roleList: items: [{
 		verbs: [
 			"delete",
 		]
-	}]
-}, {
-	metadata: name: "rook-ceph-osd"
-	rules: [{
-		apiGroups: [""]
-		resources: ["configmaps"]
-		verbs: ["get", "list", "watch", "create", "update", "delete"]
 	}, {
-		apiGroups: ["ceph.rook.io"]
-		resources: ["cephclusters", "cephclusters/finalizers"]
-		verbs: ["get", "list", "create", "update", "delete"]
-	}]
-}, {
-	// Aspects of ceph-mgr that operate within the cluster's namespace
-	metadata: name: "rook-ceph-mgr"
-	rules: [{
 		apiGroups: [
-			"",
+			"cert-manager.io",
 		]
 		resources: [
-			"pods",
-			"services",
-			"pods/log",
+			"certificates",
+			"issuers",
 		]
 		verbs: [
 			"get",
-			"list",
-			"watch",
 			"create",
-			"update",
 			"delete",
-		]
-	}, {
-		apiGroups: [
-			"batch",
-		]
-		resources: [
-			"jobs",
-		]
-		verbs: [
-			"get",
-			"list",
-			"watch",
-			"create",
-			"update",
-			"delete",
-		]
-	}, {
-		apiGroups: [
-			"ceph.rook.io",
-		]
-		resources: [
-			"*",
-		]
-		verbs: [
-			"*",
-		]
-	}]
-}, {
-	metadata: name: "rook-ceph-cmd-reporter"
-	rules: [{
-		apiGroups: [
-			"",
-		]
-		resources: [
-			"pods",
-			"configmaps",
-		]
-		verbs: [
-			"get",
-			"list",
-			"watch",
-			"create",
-			"update",
-			"delete",
-		]
-	}]
-}, {
-	metadata: name: "cephfs-external-provisioner-cfg"
-	rules: [{
-		apiGroups: [""]
-		resources: ["endpoints"]
-		verbs: ["get", "watch", "list", "delete", "update", "create"]
-	}, {
-		apiGroups: [""]
-		resources: ["configmaps"]
-		verbs: ["get", "list", "create", "delete"]
-	}, {
-		apiGroups: ["coordination.k8s.io"]
-		resources: ["leases"]
-		verbs: ["get", "watch", "list", "delete", "update", "create"]
-	}]
-}, {
-	metadata: name: "rbd-external-provisioner-cfg"
-	rules: [{
-		apiGroups: [""]
-		resources: ["endpoints"]
-		verbs: ["get", "watch", "list", "delete", "update", "create"]
-	}, {
-		apiGroups: [""]
-		resources: ["configmaps"]
-		verbs: ["get", "list", "watch", "create", "delete", "update"]
-	}, {
-		apiGroups: ["coordination.k8s.io"]
-		resources: ["leases"]
-		verbs: ["get", "watch", "list", "delete", "update", "create"]
-	}]
-}, {
-	metadata: name: "rook-ceph-monitor"
-	rules: [{
-		apiGroups: [
-			"monitoring.coreos.com",
-		]
-		resources: [
-			"*",
-		]
-		verbs: [
-			"*",
-		]
-	}]
-}, {
-	metadata: name: "rook-ceph-metrics"
-	rules: [{
-		apiGroups: [
-			"",
-		]
-		resources: [
-			"services",
-			"endpoints",
-			"pods",
-		]
-		verbs: [
-			"get",
-			"list",
-			"watch",
 		]
 	}]
 }]

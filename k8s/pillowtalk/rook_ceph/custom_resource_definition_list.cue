@@ -13,7 +13,82 @@ customResourceDefinitionList: apiextensionsv1.#CustomResourceDefinitionList & {
 
 customResourceDefinitionList: items: [{
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.5.1-0.20210420220833-f284e2e8098c"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.6.2"
+		name: "cephblockpoolradosnamespaces.ceph.rook.io"
+	}
+	spec: {
+		group: "ceph.rook.io"
+		names: {
+			kind:     "CephBlockPoolRadosNamespace"
+			listKind: "CephBlockPoolRadosNamespaceList"
+			plural:   "cephblockpoolradosnamespaces"
+			singular: "cephblockpoolradosnamespace"
+		}
+		scope: "Namespaced"
+		versions: [{
+			name: "v1"
+			schema: openAPIV3Schema: {
+				description: "CephBlockPoolRadosNamespace represents a Ceph BlockPool Rados Namespace"
+				properties: {
+					apiVersion: {
+						description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources"
+						type:        "string"
+					}
+					kind: {
+						description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"
+						type:        "string"
+					}
+					metadata: type: "object"
+					spec: {
+						description: "Spec represents the specification of a Ceph BlockPool Rados Namespace"
+						properties: blockPoolName: {
+							description: "BlockPoolName is the name of Ceph BlockPool. Typically it's the name of the CephBlockPool CR."
+							type:        "string"
+						}
+						required: [
+							"blockPoolName",
+						]
+						type: "object"
+					}
+					status: {
+						description: "Status represents the status of a CephBlockPool Rados Namespace"
+						properties: {
+							info: {
+								additionalProperties: type: "string"
+								nullable: true
+								type:     "object"
+							}
+							phase: {
+								description: "ConditionType represent a resource's status"
+								type:        "string"
+							}
+						}
+						type:                                   "object"
+						"x-kubernetes-preserve-unknown-fields": true
+					}
+				}
+				required: [
+					"metadata",
+					"spec",
+				]
+				type: "object"
+			}
+			served:  true
+			storage: true
+			subresources: status: {}
+		}]
+	}
+	status: {
+		acceptedNames: {
+			kind:   ""
+			plural: ""
+		}
+		conditions: []
+		storedVersions: []
+	}
+}, {
+	metadata: {
+		annotations: "controller-gen.kubebuilder.io/version": "v0.6.2"
 		name: "cephblockpools.ceph.rook.io"
 	}
 	spec: {
@@ -26,6 +101,11 @@ customResourceDefinitionList: items: [{
 		}
 		scope: "Namespaced"
 		versions: [{
+			additionalPrinterColumns: [{
+				jsonPath: ".status.phase"
+				name:     "Phase"
+				type:     "string"
+			}]
 			name: "v1"
 			schema: openAPIV3Schema: {
 				description: "CephBlockPool represents a Ceph Storage Pool"
@@ -40,11 +120,10 @@ customResourceDefinitionList: items: [{
 					}
 					metadata: type: "object"
 					spec: {
-						description: "PoolSpec represents the spec of ceph pool"
+						description: "NamedBlockPoolSpec allows a block pool to be created with a non-default name. This is more specific than the NamedPoolSpec so we get schema validation on the allowed pool names that can be specified."
 						properties: {
 							compressionMode: {
-								default:     "none"
-								description: "The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)"
+								description: "DEPRECATED: use Parameters instead, e.g., Parameters[\"compression_mode\"] = \"force\" The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force) Do NOT set a default value for kubebuilder as this will override the Parameters"
 								enum: [
 									"none",
 									"passive",
@@ -77,14 +156,12 @@ customResourceDefinitionList: items: [{
 										type:        "string"
 									}
 									codingChunks: {
-										description: "Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type)"
-										maximum:     9
+										description: "Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type). This is the number of OSDs that can be lost simultaneously before data cannot be recovered."
 										minimum:     0
 										type:        "integer"
 									}
 									dataChunks: {
-										description: "Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type)"
-										maximum:     9
+										description: "Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type). The number of chunks required to recover an object when any single OSD is lost is the same as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery."
 										minimum:     0
 										type:        "integer"
 									}
@@ -110,6 +187,16 @@ customResourceDefinitionList: items: [{
 										description: "Mode is the mirroring mode: either pool or image"
 										type:        "string"
 									}
+									peers: {
+										description: "Peers represents the peers spec"
+										nullable:    true
+										properties: secretNames: {
+											description: "SecretNames represents the Kubernetes Secret names to add rbd-mirror or cephfs-mirror peers"
+											items: type: "string"
+											type: "array"
+										}
+										type: "object"
+									}
 									snapshotSchedules: {
 										description: "SnapshotSchedules is the scheduling of snapshot for mirrored images/pools"
 										items: {
@@ -117,6 +204,10 @@ customResourceDefinitionList: items: [{
 											properties: {
 												interval: {
 													description: "Interval represent the periodicity of the snapshot."
+													type:        "string"
+												}
+												path: {
+													description: "Path is the path to snapshot, only valid for CephFS"
 													type:        "string"
 												}
 												startTime: {
@@ -130,6 +221,15 @@ customResourceDefinitionList: items: [{
 									}
 								}
 								type: "object"
+							}
+							name: {
+								description: "The desired name of the pool if different from the CephBlockPool CR name."
+								enum: [
+									"device_health_metrics",
+									".nfs",
+									".mgr",
+								]
+								type: "string"
 							}
 							parameters: {
 								additionalProperties: type: "string"
@@ -163,6 +263,27 @@ customResourceDefinitionList: items: [{
 							replicated: {
 								description: "The replication settings"
 								properties: {
+									hybridStorage: {
+										description: "HybridStorage represents hybrid storage tier settings"
+										nullable:    true
+										properties: {
+											primaryDeviceClass: {
+												description: "PrimaryDeviceClass represents high performance tier (for example SSD or NVME) for Primary OSD"
+												minLength:   1
+												type:        "string"
+											}
+											secondaryDeviceClass: {
+												description: "SecondaryDeviceClass represents low performance tier (for example HDDs) for remaining OSDs"
+												minLength:   1
+												type:        "string"
+											}
+										}
+										required: [
+											"primaryDeviceClass",
+											"secondaryDeviceClass",
+										]
+										type: "object"
+									}
 									replicasPerFailureDomain: {
 										description: "ReplicasPerFailureDomain the number of replica in the specified failure domain"
 										minimum:     1
@@ -215,11 +336,37 @@ customResourceDefinitionList: items: [{
 					status: {
 						description: "CephBlockPoolStatus represents the mirroring status of Ceph Storage Pool"
 						properties: {
+							conditions: {
+								items: {
+									description: "Condition represents a status condition on any Rook-Ceph Custom Resource."
+									properties: {
+										lastHeartbeatTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										lastTransitionTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										message: type: "string"
+										reason: {
+											description: "ConditionReason is a reason for a condition"
+											type:        "string"
+										}
+										status: type: "string"
+										type: {
+											description: "ConditionType represent a resource's status"
+											type:        "string"
+										}
+									}
+									type: "object"
+								}
+								type: "array"
+							}
 							info: {
 								additionalProperties: type: "string"
-								description: "Use only info and put mirroringStatus in it?"
-								nullable:    true
-								type:        "object"
+								nullable: true
+								type:     "object"
 							}
 							mirroringInfo: {
 								description: "MirroringInfoSpec is the status of the pool mirroring"
@@ -339,6 +486,11 @@ customResourceDefinitionList: items: [{
 								}
 								type: "object"
 							}
+							observedGeneration: {
+								description: "ObservedGeneration is the latest generation observed by the controller."
+								format:      "int64"
+								type:        "integer"
+							}
 							phase: {
 								description: "ConditionType represent a resource's status"
 								type:        "string"
@@ -418,13 +570,409 @@ customResourceDefinitionList: items: [{
 			subresources: status: {}
 		}]
 	}
-	status: acceptedNames: {
-		kind:   ""
-		plural: ""
+	status: {
+		acceptedNames: {
+			kind:   ""
+			plural: ""
+		}
+		conditions: []
+		storedVersions: []
 	}
 }, {
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.5.1-0.20210420220833-f284e2e8098c"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.6.2"
+		name: "cephbucketnotifications.ceph.rook.io"
+	}
+	spec: {
+		group: "ceph.rook.io"
+		names: {
+			kind:     "CephBucketNotification"
+			listKind: "CephBucketNotificationList"
+			plural:   "cephbucketnotifications"
+			singular: "cephbucketnotification"
+		}
+		scope: "Namespaced"
+		versions: [{
+			name: "v1"
+			schema: openAPIV3Schema: {
+				description: "CephBucketNotification represents a Bucket Notifications"
+				properties: {
+					apiVersion: {
+						description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources"
+						type:        "string"
+					}
+					kind: {
+						description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"
+						type:        "string"
+					}
+					metadata: type: "object"
+					spec: {
+						description: "BucketNotificationSpec represent the spec of a Bucket Notification"
+						properties: {
+							events: {
+								description: "List of events that should trigger the notification"
+								items: {
+									description: "BucketNotificationSpec represent the event type of the bucket notification"
+									enum: [
+										"s3:ObjectCreated:*",
+										"s3:ObjectCreated:Put",
+										"s3:ObjectCreated:Post",
+										"s3:ObjectCreated:Copy",
+										"s3:ObjectCreated:CompleteMultipartUpload",
+										"s3:ObjectRemoved:*",
+										"s3:ObjectRemoved:Delete",
+										"s3:ObjectRemoved:DeleteMarkerCreated",
+									]
+									type: "string"
+								}
+								type: "array"
+							}
+							filter: {
+								description: "Spec of notification filter"
+								properties: {
+									keyFilters: {
+										description: "Filters based on the object's key"
+										items: {
+											description: "NotificationKeyFilterRule represent a single key rule in the Notification Filter spec"
+											properties: {
+												name: {
+													description: "Name of the filter - prefix/suffix/regex"
+													enum: [
+														"prefix",
+														"suffix",
+														"regex",
+													]
+													type: "string"
+												}
+												value: {
+													description: "Value to filter on"
+													type:        "string"
+												}
+											}
+											required: [
+												"name",
+												"value",
+											]
+											type: "object"
+										}
+										type: "array"
+									}
+									metadataFilters: {
+										description: "Filters based on the object's metadata"
+										items: {
+											description: "NotificationFilterRule represent a single rule in the Notification Filter spec"
+											properties: {
+												name: {
+													description: "Name of the metadata or tag"
+													minLength:   1
+													type:        "string"
+												}
+												value: {
+													description: "Value to filter on"
+													type:        "string"
+												}
+											}
+											required: [
+												"name",
+												"value",
+											]
+											type: "object"
+										}
+										type: "array"
+									}
+									tagFilters: {
+										description: "Filters based on the object's tags"
+										items: {
+											description: "NotificationFilterRule represent a single rule in the Notification Filter spec"
+											properties: {
+												name: {
+													description: "Name of the metadata or tag"
+													minLength:   1
+													type:        "string"
+												}
+												value: {
+													description: "Value to filter on"
+													type:        "string"
+												}
+											}
+											required: [
+												"name",
+												"value",
+											]
+											type: "object"
+										}
+										type: "array"
+									}
+								}
+								type: "object"
+							}
+							topic: {
+								description: "The name of the topic associated with this notification"
+								minLength:   1
+								type:        "string"
+							}
+						}
+						required: [
+							"topic",
+						]
+						type: "object"
+					}
+					status: {
+						description: "Status represents the status of an object"
+						properties: {
+							conditions: {
+								items: {
+									description: "Condition represents a status condition on any Rook-Ceph Custom Resource."
+									properties: {
+										lastHeartbeatTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										lastTransitionTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										message: type: "string"
+										reason: {
+											description: "ConditionReason is a reason for a condition"
+											type:        "string"
+										}
+										status: type: "string"
+										type: {
+											description: "ConditionType represent a resource's status"
+											type:        "string"
+										}
+									}
+									type: "object"
+								}
+								type: "array"
+							}
+							observedGeneration: {
+								description: "ObservedGeneration is the latest generation observed by the controller."
+								format:      "int64"
+								type:        "integer"
+							}
+							phase: type: "string"
+						}
+						type:                                   "object"
+						"x-kubernetes-preserve-unknown-fields": true
+					}
+				}
+				required: [
+					"metadata",
+					"spec",
+				]
+				type: "object"
+			}
+			served:  true
+			storage: true
+			subresources: status: {}
+		}]
+	}
+	status: {
+		acceptedNames: {
+			kind:   ""
+			plural: ""
+		}
+		conditions: []
+		storedVersions: []
+	}
+}, {
+	metadata: {
+		annotations: "controller-gen.kubebuilder.io/version": "v0.6.2"
+		name: "cephbuckettopics.ceph.rook.io"
+	}
+	spec: {
+		group: "ceph.rook.io"
+		names: {
+			kind:     "CephBucketTopic"
+			listKind: "CephBucketTopicList"
+			plural:   "cephbuckettopics"
+			singular: "cephbuckettopic"
+		}
+		scope: "Namespaced"
+		versions: [{
+			additionalPrinterColumns: [{
+				jsonPath: ".status.phase"
+				name:     "Phase"
+				type:     "string"
+			}]
+			name: "v1"
+			schema: openAPIV3Schema: {
+				description: "CephBucketTopic represents a Ceph Object Topic for Bucket Notifications"
+				properties: {
+					apiVersion: {
+						description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources"
+						type:        "string"
+					}
+					kind: {
+						description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"
+						type:        "string"
+					}
+					metadata: type: "object"
+					spec: {
+						description: "BucketTopicSpec represent the spec of a Bucket Topic"
+						properties: {
+							endpoint: {
+								description: "Contains the endpoint spec of the topic"
+								properties: {
+									amqp: {
+										description: "Spec of AMQP endpoint"
+										properties: {
+											ackLevel: {
+												default:     "broker"
+												description: "The ack level required for this topic (none/broker/routeable)"
+												enum: [
+													"none",
+													"broker",
+													"routeable",
+												]
+												type: "string"
+											}
+											disableVerifySSL: {
+												description: "Indicate whether the server certificate is validated by the client or not"
+												type:        "boolean"
+											}
+											exchange: {
+												description: "Name of the exchange that is used to route messages based on topics"
+												minLength:   1
+												type:        "string"
+											}
+											uri: {
+												description: "The URI of the AMQP endpoint to push notification to"
+												minLength:   1
+												type:        "string"
+											}
+										}
+										required: [
+											"exchange",
+											"uri",
+										]
+										type: "object"
+									}
+									http: {
+										description: "Spec of HTTP endpoint"
+										properties: {
+											disableVerifySSL: {
+												description: "Indicate whether the server certificate is validated by the client or not"
+												type:        "boolean"
+											}
+											sendCloudEvents: {
+												description: "Send the notifications with the CloudEvents header: https://github.com/cloudevents/spec/blob/main/cloudevents/adapters/aws-s3.md Supported for Ceph Quincy (v17) or newer."
+												type:        "boolean"
+											}
+											uri: {
+												description: "The URI of the HTTP endpoint to push notification to"
+												minLength:   1
+												type:        "string"
+											}
+										}
+										required: [
+											"uri",
+										]
+										type: "object"
+									}
+									kafka: {
+										description: "Spec of Kafka endpoint"
+										properties: {
+											ackLevel: {
+												default:     "broker"
+												description: "The ack level required for this topic (none/broker)"
+												enum: [
+													"none",
+													"broker",
+												]
+												type: "string"
+											}
+											disableVerifySSL: {
+												description: "Indicate whether the server certificate is validated by the client or not"
+												type:        "boolean"
+											}
+											uri: {
+												description: "The URI of the Kafka endpoint to push notification to"
+												minLength:   1
+												type:        "string"
+											}
+											useSSL: {
+												description: "Indicate whether to use SSL when communicating with the broker"
+												type:        "boolean"
+											}
+										}
+										required: [
+											"uri",
+										]
+										type: "object"
+									}
+								}
+								type: "object"
+							}
+							objectStoreName: {
+								description: "The name of the object store on which to define the topic"
+								minLength:   1
+								type:        "string"
+							}
+							objectStoreNamespace: {
+								description: "The namespace of the object store on which to define the topic"
+								minLength:   1
+								type:        "string"
+							}
+							opaqueData: {
+								description: "Data which is sent in each event"
+								type:        "string"
+							}
+							persistent: {
+								description: "Indication whether notifications to this endpoint are persistent or not"
+								type:        "boolean"
+							}
+						}
+						required: [
+							"endpoint",
+							"objectStoreName",
+							"objectStoreNamespace",
+						]
+						type: "object"
+					}
+					status: {
+						description: "BucketTopicStatus represents the Status of a CephBucketTopic"
+						properties: {
+							ARN: {
+								description: "The ARN of the topic generated by the RGW"
+								nullable:    true
+								type:        "string"
+							}
+							observedGeneration: {
+								description: "ObservedGeneration is the latest generation observed by the controller."
+								format:      "int64"
+								type:        "integer"
+							}
+							phase: type: "string"
+						}
+						type:                                   "object"
+						"x-kubernetes-preserve-unknown-fields": true
+					}
+				}
+				required: [
+					"metadata",
+					"spec",
+				]
+				type: "object"
+			}
+			served:  true
+			storage: true
+			subresources: status: {}
+		}]
+	}
+	status: {
+		acceptedNames: {
+			kind:   ""
+			plural: ""
+		}
+		conditions: []
+		storedVersions: []
+	}
+}, {
+	metadata: {
+		annotations: "controller-gen.kubebuilder.io/version": "v0.6.2"
 		name: "cephclients.ceph.rook.io"
 	}
 	spec: {
@@ -437,6 +985,11 @@ customResourceDefinitionList: items: [{
 		}
 		scope: "Namespaced"
 		versions: [{
+			additionalPrinterColumns: [{
+				jsonPath: ".status.phase"
+				name:     "Phase"
+				type:     "string"
+			}]
 			name: "v1"
 			schema: openAPIV3Schema: {
 				description: "CephClient represents a Ceph Client"
@@ -473,6 +1026,11 @@ customResourceDefinitionList: items: [{
 								nullable: true
 								type:     "object"
 							}
+							observedGeneration: {
+								description: "ObservedGeneration is the latest generation observed by the controller."
+								format:      "int64"
+								type:        "integer"
+							}
 							phase: {
 								description: "ConditionType represent a resource's status"
 								type:        "string"
@@ -493,13 +1051,17 @@ customResourceDefinitionList: items: [{
 			subresources: status: {}
 		}]
 	}
-	status: acceptedNames: {
-		kind:   ""
-		plural: ""
+	status: {
+		acceptedNames: {
+			kind:   ""
+			plural: ""
+		}
+		conditions: []
+		storedVersions: []
 	}
 }, {
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.5.1-0.20210420220833-f284e2e8098c"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.6.2"
 		name: "cephclusters.ceph.rook.io"
 	}
 	spec: {
@@ -527,10 +1089,9 @@ customResourceDefinitionList: items: [{
 				name:     "Age"
 				type:     "date"
 			}, {
-				description: "Phase"
-				jsonPath:    ".status.phase"
-				name:        "Phase"
-				type:        "string"
+				jsonPath: ".status.phase"
+				name:     "Phase"
+				type:     "string"
 			}, {
 				description: "Message"
 				jsonPath:    ".status.message"
@@ -582,13 +1143,20 @@ customResourceDefinitionList: items: [{
 										type:        "boolean"
 									}
 									image: {
-										description: "Image is the container image used to launch the ceph daemons, such as ceph/ceph:v15.2.11"
+										description: "Image is the container image used to launch the ceph daemons, such as quay.io/ceph/ceph:<tag> The full list of images can be found at https://quay.io/repository/ceph/ceph?tab=tags"
 										type:        "string"
 									}
+									imagePullPolicy: {
+										description: "ImagePullPolicy describes a policy for if/when to pull a container image One of Always, Never, IfNotPresent."
+										enum: [
+											"IfNotPresent",
+											"Always",
+											"Never",
+											"",
+										]
+										type: "string"
+									}
 								}
-								required: [
-									"image",
-								]
 								type: "object"
 							}
 							cleanupPolicy: {
@@ -786,7 +1354,7 @@ customResourceDefinitionList: items: [{
 													description: "Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic."
 													properties: {
 														exec: {
-															description: "One and only one of the following should be specified. Exec specifies the action to take."
+															description: "Exec specifies the action to take."
 															properties: command: {
 																description: "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."
 																items: type: "string"
@@ -798,6 +1366,27 @@ customResourceDefinitionList: items: [{
 															description: "Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1."
 															format:      "int32"
 															type:        "integer"
+														}
+														grpc: {
+															description: "GRPC specifies an action involving a GRPC port. This is a beta field and requires enabling GRPCContainerProbe feature gate."
+															properties: {
+																port: {
+																	description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
+																	format:      "int32"
+																	type:        "integer"
+																}
+																service: {
+																	description: """
+		Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+		 If this is not specified, the default behavior is defined by gRPC.
+		"""
+																	type: "string"
+																}
+															}
+															required: [
+																"port",
+															]
+															type: "object"
 														}
 														httpGet: {
 															description: "HTTPGet specifies the http request to perform."
@@ -867,7 +1456,7 @@ customResourceDefinitionList: items: [{
 															type:        "integer"
 														}
 														tcpSocket: {
-															description: "TCPSocket specifies an action involving a TCP port. TCP hooks not yet supported TODO: implement a realistic TCP lifecycle hook"
+															description: "TCPSocket specifies an action involving a TCP port."
 															properties: {
 																host: {
 																	description: "Optional: Host name to connect to, defaults to the pod IP."
@@ -888,6 +1477,11 @@ customResourceDefinitionList: items: [{
 															]
 															type: "object"
 														}
+														terminationGracePeriodSeconds: {
+															description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset."
+															format:      "int64"
+															type:        "integer"
+														}
 														timeoutSeconds: {
 															description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
 															format:      "int32"
@@ -899,7 +1493,161 @@ customResourceDefinitionList: items: [{
 											}
 											type: "object"
 										}
-										description: "LivenessProbe allows to change the livenessprobe configuration for a given daemon"
+										description: "LivenessProbe allows changing the livenessProbe configuration for a given daemon"
+										type:        "object"
+									}
+									startupProbe: {
+										additionalProperties: {
+											description: "ProbeSpec is a wrapper around Probe so it can be enabled or disabled for a Ceph daemon"
+											properties: {
+												disabled: {
+													description: "Disabled determines whether probe is disable or not"
+													type:        "boolean"
+												}
+												probe: {
+													description: "Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic."
+													properties: {
+														exec: {
+															description: "Exec specifies the action to take."
+															properties: command: {
+																description: "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."
+																items: type: "string"
+																type: "array"
+															}
+															type: "object"
+														}
+														failureThreshold: {
+															description: "Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1."
+															format:      "int32"
+															type:        "integer"
+														}
+														grpc: {
+															description: "GRPC specifies an action involving a GRPC port. This is a beta field and requires enabling GRPCContainerProbe feature gate."
+															properties: {
+																port: {
+																	description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
+																	format:      "int32"
+																	type:        "integer"
+																}
+																service: {
+																	description: """
+		Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+		 If this is not specified, the default behavior is defined by gRPC.
+		"""
+																	type: "string"
+																}
+															}
+															required: [
+																"port",
+															]
+															type: "object"
+														}
+														httpGet: {
+															description: "HTTPGet specifies the http request to perform."
+															properties: {
+																host: {
+																	description: "Host name to connect to, defaults to the pod IP. You probably want to set \"Host\" in httpHeaders instead."
+																	type:        "string"
+																}
+																httpHeaders: {
+																	description: "Custom headers to set in the request. HTTP allows repeated headers."
+																	items: {
+																		description: "HTTPHeader describes a custom header to be used in HTTP probes"
+																		properties: {
+																			name: {
+																				description: "The header field name"
+																				type:        "string"
+																			}
+																			value: {
+																				description: "The header field value"
+																				type:        "string"
+																			}
+																		}
+																		required: [
+																			"name",
+																			"value",
+																		]
+																		type: "object"
+																	}
+																	type: "array"
+																}
+																path: {
+																	description: "Path to access on the HTTP server."
+																	type:        "string"
+																}
+																port: {
+																	anyOf: [{
+																		type: "integer"
+																	}, {
+																		type: "string"
+																	}]
+																	description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
+																	"x-kubernetes-int-or-string": true
+																}
+																scheme: {
+																	description: "Scheme to use for connecting to the host. Defaults to HTTP."
+																	type:        "string"
+																}
+															}
+															required: [
+																"port",
+															]
+															type: "object"
+														}
+														initialDelaySeconds: {
+															description: "Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
+															format:      "int32"
+															type:        "integer"
+														}
+														periodSeconds: {
+															description: "How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1."
+															format:      "int32"
+															type:        "integer"
+														}
+														successThreshold: {
+															description: "Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1."
+															format:      "int32"
+															type:        "integer"
+														}
+														tcpSocket: {
+															description: "TCPSocket specifies an action involving a TCP port."
+															properties: {
+																host: {
+																	description: "Optional: Host name to connect to, defaults to the pod IP."
+																	type:        "string"
+																}
+																port: {
+																	anyOf: [{
+																		type: "integer"
+																	}, {
+																		type: "string"
+																	}]
+																	description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
+																	"x-kubernetes-int-or-string": true
+																}
+															}
+															required: [
+																"port",
+															]
+															type: "object"
+														}
+														terminationGracePeriodSeconds: {
+															description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset."
+															format:      "int64"
+															type:        "integer"
+														}
+														timeoutSeconds: {
+															description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
+															format:      "int32"
+															type:        "integer"
+														}
+													}
+													type: "object"
+												}
+											}
+											type: "object"
+										}
+										description: "StartupProbe allows changing the startupProbe configuration for a given daemon"
 										type:        "object"
 									}
 								}
@@ -924,8 +1672,19 @@ customResourceDefinitionList: items: [{
 										description: "Enabled represents whether the log collector is enabled"
 										type:        "boolean"
 									}
+									maxLogSize: {
+										anyOf: [{
+											type: "integer"
+										}, {
+											type: "string"
+										}]
+										description:                  "MaxLogSize is the maximum size of the log per ceph daemons. Must be at least 1M."
+										pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+										"x-kubernetes-int-or-string": true
+									}
 									periodicity: {
-										description: "Periodicity is the periodicity of the log rotation"
+										description: "Periodicity is the periodicity of the log rotation."
+										pattern:     "^$|^(hourly|daily|weekly|monthly|1h|24h|1d)$"
 										type:        "string"
 									}
 								}
@@ -977,6 +1736,7 @@ customResourceDefinitionList: items: [{
 									}
 									count: {
 										description: "Count is the number of Ceph monitors"
+										maximum:     9
 										minimum:     0
 										type:        "integer"
 									}
@@ -1036,15 +1796,37 @@ customResourceDefinitionList: items: [{
 																	type: "object"
 																}
 																spec: {
-																	description: "Spec defines the desired characteristics of a volume requested by a pod author. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
+																	description: "spec defines the desired characteristics of a volume requested by a pod author. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
 																	properties: {
 																		accessModes: {
-																			description: "AccessModes contains the desired access modes the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
+																			description: "accessModes contains the desired access modes the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
 																			items: type: "string"
 																			type: "array"
 																		}
 																		dataSource: {
-																			description: "This field can be used to specify either: * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot) * An existing PVC (PersistentVolumeClaim) * An existing custom resource that implements data population (Alpha) In order to use custom resource types that implement data population, the AnyVolumeDataSource feature gate must be enabled. If the provisioner or an external controller can support the specified data source, it will create a new volume based on the contents of the specified data source."
+																			description: "dataSource field can be used to specify either: * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot) * An existing PVC (PersistentVolumeClaim) If the provisioner or an external controller can support the specified data source, it will create a new volume based on the contents of the specified data source. If the AnyVolumeDataSource feature gate is enabled, this field will always have the same contents as the DataSourceRef field."
+																			properties: {
+																				apiGroup: {
+																					description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
+																					type:        "string"
+																				}
+																				kind: {
+																					description: "Kind is the type of resource being referenced"
+																					type:        "string"
+																				}
+																				name: {
+																					description: "Name is the name of resource being referenced"
+																					type:        "string"
+																				}
+																			}
+																			required: [
+																				"kind",
+																				"name",
+																			]
+																			type: "object"
+																		}
+																		dataSourceRef: {
+																			description: "dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volume is desired. This may be any local object from a non-empty API group (non core object) or a PersistentVolumeClaim object. When this field is specified, volume binding will only succeed if the type of the specified object matches some installed volume populator or dynamic provisioner. This field will replace the functionality of the DataSource field and as such if both fields are non-empty, they must have the same value. For backwards compatibility, both fields (DataSource and DataSourceRef) will be set to the same value automatically if one of them is empty and the other is non-empty. There are two important differences between DataSource and DataSourceRef: * While DataSource only allows two specific types of objects, DataSourceRef   allows any non-core object, as well as PersistentVolumeClaim objects. * While DataSource ignores disallowed values (dropping them), DataSourceRef   preserves all values, and generates an error if a disallowed value is   specified. (Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled."
 																			properties: {
 																				apiGroup: {
 																					description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
@@ -1066,7 +1848,7 @@ customResourceDefinitionList: items: [{
 																			type: "object"
 																		}
 																		resources: {
-																			description: "Resources represents the minimum resources the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources"
+																			description: "resources represents the minimum resources the volume should have. If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements that are lower than previous value but must still be higher than capacity recorded in the status field of the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources"
 																			properties: {
 																				limits: {
 																					additionalProperties: {
@@ -1078,7 +1860,7 @@ customResourceDefinitionList: items: [{
 																						pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																						"x-kubernetes-int-or-string": true
 																					}
-																					description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+																					description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 																					type:        "object"
 																				}
 																				requests: {
@@ -1091,14 +1873,14 @@ customResourceDefinitionList: items: [{
 																						pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																						"x-kubernetes-int-or-string": true
 																					}
-																					description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+																					description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 																					type:        "object"
 																				}
 																			}
 																			type: "object"
 																		}
 																		selector: {
-																			description: "A label query over volumes to consider for binding."
+																			description: "selector is a label query over volumes to consider for binding."
 																			properties: {
 																				matchExpressions: {
 																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
@@ -1136,7 +1918,7 @@ customResourceDefinitionList: items: [{
 																			type: "object"
 																		}
 																		storageClassName: {
-																			description: "Name of the StorageClass required by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1"
+																			description: "storageClassName is the name of the StorageClass required by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1"
 																			type:        "string"
 																		}
 																		volumeMode: {
@@ -1144,19 +1926,32 @@ customResourceDefinitionList: items: [{
 																			type:        "string"
 																		}
 																		volumeName: {
-																			description: "VolumeName is the binding reference to the PersistentVolume backing this claim."
+																			description: "volumeName is the binding reference to the PersistentVolume backing this claim."
 																			type:        "string"
 																		}
 																	}
 																	type: "object"
 																}
 																status: {
-																	description: "Status represents the current information/status of a persistent volume claim. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
+																	description: "status represents the current information/status of a persistent volume claim. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
 																	properties: {
 																		accessModes: {
-																			description: "AccessModes contains the actual access modes the volume backing the PVC has. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
+																			description: "accessModes contains the actual access modes the volume backing the PVC has. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
 																			items: type: "string"
 																			type: "array"
+																		}
+																		allocatedResources: {
+																			additionalProperties: {
+																				anyOf: [{
+																					type: "integer"
+																				}, {
+																					type: "string"
+																				}]
+																				pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																				"x-kubernetes-int-or-string": true
+																			}
+																			description: "allocatedResources is the storage resource within AllocatedResources tracks the capacity allocated to a PVC. It may be larger than the actual capacity when a volume expansion operation is requested. For storage quota, the larger value from allocatedResources and PVC.spec.resources is used. If allocatedResources is not set, PVC.spec.resources alone is used for quota calculation. If a volume expansion capacity request is lowered, allocatedResources is only lowered if there are no expansion operations in progress and if the actual volume capacity is equal or lower than the requested capacity. This is an alpha field and requires enabling RecoverVolumeExpansionFailure feature."
+																			type:        "object"
 																		}
 																		capacity: {
 																			additionalProperties: {
@@ -1168,30 +1963,30 @@ customResourceDefinitionList: items: [{
 																				pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																				"x-kubernetes-int-or-string": true
 																			}
-																			description: "Represents the actual resources of the underlying volume."
+																			description: "capacity represents the actual resources of the underlying volume."
 																			type:        "object"
 																		}
 																		conditions: {
-																			description: "Current Condition of persistent volume claim. If underlying persistent volume is being resized then the Condition will be set to 'ResizeStarted'."
+																			description: "conditions is the current Condition of persistent volume claim. If underlying persistent volume is being resized then the Condition will be set to 'ResizeStarted'."
 																			items: {
 																				description: "PersistentVolumeClaimCondition contails details about state of pvc"
 																				properties: {
 																					lastProbeTime: {
-																						description: "Last time we probed the condition."
+																						description: "lastProbeTime is the time we probed the condition."
 																						format:      "date-time"
 																						type:        "string"
 																					}
 																					lastTransitionTime: {
-																						description: "Last time the condition transitioned from one status to another."
+																						description: "lastTransitionTime is the time the condition transitioned from one status to another."
 																						format:      "date-time"
 																						type:        "string"
 																					}
 																					message: {
-																						description: "Human-readable message indicating details about last transition."
+																						description: "message is the human-readable message indicating details about last transition."
 																						type:        "string"
 																					}
 																					reason: {
-																						description: "Unique, this should be a short, machine understandable string that gives the reason for condition's last transition. If it reports \"ResizeStarted\" that means the underlying persistent volume is being resized."
+																						description: "reason is a unique, this should be a short, machine understandable string that gives the reason for condition's last transition. If it reports \"ResizeStarted\" that means the underlying persistent volume is being resized."
 																						type:        "string"
 																					}
 																					status: type: "string"
@@ -1209,7 +2004,11 @@ customResourceDefinitionList: items: [{
 																			type: "array"
 																		}
 																		phase: {
-																			description: "Phase represents the current phase of PersistentVolumeClaim."
+																			description: "phase represents the current phase of PersistentVolumeClaim."
+																			type:        "string"
+																		}
+																		resizeStatus: {
+																			description: "resizeStatus stores status of resize operation. ResizeStatus is not set by default but when expansion is complete resizeStatus is set to empty string by resize controller or kubelet. This is an alpha field and requires enabling RecoverVolumeExpansionFailure feature."
 																			type:        "string"
 																		}
 																	}
@@ -1260,15 +2059,37 @@ customResourceDefinitionList: items: [{
 												type: "object"
 											}
 											spec: {
-												description: "Spec defines the desired characteristics of a volume requested by a pod author. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
+												description: "spec defines the desired characteristics of a volume requested by a pod author. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
 												properties: {
 													accessModes: {
-														description: "AccessModes contains the desired access modes the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
+														description: "accessModes contains the desired access modes the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
 														items: type: "string"
 														type: "array"
 													}
 													dataSource: {
-														description: "This field can be used to specify either: * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot) * An existing PVC (PersistentVolumeClaim) * An existing custom resource that implements data population (Alpha) In order to use custom resource types that implement data population, the AnyVolumeDataSource feature gate must be enabled. If the provisioner or an external controller can support the specified data source, it will create a new volume based on the contents of the specified data source."
+														description: "dataSource field can be used to specify either: * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot) * An existing PVC (PersistentVolumeClaim) If the provisioner or an external controller can support the specified data source, it will create a new volume based on the contents of the specified data source. If the AnyVolumeDataSource feature gate is enabled, this field will always have the same contents as the DataSourceRef field."
+														properties: {
+															apiGroup: {
+																description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
+																type:        "string"
+															}
+															kind: {
+																description: "Kind is the type of resource being referenced"
+																type:        "string"
+															}
+															name: {
+																description: "Name is the name of resource being referenced"
+																type:        "string"
+															}
+														}
+														required: [
+															"kind",
+															"name",
+														]
+														type: "object"
+													}
+													dataSourceRef: {
+														description: "dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volume is desired. This may be any local object from a non-empty API group (non core object) or a PersistentVolumeClaim object. When this field is specified, volume binding will only succeed if the type of the specified object matches some installed volume populator or dynamic provisioner. This field will replace the functionality of the DataSource field and as such if both fields are non-empty, they must have the same value. For backwards compatibility, both fields (DataSource and DataSourceRef) will be set to the same value automatically if one of them is empty and the other is non-empty. There are two important differences between DataSource and DataSourceRef: * While DataSource only allows two specific types of objects, DataSourceRef   allows any non-core object, as well as PersistentVolumeClaim objects. * While DataSource ignores disallowed values (dropping them), DataSourceRef   preserves all values, and generates an error if a disallowed value is   specified. (Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled."
 														properties: {
 															apiGroup: {
 																description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
@@ -1290,7 +2111,7 @@ customResourceDefinitionList: items: [{
 														type: "object"
 													}
 													resources: {
-														description: "Resources represents the minimum resources the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources"
+														description: "resources represents the minimum resources the volume should have. If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements that are lower than previous value but must still be higher than capacity recorded in the status field of the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources"
 														properties: {
 															limits: {
 																additionalProperties: {
@@ -1302,7 +2123,7 @@ customResourceDefinitionList: items: [{
 																	pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																	"x-kubernetes-int-or-string": true
 																}
-																description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+																description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 																type:        "object"
 															}
 															requests: {
@@ -1315,14 +2136,14 @@ customResourceDefinitionList: items: [{
 																	pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																	"x-kubernetes-int-or-string": true
 																}
-																description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+																description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 																type:        "object"
 															}
 														}
 														type: "object"
 													}
 													selector: {
-														description: "A label query over volumes to consider for binding."
+														description: "selector is a label query over volumes to consider for binding."
 														properties: {
 															matchExpressions: {
 																description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
@@ -1360,7 +2181,7 @@ customResourceDefinitionList: items: [{
 														type: "object"
 													}
 													storageClassName: {
-														description: "Name of the StorageClass required by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1"
+														description: "storageClassName is the name of the StorageClass required by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1"
 														type:        "string"
 													}
 													volumeMode: {
@@ -1368,19 +2189,32 @@ customResourceDefinitionList: items: [{
 														type:        "string"
 													}
 													volumeName: {
-														description: "VolumeName is the binding reference to the PersistentVolume backing this claim."
+														description: "volumeName is the binding reference to the PersistentVolume backing this claim."
 														type:        "string"
 													}
 												}
 												type: "object"
 											}
 											status: {
-												description: "Status represents the current information/status of a persistent volume claim. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
+												description: "status represents the current information/status of a persistent volume claim. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
 												properties: {
 													accessModes: {
-														description: "AccessModes contains the actual access modes the volume backing the PVC has. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
+														description: "accessModes contains the actual access modes the volume backing the PVC has. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
 														items: type: "string"
 														type: "array"
+													}
+													allocatedResources: {
+														additionalProperties: {
+															anyOf: [{
+																type: "integer"
+															}, {
+																type: "string"
+															}]
+															pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+															"x-kubernetes-int-or-string": true
+														}
+														description: "allocatedResources is the storage resource within AllocatedResources tracks the capacity allocated to a PVC. It may be larger than the actual capacity when a volume expansion operation is requested. For storage quota, the larger value from allocatedResources and PVC.spec.resources is used. If allocatedResources is not set, PVC.spec.resources alone is used for quota calculation. If a volume expansion capacity request is lowered, allocatedResources is only lowered if there are no expansion operations in progress and if the actual volume capacity is equal or lower than the requested capacity. This is an alpha field and requires enabling RecoverVolumeExpansionFailure feature."
+														type:        "object"
 													}
 													capacity: {
 														additionalProperties: {
@@ -1392,30 +2226,30 @@ customResourceDefinitionList: items: [{
 															pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 															"x-kubernetes-int-or-string": true
 														}
-														description: "Represents the actual resources of the underlying volume."
+														description: "capacity represents the actual resources of the underlying volume."
 														type:        "object"
 													}
 													conditions: {
-														description: "Current Condition of persistent volume claim. If underlying persistent volume is being resized then the Condition will be set to 'ResizeStarted'."
+														description: "conditions is the current Condition of persistent volume claim. If underlying persistent volume is being resized then the Condition will be set to 'ResizeStarted'."
 														items: {
 															description: "PersistentVolumeClaimCondition contails details about state of pvc"
 															properties: {
 																lastProbeTime: {
-																	description: "Last time we probed the condition."
+																	description: "lastProbeTime is the time we probed the condition."
 																	format:      "date-time"
 																	type:        "string"
 																}
 																lastTransitionTime: {
-																	description: "Last time the condition transitioned from one status to another."
+																	description: "lastTransitionTime is the time the condition transitioned from one status to another."
 																	format:      "date-time"
 																	type:        "string"
 																}
 																message: {
-																	description: "Human-readable message indicating details about last transition."
+																	description: "message is the human-readable message indicating details about last transition."
 																	type:        "string"
 																}
 																reason: {
-																	description: "Unique, this should be a short, machine understandable string that gives the reason for condition's last transition. If it reports \"ResizeStarted\" that means the underlying persistent volume is being resized."
+																	description: "reason is a unique, this should be a short, machine understandable string that gives the reason for condition's last transition. If it reports \"ResizeStarted\" that means the underlying persistent volume is being resized."
 																	type:        "string"
 																}
 																status: type: "string"
@@ -1433,7 +2267,11 @@ customResourceDefinitionList: items: [{
 														type: "array"
 													}
 													phase: {
-														description: "Phase represents the current phase of PersistentVolumeClaim."
+														description: "phase represents the current phase of PersistentVolumeClaim."
+														type:        "string"
+													}
+													resizeStatus: {
+														description: "resizeStatus stores status of resize operation. ResizeStatus is not set by default but when expansion is complete resizeStatus is set to empty string by resize controller or kubelet. This is an alpha field and requires enabling RecoverVolumeExpansionFailure feature."
 														type:        "string"
 													}
 												}
@@ -1444,9 +2282,6 @@ customResourceDefinitionList: items: [{
 										"x-kubernetes-preserve-unknown-fields": true
 									}
 								}
-								required: [
-									"count",
-								]
 								type: "object"
 							}
 							monitoring: {
@@ -1523,10 +2358,6 @@ customResourceDefinitionList: items: [{
 										minimum:     0
 										type:        "integer"
 									}
-									rulesNamespace: {
-										description: "RulesNamespace is the namespace where the prometheus rules and alerts should be created. If empty, the same namespace as the cluster will be used."
-										type:        "string"
-									}
 								}
 								type: "object"
 							}
@@ -1534,6 +2365,31 @@ customResourceDefinitionList: items: [{
 								description: "Network related configuration"
 								nullable:    true
 								properties: {
+									connections: {
+										description: "Settings for network connections such as compression and encryption across the wire."
+										nullable:    true
+										properties: {
+											compression: {
+												description: "Compression settings for the network connections."
+												nullable:    true
+												properties: enabled: {
+													description: "Whether to compress the data in transit across the wire. The default is not set. Requires Ceph Quincy (v17) or newer."
+													type:        "boolean"
+												}
+												type: "object"
+											}
+											encryption: {
+												description: "Encryption settings for the network connections."
+												nullable:    true
+												properties: enabled: {
+													description: "Whether to encrypt the data in transit across the wire to prevent eavesdropping the data on the network. The default is not set. Even if encryption is not enabled, clients still establish a strong initial authentication for the connection and data integrity is still validated with a crc check. When encryption is enabled, all communication between clients and Ceph daemons, or between Ceph daemons will be encrypted."
+													type:        "boolean"
+												}
+												type: "object"
+											}
+										}
+										type: "object"
+									}
 									dualStack: {
 										description: "DualStack determines whether Ceph daemons should listen on both IPv4 and IPv6"
 										type:        "boolean"
@@ -1543,7 +2399,6 @@ customResourceDefinitionList: items: [{
 										type:        "boolean"
 									}
 									ipFamily: {
-										default:     "IPv4"
 										description: "IPFamily is the single stack IPv6 or IPv4 protocol"
 										enum: [
 											"IPv4",
@@ -1776,8 +2631,46 @@ customResourceDefinitionList: items: [{
 																		}
 																		type: "object"
 																	}
+																	namespaceSelector: {
+																		description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																		properties: {
+																			matchExpressions: {
+																				description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																				items: {
+																					description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																					properties: {
+																						key: {
+																							description: "key is the label key that the selector applies to."
+																							type:        "string"
+																						}
+																						operator: {
+																							description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																							type:        "string"
+																						}
+																						values: {
+																							description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																							items: type: "string"
+																							type: "array"
+																						}
+																					}
+																					required: [
+																						"key",
+																						"operator",
+																					]
+																					type: "object"
+																				}
+																				type: "array"
+																			}
+																			matchLabels: {
+																				additionalProperties: type: "string"
+																				description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																				type:        "object"
+																			}
+																		}
+																		type: "object"
+																	}
 																	namespaces: {
-																		description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																		description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																		items: type: "string"
 																		type: "array"
 																	}
@@ -1848,8 +2741,46 @@ customResourceDefinitionList: items: [{
 																}
 																type: "object"
 															}
+															namespaceSelector: {
+																description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																properties: {
+																	matchExpressions: {
+																		description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																		items: {
+																			description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																			properties: {
+																				key: {
+																					description: "key is the label key that the selector applies to."
+																					type:        "string"
+																				}
+																				operator: {
+																					description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																					type:        "string"
+																				}
+																				values: {
+																					description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																					items: type: "string"
+																					type: "array"
+																				}
+																			}
+																			required: [
+																				"key",
+																				"operator",
+																			]
+																			type: "object"
+																		}
+																		type: "array"
+																	}
+																	matchLabels: {
+																		additionalProperties: type: "string"
+																		description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																		type:        "object"
+																	}
+																}
+																type: "object"
+															}
 															namespaces: {
-																description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																items: type: "string"
 																type: "array"
 															}
@@ -1917,8 +2848,46 @@ customResourceDefinitionList: items: [{
 																		}
 																		type: "object"
 																	}
+																	namespaceSelector: {
+																		description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																		properties: {
+																			matchExpressions: {
+																				description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																				items: {
+																					description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																					properties: {
+																						key: {
+																							description: "key is the label key that the selector applies to."
+																							type:        "string"
+																						}
+																						operator: {
+																							description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																							type:        "string"
+																						}
+																						values: {
+																							description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																							items: type: "string"
+																							type: "array"
+																						}
+																					}
+																					required: [
+																						"key",
+																						"operator",
+																					]
+																					type: "object"
+																				}
+																				type: "array"
+																			}
+																			matchLabels: {
+																				additionalProperties: type: "string"
+																				description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																				type:        "object"
+																			}
+																		}
+																		type: "object"
+																	}
 																	namespaces: {
-																		description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																		description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																		items: type: "string"
 																		type: "array"
 																	}
@@ -1989,8 +2958,46 @@ customResourceDefinitionList: items: [{
 																}
 																type: "object"
 															}
+															namespaceSelector: {
+																description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																properties: {
+																	matchExpressions: {
+																		description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																		items: {
+																			description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																			properties: {
+																				key: {
+																					description: "key is the label key that the selector applies to."
+																					type:        "string"
+																				}
+																				operator: {
+																					description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																					type:        "string"
+																				}
+																				values: {
+																					description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																					items: type: "string"
+																					type: "array"
+																				}
+																			}
+																			required: [
+																				"key",
+																				"operator",
+																			]
+																			type: "object"
+																		}
+																		type: "array"
+																	}
+																	matchLabels: {
+																		additionalProperties: type: "string"
+																		description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																		type:        "object"
+																	}
+																}
+																type: "object"
+															}
 															namespaces: {
-																description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																items: type: "string"
 																type: "array"
 															}
@@ -2084,16 +3091,25 @@ customResourceDefinitionList: items: [{
 														type: "object"
 													}
 													maxSkew: {
-														description: "MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 1/1/0: | zone1 | zone2 | zone3 | |   P   |   P   |       | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 1/1/1; scheduling it onto zone1(zone2) would make the ActualSkew(2-0) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed."
+														description: "MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. The global minimum is the minimum number of matching pods in an eligible domain or zero if the number of eligible domains is less than MinDomains. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 2/2/1: In this case, the global minimum is 1. | zone1 | zone2 | zone3 | |  P P  |  P P  |   P   | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 2/2/2; scheduling it onto zone1(zone2) would make the ActualSkew(3-1) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed."
 														format:      "int32"
 														type:        "integer"
 													}
+													minDomains: {
+														description: """
+		MinDomains indicates a minimum number of eligible domains. When the number of eligible domains with matching topology keys is less than minDomains, Pod Topology Spread treats \"global minimum\" as 0, and then the calculation of Skew is performed. And when the number of eligible domains with matching topology keys equals or greater than minDomains, this value has no effect on scheduling. As a result, when the number of eligible domains is less than minDomains, scheduler won't schedule more than maxSkew Pods to those domains. If value is nil, the constraint behaves as if MinDomains is equal to 1. Valid values are integers greater than 0. When value is not nil, WhenUnsatisfiable must be DoNotSchedule.
+		 For example, in a 3-zone cluster, MaxSkew is set to 2, MinDomains is set to 5 and pods with the same labelSelector spread as 2/2/2: | zone1 | zone2 | zone3 | |  P P  |  P P  |  P P  | The number of domains is less than 5(MinDomains), so \"global minimum\" is treated as 0. In this situation, new pod with the same labelSelector cannot be scheduled, because computed skew will be 3(3 - 0) if new Pod is scheduled to any of the three zones, it will violate MaxSkew.
+		 This is an alpha field and requires enabling MinDomainsInPodTopologySpread feature gate.
+		"""
+														format: "int32"
+														type:   "integer"
+													}
 													topologyKey: {
-														description: "TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each <key, value> as a \"bucket\", and try to put balanced number of pods into each bucket. It's a required field."
+														description: "TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each <key, value> as a \"bucket\", and try to put balanced number of pods into each bucket. We define a domain as a particular instance of a topology. Also, we define an eligible domain as a domain whose nodes match the node selector. e.g. If TopologyKey is \"kubernetes.io/hostname\", each Node is a domain of that topology. And, if TopologyKey is \"topology.kubernetes.io/zone\", each zone is a domain of that topology. It's a required field."
 														type:        "string"
 													}
 													whenUnsatisfiable: {
-														description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,   but giving higher precedence to topologies that would help reduce the   skew. A constraint is considered \"Unsatisfiable\" for an incoming pod if and only if every possible node assigment for that pod would violate \"MaxSkew\" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field."
+														description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,   but giving higher precedence to topologies that would help reduce the   skew. A constraint is considered \"Unsatisfiable\" for an incoming pod if and only if every possible node assignment for that pod would violate \"MaxSkew\" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field."
 														type:        "string"
 													}
 												}
@@ -2139,7 +3155,7 @@ customResourceDefinitionList: items: [{
 												pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 												"x-kubernetes-int-or-string": true
 											}
-											description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+											description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 											type:        "object"
 										}
 										requests: {
@@ -2152,7 +3168,7 @@ customResourceDefinitionList: items: [{
 												pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 												"x-kubernetes-int-or-string": true
 											}
-											description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+											description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 											type:        "object"
 										}
 									}
@@ -2215,6 +3231,7 @@ customResourceDefinitionList: items: [{
 											properties: {
 												config: {
 													additionalProperties: type: "string"
+													nullable:                               true
 													type:                                   "object"
 													"x-kubernetes-preserve-unknown-fields": true
 												}
@@ -2252,6 +3269,7 @@ customResourceDefinitionList: items: [{
 														properties: {
 															config: {
 																additionalProperties: type: "string"
+																nullable:                               true
 																type:                                   "object"
 																"x-kubernetes-preserve-unknown-fields": true
 															}
@@ -2279,7 +3297,7 @@ customResourceDefinitionList: items: [{
 																pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																"x-kubernetes-int-or-string": true
 															}
-															description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+															description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 															type:        "object"
 														}
 														requests: {
@@ -2292,7 +3310,7 @@ customResourceDefinitionList: items: [{
 																pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																"x-kubernetes-int-or-string": true
 															}
-															description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+															description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 															type:        "object"
 														}
 													}
@@ -2337,15 +3355,37 @@ customResourceDefinitionList: items: [{
 																type: "object"
 															}
 															spec: {
-																description: "Spec defines the desired characteristics of a volume requested by a pod author. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
+																description: "spec defines the desired characteristics of a volume requested by a pod author. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
 																properties: {
 																	accessModes: {
-																		description: "AccessModes contains the desired access modes the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
+																		description: "accessModes contains the desired access modes the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
 																		items: type: "string"
 																		type: "array"
 																	}
 																	dataSource: {
-																		description: "This field can be used to specify either: * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot) * An existing PVC (PersistentVolumeClaim) * An existing custom resource that implements data population (Alpha) In order to use custom resource types that implement data population, the AnyVolumeDataSource feature gate must be enabled. If the provisioner or an external controller can support the specified data source, it will create a new volume based on the contents of the specified data source."
+																		description: "dataSource field can be used to specify either: * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot) * An existing PVC (PersistentVolumeClaim) If the provisioner or an external controller can support the specified data source, it will create a new volume based on the contents of the specified data source. If the AnyVolumeDataSource feature gate is enabled, this field will always have the same contents as the DataSourceRef field."
+																		properties: {
+																			apiGroup: {
+																				description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
+																				type:        "string"
+																			}
+																			kind: {
+																				description: "Kind is the type of resource being referenced"
+																				type:        "string"
+																			}
+																			name: {
+																				description: "Name is the name of resource being referenced"
+																				type:        "string"
+																			}
+																		}
+																		required: [
+																			"kind",
+																			"name",
+																		]
+																		type: "object"
+																	}
+																	dataSourceRef: {
+																		description: "dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volume is desired. This may be any local object from a non-empty API group (non core object) or a PersistentVolumeClaim object. When this field is specified, volume binding will only succeed if the type of the specified object matches some installed volume populator or dynamic provisioner. This field will replace the functionality of the DataSource field and as such if both fields are non-empty, they must have the same value. For backwards compatibility, both fields (DataSource and DataSourceRef) will be set to the same value automatically if one of them is empty and the other is non-empty. There are two important differences between DataSource and DataSourceRef: * While DataSource only allows two specific types of objects, DataSourceRef   allows any non-core object, as well as PersistentVolumeClaim objects. * While DataSource ignores disallowed values (dropping them), DataSourceRef   preserves all values, and generates an error if a disallowed value is   specified. (Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled."
 																		properties: {
 																			apiGroup: {
 																				description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
@@ -2367,7 +3407,7 @@ customResourceDefinitionList: items: [{
 																		type: "object"
 																	}
 																	resources: {
-																		description: "Resources represents the minimum resources the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources"
+																		description: "resources represents the minimum resources the volume should have. If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements that are lower than previous value but must still be higher than capacity recorded in the status field of the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources"
 																		properties: {
 																			limits: {
 																				additionalProperties: {
@@ -2379,7 +3419,7 @@ customResourceDefinitionList: items: [{
 																					pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																					"x-kubernetes-int-or-string": true
 																				}
-																				description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+																				description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 																				type:        "object"
 																			}
 																			requests: {
@@ -2392,14 +3432,14 @@ customResourceDefinitionList: items: [{
 																					pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																					"x-kubernetes-int-or-string": true
 																				}
-																				description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+																				description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 																				type:        "object"
 																			}
 																		}
 																		type: "object"
 																	}
 																	selector: {
-																		description: "A label query over volumes to consider for binding."
+																		description: "selector is a label query over volumes to consider for binding."
 																		properties: {
 																			matchExpressions: {
 																				description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
@@ -2437,7 +3477,7 @@ customResourceDefinitionList: items: [{
 																		type: "object"
 																	}
 																	storageClassName: {
-																		description: "Name of the StorageClass required by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1"
+																		description: "storageClassName is the name of the StorageClass required by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1"
 																		type:        "string"
 																	}
 																	volumeMode: {
@@ -2445,19 +3485,32 @@ customResourceDefinitionList: items: [{
 																		type:        "string"
 																	}
 																	volumeName: {
-																		description: "VolumeName is the binding reference to the PersistentVolume backing this claim."
+																		description: "volumeName is the binding reference to the PersistentVolume backing this claim."
 																		type:        "string"
 																	}
 																}
 																type: "object"
 															}
 															status: {
-																description: "Status represents the current information/status of a persistent volume claim. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
+																description: "status represents the current information/status of a persistent volume claim. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
 																properties: {
 																	accessModes: {
-																		description: "AccessModes contains the actual access modes the volume backing the PVC has. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
+																		description: "accessModes contains the actual access modes the volume backing the PVC has. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
 																		items: type: "string"
 																		type: "array"
+																	}
+																	allocatedResources: {
+																		additionalProperties: {
+																			anyOf: [{
+																				type: "integer"
+																			}, {
+																				type: "string"
+																			}]
+																			pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																			"x-kubernetes-int-or-string": true
+																		}
+																		description: "allocatedResources is the storage resource within AllocatedResources tracks the capacity allocated to a PVC. It may be larger than the actual capacity when a volume expansion operation is requested. For storage quota, the larger value from allocatedResources and PVC.spec.resources is used. If allocatedResources is not set, PVC.spec.resources alone is used for quota calculation. If a volume expansion capacity request is lowered, allocatedResources is only lowered if there are no expansion operations in progress and if the actual volume capacity is equal or lower than the requested capacity. This is an alpha field and requires enabling RecoverVolumeExpansionFailure feature."
+																		type:        "object"
 																	}
 																	capacity: {
 																		additionalProperties: {
@@ -2469,30 +3522,30 @@ customResourceDefinitionList: items: [{
 																			pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																			"x-kubernetes-int-or-string": true
 																		}
-																		description: "Represents the actual resources of the underlying volume."
+																		description: "capacity represents the actual resources of the underlying volume."
 																		type:        "object"
 																	}
 																	conditions: {
-																		description: "Current Condition of persistent volume claim. If underlying persistent volume is being resized then the Condition will be set to 'ResizeStarted'."
+																		description: "conditions is the current Condition of persistent volume claim. If underlying persistent volume is being resized then the Condition will be set to 'ResizeStarted'."
 																		items: {
 																			description: "PersistentVolumeClaimCondition contails details about state of pvc"
 																			properties: {
 																				lastProbeTime: {
-																					description: "Last time we probed the condition."
+																					description: "lastProbeTime is the time we probed the condition."
 																					format:      "date-time"
 																					type:        "string"
 																				}
 																				lastTransitionTime: {
-																					description: "Last time the condition transitioned from one status to another."
+																					description: "lastTransitionTime is the time the condition transitioned from one status to another."
 																					format:      "date-time"
 																					type:        "string"
 																				}
 																				message: {
-																					description: "Human-readable message indicating details about last transition."
+																					description: "message is the human-readable message indicating details about last transition."
 																					type:        "string"
 																				}
 																				reason: {
-																					description: "Unique, this should be a short, machine understandable string that gives the reason for condition's last transition. If it reports \"ResizeStarted\" that means the underlying persistent volume is being resized."
+																					description: "reason is a unique, this should be a short, machine understandable string that gives the reason for condition's last transition. If it reports \"ResizeStarted\" that means the underlying persistent volume is being resized."
 																					type:        "string"
 																				}
 																				status: type: "string"
@@ -2510,7 +3563,11 @@ customResourceDefinitionList: items: [{
 																		type: "array"
 																	}
 																	phase: {
-																		description: "Phase represents the current phase of PersistentVolumeClaim."
+																		description: "phase represents the current phase of PersistentVolumeClaim."
+																		type:        "string"
+																	}
+																	resizeStatus: {
+																		description: "resizeStatus stores status of resize operation. ResizeStatus is not set by default but when expansion is complete resizeStatus is set to empty string by resize controller or kubelet. This is an alpha field and requires enabling RecoverVolumeExpansionFailure feature."
 																		type:        "string"
 																	}
 																}
@@ -2527,6 +3584,7 @@ customResourceDefinitionList: items: [{
 										nullable: true
 										type:     "array"
 									}
+									onlyApplyOSDPlacement: type: "boolean"
 									storageClassDeviceSets: {
 										items: {
 											description: "StorageClassDeviceSet is a storage class device set"
@@ -2760,8 +3818,46 @@ customResourceDefinitionList: items: [{
 																						}
 																						type: "object"
 																					}
+																					namespaceSelector: {
+																						description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																						properties: {
+																							matchExpressions: {
+																								description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																								items: {
+																									description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																									properties: {
+																										key: {
+																											description: "key is the label key that the selector applies to."
+																											type:        "string"
+																										}
+																										operator: {
+																											description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																											type:        "string"
+																										}
+																										values: {
+																											description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																											items: type: "string"
+																											type: "array"
+																										}
+																									}
+																									required: [
+																										"key",
+																										"operator",
+																									]
+																									type: "object"
+																								}
+																								type: "array"
+																							}
+																							matchLabels: {
+																								additionalProperties: type: "string"
+																								description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																								type:        "object"
+																							}
+																						}
+																						type: "object"
+																					}
 																					namespaces: {
-																						description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																						description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																						items: type: "string"
 																						type: "array"
 																					}
@@ -2832,8 +3928,46 @@ customResourceDefinitionList: items: [{
 																				}
 																				type: "object"
 																			}
+																			namespaceSelector: {
+																				description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																				properties: {
+																					matchExpressions: {
+																						description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																						items: {
+																							description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																							properties: {
+																								key: {
+																									description: "key is the label key that the selector applies to."
+																									type:        "string"
+																								}
+																								operator: {
+																									description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																									type:        "string"
+																								}
+																								values: {
+																									description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																									items: type: "string"
+																									type: "array"
+																								}
+																							}
+																							required: [
+																								"key",
+																								"operator",
+																							]
+																							type: "object"
+																						}
+																						type: "array"
+																					}
+																					matchLabels: {
+																						additionalProperties: type: "string"
+																						description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																						type:        "object"
+																					}
+																				}
+																				type: "object"
+																			}
 																			namespaces: {
-																				description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																				description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																				items: type: "string"
 																				type: "array"
 																			}
@@ -2901,8 +4035,46 @@ customResourceDefinitionList: items: [{
 																						}
 																						type: "object"
 																					}
+																					namespaceSelector: {
+																						description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																						properties: {
+																							matchExpressions: {
+																								description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																								items: {
+																									description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																									properties: {
+																										key: {
+																											description: "key is the label key that the selector applies to."
+																											type:        "string"
+																										}
+																										operator: {
+																											description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																											type:        "string"
+																										}
+																										values: {
+																											description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																											items: type: "string"
+																											type: "array"
+																										}
+																									}
+																									required: [
+																										"key",
+																										"operator",
+																									]
+																									type: "object"
+																								}
+																								type: "array"
+																							}
+																							matchLabels: {
+																								additionalProperties: type: "string"
+																								description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																								type:        "object"
+																							}
+																						}
+																						type: "object"
+																					}
 																					namespaces: {
-																						description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																						description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																						items: type: "string"
 																						type: "array"
 																					}
@@ -2973,8 +4145,46 @@ customResourceDefinitionList: items: [{
 																				}
 																				type: "object"
 																			}
+																			namespaceSelector: {
+																				description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																				properties: {
+																					matchExpressions: {
+																						description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																						items: {
+																							description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																							properties: {
+																								key: {
+																									description: "key is the label key that the selector applies to."
+																									type:        "string"
+																								}
+																								operator: {
+																									description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																									type:        "string"
+																								}
+																								values: {
+																									description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																									items: type: "string"
+																									type: "array"
+																								}
+																							}
+																							required: [
+																								"key",
+																								"operator",
+																							]
+																							type: "object"
+																						}
+																						type: "array"
+																					}
+																					matchLabels: {
+																						additionalProperties: type: "string"
+																						description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																						type:        "object"
+																					}
+																				}
+																				type: "object"
+																			}
 																			namespaces: {
-																				description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																				description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																				items: type: "string"
 																				type: "array"
 																			}
@@ -3068,16 +4278,25 @@ customResourceDefinitionList: items: [{
 																		type: "object"
 																	}
 																	maxSkew: {
-																		description: "MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 1/1/0: | zone1 | zone2 | zone3 | |   P   |   P   |       | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 1/1/1; scheduling it onto zone1(zone2) would make the ActualSkew(2-0) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed."
+																		description: "MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. The global minimum is the minimum number of matching pods in an eligible domain or zero if the number of eligible domains is less than MinDomains. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 2/2/1: In this case, the global minimum is 1. | zone1 | zone2 | zone3 | |  P P  |  P P  |   P   | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 2/2/2; scheduling it onto zone1(zone2) would make the ActualSkew(3-1) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed."
 																		format:      "int32"
 																		type:        "integer"
 																	}
+																	minDomains: {
+																		description: """
+		MinDomains indicates a minimum number of eligible domains. When the number of eligible domains with matching topology keys is less than minDomains, Pod Topology Spread treats \"global minimum\" as 0, and then the calculation of Skew is performed. And when the number of eligible domains with matching topology keys equals or greater than minDomains, this value has no effect on scheduling. As a result, when the number of eligible domains is less than minDomains, scheduler won't schedule more than maxSkew Pods to those domains. If value is nil, the constraint behaves as if MinDomains is equal to 1. Valid values are integers greater than 0. When value is not nil, WhenUnsatisfiable must be DoNotSchedule.
+		 For example, in a 3-zone cluster, MaxSkew is set to 2, MinDomains is set to 5 and pods with the same labelSelector spread as 2/2/2: | zone1 | zone2 | zone3 | |  P P  |  P P  |  P P  | The number of domains is less than 5(MinDomains), so \"global minimum\" is treated as 0. In this situation, new pod with the same labelSelector cannot be scheduled, because computed skew will be 3(3 - 0) if new Pod is scheduled to any of the three zones, it will violate MaxSkew.
+		 This is an alpha field and requires enabling MinDomainsInPodTopologySpread feature gate.
+		"""
+																		format: "int32"
+																		type:   "integer"
+																	}
 																	topologyKey: {
-																		description: "TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each <key, value> as a \"bucket\", and try to put balanced number of pods into each bucket. It's a required field."
+																		description: "TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each <key, value> as a \"bucket\", and try to put balanced number of pods into each bucket. We define a domain as a particular instance of a topology. Also, we define an eligible domain as a domain whose nodes match the node selector. e.g. If TopologyKey is \"kubernetes.io/hostname\", each Node is a domain of that topology. And, if TopologyKey is \"topology.kubernetes.io/zone\", each zone is a domain of that topology. It's a required field."
 																		type:        "string"
 																	}
 																	whenUnsatisfiable: {
-																		description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,   but giving higher precedence to topologies that would help reduce the   skew. A constraint is considered \"Unsatisfiable\" for an incoming pod if and only if every possible node assigment for that pod would violate \"MaxSkew\" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field."
+																		description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,   but giving higher precedence to topologies that would help reduce the   skew. A constraint is considered \"Unsatisfiable\" for an incoming pod if and only if every possible node assignment for that pod would violate \"MaxSkew\" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field."
 																		type:        "string"
 																	}
 																}
@@ -3307,8 +4526,46 @@ customResourceDefinitionList: items: [{
 																						}
 																						type: "object"
 																					}
+																					namespaceSelector: {
+																						description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																						properties: {
+																							matchExpressions: {
+																								description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																								items: {
+																									description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																									properties: {
+																										key: {
+																											description: "key is the label key that the selector applies to."
+																											type:        "string"
+																										}
+																										operator: {
+																											description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																											type:        "string"
+																										}
+																										values: {
+																											description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																											items: type: "string"
+																											type: "array"
+																										}
+																									}
+																									required: [
+																										"key",
+																										"operator",
+																									]
+																									type: "object"
+																								}
+																								type: "array"
+																							}
+																							matchLabels: {
+																								additionalProperties: type: "string"
+																								description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																								type:        "object"
+																							}
+																						}
+																						type: "object"
+																					}
 																					namespaces: {
-																						description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																						description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																						items: type: "string"
 																						type: "array"
 																					}
@@ -3379,8 +4636,46 @@ customResourceDefinitionList: items: [{
 																				}
 																				type: "object"
 																			}
+																			namespaceSelector: {
+																				description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																				properties: {
+																					matchExpressions: {
+																						description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																						items: {
+																							description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																							properties: {
+																								key: {
+																									description: "key is the label key that the selector applies to."
+																									type:        "string"
+																								}
+																								operator: {
+																									description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																									type:        "string"
+																								}
+																								values: {
+																									description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																									items: type: "string"
+																									type: "array"
+																								}
+																							}
+																							required: [
+																								"key",
+																								"operator",
+																							]
+																							type: "object"
+																						}
+																						type: "array"
+																					}
+																					matchLabels: {
+																						additionalProperties: type: "string"
+																						description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																						type:        "object"
+																					}
+																				}
+																				type: "object"
+																			}
 																			namespaces: {
-																				description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																				description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																				items: type: "string"
 																				type: "array"
 																			}
@@ -3448,8 +4743,46 @@ customResourceDefinitionList: items: [{
 																						}
 																						type: "object"
 																					}
+																					namespaceSelector: {
+																						description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																						properties: {
+																							matchExpressions: {
+																								description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																								items: {
+																									description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																									properties: {
+																										key: {
+																											description: "key is the label key that the selector applies to."
+																											type:        "string"
+																										}
+																										operator: {
+																											description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																											type:        "string"
+																										}
+																										values: {
+																											description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																											items: type: "string"
+																											type: "array"
+																										}
+																									}
+																									required: [
+																										"key",
+																										"operator",
+																									]
+																									type: "object"
+																								}
+																								type: "array"
+																							}
+																							matchLabels: {
+																								additionalProperties: type: "string"
+																								description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																								type:        "object"
+																							}
+																						}
+																						type: "object"
+																					}
 																					namespaces: {
-																						description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																						description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																						items: type: "string"
 																						type: "array"
 																					}
@@ -3520,8 +4853,46 @@ customResourceDefinitionList: items: [{
 																				}
 																				type: "object"
 																			}
+																			namespaceSelector: {
+																				description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																				properties: {
+																					matchExpressions: {
+																						description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																						items: {
+																							description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																							properties: {
+																								key: {
+																									description: "key is the label key that the selector applies to."
+																									type:        "string"
+																								}
+																								operator: {
+																									description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																									type:        "string"
+																								}
+																								values: {
+																									description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																									items: type: "string"
+																									type: "array"
+																								}
+																							}
+																							required: [
+																								"key",
+																								"operator",
+																							]
+																							type: "object"
+																						}
+																						type: "array"
+																					}
+																					matchLabels: {
+																						additionalProperties: type: "string"
+																						description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																						type:        "object"
+																					}
+																				}
+																				type: "object"
+																			}
 																			namespaces: {
-																				description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																				description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																				items: type: "string"
 																				type: "array"
 																			}
@@ -3615,16 +4986,25 @@ customResourceDefinitionList: items: [{
 																		type: "object"
 																	}
 																	maxSkew: {
-																		description: "MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 1/1/0: | zone1 | zone2 | zone3 | |   P   |   P   |       | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 1/1/1; scheduling it onto zone1(zone2) would make the ActualSkew(2-0) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed."
+																		description: "MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. The global minimum is the minimum number of matching pods in an eligible domain or zero if the number of eligible domains is less than MinDomains. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 2/2/1: In this case, the global minimum is 1. | zone1 | zone2 | zone3 | |  P P  |  P P  |   P   | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 2/2/2; scheduling it onto zone1(zone2) would make the ActualSkew(3-1) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed."
 																		format:      "int32"
 																		type:        "integer"
 																	}
+																	minDomains: {
+																		description: """
+		MinDomains indicates a minimum number of eligible domains. When the number of eligible domains with matching topology keys is less than minDomains, Pod Topology Spread treats \"global minimum\" as 0, and then the calculation of Skew is performed. And when the number of eligible domains with matching topology keys equals or greater than minDomains, this value has no effect on scheduling. As a result, when the number of eligible domains is less than minDomains, scheduler won't schedule more than maxSkew Pods to those domains. If value is nil, the constraint behaves as if MinDomains is equal to 1. Valid values are integers greater than 0. When value is not nil, WhenUnsatisfiable must be DoNotSchedule.
+		 For example, in a 3-zone cluster, MaxSkew is set to 2, MinDomains is set to 5 and pods with the same labelSelector spread as 2/2/2: | zone1 | zone2 | zone3 | |  P P  |  P P  |  P P  | The number of domains is less than 5(MinDomains), so \"global minimum\" is treated as 0. In this situation, new pod with the same labelSelector cannot be scheduled, because computed skew will be 3(3 - 0) if new Pod is scheduled to any of the three zones, it will violate MaxSkew.
+		 This is an alpha field and requires enabling MinDomainsInPodTopologySpread feature gate.
+		"""
+																		format: "int32"
+																		type:   "integer"
+																	}
 																	topologyKey: {
-																		description: "TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each <key, value> as a \"bucket\", and try to put balanced number of pods into each bucket. It's a required field."
+																		description: "TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each <key, value> as a \"bucket\", and try to put balanced number of pods into each bucket. We define a domain as a particular instance of a topology. Also, we define an eligible domain as a domain whose nodes match the node selector. e.g. If TopologyKey is \"kubernetes.io/hostname\", each Node is a domain of that topology. And, if TopologyKey is \"topology.kubernetes.io/zone\", each zone is a domain of that topology. It's a required field."
 																		type:        "string"
 																	}
 																	whenUnsatisfiable: {
-																		description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,   but giving higher precedence to topologies that would help reduce the   skew. A constraint is considered \"Unsatisfiable\" for an incoming pod if and only if every possible node assigment for that pod would violate \"MaxSkew\" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field."
+																		description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,   but giving higher precedence to topologies that would help reduce the   skew. A constraint is considered \"Unsatisfiable\" for an incoming pod if and only if every possible node assignment for that pod would violate \"MaxSkew\" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field."
 																		type:        "string"
 																	}
 																}
@@ -3655,7 +5035,7 @@ customResourceDefinitionList: items: [{
 																pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																"x-kubernetes-int-or-string": true
 															}
-															description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+															description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 															type:        "object"
 														}
 														requests: {
@@ -3668,7 +5048,7 @@ customResourceDefinitionList: items: [{
 																pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																"x-kubernetes-int-or-string": true
 															}
-															description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+															description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 															type:        "object"
 														}
 													}
@@ -3722,15 +5102,37 @@ customResourceDefinitionList: items: [{
 																type: "object"
 															}
 															spec: {
-																description: "Spec defines the desired characteristics of a volume requested by a pod author. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
+																description: "spec defines the desired characteristics of a volume requested by a pod author. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
 																properties: {
 																	accessModes: {
-																		description: "AccessModes contains the desired access modes the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
+																		description: "accessModes contains the desired access modes the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
 																		items: type: "string"
 																		type: "array"
 																	}
 																	dataSource: {
-																		description: "This field can be used to specify either: * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot) * An existing PVC (PersistentVolumeClaim) * An existing custom resource that implements data population (Alpha) In order to use custom resource types that implement data population, the AnyVolumeDataSource feature gate must be enabled. If the provisioner or an external controller can support the specified data source, it will create a new volume based on the contents of the specified data source."
+																		description: "dataSource field can be used to specify either: * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot) * An existing PVC (PersistentVolumeClaim) If the provisioner or an external controller can support the specified data source, it will create a new volume based on the contents of the specified data source. If the AnyVolumeDataSource feature gate is enabled, this field will always have the same contents as the DataSourceRef field."
+																		properties: {
+																			apiGroup: {
+																				description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
+																				type:        "string"
+																			}
+																			kind: {
+																				description: "Kind is the type of resource being referenced"
+																				type:        "string"
+																			}
+																			name: {
+																				description: "Name is the name of resource being referenced"
+																				type:        "string"
+																			}
+																		}
+																		required: [
+																			"kind",
+																			"name",
+																		]
+																		type: "object"
+																	}
+																	dataSourceRef: {
+																		description: "dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volume is desired. This may be any local object from a non-empty API group (non core object) or a PersistentVolumeClaim object. When this field is specified, volume binding will only succeed if the type of the specified object matches some installed volume populator or dynamic provisioner. This field will replace the functionality of the DataSource field and as such if both fields are non-empty, they must have the same value. For backwards compatibility, both fields (DataSource and DataSourceRef) will be set to the same value automatically if one of them is empty and the other is non-empty. There are two important differences between DataSource and DataSourceRef: * While DataSource only allows two specific types of objects, DataSourceRef   allows any non-core object, as well as PersistentVolumeClaim objects. * While DataSource ignores disallowed values (dropping them), DataSourceRef   preserves all values, and generates an error if a disallowed value is   specified. (Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled."
 																		properties: {
 																			apiGroup: {
 																				description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
@@ -3752,7 +5154,7 @@ customResourceDefinitionList: items: [{
 																		type: "object"
 																	}
 																	resources: {
-																		description: "Resources represents the minimum resources the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources"
+																		description: "resources represents the minimum resources the volume should have. If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements that are lower than previous value but must still be higher than capacity recorded in the status field of the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources"
 																		properties: {
 																			limits: {
 																				additionalProperties: {
@@ -3764,7 +5166,7 @@ customResourceDefinitionList: items: [{
 																					pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																					"x-kubernetes-int-or-string": true
 																				}
-																				description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+																				description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 																				type:        "object"
 																			}
 																			requests: {
@@ -3777,14 +5179,14 @@ customResourceDefinitionList: items: [{
 																					pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																					"x-kubernetes-int-or-string": true
 																				}
-																				description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+																				description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 																				type:        "object"
 																			}
 																		}
 																		type: "object"
 																	}
 																	selector: {
-																		description: "A label query over volumes to consider for binding."
+																		description: "selector is a label query over volumes to consider for binding."
 																		properties: {
 																			matchExpressions: {
 																				description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
@@ -3822,7 +5224,7 @@ customResourceDefinitionList: items: [{
 																		type: "object"
 																	}
 																	storageClassName: {
-																		description: "Name of the StorageClass required by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1"
+																		description: "storageClassName is the name of the StorageClass required by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1"
 																		type:        "string"
 																	}
 																	volumeMode: {
@@ -3830,19 +5232,32 @@ customResourceDefinitionList: items: [{
 																		type:        "string"
 																	}
 																	volumeName: {
-																		description: "VolumeName is the binding reference to the PersistentVolume backing this claim."
+																		description: "volumeName is the binding reference to the PersistentVolume backing this claim."
 																		type:        "string"
 																	}
 																}
 																type: "object"
 															}
 															status: {
-																description: "Status represents the current information/status of a persistent volume claim. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
+																description: "status represents the current information/status of a persistent volume claim. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
 																properties: {
 																	accessModes: {
-																		description: "AccessModes contains the actual access modes the volume backing the PVC has. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
+																		description: "accessModes contains the actual access modes the volume backing the PVC has. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
 																		items: type: "string"
 																		type: "array"
+																	}
+																	allocatedResources: {
+																		additionalProperties: {
+																			anyOf: [{
+																				type: "integer"
+																			}, {
+																				type: "string"
+																			}]
+																			pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																			"x-kubernetes-int-or-string": true
+																		}
+																		description: "allocatedResources is the storage resource within AllocatedResources tracks the capacity allocated to a PVC. It may be larger than the actual capacity when a volume expansion operation is requested. For storage quota, the larger value from allocatedResources and PVC.spec.resources is used. If allocatedResources is not set, PVC.spec.resources alone is used for quota calculation. If a volume expansion capacity request is lowered, allocatedResources is only lowered if there are no expansion operations in progress and if the actual volume capacity is equal or lower than the requested capacity. This is an alpha field and requires enabling RecoverVolumeExpansionFailure feature."
+																		type:        "object"
 																	}
 																	capacity: {
 																		additionalProperties: {
@@ -3854,30 +5269,30 @@ customResourceDefinitionList: items: [{
 																			pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																			"x-kubernetes-int-or-string": true
 																		}
-																		description: "Represents the actual resources of the underlying volume."
+																		description: "capacity represents the actual resources of the underlying volume."
 																		type:        "object"
 																	}
 																	conditions: {
-																		description: "Current Condition of persistent volume claim. If underlying persistent volume is being resized then the Condition will be set to 'ResizeStarted'."
+																		description: "conditions is the current Condition of persistent volume claim. If underlying persistent volume is being resized then the Condition will be set to 'ResizeStarted'."
 																		items: {
 																			description: "PersistentVolumeClaimCondition contails details about state of pvc"
 																			properties: {
 																				lastProbeTime: {
-																					description: "Last time we probed the condition."
+																					description: "lastProbeTime is the time we probed the condition."
 																					format:      "date-time"
 																					type:        "string"
 																				}
 																				lastTransitionTime: {
-																					description: "Last time the condition transitioned from one status to another."
+																					description: "lastTransitionTime is the time the condition transitioned from one status to another."
 																					format:      "date-time"
 																					type:        "string"
 																				}
 																				message: {
-																					description: "Human-readable message indicating details about last transition."
+																					description: "message is the human-readable message indicating details about last transition."
 																					type:        "string"
 																				}
 																				reason: {
-																					description: "Unique, this should be a short, machine understandable string that gives the reason for condition's last transition. If it reports \"ResizeStarted\" that means the underlying persistent volume is being resized."
+																					description: "reason is a unique, this should be a short, machine understandable string that gives the reason for condition's last transition. If it reports \"ResizeStarted\" that means the underlying persistent volume is being resized."
 																					type:        "string"
 																				}
 																				status: type: "string"
@@ -3895,7 +5310,11 @@ customResourceDefinitionList: items: [{
 																		type: "array"
 																	}
 																	phase: {
-																		description: "Phase represents the current phase of PersistentVolumeClaim."
+																		description: "phase represents the current phase of PersistentVolumeClaim."
+																		type:        "string"
+																	}
+																	resizeStatus: {
+																		description: "resizeStatus stores status of resize operation. ResizeStatus is not set by default but when expansion is complete resizeStatus is set to empty string by resize controller or kubelet. This is an alpha field and requires enabling RecoverVolumeExpansionFailure feature."
 																		type:        "string"
 																	}
 																}
@@ -3956,15 +5375,37 @@ customResourceDefinitionList: items: [{
 													type: "object"
 												}
 												spec: {
-													description: "Spec defines the desired characteristics of a volume requested by a pod author. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
+													description: "spec defines the desired characteristics of a volume requested by a pod author. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
 													properties: {
 														accessModes: {
-															description: "AccessModes contains the desired access modes the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
+															description: "accessModes contains the desired access modes the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
 															items: type: "string"
 															type: "array"
 														}
 														dataSource: {
-															description: "This field can be used to specify either: * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot) * An existing PVC (PersistentVolumeClaim) * An existing custom resource that implements data population (Alpha) In order to use custom resource types that implement data population, the AnyVolumeDataSource feature gate must be enabled. If the provisioner or an external controller can support the specified data source, it will create a new volume based on the contents of the specified data source."
+															description: "dataSource field can be used to specify either: * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot) * An existing PVC (PersistentVolumeClaim) If the provisioner or an external controller can support the specified data source, it will create a new volume based on the contents of the specified data source. If the AnyVolumeDataSource feature gate is enabled, this field will always have the same contents as the DataSourceRef field."
+															properties: {
+																apiGroup: {
+																	description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
+																	type:        "string"
+																}
+																kind: {
+																	description: "Kind is the type of resource being referenced"
+																	type:        "string"
+																}
+																name: {
+																	description: "Name is the name of resource being referenced"
+																	type:        "string"
+																}
+															}
+															required: [
+																"kind",
+																"name",
+															]
+															type: "object"
+														}
+														dataSourceRef: {
+															description: "dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volume is desired. This may be any local object from a non-empty API group (non core object) or a PersistentVolumeClaim object. When this field is specified, volume binding will only succeed if the type of the specified object matches some installed volume populator or dynamic provisioner. This field will replace the functionality of the DataSource field and as such if both fields are non-empty, they must have the same value. For backwards compatibility, both fields (DataSource and DataSourceRef) will be set to the same value automatically if one of them is empty and the other is non-empty. There are two important differences between DataSource and DataSourceRef: * While DataSource only allows two specific types of objects, DataSourceRef   allows any non-core object, as well as PersistentVolumeClaim objects. * While DataSource ignores disallowed values (dropping them), DataSourceRef   preserves all values, and generates an error if a disallowed value is   specified. (Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled."
 															properties: {
 																apiGroup: {
 																	description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
@@ -3986,7 +5427,7 @@ customResourceDefinitionList: items: [{
 															type: "object"
 														}
 														resources: {
-															description: "Resources represents the minimum resources the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources"
+															description: "resources represents the minimum resources the volume should have. If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements that are lower than previous value but must still be higher than capacity recorded in the status field of the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources"
 															properties: {
 																limits: {
 																	additionalProperties: {
@@ -3998,7 +5439,7 @@ customResourceDefinitionList: items: [{
 																		pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																		"x-kubernetes-int-or-string": true
 																	}
-																	description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+																	description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 																	type:        "object"
 																}
 																requests: {
@@ -4011,14 +5452,14 @@ customResourceDefinitionList: items: [{
 																		pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																		"x-kubernetes-int-or-string": true
 																	}
-																	description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+																	description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 																	type:        "object"
 																}
 															}
 															type: "object"
 														}
 														selector: {
-															description: "A label query over volumes to consider for binding."
+															description: "selector is a label query over volumes to consider for binding."
 															properties: {
 																matchExpressions: {
 																	description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
@@ -4056,7 +5497,7 @@ customResourceDefinitionList: items: [{
 															type: "object"
 														}
 														storageClassName: {
-															description: "Name of the StorageClass required by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1"
+															description: "storageClassName is the name of the StorageClass required by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1"
 															type:        "string"
 														}
 														volumeMode: {
@@ -4064,19 +5505,32 @@ customResourceDefinitionList: items: [{
 															type:        "string"
 														}
 														volumeName: {
-															description: "VolumeName is the binding reference to the PersistentVolume backing this claim."
+															description: "volumeName is the binding reference to the PersistentVolume backing this claim."
 															type:        "string"
 														}
 													}
 													type: "object"
 												}
 												status: {
-													description: "Status represents the current information/status of a persistent volume claim. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
+													description: "status represents the current information/status of a persistent volume claim. Read-only. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
 													properties: {
 														accessModes: {
-															description: "AccessModes contains the actual access modes the volume backing the PVC has. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
+															description: "accessModes contains the actual access modes the volume backing the PVC has. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
 															items: type: "string"
 															type: "array"
+														}
+														allocatedResources: {
+															additionalProperties: {
+																anyOf: [{
+																	type: "integer"
+																}, {
+																	type: "string"
+																}]
+																pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																"x-kubernetes-int-or-string": true
+															}
+															description: "allocatedResources is the storage resource within AllocatedResources tracks the capacity allocated to a PVC. It may be larger than the actual capacity when a volume expansion operation is requested. For storage quota, the larger value from allocatedResources and PVC.spec.resources is used. If allocatedResources is not set, PVC.spec.resources alone is used for quota calculation. If a volume expansion capacity request is lowered, allocatedResources is only lowered if there are no expansion operations in progress and if the actual volume capacity is equal or lower than the requested capacity. This is an alpha field and requires enabling RecoverVolumeExpansionFailure feature."
+															type:        "object"
 														}
 														capacity: {
 															additionalProperties: {
@@ -4088,30 +5542,30 @@ customResourceDefinitionList: items: [{
 																pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																"x-kubernetes-int-or-string": true
 															}
-															description: "Represents the actual resources of the underlying volume."
+															description: "capacity represents the actual resources of the underlying volume."
 															type:        "object"
 														}
 														conditions: {
-															description: "Current Condition of persistent volume claim. If underlying persistent volume is being resized then the Condition will be set to 'ResizeStarted'."
+															description: "conditions is the current Condition of persistent volume claim. If underlying persistent volume is being resized then the Condition will be set to 'ResizeStarted'."
 															items: {
 																description: "PersistentVolumeClaimCondition contails details about state of pvc"
 																properties: {
 																	lastProbeTime: {
-																		description: "Last time we probed the condition."
+																		description: "lastProbeTime is the time we probed the condition."
 																		format:      "date-time"
 																		type:        "string"
 																	}
 																	lastTransitionTime: {
-																		description: "Last time the condition transitioned from one status to another."
+																		description: "lastTransitionTime is the time the condition transitioned from one status to another."
 																		format:      "date-time"
 																		type:        "string"
 																	}
 																	message: {
-																		description: "Human-readable message indicating details about last transition."
+																		description: "message is the human-readable message indicating details about last transition."
 																		type:        "string"
 																	}
 																	reason: {
-																		description: "Unique, this should be a short, machine understandable string that gives the reason for condition's last transition. If it reports \"ResizeStarted\" that means the underlying persistent volume is being resized."
+																		description: "reason is a unique, this should be a short, machine understandable string that gives the reason for condition's last transition. If it reports \"ResizeStarted\" that means the underlying persistent volume is being resized."
 																		type:        "string"
 																	}
 																	status: type: "string"
@@ -4129,7 +5583,11 @@ customResourceDefinitionList: items: [{
 															type: "array"
 														}
 														phase: {
-															description: "Phase represents the current phase of PersistentVolumeClaim."
+															description: "phase represents the current phase of PersistentVolumeClaim."
+															type:        "string"
+														}
+														resizeStatus: {
+															description: "resizeStatus stores status of resize operation. ResizeStatus is not set by default but when expansion is complete resizeStatus is set to empty string by resize controller or kubelet. This is an alpha field and requires enabling RecoverVolumeExpansionFailure feature."
 															type:        "string"
 														}
 													}
@@ -4192,6 +5650,7 @@ customResourceDefinitionList: items: [{
 										}
 										type: "object"
 									}
+									fsid: type:           "string"
 									health: type:         "string"
 									lastChanged: type:    "string"
 									lastChecked: type:    "string"
@@ -4247,7 +5706,7 @@ customResourceDefinitionList: items: [{
 							}
 							conditions: {
 								items: {
-									description: "Condition represents"
+									description: "Condition represents a status condition on any Rook-Ceph Custom Resource."
 									properties: {
 										lastHeartbeatTime: {
 											format: "date-time"
@@ -4259,7 +5718,7 @@ customResourceDefinitionList: items: [{
 										}
 										message: type: "string"
 										reason: {
-											description: "ClusterReasonType is cluster reason"
+											description: "ConditionReason is a reason for a condition"
 											type:        "string"
 										}
 										status: type: "string"
@@ -4273,6 +5732,11 @@ customResourceDefinitionList: items: [{
 								type: "array"
 							}
 							message: type: "string"
+							observedGeneration: {
+								description: "ObservedGeneration is the latest generation observed by the controller."
+								format:      "int64"
+								type:        "integer"
+							}
 							phase: {
 								description: "ConditionType represent a resource's status"
 								type:        "string"
@@ -4317,13 +5781,17 @@ customResourceDefinitionList: items: [{
 			subresources: status: {}
 		}]
 	}
-	status: acceptedNames: {
-		kind:   ""
-		plural: ""
+	status: {
+		acceptedNames: {
+			kind:   ""
+			plural: ""
+		}
+		conditions: []
+		storedVersions: []
 	}
 }, {
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.5.1-0.20210420220833-f284e2e8098c"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.6.2"
 		name: "cephfilesystemmirrors.ceph.rook.io"
 	}
 	spec: {
@@ -4336,6 +5804,11 @@ customResourceDefinitionList: items: [{
 		}
 		scope: "Namespaced"
 		versions: [{
+			additionalPrinterColumns: [{
+				jsonPath: ".status.phase"
+				name:     "Phase"
+				type:     "string"
+			}]
 			name: "v1"
 			schema: openAPIV3Schema: {
 				description: "CephFilesystemMirror is the Ceph Filesystem Mirror object definition"
@@ -4350,7 +5823,7 @@ customResourceDefinitionList: items: [{
 					}
 					metadata: type: "object"
 					spec: {
-						description: "FilesystemMirroringSpec is the filesystem mirorring specification"
+						description: "FilesystemMirroringSpec is the filesystem mirroring specification"
 						properties: {
 							annotations: {
 								additionalProperties: type: "string"
@@ -4573,8 +6046,46 @@ customResourceDefinitionList: items: [{
 																	}
 																	type: "object"
 																}
+																namespaceSelector: {
+																	description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																	properties: {
+																		matchExpressions: {
+																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																			items: {
+																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																				properties: {
+																					key: {
+																						description: "key is the label key that the selector applies to."
+																						type:        "string"
+																					}
+																					operator: {
+																						description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																						type:        "string"
+																					}
+																					values: {
+																						description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																						items: type: "string"
+																						type: "array"
+																					}
+																				}
+																				required: [
+																					"key",
+																					"operator",
+																				]
+																				type: "object"
+																			}
+																			type: "array"
+																		}
+																		matchLabels: {
+																			additionalProperties: type: "string"
+																			description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																			type:        "object"
+																		}
+																	}
+																	type: "object"
+																}
 																namespaces: {
-																	description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																	description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																	items: type: "string"
 																	type: "array"
 																}
@@ -4645,8 +6156,46 @@ customResourceDefinitionList: items: [{
 															}
 															type: "object"
 														}
+														namespaceSelector: {
+															description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+															properties: {
+																matchExpressions: {
+																	description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																	items: {
+																		description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																		properties: {
+																			key: {
+																				description: "key is the label key that the selector applies to."
+																				type:        "string"
+																			}
+																			operator: {
+																				description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																				type:        "string"
+																			}
+																			values: {
+																				description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																				items: type: "string"
+																				type: "array"
+																			}
+																		}
+																		required: [
+																			"key",
+																			"operator",
+																		]
+																		type: "object"
+																	}
+																	type: "array"
+																}
+																matchLabels: {
+																	additionalProperties: type: "string"
+																	description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																	type:        "object"
+																}
+															}
+															type: "object"
+														}
 														namespaces: {
-															description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+															description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 															items: type: "string"
 															type: "array"
 														}
@@ -4714,8 +6263,46 @@ customResourceDefinitionList: items: [{
 																	}
 																	type: "object"
 																}
+																namespaceSelector: {
+																	description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																	properties: {
+																		matchExpressions: {
+																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																			items: {
+																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																				properties: {
+																					key: {
+																						description: "key is the label key that the selector applies to."
+																						type:        "string"
+																					}
+																					operator: {
+																						description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																						type:        "string"
+																					}
+																					values: {
+																						description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																						items: type: "string"
+																						type: "array"
+																					}
+																				}
+																				required: [
+																					"key",
+																					"operator",
+																				]
+																				type: "object"
+																			}
+																			type: "array"
+																		}
+																		matchLabels: {
+																			additionalProperties: type: "string"
+																			description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																			type:        "object"
+																		}
+																	}
+																	type: "object"
+																}
 																namespaces: {
-																	description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																	description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																	items: type: "string"
 																	type: "array"
 																}
@@ -4786,8 +6373,46 @@ customResourceDefinitionList: items: [{
 															}
 															type: "object"
 														}
+														namespaceSelector: {
+															description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+															properties: {
+																matchExpressions: {
+																	description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																	items: {
+																		description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																		properties: {
+																			key: {
+																				description: "key is the label key that the selector applies to."
+																				type:        "string"
+																			}
+																			operator: {
+																				description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																				type:        "string"
+																			}
+																			values: {
+																				description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																				items: type: "string"
+																				type: "array"
+																			}
+																		}
+																		required: [
+																			"key",
+																			"operator",
+																		]
+																		type: "object"
+																	}
+																	type: "array"
+																}
+																matchLabels: {
+																	additionalProperties: type: "string"
+																	description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																	type:        "object"
+																}
+															}
+															type: "object"
+														}
 														namespaces: {
-															description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+															description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 															items: type: "string"
 															type: "array"
 														}
@@ -4881,16 +6506,25 @@ customResourceDefinitionList: items: [{
 													type: "object"
 												}
 												maxSkew: {
-													description: "MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 1/1/0: | zone1 | zone2 | zone3 | |   P   |   P   |       | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 1/1/1; scheduling it onto zone1(zone2) would make the ActualSkew(2-0) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed."
+													description: "MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. The global minimum is the minimum number of matching pods in an eligible domain or zero if the number of eligible domains is less than MinDomains. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 2/2/1: In this case, the global minimum is 1. | zone1 | zone2 | zone3 | |  P P  |  P P  |   P   | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 2/2/2; scheduling it onto zone1(zone2) would make the ActualSkew(3-1) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed."
 													format:      "int32"
 													type:        "integer"
 												}
+												minDomains: {
+													description: """
+		MinDomains indicates a minimum number of eligible domains. When the number of eligible domains with matching topology keys is less than minDomains, Pod Topology Spread treats \"global minimum\" as 0, and then the calculation of Skew is performed. And when the number of eligible domains with matching topology keys equals or greater than minDomains, this value has no effect on scheduling. As a result, when the number of eligible domains is less than minDomains, scheduler won't schedule more than maxSkew Pods to those domains. If value is nil, the constraint behaves as if MinDomains is equal to 1. Valid values are integers greater than 0. When value is not nil, WhenUnsatisfiable must be DoNotSchedule.
+		 For example, in a 3-zone cluster, MaxSkew is set to 2, MinDomains is set to 5 and pods with the same labelSelector spread as 2/2/2: | zone1 | zone2 | zone3 | |  P P  |  P P  |  P P  | The number of domains is less than 5(MinDomains), so \"global minimum\" is treated as 0. In this situation, new pod with the same labelSelector cannot be scheduled, because computed skew will be 3(3 - 0) if new Pod is scheduled to any of the three zones, it will violate MaxSkew.
+		 This is an alpha field and requires enabling MinDomainsInPodTopologySpread feature gate.
+		"""
+													format: "int32"
+													type:   "integer"
+												}
 												topologyKey: {
-													description: "TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each <key, value> as a \"bucket\", and try to put balanced number of pods into each bucket. It's a required field."
+													description: "TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each <key, value> as a \"bucket\", and try to put balanced number of pods into each bucket. We define a domain as a particular instance of a topology. Also, we define an eligible domain as a domain whose nodes match the node selector. e.g. If TopologyKey is \"kubernetes.io/hostname\", each Node is a domain of that topology. And, if TopologyKey is \"topology.kubernetes.io/zone\", each zone is a domain of that topology. It's a required field."
 													type:        "string"
 												}
 												whenUnsatisfiable: {
-													description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,   but giving higher precedence to topologies that would help reduce the   skew. A constraint is considered \"Unsatisfiable\" for an incoming pod if and only if every possible node assigment for that pod would violate \"MaxSkew\" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field."
+													description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,   but giving higher precedence to topologies that would help reduce the   skew. A constraint is considered \"Unsatisfiable\" for an incoming pod if and only if every possible node assignment for that pod would violate \"MaxSkew\" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field."
 													type:        "string"
 												}
 											}
@@ -4924,7 +6558,7 @@ customResourceDefinitionList: items: [{
 											pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 											"x-kubernetes-int-or-string": true
 										}
-										description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+										description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 										type:        "object"
 									}
 									requests: {
@@ -4937,7 +6571,7 @@ customResourceDefinitionList: items: [{
 											pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 											"x-kubernetes-int-or-string": true
 										}
-										description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+										description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 										type:        "object"
 									}
 								}
@@ -4948,7 +6582,41 @@ customResourceDefinitionList: items: [{
 					}
 					status: {
 						description: "Status represents the status of an object"
-						properties: phase: type: "string"
+						properties: {
+							conditions: {
+								items: {
+									description: "Condition represents a status condition on any Rook-Ceph Custom Resource."
+									properties: {
+										lastHeartbeatTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										lastTransitionTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										message: type: "string"
+										reason: {
+											description: "ConditionReason is a reason for a condition"
+											type:        "string"
+										}
+										status: type: "string"
+										type: {
+											description: "ConditionType represent a resource's status"
+											type:        "string"
+										}
+									}
+									type: "object"
+								}
+								type: "array"
+							}
+							observedGeneration: {
+								description: "ObservedGeneration is the latest generation observed by the controller."
+								format:      "int64"
+								type:        "integer"
+							}
+							phase: type: "string"
+						}
 						type: "object"
 					}
 				}
@@ -4963,13 +6631,17 @@ customResourceDefinitionList: items: [{
 			subresources: status: {}
 		}]
 	}
-	status: acceptedNames: {
-		kind:   ""
-		plural: ""
+	status: {
+		acceptedNames: {
+			kind:   ""
+			plural: ""
+		}
+		conditions: []
+		storedVersions: []
 	}
 }, {
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.5.1-0.20210420220833-f284e2e8098c"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.6.2"
 		name: "cephfilesystems.ceph.rook.io"
 	}
 	spec: {
@@ -5013,13 +6685,12 @@ customResourceDefinitionList: items: [{
 						description: "FilesystemSpec represents the spec of a file system"
 						properties: {
 							dataPools: {
-								description: "The data pool settings"
+								description: "The data pool settings, with optional predefined pool name."
 								items: {
-									description: "PoolSpec represents the spec of ceph pool"
+									description: "NamedPoolSpec represents the named ceph pool spec"
 									properties: {
 										compressionMode: {
-											default:     "none"
-											description: "The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)"
+											description: "DEPRECATED: use Parameters instead, e.g., Parameters[\"compression_mode\"] = \"force\" The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force) Do NOT set a default value for kubebuilder as this will override the Parameters"
 											enum: [
 												"none",
 												"passive",
@@ -5052,14 +6723,12 @@ customResourceDefinitionList: items: [{
 													type:        "string"
 												}
 												codingChunks: {
-													description: "Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type)"
-													maximum:     9
+													description: "Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type). This is the number of OSDs that can be lost simultaneously before data cannot be recovered."
 													minimum:     0
 													type:        "integer"
 												}
 												dataChunks: {
-													description: "Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type)"
-													maximum:     9
+													description: "Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type). The number of chunks required to recover an object when any single OSD is lost is the same as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery."
 													minimum:     0
 													type:        "integer"
 												}
@@ -5085,6 +6754,16 @@ customResourceDefinitionList: items: [{
 													description: "Mode is the mirroring mode: either pool or image"
 													type:        "string"
 												}
+												peers: {
+													description: "Peers represents the peers spec"
+													nullable:    true
+													properties: secretNames: {
+														description: "SecretNames represents the Kubernetes Secret names to add rbd-mirror or cephfs-mirror peers"
+														items: type: "string"
+														type: "array"
+													}
+													type: "object"
+												}
 												snapshotSchedules: {
 													description: "SnapshotSchedules is the scheduling of snapshot for mirrored images/pools"
 													items: {
@@ -5092,6 +6771,10 @@ customResourceDefinitionList: items: [{
 														properties: {
 															interval: {
 																description: "Interval represent the periodicity of the snapshot."
+																type:        "string"
+															}
+															path: {
+																description: "Path is the path to snapshot, only valid for CephFS"
 																type:        "string"
 															}
 															startTime: {
@@ -5105,6 +6788,10 @@ customResourceDefinitionList: items: [{
 												}
 											}
 											type: "object"
+										}
+										name: {
+											description: "Name of the pool"
+											type:        "string"
 										}
 										parameters: {
 											additionalProperties: type: "string"
@@ -5138,6 +6825,27 @@ customResourceDefinitionList: items: [{
 										replicated: {
 											description: "The replication settings"
 											properties: {
+												hybridStorage: {
+													description: "HybridStorage represents hybrid storage tier settings"
+													nullable:    true
+													properties: {
+														primaryDeviceClass: {
+															description: "PrimaryDeviceClass represents high performance tier (for example SSD or NVME) for Primary OSD"
+															minLength:   1
+															type:        "string"
+														}
+														secondaryDeviceClass: {
+															description: "SecondaryDeviceClass represents low performance tier (for example HDDs) for remaining OSDs"
+															minLength:   1
+															type:        "string"
+														}
+													}
+													required: [
+														"primaryDeviceClass",
+														"secondaryDeviceClass",
+													]
+													type: "object"
+												}
 												replicasPerFailureDomain: {
 													description: "ReplicasPerFailureDomain the number of replica in the specified failure domain"
 													minimum:     1
@@ -5195,8 +6903,7 @@ customResourceDefinitionList: items: [{
 								nullable:    true
 								properties: {
 									compressionMode: {
-										default:     "none"
-										description: "The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)"
+										description: "DEPRECATED: use Parameters instead, e.g., Parameters[\"compression_mode\"] = \"force\" The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force) Do NOT set a default value for kubebuilder as this will override the Parameters"
 										enum: [
 											"none",
 											"passive",
@@ -5229,14 +6936,12 @@ customResourceDefinitionList: items: [{
 												type:        "string"
 											}
 											codingChunks: {
-												description: "Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type)"
-												maximum:     9
+												description: "Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type). This is the number of OSDs that can be lost simultaneously before data cannot be recovered."
 												minimum:     0
 												type:        "integer"
 											}
 											dataChunks: {
-												description: "Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type)"
-												maximum:     9
+												description: "Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type). The number of chunks required to recover an object when any single OSD is lost is the same as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery."
 												minimum:     0
 												type:        "integer"
 											}
@@ -5262,6 +6967,16 @@ customResourceDefinitionList: items: [{
 												description: "Mode is the mirroring mode: either pool or image"
 												type:        "string"
 											}
+											peers: {
+												description: "Peers represents the peers spec"
+												nullable:    true
+												properties: secretNames: {
+													description: "SecretNames represents the Kubernetes Secret names to add rbd-mirror or cephfs-mirror peers"
+													items: type: "string"
+													type: "array"
+												}
+												type: "object"
+											}
 											snapshotSchedules: {
 												description: "SnapshotSchedules is the scheduling of snapshot for mirrored images/pools"
 												items: {
@@ -5269,6 +6984,10 @@ customResourceDefinitionList: items: [{
 													properties: {
 														interval: {
 															description: "Interval represent the periodicity of the snapshot."
+															type:        "string"
+														}
+														path: {
+															description: "Path is the path to snapshot, only valid for CephFS"
 															type:        "string"
 														}
 														startTime: {
@@ -5315,6 +7034,27 @@ customResourceDefinitionList: items: [{
 									replicated: {
 										description: "The replication settings"
 										properties: {
+											hybridStorage: {
+												description: "HybridStorage represents hybrid storage tier settings"
+												nullable:    true
+												properties: {
+													primaryDeviceClass: {
+														description: "PrimaryDeviceClass represents high performance tier (for example SSD or NVME) for Primary OSD"
+														minLength:   1
+														type:        "string"
+													}
+													secondaryDeviceClass: {
+														description: "SecondaryDeviceClass represents low performance tier (for example HDDs) for remaining OSDs"
+														minLength:   1
+														type:        "string"
+													}
+												}
+												required: [
+													"primaryDeviceClass",
+													"secondaryDeviceClass",
+												]
+												type: "object"
+											}
 											replicasPerFailureDomain: {
 												description: "ReplicasPerFailureDomain the number of replica in the specified failure domain"
 												minimum:     1
@@ -5391,6 +7131,156 @@ customResourceDefinitionList: items: [{
 										nullable:                               true
 										type:                                   "object"
 										"x-kubernetes-preserve-unknown-fields": true
+									}
+									livenessProbe: {
+										description: "ProbeSpec is a wrapper around Probe so it can be enabled or disabled for a Ceph daemon"
+										properties: {
+											disabled: {
+												description: "Disabled determines whether probe is disable or not"
+												type:        "boolean"
+											}
+											probe: {
+												description: "Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic."
+												properties: {
+													exec: {
+														description: "Exec specifies the action to take."
+														properties: command: {
+															description: "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."
+															items: type: "string"
+															type: "array"
+														}
+														type: "object"
+													}
+													failureThreshold: {
+														description: "Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1."
+														format:      "int32"
+														type:        "integer"
+													}
+													grpc: {
+														description: "GRPC specifies an action involving a GRPC port. This is a beta field and requires enabling GRPCContainerProbe feature gate."
+														properties: {
+															port: {
+																description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
+																format:      "int32"
+																type:        "integer"
+															}
+															service: {
+																description: """
+		Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+		 If this is not specified, the default behavior is defined by gRPC.
+		"""
+																type: "string"
+															}
+														}
+														required: [
+															"port",
+														]
+														type: "object"
+													}
+													httpGet: {
+														description: "HTTPGet specifies the http request to perform."
+														properties: {
+															host: {
+																description: "Host name to connect to, defaults to the pod IP. You probably want to set \"Host\" in httpHeaders instead."
+																type:        "string"
+															}
+															httpHeaders: {
+																description: "Custom headers to set in the request. HTTP allows repeated headers."
+																items: {
+																	description: "HTTPHeader describes a custom header to be used in HTTP probes"
+																	properties: {
+																		name: {
+																			description: "The header field name"
+																			type:        "string"
+																		}
+																		value: {
+																			description: "The header field value"
+																			type:        "string"
+																		}
+																	}
+																	required: [
+																		"name",
+																		"value",
+																	]
+																	type: "object"
+																}
+																type: "array"
+															}
+															path: {
+																description: "Path to access on the HTTP server."
+																type:        "string"
+															}
+															port: {
+																anyOf: [{
+																	type: "integer"
+																}, {
+																	type: "string"
+																}]
+																description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
+																"x-kubernetes-int-or-string": true
+															}
+															scheme: {
+																description: "Scheme to use for connecting to the host. Defaults to HTTP."
+																type:        "string"
+															}
+														}
+														required: [
+															"port",
+														]
+														type: "object"
+													}
+													initialDelaySeconds: {
+														description: "Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
+														format:      "int32"
+														type:        "integer"
+													}
+													periodSeconds: {
+														description: "How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1."
+														format:      "int32"
+														type:        "integer"
+													}
+													successThreshold: {
+														description: "Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1."
+														format:      "int32"
+														type:        "integer"
+													}
+													tcpSocket: {
+														description: "TCPSocket specifies an action involving a TCP port."
+														properties: {
+															host: {
+																description: "Optional: Host name to connect to, defaults to the pod IP."
+																type:        "string"
+															}
+															port: {
+																anyOf: [{
+																	type: "integer"
+																}, {
+																	type: "string"
+																}]
+																description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
+																"x-kubernetes-int-or-string": true
+															}
+														}
+														required: [
+															"port",
+														]
+														type: "object"
+													}
+													terminationGracePeriodSeconds: {
+														description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset."
+														format:      "int64"
+														type:        "integer"
+													}
+													timeoutSeconds: {
+														description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
+														format:      "int32"
+														type:        "integer"
+													}
+												}
+												type: "object"
+											}
+										}
+										type: "object"
 									}
 									placement: {
 										description: "The affinity to place the mds pods (default is to place on all available node) with a daemonset"
@@ -5601,8 +7491,46 @@ customResourceDefinitionList: items: [{
 																			}
 																			type: "object"
 																		}
+																		namespaceSelector: {
+																			description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																			properties: {
+																				matchExpressions: {
+																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																					items: {
+																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																						properties: {
+																							key: {
+																								description: "key is the label key that the selector applies to."
+																								type:        "string"
+																							}
+																							operator: {
+																								description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																								type:        "string"
+																							}
+																							values: {
+																								description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																								items: type: "string"
+																								type: "array"
+																							}
+																						}
+																						required: [
+																							"key",
+																							"operator",
+																						]
+																						type: "object"
+																					}
+																					type: "array"
+																				}
+																				matchLabels: {
+																					additionalProperties: type: "string"
+																					description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																					type:        "object"
+																				}
+																			}
+																			type: "object"
+																		}
 																		namespaces: {
-																			description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																			description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																			items: type: "string"
 																			type: "array"
 																		}
@@ -5673,8 +7601,46 @@ customResourceDefinitionList: items: [{
 																	}
 																	type: "object"
 																}
+																namespaceSelector: {
+																	description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																	properties: {
+																		matchExpressions: {
+																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																			items: {
+																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																				properties: {
+																					key: {
+																						description: "key is the label key that the selector applies to."
+																						type:        "string"
+																					}
+																					operator: {
+																						description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																						type:        "string"
+																					}
+																					values: {
+																						description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																						items: type: "string"
+																						type: "array"
+																					}
+																				}
+																				required: [
+																					"key",
+																					"operator",
+																				]
+																				type: "object"
+																			}
+																			type: "array"
+																		}
+																		matchLabels: {
+																			additionalProperties: type: "string"
+																			description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																			type:        "object"
+																		}
+																	}
+																	type: "object"
+																}
 																namespaces: {
-																	description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																	description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																	items: type: "string"
 																	type: "array"
 																}
@@ -5742,8 +7708,46 @@ customResourceDefinitionList: items: [{
 																			}
 																			type: "object"
 																		}
+																		namespaceSelector: {
+																			description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																			properties: {
+																				matchExpressions: {
+																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																					items: {
+																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																						properties: {
+																							key: {
+																								description: "key is the label key that the selector applies to."
+																								type:        "string"
+																							}
+																							operator: {
+																								description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																								type:        "string"
+																							}
+																							values: {
+																								description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																								items: type: "string"
+																								type: "array"
+																							}
+																						}
+																						required: [
+																							"key",
+																							"operator",
+																						]
+																						type: "object"
+																					}
+																					type: "array"
+																				}
+																				matchLabels: {
+																					additionalProperties: type: "string"
+																					description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																					type:        "object"
+																				}
+																			}
+																			type: "object"
+																		}
 																		namespaces: {
-																			description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																			description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																			items: type: "string"
 																			type: "array"
 																		}
@@ -5814,8 +7818,46 @@ customResourceDefinitionList: items: [{
 																	}
 																	type: "object"
 																}
+																namespaceSelector: {
+																	description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																	properties: {
+																		matchExpressions: {
+																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																			items: {
+																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																				properties: {
+																					key: {
+																						description: "key is the label key that the selector applies to."
+																						type:        "string"
+																					}
+																					operator: {
+																						description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																						type:        "string"
+																					}
+																					values: {
+																						description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																						items: type: "string"
+																						type: "array"
+																					}
+																				}
+																				required: [
+																					"key",
+																					"operator",
+																				]
+																				type: "object"
+																			}
+																			type: "array"
+																		}
+																		matchLabels: {
+																			additionalProperties: type: "string"
+																			description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																			type:        "object"
+																		}
+																	}
+																	type: "object"
+																}
 																namespaces: {
-																	description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																	description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																	items: type: "string"
 																	type: "array"
 																}
@@ -5909,16 +7951,25 @@ customResourceDefinitionList: items: [{
 															type: "object"
 														}
 														maxSkew: {
-															description: "MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 1/1/0: | zone1 | zone2 | zone3 | |   P   |   P   |       | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 1/1/1; scheduling it onto zone1(zone2) would make the ActualSkew(2-0) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed."
+															description: "MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. The global minimum is the minimum number of matching pods in an eligible domain or zero if the number of eligible domains is less than MinDomains. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 2/2/1: In this case, the global minimum is 1. | zone1 | zone2 | zone3 | |  P P  |  P P  |   P   | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 2/2/2; scheduling it onto zone1(zone2) would make the ActualSkew(3-1) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed."
 															format:      "int32"
 															type:        "integer"
 														}
+														minDomains: {
+															description: """
+		MinDomains indicates a minimum number of eligible domains. When the number of eligible domains with matching topology keys is less than minDomains, Pod Topology Spread treats \"global minimum\" as 0, and then the calculation of Skew is performed. And when the number of eligible domains with matching topology keys equals or greater than minDomains, this value has no effect on scheduling. As a result, when the number of eligible domains is less than minDomains, scheduler won't schedule more than maxSkew Pods to those domains. If value is nil, the constraint behaves as if MinDomains is equal to 1. Valid values are integers greater than 0. When value is not nil, WhenUnsatisfiable must be DoNotSchedule.
+		 For example, in a 3-zone cluster, MaxSkew is set to 2, MinDomains is set to 5 and pods with the same labelSelector spread as 2/2/2: | zone1 | zone2 | zone3 | |  P P  |  P P  |  P P  | The number of domains is less than 5(MinDomains), so \"global minimum\" is treated as 0. In this situation, new pod with the same labelSelector cannot be scheduled, because computed skew will be 3(3 - 0) if new Pod is scheduled to any of the three zones, it will violate MaxSkew.
+		 This is an alpha field and requires enabling MinDomainsInPodTopologySpread feature gate.
+		"""
+															format: "int32"
+															type:   "integer"
+														}
 														topologyKey: {
-															description: "TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each <key, value> as a \"bucket\", and try to put balanced number of pods into each bucket. It's a required field."
+															description: "TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each <key, value> as a \"bucket\", and try to put balanced number of pods into each bucket. We define a domain as a particular instance of a topology. Also, we define an eligible domain as a domain whose nodes match the node selector. e.g. If TopologyKey is \"kubernetes.io/hostname\", each Node is a domain of that topology. And, if TopologyKey is \"topology.kubernetes.io/zone\", each zone is a domain of that topology. It's a required field."
 															type:        "string"
 														}
 														whenUnsatisfiable: {
-															description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,   but giving higher precedence to topologies that would help reduce the   skew. A constraint is considered \"Unsatisfiable\" for an incoming pod if and only if every possible node assigment for that pod would violate \"MaxSkew\" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field."
+															description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,   but giving higher precedence to topologies that would help reduce the   skew. A constraint is considered \"Unsatisfiable\" for an incoming pod if and only if every possible node assignment for that pod would violate \"MaxSkew\" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field."
 															type:        "string"
 														}
 													}
@@ -5953,7 +8004,7 @@ customResourceDefinitionList: items: [{
 													pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 													"x-kubernetes-int-or-string": true
 												}
-												description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+												description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 												type:        "object"
 											}
 											requests: {
@@ -5966,12 +8017,162 @@ customResourceDefinitionList: items: [{
 													pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 													"x-kubernetes-int-or-string": true
 												}
-												description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+												description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 												type:        "object"
 											}
 										}
 										type:                                   "object"
 										"x-kubernetes-preserve-unknown-fields": true
+									}
+									startupProbe: {
+										description: "ProbeSpec is a wrapper around Probe so it can be enabled or disabled for a Ceph daemon"
+										properties: {
+											disabled: {
+												description: "Disabled determines whether probe is disable or not"
+												type:        "boolean"
+											}
+											probe: {
+												description: "Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic."
+												properties: {
+													exec: {
+														description: "Exec specifies the action to take."
+														properties: command: {
+															description: "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."
+															items: type: "string"
+															type: "array"
+														}
+														type: "object"
+													}
+													failureThreshold: {
+														description: "Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1."
+														format:      "int32"
+														type:        "integer"
+													}
+													grpc: {
+														description: "GRPC specifies an action involving a GRPC port. This is a beta field and requires enabling GRPCContainerProbe feature gate."
+														properties: {
+															port: {
+																description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
+																format:      "int32"
+																type:        "integer"
+															}
+															service: {
+																description: """
+		Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+		 If this is not specified, the default behavior is defined by gRPC.
+		"""
+																type: "string"
+															}
+														}
+														required: [
+															"port",
+														]
+														type: "object"
+													}
+													httpGet: {
+														description: "HTTPGet specifies the http request to perform."
+														properties: {
+															host: {
+																description: "Host name to connect to, defaults to the pod IP. You probably want to set \"Host\" in httpHeaders instead."
+																type:        "string"
+															}
+															httpHeaders: {
+																description: "Custom headers to set in the request. HTTP allows repeated headers."
+																items: {
+																	description: "HTTPHeader describes a custom header to be used in HTTP probes"
+																	properties: {
+																		name: {
+																			description: "The header field name"
+																			type:        "string"
+																		}
+																		value: {
+																			description: "The header field value"
+																			type:        "string"
+																		}
+																	}
+																	required: [
+																		"name",
+																		"value",
+																	]
+																	type: "object"
+																}
+																type: "array"
+															}
+															path: {
+																description: "Path to access on the HTTP server."
+																type:        "string"
+															}
+															port: {
+																anyOf: [{
+																	type: "integer"
+																}, {
+																	type: "string"
+																}]
+																description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
+																"x-kubernetes-int-or-string": true
+															}
+															scheme: {
+																description: "Scheme to use for connecting to the host. Defaults to HTTP."
+																type:        "string"
+															}
+														}
+														required: [
+															"port",
+														]
+														type: "object"
+													}
+													initialDelaySeconds: {
+														description: "Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
+														format:      "int32"
+														type:        "integer"
+													}
+													periodSeconds: {
+														description: "How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1."
+														format:      "int32"
+														type:        "integer"
+													}
+													successThreshold: {
+														description: "Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1."
+														format:      "int32"
+														type:        "integer"
+													}
+													tcpSocket: {
+														description: "TCPSocket specifies an action involving a TCP port."
+														properties: {
+															host: {
+																description: "Optional: Host name to connect to, defaults to the pod IP."
+																type:        "string"
+															}
+															port: {
+																anyOf: [{
+																	type: "integer"
+																}, {
+																	type: "string"
+																}]
+																description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
+																"x-kubernetes-int-or-string": true
+															}
+														}
+														required: [
+															"port",
+														]
+														type: "object"
+													}
+													terminationGracePeriodSeconds: {
+														description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset."
+														format:      "int64"
+														type:        "integer"
+													}
+													timeoutSeconds: {
+														description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
+														format:      "int32"
+														type:        "integer"
+													}
+												}
+												type: "object"
+											}
+										}
+										type: "object"
 									}
 								}
 								required: [
@@ -5982,9 +8183,61 @@ customResourceDefinitionList: items: [{
 							mirroring: {
 								description: "The mirroring settings"
 								nullable:    true
-								properties: enabled: {
-									description: "Enabled whether this filesystem is mirrored or not"
-									type:        "boolean"
+								properties: {
+									enabled: {
+										description: "Enabled whether this filesystem is mirrored or not"
+										type:        "boolean"
+									}
+									peers: {
+										description: "Peers represents the peers spec"
+										nullable:    true
+										properties: secretNames: {
+											description: "SecretNames represents the Kubernetes Secret names to add rbd-mirror or cephfs-mirror peers"
+											items: type: "string"
+											type: "array"
+										}
+										type: "object"
+									}
+									snapshotRetention: {
+										description: "Retention is the retention policy for a snapshot schedule One path has exactly one retention policy. A policy can however contain multiple count-time period pairs in order to specify complex retention policies"
+										items: {
+											description: "SnapshotScheduleRetentionSpec is a retention policy"
+											properties: {
+												duration: {
+													description: "Duration represents the retention duration for a snapshot"
+													type:        "string"
+												}
+												path: {
+													description: "Path is the path to snapshot"
+													type:        "string"
+												}
+											}
+											type: "object"
+										}
+										type: "array"
+									}
+									snapshotSchedules: {
+										description: "SnapshotSchedules is the scheduling of snapshot for mirrored filesystems"
+										items: {
+											description: "SnapshotScheduleSpec represents the snapshot scheduling settings of a mirrored pool"
+											properties: {
+												interval: {
+													description: "Interval represent the periodicity of the snapshot."
+													type:        "string"
+												}
+												path: {
+													description: "Path is the path to snapshot, only valid for CephFS"
+													type:        "string"
+												}
+												startTime: {
+													description: "StartTime indicates when to start the snapshot"
+													type:        "string"
+												}
+											}
+											type: "object"
+										}
+										type: "array"
+									}
 								}
 								type: "object"
 							}
@@ -5996,6 +8249,24 @@ customResourceDefinitionList: items: [{
 								description: "Preserve pools on filesystem deletion"
 								type:        "boolean"
 							}
+							statusCheck: {
+								description: "The mirroring statusCheck"
+								properties: mirror: {
+									description: "HealthCheckSpec represents the health check of an object store bucket"
+									nullable:    true
+									properties: {
+										disabled: type: "boolean"
+										interval: {
+											description: "Interval is the internal in second or minute for the health check to run like 60s for 60 seconds"
+											type:        "string"
+										}
+										timeout: type: "string"
+									}
+									type: "object"
+								}
+								type:                                   "object"
+								"x-kubernetes-preserve-unknown-fields": true
+							}
 						}
 						required: [
 							"dataPools",
@@ -6005,8 +8276,233 @@ customResourceDefinitionList: items: [{
 						type: "object"
 					}
 					status: {
-						description: "Status represents the status of an object"
-						properties: phase: type: "string"
+						description: "CephFilesystemStatus represents the status of a Ceph Filesystem"
+						properties: {
+							conditions: {
+								items: {
+									description: "Condition represents a status condition on any Rook-Ceph Custom Resource."
+									properties: {
+										lastHeartbeatTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										lastTransitionTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										message: type: "string"
+										reason: {
+											description: "ConditionReason is a reason for a condition"
+											type:        "string"
+										}
+										status: type: "string"
+										type: {
+											description: "ConditionType represent a resource's status"
+											type:        "string"
+										}
+									}
+									type: "object"
+								}
+								type: "array"
+							}
+							info: {
+								additionalProperties: type: "string"
+								description: "Use only info and put mirroringStatus in it?"
+								nullable:    true
+								type:        "object"
+							}
+							mirroringStatus: {
+								description: "MirroringStatus is the filesystem mirroring status"
+								properties: {
+									daemonsStatus: {
+										description: "PoolMirroringStatus is the mirroring status of a filesystem"
+										items: {
+											description: "FilesystemMirrorInfoSpec is the filesystem mirror status of a given filesystem"
+											properties: {
+												daemon_id: {
+													description: "DaemonID is the cephfs-mirror name"
+													type:        "integer"
+												}
+												filesystems: {
+													description: "Filesystems is the list of filesystems managed by a given cephfs-mirror daemon"
+													items: {
+														description: "FilesystemsSpec is spec for the mirrored filesystem"
+														properties: {
+															directory_count: {
+																description: "DirectoryCount is the number of directories in the filesystem"
+																type:        "integer"
+															}
+															filesystem_id: {
+																description: "FilesystemID is the filesystem identifier"
+																type:        "integer"
+															}
+															name: {
+																description: "Name is name of the filesystem"
+																type:        "string"
+															}
+															peers: {
+																description: "Peers represents the mirroring peers"
+																items: {
+																	description: "FilesystemMirrorInfoPeerSpec is the specification of a filesystem peer mirror"
+																	properties: {
+																		remote: {
+																			description: "Remote are the remote cluster information"
+																			properties: {
+																				client_name: {
+																					description: "ClientName is cephx name"
+																					type:        "string"
+																				}
+																				cluster_name: {
+																					description: "ClusterName is the name of the cluster"
+																					type:        "string"
+																				}
+																				fs_name: {
+																					description: "FsName is the filesystem name"
+																					type:        "string"
+																				}
+																			}
+																			type: "object"
+																		}
+																		stats: {
+																			description: "Stats are the stat a peer mirror"
+																			properties: {
+																				failure_count: {
+																					description: "FailureCount is the number of mirroring failure"
+																					type:        "integer"
+																				}
+																				recovery_count: {
+																					description: "RecoveryCount is the number of recovery attempted after failures"
+																					type:        "integer"
+																				}
+																			}
+																			type: "object"
+																		}
+																		uuid: {
+																			description: "UUID is the peer unique identifier"
+																			type:        "string"
+																		}
+																	}
+																	type: "object"
+																}
+																type: "array"
+															}
+														}
+														type: "object"
+													}
+													type: "array"
+												}
+											}
+											type: "object"
+										}
+										nullable: true
+										type:     "array"
+									}
+									details: {
+										description: "Details contains potential status errors"
+										type:        "string"
+									}
+									lastChanged: {
+										description: "LastChanged is the last time time the status last changed"
+										type:        "string"
+									}
+									lastChecked: {
+										description: "LastChecked is the last time time the status was checked"
+										type:        "string"
+									}
+								}
+								type: "object"
+							}
+							observedGeneration: {
+								description: "ObservedGeneration is the latest generation observed by the controller."
+								format:      "int64"
+								type:        "integer"
+							}
+							phase: {
+								description: "ConditionType represent a resource's status"
+								type:        "string"
+							}
+							snapshotScheduleStatus: {
+								description: "FilesystemSnapshotScheduleStatusSpec is the status of the snapshot schedule"
+								properties: {
+									details: {
+										description: "Details contains potential status errors"
+										type:        "string"
+									}
+									lastChanged: {
+										description: "LastChanged is the last time time the status last changed"
+										type:        "string"
+									}
+									lastChecked: {
+										description: "LastChecked is the last time time the status was checked"
+										type:        "string"
+									}
+									snapshotSchedules: {
+										description: "SnapshotSchedules is the list of snapshots scheduled"
+										items: {
+											description: "FilesystemSnapshotSchedulesSpec is the list of snapshot scheduled for images in a pool"
+											properties: {
+												fs: {
+													description: "Fs is the name of the Ceph Filesystem"
+													type:        "string"
+												}
+												path: {
+													description: "Path is the path on the filesystem"
+													type:        "string"
+												}
+												rel_path: type: "string"
+												retention: {
+													description: "FilesystemSnapshotScheduleStatusRetention is the retention specification for a filesystem snapshot schedule"
+													properties: {
+														active: {
+															description: "Active is whether the scheduled is active or not"
+															type:        "boolean"
+														}
+														created: {
+															description: "Created is when the snapshot schedule was created"
+															type:        "string"
+														}
+														created_count: {
+															description: "CreatedCount is total amount of snapshots"
+															type:        "integer"
+														}
+														first: {
+															description: "First is when the first snapshot schedule was taken"
+															type:        "string"
+														}
+														last: {
+															description: "Last is when the last snapshot schedule was taken"
+															type:        "string"
+														}
+														last_pruned: {
+															description: "LastPruned is when the last snapshot schedule was pruned"
+															type:        "string"
+														}
+														pruned_count: {
+															description: "PrunedCount is total amount of pruned snapshots"
+															type:        "integer"
+														}
+														start: {
+															description: "Start is when the snapshot schedule starts"
+															type:        "string"
+														}
+													}
+													type: "object"
+												}
+												schedule: type: "string"
+												subvol: {
+													description: "Subvol is the name of the sub volume"
+													type:        "string"
+												}
+											}
+											type: "object"
+										}
+										nullable: true
+										type:     "array"
+									}
+								}
+								type: "object"
+							}
+						}
 						type:                                   "object"
 						"x-kubernetes-preserve-unknown-fields": true
 					}
@@ -6022,13 +8518,102 @@ customResourceDefinitionList: items: [{
 			subresources: status: {}
 		}]
 	}
-	status: acceptedNames: {
-		kind:   ""
-		plural: ""
+	status: {
+		acceptedNames: {
+			kind:   ""
+			plural: ""
+		}
+		conditions: []
+		storedVersions: []
 	}
 }, {
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.5.1-0.20210420220833-f284e2e8098c"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.6.2"
+		name: "cephfilesystemsubvolumegroups.ceph.rook.io"
+	}
+	spec: {
+		group: "ceph.rook.io"
+		names: {
+			kind:     "CephFilesystemSubVolumeGroup"
+			listKind: "CephFilesystemSubVolumeGroupList"
+			plural:   "cephfilesystemsubvolumegroups"
+			singular: "cephfilesystemsubvolumegroup"
+		}
+		scope: "Namespaced"
+		versions: [{
+			additionalPrinterColumns: [{
+				jsonPath: ".status.phase"
+				name:     "Phase"
+				type:     "string"
+			}]
+			name: "v1"
+			schema: openAPIV3Schema: {
+				description: "CephFilesystemSubVolumeGroup represents a Ceph Filesystem SubVolumeGroup"
+				properties: {
+					apiVersion: {
+						description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources"
+						type:        "string"
+					}
+					kind: {
+						description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"
+						type:        "string"
+					}
+					metadata: type: "object"
+					spec: {
+						description: "Spec represents the specification of a Ceph Filesystem SubVolumeGroup"
+						properties: filesystemName: {
+							description: "FilesystemName is the name of Ceph Filesystem SubVolumeGroup volume name. Typically it's the name of the CephFilesystem CR. If not coming from the CephFilesystem CR, it can be retrieved from the list of Ceph Filesystem volumes with `ceph fs volume ls`. To learn more about Ceph Filesystem abstractions see https://docs.ceph.com/en/latest/cephfs/fs-volumes/#fs-volumes-and-subvolumes"
+							type:        "string"
+						}
+						required: [
+							"filesystemName",
+						]
+						type: "object"
+					}
+					status: {
+						description: "Status represents the status of a CephFilesystem SubvolumeGroup"
+						properties: {
+							info: {
+								additionalProperties: type: "string"
+								nullable: true
+								type:     "object"
+							}
+							observedGeneration: {
+								description: "ObservedGeneration is the latest generation observed by the controller."
+								format:      "int64"
+								type:        "integer"
+							}
+							phase: {
+								description: "ConditionType represent a resource's status"
+								type:        "string"
+							}
+						}
+						type:                                   "object"
+						"x-kubernetes-preserve-unknown-fields": true
+					}
+				}
+				required: [
+					"metadata",
+					"spec",
+				]
+				type: "object"
+			}
+			served:  true
+			storage: true
+			subresources: status: {}
+		}]
+	}
+	status: {
+		acceptedNames: {
+			kind:   ""
+			plural: ""
+		}
+		conditions: []
+		storedVersions: []
+	}
+}, {
+	metadata: {
+		annotations: "controller-gen.kubebuilder.io/version": "v0.6.2"
 		name: "cephnfses.ceph.rook.io"
 	}
 	spec: {
@@ -6062,20 +8647,5113 @@ customResourceDefinitionList: items: [{
 						properties: {
 							rados: {
 								description: "RADOS is the Ganesha RADOS specification"
+								nullable:    true
 								properties: {
 									namespace: {
-										description: "Namespace is the RADOS namespace where NFS client recovery data is stored."
+										description: "The namespace inside the Ceph pool (set by 'pool') where shared NFS-Ganesha config is stored. This setting is required for Ceph v15 and ignored for Ceph v16. As of Ceph Pacific v16+, this is internally set to the name of the CephNFS."
 										type:        "string"
 									}
 									pool: {
-										description: "Pool is the RADOS pool where NFS client recovery data is stored."
+										description: "The Ceph pool used store the shared configuration for NFS-Ganesha daemons. This setting is required for Ceph v15 and ignored for Ceph v16. As of Ceph Pacific 16.2.7+, this is internally hardcoded to \".nfs\"."
 										type:        "string"
 									}
 								}
-								required: [
-									"namespace",
-									"pool",
-								]
+								type: "object"
+							}
+							security: {
+								description: "Security allows specifying security configurations for the NFS cluster"
+								nullable:    true
+								properties: {
+									kerberos: {
+										description: "Kerberos configures NFS-Ganesha to secure NFS client connections with Kerberos."
+										nullable:    true
+										properties: {
+											configFiles: {
+												description: """
+		ConfigFiles defines where the Kerberos configuration should be sourced from. Config files will be placed into the `/etc/krb5.conf.rook/` directory.
+		 If this is left empty, Rook will not add any files. This allows you to manage the files yourself however you wish. For example, you may build them into your custom Ceph container image or use the Vault agent injector to securely add the files via annotations on the CephNFS spec (passed to the NFS server pods).
+		 Rook configures Kerberos to log to stderr. We suggest removing logging sections from config files to avoid consuming unnecessary disk space from logging to files.
+		"""
+												properties: volumeSource: {
+													description: "VolumeSource accepts a standard Kubernetes VolumeSource for Kerberos configuration files like what is normally used to configure Volumes for a Pod. For example, a ConfigMap, Secret, or HostPath. The volume may contain multiple files, all of which will be loaded."
+													properties: {
+														awsElasticBlockStore: {
+															description: "awsElasticBlockStore represents an AWS Disk resource that is attached to a kubelet's host machine and then exposed to the pod. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore"
+															properties: {
+																fsType: {
+																	description: "fsType is the filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore TODO: how do we prevent errors in the filesystem from compromising the machine"
+																	type:        "string"
+																}
+																partition: {
+																	description: "partition is the partition in the volume that you want to mount. If omitted, the default is to mount by volume name. Examples: For volume /dev/sda1, you specify the partition as \"1\". Similarly, the volume partition for /dev/sda is \"0\" (or you can leave the property empty)."
+																	format:      "int32"
+																	type:        "integer"
+																}
+																readOnly: {
+																	description: "readOnly value true will force the readOnly setting in VolumeMounts. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore"
+																	type:        "boolean"
+																}
+																volumeID: {
+																	description: "volumeID is unique ID of the persistent disk resource in AWS (Amazon EBS volume). More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore"
+																	type:        "string"
+																}
+															}
+															required: [
+																"volumeID",
+															]
+															type: "object"
+														}
+														azureDisk: {
+															description: "azureDisk represents an Azure Data Disk mount on the host and bind mount to the pod."
+															properties: {
+																cachingMode: {
+																	description: "cachingMode is the Host Caching mode: None, Read Only, Read Write."
+																	type:        "string"
+																}
+																diskName: {
+																	description: "diskName is the Name of the data disk in the blob storage"
+																	type:        "string"
+																}
+																diskURI: {
+																	description: "diskURI is the URI of data disk in the blob storage"
+																	type:        "string"
+																}
+																fsType: {
+																	description: "fsType is Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified."
+																	type:        "string"
+																}
+																kind: {
+																	description: "kind expected values are Shared: multiple blob disks per storage account  Dedicated: single blob disk per storage account  Managed: azure managed data disk (only in managed availability set). defaults to shared"
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																	type:        "boolean"
+																}
+															}
+															required: [
+																"diskName",
+																"diskURI",
+															]
+															type: "object"
+														}
+														azureFile: {
+															description: "azureFile represents an Azure File Service mount on the host and bind mount to the pod."
+															properties: {
+																readOnly: {
+																	description: "readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																	type:        "boolean"
+																}
+																secretName: {
+																	description: "secretName is the  name of secret that contains Azure Storage Account Name and Key"
+																	type:        "string"
+																}
+																shareName: {
+																	description: "shareName is the azure share Name"
+																	type:        "string"
+																}
+															}
+															required: [
+																"secretName",
+																"shareName",
+															]
+															type: "object"
+														}
+														cephfs: {
+															description: "cephFS represents a Ceph FS mount on the host that shares a pod's lifetime"
+															properties: {
+																monitors: {
+																	description: "monitors is Required: Monitors is a collection of Ceph monitors More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
+																	items: type: "string"
+																	type: "array"
+																}
+																path: {
+																	description: "path is Optional: Used as the mounted root, rather than the full Ceph tree, default is /"
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly is Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
+																	type:        "boolean"
+																}
+																secretFile: {
+																	description: "secretFile is Optional: SecretFile is the path to key ring for User, default is /etc/ceph/user.secret More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
+																	type:        "string"
+																}
+																secretRef: {
+																	description: "secretRef is Optional: SecretRef is reference to the authentication secret for User, default is empty. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
+																	properties: name: {
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		type:        "string"
+																	}
+																	type: "object"
+																}
+																user: {
+																	description: "user is optional: User is the rados user name, default is admin More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
+																	type:        "string"
+																}
+															}
+															required: [
+																"monitors",
+															]
+															type: "object"
+														}
+														cinder: {
+															description: "cinder represents a cinder volume attached and mounted on kubelets host machine. More info: https://examples.k8s.io/mysql-cinder-pd/README.md"
+															properties: {
+																fsType: {
+																	description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://examples.k8s.io/mysql-cinder-pd/README.md"
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://examples.k8s.io/mysql-cinder-pd/README.md"
+																	type:        "boolean"
+																}
+																secretRef: {
+																	description: "secretRef is optional: points to a secret object containing parameters used to connect to OpenStack."
+																	properties: name: {
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		type:        "string"
+																	}
+																	type: "object"
+																}
+																volumeID: {
+																	description: "volumeID used to identify the volume in cinder. More info: https://examples.k8s.io/mysql-cinder-pd/README.md"
+																	type:        "string"
+																}
+															}
+															required: [
+																"volumeID",
+															]
+															type: "object"
+														}
+														configMap: {
+															description: "configMap represents a configMap that should populate this volume"
+															properties: {
+																defaultMode: {
+																	description: "defaultMode is optional: mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																	format:      "int32"
+																	type:        "integer"
+																}
+																items: {
+																	description: "items if unspecified, each key-value pair in the Data field of the referenced ConfigMap will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the ConfigMap, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'."
+																	items: {
+																		description: "Maps a string key to a path within a volume."
+																		properties: {
+																			key: {
+																				description: "key is the key to project."
+																				type:        "string"
+																			}
+																			mode: {
+																				description: "mode is Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																				format:      "int32"
+																				type:        "integer"
+																			}
+																			path: {
+																				description: "path is the relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'."
+																				type:        "string"
+																			}
+																		}
+																		required: [
+																			"key",
+																			"path",
+																		]
+																		type: "object"
+																	}
+																	type: "array"
+																}
+																name: {
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	type:        "string"
+																}
+																optional: {
+																	description: "optional specify whether the ConfigMap or its keys must be defined"
+																	type:        "boolean"
+																}
+															}
+															type: "object"
+														}
+														csi: {
+															description: "csi (Container Storage Interface) represents ephemeral storage that is handled by certain external CSI drivers (Beta feature)."
+															properties: {
+																driver: {
+																	description: "driver is the name of the CSI driver that handles this volume. Consult with your admin for the correct name as registered in the cluster."
+																	type:        "string"
+																}
+																fsType: {
+																	description: "fsType to mount. Ex. \"ext4\", \"xfs\", \"ntfs\". If not provided, the empty value is passed to the associated CSI driver which will determine the default filesystem to apply."
+																	type:        "string"
+																}
+																nodePublishSecretRef: {
+																	description: "nodePublishSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodePublishVolume and NodeUnpublishVolume calls. This field is optional, and  may be empty if no secret is required. If the secret object contains more than one secret, all secret references are passed."
+																	properties: name: {
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		type:        "string"
+																	}
+																	type: "object"
+																}
+																readOnly: {
+																	description: "readOnly specifies a read-only configuration for the volume. Defaults to false (read/write)."
+																	type:        "boolean"
+																}
+																volumeAttributes: {
+																	additionalProperties: type: "string"
+																	description: "volumeAttributes stores driver-specific properties that are passed to the CSI driver. Consult your driver's documentation for supported values."
+																	type:        "object"
+																}
+															}
+															required: [
+																"driver",
+															]
+															type: "object"
+														}
+														downwardAPI: {
+															description: "downwardAPI represents downward API about the pod that should populate this volume"
+															properties: {
+																defaultMode: {
+																	description: "Optional: mode bits to use on created files by default. Must be a Optional: mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																	format:      "int32"
+																	type:        "integer"
+																}
+																items: {
+																	description: "Items is a list of downward API volume file"
+																	items: {
+																		description: "DownwardAPIVolumeFile represents information to create the file containing the pod field"
+																		properties: {
+																			fieldRef: {
+																				description: "Required: Selects a field of the pod: only annotations, labels, name and namespace are supported."
+																				properties: {
+																					apiVersion: {
+																						description: "Version of the schema the FieldPath is written in terms of, defaults to \"v1\"."
+																						type:        "string"
+																					}
+																					fieldPath: {
+																						description: "Path of the field to select in the specified API version."
+																						type:        "string"
+																					}
+																				}
+																				required: [
+																					"fieldPath",
+																				]
+																				type: "object"
+																			}
+																			mode: {
+																				description: "Optional: mode bits used to set permissions on this file, must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																				format:      "int32"
+																				type:        "integer"
+																			}
+																			path: {
+																				description: "Required: Path is  the relative path name of the file to be created. Must not be absolute or contain the '..' path. Must be utf-8 encoded. The first item of the relative path must not start with '..'"
+																				type:        "string"
+																			}
+																			resourceFieldRef: {
+																				description: "Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, requests.cpu and requests.memory) are currently supported."
+																				properties: {
+																					containerName: {
+																						description: "Container name: required for volumes, optional for env vars"
+																						type:        "string"
+																					}
+																					divisor: {
+																						anyOf: [{
+																							type: "integer"
+																						}, {
+																							type: "string"
+																						}]
+																						description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
+																						pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																						"x-kubernetes-int-or-string": true
+																					}
+																					resource: {
+																						description: "Required: resource to select"
+																						type:        "string"
+																					}
+																				}
+																				required: [
+																					"resource",
+																				]
+																				type: "object"
+																			}
+																		}
+																		required: [
+																			"path",
+																		]
+																		type: "object"
+																	}
+																	type: "array"
+																}
+															}
+															type: "object"
+														}
+														emptyDir: {
+															description: "emptyDir represents a temporary directory that shares a pod's lifetime. More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir"
+															properties: {
+																medium: {
+																	description: "medium represents what type of storage medium should back this directory. The default is \"\" which means to use the node's default medium. Must be an empty string (default) or Memory. More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir"
+																	type:        "string"
+																}
+																sizeLimit: {
+																	anyOf: [{
+																		type: "integer"
+																	}, {
+																		type: "string"
+																	}]
+																	description:                  "sizeLimit is the total amount of local storage required for this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers in a pod. The default is nil which means that the limit is undefined. More info: http://kubernetes.io/docs/user-guide/volumes#emptydir"
+																	pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																	"x-kubernetes-int-or-string": true
+																}
+															}
+															type: "object"
+														}
+														ephemeral: {
+															description: """
+		ephemeral represents a volume that is handled by a cluster storage driver. The volume's lifecycle is tied to the pod that defines it - it will be created before the pod starts, and deleted when the pod is removed.
+		 Use this if: a) the volume is only needed while the pod runs, b) features of normal volumes like restoring from snapshot or capacity    tracking are needed, c) the storage driver is specified through a storage class, and d) the storage driver supports dynamic volume provisioning through    a PersistentVolumeClaim (see EphemeralVolumeSource for more    information on the connection between this volume type    and PersistentVolumeClaim).
+		 Use PersistentVolumeClaim or one of the vendor-specific APIs for volumes that persist for longer than the lifecycle of an individual pod.
+		 Use CSI for light-weight local ephemeral volumes if the CSI driver is meant to be used that way - see the documentation of the driver for more information.
+		 A pod can use both types of ephemeral volumes and persistent volumes at the same time.
+		"""
+															properties: volumeClaimTemplate: {
+																description: """
+		Will be used to create a stand-alone PVC to provision the volume. The pod in which this EphemeralVolumeSource is embedded will be the owner of the PVC, i.e. the PVC will be deleted together with the pod.  The name of the PVC will be `<pod name>-<volume name>` where `<volume name>` is the name from the `PodSpec.Volumes` array entry. Pod validation will reject the pod if the concatenated name is not valid for a PVC (for example, too long).
+		 An existing PVC with that name that is not owned by the pod will *not* be used for the pod to avoid using an unrelated volume by mistake. Starting the pod is then blocked until the unrelated PVC is removed. If such a pre-created PVC is meant to be used by the pod, the PVC has to updated with an owner reference to the pod once the pod exists. Normally this should not be necessary, but it may be useful when manually reconstructing a broken cluster.
+		 This field is read-only and no changes will be made by Kubernetes to the PVC after it has been created.
+		 Required, must not be nil.
+		"""
+																properties: {
+																	metadata: {
+																		description: "May contain labels and annotations that will be copied into the PVC when creating it. No other fields are allowed and will be rejected during validation."
+																		properties: {
+																			annotations: {
+																				additionalProperties: type: "string"
+																				type: "object"
+																			}
+																			finalizers: {
+																				items: type: "string"
+																				type: "array"
+																			}
+																			labels: {
+																				additionalProperties: type: "string"
+																				type: "object"
+																			}
+																			name: type:      "string"
+																			namespace: type: "string"
+																		}
+																		type: "object"
+																	}
+																	spec: {
+																		description: "The specification for the PersistentVolumeClaim. The entire content is copied unchanged into the PVC that gets created from this template. The same fields as in a PersistentVolumeClaim are also valid here."
+																		properties: {
+																			accessModes: {
+																				description: "accessModes contains the desired access modes the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
+																				items: type: "string"
+																				type: "array"
+																			}
+																			dataSource: {
+																				description: "dataSource field can be used to specify either: * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot) * An existing PVC (PersistentVolumeClaim) If the provisioner or an external controller can support the specified data source, it will create a new volume based on the contents of the specified data source. If the AnyVolumeDataSource feature gate is enabled, this field will always have the same contents as the DataSourceRef field."
+																				properties: {
+																					apiGroup: {
+																						description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
+																						type:        "string"
+																					}
+																					kind: {
+																						description: "Kind is the type of resource being referenced"
+																						type:        "string"
+																					}
+																					name: {
+																						description: "Name is the name of resource being referenced"
+																						type:        "string"
+																					}
+																				}
+																				required: [
+																					"kind",
+																					"name",
+																				]
+																				type: "object"
+																			}
+																			dataSourceRef: {
+																				description: "dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volume is desired. This may be any local object from a non-empty API group (non core object) or a PersistentVolumeClaim object. When this field is specified, volume binding will only succeed if the type of the specified object matches some installed volume populator or dynamic provisioner. This field will replace the functionality of the DataSource field and as such if both fields are non-empty, they must have the same value. For backwards compatibility, both fields (DataSource and DataSourceRef) will be set to the same value automatically if one of them is empty and the other is non-empty. There are two important differences between DataSource and DataSourceRef: * While DataSource only allows two specific types of objects, DataSourceRef   allows any non-core object, as well as PersistentVolumeClaim objects. * While DataSource ignores disallowed values (dropping them), DataSourceRef   preserves all values, and generates an error if a disallowed value is   specified. (Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled."
+																				properties: {
+																					apiGroup: {
+																						description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
+																						type:        "string"
+																					}
+																					kind: {
+																						description: "Kind is the type of resource being referenced"
+																						type:        "string"
+																					}
+																					name: {
+																						description: "Name is the name of resource being referenced"
+																						type:        "string"
+																					}
+																				}
+																				required: [
+																					"kind",
+																					"name",
+																				]
+																				type: "object"
+																			}
+																			resources: {
+																				description: "resources represents the minimum resources the volume should have. If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements that are lower than previous value but must still be higher than capacity recorded in the status field of the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources"
+																				properties: {
+																					limits: {
+																						additionalProperties: {
+																							anyOf: [{
+																								type: "integer"
+																							}, {
+																								type: "string"
+																							}]
+																							pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																							"x-kubernetes-int-or-string": true
+																						}
+																						description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
+																						type:        "object"
+																					}
+																					requests: {
+																						additionalProperties: {
+																							anyOf: [{
+																								type: "integer"
+																							}, {
+																								type: "string"
+																							}]
+																							pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																							"x-kubernetes-int-or-string": true
+																						}
+																						description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
+																						type:        "object"
+																					}
+																				}
+																				type: "object"
+																			}
+																			selector: {
+																				description: "selector is a label query over volumes to consider for binding."
+																				properties: {
+																					matchExpressions: {
+																						description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																						items: {
+																							description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																							properties: {
+																								key: {
+																									description: "key is the label key that the selector applies to."
+																									type:        "string"
+																								}
+																								operator: {
+																									description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																									type:        "string"
+																								}
+																								values: {
+																									description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																									items: type: "string"
+																									type: "array"
+																								}
+																							}
+																							required: [
+																								"key",
+																								"operator",
+																							]
+																							type: "object"
+																						}
+																						type: "array"
+																					}
+																					matchLabels: {
+																						additionalProperties: type: "string"
+																						description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																						type:        "object"
+																					}
+																				}
+																				type: "object"
+																			}
+																			storageClassName: {
+																				description: "storageClassName is the name of the StorageClass required by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1"
+																				type:        "string"
+																			}
+																			volumeMode: {
+																				description: "volumeMode defines what type of volume is required by the claim. Value of Filesystem is implied when not included in claim spec."
+																				type:        "string"
+																			}
+																			volumeName: {
+																				description: "volumeName is the binding reference to the PersistentVolume backing this claim."
+																				type:        "string"
+																			}
+																		}
+																		type: "object"
+																	}
+																}
+																required: [
+																	"spec",
+																]
+																type: "object"
+															}
+															type: "object"
+														}
+														fc: {
+															description: "fc represents a Fibre Channel resource that is attached to a kubelet's host machine and then exposed to the pod."
+															properties: {
+																fsType: {
+																	description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. TODO: how do we prevent errors in the filesystem from compromising the machine"
+																	type:        "string"
+																}
+																lun: {
+																	description: "lun is Optional: FC target lun number"
+																	format:      "int32"
+																	type:        "integer"
+																}
+																readOnly: {
+																	description: "readOnly is Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																	type:        "boolean"
+																}
+																targetWWNs: {
+																	description: "targetWWNs is Optional: FC target worldwide names (WWNs)"
+																	items: type: "string"
+																	type: "array"
+																}
+																wwids: {
+																	description: "wwids Optional: FC volume world wide identifiers (wwids) Either wwids or combination of targetWWNs and lun must be set, but not both simultaneously."
+																	items: type: "string"
+																	type: "array"
+																}
+															}
+															type: "object"
+														}
+														flexVolume: {
+															description: "flexVolume represents a generic volume resource that is provisioned/attached using an exec based plugin."
+															properties: {
+																driver: {
+																	description: "driver is the name of the driver to use for this volume."
+																	type:        "string"
+																}
+																fsType: {
+																	description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". The default filesystem depends on FlexVolume script."
+																	type:        "string"
+																}
+																options: {
+																	additionalProperties: type: "string"
+																	description: "options is Optional: this field holds extra command options if any."
+																	type:        "object"
+																}
+																readOnly: {
+																	description: "readOnly is Optional: defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																	type:        "boolean"
+																}
+																secretRef: {
+																	description: "secretRef is Optional: secretRef is reference to the secret object containing sensitive information to pass to the plugin scripts. This may be empty if no secret object is specified. If the secret object contains more than one secret, all secrets are passed to the plugin scripts."
+																	properties: name: {
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		type:        "string"
+																	}
+																	type: "object"
+																}
+															}
+															required: [
+																"driver",
+															]
+															type: "object"
+														}
+														flocker: {
+															description: "flocker represents a Flocker volume attached to a kubelet's host machine. This depends on the Flocker control service being running"
+															properties: {
+																datasetName: {
+																	description: "datasetName is Name of the dataset stored as metadata -> name on the dataset for Flocker should be considered as deprecated"
+																	type:        "string"
+																}
+																datasetUUID: {
+																	description: "datasetUUID is the UUID of the dataset. This is unique identifier of a Flocker dataset"
+																	type:        "string"
+																}
+															}
+															type: "object"
+														}
+														gcePersistentDisk: {
+															description: "gcePersistentDisk represents a GCE Disk resource that is attached to a kubelet's host machine and then exposed to the pod. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk"
+															properties: {
+																fsType: {
+																	description: "fsType is filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk TODO: how do we prevent errors in the filesystem from compromising the machine"
+																	type:        "string"
+																}
+																partition: {
+																	description: "partition is the partition in the volume that you want to mount. If omitted, the default is to mount by volume name. Examples: For volume /dev/sda1, you specify the partition as \"1\". Similarly, the volume partition for /dev/sda is \"0\" (or you can leave the property empty). More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk"
+																	format:      "int32"
+																	type:        "integer"
+																}
+																pdName: {
+																	description: "pdName is unique name of the PD resource in GCE. Used to identify the disk in GCE. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk"
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk"
+																	type:        "boolean"
+																}
+															}
+															required: [
+																"pdName",
+															]
+															type: "object"
+														}
+														gitRepo: {
+															description: "gitRepo represents a git repository at a particular revision. DEPRECATED: GitRepo is deprecated. To provision a container with a git repo, mount an EmptyDir into an InitContainer that clones the repo using git, then mount the EmptyDir into the Pod's container."
+															properties: {
+																directory: {
+																	description: "directory is the target directory name. Must not contain or start with '..'.  If '.' is supplied, the volume directory will be the git repository.  Otherwise, if specified, the volume will contain the git repository in the subdirectory with the given name."
+																	type:        "string"
+																}
+																repository: {
+																	description: "repository is the URL"
+																	type:        "string"
+																}
+																revision: {
+																	description: "revision is the commit hash for the specified revision."
+																	type:        "string"
+																}
+															}
+															required: [
+																"repository",
+															]
+															type: "object"
+														}
+														glusterfs: {
+															description: "glusterfs represents a Glusterfs mount on the host that shares a pod's lifetime. More info: https://examples.k8s.io/volumes/glusterfs/README.md"
+															properties: {
+																endpoints: {
+																	description: "endpoints is the endpoint name that details Glusterfs topology. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod"
+																	type:        "string"
+																}
+																path: {
+																	description: "path is the Glusterfs volume path. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod"
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly here will force the Glusterfs volume to be mounted with read-only permissions. Defaults to false. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod"
+																	type:        "boolean"
+																}
+															}
+															required: [
+																"endpoints",
+																"path",
+															]
+															type: "object"
+														}
+														hostPath: {
+															description: "hostPath represents a pre-existing file or directory on the host machine that is directly exposed to the container. This is generally used for system agents or other privileged things that are allowed to see the host machine. Most containers will NOT need this. More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath --- TODO(jonesdl) We need to restrict who can use host directory mounts and who can/can not mount host directories as read/write."
+															properties: {
+																path: {
+																	description: "path of the directory on the host. If the path is a symlink, it will follow the link to the real path. More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath"
+																	type:        "string"
+																}
+																type: {
+																	description: "type for HostPath Volume Defaults to \"\" More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath"
+																	type:        "string"
+																}
+															}
+															required: [
+																"path",
+															]
+															type: "object"
+														}
+														iscsi: {
+															description: "iscsi represents an ISCSI Disk resource that is attached to a kubelet's host machine and then exposed to the pod. More info: https://examples.k8s.io/volumes/iscsi/README.md"
+															properties: {
+																chapAuthDiscovery: {
+																	description: "chapAuthDiscovery defines whether support iSCSI Discovery CHAP authentication"
+																	type:        "boolean"
+																}
+																chapAuthSession: {
+																	description: "chapAuthSession defines whether support iSCSI Session CHAP authentication"
+																	type:        "boolean"
+																}
+																fsType: {
+																	description: "fsType is the filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#iscsi TODO: how do we prevent errors in the filesystem from compromising the machine"
+																	type:        "string"
+																}
+																initiatorName: {
+																	description: "initiatorName is the custom iSCSI Initiator Name. If initiatorName is specified with iscsiInterface simultaneously, new iSCSI interface <target portal>:<volume name> will be created for the connection."
+																	type:        "string"
+																}
+																iqn: {
+																	description: "iqn is the target iSCSI Qualified Name."
+																	type:        "string"
+																}
+																iscsiInterface: {
+																	description: "iscsiInterface is the interface Name that uses an iSCSI transport. Defaults to 'default' (tcp)."
+																	type:        "string"
+																}
+																lun: {
+																	description: "lun represents iSCSI Target Lun number."
+																	format:      "int32"
+																	type:        "integer"
+																}
+																portals: {
+																	description: "portals is the iSCSI Target Portal List. The portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260)."
+																	items: type: "string"
+																	type: "array"
+																}
+																readOnly: {
+																	description: "readOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false."
+																	type:        "boolean"
+																}
+																secretRef: {
+																	description: "secretRef is the CHAP Secret for iSCSI target and initiator authentication"
+																	properties: name: {
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		type:        "string"
+																	}
+																	type: "object"
+																}
+																targetPortal: {
+																	description: "targetPortal is iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260)."
+																	type:        "string"
+																}
+															}
+															required: [
+																"iqn",
+																"lun",
+																"targetPortal",
+															]
+															type: "object"
+														}
+														nfs: {
+															description: "nfs represents an NFS mount on the host that shares a pod's lifetime More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs"
+															properties: {
+																path: {
+																	description: "path that is exported by the NFS server. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs"
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly here will force the NFS export to be mounted with read-only permissions. Defaults to false. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs"
+																	type:        "boolean"
+																}
+																server: {
+																	description: "server is the hostname or IP address of the NFS server. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs"
+																	type:        "string"
+																}
+															}
+															required: [
+																"path",
+																"server",
+															]
+															type: "object"
+														}
+														persistentVolumeClaim: {
+															description: "persistentVolumeClaimVolumeSource represents a reference to a PersistentVolumeClaim in the same namespace. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
+															properties: {
+																claimName: {
+																	description: "claimName is the name of a PersistentVolumeClaim in the same namespace as the pod using this volume. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly Will force the ReadOnly setting in VolumeMounts. Default false."
+																	type:        "boolean"
+																}
+															}
+															required: [
+																"claimName",
+															]
+															type: "object"
+														}
+														photonPersistentDisk: {
+															description: "photonPersistentDisk represents a PhotonController persistent disk attached and mounted on kubelets host machine"
+															properties: {
+																fsType: {
+																	description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified."
+																	type:        "string"
+																}
+																pdID: {
+																	description: "pdID is the ID that identifies Photon Controller persistent disk"
+																	type:        "string"
+																}
+															}
+															required: [
+																"pdID",
+															]
+															type: "object"
+														}
+														portworxVolume: {
+															description: "portworxVolume represents a portworx volume attached and mounted on kubelets host machine"
+															properties: {
+																fsType: {
+																	description: "fSType represents the filesystem type to mount Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\". Implicitly inferred to be \"ext4\" if unspecified."
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																	type:        "boolean"
+																}
+																volumeID: {
+																	description: "volumeID uniquely identifies a Portworx volume"
+																	type:        "string"
+																}
+															}
+															required: [
+																"volumeID",
+															]
+															type: "object"
+														}
+														projected: {
+															description: "projected items for all in one resources secrets, configmaps, and downward API"
+															properties: {
+																defaultMode: {
+																	description: "defaultMode are the mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																	format:      "int32"
+																	type:        "integer"
+																}
+																sources: {
+																	description: "sources is the list of volume projections"
+																	items: {
+																		description: "Projection that may be projected along with other supported volume types"
+																		properties: {
+																			configMap: {
+																				description: "configMap information about the configMap data to project"
+																				properties: {
+																					items: {
+																						description: "items if unspecified, each key-value pair in the Data field of the referenced ConfigMap will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the ConfigMap, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'."
+																						items: {
+																							description: "Maps a string key to a path within a volume."
+																							properties: {
+																								key: {
+																									description: "key is the key to project."
+																									type:        "string"
+																								}
+																								mode: {
+																									description: "mode is Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																									format:      "int32"
+																									type:        "integer"
+																								}
+																								path: {
+																									description: "path is the relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'."
+																									type:        "string"
+																								}
+																							}
+																							required: [
+																								"key",
+																								"path",
+																							]
+																							type: "object"
+																						}
+																						type: "array"
+																					}
+																					name: {
+																						description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																						type:        "string"
+																					}
+																					optional: {
+																						description: "optional specify whether the ConfigMap or its keys must be defined"
+																						type:        "boolean"
+																					}
+																				}
+																				type: "object"
+																			}
+																			downwardAPI: {
+																				description: "downwardAPI information about the downwardAPI data to project"
+																				properties: items: {
+																					description: "Items is a list of DownwardAPIVolume file"
+																					items: {
+																						description: "DownwardAPIVolumeFile represents information to create the file containing the pod field"
+																						properties: {
+																							fieldRef: {
+																								description: "Required: Selects a field of the pod: only annotations, labels, name and namespace are supported."
+																								properties: {
+																									apiVersion: {
+																										description: "Version of the schema the FieldPath is written in terms of, defaults to \"v1\"."
+																										type:        "string"
+																									}
+																									fieldPath: {
+																										description: "Path of the field to select in the specified API version."
+																										type:        "string"
+																									}
+																								}
+																								required: [
+																									"fieldPath",
+																								]
+																								type: "object"
+																							}
+																							mode: {
+																								description: "Optional: mode bits used to set permissions on this file, must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																								format:      "int32"
+																								type:        "integer"
+																							}
+																							path: {
+																								description: "Required: Path is  the relative path name of the file to be created. Must not be absolute or contain the '..' path. Must be utf-8 encoded. The first item of the relative path must not start with '..'"
+																								type:        "string"
+																							}
+																							resourceFieldRef: {
+																								description: "Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, requests.cpu and requests.memory) are currently supported."
+																								properties: {
+																									containerName: {
+																										description: "Container name: required for volumes, optional for env vars"
+																										type:        "string"
+																									}
+																									divisor: {
+																										anyOf: [{
+																											type: "integer"
+																										}, {
+																											type: "string"
+																										}]
+																										description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
+																										pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																										"x-kubernetes-int-or-string": true
+																									}
+																									resource: {
+																										description: "Required: resource to select"
+																										type:        "string"
+																									}
+																								}
+																								required: [
+																									"resource",
+																								]
+																								type: "object"
+																							}
+																						}
+																						required: [
+																							"path",
+																						]
+																						type: "object"
+																					}
+																					type: "array"
+																				}
+																				type: "object"
+																			}
+																			secret: {
+																				description: "secret information about the secret data to project"
+																				properties: {
+																					items: {
+																						description: "items if unspecified, each key-value pair in the Data field of the referenced Secret will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the Secret, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'."
+																						items: {
+																							description: "Maps a string key to a path within a volume."
+																							properties: {
+																								key: {
+																									description: "key is the key to project."
+																									type:        "string"
+																								}
+																								mode: {
+																									description: "mode is Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																									format:      "int32"
+																									type:        "integer"
+																								}
+																								path: {
+																									description: "path is the relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'."
+																									type:        "string"
+																								}
+																							}
+																							required: [
+																								"key",
+																								"path",
+																							]
+																							type: "object"
+																						}
+																						type: "array"
+																					}
+																					name: {
+																						description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																						type:        "string"
+																					}
+																					optional: {
+																						description: "optional field specify whether the Secret or its key must be defined"
+																						type:        "boolean"
+																					}
+																				}
+																				type: "object"
+																			}
+																			serviceAccountToken: {
+																				description: "serviceAccountToken is information about the serviceAccountToken data to project"
+																				properties: {
+																					audience: {
+																						description: "audience is the intended audience of the token. A recipient of a token must identify itself with an identifier specified in the audience of the token, and otherwise should reject the token. The audience defaults to the identifier of the apiserver."
+																						type:        "string"
+																					}
+																					expirationSeconds: {
+																						description: "expirationSeconds is the requested duration of validity of the service account token. As the token approaches expiration, the kubelet volume plugin will proactively rotate the service account token. The kubelet will start trying to rotate the token if the token is older than 80 percent of its time to live or if the token is older than 24 hours.Defaults to 1 hour and must be at least 10 minutes."
+																						format:      "int64"
+																						type:        "integer"
+																					}
+																					path: {
+																						description: "path is the path relative to the mount point of the file to project the token into."
+																						type:        "string"
+																					}
+																				}
+																				required: [
+																					"path",
+																				]
+																				type: "object"
+																			}
+																		}
+																		type: "object"
+																	}
+																	type: "array"
+																}
+															}
+															type: "object"
+														}
+														quobyte: {
+															description: "quobyte represents a Quobyte mount on the host that shares a pod's lifetime"
+															properties: {
+																group: {
+																	description: "group to map volume access to Default is no group"
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly here will force the Quobyte volume to be mounted with read-only permissions. Defaults to false."
+																	type:        "boolean"
+																}
+																registry: {
+																	description: "registry represents a single or multiple Quobyte Registry services specified as a string as host:port pair (multiple entries are separated with commas) which acts as the central registry for volumes"
+																	type:        "string"
+																}
+																tenant: {
+																	description: "tenant owning the given Quobyte volume in the Backend Used with dynamically provisioned Quobyte volumes, value is set by the plugin"
+																	type:        "string"
+																}
+																user: {
+																	description: "user to map volume access to Defaults to serivceaccount user"
+																	type:        "string"
+																}
+																volume: {
+																	description: "volume is a string that references an already created Quobyte volume by name."
+																	type:        "string"
+																}
+															}
+															required: [
+																"registry",
+																"volume",
+															]
+															type: "object"
+														}
+														rbd: {
+															description: "rbd represents a Rados Block Device mount on the host that shares a pod's lifetime. More info: https://examples.k8s.io/volumes/rbd/README.md"
+															properties: {
+																fsType: {
+																	description: "fsType is the filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#rbd TODO: how do we prevent errors in the filesystem from compromising the machine"
+																	type:        "string"
+																}
+																image: {
+																	description: "image is the rados image name. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																	type:        "string"
+																}
+																keyring: {
+																	description: "keyring is the path to key ring for RBDUser. Default is /etc/ceph/keyring. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																	type:        "string"
+																}
+																monitors: {
+																	description: "monitors is a collection of Ceph monitors. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																	items: type: "string"
+																	type: "array"
+																}
+																pool: {
+																	description: "pool is the rados pool name. Default is rbd. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																	type:        "boolean"
+																}
+																secretRef: {
+																	description: "secretRef is name of the authentication secret for RBDUser. If provided overrides keyring. Default is nil. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																	properties: name: {
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		type:        "string"
+																	}
+																	type: "object"
+																}
+																user: {
+																	description: "user is the rados user name. Default is admin. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																	type:        "string"
+																}
+															}
+															required: [
+																"image",
+																"monitors",
+															]
+															type: "object"
+														}
+														scaleIO: {
+															description: "scaleIO represents a ScaleIO persistent volume attached and mounted on Kubernetes nodes."
+															properties: {
+																fsType: {
+																	description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Default is \"xfs\"."
+																	type:        "string"
+																}
+																gateway: {
+																	description: "gateway is the host address of the ScaleIO API Gateway."
+																	type:        "string"
+																}
+																protectionDomain: {
+																	description: "protectionDomain is the name of the ScaleIO Protection Domain for the configured storage."
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																	type:        "boolean"
+																}
+																secretRef: {
+																	description: "secretRef references to the secret for ScaleIO user and other sensitive information. If this is not provided, Login operation will fail."
+																	properties: name: {
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		type:        "string"
+																	}
+																	type: "object"
+																}
+																sslEnabled: {
+																	description: "sslEnabled Flag enable/disable SSL communication with Gateway, default false"
+																	type:        "boolean"
+																}
+																storageMode: {
+																	description: "storageMode indicates whether the storage for a volume should be ThickProvisioned or ThinProvisioned. Default is ThinProvisioned."
+																	type:        "string"
+																}
+																storagePool: {
+																	description: "storagePool is the ScaleIO Storage Pool associated with the protection domain."
+																	type:        "string"
+																}
+																system: {
+																	description: "system is the name of the storage system as configured in ScaleIO."
+																	type:        "string"
+																}
+																volumeName: {
+																	description: "volumeName is the name of a volume already created in the ScaleIO system that is associated with this volume source."
+																	type:        "string"
+																}
+															}
+															required: [
+																"gateway",
+																"secretRef",
+																"system",
+															]
+															type: "object"
+														}
+														secret: {
+															description: "secret represents a secret that should populate this volume. More info: https://kubernetes.io/docs/concepts/storage/volumes#secret"
+															properties: {
+																defaultMode: {
+																	description: "defaultMode is Optional: mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																	format:      "int32"
+																	type:        "integer"
+																}
+																items: {
+																	description: "items If unspecified, each key-value pair in the Data field of the referenced Secret will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the Secret, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'."
+																	items: {
+																		description: "Maps a string key to a path within a volume."
+																		properties: {
+																			key: {
+																				description: "key is the key to project."
+																				type:        "string"
+																			}
+																			mode: {
+																				description: "mode is Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																				format:      "int32"
+																				type:        "integer"
+																			}
+																			path: {
+																				description: "path is the relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'."
+																				type:        "string"
+																			}
+																		}
+																		required: [
+																			"key",
+																			"path",
+																		]
+																		type: "object"
+																	}
+																	type: "array"
+																}
+																optional: {
+																	description: "optional field specify whether the Secret or its keys must be defined"
+																	type:        "boolean"
+																}
+																secretName: {
+																	description: "secretName is the name of the secret in the pod's namespace to use. More info: https://kubernetes.io/docs/concepts/storage/volumes#secret"
+																	type:        "string"
+																}
+															}
+															type: "object"
+														}
+														storageos: {
+															description: "storageOS represents a StorageOS volume attached and mounted on Kubernetes nodes."
+															properties: {
+																fsType: {
+																	description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified."
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																	type:        "boolean"
+																}
+																secretRef: {
+																	description: "secretRef specifies the secret to use for obtaining the StorageOS API credentials.  If not specified, default values will be attempted."
+																	properties: name: {
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		type:        "string"
+																	}
+																	type: "object"
+																}
+																volumeName: {
+																	description: "volumeName is the human-readable name of the StorageOS volume.  Volume names are only unique within a namespace."
+																	type:        "string"
+																}
+																volumeNamespace: {
+																	description: "volumeNamespace specifies the scope of the volume within StorageOS.  If no namespace is specified then the Pod's namespace will be used.  This allows the Kubernetes name scoping to be mirrored within StorageOS for tighter integration. Set VolumeName to any name to override the default behaviour. Set to \"default\" if you are not using namespaces within StorageOS. Namespaces that do not pre-exist within StorageOS will be created."
+																	type:        "string"
+																}
+															}
+															type: "object"
+														}
+														vsphereVolume: {
+															description: "vsphereVolume represents a vSphere volume attached and mounted on kubelets host machine"
+															properties: {
+																fsType: {
+																	description: "fsType is filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified."
+																	type:        "string"
+																}
+																storagePolicyID: {
+																	description: "storagePolicyID is the storage Policy Based Management (SPBM) profile ID associated with the StoragePolicyName."
+																	type:        "string"
+																}
+																storagePolicyName: {
+																	description: "storagePolicyName is the storage Policy Based Management (SPBM) profile name."
+																	type:        "string"
+																}
+																volumePath: {
+																	description: "volumePath is the path that identifies vSphere volume vmdk"
+																	type:        "string"
+																}
+															}
+															required: [
+																"volumePath",
+															]
+															type: "object"
+														}
+													}
+													type: "object"
+												}
+												type: "object"
+											}
+											keytabFile: {
+												description: "KeytabFile defines where the Kerberos keytab should be sourced from. The keytab file will be placed into `/etc/krb5.keytab`. If this is left empty, Rook will not add the file. This allows you to manage the `krb5.keytab` file yourself however you wish. For example, you may build it into your custom Ceph container image or use the Vault agent injector to securely add the file via annotations on the CephNFS spec (passed to the NFS server pods)."
+												properties: volumeSource: {
+													description: "VolumeSource accepts a standard Kubernetes VolumeSource for the Kerberos keytab file like what is normally used to configure Volumes for a Pod. For example, a Secret or HostPath. There are two requirements for the source's content:   1. The config file must be mountable via `subPath: krb5.keytab`. For example, in a      Secret, the data item must be named `krb5.keytab`, or `items` must be defined to      select the key and give it path `krb5.keytab`. A HostPath directory must have the      `krb5.keytab` file.   2. The volume or config file must have mode 0600."
+													properties: {
+														awsElasticBlockStore: {
+															description: "awsElasticBlockStore represents an AWS Disk resource that is attached to a kubelet's host machine and then exposed to the pod. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore"
+															properties: {
+																fsType: {
+																	description: "fsType is the filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore TODO: how do we prevent errors in the filesystem from compromising the machine"
+																	type:        "string"
+																}
+																partition: {
+																	description: "partition is the partition in the volume that you want to mount. If omitted, the default is to mount by volume name. Examples: For volume /dev/sda1, you specify the partition as \"1\". Similarly, the volume partition for /dev/sda is \"0\" (or you can leave the property empty)."
+																	format:      "int32"
+																	type:        "integer"
+																}
+																readOnly: {
+																	description: "readOnly value true will force the readOnly setting in VolumeMounts. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore"
+																	type:        "boolean"
+																}
+																volumeID: {
+																	description: "volumeID is unique ID of the persistent disk resource in AWS (Amazon EBS volume). More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore"
+																	type:        "string"
+																}
+															}
+															required: [
+																"volumeID",
+															]
+															type: "object"
+														}
+														azureDisk: {
+															description: "azureDisk represents an Azure Data Disk mount on the host and bind mount to the pod."
+															properties: {
+																cachingMode: {
+																	description: "cachingMode is the Host Caching mode: None, Read Only, Read Write."
+																	type:        "string"
+																}
+																diskName: {
+																	description: "diskName is the Name of the data disk in the blob storage"
+																	type:        "string"
+																}
+																diskURI: {
+																	description: "diskURI is the URI of data disk in the blob storage"
+																	type:        "string"
+																}
+																fsType: {
+																	description: "fsType is Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified."
+																	type:        "string"
+																}
+																kind: {
+																	description: "kind expected values are Shared: multiple blob disks per storage account  Dedicated: single blob disk per storage account  Managed: azure managed data disk (only in managed availability set). defaults to shared"
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																	type:        "boolean"
+																}
+															}
+															required: [
+																"diskName",
+																"diskURI",
+															]
+															type: "object"
+														}
+														azureFile: {
+															description: "azureFile represents an Azure File Service mount on the host and bind mount to the pod."
+															properties: {
+																readOnly: {
+																	description: "readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																	type:        "boolean"
+																}
+																secretName: {
+																	description: "secretName is the  name of secret that contains Azure Storage Account Name and Key"
+																	type:        "string"
+																}
+																shareName: {
+																	description: "shareName is the azure share Name"
+																	type:        "string"
+																}
+															}
+															required: [
+																"secretName",
+																"shareName",
+															]
+															type: "object"
+														}
+														cephfs: {
+															description: "cephFS represents a Ceph FS mount on the host that shares a pod's lifetime"
+															properties: {
+																monitors: {
+																	description: "monitors is Required: Monitors is a collection of Ceph monitors More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
+																	items: type: "string"
+																	type: "array"
+																}
+																path: {
+																	description: "path is Optional: Used as the mounted root, rather than the full Ceph tree, default is /"
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly is Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
+																	type:        "boolean"
+																}
+																secretFile: {
+																	description: "secretFile is Optional: SecretFile is the path to key ring for User, default is /etc/ceph/user.secret More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
+																	type:        "string"
+																}
+																secretRef: {
+																	description: "secretRef is Optional: SecretRef is reference to the authentication secret for User, default is empty. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
+																	properties: name: {
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		type:        "string"
+																	}
+																	type: "object"
+																}
+																user: {
+																	description: "user is optional: User is the rados user name, default is admin More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
+																	type:        "string"
+																}
+															}
+															required: [
+																"monitors",
+															]
+															type: "object"
+														}
+														cinder: {
+															description: "cinder represents a cinder volume attached and mounted on kubelets host machine. More info: https://examples.k8s.io/mysql-cinder-pd/README.md"
+															properties: {
+																fsType: {
+																	description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://examples.k8s.io/mysql-cinder-pd/README.md"
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://examples.k8s.io/mysql-cinder-pd/README.md"
+																	type:        "boolean"
+																}
+																secretRef: {
+																	description: "secretRef is optional: points to a secret object containing parameters used to connect to OpenStack."
+																	properties: name: {
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		type:        "string"
+																	}
+																	type: "object"
+																}
+																volumeID: {
+																	description: "volumeID used to identify the volume in cinder. More info: https://examples.k8s.io/mysql-cinder-pd/README.md"
+																	type:        "string"
+																}
+															}
+															required: [
+																"volumeID",
+															]
+															type: "object"
+														}
+														configMap: {
+															description: "configMap represents a configMap that should populate this volume"
+															properties: {
+																defaultMode: {
+																	description: "defaultMode is optional: mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																	format:      "int32"
+																	type:        "integer"
+																}
+																items: {
+																	description: "items if unspecified, each key-value pair in the Data field of the referenced ConfigMap will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the ConfigMap, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'."
+																	items: {
+																		description: "Maps a string key to a path within a volume."
+																		properties: {
+																			key: {
+																				description: "key is the key to project."
+																				type:        "string"
+																			}
+																			mode: {
+																				description: "mode is Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																				format:      "int32"
+																				type:        "integer"
+																			}
+																			path: {
+																				description: "path is the relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'."
+																				type:        "string"
+																			}
+																		}
+																		required: [
+																			"key",
+																			"path",
+																		]
+																		type: "object"
+																	}
+																	type: "array"
+																}
+																name: {
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	type:        "string"
+																}
+																optional: {
+																	description: "optional specify whether the ConfigMap or its keys must be defined"
+																	type:        "boolean"
+																}
+															}
+															type: "object"
+														}
+														csi: {
+															description: "csi (Container Storage Interface) represents ephemeral storage that is handled by certain external CSI drivers (Beta feature)."
+															properties: {
+																driver: {
+																	description: "driver is the name of the CSI driver that handles this volume. Consult with your admin for the correct name as registered in the cluster."
+																	type:        "string"
+																}
+																fsType: {
+																	description: "fsType to mount. Ex. \"ext4\", \"xfs\", \"ntfs\". If not provided, the empty value is passed to the associated CSI driver which will determine the default filesystem to apply."
+																	type:        "string"
+																}
+																nodePublishSecretRef: {
+																	description: "nodePublishSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodePublishVolume and NodeUnpublishVolume calls. This field is optional, and  may be empty if no secret is required. If the secret object contains more than one secret, all secret references are passed."
+																	properties: name: {
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		type:        "string"
+																	}
+																	type: "object"
+																}
+																readOnly: {
+																	description: "readOnly specifies a read-only configuration for the volume. Defaults to false (read/write)."
+																	type:        "boolean"
+																}
+																volumeAttributes: {
+																	additionalProperties: type: "string"
+																	description: "volumeAttributes stores driver-specific properties that are passed to the CSI driver. Consult your driver's documentation for supported values."
+																	type:        "object"
+																}
+															}
+															required: [
+																"driver",
+															]
+															type: "object"
+														}
+														downwardAPI: {
+															description: "downwardAPI represents downward API about the pod that should populate this volume"
+															properties: {
+																defaultMode: {
+																	description: "Optional: mode bits to use on created files by default. Must be a Optional: mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																	format:      "int32"
+																	type:        "integer"
+																}
+																items: {
+																	description: "Items is a list of downward API volume file"
+																	items: {
+																		description: "DownwardAPIVolumeFile represents information to create the file containing the pod field"
+																		properties: {
+																			fieldRef: {
+																				description: "Required: Selects a field of the pod: only annotations, labels, name and namespace are supported."
+																				properties: {
+																					apiVersion: {
+																						description: "Version of the schema the FieldPath is written in terms of, defaults to \"v1\"."
+																						type:        "string"
+																					}
+																					fieldPath: {
+																						description: "Path of the field to select in the specified API version."
+																						type:        "string"
+																					}
+																				}
+																				required: [
+																					"fieldPath",
+																				]
+																				type: "object"
+																			}
+																			mode: {
+																				description: "Optional: mode bits used to set permissions on this file, must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																				format:      "int32"
+																				type:        "integer"
+																			}
+																			path: {
+																				description: "Required: Path is  the relative path name of the file to be created. Must not be absolute or contain the '..' path. Must be utf-8 encoded. The first item of the relative path must not start with '..'"
+																				type:        "string"
+																			}
+																			resourceFieldRef: {
+																				description: "Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, requests.cpu and requests.memory) are currently supported."
+																				properties: {
+																					containerName: {
+																						description: "Container name: required for volumes, optional for env vars"
+																						type:        "string"
+																					}
+																					divisor: {
+																						anyOf: [{
+																							type: "integer"
+																						}, {
+																							type: "string"
+																						}]
+																						description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
+																						pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																						"x-kubernetes-int-or-string": true
+																					}
+																					resource: {
+																						description: "Required: resource to select"
+																						type:        "string"
+																					}
+																				}
+																				required: [
+																					"resource",
+																				]
+																				type: "object"
+																			}
+																		}
+																		required: [
+																			"path",
+																		]
+																		type: "object"
+																	}
+																	type: "array"
+																}
+															}
+															type: "object"
+														}
+														emptyDir: {
+															description: "emptyDir represents a temporary directory that shares a pod's lifetime. More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir"
+															properties: {
+																medium: {
+																	description: "medium represents what type of storage medium should back this directory. The default is \"\" which means to use the node's default medium. Must be an empty string (default) or Memory. More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir"
+																	type:        "string"
+																}
+																sizeLimit: {
+																	anyOf: [{
+																		type: "integer"
+																	}, {
+																		type: "string"
+																	}]
+																	description:                  "sizeLimit is the total amount of local storage required for this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers in a pod. The default is nil which means that the limit is undefined. More info: http://kubernetes.io/docs/user-guide/volumes#emptydir"
+																	pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																	"x-kubernetes-int-or-string": true
+																}
+															}
+															type: "object"
+														}
+														ephemeral: {
+															description: """
+		ephemeral represents a volume that is handled by a cluster storage driver. The volume's lifecycle is tied to the pod that defines it - it will be created before the pod starts, and deleted when the pod is removed.
+		 Use this if: a) the volume is only needed while the pod runs, b) features of normal volumes like restoring from snapshot or capacity    tracking are needed, c) the storage driver is specified through a storage class, and d) the storage driver supports dynamic volume provisioning through    a PersistentVolumeClaim (see EphemeralVolumeSource for more    information on the connection between this volume type    and PersistentVolumeClaim).
+		 Use PersistentVolumeClaim or one of the vendor-specific APIs for volumes that persist for longer than the lifecycle of an individual pod.
+		 Use CSI for light-weight local ephemeral volumes if the CSI driver is meant to be used that way - see the documentation of the driver for more information.
+		 A pod can use both types of ephemeral volumes and persistent volumes at the same time.
+		"""
+															properties: volumeClaimTemplate: {
+																description: """
+		Will be used to create a stand-alone PVC to provision the volume. The pod in which this EphemeralVolumeSource is embedded will be the owner of the PVC, i.e. the PVC will be deleted together with the pod.  The name of the PVC will be `<pod name>-<volume name>` where `<volume name>` is the name from the `PodSpec.Volumes` array entry. Pod validation will reject the pod if the concatenated name is not valid for a PVC (for example, too long).
+		 An existing PVC with that name that is not owned by the pod will *not* be used for the pod to avoid using an unrelated volume by mistake. Starting the pod is then blocked until the unrelated PVC is removed. If such a pre-created PVC is meant to be used by the pod, the PVC has to updated with an owner reference to the pod once the pod exists. Normally this should not be necessary, but it may be useful when manually reconstructing a broken cluster.
+		 This field is read-only and no changes will be made by Kubernetes to the PVC after it has been created.
+		 Required, must not be nil.
+		"""
+																properties: {
+																	metadata: {
+																		description: "May contain labels and annotations that will be copied into the PVC when creating it. No other fields are allowed and will be rejected during validation."
+																		properties: {
+																			annotations: {
+																				additionalProperties: type: "string"
+																				type: "object"
+																			}
+																			finalizers: {
+																				items: type: "string"
+																				type: "array"
+																			}
+																			labels: {
+																				additionalProperties: type: "string"
+																				type: "object"
+																			}
+																			name: type:      "string"
+																			namespace: type: "string"
+																		}
+																		type: "object"
+																	}
+																	spec: {
+																		description: "The specification for the PersistentVolumeClaim. The entire content is copied unchanged into the PVC that gets created from this template. The same fields as in a PersistentVolumeClaim are also valid here."
+																		properties: {
+																			accessModes: {
+																				description: "accessModes contains the desired access modes the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
+																				items: type: "string"
+																				type: "array"
+																			}
+																			dataSource: {
+																				description: "dataSource field can be used to specify either: * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot) * An existing PVC (PersistentVolumeClaim) If the provisioner or an external controller can support the specified data source, it will create a new volume based on the contents of the specified data source. If the AnyVolumeDataSource feature gate is enabled, this field will always have the same contents as the DataSourceRef field."
+																				properties: {
+																					apiGroup: {
+																						description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
+																						type:        "string"
+																					}
+																					kind: {
+																						description: "Kind is the type of resource being referenced"
+																						type:        "string"
+																					}
+																					name: {
+																						description: "Name is the name of resource being referenced"
+																						type:        "string"
+																					}
+																				}
+																				required: [
+																					"kind",
+																					"name",
+																				]
+																				type: "object"
+																			}
+																			dataSourceRef: {
+																				description: "dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volume is desired. This may be any local object from a non-empty API group (non core object) or a PersistentVolumeClaim object. When this field is specified, volume binding will only succeed if the type of the specified object matches some installed volume populator or dynamic provisioner. This field will replace the functionality of the DataSource field and as such if both fields are non-empty, they must have the same value. For backwards compatibility, both fields (DataSource and DataSourceRef) will be set to the same value automatically if one of them is empty and the other is non-empty. There are two important differences between DataSource and DataSourceRef: * While DataSource only allows two specific types of objects, DataSourceRef   allows any non-core object, as well as PersistentVolumeClaim objects. * While DataSource ignores disallowed values (dropping them), DataSourceRef   preserves all values, and generates an error if a disallowed value is   specified. (Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled."
+																				properties: {
+																					apiGroup: {
+																						description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
+																						type:        "string"
+																					}
+																					kind: {
+																						description: "Kind is the type of resource being referenced"
+																						type:        "string"
+																					}
+																					name: {
+																						description: "Name is the name of resource being referenced"
+																						type:        "string"
+																					}
+																				}
+																				required: [
+																					"kind",
+																					"name",
+																				]
+																				type: "object"
+																			}
+																			resources: {
+																				description: "resources represents the minimum resources the volume should have. If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements that are lower than previous value but must still be higher than capacity recorded in the status field of the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources"
+																				properties: {
+																					limits: {
+																						additionalProperties: {
+																							anyOf: [{
+																								type: "integer"
+																							}, {
+																								type: "string"
+																							}]
+																							pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																							"x-kubernetes-int-or-string": true
+																						}
+																						description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
+																						type:        "object"
+																					}
+																					requests: {
+																						additionalProperties: {
+																							anyOf: [{
+																								type: "integer"
+																							}, {
+																								type: "string"
+																							}]
+																							pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																							"x-kubernetes-int-or-string": true
+																						}
+																						description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
+																						type:        "object"
+																					}
+																				}
+																				type: "object"
+																			}
+																			selector: {
+																				description: "selector is a label query over volumes to consider for binding."
+																				properties: {
+																					matchExpressions: {
+																						description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																						items: {
+																							description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																							properties: {
+																								key: {
+																									description: "key is the label key that the selector applies to."
+																									type:        "string"
+																								}
+																								operator: {
+																									description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																									type:        "string"
+																								}
+																								values: {
+																									description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																									items: type: "string"
+																									type: "array"
+																								}
+																							}
+																							required: [
+																								"key",
+																								"operator",
+																							]
+																							type: "object"
+																						}
+																						type: "array"
+																					}
+																					matchLabels: {
+																						additionalProperties: type: "string"
+																						description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																						type:        "object"
+																					}
+																				}
+																				type: "object"
+																			}
+																			storageClassName: {
+																				description: "storageClassName is the name of the StorageClass required by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1"
+																				type:        "string"
+																			}
+																			volumeMode: {
+																				description: "volumeMode defines what type of volume is required by the claim. Value of Filesystem is implied when not included in claim spec."
+																				type:        "string"
+																			}
+																			volumeName: {
+																				description: "volumeName is the binding reference to the PersistentVolume backing this claim."
+																				type:        "string"
+																			}
+																		}
+																		type: "object"
+																	}
+																}
+																required: [
+																	"spec",
+																]
+																type: "object"
+															}
+															type: "object"
+														}
+														fc: {
+															description: "fc represents a Fibre Channel resource that is attached to a kubelet's host machine and then exposed to the pod."
+															properties: {
+																fsType: {
+																	description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. TODO: how do we prevent errors in the filesystem from compromising the machine"
+																	type:        "string"
+																}
+																lun: {
+																	description: "lun is Optional: FC target lun number"
+																	format:      "int32"
+																	type:        "integer"
+																}
+																readOnly: {
+																	description: "readOnly is Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																	type:        "boolean"
+																}
+																targetWWNs: {
+																	description: "targetWWNs is Optional: FC target worldwide names (WWNs)"
+																	items: type: "string"
+																	type: "array"
+																}
+																wwids: {
+																	description: "wwids Optional: FC volume world wide identifiers (wwids) Either wwids or combination of targetWWNs and lun must be set, but not both simultaneously."
+																	items: type: "string"
+																	type: "array"
+																}
+															}
+															type: "object"
+														}
+														flexVolume: {
+															description: "flexVolume represents a generic volume resource that is provisioned/attached using an exec based plugin."
+															properties: {
+																driver: {
+																	description: "driver is the name of the driver to use for this volume."
+																	type:        "string"
+																}
+																fsType: {
+																	description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". The default filesystem depends on FlexVolume script."
+																	type:        "string"
+																}
+																options: {
+																	additionalProperties: type: "string"
+																	description: "options is Optional: this field holds extra command options if any."
+																	type:        "object"
+																}
+																readOnly: {
+																	description: "readOnly is Optional: defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																	type:        "boolean"
+																}
+																secretRef: {
+																	description: "secretRef is Optional: secretRef is reference to the secret object containing sensitive information to pass to the plugin scripts. This may be empty if no secret object is specified. If the secret object contains more than one secret, all secrets are passed to the plugin scripts."
+																	properties: name: {
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		type:        "string"
+																	}
+																	type: "object"
+																}
+															}
+															required: [
+																"driver",
+															]
+															type: "object"
+														}
+														flocker: {
+															description: "flocker represents a Flocker volume attached to a kubelet's host machine. This depends on the Flocker control service being running"
+															properties: {
+																datasetName: {
+																	description: "datasetName is Name of the dataset stored as metadata -> name on the dataset for Flocker should be considered as deprecated"
+																	type:        "string"
+																}
+																datasetUUID: {
+																	description: "datasetUUID is the UUID of the dataset. This is unique identifier of a Flocker dataset"
+																	type:        "string"
+																}
+															}
+															type: "object"
+														}
+														gcePersistentDisk: {
+															description: "gcePersistentDisk represents a GCE Disk resource that is attached to a kubelet's host machine and then exposed to the pod. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk"
+															properties: {
+																fsType: {
+																	description: "fsType is filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk TODO: how do we prevent errors in the filesystem from compromising the machine"
+																	type:        "string"
+																}
+																partition: {
+																	description: "partition is the partition in the volume that you want to mount. If omitted, the default is to mount by volume name. Examples: For volume /dev/sda1, you specify the partition as \"1\". Similarly, the volume partition for /dev/sda is \"0\" (or you can leave the property empty). More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk"
+																	format:      "int32"
+																	type:        "integer"
+																}
+																pdName: {
+																	description: "pdName is unique name of the PD resource in GCE. Used to identify the disk in GCE. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk"
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk"
+																	type:        "boolean"
+																}
+															}
+															required: [
+																"pdName",
+															]
+															type: "object"
+														}
+														gitRepo: {
+															description: "gitRepo represents a git repository at a particular revision. DEPRECATED: GitRepo is deprecated. To provision a container with a git repo, mount an EmptyDir into an InitContainer that clones the repo using git, then mount the EmptyDir into the Pod's container."
+															properties: {
+																directory: {
+																	description: "directory is the target directory name. Must not contain or start with '..'.  If '.' is supplied, the volume directory will be the git repository.  Otherwise, if specified, the volume will contain the git repository in the subdirectory with the given name."
+																	type:        "string"
+																}
+																repository: {
+																	description: "repository is the URL"
+																	type:        "string"
+																}
+																revision: {
+																	description: "revision is the commit hash for the specified revision."
+																	type:        "string"
+																}
+															}
+															required: [
+																"repository",
+															]
+															type: "object"
+														}
+														glusterfs: {
+															description: "glusterfs represents a Glusterfs mount on the host that shares a pod's lifetime. More info: https://examples.k8s.io/volumes/glusterfs/README.md"
+															properties: {
+																endpoints: {
+																	description: "endpoints is the endpoint name that details Glusterfs topology. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod"
+																	type:        "string"
+																}
+																path: {
+																	description: "path is the Glusterfs volume path. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod"
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly here will force the Glusterfs volume to be mounted with read-only permissions. Defaults to false. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod"
+																	type:        "boolean"
+																}
+															}
+															required: [
+																"endpoints",
+																"path",
+															]
+															type: "object"
+														}
+														hostPath: {
+															description: "hostPath represents a pre-existing file or directory on the host machine that is directly exposed to the container. This is generally used for system agents or other privileged things that are allowed to see the host machine. Most containers will NOT need this. More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath --- TODO(jonesdl) We need to restrict who can use host directory mounts and who can/can not mount host directories as read/write."
+															properties: {
+																path: {
+																	description: "path of the directory on the host. If the path is a symlink, it will follow the link to the real path. More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath"
+																	type:        "string"
+																}
+																type: {
+																	description: "type for HostPath Volume Defaults to \"\" More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath"
+																	type:        "string"
+																}
+															}
+															required: [
+																"path",
+															]
+															type: "object"
+														}
+														iscsi: {
+															description: "iscsi represents an ISCSI Disk resource that is attached to a kubelet's host machine and then exposed to the pod. More info: https://examples.k8s.io/volumes/iscsi/README.md"
+															properties: {
+																chapAuthDiscovery: {
+																	description: "chapAuthDiscovery defines whether support iSCSI Discovery CHAP authentication"
+																	type:        "boolean"
+																}
+																chapAuthSession: {
+																	description: "chapAuthSession defines whether support iSCSI Session CHAP authentication"
+																	type:        "boolean"
+																}
+																fsType: {
+																	description: "fsType is the filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#iscsi TODO: how do we prevent errors in the filesystem from compromising the machine"
+																	type:        "string"
+																}
+																initiatorName: {
+																	description: "initiatorName is the custom iSCSI Initiator Name. If initiatorName is specified with iscsiInterface simultaneously, new iSCSI interface <target portal>:<volume name> will be created for the connection."
+																	type:        "string"
+																}
+																iqn: {
+																	description: "iqn is the target iSCSI Qualified Name."
+																	type:        "string"
+																}
+																iscsiInterface: {
+																	description: "iscsiInterface is the interface Name that uses an iSCSI transport. Defaults to 'default' (tcp)."
+																	type:        "string"
+																}
+																lun: {
+																	description: "lun represents iSCSI Target Lun number."
+																	format:      "int32"
+																	type:        "integer"
+																}
+																portals: {
+																	description: "portals is the iSCSI Target Portal List. The portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260)."
+																	items: type: "string"
+																	type: "array"
+																}
+																readOnly: {
+																	description: "readOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false."
+																	type:        "boolean"
+																}
+																secretRef: {
+																	description: "secretRef is the CHAP Secret for iSCSI target and initiator authentication"
+																	properties: name: {
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		type:        "string"
+																	}
+																	type: "object"
+																}
+																targetPortal: {
+																	description: "targetPortal is iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260)."
+																	type:        "string"
+																}
+															}
+															required: [
+																"iqn",
+																"lun",
+																"targetPortal",
+															]
+															type: "object"
+														}
+														nfs: {
+															description: "nfs represents an NFS mount on the host that shares a pod's lifetime More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs"
+															properties: {
+																path: {
+																	description: "path that is exported by the NFS server. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs"
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly here will force the NFS export to be mounted with read-only permissions. Defaults to false. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs"
+																	type:        "boolean"
+																}
+																server: {
+																	description: "server is the hostname or IP address of the NFS server. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs"
+																	type:        "string"
+																}
+															}
+															required: [
+																"path",
+																"server",
+															]
+															type: "object"
+														}
+														persistentVolumeClaim: {
+															description: "persistentVolumeClaimVolumeSource represents a reference to a PersistentVolumeClaim in the same namespace. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
+															properties: {
+																claimName: {
+																	description: "claimName is the name of a PersistentVolumeClaim in the same namespace as the pod using this volume. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly Will force the ReadOnly setting in VolumeMounts. Default false."
+																	type:        "boolean"
+																}
+															}
+															required: [
+																"claimName",
+															]
+															type: "object"
+														}
+														photonPersistentDisk: {
+															description: "photonPersistentDisk represents a PhotonController persistent disk attached and mounted on kubelets host machine"
+															properties: {
+																fsType: {
+																	description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified."
+																	type:        "string"
+																}
+																pdID: {
+																	description: "pdID is the ID that identifies Photon Controller persistent disk"
+																	type:        "string"
+																}
+															}
+															required: [
+																"pdID",
+															]
+															type: "object"
+														}
+														portworxVolume: {
+															description: "portworxVolume represents a portworx volume attached and mounted on kubelets host machine"
+															properties: {
+																fsType: {
+																	description: "fSType represents the filesystem type to mount Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\". Implicitly inferred to be \"ext4\" if unspecified."
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																	type:        "boolean"
+																}
+																volumeID: {
+																	description: "volumeID uniquely identifies a Portworx volume"
+																	type:        "string"
+																}
+															}
+															required: [
+																"volumeID",
+															]
+															type: "object"
+														}
+														projected: {
+															description: "projected items for all in one resources secrets, configmaps, and downward API"
+															properties: {
+																defaultMode: {
+																	description: "defaultMode are the mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																	format:      "int32"
+																	type:        "integer"
+																}
+																sources: {
+																	description: "sources is the list of volume projections"
+																	items: {
+																		description: "Projection that may be projected along with other supported volume types"
+																		properties: {
+																			configMap: {
+																				description: "configMap information about the configMap data to project"
+																				properties: {
+																					items: {
+																						description: "items if unspecified, each key-value pair in the Data field of the referenced ConfigMap will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the ConfigMap, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'."
+																						items: {
+																							description: "Maps a string key to a path within a volume."
+																							properties: {
+																								key: {
+																									description: "key is the key to project."
+																									type:        "string"
+																								}
+																								mode: {
+																									description: "mode is Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																									format:      "int32"
+																									type:        "integer"
+																								}
+																								path: {
+																									description: "path is the relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'."
+																									type:        "string"
+																								}
+																							}
+																							required: [
+																								"key",
+																								"path",
+																							]
+																							type: "object"
+																						}
+																						type: "array"
+																					}
+																					name: {
+																						description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																						type:        "string"
+																					}
+																					optional: {
+																						description: "optional specify whether the ConfigMap or its keys must be defined"
+																						type:        "boolean"
+																					}
+																				}
+																				type: "object"
+																			}
+																			downwardAPI: {
+																				description: "downwardAPI information about the downwardAPI data to project"
+																				properties: items: {
+																					description: "Items is a list of DownwardAPIVolume file"
+																					items: {
+																						description: "DownwardAPIVolumeFile represents information to create the file containing the pod field"
+																						properties: {
+																							fieldRef: {
+																								description: "Required: Selects a field of the pod: only annotations, labels, name and namespace are supported."
+																								properties: {
+																									apiVersion: {
+																										description: "Version of the schema the FieldPath is written in terms of, defaults to \"v1\"."
+																										type:        "string"
+																									}
+																									fieldPath: {
+																										description: "Path of the field to select in the specified API version."
+																										type:        "string"
+																									}
+																								}
+																								required: [
+																									"fieldPath",
+																								]
+																								type: "object"
+																							}
+																							mode: {
+																								description: "Optional: mode bits used to set permissions on this file, must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																								format:      "int32"
+																								type:        "integer"
+																							}
+																							path: {
+																								description: "Required: Path is  the relative path name of the file to be created. Must not be absolute or contain the '..' path. Must be utf-8 encoded. The first item of the relative path must not start with '..'"
+																								type:        "string"
+																							}
+																							resourceFieldRef: {
+																								description: "Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, requests.cpu and requests.memory) are currently supported."
+																								properties: {
+																									containerName: {
+																										description: "Container name: required for volumes, optional for env vars"
+																										type:        "string"
+																									}
+																									divisor: {
+																										anyOf: [{
+																											type: "integer"
+																										}, {
+																											type: "string"
+																										}]
+																										description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
+																										pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																										"x-kubernetes-int-or-string": true
+																									}
+																									resource: {
+																										description: "Required: resource to select"
+																										type:        "string"
+																									}
+																								}
+																								required: [
+																									"resource",
+																								]
+																								type: "object"
+																							}
+																						}
+																						required: [
+																							"path",
+																						]
+																						type: "object"
+																					}
+																					type: "array"
+																				}
+																				type: "object"
+																			}
+																			secret: {
+																				description: "secret information about the secret data to project"
+																				properties: {
+																					items: {
+																						description: "items if unspecified, each key-value pair in the Data field of the referenced Secret will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the Secret, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'."
+																						items: {
+																							description: "Maps a string key to a path within a volume."
+																							properties: {
+																								key: {
+																									description: "key is the key to project."
+																									type:        "string"
+																								}
+																								mode: {
+																									description: "mode is Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																									format:      "int32"
+																									type:        "integer"
+																								}
+																								path: {
+																									description: "path is the relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'."
+																									type:        "string"
+																								}
+																							}
+																							required: [
+																								"key",
+																								"path",
+																							]
+																							type: "object"
+																						}
+																						type: "array"
+																					}
+																					name: {
+																						description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																						type:        "string"
+																					}
+																					optional: {
+																						description: "optional field specify whether the Secret or its key must be defined"
+																						type:        "boolean"
+																					}
+																				}
+																				type: "object"
+																			}
+																			serviceAccountToken: {
+																				description: "serviceAccountToken is information about the serviceAccountToken data to project"
+																				properties: {
+																					audience: {
+																						description: "audience is the intended audience of the token. A recipient of a token must identify itself with an identifier specified in the audience of the token, and otherwise should reject the token. The audience defaults to the identifier of the apiserver."
+																						type:        "string"
+																					}
+																					expirationSeconds: {
+																						description: "expirationSeconds is the requested duration of validity of the service account token. As the token approaches expiration, the kubelet volume plugin will proactively rotate the service account token. The kubelet will start trying to rotate the token if the token is older than 80 percent of its time to live or if the token is older than 24 hours.Defaults to 1 hour and must be at least 10 minutes."
+																						format:      "int64"
+																						type:        "integer"
+																					}
+																					path: {
+																						description: "path is the path relative to the mount point of the file to project the token into."
+																						type:        "string"
+																					}
+																				}
+																				required: [
+																					"path",
+																				]
+																				type: "object"
+																			}
+																		}
+																		type: "object"
+																	}
+																	type: "array"
+																}
+															}
+															type: "object"
+														}
+														quobyte: {
+															description: "quobyte represents a Quobyte mount on the host that shares a pod's lifetime"
+															properties: {
+																group: {
+																	description: "group to map volume access to Default is no group"
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly here will force the Quobyte volume to be mounted with read-only permissions. Defaults to false."
+																	type:        "boolean"
+																}
+																registry: {
+																	description: "registry represents a single or multiple Quobyte Registry services specified as a string as host:port pair (multiple entries are separated with commas) which acts as the central registry for volumes"
+																	type:        "string"
+																}
+																tenant: {
+																	description: "tenant owning the given Quobyte volume in the Backend Used with dynamically provisioned Quobyte volumes, value is set by the plugin"
+																	type:        "string"
+																}
+																user: {
+																	description: "user to map volume access to Defaults to serivceaccount user"
+																	type:        "string"
+																}
+																volume: {
+																	description: "volume is a string that references an already created Quobyte volume by name."
+																	type:        "string"
+																}
+															}
+															required: [
+																"registry",
+																"volume",
+															]
+															type: "object"
+														}
+														rbd: {
+															description: "rbd represents a Rados Block Device mount on the host that shares a pod's lifetime. More info: https://examples.k8s.io/volumes/rbd/README.md"
+															properties: {
+																fsType: {
+																	description: "fsType is the filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#rbd TODO: how do we prevent errors in the filesystem from compromising the machine"
+																	type:        "string"
+																}
+																image: {
+																	description: "image is the rados image name. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																	type:        "string"
+																}
+																keyring: {
+																	description: "keyring is the path to key ring for RBDUser. Default is /etc/ceph/keyring. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																	type:        "string"
+																}
+																monitors: {
+																	description: "monitors is a collection of Ceph monitors. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																	items: type: "string"
+																	type: "array"
+																}
+																pool: {
+																	description: "pool is the rados pool name. Default is rbd. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																	type:        "boolean"
+																}
+																secretRef: {
+																	description: "secretRef is name of the authentication secret for RBDUser. If provided overrides keyring. Default is nil. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																	properties: name: {
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		type:        "string"
+																	}
+																	type: "object"
+																}
+																user: {
+																	description: "user is the rados user name. Default is admin. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																	type:        "string"
+																}
+															}
+															required: [
+																"image",
+																"monitors",
+															]
+															type: "object"
+														}
+														scaleIO: {
+															description: "scaleIO represents a ScaleIO persistent volume attached and mounted on Kubernetes nodes."
+															properties: {
+																fsType: {
+																	description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Default is \"xfs\"."
+																	type:        "string"
+																}
+																gateway: {
+																	description: "gateway is the host address of the ScaleIO API Gateway."
+																	type:        "string"
+																}
+																protectionDomain: {
+																	description: "protectionDomain is the name of the ScaleIO Protection Domain for the configured storage."
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																	type:        "boolean"
+																}
+																secretRef: {
+																	description: "secretRef references to the secret for ScaleIO user and other sensitive information. If this is not provided, Login operation will fail."
+																	properties: name: {
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		type:        "string"
+																	}
+																	type: "object"
+																}
+																sslEnabled: {
+																	description: "sslEnabled Flag enable/disable SSL communication with Gateway, default false"
+																	type:        "boolean"
+																}
+																storageMode: {
+																	description: "storageMode indicates whether the storage for a volume should be ThickProvisioned or ThinProvisioned. Default is ThinProvisioned."
+																	type:        "string"
+																}
+																storagePool: {
+																	description: "storagePool is the ScaleIO Storage Pool associated with the protection domain."
+																	type:        "string"
+																}
+																system: {
+																	description: "system is the name of the storage system as configured in ScaleIO."
+																	type:        "string"
+																}
+																volumeName: {
+																	description: "volumeName is the name of a volume already created in the ScaleIO system that is associated with this volume source."
+																	type:        "string"
+																}
+															}
+															required: [
+																"gateway",
+																"secretRef",
+																"system",
+															]
+															type: "object"
+														}
+														secret: {
+															description: "secret represents a secret that should populate this volume. More info: https://kubernetes.io/docs/concepts/storage/volumes#secret"
+															properties: {
+																defaultMode: {
+																	description: "defaultMode is Optional: mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																	format:      "int32"
+																	type:        "integer"
+																}
+																items: {
+																	description: "items If unspecified, each key-value pair in the Data field of the referenced Secret will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the Secret, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'."
+																	items: {
+																		description: "Maps a string key to a path within a volume."
+																		properties: {
+																			key: {
+																				description: "key is the key to project."
+																				type:        "string"
+																			}
+																			mode: {
+																				description: "mode is Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																				format:      "int32"
+																				type:        "integer"
+																			}
+																			path: {
+																				description: "path is the relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'."
+																				type:        "string"
+																			}
+																		}
+																		required: [
+																			"key",
+																			"path",
+																		]
+																		type: "object"
+																	}
+																	type: "array"
+																}
+																optional: {
+																	description: "optional field specify whether the Secret or its keys must be defined"
+																	type:        "boolean"
+																}
+																secretName: {
+																	description: "secretName is the name of the secret in the pod's namespace to use. More info: https://kubernetes.io/docs/concepts/storage/volumes#secret"
+																	type:        "string"
+																}
+															}
+															type: "object"
+														}
+														storageos: {
+															description: "storageOS represents a StorageOS volume attached and mounted on Kubernetes nodes."
+															properties: {
+																fsType: {
+																	description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified."
+																	type:        "string"
+																}
+																readOnly: {
+																	description: "readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																	type:        "boolean"
+																}
+																secretRef: {
+																	description: "secretRef specifies the secret to use for obtaining the StorageOS API credentials.  If not specified, default values will be attempted."
+																	properties: name: {
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		type:        "string"
+																	}
+																	type: "object"
+																}
+																volumeName: {
+																	description: "volumeName is the human-readable name of the StorageOS volume.  Volume names are only unique within a namespace."
+																	type:        "string"
+																}
+																volumeNamespace: {
+																	description: "volumeNamespace specifies the scope of the volume within StorageOS.  If no namespace is specified then the Pod's namespace will be used.  This allows the Kubernetes name scoping to be mirrored within StorageOS for tighter integration. Set VolumeName to any name to override the default behaviour. Set to \"default\" if you are not using namespaces within StorageOS. Namespaces that do not pre-exist within StorageOS will be created."
+																	type:        "string"
+																}
+															}
+															type: "object"
+														}
+														vsphereVolume: {
+															description: "vsphereVolume represents a vSphere volume attached and mounted on kubelets host machine"
+															properties: {
+																fsType: {
+																	description: "fsType is filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified."
+																	type:        "string"
+																}
+																storagePolicyID: {
+																	description: "storagePolicyID is the storage Policy Based Management (SPBM) profile ID associated with the StoragePolicyName."
+																	type:        "string"
+																}
+																storagePolicyName: {
+																	description: "storagePolicyName is the storage Policy Based Management (SPBM) profile name."
+																	type:        "string"
+																}
+																volumePath: {
+																	description: "volumePath is the path that identifies vSphere volume vmdk"
+																	type:        "string"
+																}
+															}
+															required: [
+																"volumePath",
+															]
+															type: "object"
+														}
+													}
+													type: "object"
+												}
+												type: "object"
+											}
+											principalName: {
+												default:     "nfs"
+												description: "PrincipalName corresponds directly to NFS-Ganesha's NFS_KRB5:PrincipalName config. In practice, this is the service prefix of the principal name. The default is \"nfs\". This value is combined with (a) the namespace and name of the CephNFS (with a hyphen between) and (b) the Realm configured in the user-provided krb5.conf to determine the full principal name: <principalName>/<namespace>-<name>@<realm>. e.g., nfs/rook-ceph-my-nfs@example.net. See https://github.com/nfs-ganesha/nfs-ganesha/wiki/RPCSEC_GSS for more detail."
+												type:        "string"
+											}
+										}
+										type: "object"
+									}
+									sssd: {
+										description: "SSSD enables integration with System Security Services Daemon (SSSD). SSSD can be used to provide user ID mapping from a number of sources. See https://sssd.io for more information about the SSSD project."
+										nullable:    true
+										properties: sidecar: {
+											description: "Sidecar tells Rook to run SSSD in a sidecar alongside the NFS-Ganesha server in each NFS pod."
+											properties: {
+												additionalFiles: {
+													description: "AdditionalFiles defines any number of additional files that should be mounted into the SSSD sidecar. These files may be referenced by the sssd.conf config file."
+													items: {
+														description: "SSSDSidecarAdditionalFile represents the source from where additional files for the the SSSD configuration should come from and are made available."
+														properties: {
+															subPath: {
+																description: "SubPath defines the sub-path in `/etc/sssd/rook-additional/` where the additional file(s) will be placed. Each subPath definition must be unique and must not contain ':'."
+																minLength:   1
+																pattern:     "^[^:]+$"
+																type:        "string"
+															}
+															volumeSource: {
+																description: "VolumeSource accepts standard Kubernetes VolumeSource for the additional file(s) like what is normally used to configure Volumes for a Pod. Fore example, a ConfigMap, Secret, or HostPath. Each VolumeSource adds one or more additional files to the SSSD sidecar container in the `/etc/sssd/rook-additional/<subPath>` directory. Be aware that some files may need to have a specific file mode like 0600 due to requirements by SSSD for some files. For example, CA or TLS certificates."
+																properties: {
+																	awsElasticBlockStore: {
+																		description: "awsElasticBlockStore represents an AWS Disk resource that is attached to a kubelet's host machine and then exposed to the pod. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore"
+																		properties: {
+																			fsType: {
+																				description: "fsType is the filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore TODO: how do we prevent errors in the filesystem from compromising the machine"
+																				type:        "string"
+																			}
+																			partition: {
+																				description: "partition is the partition in the volume that you want to mount. If omitted, the default is to mount by volume name. Examples: For volume /dev/sda1, you specify the partition as \"1\". Similarly, the volume partition for /dev/sda is \"0\" (or you can leave the property empty)."
+																				format:      "int32"
+																				type:        "integer"
+																			}
+																			readOnly: {
+																				description: "readOnly value true will force the readOnly setting in VolumeMounts. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore"
+																				type:        "boolean"
+																			}
+																			volumeID: {
+																				description: "volumeID is unique ID of the persistent disk resource in AWS (Amazon EBS volume). More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore"
+																				type:        "string"
+																			}
+																		}
+																		required: [
+																			"volumeID",
+																		]
+																		type: "object"
+																	}
+																	azureDisk: {
+																		description: "azureDisk represents an Azure Data Disk mount on the host and bind mount to the pod."
+																		properties: {
+																			cachingMode: {
+																				description: "cachingMode is the Host Caching mode: None, Read Only, Read Write."
+																				type:        "string"
+																			}
+																			diskName: {
+																				description: "diskName is the Name of the data disk in the blob storage"
+																				type:        "string"
+																			}
+																			diskURI: {
+																				description: "diskURI is the URI of data disk in the blob storage"
+																				type:        "string"
+																			}
+																			fsType: {
+																				description: "fsType is Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified."
+																				type:        "string"
+																			}
+																			kind: {
+																				description: "kind expected values are Shared: multiple blob disks per storage account  Dedicated: single blob disk per storage account  Managed: azure managed data disk (only in managed availability set). defaults to shared"
+																				type:        "string"
+																			}
+																			readOnly: {
+																				description: "readOnly Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																				type:        "boolean"
+																			}
+																		}
+																		required: [
+																			"diskName",
+																			"diskURI",
+																		]
+																		type: "object"
+																	}
+																	azureFile: {
+																		description: "azureFile represents an Azure File Service mount on the host and bind mount to the pod."
+																		properties: {
+																			readOnly: {
+																				description: "readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																				type:        "boolean"
+																			}
+																			secretName: {
+																				description: "secretName is the  name of secret that contains Azure Storage Account Name and Key"
+																				type:        "string"
+																			}
+																			shareName: {
+																				description: "shareName is the azure share Name"
+																				type:        "string"
+																			}
+																		}
+																		required: [
+																			"secretName",
+																			"shareName",
+																		]
+																		type: "object"
+																	}
+																	cephfs: {
+																		description: "cephFS represents a Ceph FS mount on the host that shares a pod's lifetime"
+																		properties: {
+																			monitors: {
+																				description: "monitors is Required: Monitors is a collection of Ceph monitors More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
+																				items: type: "string"
+																				type: "array"
+																			}
+																			path: {
+																				description: "path is Optional: Used as the mounted root, rather than the full Ceph tree, default is /"
+																				type:        "string"
+																			}
+																			readOnly: {
+																				description: "readOnly is Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
+																				type:        "boolean"
+																			}
+																			secretFile: {
+																				description: "secretFile is Optional: SecretFile is the path to key ring for User, default is /etc/ceph/user.secret More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
+																				type:        "string"
+																			}
+																			secretRef: {
+																				description: "secretRef is Optional: SecretRef is reference to the authentication secret for User, default is empty. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
+																				properties: name: {
+																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																					type:        "string"
+																				}
+																				type: "object"
+																			}
+																			user: {
+																				description: "user is optional: User is the rados user name, default is admin More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
+																				type:        "string"
+																			}
+																		}
+																		required: [
+																			"monitors",
+																		]
+																		type: "object"
+																	}
+																	cinder: {
+																		description: "cinder represents a cinder volume attached and mounted on kubelets host machine. More info: https://examples.k8s.io/mysql-cinder-pd/README.md"
+																		properties: {
+																			fsType: {
+																				description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://examples.k8s.io/mysql-cinder-pd/README.md"
+																				type:        "string"
+																			}
+																			readOnly: {
+																				description: "readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://examples.k8s.io/mysql-cinder-pd/README.md"
+																				type:        "boolean"
+																			}
+																			secretRef: {
+																				description: "secretRef is optional: points to a secret object containing parameters used to connect to OpenStack."
+																				properties: name: {
+																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																					type:        "string"
+																				}
+																				type: "object"
+																			}
+																			volumeID: {
+																				description: "volumeID used to identify the volume in cinder. More info: https://examples.k8s.io/mysql-cinder-pd/README.md"
+																				type:        "string"
+																			}
+																		}
+																		required: [
+																			"volumeID",
+																		]
+																		type: "object"
+																	}
+																	configMap: {
+																		description: "configMap represents a configMap that should populate this volume"
+																		properties: {
+																			defaultMode: {
+																				description: "defaultMode is optional: mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																				format:      "int32"
+																				type:        "integer"
+																			}
+																			items: {
+																				description: "items if unspecified, each key-value pair in the Data field of the referenced ConfigMap will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the ConfigMap, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'."
+																				items: {
+																					description: "Maps a string key to a path within a volume."
+																					properties: {
+																						key: {
+																							description: "key is the key to project."
+																							type:        "string"
+																						}
+																						mode: {
+																							description: "mode is Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																							format:      "int32"
+																							type:        "integer"
+																						}
+																						path: {
+																							description: "path is the relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'."
+																							type:        "string"
+																						}
+																					}
+																					required: [
+																						"key",
+																						"path",
+																					]
+																					type: "object"
+																				}
+																				type: "array"
+																			}
+																			name: {
+																				description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																				type:        "string"
+																			}
+																			optional: {
+																				description: "optional specify whether the ConfigMap or its keys must be defined"
+																				type:        "boolean"
+																			}
+																		}
+																		type: "object"
+																	}
+																	csi: {
+																		description: "csi (Container Storage Interface) represents ephemeral storage that is handled by certain external CSI drivers (Beta feature)."
+																		properties: {
+																			driver: {
+																				description: "driver is the name of the CSI driver that handles this volume. Consult with your admin for the correct name as registered in the cluster."
+																				type:        "string"
+																			}
+																			fsType: {
+																				description: "fsType to mount. Ex. \"ext4\", \"xfs\", \"ntfs\". If not provided, the empty value is passed to the associated CSI driver which will determine the default filesystem to apply."
+																				type:        "string"
+																			}
+																			nodePublishSecretRef: {
+																				description: "nodePublishSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodePublishVolume and NodeUnpublishVolume calls. This field is optional, and  may be empty if no secret is required. If the secret object contains more than one secret, all secret references are passed."
+																				properties: name: {
+																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																					type:        "string"
+																				}
+																				type: "object"
+																			}
+																			readOnly: {
+																				description: "readOnly specifies a read-only configuration for the volume. Defaults to false (read/write)."
+																				type:        "boolean"
+																			}
+																			volumeAttributes: {
+																				additionalProperties: type: "string"
+																				description: "volumeAttributes stores driver-specific properties that are passed to the CSI driver. Consult your driver's documentation for supported values."
+																				type:        "object"
+																			}
+																		}
+																		required: [
+																			"driver",
+																		]
+																		type: "object"
+																	}
+																	downwardAPI: {
+																		description: "downwardAPI represents downward API about the pod that should populate this volume"
+																		properties: {
+																			defaultMode: {
+																				description: "Optional: mode bits to use on created files by default. Must be a Optional: mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																				format:      "int32"
+																				type:        "integer"
+																			}
+																			items: {
+																				description: "Items is a list of downward API volume file"
+																				items: {
+																					description: "DownwardAPIVolumeFile represents information to create the file containing the pod field"
+																					properties: {
+																						fieldRef: {
+																							description: "Required: Selects a field of the pod: only annotations, labels, name and namespace are supported."
+																							properties: {
+																								apiVersion: {
+																									description: "Version of the schema the FieldPath is written in terms of, defaults to \"v1\"."
+																									type:        "string"
+																								}
+																								fieldPath: {
+																									description: "Path of the field to select in the specified API version."
+																									type:        "string"
+																								}
+																							}
+																							required: [
+																								"fieldPath",
+																							]
+																							type: "object"
+																						}
+																						mode: {
+																							description: "Optional: mode bits used to set permissions on this file, must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																							format:      "int32"
+																							type:        "integer"
+																						}
+																						path: {
+																							description: "Required: Path is  the relative path name of the file to be created. Must not be absolute or contain the '..' path. Must be utf-8 encoded. The first item of the relative path must not start with '..'"
+																							type:        "string"
+																						}
+																						resourceFieldRef: {
+																							description: "Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, requests.cpu and requests.memory) are currently supported."
+																							properties: {
+																								containerName: {
+																									description: "Container name: required for volumes, optional for env vars"
+																									type:        "string"
+																								}
+																								divisor: {
+																									anyOf: [{
+																										type: "integer"
+																									}, {
+																										type: "string"
+																									}]
+																									description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
+																									pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																									"x-kubernetes-int-or-string": true
+																								}
+																								resource: {
+																									description: "Required: resource to select"
+																									type:        "string"
+																								}
+																							}
+																							required: [
+																								"resource",
+																							]
+																							type: "object"
+																						}
+																					}
+																					required: [
+																						"path",
+																					]
+																					type: "object"
+																				}
+																				type: "array"
+																			}
+																		}
+																		type: "object"
+																	}
+																	emptyDir: {
+																		description: "emptyDir represents a temporary directory that shares a pod's lifetime. More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir"
+																		properties: {
+																			medium: {
+																				description: "medium represents what type of storage medium should back this directory. The default is \"\" which means to use the node's default medium. Must be an empty string (default) or Memory. More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir"
+																				type:        "string"
+																			}
+																			sizeLimit: {
+																				anyOf: [{
+																					type: "integer"
+																				}, {
+																					type: "string"
+																				}]
+																				description:                  "sizeLimit is the total amount of local storage required for this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers in a pod. The default is nil which means that the limit is undefined. More info: http://kubernetes.io/docs/user-guide/volumes#emptydir"
+																				pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																				"x-kubernetes-int-or-string": true
+																			}
+																		}
+																		type: "object"
+																	}
+																	ephemeral: {
+																		description: """
+		ephemeral represents a volume that is handled by a cluster storage driver. The volume's lifecycle is tied to the pod that defines it - it will be created before the pod starts, and deleted when the pod is removed.
+		 Use this if: a) the volume is only needed while the pod runs, b) features of normal volumes like restoring from snapshot or capacity    tracking are needed, c) the storage driver is specified through a storage class, and d) the storage driver supports dynamic volume provisioning through    a PersistentVolumeClaim (see EphemeralVolumeSource for more    information on the connection between this volume type    and PersistentVolumeClaim).
+		 Use PersistentVolumeClaim or one of the vendor-specific APIs for volumes that persist for longer than the lifecycle of an individual pod.
+		 Use CSI for light-weight local ephemeral volumes if the CSI driver is meant to be used that way - see the documentation of the driver for more information.
+		 A pod can use both types of ephemeral volumes and persistent volumes at the same time.
+		"""
+																		properties: volumeClaimTemplate: {
+																			description: """
+		Will be used to create a stand-alone PVC to provision the volume. The pod in which this EphemeralVolumeSource is embedded will be the owner of the PVC, i.e. the PVC will be deleted together with the pod.  The name of the PVC will be `<pod name>-<volume name>` where `<volume name>` is the name from the `PodSpec.Volumes` array entry. Pod validation will reject the pod if the concatenated name is not valid for a PVC (for example, too long).
+		 An existing PVC with that name that is not owned by the pod will *not* be used for the pod to avoid using an unrelated volume by mistake. Starting the pod is then blocked until the unrelated PVC is removed. If such a pre-created PVC is meant to be used by the pod, the PVC has to updated with an owner reference to the pod once the pod exists. Normally this should not be necessary, but it may be useful when manually reconstructing a broken cluster.
+		 This field is read-only and no changes will be made by Kubernetes to the PVC after it has been created.
+		 Required, must not be nil.
+		"""
+																			properties: {
+																				metadata: {
+																					description: "May contain labels and annotations that will be copied into the PVC when creating it. No other fields are allowed and will be rejected during validation."
+																					properties: {
+																						annotations: {
+																							additionalProperties: type: "string"
+																							type: "object"
+																						}
+																						finalizers: {
+																							items: type: "string"
+																							type: "array"
+																						}
+																						labels: {
+																							additionalProperties: type: "string"
+																							type: "object"
+																						}
+																						name: type:      "string"
+																						namespace: type: "string"
+																					}
+																					type: "object"
+																				}
+																				spec: {
+																					description: "The specification for the PersistentVolumeClaim. The entire content is copied unchanged into the PVC that gets created from this template. The same fields as in a PersistentVolumeClaim are also valid here."
+																					properties: {
+																						accessModes: {
+																							description: "accessModes contains the desired access modes the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
+																							items: type: "string"
+																							type: "array"
+																						}
+																						dataSource: {
+																							description: "dataSource field can be used to specify either: * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot) * An existing PVC (PersistentVolumeClaim) If the provisioner or an external controller can support the specified data source, it will create a new volume based on the contents of the specified data source. If the AnyVolumeDataSource feature gate is enabled, this field will always have the same contents as the DataSourceRef field."
+																							properties: {
+																								apiGroup: {
+																									description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
+																									type:        "string"
+																								}
+																								kind: {
+																									description: "Kind is the type of resource being referenced"
+																									type:        "string"
+																								}
+																								name: {
+																									description: "Name is the name of resource being referenced"
+																									type:        "string"
+																								}
+																							}
+																							required: [
+																								"kind",
+																								"name",
+																							]
+																							type: "object"
+																						}
+																						dataSourceRef: {
+																							description: "dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volume is desired. This may be any local object from a non-empty API group (non core object) or a PersistentVolumeClaim object. When this field is specified, volume binding will only succeed if the type of the specified object matches some installed volume populator or dynamic provisioner. This field will replace the functionality of the DataSource field and as such if both fields are non-empty, they must have the same value. For backwards compatibility, both fields (DataSource and DataSourceRef) will be set to the same value automatically if one of them is empty and the other is non-empty. There are two important differences between DataSource and DataSourceRef: * While DataSource only allows two specific types of objects, DataSourceRef   allows any non-core object, as well as PersistentVolumeClaim objects. * While DataSource ignores disallowed values (dropping them), DataSourceRef   preserves all values, and generates an error if a disallowed value is   specified. (Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled."
+																							properties: {
+																								apiGroup: {
+																									description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
+																									type:        "string"
+																								}
+																								kind: {
+																									description: "Kind is the type of resource being referenced"
+																									type:        "string"
+																								}
+																								name: {
+																									description: "Name is the name of resource being referenced"
+																									type:        "string"
+																								}
+																							}
+																							required: [
+																								"kind",
+																								"name",
+																							]
+																							type: "object"
+																						}
+																						resources: {
+																							description: "resources represents the minimum resources the volume should have. If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements that are lower than previous value but must still be higher than capacity recorded in the status field of the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources"
+																							properties: {
+																								limits: {
+																									additionalProperties: {
+																										anyOf: [{
+																											type: "integer"
+																										}, {
+																											type: "string"
+																										}]
+																										pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																										"x-kubernetes-int-or-string": true
+																									}
+																									description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
+																									type:        "object"
+																								}
+																								requests: {
+																									additionalProperties: {
+																										anyOf: [{
+																											type: "integer"
+																										}, {
+																											type: "string"
+																										}]
+																										pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																										"x-kubernetes-int-or-string": true
+																									}
+																									description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
+																									type:        "object"
+																								}
+																							}
+																							type: "object"
+																						}
+																						selector: {
+																							description: "selector is a label query over volumes to consider for binding."
+																							properties: {
+																								matchExpressions: {
+																									description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																									items: {
+																										description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																										properties: {
+																											key: {
+																												description: "key is the label key that the selector applies to."
+																												type:        "string"
+																											}
+																											operator: {
+																												description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																												type:        "string"
+																											}
+																											values: {
+																												description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																												items: type: "string"
+																												type: "array"
+																											}
+																										}
+																										required: [
+																											"key",
+																											"operator",
+																										]
+																										type: "object"
+																									}
+																									type: "array"
+																								}
+																								matchLabels: {
+																									additionalProperties: type: "string"
+																									description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																									type:        "object"
+																								}
+																							}
+																							type: "object"
+																						}
+																						storageClassName: {
+																							description: "storageClassName is the name of the StorageClass required by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1"
+																							type:        "string"
+																						}
+																						volumeMode: {
+																							description: "volumeMode defines what type of volume is required by the claim. Value of Filesystem is implied when not included in claim spec."
+																							type:        "string"
+																						}
+																						volumeName: {
+																							description: "volumeName is the binding reference to the PersistentVolume backing this claim."
+																							type:        "string"
+																						}
+																					}
+																					type: "object"
+																				}
+																			}
+																			required: [
+																				"spec",
+																			]
+																			type: "object"
+																		}
+																		type: "object"
+																	}
+																	fc: {
+																		description: "fc represents a Fibre Channel resource that is attached to a kubelet's host machine and then exposed to the pod."
+																		properties: {
+																			fsType: {
+																				description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. TODO: how do we prevent errors in the filesystem from compromising the machine"
+																				type:        "string"
+																			}
+																			lun: {
+																				description: "lun is Optional: FC target lun number"
+																				format:      "int32"
+																				type:        "integer"
+																			}
+																			readOnly: {
+																				description: "readOnly is Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																				type:        "boolean"
+																			}
+																			targetWWNs: {
+																				description: "targetWWNs is Optional: FC target worldwide names (WWNs)"
+																				items: type: "string"
+																				type: "array"
+																			}
+																			wwids: {
+																				description: "wwids Optional: FC volume world wide identifiers (wwids) Either wwids or combination of targetWWNs and lun must be set, but not both simultaneously."
+																				items: type: "string"
+																				type: "array"
+																			}
+																		}
+																		type: "object"
+																	}
+																	flexVolume: {
+																		description: "flexVolume represents a generic volume resource that is provisioned/attached using an exec based plugin."
+																		properties: {
+																			driver: {
+																				description: "driver is the name of the driver to use for this volume."
+																				type:        "string"
+																			}
+																			fsType: {
+																				description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". The default filesystem depends on FlexVolume script."
+																				type:        "string"
+																			}
+																			options: {
+																				additionalProperties: type: "string"
+																				description: "options is Optional: this field holds extra command options if any."
+																				type:        "object"
+																			}
+																			readOnly: {
+																				description: "readOnly is Optional: defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																				type:        "boolean"
+																			}
+																			secretRef: {
+																				description: "secretRef is Optional: secretRef is reference to the secret object containing sensitive information to pass to the plugin scripts. This may be empty if no secret object is specified. If the secret object contains more than one secret, all secrets are passed to the plugin scripts."
+																				properties: name: {
+																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																					type:        "string"
+																				}
+																				type: "object"
+																			}
+																		}
+																		required: [
+																			"driver",
+																		]
+																		type: "object"
+																	}
+																	flocker: {
+																		description: "flocker represents a Flocker volume attached to a kubelet's host machine. This depends on the Flocker control service being running"
+																		properties: {
+																			datasetName: {
+																				description: "datasetName is Name of the dataset stored as metadata -> name on the dataset for Flocker should be considered as deprecated"
+																				type:        "string"
+																			}
+																			datasetUUID: {
+																				description: "datasetUUID is the UUID of the dataset. This is unique identifier of a Flocker dataset"
+																				type:        "string"
+																			}
+																		}
+																		type: "object"
+																	}
+																	gcePersistentDisk: {
+																		description: "gcePersistentDisk represents a GCE Disk resource that is attached to a kubelet's host machine and then exposed to the pod. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk"
+																		properties: {
+																			fsType: {
+																				description: "fsType is filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk TODO: how do we prevent errors in the filesystem from compromising the machine"
+																				type:        "string"
+																			}
+																			partition: {
+																				description: "partition is the partition in the volume that you want to mount. If omitted, the default is to mount by volume name. Examples: For volume /dev/sda1, you specify the partition as \"1\". Similarly, the volume partition for /dev/sda is \"0\" (or you can leave the property empty). More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk"
+																				format:      "int32"
+																				type:        "integer"
+																			}
+																			pdName: {
+																				description: "pdName is unique name of the PD resource in GCE. Used to identify the disk in GCE. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk"
+																				type:        "string"
+																			}
+																			readOnly: {
+																				description: "readOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk"
+																				type:        "boolean"
+																			}
+																		}
+																		required: [
+																			"pdName",
+																		]
+																		type: "object"
+																	}
+																	gitRepo: {
+																		description: "gitRepo represents a git repository at a particular revision. DEPRECATED: GitRepo is deprecated. To provision a container with a git repo, mount an EmptyDir into an InitContainer that clones the repo using git, then mount the EmptyDir into the Pod's container."
+																		properties: {
+																			directory: {
+																				description: "directory is the target directory name. Must not contain or start with '..'.  If '.' is supplied, the volume directory will be the git repository.  Otherwise, if specified, the volume will contain the git repository in the subdirectory with the given name."
+																				type:        "string"
+																			}
+																			repository: {
+																				description: "repository is the URL"
+																				type:        "string"
+																			}
+																			revision: {
+																				description: "revision is the commit hash for the specified revision."
+																				type:        "string"
+																			}
+																		}
+																		required: [
+																			"repository",
+																		]
+																		type: "object"
+																	}
+																	glusterfs: {
+																		description: "glusterfs represents a Glusterfs mount on the host that shares a pod's lifetime. More info: https://examples.k8s.io/volumes/glusterfs/README.md"
+																		properties: {
+																			endpoints: {
+																				description: "endpoints is the endpoint name that details Glusterfs topology. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod"
+																				type:        "string"
+																			}
+																			path: {
+																				description: "path is the Glusterfs volume path. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod"
+																				type:        "string"
+																			}
+																			readOnly: {
+																				description: "readOnly here will force the Glusterfs volume to be mounted with read-only permissions. Defaults to false. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod"
+																				type:        "boolean"
+																			}
+																		}
+																		required: [
+																			"endpoints",
+																			"path",
+																		]
+																		type: "object"
+																	}
+																	hostPath: {
+																		description: "hostPath represents a pre-existing file or directory on the host machine that is directly exposed to the container. This is generally used for system agents or other privileged things that are allowed to see the host machine. Most containers will NOT need this. More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath --- TODO(jonesdl) We need to restrict who can use host directory mounts and who can/can not mount host directories as read/write."
+																		properties: {
+																			path: {
+																				description: "path of the directory on the host. If the path is a symlink, it will follow the link to the real path. More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath"
+																				type:        "string"
+																			}
+																			type: {
+																				description: "type for HostPath Volume Defaults to \"\" More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath"
+																				type:        "string"
+																			}
+																		}
+																		required: [
+																			"path",
+																		]
+																		type: "object"
+																	}
+																	iscsi: {
+																		description: "iscsi represents an ISCSI Disk resource that is attached to a kubelet's host machine and then exposed to the pod. More info: https://examples.k8s.io/volumes/iscsi/README.md"
+																		properties: {
+																			chapAuthDiscovery: {
+																				description: "chapAuthDiscovery defines whether support iSCSI Discovery CHAP authentication"
+																				type:        "boolean"
+																			}
+																			chapAuthSession: {
+																				description: "chapAuthSession defines whether support iSCSI Session CHAP authentication"
+																				type:        "boolean"
+																			}
+																			fsType: {
+																				description: "fsType is the filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#iscsi TODO: how do we prevent errors in the filesystem from compromising the machine"
+																				type:        "string"
+																			}
+																			initiatorName: {
+																				description: "initiatorName is the custom iSCSI Initiator Name. If initiatorName is specified with iscsiInterface simultaneously, new iSCSI interface <target portal>:<volume name> will be created for the connection."
+																				type:        "string"
+																			}
+																			iqn: {
+																				description: "iqn is the target iSCSI Qualified Name."
+																				type:        "string"
+																			}
+																			iscsiInterface: {
+																				description: "iscsiInterface is the interface Name that uses an iSCSI transport. Defaults to 'default' (tcp)."
+																				type:        "string"
+																			}
+																			lun: {
+																				description: "lun represents iSCSI Target Lun number."
+																				format:      "int32"
+																				type:        "integer"
+																			}
+																			portals: {
+																				description: "portals is the iSCSI Target Portal List. The portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260)."
+																				items: type: "string"
+																				type: "array"
+																			}
+																			readOnly: {
+																				description: "readOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false."
+																				type:        "boolean"
+																			}
+																			secretRef: {
+																				description: "secretRef is the CHAP Secret for iSCSI target and initiator authentication"
+																				properties: name: {
+																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																					type:        "string"
+																				}
+																				type: "object"
+																			}
+																			targetPortal: {
+																				description: "targetPortal is iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260)."
+																				type:        "string"
+																			}
+																		}
+																		required: [
+																			"iqn",
+																			"lun",
+																			"targetPortal",
+																		]
+																		type: "object"
+																	}
+																	nfs: {
+																		description: "nfs represents an NFS mount on the host that shares a pod's lifetime More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs"
+																		properties: {
+																			path: {
+																				description: "path that is exported by the NFS server. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs"
+																				type:        "string"
+																			}
+																			readOnly: {
+																				description: "readOnly here will force the NFS export to be mounted with read-only permissions. Defaults to false. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs"
+																				type:        "boolean"
+																			}
+																			server: {
+																				description: "server is the hostname or IP address of the NFS server. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs"
+																				type:        "string"
+																			}
+																		}
+																		required: [
+																			"path",
+																			"server",
+																		]
+																		type: "object"
+																	}
+																	persistentVolumeClaim: {
+																		description: "persistentVolumeClaimVolumeSource represents a reference to a PersistentVolumeClaim in the same namespace. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
+																		properties: {
+																			claimName: {
+																				description: "claimName is the name of a PersistentVolumeClaim in the same namespace as the pod using this volume. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
+																				type:        "string"
+																			}
+																			readOnly: {
+																				description: "readOnly Will force the ReadOnly setting in VolumeMounts. Default false."
+																				type:        "boolean"
+																			}
+																		}
+																		required: [
+																			"claimName",
+																		]
+																		type: "object"
+																	}
+																	photonPersistentDisk: {
+																		description: "photonPersistentDisk represents a PhotonController persistent disk attached and mounted on kubelets host machine"
+																		properties: {
+																			fsType: {
+																				description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified."
+																				type:        "string"
+																			}
+																			pdID: {
+																				description: "pdID is the ID that identifies Photon Controller persistent disk"
+																				type:        "string"
+																			}
+																		}
+																		required: [
+																			"pdID",
+																		]
+																		type: "object"
+																	}
+																	portworxVolume: {
+																		description: "portworxVolume represents a portworx volume attached and mounted on kubelets host machine"
+																		properties: {
+																			fsType: {
+																				description: "fSType represents the filesystem type to mount Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\". Implicitly inferred to be \"ext4\" if unspecified."
+																				type:        "string"
+																			}
+																			readOnly: {
+																				description: "readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																				type:        "boolean"
+																			}
+																			volumeID: {
+																				description: "volumeID uniquely identifies a Portworx volume"
+																				type:        "string"
+																			}
+																		}
+																		required: [
+																			"volumeID",
+																		]
+																		type: "object"
+																	}
+																	projected: {
+																		description: "projected items for all in one resources secrets, configmaps, and downward API"
+																		properties: {
+																			defaultMode: {
+																				description: "defaultMode are the mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																				format:      "int32"
+																				type:        "integer"
+																			}
+																			sources: {
+																				description: "sources is the list of volume projections"
+																				items: {
+																					description: "Projection that may be projected along with other supported volume types"
+																					properties: {
+																						configMap: {
+																							description: "configMap information about the configMap data to project"
+																							properties: {
+																								items: {
+																									description: "items if unspecified, each key-value pair in the Data field of the referenced ConfigMap will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the ConfigMap, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'."
+																									items: {
+																										description: "Maps a string key to a path within a volume."
+																										properties: {
+																											key: {
+																												description: "key is the key to project."
+																												type:        "string"
+																											}
+																											mode: {
+																												description: "mode is Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																												format:      "int32"
+																												type:        "integer"
+																											}
+																											path: {
+																												description: "path is the relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'."
+																												type:        "string"
+																											}
+																										}
+																										required: [
+																											"key",
+																											"path",
+																										]
+																										type: "object"
+																									}
+																									type: "array"
+																								}
+																								name: {
+																									description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																									type:        "string"
+																								}
+																								optional: {
+																									description: "optional specify whether the ConfigMap or its keys must be defined"
+																									type:        "boolean"
+																								}
+																							}
+																							type: "object"
+																						}
+																						downwardAPI: {
+																							description: "downwardAPI information about the downwardAPI data to project"
+																							properties: items: {
+																								description: "Items is a list of DownwardAPIVolume file"
+																								items: {
+																									description: "DownwardAPIVolumeFile represents information to create the file containing the pod field"
+																									properties: {
+																										fieldRef: {
+																											description: "Required: Selects a field of the pod: only annotations, labels, name and namespace are supported."
+																											properties: {
+																												apiVersion: {
+																													description: "Version of the schema the FieldPath is written in terms of, defaults to \"v1\"."
+																													type:        "string"
+																												}
+																												fieldPath: {
+																													description: "Path of the field to select in the specified API version."
+																													type:        "string"
+																												}
+																											}
+																											required: [
+																												"fieldPath",
+																											]
+																											type: "object"
+																										}
+																										mode: {
+																											description: "Optional: mode bits used to set permissions on this file, must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																											format:      "int32"
+																											type:        "integer"
+																										}
+																										path: {
+																											description: "Required: Path is  the relative path name of the file to be created. Must not be absolute or contain the '..' path. Must be utf-8 encoded. The first item of the relative path must not start with '..'"
+																											type:        "string"
+																										}
+																										resourceFieldRef: {
+																											description: "Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, requests.cpu and requests.memory) are currently supported."
+																											properties: {
+																												containerName: {
+																													description: "Container name: required for volumes, optional for env vars"
+																													type:        "string"
+																												}
+																												divisor: {
+																													anyOf: [{
+																														type: "integer"
+																													}, {
+																														type: "string"
+																													}]
+																													description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
+																													pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																													"x-kubernetes-int-or-string": true
+																												}
+																												resource: {
+																													description: "Required: resource to select"
+																													type:        "string"
+																												}
+																											}
+																											required: [
+																												"resource",
+																											]
+																											type: "object"
+																										}
+																									}
+																									required: [
+																										"path",
+																									]
+																									type: "object"
+																								}
+																								type: "array"
+																							}
+																							type: "object"
+																						}
+																						secret: {
+																							description: "secret information about the secret data to project"
+																							properties: {
+																								items: {
+																									description: "items if unspecified, each key-value pair in the Data field of the referenced Secret will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the Secret, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'."
+																									items: {
+																										description: "Maps a string key to a path within a volume."
+																										properties: {
+																											key: {
+																												description: "key is the key to project."
+																												type:        "string"
+																											}
+																											mode: {
+																												description: "mode is Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																												format:      "int32"
+																												type:        "integer"
+																											}
+																											path: {
+																												description: "path is the relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'."
+																												type:        "string"
+																											}
+																										}
+																										required: [
+																											"key",
+																											"path",
+																										]
+																										type: "object"
+																									}
+																									type: "array"
+																								}
+																								name: {
+																									description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																									type:        "string"
+																								}
+																								optional: {
+																									description: "optional field specify whether the Secret or its key must be defined"
+																									type:        "boolean"
+																								}
+																							}
+																							type: "object"
+																						}
+																						serviceAccountToken: {
+																							description: "serviceAccountToken is information about the serviceAccountToken data to project"
+																							properties: {
+																								audience: {
+																									description: "audience is the intended audience of the token. A recipient of a token must identify itself with an identifier specified in the audience of the token, and otherwise should reject the token. The audience defaults to the identifier of the apiserver."
+																									type:        "string"
+																								}
+																								expirationSeconds: {
+																									description: "expirationSeconds is the requested duration of validity of the service account token. As the token approaches expiration, the kubelet volume plugin will proactively rotate the service account token. The kubelet will start trying to rotate the token if the token is older than 80 percent of its time to live or if the token is older than 24 hours.Defaults to 1 hour and must be at least 10 minutes."
+																									format:      "int64"
+																									type:        "integer"
+																								}
+																								path: {
+																									description: "path is the path relative to the mount point of the file to project the token into."
+																									type:        "string"
+																								}
+																							}
+																							required: [
+																								"path",
+																							]
+																							type: "object"
+																						}
+																					}
+																					type: "object"
+																				}
+																				type: "array"
+																			}
+																		}
+																		type: "object"
+																	}
+																	quobyte: {
+																		description: "quobyte represents a Quobyte mount on the host that shares a pod's lifetime"
+																		properties: {
+																			group: {
+																				description: "group to map volume access to Default is no group"
+																				type:        "string"
+																			}
+																			readOnly: {
+																				description: "readOnly here will force the Quobyte volume to be mounted with read-only permissions. Defaults to false."
+																				type:        "boolean"
+																			}
+																			registry: {
+																				description: "registry represents a single or multiple Quobyte Registry services specified as a string as host:port pair (multiple entries are separated with commas) which acts as the central registry for volumes"
+																				type:        "string"
+																			}
+																			tenant: {
+																				description: "tenant owning the given Quobyte volume in the Backend Used with dynamically provisioned Quobyte volumes, value is set by the plugin"
+																				type:        "string"
+																			}
+																			user: {
+																				description: "user to map volume access to Defaults to serivceaccount user"
+																				type:        "string"
+																			}
+																			volume: {
+																				description: "volume is a string that references an already created Quobyte volume by name."
+																				type:        "string"
+																			}
+																		}
+																		required: [
+																			"registry",
+																			"volume",
+																		]
+																		type: "object"
+																	}
+																	rbd: {
+																		description: "rbd represents a Rados Block Device mount on the host that shares a pod's lifetime. More info: https://examples.k8s.io/volumes/rbd/README.md"
+																		properties: {
+																			fsType: {
+																				description: "fsType is the filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#rbd TODO: how do we prevent errors in the filesystem from compromising the machine"
+																				type:        "string"
+																			}
+																			image: {
+																				description: "image is the rados image name. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																				type:        "string"
+																			}
+																			keyring: {
+																				description: "keyring is the path to key ring for RBDUser. Default is /etc/ceph/keyring. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																				type:        "string"
+																			}
+																			monitors: {
+																				description: "monitors is a collection of Ceph monitors. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																				items: type: "string"
+																				type: "array"
+																			}
+																			pool: {
+																				description: "pool is the rados pool name. Default is rbd. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																				type:        "string"
+																			}
+																			readOnly: {
+																				description: "readOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																				type:        "boolean"
+																			}
+																			secretRef: {
+																				description: "secretRef is name of the authentication secret for RBDUser. If provided overrides keyring. Default is nil. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																				properties: name: {
+																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																					type:        "string"
+																				}
+																				type: "object"
+																			}
+																			user: {
+																				description: "user is the rados user name. Default is admin. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																				type:        "string"
+																			}
+																		}
+																		required: [
+																			"image",
+																			"monitors",
+																		]
+																		type: "object"
+																	}
+																	scaleIO: {
+																		description: "scaleIO represents a ScaleIO persistent volume attached and mounted on Kubernetes nodes."
+																		properties: {
+																			fsType: {
+																				description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Default is \"xfs\"."
+																				type:        "string"
+																			}
+																			gateway: {
+																				description: "gateway is the host address of the ScaleIO API Gateway."
+																				type:        "string"
+																			}
+																			protectionDomain: {
+																				description: "protectionDomain is the name of the ScaleIO Protection Domain for the configured storage."
+																				type:        "string"
+																			}
+																			readOnly: {
+																				description: "readOnly Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																				type:        "boolean"
+																			}
+																			secretRef: {
+																				description: "secretRef references to the secret for ScaleIO user and other sensitive information. If this is not provided, Login operation will fail."
+																				properties: name: {
+																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																					type:        "string"
+																				}
+																				type: "object"
+																			}
+																			sslEnabled: {
+																				description: "sslEnabled Flag enable/disable SSL communication with Gateway, default false"
+																				type:        "boolean"
+																			}
+																			storageMode: {
+																				description: "storageMode indicates whether the storage for a volume should be ThickProvisioned or ThinProvisioned. Default is ThinProvisioned."
+																				type:        "string"
+																			}
+																			storagePool: {
+																				description: "storagePool is the ScaleIO Storage Pool associated with the protection domain."
+																				type:        "string"
+																			}
+																			system: {
+																				description: "system is the name of the storage system as configured in ScaleIO."
+																				type:        "string"
+																			}
+																			volumeName: {
+																				description: "volumeName is the name of a volume already created in the ScaleIO system that is associated with this volume source."
+																				type:        "string"
+																			}
+																		}
+																		required: [
+																			"gateway",
+																			"secretRef",
+																			"system",
+																		]
+																		type: "object"
+																	}
+																	secret: {
+																		description: "secret represents a secret that should populate this volume. More info: https://kubernetes.io/docs/concepts/storage/volumes#secret"
+																		properties: {
+																			defaultMode: {
+																				description: "defaultMode is Optional: mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																				format:      "int32"
+																				type:        "integer"
+																			}
+																			items: {
+																				description: "items If unspecified, each key-value pair in the Data field of the referenced Secret will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the Secret, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'."
+																				items: {
+																					description: "Maps a string key to a path within a volume."
+																					properties: {
+																						key: {
+																							description: "key is the key to project."
+																							type:        "string"
+																						}
+																						mode: {
+																							description: "mode is Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																							format:      "int32"
+																							type:        "integer"
+																						}
+																						path: {
+																							description: "path is the relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'."
+																							type:        "string"
+																						}
+																					}
+																					required: [
+																						"key",
+																						"path",
+																					]
+																					type: "object"
+																				}
+																				type: "array"
+																			}
+																			optional: {
+																				description: "optional field specify whether the Secret or its keys must be defined"
+																				type:        "boolean"
+																			}
+																			secretName: {
+																				description: "secretName is the name of the secret in the pod's namespace to use. More info: https://kubernetes.io/docs/concepts/storage/volumes#secret"
+																				type:        "string"
+																			}
+																		}
+																		type: "object"
+																	}
+																	storageos: {
+																		description: "storageOS represents a StorageOS volume attached and mounted on Kubernetes nodes."
+																		properties: {
+																			fsType: {
+																				description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified."
+																				type:        "string"
+																			}
+																			readOnly: {
+																				description: "readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																				type:        "boolean"
+																			}
+																			secretRef: {
+																				description: "secretRef specifies the secret to use for obtaining the StorageOS API credentials.  If not specified, default values will be attempted."
+																				properties: name: {
+																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																					type:        "string"
+																				}
+																				type: "object"
+																			}
+																			volumeName: {
+																				description: "volumeName is the human-readable name of the StorageOS volume.  Volume names are only unique within a namespace."
+																				type:        "string"
+																			}
+																			volumeNamespace: {
+																				description: "volumeNamespace specifies the scope of the volume within StorageOS.  If no namespace is specified then the Pod's namespace will be used.  This allows the Kubernetes name scoping to be mirrored within StorageOS for tighter integration. Set VolumeName to any name to override the default behaviour. Set to \"default\" if you are not using namespaces within StorageOS. Namespaces that do not pre-exist within StorageOS will be created."
+																				type:        "string"
+																			}
+																		}
+																		type: "object"
+																	}
+																	vsphereVolume: {
+																		description: "vsphereVolume represents a vSphere volume attached and mounted on kubelets host machine"
+																		properties: {
+																			fsType: {
+																				description: "fsType is filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified."
+																				type:        "string"
+																			}
+																			storagePolicyID: {
+																				description: "storagePolicyID is the storage Policy Based Management (SPBM) profile ID associated with the StoragePolicyName."
+																				type:        "string"
+																			}
+																			storagePolicyName: {
+																				description: "storagePolicyName is the storage Policy Based Management (SPBM) profile name."
+																				type:        "string"
+																			}
+																			volumePath: {
+																				description: "volumePath is the path that identifies vSphere volume vmdk"
+																				type:        "string"
+																			}
+																		}
+																		required: [
+																			"volumePath",
+																		]
+																		type: "object"
+																	}
+																}
+																type: "object"
+															}
+														}
+														required: [
+															"subPath",
+															"volumeSource",
+														]
+														type: "object"
+													}
+													type: "array"
+												}
+												debugLevel: {
+													description: "DebugLevel sets the debug level for SSSD. If unset or set to 0, Rook does nothing. Otherwise, this may be a value between 1 and 10. See SSSD docs for more info: https://sssd.io/troubleshooting/basics.html#sssd-debug-logs"
+													maximum:     10
+													minimum:     0
+													type:        "integer"
+												}
+												image: {
+													description: "Image defines the container image that should be used for the SSSD sidecar."
+													minLength:   1
+													type:        "string"
+												}
+												resources: {
+													description: "Resources allow specifying resource requests/limits on the SSSD sidecar container."
+													properties: {
+														limits: {
+															additionalProperties: {
+																anyOf: [{
+																	type: "integer"
+																}, {
+																	type: "string"
+																}]
+																pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																"x-kubernetes-int-or-string": true
+															}
+															description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
+															type:        "object"
+														}
+														requests: {
+															additionalProperties: {
+																anyOf: [{
+																	type: "integer"
+																}, {
+																	type: "string"
+																}]
+																pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																"x-kubernetes-int-or-string": true
+															}
+															description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
+															type:        "object"
+														}
+													}
+													type: "object"
+												}
+												sssdConfigFile: {
+													description: "SSSDConfigFile defines where the SSSD configuration should be sourced from. The config file will be placed into `/etc/sssd/sssd.conf`. If this is left empty, Rook will not add the file. This allows you to manage the `sssd.conf` file yourself however you wish. For example, you may build it into your custom Ceph container image or use the Vault agent injector to securely add the file via annotations on the CephNFS spec (passed to the NFS server pods)."
+													properties: volumeSource: {
+														description: "VolumeSource accepts a standard Kubernetes VolumeSource for the SSSD configuration file like what is normally used to configure Volumes for a Pod. For example, a ConfigMap, Secret, or HostPath. There are two requirements for the source's content:   1. The config file must be mountable via `subPath: sssd.conf`. For example, in a ConfigMap,      the data item must be named `sssd.conf`, or `items` must be defined to select the key      and give it path `sssd.conf`. A HostPath directory must have the `sssd.conf` file.   2. The volume or config file must have mode 0600."
+														properties: {
+															awsElasticBlockStore: {
+																description: "awsElasticBlockStore represents an AWS Disk resource that is attached to a kubelet's host machine and then exposed to the pod. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore"
+																properties: {
+																	fsType: {
+																		description: "fsType is the filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore TODO: how do we prevent errors in the filesystem from compromising the machine"
+																		type:        "string"
+																	}
+																	partition: {
+																		description: "partition is the partition in the volume that you want to mount. If omitted, the default is to mount by volume name. Examples: For volume /dev/sda1, you specify the partition as \"1\". Similarly, the volume partition for /dev/sda is \"0\" (or you can leave the property empty)."
+																		format:      "int32"
+																		type:        "integer"
+																	}
+																	readOnly: {
+																		description: "readOnly value true will force the readOnly setting in VolumeMounts. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore"
+																		type:        "boolean"
+																	}
+																	volumeID: {
+																		description: "volumeID is unique ID of the persistent disk resource in AWS (Amazon EBS volume). More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore"
+																		type:        "string"
+																	}
+																}
+																required: [
+																	"volumeID",
+																]
+																type: "object"
+															}
+															azureDisk: {
+																description: "azureDisk represents an Azure Data Disk mount on the host and bind mount to the pod."
+																properties: {
+																	cachingMode: {
+																		description: "cachingMode is the Host Caching mode: None, Read Only, Read Write."
+																		type:        "string"
+																	}
+																	diskName: {
+																		description: "diskName is the Name of the data disk in the blob storage"
+																		type:        "string"
+																	}
+																	diskURI: {
+																		description: "diskURI is the URI of data disk in the blob storage"
+																		type:        "string"
+																	}
+																	fsType: {
+																		description: "fsType is Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified."
+																		type:        "string"
+																	}
+																	kind: {
+																		description: "kind expected values are Shared: multiple blob disks per storage account  Dedicated: single blob disk per storage account  Managed: azure managed data disk (only in managed availability set). defaults to shared"
+																		type:        "string"
+																	}
+																	readOnly: {
+																		description: "readOnly Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																		type:        "boolean"
+																	}
+																}
+																required: [
+																	"diskName",
+																	"diskURI",
+																]
+																type: "object"
+															}
+															azureFile: {
+																description: "azureFile represents an Azure File Service mount on the host and bind mount to the pod."
+																properties: {
+																	readOnly: {
+																		description: "readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																		type:        "boolean"
+																	}
+																	secretName: {
+																		description: "secretName is the  name of secret that contains Azure Storage Account Name and Key"
+																		type:        "string"
+																	}
+																	shareName: {
+																		description: "shareName is the azure share Name"
+																		type:        "string"
+																	}
+																}
+																required: [
+																	"secretName",
+																	"shareName",
+																]
+																type: "object"
+															}
+															cephfs: {
+																description: "cephFS represents a Ceph FS mount on the host that shares a pod's lifetime"
+																properties: {
+																	monitors: {
+																		description: "monitors is Required: Monitors is a collection of Ceph monitors More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
+																		items: type: "string"
+																		type: "array"
+																	}
+																	path: {
+																		description: "path is Optional: Used as the mounted root, rather than the full Ceph tree, default is /"
+																		type:        "string"
+																	}
+																	readOnly: {
+																		description: "readOnly is Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
+																		type:        "boolean"
+																	}
+																	secretFile: {
+																		description: "secretFile is Optional: SecretFile is the path to key ring for User, default is /etc/ceph/user.secret More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
+																		type:        "string"
+																	}
+																	secretRef: {
+																		description: "secretRef is Optional: SecretRef is reference to the authentication secret for User, default is empty. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
+																		properties: name: {
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			type:        "string"
+																		}
+																		type: "object"
+																	}
+																	user: {
+																		description: "user is optional: User is the rados user name, default is admin More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
+																		type:        "string"
+																	}
+																}
+																required: [
+																	"monitors",
+																]
+																type: "object"
+															}
+															cinder: {
+																description: "cinder represents a cinder volume attached and mounted on kubelets host machine. More info: https://examples.k8s.io/mysql-cinder-pd/README.md"
+																properties: {
+																	fsType: {
+																		description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://examples.k8s.io/mysql-cinder-pd/README.md"
+																		type:        "string"
+																	}
+																	readOnly: {
+																		description: "readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://examples.k8s.io/mysql-cinder-pd/README.md"
+																		type:        "boolean"
+																	}
+																	secretRef: {
+																		description: "secretRef is optional: points to a secret object containing parameters used to connect to OpenStack."
+																		properties: name: {
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			type:        "string"
+																		}
+																		type: "object"
+																	}
+																	volumeID: {
+																		description: "volumeID used to identify the volume in cinder. More info: https://examples.k8s.io/mysql-cinder-pd/README.md"
+																		type:        "string"
+																	}
+																}
+																required: [
+																	"volumeID",
+																]
+																type: "object"
+															}
+															configMap: {
+																description: "configMap represents a configMap that should populate this volume"
+																properties: {
+																	defaultMode: {
+																		description: "defaultMode is optional: mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																		format:      "int32"
+																		type:        "integer"
+																	}
+																	items: {
+																		description: "items if unspecified, each key-value pair in the Data field of the referenced ConfigMap will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the ConfigMap, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'."
+																		items: {
+																			description: "Maps a string key to a path within a volume."
+																			properties: {
+																				key: {
+																					description: "key is the key to project."
+																					type:        "string"
+																				}
+																				mode: {
+																					description: "mode is Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																					format:      "int32"
+																					type:        "integer"
+																				}
+																				path: {
+																					description: "path is the relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'."
+																					type:        "string"
+																				}
+																			}
+																			required: [
+																				"key",
+																				"path",
+																			]
+																			type: "object"
+																		}
+																		type: "array"
+																	}
+																	name: {
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		type:        "string"
+																	}
+																	optional: {
+																		description: "optional specify whether the ConfigMap or its keys must be defined"
+																		type:        "boolean"
+																	}
+																}
+																type: "object"
+															}
+															csi: {
+																description: "csi (Container Storage Interface) represents ephemeral storage that is handled by certain external CSI drivers (Beta feature)."
+																properties: {
+																	driver: {
+																		description: "driver is the name of the CSI driver that handles this volume. Consult with your admin for the correct name as registered in the cluster."
+																		type:        "string"
+																	}
+																	fsType: {
+																		description: "fsType to mount. Ex. \"ext4\", \"xfs\", \"ntfs\". If not provided, the empty value is passed to the associated CSI driver which will determine the default filesystem to apply."
+																		type:        "string"
+																	}
+																	nodePublishSecretRef: {
+																		description: "nodePublishSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodePublishVolume and NodeUnpublishVolume calls. This field is optional, and  may be empty if no secret is required. If the secret object contains more than one secret, all secret references are passed."
+																		properties: name: {
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			type:        "string"
+																		}
+																		type: "object"
+																	}
+																	readOnly: {
+																		description: "readOnly specifies a read-only configuration for the volume. Defaults to false (read/write)."
+																		type:        "boolean"
+																	}
+																	volumeAttributes: {
+																		additionalProperties: type: "string"
+																		description: "volumeAttributes stores driver-specific properties that are passed to the CSI driver. Consult your driver's documentation for supported values."
+																		type:        "object"
+																	}
+																}
+																required: [
+																	"driver",
+																]
+																type: "object"
+															}
+															downwardAPI: {
+																description: "downwardAPI represents downward API about the pod that should populate this volume"
+																properties: {
+																	defaultMode: {
+																		description: "Optional: mode bits to use on created files by default. Must be a Optional: mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																		format:      "int32"
+																		type:        "integer"
+																	}
+																	items: {
+																		description: "Items is a list of downward API volume file"
+																		items: {
+																			description: "DownwardAPIVolumeFile represents information to create the file containing the pod field"
+																			properties: {
+																				fieldRef: {
+																					description: "Required: Selects a field of the pod: only annotations, labels, name and namespace are supported."
+																					properties: {
+																						apiVersion: {
+																							description: "Version of the schema the FieldPath is written in terms of, defaults to \"v1\"."
+																							type:        "string"
+																						}
+																						fieldPath: {
+																							description: "Path of the field to select in the specified API version."
+																							type:        "string"
+																						}
+																					}
+																					required: [
+																						"fieldPath",
+																					]
+																					type: "object"
+																				}
+																				mode: {
+																					description: "Optional: mode bits used to set permissions on this file, must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																					format:      "int32"
+																					type:        "integer"
+																				}
+																				path: {
+																					description: "Required: Path is  the relative path name of the file to be created. Must not be absolute or contain the '..' path. Must be utf-8 encoded. The first item of the relative path must not start with '..'"
+																					type:        "string"
+																				}
+																				resourceFieldRef: {
+																					description: "Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, requests.cpu and requests.memory) are currently supported."
+																					properties: {
+																						containerName: {
+																							description: "Container name: required for volumes, optional for env vars"
+																							type:        "string"
+																						}
+																						divisor: {
+																							anyOf: [{
+																								type: "integer"
+																							}, {
+																								type: "string"
+																							}]
+																							description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
+																							pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																							"x-kubernetes-int-or-string": true
+																						}
+																						resource: {
+																							description: "Required: resource to select"
+																							type:        "string"
+																						}
+																					}
+																					required: [
+																						"resource",
+																					]
+																					type: "object"
+																				}
+																			}
+																			required: [
+																				"path",
+																			]
+																			type: "object"
+																		}
+																		type: "array"
+																	}
+																}
+																type: "object"
+															}
+															emptyDir: {
+																description: "emptyDir represents a temporary directory that shares a pod's lifetime. More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir"
+																properties: {
+																	medium: {
+																		description: "medium represents what type of storage medium should back this directory. The default is \"\" which means to use the node's default medium. Must be an empty string (default) or Memory. More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir"
+																		type:        "string"
+																	}
+																	sizeLimit: {
+																		anyOf: [{
+																			type: "integer"
+																		}, {
+																			type: "string"
+																		}]
+																		description:                  "sizeLimit is the total amount of local storage required for this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers in a pod. The default is nil which means that the limit is undefined. More info: http://kubernetes.io/docs/user-guide/volumes#emptydir"
+																		pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																		"x-kubernetes-int-or-string": true
+																	}
+																}
+																type: "object"
+															}
+															ephemeral: {
+																description: """
+		ephemeral represents a volume that is handled by a cluster storage driver. The volume's lifecycle is tied to the pod that defines it - it will be created before the pod starts, and deleted when the pod is removed.
+		 Use this if: a) the volume is only needed while the pod runs, b) features of normal volumes like restoring from snapshot or capacity    tracking are needed, c) the storage driver is specified through a storage class, and d) the storage driver supports dynamic volume provisioning through    a PersistentVolumeClaim (see EphemeralVolumeSource for more    information on the connection between this volume type    and PersistentVolumeClaim).
+		 Use PersistentVolumeClaim or one of the vendor-specific APIs for volumes that persist for longer than the lifecycle of an individual pod.
+		 Use CSI for light-weight local ephemeral volumes if the CSI driver is meant to be used that way - see the documentation of the driver for more information.
+		 A pod can use both types of ephemeral volumes and persistent volumes at the same time.
+		"""
+																properties: volumeClaimTemplate: {
+																	description: """
+		Will be used to create a stand-alone PVC to provision the volume. The pod in which this EphemeralVolumeSource is embedded will be the owner of the PVC, i.e. the PVC will be deleted together with the pod.  The name of the PVC will be `<pod name>-<volume name>` where `<volume name>` is the name from the `PodSpec.Volumes` array entry. Pod validation will reject the pod if the concatenated name is not valid for a PVC (for example, too long).
+		 An existing PVC with that name that is not owned by the pod will *not* be used for the pod to avoid using an unrelated volume by mistake. Starting the pod is then blocked until the unrelated PVC is removed. If such a pre-created PVC is meant to be used by the pod, the PVC has to updated with an owner reference to the pod once the pod exists. Normally this should not be necessary, but it may be useful when manually reconstructing a broken cluster.
+		 This field is read-only and no changes will be made by Kubernetes to the PVC after it has been created.
+		 Required, must not be nil.
+		"""
+																	properties: {
+																		metadata: {
+																			description: "May contain labels and annotations that will be copied into the PVC when creating it. No other fields are allowed and will be rejected during validation."
+																			properties: {
+																				annotations: {
+																					additionalProperties: type: "string"
+																					type: "object"
+																				}
+																				finalizers: {
+																					items: type: "string"
+																					type: "array"
+																				}
+																				labels: {
+																					additionalProperties: type: "string"
+																					type: "object"
+																				}
+																				name: type:      "string"
+																				namespace: type: "string"
+																			}
+																			type: "object"
+																		}
+																		spec: {
+																			description: "The specification for the PersistentVolumeClaim. The entire content is copied unchanged into the PVC that gets created from this template. The same fields as in a PersistentVolumeClaim are also valid here."
+																			properties: {
+																				accessModes: {
+																					description: "accessModes contains the desired access modes the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
+																					items: type: "string"
+																					type: "array"
+																				}
+																				dataSource: {
+																					description: "dataSource field can be used to specify either: * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot) * An existing PVC (PersistentVolumeClaim) If the provisioner or an external controller can support the specified data source, it will create a new volume based on the contents of the specified data source. If the AnyVolumeDataSource feature gate is enabled, this field will always have the same contents as the DataSourceRef field."
+																					properties: {
+																						apiGroup: {
+																							description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
+																							type:        "string"
+																						}
+																						kind: {
+																							description: "Kind is the type of resource being referenced"
+																							type:        "string"
+																						}
+																						name: {
+																							description: "Name is the name of resource being referenced"
+																							type:        "string"
+																						}
+																					}
+																					required: [
+																						"kind",
+																						"name",
+																					]
+																					type: "object"
+																				}
+																				dataSourceRef: {
+																					description: "dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volume is desired. This may be any local object from a non-empty API group (non core object) or a PersistentVolumeClaim object. When this field is specified, volume binding will only succeed if the type of the specified object matches some installed volume populator or dynamic provisioner. This field will replace the functionality of the DataSource field and as such if both fields are non-empty, they must have the same value. For backwards compatibility, both fields (DataSource and DataSourceRef) will be set to the same value automatically if one of them is empty and the other is non-empty. There are two important differences between DataSource and DataSourceRef: * While DataSource only allows two specific types of objects, DataSourceRef   allows any non-core object, as well as PersistentVolumeClaim objects. * While DataSource ignores disallowed values (dropping them), DataSourceRef   preserves all values, and generates an error if a disallowed value is   specified. (Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled."
+																					properties: {
+																						apiGroup: {
+																							description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
+																							type:        "string"
+																						}
+																						kind: {
+																							description: "Kind is the type of resource being referenced"
+																							type:        "string"
+																						}
+																						name: {
+																							description: "Name is the name of resource being referenced"
+																							type:        "string"
+																						}
+																					}
+																					required: [
+																						"kind",
+																						"name",
+																					]
+																					type: "object"
+																				}
+																				resources: {
+																					description: "resources represents the minimum resources the volume should have. If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements that are lower than previous value but must still be higher than capacity recorded in the status field of the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources"
+																					properties: {
+																						limits: {
+																							additionalProperties: {
+																								anyOf: [{
+																									type: "integer"
+																								}, {
+																									type: "string"
+																								}]
+																								pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																								"x-kubernetes-int-or-string": true
+																							}
+																							description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
+																							type:        "object"
+																						}
+																						requests: {
+																							additionalProperties: {
+																								anyOf: [{
+																									type: "integer"
+																								}, {
+																									type: "string"
+																								}]
+																								pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																								"x-kubernetes-int-or-string": true
+																							}
+																							description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
+																							type:        "object"
+																						}
+																					}
+																					type: "object"
+																				}
+																				selector: {
+																					description: "selector is a label query over volumes to consider for binding."
+																					properties: {
+																						matchExpressions: {
+																							description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																							items: {
+																								description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																								properties: {
+																									key: {
+																										description: "key is the label key that the selector applies to."
+																										type:        "string"
+																									}
+																									operator: {
+																										description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																										type:        "string"
+																									}
+																									values: {
+																										description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																										items: type: "string"
+																										type: "array"
+																									}
+																								}
+																								required: [
+																									"key",
+																									"operator",
+																								]
+																								type: "object"
+																							}
+																							type: "array"
+																						}
+																						matchLabels: {
+																							additionalProperties: type: "string"
+																							description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																							type:        "object"
+																						}
+																					}
+																					type: "object"
+																				}
+																				storageClassName: {
+																					description: "storageClassName is the name of the StorageClass required by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1"
+																					type:        "string"
+																				}
+																				volumeMode: {
+																					description: "volumeMode defines what type of volume is required by the claim. Value of Filesystem is implied when not included in claim spec."
+																					type:        "string"
+																				}
+																				volumeName: {
+																					description: "volumeName is the binding reference to the PersistentVolume backing this claim."
+																					type:        "string"
+																				}
+																			}
+																			type: "object"
+																		}
+																	}
+																	required: [
+																		"spec",
+																	]
+																	type: "object"
+																}
+																type: "object"
+															}
+															fc: {
+																description: "fc represents a Fibre Channel resource that is attached to a kubelet's host machine and then exposed to the pod."
+																properties: {
+																	fsType: {
+																		description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. TODO: how do we prevent errors in the filesystem from compromising the machine"
+																		type:        "string"
+																	}
+																	lun: {
+																		description: "lun is Optional: FC target lun number"
+																		format:      "int32"
+																		type:        "integer"
+																	}
+																	readOnly: {
+																		description: "readOnly is Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																		type:        "boolean"
+																	}
+																	targetWWNs: {
+																		description: "targetWWNs is Optional: FC target worldwide names (WWNs)"
+																		items: type: "string"
+																		type: "array"
+																	}
+																	wwids: {
+																		description: "wwids Optional: FC volume world wide identifiers (wwids) Either wwids or combination of targetWWNs and lun must be set, but not both simultaneously."
+																		items: type: "string"
+																		type: "array"
+																	}
+																}
+																type: "object"
+															}
+															flexVolume: {
+																description: "flexVolume represents a generic volume resource that is provisioned/attached using an exec based plugin."
+																properties: {
+																	driver: {
+																		description: "driver is the name of the driver to use for this volume."
+																		type:        "string"
+																	}
+																	fsType: {
+																		description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". The default filesystem depends on FlexVolume script."
+																		type:        "string"
+																	}
+																	options: {
+																		additionalProperties: type: "string"
+																		description: "options is Optional: this field holds extra command options if any."
+																		type:        "object"
+																	}
+																	readOnly: {
+																		description: "readOnly is Optional: defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																		type:        "boolean"
+																	}
+																	secretRef: {
+																		description: "secretRef is Optional: secretRef is reference to the secret object containing sensitive information to pass to the plugin scripts. This may be empty if no secret object is specified. If the secret object contains more than one secret, all secrets are passed to the plugin scripts."
+																		properties: name: {
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			type:        "string"
+																		}
+																		type: "object"
+																	}
+																}
+																required: [
+																	"driver",
+																]
+																type: "object"
+															}
+															flocker: {
+																description: "flocker represents a Flocker volume attached to a kubelet's host machine. This depends on the Flocker control service being running"
+																properties: {
+																	datasetName: {
+																		description: "datasetName is Name of the dataset stored as metadata -> name on the dataset for Flocker should be considered as deprecated"
+																		type:        "string"
+																	}
+																	datasetUUID: {
+																		description: "datasetUUID is the UUID of the dataset. This is unique identifier of a Flocker dataset"
+																		type:        "string"
+																	}
+																}
+																type: "object"
+															}
+															gcePersistentDisk: {
+																description: "gcePersistentDisk represents a GCE Disk resource that is attached to a kubelet's host machine and then exposed to the pod. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk"
+																properties: {
+																	fsType: {
+																		description: "fsType is filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk TODO: how do we prevent errors in the filesystem from compromising the machine"
+																		type:        "string"
+																	}
+																	partition: {
+																		description: "partition is the partition in the volume that you want to mount. If omitted, the default is to mount by volume name. Examples: For volume /dev/sda1, you specify the partition as \"1\". Similarly, the volume partition for /dev/sda is \"0\" (or you can leave the property empty). More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk"
+																		format:      "int32"
+																		type:        "integer"
+																	}
+																	pdName: {
+																		description: "pdName is unique name of the PD resource in GCE. Used to identify the disk in GCE. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk"
+																		type:        "string"
+																	}
+																	readOnly: {
+																		description: "readOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk"
+																		type:        "boolean"
+																	}
+																}
+																required: [
+																	"pdName",
+																]
+																type: "object"
+															}
+															gitRepo: {
+																description: "gitRepo represents a git repository at a particular revision. DEPRECATED: GitRepo is deprecated. To provision a container with a git repo, mount an EmptyDir into an InitContainer that clones the repo using git, then mount the EmptyDir into the Pod's container."
+																properties: {
+																	directory: {
+																		description: "directory is the target directory name. Must not contain or start with '..'.  If '.' is supplied, the volume directory will be the git repository.  Otherwise, if specified, the volume will contain the git repository in the subdirectory with the given name."
+																		type:        "string"
+																	}
+																	repository: {
+																		description: "repository is the URL"
+																		type:        "string"
+																	}
+																	revision: {
+																		description: "revision is the commit hash for the specified revision."
+																		type:        "string"
+																	}
+																}
+																required: [
+																	"repository",
+																]
+																type: "object"
+															}
+															glusterfs: {
+																description: "glusterfs represents a Glusterfs mount on the host that shares a pod's lifetime. More info: https://examples.k8s.io/volumes/glusterfs/README.md"
+																properties: {
+																	endpoints: {
+																		description: "endpoints is the endpoint name that details Glusterfs topology. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod"
+																		type:        "string"
+																	}
+																	path: {
+																		description: "path is the Glusterfs volume path. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod"
+																		type:        "string"
+																	}
+																	readOnly: {
+																		description: "readOnly here will force the Glusterfs volume to be mounted with read-only permissions. Defaults to false. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod"
+																		type:        "boolean"
+																	}
+																}
+																required: [
+																	"endpoints",
+																	"path",
+																]
+																type: "object"
+															}
+															hostPath: {
+																description: "hostPath represents a pre-existing file or directory on the host machine that is directly exposed to the container. This is generally used for system agents or other privileged things that are allowed to see the host machine. Most containers will NOT need this. More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath TODO(jonesdl) We need to restrict who can use host directory mounts and who can/can not mount host directories as read/write."
+																properties: {
+																	path: {
+																		description: "path of the directory on the host. If the path is a symlink, it will follow the link to the real path. More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath"
+																		type:        "string"
+																	}
+																	type: {
+																		description: "type for HostPath Volume Defaults to \"\" More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath"
+																		type:        "string"
+																	}
+																}
+																required: [
+																	"path",
+																]
+																type: "object"
+															}
+															iscsi: {
+																description: "iscsi represents an ISCSI Disk resource that is attached to a kubelet's host machine and then exposed to the pod. More info: https://examples.k8s.io/volumes/iscsi/README.md"
+																properties: {
+																	chapAuthDiscovery: {
+																		description: "chapAuthDiscovery defines whether support iSCSI Discovery CHAP authentication"
+																		type:        "boolean"
+																	}
+																	chapAuthSession: {
+																		description: "chapAuthSession defines whether support iSCSI Session CHAP authentication"
+																		type:        "boolean"
+																	}
+																	fsType: {
+																		description: "fsType is the filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#iscsi TODO: how do we prevent errors in the filesystem from compromising the machine"
+																		type:        "string"
+																	}
+																	initiatorName: {
+																		description: "initiatorName is the custom iSCSI Initiator Name. If initiatorName is specified with iscsiInterface simultaneously, new iSCSI interface <target portal>:<volume name> will be created for the connection."
+																		type:        "string"
+																	}
+																	iqn: {
+																		description: "iqn is the target iSCSI Qualified Name."
+																		type:        "string"
+																	}
+																	iscsiInterface: {
+																		description: "iscsiInterface is the interface Name that uses an iSCSI transport. Defaults to 'default' (tcp)."
+																		type:        "string"
+																	}
+																	lun: {
+																		description: "lun represents iSCSI Target Lun number."
+																		format:      "int32"
+																		type:        "integer"
+																	}
+																	portals: {
+																		description: "portals is the iSCSI Target Portal List. The portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260)."
+																		items: type: "string"
+																		type: "array"
+																	}
+																	readOnly: {
+																		description: "readOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false."
+																		type:        "boolean"
+																	}
+																	secretRef: {
+																		description: "secretRef is the CHAP Secret for iSCSI target and initiator authentication"
+																		properties: name: {
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			type:        "string"
+																		}
+																		type: "object"
+																	}
+																	targetPortal: {
+																		description: "targetPortal is iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260)."
+																		type:        "string"
+																	}
+																}
+																required: [
+																	"iqn",
+																	"lun",
+																	"targetPortal",
+																]
+																type: "object"
+															}
+															nfs: {
+																description: "nfs represents an NFS mount on the host that shares a pod's lifetime More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs"
+																properties: {
+																	path: {
+																		description: "path that is exported by the NFS server. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs"
+																		type:        "string"
+																	}
+																	readOnly: {
+																		description: "readOnly here will force the NFS export to be mounted with read-only permissions. Defaults to false. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs"
+																		type:        "boolean"
+																	}
+																	server: {
+																		description: "server is the hostname or IP address of the NFS server. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs"
+																		type:        "string"
+																	}
+																}
+																required: [
+																	"path",
+																	"server",
+																]
+																type: "object"
+															}
+															persistentVolumeClaim: {
+																description: "persistentVolumeClaimVolumeSource represents a reference to a PersistentVolumeClaim in the same namespace. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
+																properties: {
+																	claimName: {
+																		description: "claimName is the name of a PersistentVolumeClaim in the same namespace as the pod using this volume. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
+																		type:        "string"
+																	}
+																	readOnly: {
+																		description: "readOnly Will force the ReadOnly setting in VolumeMounts. Default false."
+																		type:        "boolean"
+																	}
+																}
+																required: [
+																	"claimName",
+																]
+																type: "object"
+															}
+															photonPersistentDisk: {
+																description: "photonPersistentDisk represents a PhotonController persistent disk attached and mounted on kubelets host machine"
+																properties: {
+																	fsType: {
+																		description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified."
+																		type:        "string"
+																	}
+																	pdID: {
+																		description: "pdID is the ID that identifies Photon Controller persistent disk"
+																		type:        "string"
+																	}
+																}
+																required: [
+																	"pdID",
+																]
+																type: "object"
+															}
+															portworxVolume: {
+																description: "portworxVolume represents a portworx volume attached and mounted on kubelets host machine"
+																properties: {
+																	fsType: {
+																		description: "fSType represents the filesystem type to mount Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\". Implicitly inferred to be \"ext4\" if unspecified."
+																		type:        "string"
+																	}
+																	readOnly: {
+																		description: "readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																		type:        "boolean"
+																	}
+																	volumeID: {
+																		description: "volumeID uniquely identifies a Portworx volume"
+																		type:        "string"
+																	}
+																}
+																required: [
+																	"volumeID",
+																]
+																type: "object"
+															}
+															projected: {
+																description: "projected items for all in one resources secrets, configmaps, and downward API"
+																properties: {
+																	defaultMode: {
+																		description: "defaultMode are the mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																		format:      "int32"
+																		type:        "integer"
+																	}
+																	sources: {
+																		description: "sources is the list of volume projections"
+																		items: {
+																			description: "Projection that may be projected along with other supported volume types"
+																			properties: {
+																				configMap: {
+																					description: "configMap information about the configMap data to project"
+																					properties: {
+																						items: {
+																							description: "items if unspecified, each key-value pair in the Data field of the referenced ConfigMap will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the ConfigMap, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'."
+																							items: {
+																								description: "Maps a string key to a path within a volume."
+																								properties: {
+																									key: {
+																										description: "key is the key to project."
+																										type:        "string"
+																									}
+																									mode: {
+																										description: "mode is Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																										format:      "int32"
+																										type:        "integer"
+																									}
+																									path: {
+																										description: "path is the relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'."
+																										type:        "string"
+																									}
+																								}
+																								required: [
+																									"key",
+																									"path",
+																								]
+																								type: "object"
+																							}
+																							type: "array"
+																						}
+																						name: {
+																							description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																							type:        "string"
+																						}
+																						optional: {
+																							description: "optional specify whether the ConfigMap or its keys must be defined"
+																							type:        "boolean"
+																						}
+																					}
+																					type: "object"
+																				}
+																				downwardAPI: {
+																					description: "downwardAPI information about the downwardAPI data to project"
+																					properties: items: {
+																						description: "Items is a list of DownwardAPIVolume file"
+																						items: {
+																							description: "DownwardAPIVolumeFile represents information to create the file containing the pod field"
+																							properties: {
+																								fieldRef: {
+																									description: "Required: Selects a field of the pod: only annotations, labels, name and namespace are supported."
+																									properties: {
+																										apiVersion: {
+																											description: "Version of the schema the FieldPath is written in terms of, defaults to \"v1\"."
+																											type:        "string"
+																										}
+																										fieldPath: {
+																											description: "Path of the field to select in the specified API version."
+																											type:        "string"
+																										}
+																									}
+																									required: [
+																										"fieldPath",
+																									]
+																									type: "object"
+																								}
+																								mode: {
+																									description: "Optional: mode bits used to set permissions on this file, must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																									format:      "int32"
+																									type:        "integer"
+																								}
+																								path: {
+																									description: "Required: Path is  the relative path name of the file to be created. Must not be absolute or contain the '..' path. Must be utf-8 encoded. The first item of the relative path must not start with '..'"
+																									type:        "string"
+																								}
+																								resourceFieldRef: {
+																									description: "Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, requests.cpu and requests.memory) are currently supported."
+																									properties: {
+																										containerName: {
+																											description: "Container name: required for volumes, optional for env vars"
+																											type:        "string"
+																										}
+																										divisor: {
+																											anyOf: [{
+																												type: "integer"
+																											}, {
+																												type: "string"
+																											}]
+																											description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
+																											pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																											"x-kubernetes-int-or-string": true
+																										}
+																										resource: {
+																											description: "Required: resource to select"
+																											type:        "string"
+																										}
+																									}
+																									required: [
+																										"resource",
+																									]
+																									type: "object"
+																								}
+																							}
+																							required: [
+																								"path",
+																							]
+																							type: "object"
+																						}
+																						type: "array"
+																					}
+																					type: "object"
+																				}
+																				secret: {
+																					description: "secret information about the secret data to project"
+																					properties: {
+																						items: {
+																							description: "items if unspecified, each key-value pair in the Data field of the referenced Secret will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the Secret, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'."
+																							items: {
+																								description: "Maps a string key to a path within a volume."
+																								properties: {
+																									key: {
+																										description: "key is the key to project."
+																										type:        "string"
+																									}
+																									mode: {
+																										description: "mode is Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																										format:      "int32"
+																										type:        "integer"
+																									}
+																									path: {
+																										description: "path is the relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'."
+																										type:        "string"
+																									}
+																								}
+																								required: [
+																									"key",
+																									"path",
+																								]
+																								type: "object"
+																							}
+																							type: "array"
+																						}
+																						name: {
+																							description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																							type:        "string"
+																						}
+																						optional: {
+																							description: "optional field specify whether the Secret or its key must be defined"
+																							type:        "boolean"
+																						}
+																					}
+																					type: "object"
+																				}
+																				serviceAccountToken: {
+																					description: "serviceAccountToken is information about the serviceAccountToken data to project"
+																					properties: {
+																						audience: {
+																							description: "audience is the intended audience of the token. A recipient of a token must identify itself with an identifier specified in the audience of the token, and otherwise should reject the token. The audience defaults to the identifier of the apiserver."
+																							type:        "string"
+																						}
+																						expirationSeconds: {
+																							description: "expirationSeconds is the requested duration of validity of the service account token. As the token approaches expiration, the kubelet volume plugin will proactively rotate the service account token. The kubelet will start trying to rotate the token if the token is older than 80 percent of its time to live or if the token is older than 24 hours.Defaults to 1 hour and must be at least 10 minutes."
+																							format:      "int64"
+																							type:        "integer"
+																						}
+																						path: {
+																							description: "path is the path relative to the mount point of the file to project the token into."
+																							type:        "string"
+																						}
+																					}
+																					required: [
+																						"path",
+																					]
+																					type: "object"
+																				}
+																			}
+																			type: "object"
+																		}
+																		type: "array"
+																	}
+																}
+																type: "object"
+															}
+															quobyte: {
+																description: "quobyte represents a Quobyte mount on the host that shares a pod's lifetime"
+																properties: {
+																	group: {
+																		description: "group to map volume access to Default is no group"
+																		type:        "string"
+																	}
+																	readOnly: {
+																		description: "readOnly here will force the Quobyte volume to be mounted with read-only permissions. Defaults to false."
+																		type:        "boolean"
+																	}
+																	registry: {
+																		description: "registry represents a single or multiple Quobyte Registry services specified as a string as host:port pair (multiple entries are separated with commas) which acts as the central registry for volumes"
+																		type:        "string"
+																	}
+																	tenant: {
+																		description: "tenant owning the given Quobyte volume in the Backend Used with dynamically provisioned Quobyte volumes, value is set by the plugin"
+																		type:        "string"
+																	}
+																	user: {
+																		description: "user to map volume access to Defaults to serivceaccount user"
+																		type:        "string"
+																	}
+																	volume: {
+																		description: "volume is a string that references an already created Quobyte volume by name."
+																		type:        "string"
+																	}
+																}
+																required: [
+																	"registry",
+																	"volume",
+																]
+																type: "object"
+															}
+															rbd: {
+																description: "rbd represents a Rados Block Device mount on the host that shares a pod's lifetime. More info: https://examples.k8s.io/volumes/rbd/README.md"
+																properties: {
+																	fsType: {
+																		description: "fsType is the filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#rbd TODO: how do we prevent errors in the filesystem from compromising the machine"
+																		type:        "string"
+																	}
+																	image: {
+																		description: "image is the rados image name. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																		type:        "string"
+																	}
+																	keyring: {
+																		description: "keyring is the path to key ring for RBDUser. Default is /etc/ceph/keyring. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																		type:        "string"
+																	}
+																	monitors: {
+																		description: "monitors is a collection of Ceph monitors. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																		items: type: "string"
+																		type: "array"
+																	}
+																	pool: {
+																		description: "pool is the rados pool name. Default is rbd. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																		type:        "string"
+																	}
+																	readOnly: {
+																		description: "readOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																		type:        "boolean"
+																	}
+																	secretRef: {
+																		description: "secretRef is name of the authentication secret for RBDUser. If provided overrides keyring. Default is nil. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																		properties: name: {
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			type:        "string"
+																		}
+																		type: "object"
+																	}
+																	user: {
+																		description: "user is the rados user name. Default is admin. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
+																		type:        "string"
+																	}
+																}
+																required: [
+																	"image",
+																	"monitors",
+																]
+																type: "object"
+															}
+															scaleIO: {
+																description: "scaleIO represents a ScaleIO persistent volume attached and mounted on Kubernetes nodes."
+																properties: {
+																	fsType: {
+																		description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Default is \"xfs\"."
+																		type:        "string"
+																	}
+																	gateway: {
+																		description: "gateway is the host address of the ScaleIO API Gateway."
+																		type:        "string"
+																	}
+																	protectionDomain: {
+																		description: "protectionDomain is the name of the ScaleIO Protection Domain for the configured storage."
+																		type:        "string"
+																	}
+																	readOnly: {
+																		description: "readOnly Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																		type:        "boolean"
+																	}
+																	secretRef: {
+																		description: "secretRef references to the secret for ScaleIO user and other sensitive information. If this is not provided, Login operation will fail."
+																		properties: name: {
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			type:        "string"
+																		}
+																		type: "object"
+																	}
+																	sslEnabled: {
+																		description: "sslEnabled Flag enable/disable SSL communication with Gateway, default false"
+																		type:        "boolean"
+																	}
+																	storageMode: {
+																		description: "storageMode indicates whether the storage for a volume should be ThickProvisioned or ThinProvisioned. Default is ThinProvisioned."
+																		type:        "string"
+																	}
+																	storagePool: {
+																		description: "storagePool is the ScaleIO Storage Pool associated with the protection domain."
+																		type:        "string"
+																	}
+																	system: {
+																		description: "system is the name of the storage system as configured in ScaleIO."
+																		type:        "string"
+																	}
+																	volumeName: {
+																		description: "volumeName is the name of a volume already created in the ScaleIO system that is associated with this volume source."
+																		type:        "string"
+																	}
+																}
+																required: [
+																	"gateway",
+																	"secretRef",
+																	"system",
+																]
+																type: "object"
+															}
+															secret: {
+																description: "secret represents a secret that should populate this volume. More info: https://kubernetes.io/docs/concepts/storage/volumes#secret"
+																properties: {
+																	defaultMode: {
+																		description: "defaultMode is Optional: mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																		format:      "int32"
+																		type:        "integer"
+																	}
+																	items: {
+																		description: "items If unspecified, each key-value pair in the Data field of the referenced Secret will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the Secret, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'."
+																		items: {
+																			description: "Maps a string key to a path within a volume."
+																			properties: {
+																				key: {
+																					description: "key is the key to project."
+																					type:        "string"
+																				}
+																				mode: {
+																					description: "mode is Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
+																					format:      "int32"
+																					type:        "integer"
+																				}
+																				path: {
+																					description: "path is the relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'."
+																					type:        "string"
+																				}
+																			}
+																			required: [
+																				"key",
+																				"path",
+																			]
+																			type: "object"
+																		}
+																		type: "array"
+																	}
+																	optional: {
+																		description: "optional field specify whether the Secret or its keys must be defined"
+																		type:        "boolean"
+																	}
+																	secretName: {
+																		description: "secretName is the name of the secret in the pod's namespace to use. More info: https://kubernetes.io/docs/concepts/storage/volumes#secret"
+																		type:        "string"
+																	}
+																}
+																type: "object"
+															}
+															storageos: {
+																description: "storageOS represents a StorageOS volume attached and mounted on Kubernetes nodes."
+																properties: {
+																	fsType: {
+																		description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified."
+																		type:        "string"
+																	}
+																	readOnly: {
+																		description: "readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
+																		type:        "boolean"
+																	}
+																	secretRef: {
+																		description: "secretRef specifies the secret to use for obtaining the StorageOS API credentials.  If not specified, default values will be attempted."
+																		properties: name: {
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			type:        "string"
+																		}
+																		type: "object"
+																	}
+																	volumeName: {
+																		description: "volumeName is the human-readable name of the StorageOS volume.  Volume names are only unique within a namespace."
+																		type:        "string"
+																	}
+																	volumeNamespace: {
+																		description: "volumeNamespace specifies the scope of the volume within StorageOS.  If no namespace is specified then the Pod's namespace will be used.  This allows the Kubernetes name scoping to be mirrored within StorageOS for tighter integration. Set VolumeName to any name to override the default behaviour. Set to \"default\" if you are not using namespaces within StorageOS. Namespaces that do not pre-exist within StorageOS will be created."
+																		type:        "string"
+																	}
+																}
+																type: "object"
+															}
+															vsphereVolume: {
+																description: "vsphereVolume represents a vSphere volume attached and mounted on kubelets host machine"
+																properties: {
+																	fsType: {
+																		description: "fsType is filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified."
+																		type:        "string"
+																	}
+																	storagePolicyID: {
+																		description: "storagePolicyID is the storage Policy Based Management (SPBM) profile ID associated with the StoragePolicyName."
+																		type:        "string"
+																	}
+																	storagePolicyName: {
+																		description: "storagePolicyName is the storage Policy Based Management (SPBM) profile name."
+																		type:        "string"
+																	}
+																	volumePath: {
+																		description: "volumePath is the path that identifies vSphere volume vmdk"
+																		type:        "string"
+																	}
+																}
+																required: [
+																	"volumePath",
+																]
+																type: "object"
+															}
+														}
+														type: "object"
+													}
+													type: "object"
+												}
+											}
+											required: [
+												"image",
+											]
+											type: "object"
+										}
+										type: "object"
+									}
+								}
 								type: "object"
 							}
 							server: {
@@ -6312,8 +13990,46 @@ customResourceDefinitionList: items: [{
 																			}
 																			type: "object"
 																		}
+																		namespaceSelector: {
+																			description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																			properties: {
+																				matchExpressions: {
+																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																					items: {
+																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																						properties: {
+																							key: {
+																								description: "key is the label key that the selector applies to."
+																								type:        "string"
+																							}
+																							operator: {
+																								description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																								type:        "string"
+																							}
+																							values: {
+																								description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																								items: type: "string"
+																								type: "array"
+																							}
+																						}
+																						required: [
+																							"key",
+																							"operator",
+																						]
+																						type: "object"
+																					}
+																					type: "array"
+																				}
+																				matchLabels: {
+																					additionalProperties: type: "string"
+																					description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																					type:        "object"
+																				}
+																			}
+																			type: "object"
+																		}
 																		namespaces: {
-																			description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																			description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																			items: type: "string"
 																			type: "array"
 																		}
@@ -6384,8 +14100,46 @@ customResourceDefinitionList: items: [{
 																	}
 																	type: "object"
 																}
+																namespaceSelector: {
+																	description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																	properties: {
+																		matchExpressions: {
+																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																			items: {
+																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																				properties: {
+																					key: {
+																						description: "key is the label key that the selector applies to."
+																						type:        "string"
+																					}
+																					operator: {
+																						description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																						type:        "string"
+																					}
+																					values: {
+																						description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																						items: type: "string"
+																						type: "array"
+																					}
+																				}
+																				required: [
+																					"key",
+																					"operator",
+																				]
+																				type: "object"
+																			}
+																			type: "array"
+																		}
+																		matchLabels: {
+																			additionalProperties: type: "string"
+																			description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																			type:        "object"
+																		}
+																	}
+																	type: "object"
+																}
 																namespaces: {
-																	description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																	description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																	items: type: "string"
 																	type: "array"
 																}
@@ -6453,8 +14207,46 @@ customResourceDefinitionList: items: [{
 																			}
 																			type: "object"
 																		}
+																		namespaceSelector: {
+																			description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																			properties: {
+																				matchExpressions: {
+																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																					items: {
+																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																						properties: {
+																							key: {
+																								description: "key is the label key that the selector applies to."
+																								type:        "string"
+																							}
+																							operator: {
+																								description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																								type:        "string"
+																							}
+																							values: {
+																								description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																								items: type: "string"
+																								type: "array"
+																							}
+																						}
+																						required: [
+																							"key",
+																							"operator",
+																						]
+																						type: "object"
+																					}
+																					type: "array"
+																				}
+																				matchLabels: {
+																					additionalProperties: type: "string"
+																					description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																					type:        "object"
+																				}
+																			}
+																			type: "object"
+																		}
 																		namespaces: {
-																			description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																			description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																			items: type: "string"
 																			type: "array"
 																		}
@@ -6525,8 +14317,46 @@ customResourceDefinitionList: items: [{
 																	}
 																	type: "object"
 																}
+																namespaceSelector: {
+																	description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																	properties: {
+																		matchExpressions: {
+																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																			items: {
+																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																				properties: {
+																					key: {
+																						description: "key is the label key that the selector applies to."
+																						type:        "string"
+																					}
+																					operator: {
+																						description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																						type:        "string"
+																					}
+																					values: {
+																						description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																						items: type: "string"
+																						type: "array"
+																					}
+																				}
+																				required: [
+																					"key",
+																					"operator",
+																				]
+																				type: "object"
+																			}
+																			type: "array"
+																		}
+																		matchLabels: {
+																			additionalProperties: type: "string"
+																			description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																			type:        "object"
+																		}
+																	}
+																	type: "object"
+																}
 																namespaces: {
-																	description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																	description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																	items: type: "string"
 																	type: "array"
 																}
@@ -6620,16 +14450,25 @@ customResourceDefinitionList: items: [{
 															type: "object"
 														}
 														maxSkew: {
-															description: "MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 1/1/0: | zone1 | zone2 | zone3 | |   P   |   P   |       | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 1/1/1; scheduling it onto zone1(zone2) would make the ActualSkew(2-0) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed."
+															description: "MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. The global minimum is the minimum number of matching pods in an eligible domain or zero if the number of eligible domains is less than MinDomains. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 2/2/1: In this case, the global minimum is 1. | zone1 | zone2 | zone3 | |  P P  |  P P  |   P   | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 2/2/2; scheduling it onto zone1(zone2) would make the ActualSkew(3-1) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed."
 															format:      "int32"
 															type:        "integer"
 														}
+														minDomains: {
+															description: """
+		MinDomains indicates a minimum number of eligible domains. When the number of eligible domains with matching topology keys is less than minDomains, Pod Topology Spread treats \"global minimum\" as 0, and then the calculation of Skew is performed. And when the number of eligible domains with matching topology keys equals or greater than minDomains, this value has no effect on scheduling. As a result, when the number of eligible domains is less than minDomains, scheduler won't schedule more than maxSkew Pods to those domains. If value is nil, the constraint behaves as if MinDomains is equal to 1. Valid values are integers greater than 0. When value is not nil, WhenUnsatisfiable must be DoNotSchedule.
+		 For example, in a 3-zone cluster, MaxSkew is set to 2, MinDomains is set to 5 and pods with the same labelSelector spread as 2/2/2: | zone1 | zone2 | zone3 | |  P P  |  P P  |  P P  | The number of domains is less than 5(MinDomains), so \"global minimum\" is treated as 0. In this situation, new pod with the same labelSelector cannot be scheduled, because computed skew will be 3(3 - 0) if new Pod is scheduled to any of the three zones, it will violate MaxSkew.
+		 This is an alpha field and requires enabling MinDomainsInPodTopologySpread feature gate.
+		"""
+															format: "int32"
+															type:   "integer"
+														}
 														topologyKey: {
-															description: "TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each <key, value> as a \"bucket\", and try to put balanced number of pods into each bucket. It's a required field."
+															description: "TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each <key, value> as a \"bucket\", and try to put balanced number of pods into each bucket. We define a domain as a particular instance of a topology. Also, we define an eligible domain as a domain whose nodes match the node selector. e.g. If TopologyKey is \"kubernetes.io/hostname\", each Node is a domain of that topology. And, if TopologyKey is \"topology.kubernetes.io/zone\", each zone is a domain of that topology. It's a required field."
 															type:        "string"
 														}
 														whenUnsatisfiable: {
-															description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,   but giving higher precedence to topologies that would help reduce the   skew. A constraint is considered \"Unsatisfiable\" for an incoming pod if and only if every possible node assigment for that pod would violate \"MaxSkew\" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field."
+															description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,   but giving higher precedence to topologies that would help reduce the   skew. A constraint is considered \"Unsatisfiable\" for an incoming pod if and only if every possible node assignment for that pod would violate \"MaxSkew\" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field."
 															type:        "string"
 														}
 													}
@@ -6664,7 +14503,7 @@ customResourceDefinitionList: items: [{
 													pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 													"x-kubernetes-int-or-string": true
 												}
-												description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+												description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 												type:        "object"
 											}
 											requests: {
@@ -6677,7 +14516,7 @@ customResourceDefinitionList: items: [{
 													pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 													"x-kubernetes-int-or-string": true
 												}
-												description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+												description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 												type:        "object"
 											}
 										}
@@ -6692,14 +14531,47 @@ customResourceDefinitionList: items: [{
 							}
 						}
 						required: [
-							"rados",
 							"server",
 						]
 						type: "object"
 					}
 					status: {
 						description: "Status represents the status of an object"
-						properties: phase: type: "string"
+						properties: {
+							conditions: {
+								items: {
+									description: "Condition represents a status condition on any Rook-Ceph Custom Resource."
+									properties: {
+										lastHeartbeatTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										lastTransitionTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										message: type: "string"
+										reason: {
+											description: "ConditionReason is a reason for a condition"
+											type:        "string"
+										}
+										status: type: "string"
+										type: {
+											description: "ConditionType represent a resource's status"
+											type:        "string"
+										}
+									}
+									type: "object"
+								}
+								type: "array"
+							}
+							observedGeneration: {
+								description: "ObservedGeneration is the latest generation observed by the controller."
+								format:      "int64"
+								type:        "integer"
+							}
+							phase: type: "string"
+						}
 						type:                                   "object"
 						"x-kubernetes-preserve-unknown-fields": true
 					}
@@ -6715,13 +14587,17 @@ customResourceDefinitionList: items: [{
 			subresources: status: {}
 		}]
 	}
-	status: acceptedNames: {
-		kind:   ""
-		plural: ""
+	status: {
+		acceptedNames: {
+			kind:   ""
+			plural: ""
+		}
+		conditions: []
+		storedVersions: []
 	}
 }, {
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.5.1-0.20210420220833-f284e2e8098c"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.6.2"
 		name: "cephobjectrealms.ceph.rook.io"
 	}
 	spec: {
@@ -6752,20 +14628,51 @@ customResourceDefinitionList: items: [{
 						nullable:    true
 						properties: pull: {
 							description: "PullSpec represents the pulling specification of a Ceph Object Storage Gateway Realm"
-							properties: endpoint: type: "string"
-							required: [
-								"endpoint",
-							]
+							properties: endpoint: {
+								pattern: "^https*://"
+								type:    "string"
+							}
 							type: "object"
 						}
-						required: [
-							"pull",
-						]
 						type: "object"
 					}
 					status: {
 						description: "Status represents the status of an object"
-						properties: phase: type: "string"
+						properties: {
+							conditions: {
+								items: {
+									description: "Condition represents a status condition on any Rook-Ceph Custom Resource."
+									properties: {
+										lastHeartbeatTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										lastTransitionTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										message: type: "string"
+										reason: {
+											description: "ConditionReason is a reason for a condition"
+											type:        "string"
+										}
+										status: type: "string"
+										type: {
+											description: "ConditionType represent a resource's status"
+											type:        "string"
+										}
+									}
+									type: "object"
+								}
+								type: "array"
+							}
+							observedGeneration: {
+								description: "ObservedGeneration is the latest generation observed by the controller."
+								format:      "int64"
+								type:        "integer"
+							}
+							phase: type: "string"
+						}
 						type:                                   "object"
 						"x-kubernetes-preserve-unknown-fields": true
 					}
@@ -6780,13 +14687,17 @@ customResourceDefinitionList: items: [{
 			subresources: status: {}
 		}]
 	}
-	status: acceptedNames: {
-		kind:   ""
-		plural: ""
+	status: {
+		acceptedNames: {
+			kind:   ""
+			plural: ""
+		}
+		conditions: []
+		storedVersions: []
 	}
 }, {
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.5.1-0.20210420220833-f284e2e8098c"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.6.2"
 		name: "cephobjectstores.ceph.rook.io"
 	}
 	spec: {
@@ -6799,6 +14710,11 @@ customResourceDefinitionList: items: [{
 		}
 		scope: "Namespaced"
 		versions: [{
+			additionalPrinterColumns: [{
+				jsonPath: ".status.phase"
+				name:     "Phase"
+				type:     "string"
+			}]
 			name: "v1"
 			schema: openAPIV3Schema: {
 				description: "CephObjectStore represents a Ceph Object Store Gateway"
@@ -6820,8 +14736,7 @@ customResourceDefinitionList: items: [{
 								nullable:    true
 								properties: {
 									compressionMode: {
-										default:     "none"
-										description: "The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)"
+										description: "DEPRECATED: use Parameters instead, e.g., Parameters[\"compression_mode\"] = \"force\" The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force) Do NOT set a default value for kubebuilder as this will override the Parameters"
 										enum: [
 											"none",
 											"passive",
@@ -6854,14 +14769,12 @@ customResourceDefinitionList: items: [{
 												type:        "string"
 											}
 											codingChunks: {
-												description: "Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type)"
-												maximum:     9
+												description: "Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type). This is the number of OSDs that can be lost simultaneously before data cannot be recovered."
 												minimum:     0
 												type:        "integer"
 											}
 											dataChunks: {
-												description: "Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type)"
-												maximum:     9
+												description: "Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type). The number of chunks required to recover an object when any single OSD is lost is the same as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery."
 												minimum:     0
 												type:        "integer"
 											}
@@ -6887,6 +14800,16 @@ customResourceDefinitionList: items: [{
 												description: "Mode is the mirroring mode: either pool or image"
 												type:        "string"
 											}
+											peers: {
+												description: "Peers represents the peers spec"
+												nullable:    true
+												properties: secretNames: {
+													description: "SecretNames represents the Kubernetes Secret names to add rbd-mirror or cephfs-mirror peers"
+													items: type: "string"
+													type: "array"
+												}
+												type: "object"
+											}
 											snapshotSchedules: {
 												description: "SnapshotSchedules is the scheduling of snapshot for mirrored images/pools"
 												items: {
@@ -6894,6 +14817,10 @@ customResourceDefinitionList: items: [{
 													properties: {
 														interval: {
 															description: "Interval represent the periodicity of the snapshot."
+															type:        "string"
+														}
+														path: {
+															description: "Path is the path to snapshot, only valid for CephFS"
 															type:        "string"
 														}
 														startTime: {
@@ -6940,6 +14867,27 @@ customResourceDefinitionList: items: [{
 									replicated: {
 										description: "The replication settings"
 										properties: {
+											hybridStorage: {
+												description: "HybridStorage represents hybrid storage tier settings"
+												nullable:    true
+												properties: {
+													primaryDeviceClass: {
+														description: "PrimaryDeviceClass represents high performance tier (for example SSD or NVME) for Primary OSD"
+														minLength:   1
+														type:        "string"
+													}
+													secondaryDeviceClass: {
+														description: "SecondaryDeviceClass represents low performance tier (for example HDDs) for remaining OSDs"
+														minLength:   1
+														type:        "string"
+													}
+												}
+												required: [
+													"primaryDeviceClass",
+													"secondaryDeviceClass",
+												]
+												type: "object"
+											}
 											replicasPerFailureDomain: {
 												description: "ReplicasPerFailureDomain the number of replica in the specified failure domain"
 												minimum:     1
@@ -6999,6 +14947,11 @@ customResourceDefinitionList: items: [{
 										nullable:                               true
 										type:                                   "object"
 										"x-kubernetes-preserve-unknown-fields": true
+									}
+									caBundleRef: {
+										description: "The name of the secret that stores custom ca-bundle with root and intermediate certificates."
+										nullable:    true
+										type:        "string"
 									}
 									externalRgwEndpoints: {
 										description: "ExternalRgwEndpoints points to external rgw endpoint(s)"
@@ -7060,10 +15013,16 @@ customResourceDefinitionList: items: [{
 										nullable: true
 										type:     "array"
 									}
+									hostNetwork: {
+										description:                            "Whether host networking is enabled for the rgw daemon. If not set, the network settings from the cluster CR will be applied."
+										nullable:                               true
+										type:                                   "boolean"
+										"x-kubernetes-preserve-unknown-fields": true
+									}
 									instances: {
 										description: "The number of pods in the rgw replicaset."
 										format:      "int32"
-										minimum:     1
+										nullable:    true
 										type:        "integer"
 									}
 									labels: {
@@ -7282,8 +15241,46 @@ customResourceDefinitionList: items: [{
 																			}
 																			type: "object"
 																		}
+																		namespaceSelector: {
+																			description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																			properties: {
+																				matchExpressions: {
+																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																					items: {
+																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																						properties: {
+																							key: {
+																								description: "key is the label key that the selector applies to."
+																								type:        "string"
+																							}
+																							operator: {
+																								description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																								type:        "string"
+																							}
+																							values: {
+																								description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																								items: type: "string"
+																								type: "array"
+																							}
+																						}
+																						required: [
+																							"key",
+																							"operator",
+																						]
+																						type: "object"
+																					}
+																					type: "array"
+																				}
+																				matchLabels: {
+																					additionalProperties: type: "string"
+																					description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																					type:        "object"
+																				}
+																			}
+																			type: "object"
+																		}
 																		namespaces: {
-																			description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																			description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																			items: type: "string"
 																			type: "array"
 																		}
@@ -7354,8 +15351,46 @@ customResourceDefinitionList: items: [{
 																	}
 																	type: "object"
 																}
+																namespaceSelector: {
+																	description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																	properties: {
+																		matchExpressions: {
+																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																			items: {
+																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																				properties: {
+																					key: {
+																						description: "key is the label key that the selector applies to."
+																						type:        "string"
+																					}
+																					operator: {
+																						description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																						type:        "string"
+																					}
+																					values: {
+																						description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																						items: type: "string"
+																						type: "array"
+																					}
+																				}
+																				required: [
+																					"key",
+																					"operator",
+																				]
+																				type: "object"
+																			}
+																			type: "array"
+																		}
+																		matchLabels: {
+																			additionalProperties: type: "string"
+																			description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																			type:        "object"
+																		}
+																	}
+																	type: "object"
+																}
 																namespaces: {
-																	description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																	description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																	items: type: "string"
 																	type: "array"
 																}
@@ -7423,8 +15458,46 @@ customResourceDefinitionList: items: [{
 																			}
 																			type: "object"
 																		}
+																		namespaceSelector: {
+																			description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																			properties: {
+																				matchExpressions: {
+																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																					items: {
+																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																						properties: {
+																							key: {
+																								description: "key is the label key that the selector applies to."
+																								type:        "string"
+																							}
+																							operator: {
+																								description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																								type:        "string"
+																							}
+																							values: {
+																								description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																								items: type: "string"
+																								type: "array"
+																							}
+																						}
+																						required: [
+																							"key",
+																							"operator",
+																						]
+																						type: "object"
+																					}
+																					type: "array"
+																				}
+																				matchLabels: {
+																					additionalProperties: type: "string"
+																					description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																					type:        "object"
+																				}
+																			}
+																			type: "object"
+																		}
 																		namespaces: {
-																			description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																			description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																			items: type: "string"
 																			type: "array"
 																		}
@@ -7495,8 +15568,46 @@ customResourceDefinitionList: items: [{
 																	}
 																	type: "object"
 																}
+																namespaceSelector: {
+																	description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																	properties: {
+																		matchExpressions: {
+																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																			items: {
+																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																				properties: {
+																					key: {
+																						description: "key is the label key that the selector applies to."
+																						type:        "string"
+																					}
+																					operator: {
+																						description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																						type:        "string"
+																					}
+																					values: {
+																						description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																						items: type: "string"
+																						type: "array"
+																					}
+																				}
+																				required: [
+																					"key",
+																					"operator",
+																				]
+																				type: "object"
+																			}
+																			type: "array"
+																		}
+																		matchLabels: {
+																			additionalProperties: type: "string"
+																			description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																			type:        "object"
+																		}
+																	}
+																	type: "object"
+																}
 																namespaces: {
-																	description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																	description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																	items: type: "string"
 																	type: "array"
 																}
@@ -7590,16 +15701,25 @@ customResourceDefinitionList: items: [{
 															type: "object"
 														}
 														maxSkew: {
-															description: "MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 1/1/0: | zone1 | zone2 | zone3 | |   P   |   P   |       | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 1/1/1; scheduling it onto zone1(zone2) would make the ActualSkew(2-0) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed."
+															description: "MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. The global minimum is the minimum number of matching pods in an eligible domain or zero if the number of eligible domains is less than MinDomains. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 2/2/1: In this case, the global minimum is 1. | zone1 | zone2 | zone3 | |  P P  |  P P  |   P   | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 2/2/2; scheduling it onto zone1(zone2) would make the ActualSkew(3-1) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed."
 															format:      "int32"
 															type:        "integer"
 														}
+														minDomains: {
+															description: """
+		MinDomains indicates a minimum number of eligible domains. When the number of eligible domains with matching topology keys is less than minDomains, Pod Topology Spread treats \"global minimum\" as 0, and then the calculation of Skew is performed. And when the number of eligible domains with matching topology keys equals or greater than minDomains, this value has no effect on scheduling. As a result, when the number of eligible domains is less than minDomains, scheduler won't schedule more than maxSkew Pods to those domains. If value is nil, the constraint behaves as if MinDomains is equal to 1. Valid values are integers greater than 0. When value is not nil, WhenUnsatisfiable must be DoNotSchedule.
+		 For example, in a 3-zone cluster, MaxSkew is set to 2, MinDomains is set to 5 and pods with the same labelSelector spread as 2/2/2: | zone1 | zone2 | zone3 | |  P P  |  P P  |  P P  | The number of domains is less than 5(MinDomains), so \"global minimum\" is treated as 0. In this situation, new pod with the same labelSelector cannot be scheduled, because computed skew will be 3(3 - 0) if new Pod is scheduled to any of the three zones, it will violate MaxSkew.
+		 This is an alpha field and requires enabling MinDomainsInPodTopologySpread feature gate.
+		"""
+															format: "int32"
+															type:   "integer"
+														}
 														topologyKey: {
-															description: "TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each <key, value> as a \"bucket\", and try to put balanced number of pods into each bucket. It's a required field."
+															description: "TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each <key, value> as a \"bucket\", and try to put balanced number of pods into each bucket. We define a domain as a particular instance of a topology. Also, we define an eligible domain as a domain whose nodes match the node selector. e.g. If TopologyKey is \"kubernetes.io/hostname\", each Node is a domain of that topology. And, if TopologyKey is \"topology.kubernetes.io/zone\", each zone is a domain of that topology. It's a required field."
 															type:        "string"
 														}
 														whenUnsatisfiable: {
-															description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,   but giving higher precedence to topologies that would help reduce the   skew. A constraint is considered \"Unsatisfiable\" for an incoming pod if and only if every possible node assigment for that pod would violate \"MaxSkew\" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field."
+															description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,   but giving higher precedence to topologies that would help reduce the   skew. A constraint is considered \"Unsatisfiable\" for an incoming pod if and only if every possible node assignment for that pod would violate \"MaxSkew\" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field."
 															type:        "string"
 														}
 													}
@@ -7639,7 +15759,7 @@ customResourceDefinitionList: items: [{
 													pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 													"x-kubernetes-int-or-string": true
 												}
-												description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+												description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 												type:        "object"
 											}
 											requests: {
@@ -7652,7 +15772,7 @@ customResourceDefinitionList: items: [{
 													pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 													"x-kubernetes-int-or-string": true
 												}
-												description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+												description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 												type:        "object"
 											}
 										}
@@ -7683,9 +15803,6 @@ customResourceDefinitionList: items: [{
 										type:        "string"
 									}
 								}
-								required: [
-									"instances",
-								]
 								type: "object"
 							}
 							healthCheck: {
@@ -7715,7 +15832,7 @@ customResourceDefinitionList: items: [{
 												description: "Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic."
 												properties: {
 													exec: {
-														description: "One and only one of the following should be specified. Exec specifies the action to take."
+														description: "Exec specifies the action to take."
 														properties: command: {
 															description: "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."
 															items: type: "string"
@@ -7727,6 +15844,27 @@ customResourceDefinitionList: items: [{
 														description: "Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1."
 														format:      "int32"
 														type:        "integer"
+													}
+													grpc: {
+														description: "GRPC specifies an action involving a GRPC port. This is a beta field and requires enabling GRPCContainerProbe feature gate."
+														properties: {
+															port: {
+																description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
+																format:      "int32"
+																type:        "integer"
+															}
+															service: {
+																description: """
+		Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+		 If this is not specified, the default behavior is defined by gRPC.
+		"""
+																type: "string"
+															}
+														}
+														required: [
+															"port",
+														]
+														type: "object"
 													}
 													httpGet: {
 														description: "HTTPGet specifies the http request to perform."
@@ -7796,7 +15934,7 @@ customResourceDefinitionList: items: [{
 														type:        "integer"
 													}
 													tcpSocket: {
-														description: "TCPSocket specifies an action involving a TCP port. TCP hooks not yet supported TODO: implement a realistic TCP lifecycle hook"
+														description: "TCPSocket specifies an action involving a TCP port."
 														properties: {
 															host: {
 																description: "Optional: Host name to connect to, defaults to the pod IP."
@@ -7817,6 +15955,311 @@ customResourceDefinitionList: items: [{
 														]
 														type: "object"
 													}
+													terminationGracePeriodSeconds: {
+														description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset."
+														format:      "int64"
+														type:        "integer"
+													}
+													timeoutSeconds: {
+														description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
+														format:      "int32"
+														type:        "integer"
+													}
+												}
+												type: "object"
+											}
+										}
+										type: "object"
+									}
+									readinessProbe: {
+										description: "ProbeSpec is a wrapper around Probe so it can be enabled or disabled for a Ceph daemon"
+										properties: {
+											disabled: {
+												description: "Disabled determines whether probe is disable or not"
+												type:        "boolean"
+											}
+											probe: {
+												description: "Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic."
+												properties: {
+													exec: {
+														description: "Exec specifies the action to take."
+														properties: command: {
+															description: "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."
+															items: type: "string"
+															type: "array"
+														}
+														type: "object"
+													}
+													failureThreshold: {
+														description: "Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1."
+														format:      "int32"
+														type:        "integer"
+													}
+													grpc: {
+														description: "GRPC specifies an action involving a GRPC port. This is a beta field and requires enabling GRPCContainerProbe feature gate."
+														properties: {
+															port: {
+																description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
+																format:      "int32"
+																type:        "integer"
+															}
+															service: {
+																description: """
+		Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+		 If this is not specified, the default behavior is defined by gRPC.
+		"""
+																type: "string"
+															}
+														}
+														required: [
+															"port",
+														]
+														type: "object"
+													}
+													httpGet: {
+														description: "HTTPGet specifies the http request to perform."
+														properties: {
+															host: {
+																description: "Host name to connect to, defaults to the pod IP. You probably want to set \"Host\" in httpHeaders instead."
+																type:        "string"
+															}
+															httpHeaders: {
+																description: "Custom headers to set in the request. HTTP allows repeated headers."
+																items: {
+																	description: "HTTPHeader describes a custom header to be used in HTTP probes"
+																	properties: {
+																		name: {
+																			description: "The header field name"
+																			type:        "string"
+																		}
+																		value: {
+																			description: "The header field value"
+																			type:        "string"
+																		}
+																	}
+																	required: [
+																		"name",
+																		"value",
+																	]
+																	type: "object"
+																}
+																type: "array"
+															}
+															path: {
+																description: "Path to access on the HTTP server."
+																type:        "string"
+															}
+															port: {
+																anyOf: [{
+																	type: "integer"
+																}, {
+																	type: "string"
+																}]
+																description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
+																"x-kubernetes-int-or-string": true
+															}
+															scheme: {
+																description: "Scheme to use for connecting to the host. Defaults to HTTP."
+																type:        "string"
+															}
+														}
+														required: [
+															"port",
+														]
+														type: "object"
+													}
+													initialDelaySeconds: {
+														description: "Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
+														format:      "int32"
+														type:        "integer"
+													}
+													periodSeconds: {
+														description: "How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1."
+														format:      "int32"
+														type:        "integer"
+													}
+													successThreshold: {
+														description: "Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1."
+														format:      "int32"
+														type:        "integer"
+													}
+													tcpSocket: {
+														description: "TCPSocket specifies an action involving a TCP port."
+														properties: {
+															host: {
+																description: "Optional: Host name to connect to, defaults to the pod IP."
+																type:        "string"
+															}
+															port: {
+																anyOf: [{
+																	type: "integer"
+																}, {
+																	type: "string"
+																}]
+																description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
+																"x-kubernetes-int-or-string": true
+															}
+														}
+														required: [
+															"port",
+														]
+														type: "object"
+													}
+													terminationGracePeriodSeconds: {
+														description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset."
+														format:      "int64"
+														type:        "integer"
+													}
+													timeoutSeconds: {
+														description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
+														format:      "int32"
+														type:        "integer"
+													}
+												}
+												type: "object"
+											}
+										}
+										type: "object"
+									}
+									startupProbe: {
+										description: "ProbeSpec is a wrapper around Probe so it can be enabled or disabled for a Ceph daemon"
+										properties: {
+											disabled: {
+												description: "Disabled determines whether probe is disable or not"
+												type:        "boolean"
+											}
+											probe: {
+												description: "Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic."
+												properties: {
+													exec: {
+														description: "Exec specifies the action to take."
+														properties: command: {
+															description: "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."
+															items: type: "string"
+															type: "array"
+														}
+														type: "object"
+													}
+													failureThreshold: {
+														description: "Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1."
+														format:      "int32"
+														type:        "integer"
+													}
+													grpc: {
+														description: "GRPC specifies an action involving a GRPC port. This is a beta field and requires enabling GRPCContainerProbe feature gate."
+														properties: {
+															port: {
+																description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
+																format:      "int32"
+																type:        "integer"
+															}
+															service: {
+																description: """
+		Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+		 If this is not specified, the default behavior is defined by gRPC.
+		"""
+																type: "string"
+															}
+														}
+														required: [
+															"port",
+														]
+														type: "object"
+													}
+													httpGet: {
+														description: "HTTPGet specifies the http request to perform."
+														properties: {
+															host: {
+																description: "Host name to connect to, defaults to the pod IP. You probably want to set \"Host\" in httpHeaders instead."
+																type:        "string"
+															}
+															httpHeaders: {
+																description: "Custom headers to set in the request. HTTP allows repeated headers."
+																items: {
+																	description: "HTTPHeader describes a custom header to be used in HTTP probes"
+																	properties: {
+																		name: {
+																			description: "The header field name"
+																			type:        "string"
+																		}
+																		value: {
+																			description: "The header field value"
+																			type:        "string"
+																		}
+																	}
+																	required: [
+																		"name",
+																		"value",
+																	]
+																	type: "object"
+																}
+																type: "array"
+															}
+															path: {
+																description: "Path to access on the HTTP server."
+																type:        "string"
+															}
+															port: {
+																anyOf: [{
+																	type: "integer"
+																}, {
+																	type: "string"
+																}]
+																description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
+																"x-kubernetes-int-or-string": true
+															}
+															scheme: {
+																description: "Scheme to use for connecting to the host. Defaults to HTTP."
+																type:        "string"
+															}
+														}
+														required: [
+															"port",
+														]
+														type: "object"
+													}
+													initialDelaySeconds: {
+														description: "Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
+														format:      "int32"
+														type:        "integer"
+													}
+													periodSeconds: {
+														description: "How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1."
+														format:      "int32"
+														type:        "integer"
+													}
+													successThreshold: {
+														description: "Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1."
+														format:      "int32"
+														type:        "integer"
+													}
+													tcpSocket: {
+														description: "TCPSocket specifies an action involving a TCP port."
+														properties: {
+															host: {
+																description: "Optional: Host name to connect to, defaults to the pod IP."
+																type:        "string"
+															}
+															port: {
+																anyOf: [{
+																	type: "integer"
+																}, {
+																	type: "string"
+																}]
+																description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
+																"x-kubernetes-int-or-string": true
+															}
+														}
+														required: [
+															"port",
+														]
+														type: "object"
+													}
+													terminationGracePeriodSeconds: {
+														description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset."
+														format:      "int64"
+														type:        "integer"
+													}
 													timeoutSeconds: {
 														description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
 														format:      "int32"
@@ -7836,8 +16279,7 @@ customResourceDefinitionList: items: [{
 								nullable:    true
 								properties: {
 									compressionMode: {
-										default:     "none"
-										description: "The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)"
+										description: "DEPRECATED: use Parameters instead, e.g., Parameters[\"compression_mode\"] = \"force\" The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force) Do NOT set a default value for kubebuilder as this will override the Parameters"
 										enum: [
 											"none",
 											"passive",
@@ -7870,14 +16312,12 @@ customResourceDefinitionList: items: [{
 												type:        "string"
 											}
 											codingChunks: {
-												description: "Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type)"
-												maximum:     9
+												description: "Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type). This is the number of OSDs that can be lost simultaneously before data cannot be recovered."
 												minimum:     0
 												type:        "integer"
 											}
 											dataChunks: {
-												description: "Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type)"
-												maximum:     9
+												description: "Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type). The number of chunks required to recover an object when any single OSD is lost is the same as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery."
 												minimum:     0
 												type:        "integer"
 											}
@@ -7903,6 +16343,16 @@ customResourceDefinitionList: items: [{
 												description: "Mode is the mirroring mode: either pool or image"
 												type:        "string"
 											}
+											peers: {
+												description: "Peers represents the peers spec"
+												nullable:    true
+												properties: secretNames: {
+													description: "SecretNames represents the Kubernetes Secret names to add rbd-mirror or cephfs-mirror peers"
+													items: type: "string"
+													type: "array"
+												}
+												type: "object"
+											}
 											snapshotSchedules: {
 												description: "SnapshotSchedules is the scheduling of snapshot for mirrored images/pools"
 												items: {
@@ -7910,6 +16360,10 @@ customResourceDefinitionList: items: [{
 													properties: {
 														interval: {
 															description: "Interval represent the periodicity of the snapshot."
+															type:        "string"
+														}
+														path: {
+															description: "Path is the path to snapshot, only valid for CephFS"
 															type:        "string"
 														}
 														startTime: {
@@ -7956,6 +16410,27 @@ customResourceDefinitionList: items: [{
 									replicated: {
 										description: "The replication settings"
 										properties: {
+											hybridStorage: {
+												description: "HybridStorage represents hybrid storage tier settings"
+												nullable:    true
+												properties: {
+													primaryDeviceClass: {
+														description: "PrimaryDeviceClass represents high performance tier (for example SSD or NVME) for Primary OSD"
+														minLength:   1
+														type:        "string"
+													}
+													secondaryDeviceClass: {
+														description: "SecondaryDeviceClass represents low performance tier (for example HDDs) for remaining OSDs"
+														minLength:   1
+														type:        "string"
+													}
+												}
+												required: [
+													"primaryDeviceClass",
+													"secondaryDeviceClass",
+												]
+												type: "object"
+											}
 											replicasPerFailureDomain: {
 												description: "ReplicasPerFailureDomain the number of replica in the specified failure domain"
 												minimum:     1
@@ -8012,23 +16487,43 @@ customResourceDefinitionList: items: [{
 							security: {
 								description: "Security represents security settings"
 								nullable:    true
-								properties: kms: {
-									description: "KeyManagementService is the main Key Management option"
-									nullable:    true
-									properties: {
-										connectionDetails: {
-											additionalProperties: type: "string"
-											description:                            "ConnectionDetails contains the KMS connection details (address, port etc)"
-											nullable:                               true
-											type:                                   "object"
-											"x-kubernetes-preserve-unknown-fields": true
+								properties: {
+									kms: {
+										description: "KeyManagementService is the main Key Management option"
+										nullable:    true
+										properties: {
+											connectionDetails: {
+												additionalProperties: type: "string"
+												description:                            "ConnectionDetails contains the KMS connection details (address, port etc)"
+												nullable:                               true
+												type:                                   "object"
+												"x-kubernetes-preserve-unknown-fields": true
+											}
+											tokenSecretName: {
+												description: "TokenSecretName is the kubernetes secret containing the KMS token"
+												type:        "string"
+											}
 										}
-										tokenSecretName: {
-											description: "TokenSecretName is the kubernetes secret containing the KMS token"
-											type:        "string"
-										}
+										type: "object"
 									}
-									type: "object"
+									s3: {
+										description: "The settings for supporting AWS-SSE:S3 with RGW"
+										nullable:    true
+										properties: {
+											connectionDetails: {
+												additionalProperties: type: "string"
+												description:                            "ConnectionDetails contains the KMS connection details (address, port etc)"
+												nullable:                               true
+												type:                                   "object"
+												"x-kubernetes-preserve-unknown-fields": true
+											}
+											tokenSecretName: {
+												description: "TokenSecretName is the kubernetes secret containing the KMS token"
+												type:        "string"
+											}
+										}
+										type: "object"
+									}
 								}
 								type: "object"
 							}
@@ -8063,12 +16558,44 @@ customResourceDefinitionList: items: [{
 								}
 								type: "object"
 							}
+							conditions: {
+								items: {
+									description: "Condition represents a status condition on any Rook-Ceph Custom Resource."
+									properties: {
+										lastHeartbeatTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										lastTransitionTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										message: type: "string"
+										reason: {
+											description: "ConditionReason is a reason for a condition"
+											type:        "string"
+										}
+										status: type: "string"
+										type: {
+											description: "ConditionType represent a resource's status"
+											type:        "string"
+										}
+									}
+									type: "object"
+								}
+								type: "array"
+							}
 							info: {
 								additionalProperties: type: "string"
 								nullable: true
 								type:     "object"
 							}
 							message: type: "string"
+							observedGeneration: {
+								description: "ObservedGeneration is the latest generation observed by the controller."
+								format:      "int64"
+								type:        "integer"
+							}
 							phase: {
 								description: "ConditionType represent a resource's status"
 								type:        "string"
@@ -8089,13 +16616,17 @@ customResourceDefinitionList: items: [{
 			subresources: status: {}
 		}]
 	}
-	status: acceptedNames: {
-		kind:   ""
-		plural: ""
+	status: {
+		acceptedNames: {
+			kind:   ""
+			plural: ""
+		}
+		conditions: []
+		storedVersions: []
 	}
 }, {
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.5.1-0.20210420220833-f284e2e8098c"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.6.2"
 		name: "cephobjectstoreusers.ceph.rook.io"
 	}
 	spec: {
@@ -8112,6 +16643,11 @@ customResourceDefinitionList: items: [{
 		}
 		scope: "Namespaced"
 		versions: [{
+			additionalPrinterColumns: [{
+				jsonPath: ".status.phase"
+				name:     "Phase"
+				type:     "string"
+			}]
 			name: "v1"
 			schema: openAPIV3Schema: {
 				description: "CephObjectStoreUser represents a Ceph Object Store Gateway User"
@@ -8128,9 +16664,95 @@ customResourceDefinitionList: items: [{
 					spec: {
 						description: "ObjectStoreUserSpec represent the spec of an Objectstoreuser"
 						properties: {
+							capabilities: {
+								description: "Additional admin-level capabilities for the Ceph object store user"
+								nullable:    true
+								properties: {
+									bucket: {
+										description: "Admin capabilities to read/write Ceph object store buckets. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
+										enum: [
+											"*",
+											"read",
+											"write",
+											"read, write",
+										]
+										type: "string"
+									}
+									metadata: {
+										description: "Admin capabilities to read/write Ceph object store metadata. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
+										enum: [
+											"*",
+											"read",
+											"write",
+											"read, write",
+										]
+										type: "string"
+									}
+									usage: {
+										description: "Admin capabilities to read/write Ceph object store usage. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
+										enum: [
+											"*",
+											"read",
+											"write",
+											"read, write",
+										]
+										type: "string"
+									}
+									user: {
+										description: "Admin capabilities to read/write Ceph object store users. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
+										enum: [
+											"*",
+											"read",
+											"write",
+											"read, write",
+										]
+										type: "string"
+									}
+									zone: {
+										description: "Admin capabilities to read/write Ceph object store zones. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
+										enum: [
+											"*",
+											"read",
+											"write",
+											"read, write",
+										]
+										type: "string"
+									}
+								}
+								type: "object"
+							}
 							displayName: {
 								description: "The display name for the ceph users"
 								type:        "string"
+							}
+							quotas: {
+								description: "ObjectUserQuotaSpec can be used to set quotas for the object store user to limit their usage. See the [Ceph docs](https://docs.ceph.com/en/latest/radosgw/admin/?#quota-management) for more"
+								nullable:    true
+								properties: {
+									maxBuckets: {
+										description: "Maximum bucket limit for the ceph user"
+										nullable:    true
+										type:        "integer"
+									}
+									maxObjects: {
+										description: "Maximum number of objects across all the user's buckets"
+										format:      "int64"
+										nullable:    true
+										type:        "integer"
+									}
+									maxSize: {
+										anyOf: [{
+											type: "integer"
+										}, {
+											type: "string"
+										}]
+										description:                  "Maximum size limit of all objects across all the user's buckets See https://pkg.go.dev/k8s.io/apimachinery/pkg/api/resource#Quantity for more info."
+										nullable:                     true
+										pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+										"x-kubernetes-int-or-string": true
+									}
+								}
+								type: "object"
 							}
 							store: {
 								description: "The store the user will be created in"
@@ -8146,6 +16768,11 @@ customResourceDefinitionList: items: [{
 								additionalProperties: type: "string"
 								nullable: true
 								type:     "object"
+							}
+							observedGeneration: {
+								description: "ObservedGeneration is the latest generation observed by the controller."
+								format:      "int64"
+								type:        "integer"
 							}
 							phase: type: "string"
 						}
@@ -8164,13 +16791,17 @@ customResourceDefinitionList: items: [{
 			subresources: status: {}
 		}]
 	}
-	status: acceptedNames: {
-		kind:   ""
-		plural: ""
+	status: {
+		acceptedNames: {
+			kind:   ""
+			plural: ""
+		}
+		conditions: []
+		storedVersions: []
 	}
 }, {
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.5.1-0.20210420220833-f284e2e8098c"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.6.2"
 		name: "cephobjectzonegroups.ceph.rook.io"
 	}
 	spec: {
@@ -8183,6 +16814,11 @@ customResourceDefinitionList: items: [{
 		}
 		scope: "Namespaced"
 		versions: [{
+			additionalPrinterColumns: [{
+				jsonPath: ".status.phase"
+				name:     "Phase"
+				type:     "string"
+			}]
 			name: "v1"
 			schema: openAPIV3Schema: {
 				description: "CephObjectZoneGroup represents a Ceph Object Store Gateway Zone Group"
@@ -8209,7 +16845,41 @@ customResourceDefinitionList: items: [{
 					}
 					status: {
 						description: "Status represents the status of an object"
-						properties: phase: type: "string"
+						properties: {
+							conditions: {
+								items: {
+									description: "Condition represents a status condition on any Rook-Ceph Custom Resource."
+									properties: {
+										lastHeartbeatTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										lastTransitionTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										message: type: "string"
+										reason: {
+											description: "ConditionReason is a reason for a condition"
+											type:        "string"
+										}
+										status: type: "string"
+										type: {
+											description: "ConditionType represent a resource's status"
+											type:        "string"
+										}
+									}
+									type: "object"
+								}
+								type: "array"
+							}
+							observedGeneration: {
+								description: "ObservedGeneration is the latest generation observed by the controller."
+								format:      "int64"
+								type:        "integer"
+							}
+							phase: type: "string"
+						}
 						type:                                   "object"
 						"x-kubernetes-preserve-unknown-fields": true
 					}
@@ -8225,13 +16895,17 @@ customResourceDefinitionList: items: [{
 			subresources: status: {}
 		}]
 	}
-	status: acceptedNames: {
-		kind:   ""
-		plural: ""
+	status: {
+		acceptedNames: {
+			kind:   ""
+			plural: ""
+		}
+		conditions: []
+		storedVersions: []
 	}
 }, {
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.5.1-0.20210420220833-f284e2e8098c"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.6.2"
 		name: "cephobjectzones.ceph.rook.io"
 	}
 	spec: {
@@ -8244,6 +16918,11 @@ customResourceDefinitionList: items: [{
 		}
 		scope: "Namespaced"
 		versions: [{
+			additionalPrinterColumns: [{
+				jsonPath: ".status.phase"
+				name:     "Phase"
+				type:     "string"
+			}]
 			name: "v1"
 			schema: openAPIV3Schema: {
 				description: "CephObjectZone represents a Ceph Object Store Gateway Zone"
@@ -8260,13 +16939,18 @@ customResourceDefinitionList: items: [{
 					spec: {
 						description: "ObjectZoneSpec represent the spec of an ObjectZone"
 						properties: {
+							customEndpoints: {
+								description: "If this zone cannot be accessed from other peer Ceph clusters via the ClusterIP Service endpoint created by Rook, you must set this to the externally reachable endpoint(s). You may include the port in the definition. For example: \"https://my-object-store.my-domain.net:443\". In many cases, you should set this to the endpoint of the ingress resource that makes the CephObjectStore associated with this CephObjectStoreZone reachable to peer clusters. The list can have one or more endpoints pointing to different RGW servers in the zone."
+								items: type: "string"
+								nullable: true
+								type:     "array"
+							}
 							dataPool: {
 								description: "The data pool settings"
 								nullable:    true
 								properties: {
 									compressionMode: {
-										default:     "none"
-										description: "The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)"
+										description: "DEPRECATED: use Parameters instead, e.g., Parameters[\"compression_mode\"] = \"force\" The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force) Do NOT set a default value for kubebuilder as this will override the Parameters"
 										enum: [
 											"none",
 											"passive",
@@ -8299,14 +16983,12 @@ customResourceDefinitionList: items: [{
 												type:        "string"
 											}
 											codingChunks: {
-												description: "Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type)"
-												maximum:     9
+												description: "Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type). This is the number of OSDs that can be lost simultaneously before data cannot be recovered."
 												minimum:     0
 												type:        "integer"
 											}
 											dataChunks: {
-												description: "Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type)"
-												maximum:     9
+												description: "Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type). The number of chunks required to recover an object when any single OSD is lost is the same as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery."
 												minimum:     0
 												type:        "integer"
 											}
@@ -8332,6 +17014,16 @@ customResourceDefinitionList: items: [{
 												description: "Mode is the mirroring mode: either pool or image"
 												type:        "string"
 											}
+											peers: {
+												description: "Peers represents the peers spec"
+												nullable:    true
+												properties: secretNames: {
+													description: "SecretNames represents the Kubernetes Secret names to add rbd-mirror or cephfs-mirror peers"
+													items: type: "string"
+													type: "array"
+												}
+												type: "object"
+											}
 											snapshotSchedules: {
 												description: "SnapshotSchedules is the scheduling of snapshot for mirrored images/pools"
 												items: {
@@ -8339,6 +17031,10 @@ customResourceDefinitionList: items: [{
 													properties: {
 														interval: {
 															description: "Interval represent the periodicity of the snapshot."
+															type:        "string"
+														}
+														path: {
+															description: "Path is the path to snapshot, only valid for CephFS"
 															type:        "string"
 														}
 														startTime: {
@@ -8385,6 +17081,27 @@ customResourceDefinitionList: items: [{
 									replicated: {
 										description: "The replication settings"
 										properties: {
+											hybridStorage: {
+												description: "HybridStorage represents hybrid storage tier settings"
+												nullable:    true
+												properties: {
+													primaryDeviceClass: {
+														description: "PrimaryDeviceClass represents high performance tier (for example SSD or NVME) for Primary OSD"
+														minLength:   1
+														type:        "string"
+													}
+													secondaryDeviceClass: {
+														description: "SecondaryDeviceClass represents low performance tier (for example HDDs) for remaining OSDs"
+														minLength:   1
+														type:        "string"
+													}
+												}
+												required: [
+													"primaryDeviceClass",
+													"secondaryDeviceClass",
+												]
+												type: "object"
+											}
 											replicasPerFailureDomain: {
 												description: "ReplicasPerFailureDomain the number of replica in the specified failure domain"
 												minimum:     1
@@ -8439,8 +17156,7 @@ customResourceDefinitionList: items: [{
 								nullable:    true
 								properties: {
 									compressionMode: {
-										default:     "none"
-										description: "The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)"
+										description: "DEPRECATED: use Parameters instead, e.g., Parameters[\"compression_mode\"] = \"force\" The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force) Do NOT set a default value for kubebuilder as this will override the Parameters"
 										enum: [
 											"none",
 											"passive",
@@ -8473,14 +17189,12 @@ customResourceDefinitionList: items: [{
 												type:        "string"
 											}
 											codingChunks: {
-												description: "Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type)"
-												maximum:     9
+												description: "Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type). This is the number of OSDs that can be lost simultaneously before data cannot be recovered."
 												minimum:     0
 												type:        "integer"
 											}
 											dataChunks: {
-												description: "Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type)"
-												maximum:     9
+												description: "Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type). The number of chunks required to recover an object when any single OSD is lost is the same as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery."
 												minimum:     0
 												type:        "integer"
 											}
@@ -8506,6 +17220,16 @@ customResourceDefinitionList: items: [{
 												description: "Mode is the mirroring mode: either pool or image"
 												type:        "string"
 											}
+											peers: {
+												description: "Peers represents the peers spec"
+												nullable:    true
+												properties: secretNames: {
+													description: "SecretNames represents the Kubernetes Secret names to add rbd-mirror or cephfs-mirror peers"
+													items: type: "string"
+													type: "array"
+												}
+												type: "object"
+											}
 											snapshotSchedules: {
 												description: "SnapshotSchedules is the scheduling of snapshot for mirrored images/pools"
 												items: {
@@ -8513,6 +17237,10 @@ customResourceDefinitionList: items: [{
 													properties: {
 														interval: {
 															description: "Interval represent the periodicity of the snapshot."
+															type:        "string"
+														}
+														path: {
+															description: "Path is the path to snapshot, only valid for CephFS"
 															type:        "string"
 														}
 														startTime: {
@@ -8559,6 +17287,27 @@ customResourceDefinitionList: items: [{
 									replicated: {
 										description: "The replication settings"
 										properties: {
+											hybridStorage: {
+												description: "HybridStorage represents hybrid storage tier settings"
+												nullable:    true
+												properties: {
+													primaryDeviceClass: {
+														description: "PrimaryDeviceClass represents high performance tier (for example SSD or NVME) for Primary OSD"
+														minLength:   1
+														type:        "string"
+													}
+													secondaryDeviceClass: {
+														description: "SecondaryDeviceClass represents low performance tier (for example HDDs) for remaining OSDs"
+														minLength:   1
+														type:        "string"
+													}
+												}
+												required: [
+													"primaryDeviceClass",
+													"secondaryDeviceClass",
+												]
+												type: "object"
+											}
 											replicasPerFailureDomain: {
 												description: "ReplicasPerFailureDomain the number of replica in the specified failure domain"
 												minimum:     1
@@ -8608,6 +17357,11 @@ customResourceDefinitionList: items: [{
 								}
 								type: "object"
 							}
+							preservePoolsOnDelete: {
+								default:     true
+								description: "Preserve pools on object zone deletion"
+								type:        "boolean"
+							}
 							zoneGroup: {
 								description: "The display name for the ceph users"
 								type:        "string"
@@ -8622,7 +17376,41 @@ customResourceDefinitionList: items: [{
 					}
 					status: {
 						description: "Status represents the status of an object"
-						properties: phase: type: "string"
+						properties: {
+							conditions: {
+								items: {
+									description: "Condition represents a status condition on any Rook-Ceph Custom Resource."
+									properties: {
+										lastHeartbeatTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										lastTransitionTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										message: type: "string"
+										reason: {
+											description: "ConditionReason is a reason for a condition"
+											type:        "string"
+										}
+										status: type: "string"
+										type: {
+											description: "ConditionType represent a resource's status"
+											type:        "string"
+										}
+									}
+									type: "object"
+								}
+								type: "array"
+							}
+							observedGeneration: {
+								description: "ObservedGeneration is the latest generation observed by the controller."
+								format:      "int64"
+								type:        "integer"
+							}
+							phase: type: "string"
+						}
 						type:                                   "object"
 						"x-kubernetes-preserve-unknown-fields": true
 					}
@@ -8638,13 +17426,17 @@ customResourceDefinitionList: items: [{
 			subresources: status: {}
 		}]
 	}
-	status: acceptedNames: {
-		kind:   ""
-		plural: ""
+	status: {
+		acceptedNames: {
+			kind:   ""
+			plural: ""
+		}
+		conditions: []
+		storedVersions: []
 	}
 }, {
 	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.5.1-0.20210420220833-f284e2e8098c"
+		annotations: "controller-gen.kubebuilder.io/version": "v0.6.2"
 		name: "cephrbdmirrors.ceph.rook.io"
 	}
 	spec: {
@@ -8657,6 +17449,11 @@ customResourceDefinitionList: items: [{
 		}
 		scope: "Namespaced"
 		versions: [{
+			additionalPrinterColumns: [{
+				jsonPath: ".status.phase"
+				name:     "Phase"
+				type:     "string"
+			}]
 			name: "v1"
 			schema: openAPIV3Schema: {
 				description: "CephRBDMirror represents a Ceph RBD Mirror"
@@ -8693,10 +17490,10 @@ customResourceDefinitionList: items: [{
 								"x-kubernetes-preserve-unknown-fields": true
 							}
 							peers: {
-								description: "RBDMirroringPeerSpec represents the peers spec"
+								description: "Peers represents the peers spec"
 								nullable:    true
 								properties: secretNames: {
-									description: "SecretNames represents the Kubernetes Secret names to add rbd-mirror peers"
+									description: "SecretNames represents the Kubernetes Secret names to add rbd-mirror or cephfs-mirror peers"
 									items: type: "string"
 									type: "array"
 								}
@@ -8911,8 +17708,46 @@ customResourceDefinitionList: items: [{
 																	}
 																	type: "object"
 																}
+																namespaceSelector: {
+																	description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																	properties: {
+																		matchExpressions: {
+																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																			items: {
+																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																				properties: {
+																					key: {
+																						description: "key is the label key that the selector applies to."
+																						type:        "string"
+																					}
+																					operator: {
+																						description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																						type:        "string"
+																					}
+																					values: {
+																						description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																						items: type: "string"
+																						type: "array"
+																					}
+																				}
+																				required: [
+																					"key",
+																					"operator",
+																				]
+																				type: "object"
+																			}
+																			type: "array"
+																		}
+																		matchLabels: {
+																			additionalProperties: type: "string"
+																			description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																			type:        "object"
+																		}
+																	}
+																	type: "object"
+																}
 																namespaces: {
-																	description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																	description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																	items: type: "string"
 																	type: "array"
 																}
@@ -8983,8 +17818,46 @@ customResourceDefinitionList: items: [{
 															}
 															type: "object"
 														}
+														namespaceSelector: {
+															description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+															properties: {
+																matchExpressions: {
+																	description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																	items: {
+																		description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																		properties: {
+																			key: {
+																				description: "key is the label key that the selector applies to."
+																				type:        "string"
+																			}
+																			operator: {
+																				description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																				type:        "string"
+																			}
+																			values: {
+																				description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																				items: type: "string"
+																				type: "array"
+																			}
+																		}
+																		required: [
+																			"key",
+																			"operator",
+																		]
+																		type: "object"
+																	}
+																	type: "array"
+																}
+																matchLabels: {
+																	additionalProperties: type: "string"
+																	description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																	type:        "object"
+																}
+															}
+															type: "object"
+														}
 														namespaces: {
-															description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+															description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 															items: type: "string"
 															type: "array"
 														}
@@ -9052,8 +17925,46 @@ customResourceDefinitionList: items: [{
 																	}
 																	type: "object"
 																}
+																namespaceSelector: {
+																	description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																	properties: {
+																		matchExpressions: {
+																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																			items: {
+																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																				properties: {
+																					key: {
+																						description: "key is the label key that the selector applies to."
+																						type:        "string"
+																					}
+																					operator: {
+																						description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																						type:        "string"
+																					}
+																					values: {
+																						description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																						items: type: "string"
+																						type: "array"
+																					}
+																				}
+																				required: [
+																					"key",
+																					"operator",
+																				]
+																				type: "object"
+																			}
+																			type: "array"
+																		}
+																		matchLabels: {
+																			additionalProperties: type: "string"
+																			description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																			type:        "object"
+																		}
+																	}
+																	type: "object"
+																}
 																namespaces: {
-																	description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+																	description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																	items: type: "string"
 																	type: "array"
 																}
@@ -9124,8 +18035,46 @@ customResourceDefinitionList: items: [{
 															}
 															type: "object"
 														}
+														namespaceSelector: {
+															description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+															properties: {
+																matchExpressions: {
+																	description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																	items: {
+																		description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																		properties: {
+																			key: {
+																				description: "key is the label key that the selector applies to."
+																				type:        "string"
+																			}
+																			operator: {
+																				description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																				type:        "string"
+																			}
+																			values: {
+																				description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																				items: type: "string"
+																				type: "array"
+																			}
+																		}
+																		required: [
+																			"key",
+																			"operator",
+																		]
+																		type: "object"
+																	}
+																	type: "array"
+																}
+																matchLabels: {
+																	additionalProperties: type: "string"
+																	description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																	type:        "object"
+																}
+															}
+															type: "object"
+														}
 														namespaces: {
-															description: "namespaces specifies which namespaces the labelSelector applies to (matches against); null or empty list means \"this pod's namespace\""
+															description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 															items: type: "string"
 															type: "array"
 														}
@@ -9219,16 +18168,25 @@ customResourceDefinitionList: items: [{
 													type: "object"
 												}
 												maxSkew: {
-													description: "MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 1/1/0: | zone1 | zone2 | zone3 | |   P   |   P   |       | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 1/1/1; scheduling it onto zone1(zone2) would make the ActualSkew(2-0) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed."
+													description: "MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. The global minimum is the minimum number of matching pods in an eligible domain or zero if the number of eligible domains is less than MinDomains. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 2/2/1: In this case, the global minimum is 1. | zone1 | zone2 | zone3 | |  P P  |  P P  |   P   | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 2/2/2; scheduling it onto zone1(zone2) would make the ActualSkew(3-1) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed."
 													format:      "int32"
 													type:        "integer"
 												}
+												minDomains: {
+													description: """
+		MinDomains indicates a minimum number of eligible domains. When the number of eligible domains with matching topology keys is less than minDomains, Pod Topology Spread treats \"global minimum\" as 0, and then the calculation of Skew is performed. And when the number of eligible domains with matching topology keys equals or greater than minDomains, this value has no effect on scheduling. As a result, when the number of eligible domains is less than minDomains, scheduler won't schedule more than maxSkew Pods to those domains. If value is nil, the constraint behaves as if MinDomains is equal to 1. Valid values are integers greater than 0. When value is not nil, WhenUnsatisfiable must be DoNotSchedule.
+		 For example, in a 3-zone cluster, MaxSkew is set to 2, MinDomains is set to 5 and pods with the same labelSelector spread as 2/2/2: | zone1 | zone2 | zone3 | |  P P  |  P P  |  P P  | The number of domains is less than 5(MinDomains), so \"global minimum\" is treated as 0. In this situation, new pod with the same labelSelector cannot be scheduled, because computed skew will be 3(3 - 0) if new Pod is scheduled to any of the three zones, it will violate MaxSkew.
+		 This is an alpha field and requires enabling MinDomainsInPodTopologySpread feature gate.
+		"""
+													format: "int32"
+													type:   "integer"
+												}
 												topologyKey: {
-													description: "TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each <key, value> as a \"bucket\", and try to put balanced number of pods into each bucket. It's a required field."
+													description: "TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each <key, value> as a \"bucket\", and try to put balanced number of pods into each bucket. We define a domain as a particular instance of a topology. Also, we define an eligible domain as a domain whose nodes match the node selector. e.g. If TopologyKey is \"kubernetes.io/hostname\", each Node is a domain of that topology. And, if TopologyKey is \"topology.kubernetes.io/zone\", each zone is a domain of that topology. It's a required field."
 													type:        "string"
 												}
 												whenUnsatisfiable: {
-													description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,   but giving higher precedence to topologies that would help reduce the   skew. A constraint is considered \"Unsatisfiable\" for an incoming pod if and only if every possible node assigment for that pod would violate \"MaxSkew\" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field."
+													description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,   but giving higher precedence to topologies that would help reduce the   skew. A constraint is considered \"Unsatisfiable\" for an incoming pod if and only if every possible node assignment for that pod would violate \"MaxSkew\" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field."
 													type:        "string"
 												}
 											}
@@ -9263,7 +18221,7 @@ customResourceDefinitionList: items: [{
 											pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 											"x-kubernetes-int-or-string": true
 										}
-										description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+										description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 										type:        "object"
 									}
 									requests: {
@@ -9276,7 +18234,7 @@ customResourceDefinitionList: items: [{
 											pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 											"x-kubernetes-int-or-string": true
 										}
-										description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/"
+										description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 										type:        "object"
 									}
 								}
@@ -9291,7 +18249,41 @@ customResourceDefinitionList: items: [{
 					}
 					status: {
 						description: "Status represents the status of an object"
-						properties: phase: type: "string"
+						properties: {
+							conditions: {
+								items: {
+									description: "Condition represents a status condition on any Rook-Ceph Custom Resource."
+									properties: {
+										lastHeartbeatTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										lastTransitionTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										message: type: "string"
+										reason: {
+											description: "ConditionReason is a reason for a condition"
+											type:        "string"
+										}
+										status: type: "string"
+										type: {
+											description: "ConditionType represent a resource's status"
+											type:        "string"
+										}
+									}
+									type: "object"
+								}
+								type: "array"
+							}
+							observedGeneration: {
+								description: "ObservedGeneration is the latest generation observed by the controller."
+								format:      "int64"
+								type:        "integer"
+							}
+							phase: type: "string"
+						}
 						type:                                   "object"
 						"x-kubernetes-preserve-unknown-fields": true
 					}
@@ -9307,9 +18299,13 @@ customResourceDefinitionList: items: [{
 			subresources: status: {}
 		}]
 	}
-	status: acceptedNames: {
-		kind:   ""
-		plural: ""
+	status: {
+		acceptedNames: {
+			kind:   ""
+			plural: ""
+		}
+		conditions: []
+		storedVersions: []
 	}
 }, {
 	metadata: name: "objectbucketclaims.objectbucket.io"
@@ -9430,297 +18426,5 @@ customResourceDefinitionList: items: [{
 			}
 			subresources: status: {}
 		}]
-	}
-}, {
-	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.5.1-0.20210420220833-f284e2e8098c"
-		name: "volumereplicationclasses.replication.storage.openshift.io"
-	}
-	spec: {
-		group: "replication.storage.openshift.io"
-		names: {
-			kind:     "VolumeReplicationClass"
-			listKind: "VolumeReplicationClassList"
-			plural:   "volumereplicationclasses"
-			singular: "volumereplicationclass"
-		}
-		scope: "Cluster"
-		versions: [{
-			name: "v1alpha1"
-			schema: openAPIV3Schema: {
-				description: "VolumeReplicationClass is the Schema for the volumereplicationclasses API"
-				properties: {
-					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources"
-						type:        "string"
-					}
-					kind: {
-						description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"
-						type:        "string"
-					}
-					metadata: type: "object"
-					spec: {
-						description: "VolumeReplicationClassSpec specifies parameters that an underlying storage system uses when creating a volume replica. A specific VolumeReplicationClass is used by specifying its name in a VolumeReplication object."
-						properties: {
-							parameters: {
-								additionalProperties: type: "string"
-								description: "Parameters is a key-value map with storage provisioner specific configurations for creating volume replicas"
-								type:        "object"
-							}
-							provisioner: {
-								description: "Provisioner is the name of storage provisioner"
-								type:        "string"
-							}
-						}
-						required: [
-							"provisioner",
-						]
-						type: "object"
-					}
-					status: {
-						description: "VolumeReplicationClassStatus defines the observed state of VolumeReplicationClass"
-						type:        "object"
-					}
-				}
-				type: "object"
-			}
-			served:  true
-			storage: true
-			subresources: status: {}
-		}]
-	}
-	status: acceptedNames: {
-		kind:   ""
-		plural: ""
-	}
-}, {
-	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.5.1-0.20210420220833-f284e2e8098c"
-		name: "volumereplications.replication.storage.openshift.io"
-	}
-	spec: {
-		group: "replication.storage.openshift.io"
-		names: {
-			kind:     "VolumeReplication"
-			listKind: "VolumeReplicationList"
-			plural:   "volumereplications"
-			singular: "volumereplication"
-		}
-		scope: "Namespaced"
-		versions: [{
-			name: "v1alpha1"
-			schema: openAPIV3Schema: {
-				description: "VolumeReplication is the Schema for the volumereplications API"
-				properties: {
-					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources"
-						type:        "string"
-					}
-					kind: {
-						description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"
-						type:        "string"
-					}
-					metadata: type: "object"
-					spec: {
-						description: "VolumeReplicationSpec defines the desired state of VolumeReplication"
-						properties: {
-							dataSource: {
-								description: "DataSource represents the object associated with the volume"
-								properties: {
-									apiGroup: {
-										description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
-										type:        "string"
-									}
-									kind: {
-										description: "Kind is the type of resource being referenced"
-										type:        "string"
-									}
-									name: {
-										description: "Name is the name of resource being referenced"
-										type:        "string"
-									}
-								}
-								required: [
-									"kind",
-									"name",
-								]
-								type: "object"
-							}
-							replicationState: {
-								description: "ReplicationState represents the replication operation to be performed on the volume. Supported operations are \"primary\", \"secondary\" and \"resync\""
-								type:        "string"
-							}
-							volumeReplicationClass: {
-								description: "VolumeReplicationClass is the VolumeReplicationClass name for this VolumeReplication resource"
-								type:        "string"
-							}
-						}
-						required: [
-							"dataSource",
-							"replicationState",
-							"volumeReplicationClass",
-						]
-						type: "object"
-					}
-					status: {
-						description: "VolumeReplicationStatus defines the observed state of VolumeReplication"
-						properties: {
-							conditions: {
-								description: "Conditions are the list of conditions and their status."
-								items: {
-									description: """
-		Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example, type FooStatus struct{     // Represents the observations of a foo's current state.     // Known .status.conditions.type are: \"Available\", \"Progressing\", and \"Degraded\"     // +patchMergeKey=type     // +patchStrategy=merge     // +listType=map     // +listMapKey=type     Conditions []metav1.Condition `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"`
-		     // other fields }
-		"""
-									properties: {
-										lastTransitionTime: {
-											description: "lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable."
-											format:      "date-time"
-											type:        "string"
-										}
-										message: {
-											description: "message is a human readable message indicating details about the transition. This may be an empty string."
-											maxLength:   32768
-											type:        "string"
-										}
-										observedGeneration: {
-											description: "observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance."
-											format:      "int64"
-											minimum:     0
-											type:        "integer"
-										}
-										reason: {
-											description: "reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty."
-											maxLength:   1024
-											minLength:   1
-											pattern:     "^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$"
-											type:        "string"
-										}
-										status: {
-											description: "status of the condition, one of True, False, Unknown."
-											enum: [
-												"True",
-												"False",
-												"Unknown",
-											]
-											type: "string"
-										}
-										type: {
-											description: "type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)"
-											maxLength:   316
-											pattern:     "^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"
-											type:        "string"
-										}
-									}
-									required: [
-										"lastTransitionTime",
-										"message",
-										"reason",
-										"status",
-										"type",
-									]
-									type: "object"
-								}
-								type: "array"
-							}
-							lastCompletionTime: {
-								format: "date-time"
-								type:   "string"
-							}
-							lastStartTime: {
-								format: "date-time"
-								type:   "string"
-							}
-							message: type: "string"
-							observedGeneration: {
-								description: "observedGeneration is the last generation change the operator has dealt with"
-								format:      "int64"
-								type:        "integer"
-							}
-							state: {
-								description: "State captures the latest state of the replication operation"
-								type:        "string"
-							}
-						}
-						type: "object"
-					}
-				}
-				type: "object"
-			}
-			served:  true
-			storage: true
-			subresources: status: {}
-		}]
-	}
-	status: acceptedNames: {
-		kind:   ""
-		plural: ""
-	}
-}, {
-	metadata: {
-		annotations: "controller-gen.kubebuilder.io/version": "v0.5.1-0.20210420220833-f284e2e8098c"
-		name: "volumes.rook.io"
-	}
-	spec: {
-		group: "rook.io"
-		names: {
-			kind:     "Volume"
-			listKind: "VolumeList"
-			plural:   "volumes"
-			shortNames: [
-				"rv",
-			]
-			singular: "volume"
-		}
-		scope: "Namespaced"
-		versions: [{
-			name: "v1alpha2"
-			schema: openAPIV3Schema: {
-				properties: {
-					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources"
-						type:        "string"
-					}
-					attachments: {
-						items: {
-							properties: {
-								clusterName: type:  "string"
-								mountDir: type:     "string"
-								node: type:         "string"
-								podName: type:      "string"
-								podNamespace: type: "string"
-								readOnly: type:     "boolean"
-							}
-							required: [
-								"clusterName",
-								"mountDir",
-								"node",
-								"podName",
-								"podNamespace",
-								"readOnly",
-							]
-							type: "object"
-						}
-						type: "array"
-					}
-					kind: {
-						description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"
-						type:        "string"
-					}
-					metadata: type: "object"
-				}
-				required: [
-					"attachments",
-					"metadata",
-				]
-				type: "object"
-			}
-			served:  true
-			storage: true
-		}]
-	}
-	status: acceptedNames: {
-		kind:   ""
-		plural: ""
 	}
 }]

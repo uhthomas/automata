@@ -21,7 +21,6 @@ list: v1.#List & {
 
 list: items:
 	namespaceList.items +
-	podSecurityPolicyList.items +
 	serviceAccountList.items +
 	configMapList.items +
 	storageClassList.items +
