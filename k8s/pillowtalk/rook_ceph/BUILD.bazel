@@ -15,7 +15,6 @@ cue_library(
         "list.cue",
         "namespace_list.cue",
         "object_bucket_claim_list.cue",
-        "pod_security_policy_list.cue",
         "role_binding_list.cue",
         "role_list.cue",
         "service_account_list.cue",
