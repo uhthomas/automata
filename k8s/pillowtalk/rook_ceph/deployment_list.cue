@@ -195,7 +195,7 @@ deploymentList: items: [{
 		template: {
 			metadata: labels: app: "rook-ceph-tools"
 			spec: {
-				dnsPolicy: "ClusterFirstWithHostNet"
+				dnsPolicy: v1.#DNSClusterFirstWithHostNet
 				containers: [{
 					name:  "rook-ceph-tools"
 					image: "quay.io/ceph/ceph:v17.2.3"
