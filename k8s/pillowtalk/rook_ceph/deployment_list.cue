@@ -42,7 +42,7 @@ deploymentList: items: [{
 				serviceAccountName: "rook-ceph-system"
 				containers: [{
 					name:  "rook-ceph-operator"
-					image: "rook/ceph:master"
+					image: "rook/ceph:v1.10.3@sha256:25beef7da952ffd338cf1cc572f16dbedf04447fc37b461a3e31ebb94dde824b"
 					args: ["ceph", "operator"]
 					securityContext: {
 						runAsNonRoot: true
@@ -195,13 +195,81 @@ deploymentList: items: [{
 		template: {
 			metadata: labels: app: "rook-ceph-tools"
 			spec: {
-				dnsPolicy: v1.#DNSClusterFirstWithHostNet
+				dnsPolicy: "ClusterFirstWithHostNet"
 				containers: [{
 					name:  "rook-ceph-tools"
-					image: "rook/ceph:v1.6.3@sha256:8c787d33968e685558f1830a7f6a81a4a43b96d4cb2dba65867f09363f3f2d73"
-					command: ["/tini"]
-					args: ["-g", "--", "/usr/local/bin/toolbox.sh"]
+					image: "quay.io/ceph/ceph:v17.2.3"
+					command: [
+						"/bin/bash",
+						"-c",
+						"""
+							# Replicate the script from toolbox.sh inline so the ceph image
+							# can be run directly, instead of requiring the rook toolbox
+							CEPH_CONFIG=\"/etc/ceph/ceph.conf\"
+							MON_CONFIG=\"/etc/rook/mon-endpoints\"
+							KEYRING_FILE=\"/etc/ceph/keyring\"
+
+							# create a ceph config file in its default location so ceph/rados tools can be used
+							# without specifying any arguments
+							write_endpoints() {
+							endpoints=$(cat ${MON_CONFIG})
+
+							# filter out the mon names
+							# external cluster can have numbers or hyphens in mon names, handling them in regex
+							# shellcheck disable=SC2001
+							mon_endpoints=$(echo \"${endpoints}\"| sed 's/[a-z0-9_-]\\+=//g')
+
+							DATE=$(date)
+							echo \"$DATE writing mon endpoints to ${CEPH_CONFIG}: ${endpoints}\"
+							cat <<EOF > ${CEPH_CONFIG}
+							[global]
+							mon_host = ${mon_endpoints}
+
+							[client.admin]
+							keyring = ${KEYRING_FILE}
+							EOF
+							}
+
+							# watch the endpoints config file and update if the mon endpoints ever change
+							watch_endpoints() {
+							# get the timestamp for the target of the soft link
+							real_path=$(realpath ${MON_CONFIG})
+							initial_time=$(stat -c %Z \"${real_path}\")
+							while true; do
+							real_path=$(realpath ${MON_CONFIG})
+							latest_time=$(stat -c %Z \"${real_path}\")
+
+							if [[ \"${latest_time}\" != \"${initial_time}\" ]]; then
+							write_endpoints
+							initial_time=${latest_time}
+							fi
+
+							sleep 10
+							done
+							}
+
+							# create the keyring file
+							cat <<EOF > ${KEYRING_FILE}
+							[${ROOK_CEPH_USERNAME}]
+							key = ${ROOK_CEPH_SECRET}
+							EOF
+
+							# write the initial config file
+							write_endpoints
+
+							# continuously update the mon endpoints if they fail over
+							watch_endpoints
+
+							""",
+					]
+
 					imagePullPolicy: "IfNotPresent"
+					tty:             true
+					securityContext: {
+						runAsNonRoot: true
+						runAsUser:    2016
+						runAsGroup:   2016
+					}
 					env: [{
 						name: "ROOK_CEPH_USERNAME"
 						valueFrom: secretKeyRef: {
