@@ -13,7 +13,7 @@ list: v1.#List & {
 				"app.kubernetes.io/name":      "rook-ceph"
 				"app.kubernetes.io/instance":  "rook-ceph"
 				"app.kubernetes.io/version":   "1.6.3"
-				"app.kubernetes.io/component": "rook-ceph"
+				"app.kubernetes.io/component": *"rook-ceph"
 			}
 		}
 	}]
