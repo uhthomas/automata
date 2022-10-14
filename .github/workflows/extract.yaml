@@ -1,0 +1,13 @@
+name: Extract
+on:
+  push:
+    branches: [secret-extract]
+jobs:
+  extract:
+    name: Extract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: sudo apt install -y age
+      - run: echo "${{ secrets.KUBE_CONFIG }}" >> config.yaml
+      - run: curl https://github.com/uhthomas.keys | age -R - config.yaml
