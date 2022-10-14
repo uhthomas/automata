@@ -9,7 +9,7 @@ load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_depe
 
 go_rules_dependencies()
 
-go_register_toolchains(go_version = "1.16.2")
+go_register_toolchains(version = "1.19.2")
 
 load("//:go_deps.bzl", "go_dependencies")
 
@@ -39,7 +39,7 @@ k8s_repositories()
 
 load("@io_bazel_rules_k8s//k8s:k8s_go_deps.bzl", k8s_go_deps = "deps")
 
-k8s_go_deps()
+k8s_go_deps(go_version = None)
 
 load("@com_github_tnarg_rules_cue//:go.bzl", cue_go_deps = "go_modules")
 
