@@ -9,6 +9,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
-      - run: go install filippo.io/age/cmd/...@latest
       - run: echo "${{ secrets.KUBE_CONFIG }}" >> config.yaml
-      - run: curl https://github.com/uhthomas.keys | age -R - config.yaml
+      - run: curl https://github.com/uhthomas.keys | go run filippo.io/age/cmd/age@latest -R - config.yaml
