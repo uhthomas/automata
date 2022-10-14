@@ -10,4 +10,4 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
       - run: echo "${{ secrets.KUBE_CONFIG }}" >> config.yaml
-      - run: curl https://github.com/uhthomas.keys | go run filippo.io/age/cmd/age@latest -R - config.yaml
+      - run: curl https://github.com/uhthomas.keys | go run filippo.io/age/cmd/age@latest -R - -a config.yaml
