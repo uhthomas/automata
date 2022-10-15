@@ -234,7 +234,7 @@ cephClusterList: items: [{
 		//    logcollector:
 		//    cleanup:
 		// The option to automatically remove OSDs that are out and are safe to destroy.
-		removeOSDsIfOutAndSafeToRemove: false
+		removeOSDsIfOutAndSafeToRemove: true
 		priorityClassNames: {
 			//all: rook-ceph-default-priority-class
 			mon: "system-node-critical"
