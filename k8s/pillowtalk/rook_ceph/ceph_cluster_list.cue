@@ -268,8 +268,6 @@ cephClusterList: items: [{
 					{name: "/dev/disk/by-id/scsi-SATA_WDC_WD40EFRX-68W_WD-WCC4E1490907"},
 					// WD Red 4TB
 					{name: "/dev/disk/by-id/scsi-350014ee20a85be27"},
-					// Samsung 2TB
-					{name: "/dev/disk/by-id/scsi-SATA_SAMSUNG_HD204UI_S2H7J9EB308467"},
 				]
 			}]
 			//deviceFilter:
