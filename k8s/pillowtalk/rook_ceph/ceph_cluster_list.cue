@@ -259,13 +259,13 @@ cephClusterList: items: [{
 					// WD Red 6TB
 					{name: "/dev/disk/by-id/scsi-35000c500c95641d1"},
 					// WD Red 4TB
-					{name: "/dev/disk/by-id/scsi-SATA_WDC_WD40EFRX-68W_WD-WCC4E0053359"},
+					{name: "/dev/disk/by-id/scsi-350014ee2b3a8d79e"},
 				]
 			}, {
 				name: "38aab880f5"
 				devices: [
 					// WD Red 4TB
-					{name: "/dev/disk/by-id/scsi-SATA_WDC_WD40EFRX-68W_WD-WCC4E1490907"},
+					{name: "/dev/disk/by-id/scsi-350014ee20a0d98d1"},
 					// WD Red 4TB
 					{name: "/dev/disk/by-id/scsi-350014ee20a85be27"},
 				]
