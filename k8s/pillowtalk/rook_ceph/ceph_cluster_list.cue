@@ -248,25 +248,25 @@ cephClusterList: items: [{
 			nodes: [{
 				name: "13a0a37008"
 				devices: [
-					// Seagate 6TB
+					// Seagate Barracuda 6TB (ST6000DM003-2CY186)
 					{name: "/dev/disk/by-id/scsi-35000c500c9566239"},
-					// WD Red 4TB
+					// WD Red 4TB (WDC WD40EFRX-68WT0N0)
 					{name: "/dev/disk/by-id/scsi-350014ee2b3a8b3d7"},
 				]
 			}, {
 				name: "6151c4656b"
 				devices: [
-					// Seagate 6TB
+					// Seagate Barracuda 6TB (ST6000DM003-2CY186)
 					{name: "/dev/disk/by-id/scsi-35000c500c95641d1"},
-					// WD Red 4TB
+					// WD Red 4TB (WDC WD40EFRX-68WT0N0)
 					{name: "/dev/disk/by-id/scsi-350014ee2b3a8d79e"},
 				]
 			}, {
 				name: "38aab880f5"
 				devices: [
-					// WD Red 4TB
+					// WD Red 4TB (WDC WD40EFRX-68WT0N0)
 					{name: "/dev/disk/by-id/scsi-350014ee20a0d98d1"},
-					// WD Red 4TB
+					// WD Red 4TB (WDC WD40EFRX-68WT0N0)
 					{name: "/dev/disk/by-id/scsi-350014ee20a85be27"},
 				]
 			}]
