@@ -1,3 +1,4 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_test")
 load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_export")
 
 cue_export(
@@ -5,4 +6,9 @@ cue_export(
     src = "secret_template.cue",
     visibility = ["//visibility:public"],
     deps = ["//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library"],
+)
+
+go_test(
+    name = "tools_test",
+    srcs = ["tools_test.go"],
 )

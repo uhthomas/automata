@@ -41,6 +41,5 @@ cue_export(
         "//k8s/mahalo/promtail:cue_promtail_library",
         "//k8s/mahalo/rasmus:cue_rasmus_library",
         "//k8s/mahalo/sealed_secrets:cue_sealed_secrets_library",
-        "//k8s/mahalo/thanos:cue_thanos_library",
     ],
 )
