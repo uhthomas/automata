@@ -248,7 +248,7 @@ cephClusterList: items: [{
 			nodes: [{
 				name: "13a0a37008"
 				devices: [
-					// WD Red 6TB
+					// Seagate 6TB
 					{name: "/dev/disk/by-id/scsi-35000c500c9566239"},
 					// WD Red 4TB
 					{name: "/dev/disk/by-id/scsi-350014ee2b3a8b3d7"},
@@ -256,7 +256,7 @@ cephClusterList: items: [{
 			}, {
 				name: "6151c4656b"
 				devices: [
-					// WD Red 6TB
+					// Seagate 6TB
 					{name: "/dev/disk/by-id/scsi-35000c500c95641d1"},
 					// WD Red 4TB
 					{name: "/dev/disk/by-id/scsi-350014ee2b3a8d79e"},
