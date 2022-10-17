@@ -12,7 +12,7 @@ list: v1.#List & {
 			labels: {
 				"app.kubernetes.io/name":      "cloudflared"
 				"app.kubernetes.io/instance":  "cloudflared"
-				"app.kubernetes.io/version":   "2021.5.10"
+				"app.kubernetes.io/version":   "2022.10.0"
 				"app.kubernetes.io/component": "cloudflared"
 			}
 		}

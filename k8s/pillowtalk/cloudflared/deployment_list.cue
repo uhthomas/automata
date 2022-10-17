@@ -24,7 +24,7 @@ deploymentList: items: [{
 			spec: {
 				containers: [{
 					name:  "cloudflared"
-					image: "cloudflare/cloudflared:2021.5.10@sha256:d3774873aaf286a3a3e401f56ad7cf6d014f6a7144b88cac81e7fbee4fc62209"
+					image: "cloudflare/cloudflared:2022.10.0-amd64@sha256:db58bb38c3cd1c206999c2133d1355d86a0be40510685b9d21d87b0c0a8662e3"
 					args: [
 						"tunnel",
 						"--config",
