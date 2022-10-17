@@ -81,7 +81,7 @@ cephClusterList: items: [{
 			// serve the dashboard at the given port.
 			// port: 8443
 			// serve the dashboard using SSL
-			ssl: true
+			ssl: false
 		}
 		// enable prometheus alerting for cluster
 		monitoring: {
