@@ -25,9 +25,6 @@ resource "cloudflare_certificate_pack" "advanced_digicert_certificate_pack" {
     cloudflare_zone.starjunk_net.zone,
     "*.${cloudflare_zone.starjunk_net.zone}",
 
-    "mahalo.${cloudflare_zone.starjunk_net.zone}",
-    "*.mahalo.${cloudflare_zone.starjunk_net.zone}",
-
     "milkshake.${cloudflare_zone.starjunk_net.zone}",
     "*.milkshake.${cloudflare_zone.starjunk_net.zone}",
 
@@ -79,88 +76,6 @@ resource "cloudflare_record" "alt_mx" {
   type     = "MX"
   ttl      = 1
   priority = (floor(count.index / 2) + 1) * 5
-}
-
-# mahalo
-
-resource "cloudflare_record" "mahalo_a" {
-  zone_id = cloudflare_zone.starjunk_net.id
-  name    = "mahalo"
-  value   = "51.159.9.180"
-  type    = "A"
-  proxied = true
-}
-
-resource "cloudflare_record" "grafana_mahalo_cname" {
-  zone_id = cloudflare_zone.starjunk_net.id
-  name    = "grafana.mahalo"
-  value   = "mahalo.${cloudflare_zone.starjunk_net.zone}"
-  type    = "CNAME"
-  proxied = true
-}
-
-resource "cloudflare_record" "io_6f_dev_mahalo_cname" {
-  zone_id = cloudflare_zone.starjunk_net.id
-  name    = "io-6f-dev.mahalo"
-  value   = "mahalo.${cloudflare_zone.starjunk_net.zone}"
-  type    = "CNAME"
-  proxied = true
-}
-
-resource "cloudflare_record" "io_6f_mahalo_cname" {
-  zone_id = cloudflare_zone.starjunk_net.id
-  name    = "io-6f.mahalo"
-  value   = "mahalo.${cloudflare_zone.starjunk_net.zone}"
-  type    = "CNAME"
-  proxied = true
-}
-
-resource "cloudflare_record" "kipp_dev_mahalo_cname" {
-  zone_id = cloudflare_zone.starjunk_net.id
-  name    = "kipp-dev.mahalo"
-  value   = "mahalo.${cloudflare_zone.starjunk_net.zone}"
-  type    = "CNAME"
-  proxied = true
-}
-
-resource "cloudflare_record" "kipp_mahalo_cname" {
-  zone_id = cloudflare_zone.starjunk_net.id
-  name    = "kipp.mahalo"
-  value   = "mahalo.${cloudflare_zone.starjunk_net.zone}"
-  type    = "CNAME"
-  proxied = true
-}
-
-resource "cloudflare_record" "kipp2_mahalo_cname" {
-  zone_id = cloudflare_zone.starjunk_net.id
-  name    = "kipp2.mahalo"
-  value   = "mahalo.${cloudflare_zone.starjunk_net.zone}"
-  type    = "CNAME"
-  proxied = true
-}
-
-resource "cloudflare_record" "oauth2_proxy_mahalo_cname" {
-  zone_id = cloudflare_zone.starjunk_net.id
-  name    = "oauth2-proxy.mahalo"
-  value   = "mahalo.${cloudflare_zone.starjunk_net.zone}"
-  type    = "CNAME"
-  proxied = true
-}
-
-resource "cloudflare_record" "rasmus_mahalo_cname" {
-  zone_id = cloudflare_zone.starjunk_net.id
-  name    = "rasmus.mahalo"
-  value   = "mahalo.${cloudflare_zone.starjunk_net.zone}"
-  type    = "CNAME"
-  proxied = true
-}
-
-resource "cloudflare_record" "thanos_mahalo_cname" {
-  zone_id = cloudflare_zone.starjunk_net.id
-  name    = "thanos.mahalo"
-  value   = "mahalo.${cloudflare_zone.starjunk_net.zone}"
-  type    = "CNAME"
-  proxied = true
 }
 
 # milkshake
