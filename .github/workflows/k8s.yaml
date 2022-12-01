@@ -3,23 +3,6 @@ on:
   push:
     branches: [main]
 jobs:
-  mahalo:
-    name: Mahalo
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: bazelbuild/setup-bazelisk@v2
-      - run: bazel build //...
-      - uses: azure/k8s-set-context@v2
-        with:
-          kubeconfig: ${{ secrets.KUBE_CONFIG }}
-      # https://github.com/bazelbuild/rules_k8s/issues/640
-      - name: Apply
-        run: |
-          bazel run \
-          --config=ci \
-          --remote_header=x-buildbuddy-api-key=${{ secrets.BUILDBUDDY_ORG_API_KEY }} \
-          //k8s/mahalo:object.apply -- --prune
   pillowtalk:
     name: Pillowtalk
     runs-on: ubuntu-latest
