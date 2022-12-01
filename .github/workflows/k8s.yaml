@@ -15,7 +15,7 @@ jobs:
       - name: Install Bazelisk
         run: curl -L "https://github.com/bazelbuild/bazelisk/releases/download/v1.10.1/bazelisk-linux-amd64" | install -D /dev/stdin "${GITHUB_WORKSPACE}/bin/bazel"
       - run: bazel build //...
-      - uses: azure/k8s-set-context@v2
+      - uses: azure/k8s-set-context@v3
         with:
           kubeconfig: ${{ secrets.KUBE_CONFIG }}
       # https://github.com/bazelbuild/rules_k8s/issues/640
