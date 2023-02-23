@@ -12,6 +12,7 @@ serverList: v1.#List & {
 }
 
 serverList: items: [...{
+	metadata: finalizers: ["storage.finalizers.server.k8s.io"]
 	spec: {
 		// All the servers should be accepted.
 		accepted: true
@@ -37,10 +38,7 @@ serverList: items: [...{
 
 // Servers are ordered by their physical location.
 serverList: items: [{
-	metadata: {
-		finalizers: ["storage.finalizers.server.k8s.io"]
-		name: "4c4c4544-0054-3010-8056-c7c04f424232"
-	}
+	metadata: name: "4c4c4544-0054-3010-8056-c7c04f424232"
 	spec: {
 		bmc: {
 			endpoint: "192.168.1.61"
@@ -82,10 +80,7 @@ serverList: items: [{
 		}
 	}
 }, {
-	metadata: {
-		finalizers: ["storage.finalizers.server.k8s.io"]
-		name: "4c4c4544-0054-3510-8057-c7c04f424232"
-	}
+	metadata: name: "4c4c4544-0054-3510-8057-c7c04f424232"
 	spec: {
 		bmc: {
 			endpoint: "192.168.1.61"
@@ -127,10 +122,7 @@ serverList: items: [{
 		}
 	}
 }, {
-	metadata: {
-		finalizers: ["storage.finalizers.server.k8s.io"]
-		name: "4c4c4544-0057-4210-804c-c7c04f423432"
-	}
+	metadata: name: "4c4c4544-0057-4210-804c-c7c04f423432"
 	spec: {
 		cpu: {
 			manufacturer: "Intel"
@@ -156,10 +148,7 @@ serverList: items: [{
 		}
 	}
 }, {
-	metadata: {
-		finalizers: ["storage.finalizers.server.k8s.io"]
-		name: "4c4c4544-0042-5610-804b-b8c04f445831"
-	}
+	metadata: name: "4c4c4544-0042-5610-804b-b8c04f445831"
 	spec: {
 		bmc: {
 			endpoint: "0.0.0.0"
@@ -199,10 +188,7 @@ serverList: items: [{
 		}
 	}
 }, {
-	metadata: {
-		finalizers: ["storage.finalizers.server.k8s.io"]
-		name: "4c4c4544-0047-4410-8034-b9c04f575631"
-	}
+	metadata: name: "4c4c4544-0047-4410-8034-b9c04f575631"
 	spec: {
 		cpu: {
 			manufacturer: "Intel"
