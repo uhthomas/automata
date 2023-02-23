@@ -25,25 +25,24 @@ items: [{
 		}
 		configPatches: [{
 			op:   "add"
-			path: "/machine/install/diskSelector"
-			value: wwid: "naa.50026b7381885d08"
-		}, {
-			op:   "add"
-			path: "/machine/network"
-			value: interfaces: [{
-				bond: {
-					downdelay: 200
-					interfaces: ["eth4", "eth5"]
-					lacpRate:       "fast"
-					miimon:         100
-					mode:           "802.3ad"
-					updelay:        200
-					xmitHashPolicy: "layer3+4"
-				}
-				dhcp:      true
-				interface: "bond0"
-				vip: ip: "10.0.0.100"
-			}]
+			path: "/machine"
+			value: {
+				install: diskSelector: wwid: "naa.50026b7381885d08"
+				network: interfaces: [{
+					bond: {
+						downdelay: 200
+						interfaces: ["eth4", "eth5"]
+						lacpRate:       "fast"
+						miimon:         100
+						mode:           "802.3ad"
+						updelay:        200
+						xmitHashPolicy: "layer3+4"
+					}
+					dhcp:      true
+					interface: "bond0"
+					vip: ip: "10.0.0.100"
+				}]
+			}
 		}]
 		cpu: {
 			manufacturer: "Intel"
@@ -59,7 +58,7 @@ items: [{
 			version:      "GT0VBB2"
 		}
 	}
-},{
+}, {
 	apiVersion: "metal.sidero.dev/v1alpha1"
 	kind:       "Server"
 	metadata: {
@@ -84,25 +83,24 @@ items: [{
 		}
 		configPatches: [{
 			op:   "add"
-			path: "/machine/install/diskSelector"
-			value: wwid: "naa.50026b7381886726"
-		}, {
-			op:   "add"
-			path: "/machine/network"
-			value: interfaces: [{
-				bond: {
-					downdelay: 200
-					interfaces: ["eth4", "eth5"]
-					lacpRate:       "fast"
-					miimon:         100
-					mode:           "802.3ad"
-					updelay:        200
-					xmitHashPolicy: "layer3+4"
-				}
-				dhcp:      true
-				interface: "bond0"
-				vip: ip: "10.0.0.100"
-			}]
+			path: "/machine"
+			value: {
+				install: diskSelector: wwid: "naa.50026b7381886726"
+				network: interfaces: [{
+					bond: {
+						downdelay: 200
+						interfaces: ["eth4", "eth5"]
+						lacpRate:       "fast"
+						miimon:         100
+						mode:           "802.3ad"
+						updelay:        200
+						xmitHashPolicy: "layer3+4"
+					}
+					dhcp:      true
+					interface: "bond0"
+					vip: ip: "10.0.0.100"
+				}]
+			}
 		}]
 		cpu: {
 			manufacturer: "Intel"
@@ -133,25 +131,24 @@ items: [{
 		}
 		configPatches: [{
 			op:   "add"
-			path: "/machine/install/diskSelector"
-			value: wwid: "naa.50025388a035cb0e"
-		}, {
-			op:   "add"
-			path: "/machine/network"
-			value: interfaces: [{
-				bond: {
-					downdelay: 200
-					interfaces: ["eth0", "eth1"]
-					lacpRate:       "fast"
-					miimon:         100
-					mode:           "802.3ad"
-					updelay:        200
-					xmitHashPolicy: "layer3+4"
-				}
-				dhcp:      true
-				interface: "bond0"
-				vip: ip: "10.0.0.100"
-			}]
+			path: "/machine"
+			value: {
+				install: diskSelector: wwid: "naa.50025388a035cb0e"
+				network: interfaces: [{
+					bond: {
+						downdelay: 200
+						interfaces: ["eth0", "eth1"]
+						lacpRate:       "fast"
+						miimon:         100
+						mode:           "802.3ad"
+						updelay:        200
+						xmitHashPolicy: "layer3+4"
+					}
+					dhcp:      true
+					interface: "bond0"
+					vip: ip: "10.0.0.100"
+				}]
+			}
 		}]
 		hostname: "10.0.0.246"
 		system: {
@@ -190,25 +187,24 @@ items: [{
 		}
 		configPatches: [{
 			op:   "add"
-			path: "/machine/install/diskSelector"
-			value: wwid: "naa.5002538550025450"
-		}, {
-			op:   "add"
-			path: "/machine/network"
-			value: interfaces: [{
-				bond: {
-					downdelay: 200
-					interfaces: ["eth0", "eth1"]
-					lacpRate:       "fast"
-					miimon:         100
-					mode:           "802.3ad"
-					updelay:        200
-					xmitHashPolicy: "layer3+4"
-				}
-				dhcp:      true
-				interface: "bond0"
-				vip: ip: "10.0.0.100"
-			}]
+			path: "/machine"
+			value: {
+				install: diskSelector: wwid: "naa.5002538550025450"
+				network: interfaces: [{
+					bond: {
+						downdelay: 200
+						interfaces: ["eth0", "eth1"]
+						lacpRate:       "fast"
+						miimon:         100
+						mode:           "802.3ad"
+						updelay:        200
+						xmitHashPolicy: "layer3+4"
+					}
+					dhcp:      true
+					interface: "bond0"
+					vip: ip: "10.0.0.100"
+				}]
+			}
 		}]
 		hostname: "10.0.0.243"
 		system: {
@@ -233,25 +229,24 @@ items: [{
 		}
 		configPatches: [{
 			op:   "add"
-			path: "/machine/install/diskSelector"
-			value: wwid: "naa.50025388a015a68d"
-		}, {
-			op:   "add"
-			path: "/machine/network"
-			value: interfaces: [{
-				bond: {
-					downdelay: 200
-					interfaces: ["eth0", "eth1"]
-					lacpRate:       "fast"
-					miimon:         100
-					mode:           "802.3ad"
-					updelay:        200
-					xmitHashPolicy: "layer3+4"
-				}
-				dhcp:      true
-				interface: "bond0"
-				vip: ip: "10.0.0.100"
-			}]
+			path: "/machine"
+			value: {
+				install: diskSelector: wwid: "naa.50025388a015a68d"
+				network: interfaces: [{
+					bond: {
+						downdelay: 200
+						interfaces: ["eth0", "eth1"]
+						lacpRate:       "fast"
+						miimon:         100
+						mode:           "802.3ad"
+						updelay:        200
+						xmitHashPolicy: "layer3+4"
+					}
+					dhcp:      true
+					interface: "bond0"
+					vip: ip: "10.0.0.100"
+				}]
+			}
 		}]
 		hostname: "10.0.0.242"
 		system: {
