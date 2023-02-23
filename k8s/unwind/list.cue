@@ -1,4 +1,5 @@
 import (
+	"github.com/uhthomas/automata/k8s/unwind"
 	"k8s.io/api/core/v1"
 )
 
@@ -10,4 +11,11 @@ v1.#List & {
 
 // items are grouped by dependency requirements, and sorted lexicographically
 // where possible.
-items: []
+items:
+	unwind.clusterList.items +
+	unwind.machineDeploymentList.items +
+	unwind.metalClusterList.items +
+	unwind.metalMachineTemplateList.items +
+	unwind.serverList.items +
+	unwind.talosConfigTemplateList.items +
+	unwind.talosControlPlaneList.items

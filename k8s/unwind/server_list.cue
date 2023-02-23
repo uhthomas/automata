@@ -1,8 +1,10 @@
+package unwind
+
 import "k8s.io/api/core/v1"
 
 serverList: v1.#List & {
 	apiVersion: "v1"
-	kind:       "ServerList"
+	kind:       "List"
 	items: [...{
 		apiVersion: "metal.sidero.dev/v1alpha1"
 		kind:       "Server"
