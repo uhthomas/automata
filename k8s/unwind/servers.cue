@@ -1,9 +1,11 @@
+import "k8s.io/api/core/v1"
+
 serverList: v1.#List & {
 	apiVersion: "v1"
-	kind:       "List"
+	kind:       "ServerList"
 	items: [...{
 		apiVersion: "metal.sidero.dev/v1alpha1"
-		kind:       "ServerList"
+		kind:       "Server"
 	}]
 }
 
@@ -37,18 +39,8 @@ serverList: items: [{
 			value: {
 				install: diskSelector: wwid: "naa.50026b7381885d08"
 				network: interfaces: [{
-					bond: {
-						downdelay: 200
-						interfaces: ["eth4", "eth5"]
-						lacpRate:       "fast"
-						miimon:         100
-						mode:           "802.3ad"
-						updelay:        200
-						xmitHashPolicy: "layer3+4"
-					}
-					dhcp:      true
-					interface: "bond0"
-					vip: ip: "10.0.0.100"
+					addresses: ["10.0.0.110"]
+					bond: interfaces: ["eth4", "eth5"]
 				}]
 			}
 		}]
@@ -95,18 +87,8 @@ serverList: items: [{
 			value: {
 				install: diskSelector: wwid: "naa.50026b7381886726"
 				network: interfaces: [{
-					bond: {
-						downdelay: 200
-						interfaces: ["eth4", "eth5"]
-						lacpRate:       "fast"
-						miimon:         100
-						mode:           "802.3ad"
-						updelay:        200
-						xmitHashPolicy: "layer3+4"
-					}
-					dhcp:      true
-					interface: "bond0"
-					vip: ip: "10.0.0.100"
+					addresses: ["10.0.0.120"]
+					bond: interfaces: ["eth4", "eth5"]
 				}]
 			}
 		}]
@@ -143,18 +125,8 @@ serverList: items: [{
 			value: {
 				install: diskSelector: wwid: "naa.50025388a035cb0e"
 				network: interfaces: [{
-					bond: {
-						downdelay: 200
-						interfaces: ["eth0", "eth1"]
-						lacpRate:       "fast"
-						miimon:         100
-						mode:           "802.3ad"
-						updelay:        200
-						xmitHashPolicy: "layer3+4"
-					}
-					dhcp:      true
-					interface: "bond0"
-					vip: ip: "10.0.0.100"
+					addresses: ["10.0.0.130"]
+					bond: interfaces: ["eth0", "eth1"]
 				}]
 			}
 		}]
@@ -199,18 +171,8 @@ serverList: items: [{
 			value: {
 				install: diskSelector: wwid: "naa.5002538550025450"
 				network: interfaces: [{
-					bond: {
-						downdelay: 200
-						interfaces: ["eth0", "eth1"]
-						lacpRate:       "fast"
-						miimon:         100
-						mode:           "802.3ad"
-						updelay:        200
-						xmitHashPolicy: "layer3+4"
-					}
-					dhcp:      true
-					interface: "bond0"
-					vip: ip: "10.0.0.100"
+					addresses: ["10.0.0.140"]
+					bond: interfaces: ["eth0", "eth1"]
 				}]
 			}
 		}]
@@ -241,18 +203,8 @@ serverList: items: [{
 			value: {
 				install: diskSelector: wwid: "naa.50025388a015a68d"
 				network: interfaces: [{
-					bond: {
-						downdelay: 200
-						interfaces: ["eth0", "eth1"]
-						lacpRate:       "fast"
-						miimon:         100
-						mode:           "802.3ad"
-						updelay:        200
-						xmitHashPolicy: "layer3+4"
-					}
-					dhcp:      true
-					interface: "bond0"
-					vip: ip: "10.0.0.100"
+					addresses: ["10.0.0.150"]
+					bond: interfaces: ["eth0", "eth1"]
 				}]
 			}
 		}]
@@ -264,4 +216,24 @@ serverList: items: [{
 			version:      "PowerEdge R720"
 		}
 	}
+}]
+
+// All the servers should have exactly one interface; A 20Gbe bond. They should
+// all be using DHCP and the same virtual IP.
+serverList: items: [...{
+	spec: configPatches: [...{
+		value: network: interfaces: [{
+			bond: {
+				downdelay:      200
+				lacpRate:       "fast"
+				miimon:         100
+				mode:           "802.3ad"
+				updelay:        200
+				xmitHashPolicy: "layer3+4"
+			}
+			dhcp:      true
+			interface: "bond0"
+			vip: ip: "10.0.0.100"
+		}]
+	}]
 }]
