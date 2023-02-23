@@ -1,6 +1,14 @@
-apiVersion: "v1"
+serverList: v1.#List & {
+	apiVersion: "v1"
+	kind:       "List"
+	items: [...{
+		apiVersion: "metal.sidero.dev/v1alpha1"
+		kind:       "ServerList"
+	}]
+}
+
 // items are ordered by physical location.
-items: [{
+serverList: items: [{
 	apiVersion: "metal.sidero.dev/v1alpha1"
 	kind:       "Server"
 	metadata: {
@@ -257,5 +265,3 @@ items: [{
 		}
 	}
 }]
-kind: "List"
-metadata: resourceVersion: ""
