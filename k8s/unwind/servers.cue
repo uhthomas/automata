@@ -9,16 +9,37 @@ serverList: v1.#List & {
 	}]
 }
 
-// items are ordered by physical location.
+serverList: items: [...{
+	spec: {
+		// All the servers should be accepted.
+		accepted: true
+		// All the servers should have exactly one interface; A 20Gbe bond. They should
+		// all be using DHCP and the same virtual IP.
+		configPatches: [...{
+			value: network: interfaces: [{
+				bond: {
+					downdelay:      200
+					lacpRate:       "fast"
+					miimon:         100
+					mode:           "802.3ad"
+					updelay:        200
+					xmitHashPolicy: "layer3+4"
+				}
+				dhcp:      true
+				interface: "bond0"
+				vip: ip: "10.0.0.100"
+			}]
+		}]
+	}
+}]
+
+// Servers are ordered by their physical location.
 serverList: items: [{
-	apiVersion: "metal.sidero.dev/v1alpha1"
-	kind:       "Server"
 	metadata: {
 		finalizers: ["storage.finalizers.server.k8s.io"]
 		name: "4c4c4544-0054-3010-8056-c7c04f424232"
 	}
 	spec: {
-		accepted: true
 		bmc: {
 			endpoint: "192.168.1.61"
 			passFrom: secretKeyRef: {
@@ -59,14 +80,11 @@ serverList: items: [{
 		}
 	}
 }, {
-	apiVersion: "metal.sidero.dev/v1alpha1"
-	kind:       "Server"
 	metadata: {
 		finalizers: ["storage.finalizers.server.k8s.io"]
 		name: "4c4c4544-0054-3510-8057-c7c04f424232"
 	}
 	spec: {
-		accepted: true
 		bmc: {
 			endpoint: "192.168.1.61"
 			passFrom: secretKeyRef: {
@@ -107,14 +125,11 @@ serverList: items: [{
 		}
 	}
 }, {
-	apiVersion: "metal.sidero.dev/v1alpha1"
-	kind:       "Server"
 	metadata: {
 		finalizers: ["storage.finalizers.server.k8s.io"]
 		name: "4c4c4544-0057-4210-804c-c7c04f423432"
 	}
 	spec: {
-		accepted: true
 		cpu: {
 			manufacturer: "Intel"
 			version:      "Intel(R) Xeon(R) CPU E5-2650 v2 @ 2.60GHz"
@@ -139,14 +154,11 @@ serverList: items: [{
 		}
 	}
 }, {
-	apiVersion: "metal.sidero.dev/v1alpha1"
-	kind:       "Server"
 	metadata: {
 		finalizers: ["storage.finalizers.server.k8s.io"]
 		name: "4c4c4544-0042-5610-804b-b8c04f445831"
 	}
 	spec: {
-		accepted: true
 		bmc: {
 			endpoint: "0.0.0.0"
 			passFrom: secretKeyRef: {
@@ -185,14 +197,11 @@ serverList: items: [{
 		}
 	}
 }, {
-	apiVersion: "metal.sidero.dev/v1alpha1"
-	kind:       "Server"
 	metadata: {
 		finalizers: ["storage.finalizers.server.k8s.io"]
 		name: "4c4c4544-0047-4410-8034-b9c04f575631"
 	}
 	spec: {
-		accepted: true
 		cpu: {
 			manufacturer: "Intel"
 			version:      "Intel(R) Xeon(R) CPU E5-2650 v2 @ 2.60GHz"
@@ -216,24 +225,4 @@ serverList: items: [{
 			version:      "PowerEdge R720"
 		}
 	}
-}]
-
-// All the servers should have exactly one interface; A 20Gbe bond. They should
-// all be using DHCP and the same virtual IP.
-serverList: items: [...{
-	spec: configPatches: [...{
-		value: network: interfaces: [{
-			bond: {
-				downdelay:      200
-				lacpRate:       "fast"
-				miimon:         100
-				mode:           "802.3ad"
-				updelay:        200
-				xmitHashPolicy: "layer3+4"
-			}
-			dhcp:      true
-			interface: "bond0"
-			vip: ip: "10.0.0.100"
-		}]
-	}]
 }]
