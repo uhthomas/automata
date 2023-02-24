@@ -3,6 +3,7 @@ load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
 cue_library(
     name = "cue_runtime_library",
     srcs = [
+        "allocator_go_gen.cue",
         "codec_go_gen.cue",
         "conversion_go_gen.cue",
         "converter_go_gen.cue",

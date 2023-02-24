@@ -5,10 +5,11 @@
 // Package v1 contains API types that are common to all versions.
 //
 // The package contains two categories of types:
-// - external (serialized) types that lack their own version (e.g TypeMeta)
-// - internal (never-serialized) types that are needed by several different
-//   api groups, and so live here, to avoid duplication and/or import loops
-//   (e.g. LabelSelector).
+//   - external (serialized) types that lack their own version (e.g TypeMeta)
+//   - internal (never-serialized) types that are needed by several different
+//     api groups, and so live here, to avoid duplication and/or import loops
+//     (e.g. LabelSelector).
+//
 // In the future, we will probably move these categories of objects into
 // separate packages.
 package v1
@@ -43,13 +44,7 @@ import (
 // ListMeta describes metadata that synthetic resources must have, including lists and
 // various status objects. A resource may have only one of {ObjectMeta, ListMeta}.
 #ListMeta: {
-	// selfLink is a URL representing this object.
-	// Populated by the system.
-	// Read-only.
-	//
-	// DEPRECATED
-	// Kubernetes will stop propagating this field in 1.20 release and the field is planned
-	// to be removed in 1.21 release.
+	// Deprecated: selfLink is a legacy read-only field that is no longer populated by the system.
 	// +optional
 	selfLink?: string @go(SelfLink) @protobuf(1,bytes,opt)
 
@@ -109,10 +104,7 @@ import (
 	// and may be truncated by the length of the suffix required to make the value
 	// unique on the server.
 	//
-	// If this field is specified and the generated name exists, the server will
-	// NOT return a 409 - instead, it will either return 201 Created or 500 with Reason
-	// ServerTimeout indicating a unique name could not be found in the time allotted, and the client
-	// should retry (optionally after the time indicated in the Retry-After header).
+	// If this field is specified and the generated name exists, the server will return a 409.
 	//
 	// Applied only if Name is not specified.
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#idempotency
@@ -130,13 +122,7 @@ import (
 	// +optional
 	namespace?: string @go(Namespace) @protobuf(3,bytes,opt)
 
-	// SelfLink is a URL representing this object.
-	// Populated by the system.
-	// Read-only.
-	//
-	// DEPRECATED
-	// Kubernetes will stop propagating this field in 1.20 release and the field is planned
-	// to be removed in 1.21 release.
+	// Deprecated: selfLink is a legacy read-only field that is no longer populated by the system.
 	// +optional
 	selfLink?: string @go(SelfLink) @protobuf(4,bytes,opt)
 
@@ -247,12 +233,6 @@ import (
 	// +patchStrategy=merge
 	finalizers?: [...string] @go(Finalizers,[]string) @protobuf(14,bytes,rep)
 
-	// The name of the cluster which the object belongs to.
-	// This is used to distinguish resources with same name and namespace in different clusters.
-	// This field is not set anywhere right now and apiserver is going to ignore it if set in create or update request.
-	// +optional
-	clusterName?: string @go(ClusterName) @protobuf(15,bytes,opt)
-
 	// ManagedFields maps workflow-id and version to the set of fields
 	// that are managed by that workflow. This is mostly for internal
 	// housekeeping, and users typically shouldn't need to set or
@@ -307,6 +287,8 @@ import (
 	// If true, AND if the owner has the "foregroundDeletion" finalizer, then
 	// the owner cannot be deleted from the key-value store until this
 	// reference is removed.
+	// See https://kubernetes.io/docs/concepts/architecture/garbage-collection/#foreground-deletion
+	// for how the garbage collector interacts with this field and enforces the foreground deletion.
 	// Defaults to false.
 	// To set this field, a user needs "delete" permission of the owner,
 	// otherwise 422 (Unprocessable Entity) will be returned.
@@ -506,6 +488,15 @@ import (
 	dryRun?: [...string] @go(DryRun,[]string) @protobuf(5,bytes,rep)
 }
 
+// FieldValidationIgnore ignores unknown/duplicate fields
+#FieldValidationIgnore: "Ignore"
+
+// FieldValidationWarn responds with a warning, but successfully serve the request
+#FieldValidationWarn: "Warn"
+
+// FieldValidationStrict fails the request on unknown/duplicate fields
+#FieldValidationStrict: "Strict"
+
 // CreateOptions may be provided when creating an API object.
 #CreateOptions: {
 	#TypeMeta
@@ -524,6 +515,28 @@ import (
 	// as defined by https://golang.org/pkg/unicode/#IsPrint.
 	// +optional
 	fieldManager?: string @go(FieldManager) @protobuf(3,bytes)
+
+	// fieldValidation instructs the server on how to handle
+	// objects in the request (POST/PUT/PATCH) containing unknown
+	// or duplicate fields, provided that the `ServerSideFieldValidation`
+	// feature gate is also enabled. Valid values are:
+	// - Ignore: This will ignore any unknown fields that are silently
+	// dropped from the object, and will ignore all but the last duplicate
+	// field that the decoder encounters. This is the default behavior
+	// prior to v1.23 and is the default behavior when the
+	// `ServerSideFieldValidation` feature gate is disabled.
+	// - Warn: This will send a warning via the standard warning response
+	// header for each unknown field that is dropped from the object, and
+	// for each duplicate field that is encountered. The request will
+	// still succeed if there are no other errors, and will only persist
+	// the last of any duplicate fields. This is the default when the
+	// `ServerSideFieldValidation` feature gate is enabled.
+	// - Strict: This will fail the request with a BadRequest error if
+	// any unknown fields would be dropped from the object, or if any
+	// duplicate fields are present. The error returned from the server
+	// will contain all unknown and duplicate fields encountered.
+	// +optional
+	fieldValidation?: string @go(FieldValidation) @protobuf(4,bytes)
 }
 
 // PatchOptions may be provided when patching an API object.
@@ -554,6 +567,28 @@ import (
 	// types (JsonPatch, MergePatch, StrategicMergePatch).
 	// +optional
 	fieldManager?: string @go(FieldManager) @protobuf(3,bytes)
+
+	// fieldValidation instructs the server on how to handle
+	// objects in the request (POST/PUT/PATCH) containing unknown
+	// or duplicate fields, provided that the `ServerSideFieldValidation`
+	// feature gate is also enabled. Valid values are:
+	// - Ignore: This will ignore any unknown fields that are silently
+	// dropped from the object, and will ignore all but the last duplicate
+	// field that the decoder encounters. This is the default behavior
+	// prior to v1.23 and is the default behavior when the
+	// `ServerSideFieldValidation` feature gate is disabled.
+	// - Warn: This will send a warning via the standard warning response
+	// header for each unknown field that is dropped from the object, and
+	// for each duplicate field that is encountered. The request will
+	// still succeed if there are no other errors, and will only persist
+	// the last of any duplicate fields. This is the default when the
+	// `ServerSideFieldValidation` feature gate is enabled.
+	// - Strict: This will fail the request with a BadRequest error if
+	// any unknown fields would be dropped from the object, or if any
+	// duplicate fields are present. The error returned from the server
+	// will contain all unknown and duplicate fields encountered.
+	// +optional
+	fieldValidation?: string @go(FieldValidation) @protobuf(4,bytes)
 }
 
 // ApplyOptions may be provided when applying an API object.
@@ -602,6 +637,28 @@ import (
 	// as defined by https://golang.org/pkg/unicode/#IsPrint.
 	// +optional
 	fieldManager?: string @go(FieldManager) @protobuf(2,bytes)
+
+	// fieldValidation instructs the server on how to handle
+	// objects in the request (POST/PUT/PATCH) containing unknown
+	// or duplicate fields, provided that the `ServerSideFieldValidation`
+	// feature gate is also enabled. Valid values are:
+	// - Ignore: This will ignore any unknown fields that are silently
+	// dropped from the object, and will ignore all but the last duplicate
+	// field that the decoder encounters. This is the default behavior
+	// prior to v1.23 and is the default behavior when the
+	// `ServerSideFieldValidation` feature gate is disabled.
+	// - Warn: This will send a warning via the standard warning response
+	// header for each unknown field that is dropped from the object, and
+	// for each duplicate field that is encountered. The request will
+	// still succeed if there are no other errors, and will only persist
+	// the last of any duplicate fields. This is the default when the
+	// `ServerSideFieldValidation` feature gate is enabled.
+	// - Strict: This will fail the request with a BadRequest error if
+	// any unknown fields would be dropped from the object, or if any
+	// duplicate fields are present. The error returned from the server
+	// will contain all unknown and duplicate fields encountered.
+	// +optional
+	fieldValidation?: string @go(FieldValidation) @protobuf(3,bytes)
 }
 
 // Preconditions must be fulfilled before an operation (update, delete, etc.) is carried out.
@@ -1173,7 +1230,11 @@ import (
 	// set because it cannot be automatically converted.
 	apiVersion?: string @go(APIVersion) @protobuf(3,bytes,opt)
 
-	// Time is timestamp of when these fields were set. It should always be empty if Operation is 'Apply'
+	// Time is the timestamp of when the ManagedFields entry was added. The
+	// timestamp will also be updated if a field is added, the manager
+	// changes any of the owned fields value or removes a field. The
+	// timestamp does not update when a field is removed from the entry
+	// because another manager took it over.
 	// +optional
 	time?: null | #Time @go(Time,*Time) @protobuf(4,bytes,opt)
 
@@ -1391,6 +1452,7 @@ import (
 // Condition contains details for one aspect of the current state of this API Resource.
 // ---
 // This struct is intended for direct use as an array at the field path .status.conditions.  For example,
+//
 // type FooStatus struct{
 //     // Represents the observations of a foo's current state.
 //     // Known .status.conditions.type are: "Available", "Progressing", and "Degraded"
