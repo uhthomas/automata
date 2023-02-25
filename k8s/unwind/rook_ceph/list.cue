@@ -21,16 +21,16 @@ list: v1.#List & {
 
 list: items:
 	namespaceList.items +
-	serviceAccountList.items +
-	configMapList.items +
-	storageClassList.items +
-	customResourceDefinitionList.items +
-	clusterRoleList.items +
 	clusterRoleBindingList.items +
-	roleList.items +
-	roleBindingList.items +
+	clusterRoleList.items +
+	configMapList.items +
+	customResourceDefinitionList.items +
 	deploymentList.items +
-	// ingressList.items
+	roleBindingList.items +
+	roleList.items +
+	serviceAccountList.items +
+	serviceList.items +
+	storageClassList.items +
 
 	// CRDs.
 	cephClusterList.items +

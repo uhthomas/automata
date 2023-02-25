@@ -11,4 +11,6 @@ namespaceList: v1.#NamespaceList & {
 	}]
 }
 
-namespaceList: items: [{}]
+namespaceList: items: [{
+	metadata: labels: "pod-security.kubernetes.io/enforce": "privileged"
+}]

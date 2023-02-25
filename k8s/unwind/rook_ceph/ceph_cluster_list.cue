@@ -35,14 +35,13 @@ cephClusterList: items: [{
 		}
 		dashboard: {
 			enabled: true
-			ssl:     false
+			ssl:     true
 		}
 		// enable prometheus alerting for cluster
 		monitoring: enabled: false
 		network: connections: {
 			encryption: enabled:  false
 			compression: enabled: true
-			requireMsgr2: false
 		}
 		crashCollector: disable: false
 		logCollector: {
