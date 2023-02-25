@@ -69,15 +69,7 @@ deploymentList: items: [{
 						mountPath: "/oauth"
 						readOnly:  true
 					}]
-					securityContext: {
-						allowPrivilegeEscalation: false
-						capabilities: drop: ["ALL"]
-					}
 				}]
-				securityContext: {
-					runAsNonRoot: true
-					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
-				}
 			}
 		}
 	}

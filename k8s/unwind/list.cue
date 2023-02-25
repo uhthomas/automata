@@ -1,5 +1,6 @@
 import (
 	"github.com/uhthomas/automata/k8s/unwind"
+	"github.com/uhthomas/automata/k8s/unwind/rook_ceph"
 	"github.com/uhthomas/automata/k8s/unwind/tailscale"
 	"k8s.io/api/core/v1"
 )
@@ -20,4 +21,5 @@ items:
 	// unwind.serverList.items +
 	// unwind.talosConfigTemplateList.items +
 	// unwind.talosControlPlaneList.items
+	rook_ceph.list.items +
 	tailscale.list.items
