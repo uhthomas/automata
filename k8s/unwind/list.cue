@@ -1,5 +1,7 @@
 import (
 	"github.com/uhthomas/automata/k8s/unwind"
+	"github.com/uhthomas/automata/k8s/unwind/grafana"
+	"github.com/uhthomas/automata/k8s/unwind/grafana_agent_operator"
 	"github.com/uhthomas/automata/k8s/unwind/rook_ceph"
 	"github.com/uhthomas/automata/k8s/unwind/tailscale"
 	"k8s.io/api/core/v1"
@@ -22,4 +24,8 @@ items:
 	// unwind.talosConfigTemplateList.items +
 	// unwind.talosControlPlaneList.items
 	rook_ceph.list.items +
-	tailscale.list.items
+	tailscale.list.items +
+
+	// Requires rook_ceph and tailscale.
+	grafana.list.items +
+	grafana_agent_operator.list.items
