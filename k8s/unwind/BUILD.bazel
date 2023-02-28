@@ -1,4 +1,4 @@
-load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_export", "cue_library")
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_export")
 load("@io_bazel_rules_k8s//k8s:object.bzl", "k8s_object")
 
 k8s_object(
@@ -10,30 +10,16 @@ k8s_object(
     visibility = ["//visibility:public"],
 )
 
-cue_library(
-    name = "cue_unwind_library",
-    srcs = [
-        "cluster_list.cue",
-        "machine_deployment_list.cue",
-        "metal_cluster_list.cue",
-        "metal_machine_template_list.cue",
-        "server_list.cue",
-        "talos_config_template_list.cue",
-        "talos_control_plane_list.cue",
-    ],
-    importpath = "github.com/uhthomas/automata/k8s/unwind",
-    visibility = ["//visibility:public"],
-    deps = ["//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library"],
-)
-
 cue_export(
     name = "list",
     src = "list.cue",
     visibility = ["//visibility:public"],
     deps = [
-        ":cue_unwind_library",
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
+        "//k8s/unwind/grafana:cue_grafana_library",
+        "//k8s/unwind/grafana_agent_operator:cue_grafana_agent_operator_library",
         "//k8s/unwind/rook_ceph:cue_rook_ceph_library",
         "//k8s/unwind/tailscale:cue_tailscale_library",
+        "@com_github_uhthomas_automata//k8s/unwind:cue_unwind_library",
     ],
 )
