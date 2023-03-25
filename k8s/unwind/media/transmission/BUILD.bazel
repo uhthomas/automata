@@ -1,0 +1,33 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_export", "cue_library")
+
+cue_export(
+    name = "deployment_list",
+    src = "deployment_list.cue",
+    visibility = ["//visibility:public"],
+)
+
+cue_export(
+    name = "namespace_list",
+    src = "namespace_list.cue",
+    visibility = ["//visibility:public"],
+)
+
+cue_export(
+    name = "persistent_volume_claim_list",
+    src = "persistent_volume_claim_list.cue",
+    visibility = ["//visibility:public"],
+)
+
+cue_export(
+    name = "service_list",
+    src = "service_list.cue",
+    visibility = ["//visibility:public"],
+)
+
+cue_library(
+    name = "cue_transmission_library",
+    srcs = ["list.cue"],
+    importpath = "github.com/uhthomas/automata/k8s/unwind/media/transmission",
+    visibility = ["//visibility:public"],
+    deps = ["//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library"],
+)

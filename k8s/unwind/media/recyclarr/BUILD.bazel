@@ -1,0 +1,16 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_recyclarr_library",
+    srcs = [
+        "config_map_list.cue",
+        "cron_job_list.cue",
+        "list.cue",
+    ],
+    importpath = "github.com/uhthomas/automata/k8s/unwind/media/recyclarr",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//cue.mod/gen/k8s.io/api/batch/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
+    ],
+)

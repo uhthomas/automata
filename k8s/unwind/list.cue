@@ -1,18 +1,12 @@
 import (
-	"github.com/uhthomas/automata/k8s/unwind/bazarr"
+	"github.com/uhthomas/automata/k8s/unwind/media"
 	"github.com/uhthomas/automata/k8s/unwind/cert_manager_csi_driver"
 	"github.com/uhthomas/automata/k8s/unwind/cert_manager"
 	"github.com/uhthomas/automata/k8s/unwind/grafana_agent_operator"
 	"github.com/uhthomas/automata/k8s/unwind/grafana_agent"
 	"github.com/uhthomas/automata/k8s/unwind/grafana"
-	"github.com/uhthomas/automata/k8s/unwind/jackett"
-	"github.com/uhthomas/automata/k8s/unwind/jellyfin"
-	"github.com/uhthomas/automata/k8s/unwind/jellyseerr"
-	"github.com/uhthomas/automata/k8s/unwind/radarr"
-	"github.com/uhthomas/automata/k8s/unwind/recyclarr"
 	"github.com/uhthomas/automata/k8s/unwind/rook_ceph"
 	"github.com/uhthomas/automata/k8s/unwind/secrets_store_csi_driver"
-	"github.com/uhthomas/automata/k8s/unwind/sonarr"
 	"github.com/uhthomas/automata/k8s/unwind/tailscale"
 	"github.com/uhthomas/automata/k8s/unwind/vault_config_operator"
 	"github.com/uhthomas/automata/k8s/unwind/vault_csi_provider"
@@ -43,15 +37,9 @@ import (
 	tailscale.#List.items +
 
 	// Requires rook_ceph and tailscale.
-	bazarr.#List.items +
 	grafana_agent_operator.#List.items +
 	grafana_agent.#List.items +
 	grafana.#List.items +
-	jackett.#List.items +
-	jellyfin.#List.items +
-	jellyseerr.#List.items +
-	radarr.#List.items +
-	recyclarr.#List.items +
-	sonarr.#List.items
+	media.#List.items
 
 #List
