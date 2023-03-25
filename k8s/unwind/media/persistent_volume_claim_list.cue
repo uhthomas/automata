@@ -32,4 +32,11 @@ import "k8s.io/api/core/v1"
 		storageClassName: "rook-cephfs-hdd-ec-retain"
 		resources: requests: storage: "500Gi"
 	}
+}, {
+	metadata: name: "\(#Name)-tv"
+	spec: {
+		accessModes: [v1.#ReadWriteMany]
+		storageClassName: "rook-cephfs-hdd-ec-retain"
+		resources: requests: storage: "500Gi"
+	}
 }]
