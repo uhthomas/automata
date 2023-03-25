@@ -46,7 +46,7 @@ import (
 				}
 				containers: [{
 					name:            "cert-manager-cainjector"
-					image:           "quay.io/jetstack/cert-manager-cainjector:v1.11.0"
+					image:           "quay.io/jetstack/cert-manager-cainjector:v\(#Version)"
 					imagePullPolicy: v1.#PullIfNotPresent
 					args: [
 						"--v=2",
@@ -101,13 +101,13 @@ import (
 				}
 				containers: [{
 					name:            "cert-manager-controller"
-					image:           "quay.io/jetstack/cert-manager-controller:v1.11.0"
+					image:           "quay.io/jetstack/cert-manager-controller:v\(#Version)"
 					imagePullPolicy: v1.#PullIfNotPresent
 					args: [
 						"--v=2",
 						"--cluster-resource-namespace=$(POD_NAMESPACE)",
 						"--leader-election-namespace=kube-system",
-						"--acme-http01-solver-image=quay.io/jetstack/cert-manager-acmesolver:v1.11.0",
+						"--acme-http01-solver-image=quay.io/jetstack/cert-manager-acmesolver:v\(#Version)",
 						"--max-concurrent-challenges=60",
 						"--feature-gates=AdditionalCertificateOutputFormats=true",
 					]
@@ -161,7 +161,7 @@ import (
 				}
 				containers: [{
 					name:            "cert-manager-webhook"
-					image:           "quay.io/jetstack/cert-manager-webhook:v1.11.0"
+					image:           "quay.io/jetstack/cert-manager-webhook:v\(#Version)"
 					imagePullPolicy: v1.#PullIfNotPresent
 					args: [
 						"--v=2",
