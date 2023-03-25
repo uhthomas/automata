@@ -46,7 +46,8 @@ import "k8s.io/api/core/v1"
 		ROOK_CSI_ENABLE_GRPC_METRICS: "false"
 
 		// Set to true to enable Ceph CSI pvc encryption support.
-		CSI_ENABLE_ENCRYPTION: "false"
+		CSI_ENABLE_ENCRYPTION:           "true"
+		CSI_CEPHFS_KERNEL_MOUNT_OPTIONS: "ms_mode=secure"
 
 		// Set to true to enable host networking for CSI CephFS and RBD nodeplugins. This may be necessary
 		// in some network configurations where the SDN does not provide access to an external cluster or

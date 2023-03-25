@@ -23,8 +23,9 @@ import "k8s.io/api/core/v1"
 			targetPort: "dashboard"
 		}]
 		selector: {
-			app:          "rook-ceph-mgr"
-			rook_cluster: "rook-ceph"
+			app:            "rook-ceph-mgr"
+			ceph_daemon_id: "a"
+			rook_cluster:   #Namespace
 		}
 		type:              v1.#ServiceTypeLoadBalancer
 		loadBalancerClass: "tailscale"

@@ -36,17 +36,17 @@ import (
 	reclaimPolicy:        v1.#PersistentVolumeReclaimDelete
 }, {
 	metadata: name: "rook-cephfs-hdd-ec-retain"
-	provisioner: "\(#Namespace).rbd.csi.ceph.com"
+	provisioner: "\(#Namespace).cephfs.csi.ceph.com"
 	parameters: {
 		clusterID: #Namespace
 		fsName:    "mainfs-ec"
 		pool:      "mainfs-ec-erasurecoded"
 
-		"csi.storage.k8s.io/provisioner-secret-name":            "rook-csi-rbd-provisioner"
+		"csi.storage.k8s.io/provisioner-secret-name":            "rook-csi-cephfs-provisioner"
 		"csi.storage.k8s.io/provisioner-secret-namespace":       #Namespace
-		"csi.storage.k8s.io/controller-expand-secret-name":      "rook-csi-rbd-provisioner"
+		"csi.storage.k8s.io/controller-expand-secret-name":      "rook-csi-cephfs-provisioner"
 		"csi.storage.k8s.io/controller-expand-secret-namespace": #Namespace
-		"csi.storage.k8s.io/node-stage-secret-name":             "rook-csi-rbd-node"
+		"csi.storage.k8s.io/node-stage-secret-name":             "rook-csi-cephfs-node"
 		"csi.storage.k8s.io/node-stage-secret-namespace":        #Namespace
 	}
 	allowVolumeExpansion: true
