@@ -2,7 +2,7 @@ package rook_ceph
 
 import "k8s.io/api/core/v1"
 
-serviceAccountList: v1.#ServiceAccountList & {
+#ServiceAccountList: v1.#ServiceAccountList & {
 	apiVersion: "v1"
 	kind:       "ServiceAccountList"
 	items: [...{
@@ -11,7 +11,7 @@ serviceAccountList: v1.#ServiceAccountList & {
 	}]
 }
 
-serviceAccountList: items: [{
+#ServiceAccountList: items: [{
 	// Service account for the job that reports the Ceph version in an image
 	metadata: {
 		name: "rook-ceph-cmd-reporter"

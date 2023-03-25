@@ -2,7 +2,7 @@ package rook_ceph
 
 import rbacv1 "k8s.io/api/rbac/v1"
 
-roleBindingList: rbacv1.#RoleBindingList & {
+#RoleBindingList: rbacv1.#RoleBindingList & {
 	apiVersion: "rbac.authorization.k8s.io/v1"
 	kind:       "RoleBindingList"
 	items: [...{
@@ -11,123 +11,123 @@ roleBindingList: rbacv1.#RoleBindingList & {
 	}]
 }
 
-roleBindingList: items: [{
+#RoleBindingList: items: [{
 	metadata: name: "cephfs-csi-provisioner-role-cfg"
 	subjects: [{
-		kind: "ServiceAccount"
+		kind: rbacv1.#ServiceAccountKind
 		name: "rook-csi-cephfs-provisioner-sa"
 	}]
 	roleRef: {
 		kind:     "Role"
 		name:     "cephfs-external-provisioner-cfg"
-		apiGroup: "rbac.authorization.k8s.io"
+		apiGroup: rbacv1.#GroupName
 	}
 }, {
 	metadata: {
 		name: "rbd-csi-nodeplugin-role-cfg"
 	}
 	subjects: [{
-		kind: "ServiceAccount"
+		kind: rbacv1.#ServiceAccountKind
 		name: "rook-csi-rbd-plugin-sa"
 	}]
 	roleRef: {
 		kind:     "Role"
 		name:     "rbd-csi-nodeplugin"
-		apiGroup: "rbac.authorization.k8s.io"
+		apiGroup: rbacv1.#GroupName
 	}
 }, {
 	metadata: name: "rbd-csi-provisioner-role-cfg"
 	subjects: [{
-		kind: "ServiceAccount"
+		kind: rbacv1.#ServiceAccountKind
 		name: "rook-csi-rbd-provisioner-sa"
 	}]
 	roleRef: {
 		kind:     "Role"
 		name:     "rbd-external-provisioner-cfg"
-		apiGroup: "rbac.authorization.k8s.io"
+		apiGroup: rbacv1.#GroupName
 	}
 }, {
 	// Allow the operator to create resources in this cluster's namespace
 	metadata: name: "rook-ceph-cluster-mgmt"
 	roleRef: {
-		apiGroup: "rbac.authorization.k8s.io"
+		apiGroup: rbacv1.#GroupName
 		kind:     "ClusterRole"
 		name:     "rook-ceph-cluster-mgmt"
 	}
 	subjects: [{
-		kind: "ServiceAccount"
+		kind: rbacv1.#ServiceAccountKind
 		name: "rook-ceph-system"
 	}]
 }, {
 
 	metadata: name: "rook-ceph-cmd-reporter"
 	roleRef: {
-		apiGroup: "rbac.authorization.k8s.io"
+		apiGroup: rbacv1.#GroupName
 		kind:     "Role"
 		name:     "rook-ceph-cmd-reporter"
 	}
 	subjects: [{
-		kind: "ServiceAccount"
+		kind: rbacv1.#ServiceAccountKind
 		name: "rook-ceph-cmd-reporter"
 	}]
 }, {
 	// Allow the ceph mgr to access resources scoped to the CephCluster namespace necessary for mgr modules
 	metadata: name: "rook-ceph-mgr"
 	roleRef: {
-		apiGroup: "rbac.authorization.k8s.io"
+		apiGroup: rbacv1.#GroupName
 		kind:     "Role"
 		name:     "rook-ceph-mgr"
 	}
 	subjects: [{
-		kind: "ServiceAccount"
+		kind: rbacv1.#ServiceAccountKind
 		name: "rook-ceph-mgr"
 	}]
 }, {
 	// Allow the ceph mgr to access resources in the Rook operator namespace necessary for mgr modules
 	metadata: name: "rook-ceph-mgr-system"
 	roleRef: {
-		apiGroup: "rbac.authorization.k8s.io"
+		apiGroup: rbacv1.#GroupName
 		kind:     "ClusterRole"
 		name:     "rook-ceph-mgr-system"
 	}
 	subjects: [{
-		kind: "ServiceAccount"
+		kind: rbacv1.#ServiceAccountKind
 		name: "rook-ceph-mgr"
 	}]
 }, {
 	// Allow the osd pods in this namespace to work with configmaps
 	metadata: name: "rook-ceph-osd"
 	roleRef: {
-		apiGroup: "rbac.authorization.k8s.io"
+		apiGroup: rbacv1.#GroupName
 		kind:     "Role"
 		name:     "rook-ceph-osd"
 	}
 	subjects: [{
-		kind: "ServiceAccount"
+		kind: rbacv1.#ServiceAccountKind
 		name: "rook-ceph-osd"
 	}]
 }, {
 	// Allow the osd purge job to run in this namespace
 	metadata: name: "rook-ceph-purge-osd"
 	roleRef: {
-		apiGroup: "rbac.authorization.k8s.io"
+		apiGroup: rbacv1.#GroupName
 		kind:     "Role"
 		name:     "rook-ceph-purge-osd"
 	}
 	subjects: [{
-		kind: "ServiceAccount"
+		kind: rbacv1.#ServiceAccountKind
 		name: "rook-ceph-purge-osd"
 	}]
 }, {
 	// Allow the rgw pods in this namespace to work with configmaps
 	metadata: name: "rook-ceph-rgw"
 	roleRef: {
-		apiGroup: "rbac.authorization.k8s.io"
+		apiGroup: rbacv1.#GroupName
 		kind:     "Role"
 		name:     "rook-ceph-rgw"
 	}
 	subjects: [{
-		kind: "ServiceAccount"
+		kind: rbacv1.#ServiceAccountKind
 		name: "rook-ceph-rgw"
 	}]
 }, {
@@ -141,12 +141,12 @@ roleBindingList: items: [{
 		}
 	}
 	roleRef: {
-		apiGroup: "rbac.authorization.k8s.io"
+		apiGroup: rbacv1.#GroupName
 		kind:     "Role"
 		name:     "rook-ceph-system"
 	}
 	subjects: [{
-		kind: "ServiceAccount"
+		kind: rbacv1.#ServiceAccountKind
 		name: "rook-ceph-system"
 	}]
 }]

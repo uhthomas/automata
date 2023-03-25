@@ -2,7 +2,7 @@ package rook_ceph
 
 import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 
-customResourceDefinitionList: apiextensionsv1.#CustomResourceDefinitionList & {
+#CustomResourceDefinitionList: apiextensionsv1.#CustomResourceDefinitionList & {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinitionList"
 	items: [...{
@@ -11,7 +11,7 @@ customResourceDefinitionList: apiextensionsv1.#CustomResourceDefinitionList & {
 	}]
 }
 
-customResourceDefinitionList: items: [{
+#CustomResourceDefinitionList: items: [{
 	metadata: {
 		annotations: "controller-gen.kubebuilder.io/version": "v0.6.2"
 		name: "cephblockpoolradosnamespaces.ceph.rook.io"
@@ -24,7 +24,7 @@ customResourceDefinitionList: items: [{
 			plural:   "cephblockpoolradosnamespaces"
 			singular: "cephblockpoolradosnamespace"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			name: "v1"
 			schema: openAPIV3Schema: {
@@ -99,7 +99,7 @@ customResourceDefinitionList: items: [{
 			plural:   "cephblockpools"
 			singular: "cephblockpool"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.phase"
@@ -591,7 +591,7 @@ customResourceDefinitionList: items: [{
 			plural:   "cephbucketnotifications"
 			singular: "cephbucketnotification"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			name: "v1"
 			schema: openAPIV3Schema: {
@@ -790,7 +790,7 @@ customResourceDefinitionList: items: [{
 			plural:   "cephbuckettopics"
 			singular: "cephbuckettopic"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.phase"
@@ -983,7 +983,7 @@ customResourceDefinitionList: items: [{
 			plural:   "cephclients"
 			singular: "cephclient"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.phase"
@@ -1072,7 +1072,7 @@ customResourceDefinitionList: items: [{
 			plural:   "cephclusters"
 			singular: "cephcluster"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			additionalPrinterColumns: [{
 				description: "Directory used on the K8s nodes"
@@ -2325,7 +2325,7 @@ customResourceDefinitionList: items: [{
 															type:        "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names"
+															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names"
 															type:        "string"
 														}
 														namespace: {
@@ -5862,7 +5862,7 @@ customResourceDefinitionList: items: [{
 			plural:   "cephfilesystemmirrors"
 			singular: "cephfilesystemmirror"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.phase"
@@ -6732,7 +6732,7 @@ customResourceDefinitionList: items: [{
 			plural:   "cephfilesystems"
 			singular: "cephfilesystem"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			additionalPrinterColumns: [{
 				description: "Number of desired active MDS daemons"
@@ -8639,7 +8639,7 @@ customResourceDefinitionList: items: [{
 			plural:   "cephfilesystemsubvolumegroups"
 			singular: "cephfilesystemsubvolumegroup"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.phase"
@@ -8727,7 +8727,7 @@ customResourceDefinitionList: items: [{
 			]
 			singular: "cephnfs"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			name: "v1"
 			schema: openAPIV3Schema: {
@@ -8882,7 +8882,7 @@ customResourceDefinitionList: items: [{
 																secretRef: {
 																	description: "secretRef is Optional: SecretRef is reference to the authentication secret for User, default is empty. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
 																	properties: name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																		type:        "string"
 																	}
 																	type: "object"
@@ -8911,7 +8911,7 @@ customResourceDefinitionList: items: [{
 																secretRef: {
 																	description: "secretRef is optional: points to a secret object containing parameters used to connect to OpenStack."
 																	properties: name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																		type:        "string"
 																	}
 																	type: "object"
@@ -8962,7 +8962,7 @@ customResourceDefinitionList: items: [{
 																	type: "array"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																	type:        "string"
 																}
 																optional: {
@@ -8986,7 +8986,7 @@ customResourceDefinitionList: items: [{
 																nodePublishSecretRef: {
 																	description: "nodePublishSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodePublishVolume and NodeUnpublishVolume calls. This field is optional, and  may be empty if no secret is required. If the secret object contains more than one secret, all secret references are passed."
 																	properties: name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																		type:        "string"
 																	}
 																	type: "object"
@@ -9336,7 +9336,7 @@ customResourceDefinitionList: items: [{
 																secretRef: {
 																	description: "secretRef is Optional: secretRef is reference to the secret object containing sensitive information to pass to the plugin scripts. This may be empty if no secret object is specified. If the secret object contains more than one secret, all secrets are passed to the plugin scripts."
 																	properties: name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																		type:        "string"
 																	}
 																	type: "object"
@@ -9491,7 +9491,7 @@ customResourceDefinitionList: items: [{
 																secretRef: {
 																	description: "secretRef is the CHAP Secret for iSCSI target and initiator authentication"
 																	properties: name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																		type:        "string"
 																	}
 																	type: "object"
@@ -9629,7 +9629,7 @@ customResourceDefinitionList: items: [{
 																						type: "array"
 																					}
 																					name: {
-																						description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																						description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																						type:        "string"
 																					}
 																					optional: {
@@ -9740,7 +9740,7 @@ customResourceDefinitionList: items: [{
 																						type: "array"
 																					}
 																					name: {
-																						description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																						description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																						type:        "string"
 																					}
 																					optional: {
@@ -9845,7 +9845,7 @@ customResourceDefinitionList: items: [{
 																secretRef: {
 																	description: "secretRef is name of the authentication secret for RBDUser. If provided overrides keyring. Default is nil. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
 																	properties: name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																		type:        "string"
 																	}
 																	type: "object"
@@ -9883,7 +9883,7 @@ customResourceDefinitionList: items: [{
 																secretRef: {
 																	description: "secretRef references to the secret for ScaleIO user and other sensitive information. If this is not provided, Login operation will fail."
 																	properties: name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																		type:        "string"
 																	}
 																	type: "object"
@@ -9976,7 +9976,7 @@ customResourceDefinitionList: items: [{
 																secretRef: {
 																	description: "secretRef specifies the secret to use for obtaining the StorageOS API credentials.  If not specified, default values will be attempted."
 																	properties: name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																		type:        "string"
 																	}
 																	type: "object"
@@ -10132,7 +10132,7 @@ customResourceDefinitionList: items: [{
 																secretRef: {
 																	description: "secretRef is Optional: SecretRef is reference to the authentication secret for User, default is empty. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
 																	properties: name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																		type:        "string"
 																	}
 																	type: "object"
@@ -10161,7 +10161,7 @@ customResourceDefinitionList: items: [{
 																secretRef: {
 																	description: "secretRef is optional: points to a secret object containing parameters used to connect to OpenStack."
 																	properties: name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																		type:        "string"
 																	}
 																	type: "object"
@@ -10212,7 +10212,7 @@ customResourceDefinitionList: items: [{
 																	type: "array"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																	type:        "string"
 																}
 																optional: {
@@ -10236,7 +10236,7 @@ customResourceDefinitionList: items: [{
 																nodePublishSecretRef: {
 																	description: "nodePublishSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodePublishVolume and NodeUnpublishVolume calls. This field is optional, and  may be empty if no secret is required. If the secret object contains more than one secret, all secret references are passed."
 																	properties: name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																		type:        "string"
 																	}
 																	type: "object"
@@ -10586,7 +10586,7 @@ customResourceDefinitionList: items: [{
 																secretRef: {
 																	description: "secretRef is Optional: secretRef is reference to the secret object containing sensitive information to pass to the plugin scripts. This may be empty if no secret object is specified. If the secret object contains more than one secret, all secrets are passed to the plugin scripts."
 																	properties: name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																		type:        "string"
 																	}
 																	type: "object"
@@ -10741,7 +10741,7 @@ customResourceDefinitionList: items: [{
 																secretRef: {
 																	description: "secretRef is the CHAP Secret for iSCSI target and initiator authentication"
 																	properties: name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																		type:        "string"
 																	}
 																	type: "object"
@@ -10879,7 +10879,7 @@ customResourceDefinitionList: items: [{
 																						type: "array"
 																					}
 																					name: {
-																						description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																						description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																						type:        "string"
 																					}
 																					optional: {
@@ -10990,7 +10990,7 @@ customResourceDefinitionList: items: [{
 																						type: "array"
 																					}
 																					name: {
-																						description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																						description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																						type:        "string"
 																					}
 																					optional: {
@@ -11095,7 +11095,7 @@ customResourceDefinitionList: items: [{
 																secretRef: {
 																	description: "secretRef is name of the authentication secret for RBDUser. If provided overrides keyring. Default is nil. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
 																	properties: name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																		type:        "string"
 																	}
 																	type: "object"
@@ -11133,7 +11133,7 @@ customResourceDefinitionList: items: [{
 																secretRef: {
 																	description: "secretRef references to the secret for ScaleIO user and other sensitive information. If this is not provided, Login operation will fail."
 																	properties: name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																		type:        "string"
 																	}
 																	type: "object"
@@ -11226,7 +11226,7 @@ customResourceDefinitionList: items: [{
 																secretRef: {
 																	description: "secretRef specifies the secret to use for obtaining the StorageOS API credentials.  If not specified, default values will be attempted."
 																	properties: name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																		type:        "string"
 																	}
 																	type: "object"
@@ -11405,7 +11405,7 @@ customResourceDefinitionList: items: [{
 																			secretRef: {
 																				description: "secretRef is Optional: SecretRef is reference to the authentication secret for User, default is empty. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
 																				properties: name: {
-																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																					type:        "string"
 																				}
 																				type: "object"
@@ -11434,7 +11434,7 @@ customResourceDefinitionList: items: [{
 																			secretRef: {
 																				description: "secretRef is optional: points to a secret object containing parameters used to connect to OpenStack."
 																				properties: name: {
-																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																					type:        "string"
 																				}
 																				type: "object"
@@ -11485,7 +11485,7 @@ customResourceDefinitionList: items: [{
 																				type: "array"
 																			}
 																			name: {
-																				description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																				description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																				type:        "string"
 																			}
 																			optional: {
@@ -11509,7 +11509,7 @@ customResourceDefinitionList: items: [{
 																			nodePublishSecretRef: {
 																				description: "nodePublishSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodePublishVolume and NodeUnpublishVolume calls. This field is optional, and  may be empty if no secret is required. If the secret object contains more than one secret, all secret references are passed."
 																				properties: name: {
-																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																					type:        "string"
 																				}
 																				type: "object"
@@ -11859,7 +11859,7 @@ customResourceDefinitionList: items: [{
 																			secretRef: {
 																				description: "secretRef is Optional: secretRef is reference to the secret object containing sensitive information to pass to the plugin scripts. This may be empty if no secret object is specified. If the secret object contains more than one secret, all secrets are passed to the plugin scripts."
 																				properties: name: {
-																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																					type:        "string"
 																				}
 																				type: "object"
@@ -12014,7 +12014,7 @@ customResourceDefinitionList: items: [{
 																			secretRef: {
 																				description: "secretRef is the CHAP Secret for iSCSI target and initiator authentication"
 																				properties: name: {
-																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																					type:        "string"
 																				}
 																				type: "object"
@@ -12152,7 +12152,7 @@ customResourceDefinitionList: items: [{
 																									type: "array"
 																								}
 																								name: {
-																									description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																									description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																									type:        "string"
 																								}
 																								optional: {
@@ -12263,7 +12263,7 @@ customResourceDefinitionList: items: [{
 																									type: "array"
 																								}
 																								name: {
-																									description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																									description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																									type:        "string"
 																								}
 																								optional: {
@@ -12368,7 +12368,7 @@ customResourceDefinitionList: items: [{
 																			secretRef: {
 																				description: "secretRef is name of the authentication secret for RBDUser. If provided overrides keyring. Default is nil. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
 																				properties: name: {
-																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																					type:        "string"
 																				}
 																				type: "object"
@@ -12406,7 +12406,7 @@ customResourceDefinitionList: items: [{
 																			secretRef: {
 																				description: "secretRef references to the secret for ScaleIO user and other sensitive information. If this is not provided, Login operation will fail."
 																				properties: name: {
-																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																					type:        "string"
 																				}
 																				type: "object"
@@ -12499,7 +12499,7 @@ customResourceDefinitionList: items: [{
 																			secretRef: {
 																				description: "secretRef specifies the secret to use for obtaining the StorageOS API credentials.  If not specified, default values will be attempted."
 																				properties: name: {
-																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																					type:        "string"
 																				}
 																				type: "object"
@@ -12705,7 +12705,7 @@ customResourceDefinitionList: items: [{
 																	secretRef: {
 																		description: "secretRef is Optional: SecretRef is reference to the authentication secret for User, default is empty. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
 																		properties: name: {
-																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																			type:        "string"
 																		}
 																		type: "object"
@@ -12734,7 +12734,7 @@ customResourceDefinitionList: items: [{
 																	secretRef: {
 																		description: "secretRef is optional: points to a secret object containing parameters used to connect to OpenStack."
 																		properties: name: {
-																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																			type:        "string"
 																		}
 																		type: "object"
@@ -12785,7 +12785,7 @@ customResourceDefinitionList: items: [{
 																		type: "array"
 																	}
 																	name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																		type:        "string"
 																	}
 																	optional: {
@@ -12809,7 +12809,7 @@ customResourceDefinitionList: items: [{
 																	nodePublishSecretRef: {
 																		description: "nodePublishSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodePublishVolume and NodeUnpublishVolume calls. This field is optional, and  may be empty if no secret is required. If the secret object contains more than one secret, all secret references are passed."
 																		properties: name: {
-																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																			type:        "string"
 																		}
 																		type: "object"
@@ -13159,7 +13159,7 @@ customResourceDefinitionList: items: [{
 																	secretRef: {
 																		description: "secretRef is Optional: secretRef is reference to the secret object containing sensitive information to pass to the plugin scripts. This may be empty if no secret object is specified. If the secret object contains more than one secret, all secrets are passed to the plugin scripts."
 																		properties: name: {
-																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																			type:        "string"
 																		}
 																		type: "object"
@@ -13314,7 +13314,7 @@ customResourceDefinitionList: items: [{
 																	secretRef: {
 																		description: "secretRef is the CHAP Secret for iSCSI target and initiator authentication"
 																		properties: name: {
-																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																			type:        "string"
 																		}
 																		type: "object"
@@ -13452,7 +13452,7 @@ customResourceDefinitionList: items: [{
 																							type: "array"
 																						}
 																						name: {
-																							description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																							description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																							type:        "string"
 																						}
 																						optional: {
@@ -13563,7 +13563,7 @@ customResourceDefinitionList: items: [{
 																							type: "array"
 																						}
 																						name: {
-																							description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																							description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																							type:        "string"
 																						}
 																						optional: {
@@ -13668,7 +13668,7 @@ customResourceDefinitionList: items: [{
 																	secretRef: {
 																		description: "secretRef is name of the authentication secret for RBDUser. If provided overrides keyring. Default is nil. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
 																		properties: name: {
-																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																			type:        "string"
 																		}
 																		type: "object"
@@ -13706,7 +13706,7 @@ customResourceDefinitionList: items: [{
 																	secretRef: {
 																		description: "secretRef references to the secret for ScaleIO user and other sensitive information. If this is not provided, Login operation will fail."
 																		properties: name: {
-																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																			type:        "string"
 																		}
 																		type: "object"
@@ -13799,7 +13799,7 @@ customResourceDefinitionList: items: [{
 																	secretRef: {
 																		description: "secretRef specifies the secret to use for obtaining the StorageOS API credentials.  If not specified, default values will be attempted."
 																		properties: name: {
-																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 																			type:        "string"
 																		}
 																		type: "object"
@@ -14728,7 +14728,7 @@ customResourceDefinitionList: items: [{
 			plural:   "cephobjectrealms"
 			singular: "cephobjectrealm"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			name: "v1"
 			schema: openAPIV3Schema: {
@@ -14828,7 +14828,7 @@ customResourceDefinitionList: items: [{
 			plural:   "cephobjectstores"
 			singular: "cephobjectstore"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.phase"
@@ -16755,7 +16755,7 @@ customResourceDefinitionList: items: [{
 			]
 			singular: "cephobjectstoreuser"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.phase"
@@ -16926,7 +16926,7 @@ customResourceDefinitionList: items: [{
 			plural:   "cephobjectzonegroups"
 			singular: "cephobjectzonegroup"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.phase"
@@ -17030,7 +17030,7 @@ customResourceDefinitionList: items: [{
 			plural:   "cephobjectzones"
 			singular: "cephobjectzone"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.phase"
@@ -17561,7 +17561,7 @@ customResourceDefinitionList: items: [{
 			plural:   "cephrbdmirrors"
 			singular: "cephrbdmirror"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.phase"
@@ -18455,7 +18455,7 @@ customResourceDefinitionList: items: [{
 				"obcs",
 			]
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			name:    "v1alpha1"
 			served:  true
@@ -18500,7 +18500,7 @@ customResourceDefinitionList: items: [{
 				"obs",
 			]
 		}
-		scope: "Cluster"
+		scope: apiextensionsv1.#ClusterScoped
 		versions: [{
 			name:    "v1alpha1"
 			served:  true

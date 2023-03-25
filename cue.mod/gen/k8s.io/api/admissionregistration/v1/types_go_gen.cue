@@ -12,11 +12,13 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// APIGroups is the API groups the resources belong to. '*' is all groups.
 	// If '*' is present, the length of the slice must be one.
 	// Required.
+	// +listType=atomic
 	apiGroups?: [...string] @go(APIGroups,[]string) @protobuf(1,bytes,rep)
 
 	// APIVersions is the API versions the resources belong to. '*' is all versions.
 	// If '*' is present, the length of the slice must be one.
 	// Required.
+	// +listType=atomic
 	apiVersions?: [...string] @go(APIVersions,[]string) @protobuf(2,bytes,rep)
 
 	// Resources is a list of resources this rule applies to.
@@ -34,6 +36,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// Depending on the enclosing object, subresources might not be allowed.
 	// Required.
+	// +listType=atomic
 	resources?: [...string] @go(Resources,[]string) @protobuf(3,bytes,rep)
 
 	// scope specifies the scope of this rule.
@@ -50,6 +53,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 }
 
 // ScopeType specifies a scope for a Rule.
+// +enum
 #ScopeType: string // #enumScopeType
 
 #enumScopeType:
@@ -68,6 +72,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 #AllScopes: #ScopeType & "*"
 
 // FailurePolicyType specifies a failure policy that defines how unrecognized errors from the admission endpoint are handled.
+// +enum
 #FailurePolicyType: string // #enumFailurePolicyType
 
 #enumFailurePolicyType:
@@ -81,6 +86,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 #Fail: #FailurePolicyType & "Fail"
 
 // MatchPolicyType specifies the type of match policy.
+// +enum
 #MatchPolicyType: string // #enumMatchPolicyType
 
 #enumMatchPolicyType:
@@ -94,6 +100,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 #Equivalent: #MatchPolicyType & "Equivalent"
 
 // SideEffectClass specifies the types of side effects a webhook may have.
+// +enum
 #SideEffectClass: string // #enumSideEffectClass
 
 #enumSideEffectClass:
@@ -450,6 +457,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 }
 
 // ReinvocationPolicyType specifies what type of policy the admission hook uses.
+// +enum
 #ReinvocationPolicyType: string // #enumReinvocationPolicyType
 
 #enumReinvocationPolicyType:
@@ -472,12 +480,14 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// for all of those operations and any future admission operations that are added.
 	// If '*' is present, the length of the slice must be one.
 	// Required.
+	// +listType=atomic
 	operations?: [...#OperationType] @go(Operations,[]OperationType) @protobuf(1,bytes,rep,casttype=OperationType)
 
 	#Rule
 }
 
 // OperationType specifies an operation for a request.
+// +enum
 #OperationType: string // #enumOperationType
 
 #enumOperationType:

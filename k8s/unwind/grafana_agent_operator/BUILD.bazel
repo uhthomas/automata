@@ -8,7 +8,6 @@ cue_library(
         "custom_resource_definition_list.cue",
         "deployment_list.cue",
         "list.cue",
-        "metrics_instance_list.cue",
         "namespace_list.cue",
         "service_account_list.cue",
     ],

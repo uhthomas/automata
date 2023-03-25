@@ -5,7 +5,7 @@ import (
 	storagev1 "k8s.io/api/storage/v1"
 )
 
-storageClassList: storagev1.#StorageClassList & {
+#StorageClassList: storagev1.#StorageClassList & {
 	apiVersion: "v1"
 	kind:       "StorageClassList"
 	items: [...{
@@ -14,7 +14,7 @@ storageClassList: storagev1.#StorageClassList & {
 	}]
 }
 
-storageClassList: items: [{
+#StorageClassList: items: [{
 	metadata: name: "rook-ceph-hdd-ec-delete-block"
 	provisioner: "rook-ceph.rbd.csi.ceph.com"
 	parameters: {

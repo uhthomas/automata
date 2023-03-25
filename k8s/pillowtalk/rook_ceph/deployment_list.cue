@@ -22,7 +22,7 @@ deploymentList: items: [{
 	// CSI_TOPOLOGY_DOMAIN_LABELS: "kubernetes.io/hostname,topology.kubernetes.io/zone,topology.rook.io/rack"
 	// OLM: BEGIN OPERATOR DEPLOYMENT
 	metadata: {
-		name:      "rook-ceph-operator"
+		name: "rook-ceph-operator"
 		labels: {
 			operator:                      "rook"
 			"storage-backend":             "ceph"
@@ -263,7 +263,7 @@ deploymentList: items: [{
 							""",
 					]
 
-					imagePullPolicy: "IfNotPresent"
+					imagePullPolicy: v1.#PullIfNotPresent
 					tty:             true
 					securityContext: {
 						runAsNonRoot: true

@@ -1,0 +1,11 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_schema_library",
+    srcs = [
+        "group_version_go_gen.cue",
+        "interfaces_go_gen.cue",
+    ],
+    importpath = "k8s.io/apimachinery/pkg/runtime/schema",
+    visibility = ["//visibility:public"],
+)

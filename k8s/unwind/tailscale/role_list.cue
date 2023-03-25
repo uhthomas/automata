@@ -6,7 +6,7 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-roleList: rbacv1.#RoleList & {
+#RoleList: rbacv1.#RoleList & {
 	apiVersion: "rbac.authorization.k8s.io/v1"
 	kind:       "RoleList"
 	items: [...{
@@ -15,7 +15,7 @@ roleList: rbacv1.#RoleList & {
 	}]
 }
 
-roleList: items: [{
+#RoleList: items: [{
 	metadata: name: "operator"
 	rules: [{
 		apiGroups: [v1.#GroupName]

@@ -1,6 +1,9 @@
 package unwind_bootstrap
 
-import "k8s.io/api/core/v1"
+import (
+	"github.com/uhthomas/automata/tools/jsonpatch"
+	"k8s.io/api/core/v1"
+)
 
 serverList: v1.#List & {
 	apiVersion: "v1"
@@ -12,205 +15,118 @@ serverList: v1.#List & {
 }
 
 serverList: items: [...{
-	metadata: finalizers: ["storage.finalizers.server.k8s.io"]
 	spec: {
-		// All the servers should be accepted.
-		accepted: true
-		// All the servers should have exactly one interface; A 20Gbe bond. They should
-		// all be using DHCP and the same virtual IP.
-		configPatches: [...{
-			value: network: interfaces: [{
-				bond: {
-					downdelay:      200
-					lacpRate:       "fast"
-					miimon:         100
-					mode:           "802.3ad"
-					updelay:        200
-					xmitHashPolicy: "layer3+4"
-				}
-				dhcp:      true
-				interface: "bond0"
-				vip: ip: "10.0.0.100"
-			}]
-		}]
+		accepted:      true
+		configPatches: jsonpatch.#PatchList
 	}
 }]
 
+#baseConfigPatches: jsonpatch.#PatchList
+
+#baseConfigPatches: [jsonpatch.#Add & {
+	path:  "/machine/install/image"
+	value: "ghcr.io/siderolabs/installer:v1.3.6"
+}, jsonpatch.#Add & {
+	path: "/machine/install/extensions"
+	value: [ for x in [
+		"ghcr.io/siderolabs/gvisor:20221107.0-v1.3.6",
+		"ghcr.io/siderolabs/intel-ucode:20220809",
+	] {
+		image: x
+	}]
+}]
+
+#installConfigPatch: jsonpatch.#Add & {
+	path: "/machine/install"
+	value: diskSelector: wwid: string
+}
+
+// All the servers should have exactly one interface; A 20Gbe bond. They should
+// all have the same network configuration and the same virtual IP.
+#networkConfigPatch: jsonpatch.#Add & {
+	path: "/machine/network"
+	value: {
+		interfaces: [{
+			interface: "bond0"
+			bond: {
+				downdelay:      200
+				lacpRate:       "fast"
+				miimon:         100
+				mode:           "802.3ad"
+				updelay:        200
+				xmitHashPolicy: "layer3+4"
+				...
+			}
+			dhcp: true
+			vip: ip: "10.0.0.100"
+			...
+		}]
+		extraHostEntries: [{
+			// The static host entry is served by
+			// the DHCP server, but this local entry
+			// may allow us to remove that
+			// dependency.
+			ip: "10.0.0.100"
+			aliases: ["unwind.starjunk.net"]
+			...
+		}]
+	}
+}
+
 // Servers are ordered by their physical location.
 serverList: items: [{
-	metadata: name: "4c4c4544-0054-3010-8056-c7c04f424232"
-	spec: {
-		bmc: {
-			endpoint: "192.168.1.61"
-			passFrom: secretKeyRef: {
-				key:       "pass"
-				name:      "4c4c4544-0054-3010-8056-c7c04f424232-bmc"
-				namespace: "default"
-			}
-			port: 623
-			userFrom: secretKeyRef: {
-				key:       "user"
-				name:      "4c4c4544-0054-3010-8056-c7c04f424232-bmc"
-				namespace: "default"
-			}
-		}
-		configPatches: [{
-			op:   "add"
-			path: "/machine"
-			value: {
-				install: diskSelector: wwid: "naa.50026b7381885d08"
-				network: interfaces: [{
-					addresses: ["10.0.0.110"]
-					bond: interfaces: ["eth4", "eth5"]
-				}]
-			}
+	// PowerEdge R430 (GT0VBB2)
+	metadata: name:      "4c4c4544-0054-3010-8056-c7c04f424232"
+	spec: configPatches: #baseConfigPatches + [#installConfigPatch & {
+		value: diskSelector: wwid: "naa.50026b7381885d08"
+	}, #networkConfigPatch & {
+		value: interfaces: [{
+			addresses: ["10.0.0.101"]
+			bond: interfaces: ["eth4", "eth5"]
 		}]
-		cpu: {
-			manufacturer: "Intel"
-			version:      "Intel(R) Xeon(R) CPU E5-2640 v3 @ 2.60GHz"
-		}
-		hostname: "10.0.0.248"
-		system: {
-			family:       "Unknown"
-			manufacturer: "Dell Inc."
-			productName:  "PowerEdge R430"
-			serialNumber: "SKU=NotProvided;ModelName=PowerEdge R430"
-			skuNumber:    "Unknown"
-			version:      "GT0VBB2"
-		}
-	}
+	}]
 }, {
-	metadata: name: "4c4c4544-0054-3510-8057-c7c04f424232"
-	spec: {
-		bmc: {
-			endpoint: "192.168.1.61"
-			passFrom: secretKeyRef: {
-				key:       "pass"
-				name:      "4c4c4544-0054-3510-8057-c7c04f424232-bmc"
-				namespace: "default"
-			}
-			port: 623
-			userFrom: secretKeyRef: {
-				key:       "user"
-				name:      "4c4c4544-0054-3510-8057-c7c04f424232-bmc"
-				namespace: "default"
-			}
-		}
-		configPatches: [{
-			op:   "add"
-			path: "/machine"
-			value: {
-				install: diskSelector: wwid: "naa.50026b7381886726"
-				network: interfaces: [{
-					addresses: ["10.0.0.120"]
-					bond: interfaces: ["eth4", "eth5"]
-				}]
-			}
+	// PowerEdge R430 (GT5WBB2)
+	metadata: name:      "4c4c4544-0054-3510-8057-c7c04f424232"
+	spec: configPatches: #baseConfigPatches + [#installConfigPatch & {
+		value: diskSelector: wwid: "naa.50026b7381886726"
+	}, #networkConfigPatch & {
+		value: interfaces: [{
+			addresses: ["10.0.0.102"]
+			bond: interfaces: ["eth4", "eth5"]
 		}]
-		cpu: {
-			manufacturer: "Intel"
-			version:      "Intel(R) Xeon(R) CPU E5-2640 v3 @ 2.60GHz"
-		}
-		hostname: "10.0.0.249"
-		system: {
-			family:       "Unknown"
-			manufacturer: "Dell Inc."
-			productName:  "PowerEdge R430"
-			serialNumber: "SKU=NotProvided;ModelName=PowerEdge R430"
-			skuNumber:    "Unknown"
-			version:      "GT5WBB2"
-		}
-	}
+	}]
 }, {
-	metadata: name: "4c4c4544-0057-4210-804c-c7c04f423432"
-	spec: {
-		cpu: {
-			manufacturer: "Intel"
-			version:      "Intel(R) Xeon(R) CPU E5-2650 v2 @ 2.60GHz"
-		}
-		configPatches: [{
-			op:   "add"
-			path: "/machine"
-			value: {
-				install: diskSelector: wwid: "naa.50025388a035cb0e"
-				network: interfaces: [{
-					addresses: ["10.0.0.130"]
-					bond: interfaces: ["eth0", "eth1"]
-				}]
-			}
+	// PowerEdge R720 (JSBJ132)
+	metadata: name:      "4c4c4544-0053-4210-804a-cac04f313332"
+	spec: configPatches: #baseConfigPatches + [#installConfigPatch & {
+		value: diskSelector: wwid: "naa.50025388a035cb0e"
+	}, #networkConfigPatch & {
+		value: interfaces: [{
+			addresses: ["10.0.0.103"]
+			bond: interfaces: ["eth4", "eth5"]
 		}]
-		hostname: "10.0.0.246"
-		system: {
-			family:       "SKU=NotProvided;ModelName=PowerEdge R720"
-			manufacturer: "Dell Inc."
-			skuNumber:    "GWBLB42"
-			version:      "PowerEdge R720"
-		}
-	}
+	}]
 }, {
-	metadata: name: "4c4c4544-0042-5610-804b-b8c04f445831"
-	spec: {
-		bmc: {
-			endpoint: "0.0.0.0"
-			passFrom: secretKeyRef: {
-				key:       "pass"
-				name:      "4c4c4544-0042-5610-804b-b8c04f445831-bmc"
-				namespace: "default"
-			}
-			port: 623
-			userFrom: secretKeyRef: {
-				key:       "user"
-				name:      "4c4c4544-0042-5610-804b-b8c04f445831-bmc"
-				namespace: "default"
-			}
-		}
-		cpu: {
-			manufacturer: "Intel"
-			version:      "Intel(R) Xeon(R) CPU E5-2650 v2 @ 2.60GHz"
-		}
-		configPatches: [{
-			op:   "add"
-			path: "/machine"
-			value: {
-				install: diskSelector: wwid: "naa.5002538550025450"
-				network: interfaces: [{
-					addresses: ["10.0.0.140"]
-					bond: interfaces: ["eth0", "eth1"]
-				}]
-			}
+	// PowerEdge R720 (8BVKDX1)
+	metadata: name:      "4c4c4544-0042-5610-804b-b8c04f445831"
+	spec: configPatches: #baseConfigPatches + [#installConfigPatch & {
+		value: diskSelector: wwid: "naa.5002538550025450"
+	}, #networkConfigPatch & {
+		value: interfaces: [{
+			addresses: ["10.0.0.104"]
+			bond: interfaces: ["eth0", "eth1"]
 		}]
-		hostname: "10.0.0.243"
-		system: {
-			family:       "SKU=NotProvided;ModelName=PowerEdge R720"
-			manufacturer: "Dell Inc."
-			skuNumber:    "8BVKDX1"
-			version:      "PowerEdge R720"
-		}
-	}
+	}]
 }, {
-	metadata: name: "4c4c4544-0047-4410-8034-b9c04f575631"
-	spec: {
-		cpu: {
-			manufacturer: "Intel"
-			version:      "Intel(R) Xeon(R) CPU E5-2650 v2 @ 2.60GHz"
-		}
-		configPatches: [{
-			op:   "add"
-			path: "/machine"
-			value: {
-				install: diskSelector: wwid: "naa.50025388a015a68d"
-				network: interfaces: [{
-					addresses: ["10.0.0.150"]
-					bond: interfaces: ["eth0", "eth1"]
-				}]
-			}
+	// PowerEdge R720 (9GD4WV1)
+	metadata: name:      "4c4c4544-0047-4410-8034-b9c04f575631"
+	spec: configPatches: #baseConfigPatches + [#installConfigPatch & {
+		value: diskSelector: wwid: "naa.50025388a015a68d"
+	}, #networkConfigPatch & {
+		value: interfaces: [{
+			addresses: ["10.0.0.105"]
+			bond: interfaces: ["eth0", "eth1"]
 		}]
-		hostname: "10.0.0.242"
-		system: {
-			family:       "SKU=NotProvided;ModelName=PowerEdge R720"
-			manufacturer: "Dell Inc."
-			skuNumber:    "9GD4WV1"
-			version:      "PowerEdge R720"
-		}
-	}
+	}]
 }]

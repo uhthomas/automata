@@ -2,28 +2,34 @@ package grafana
 
 import "k8s.io/api/core/v1"
 
-list: v1.#List & {
+#Name:      "grafana"
+#Namespace: #Name
+#Version:   "9.3.6"
+
+#List: v1.#List & {
 	apiVersion: "v1"
 	kind:       "List"
 	items: [...{
 		metadata: {
-			name:      "grafana"
-			namespace: "grafana"
+			name:      #Name
+			namespace: #Namespace
 			labels: {
-				"app.kubernetes.io/name":      "grafana"
-				"app.kubernetes.io/instance":  "grafana"
-				"app.kubernetes.io/version":   "9.3.6"
-				"app.kubernetes.io/component": "grafana"
+				"app.kubernetes.io/name":      #Name
+				"app.kubernetes.io/instance":  #Name
+				"app.kubernetes.io/version":   #Version
+				"app.kubernetes.io/component": #Name
 			}
 		}
 	}]
 }
 
-list: items:
-	namespaceList.items +
-	configMapList.items +
-	deploymentList.items +
-	persistentVolumeClaimList.items +
-	secretList.items +
-	serviceAccountList.items +
-	serviceList.items
+#List: items:
+	// The namespace must be created first.
+	#NamespaceList.items +
+	// Lexicographic ordering.
+	#ConfigMapList.items +
+	#DeploymentList.items +
+	#PersistentVolumeClaimList.items +
+	#SecretProviderClassList.items +
+	#ServiceAccountList.items +
+	#ServiceList.items

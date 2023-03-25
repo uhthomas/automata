@@ -5,7 +5,7 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-deploymentList: appsv1.#DeploymentList & {
+#DeploymentList: appsv1.#DeploymentList & {
 	apiVersion: "apps/v1"
 	kind:       "DeploymentList"
 	items: [...{
@@ -14,24 +14,14 @@ deploymentList: appsv1.#DeploymentList & {
 	}]
 }
 
-deploymentList: items: [{
+#DeploymentList: items: [{
 	spec: {
-		replicas:             1
-		revisionHistoryLimit: 10
-		selector: matchLabels: {
-			"app.kubernetes.io/name":     "grafana"
-			"app.kubernetes.io/instance": "grafana"
-		}
-		strategy: type: "RollingUpdate"
+		replicas: 1
+		selector: matchLabels: "app.kubernetes.io/name": #Name
 		template: {
-			metadata: {
-				labels: {
-					"app.kubernetes.io/name":     "grafana"
-					"app.kubernetes.io/instance": "grafana"
-				}
-			}
+			metadata: labels: "app.kubernetes.io/name": #Name
 			spec: {
-				serviceAccountName:           "grafana"
+				serviceAccountName:           #Name
 				automountServiceAccountToken: true
 				securityContext: {
 					fsGroup:    472
@@ -60,7 +50,7 @@ deploymentList: items: [{
 				enableServiceLinks: true
 				containers: [{
 					name:            "grafana"
-					image:           "grafana/grafana:9.3.6"
+					image:           "grafana/grafana:\(#Version)"
 					imagePullPolicy: v1.#PullIfNotPresent
 					volumeMounts: [{
 						name:      "config"
@@ -69,6 +59,10 @@ deploymentList: items: [{
 					}, {
 						name:      "storage"
 						mountPath: "/var/lib/grafana"
+					}, {
+						name:      "secrets-store-inline"
+						readOnly:  true
+						mountPath: "/mnt/secrets-store"
 					}]
 					ports: [{
 						name:          "grafana"
@@ -131,6 +125,13 @@ deploymentList: items: [{
 				}, {
 					name: "storage"
 					persistentVolumeClaim: claimName: "grafana"
+				}, {
+					name: "secrets-store-inline"
+					csi: {
+						driver:   "secrets-store.csi.k8s.io"
+						readOnly: true
+						volumeAttributes: secretProviderClass: #Name
+					}
 				}]
 			}
 		}

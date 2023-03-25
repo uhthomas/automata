@@ -1,0 +1,11 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_queryparams_library",
+    srcs = [
+        "convert_go_gen.cue",
+        "doc_go_gen.cue",
+    ],
+    importpath = "k8s.io/apimachinery/pkg/conversion/queryparams",
+    visibility = ["//visibility:public"],
+)

@@ -1,0 +1,31 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_grafana_agent_library",
+    srcs = [
+        "cluster_role_binding_list.cue",
+        "cluster_role_list.cue",
+        "grafana_agent_list.cue",
+        "list.cue",
+        "namespace_list.cue",
+        "persistent_volume_claim_list.cue",
+        "service_account_list.cue",
+    ],
+    importpath = "github.com/uhthomas/automata/k8s/unwind/grafana_agent",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/api/rbac/v1:cue_v1_library",
+    ],
+)
+
+cue_library(
+    name = "cue_grafana_agent_operator_library",
+    srcs = [
+        "logs_instance_list.cue",
+        "metrics_instance_list.cue",
+    ],
+    importpath = "github.com/uhthomas/automata/k8s/unwind/grafana_agent:grafana_agent_operator",
+    visibility = ["//visibility:public"],
+    deps = ["//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library"],
+)

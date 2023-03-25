@@ -2,7 +2,7 @@ package rook_ceph
 
 import rbacv1 "k8s.io/api/rbac/v1"
 
-clusterRoleBindingList: rbacv1.#ClusterRoleBindingList & {
+#ClusterRoleBindingList: rbacv1.#ClusterRoleBindingList & {
 	apiVersion: "rbac.authorization.k8s.io/v1"
 	kind:       "ClusterRoleBindingList"
 	items: [...{
@@ -11,41 +11,41 @@ clusterRoleBindingList: rbacv1.#ClusterRoleBindingList & {
 	}]
 }
 
-clusterRoleBindingList: items: [{
+#ClusterRoleBindingList: items: [{
 	metadata: name: "cephfs-csi-provisioner-role"
 	subjects: [{
-		kind:      "ServiceAccount"
+		kind:      rbacv1.#ServiceAccountKind
 		name:      "rook-csi-cephfs-provisioner-sa"
-		namespace: "rook-ceph"
+		namespace: #Namespace
 	}]
 	roleRef: {
 		kind:     "ClusterRole"
 		name:     "cephfs-external-provisioner-runner"
-		apiGroup: "rbac.authorization.k8s.io"
+		apiGroup: rbacv1.#GroupName
 	}
 }, {
 	metadata: name: "rbd-csi-nodeplugin"
 	subjects: [{
-		kind:      "ServiceAccount"
+		kind:      rbacv1.#ServiceAccountKind
 		name:      "rook-csi-rbd-plugin-sa"
-		namespace: "rook-ceph"
+		namespace: #Namespace
 	}]
 	roleRef: {
 		kind:     "ClusterRole"
 		name:     "rbd-csi-nodeplugin"
-		apiGroup: "rbac.authorization.k8s.io"
+		apiGroup: rbacv1.#GroupName
 	}
 }, {
 	metadata: name: "rbd-csi-provisioner-role"
 	subjects: [{
-		kind:      "ServiceAccount"
+		kind:      rbacv1.#ServiceAccountKind
 		name:      "rook-csi-rbd-provisioner-sa"
-		namespace: "rook-ceph"
+		namespace: #Namespace
 	}]
 	roleRef: {
 		kind:     "ClusterRole"
 		name:     "rbd-external-provisioner-runner"
-		apiGroup: "rbac.authorization.k8s.io"
+		apiGroup: rbacv1.#GroupName
 	}
 }, {
 	// Grant the rook system daemons cluster-wide access to manage the Rook CRDs, PVCs, and storage classes
@@ -58,55 +58,55 @@ clusterRoleBindingList: items: [{
 		}
 	}
 	roleRef: {
-		apiGroup: "rbac.authorization.k8s.io"
+		apiGroup: rbacv1.#GroupName
 		kind:     "ClusterRole"
 		name:     "rook-ceph-global"
 	}
 	subjects: [{
-		kind:      "ServiceAccount"
+		kind:      rbacv1.#ServiceAccountKind
 		name:      "rook-ceph-system"
-		namespace: "rook-ceph"
+		namespace: #Namespace
 	}]
 }, {
 
 	// Allow the ceph mgr to access cluster-wide resources necessary for the mgr modules
 	metadata: name: "rook-ceph-mgr-cluster"
 	roleRef: {
-		apiGroup: "rbac.authorization.k8s.io"
+		apiGroup: rbacv1.#GroupName
 		kind:     "ClusterRole"
 		name:     "rook-ceph-mgr-cluster"
 	}
 	subjects: [{
-		kind:      "ServiceAccount"
+		kind:      rbacv1.#ServiceAccountKind
 		name:      "rook-ceph-mgr"
-		namespace: "rook-ceph"
+		namespace: #Namespace
 	}]
 }, {
 	// Give Rook-Ceph Operator permissions to provision ObjectBuckets in response to ObjectBucketClaims.
 	metadata: name: "rook-ceph-object-bucket"
 	roleRef: {
-		apiGroup: "rbac.authorization.k8s.io"
+		apiGroup: rbacv1.#GroupName
 		kind:     "ClusterRole"
 		name:     "rook-ceph-object-bucket"
 	}
 	subjects: [{
-		kind:      "ServiceAccount"
+		kind:      rbacv1.#ServiceAccountKind
 		name:      "rook-ceph-system"
-		namespace: "rook-ceph"
+		namespace: #Namespace
 	}]
 }, {
 
 	// Allow the ceph osd to access cluster-wide resources necessary for determining their topology location
 	metadata: name: "rook-ceph-osd"
 	roleRef: {
-		apiGroup: "rbac.authorization.k8s.io"
+		apiGroup: rbacv1.#GroupName
 		kind:     "ClusterRole"
 		name:     "rook-ceph-osd"
 	}
 	subjects: [{
-		kind:      "ServiceAccount"
+		kind:      rbacv1.#ServiceAccountKind
 		name:      "rook-ceph-osd"
-		namespace: "rook-ceph"
+		namespace: #Namespace
 	}]
 }, {
 	metadata: {
@@ -118,13 +118,13 @@ clusterRoleBindingList: items: [{
 		}
 	}
 	roleRef: {
-		apiGroup: "rbac.authorization.k8s.io"
+		apiGroup: rbacv1.#GroupName
 		kind:     "ClusterRole"
 		name:     "rook-ceph-system"
 	}
 	subjects: [{
-		kind:      "ServiceAccount"
+		kind:      rbacv1.#ServiceAccountKind
 		name:      "rook-ceph-system"
-		namespace: "rook-ceph"
+		namespace: #Namespace
 	}]
 }]

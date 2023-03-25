@@ -2,7 +2,7 @@ package rook_ceph
 
 import "k8s.io/api/core/v1"
 
-configMapList: v1.#ConfigMapList & {
+#ConfigMapList: v1.#ConfigMapList & {
 	apiVersion: "v1"
 	kind:       "ConfigMapList"
 	items: [...{
@@ -11,7 +11,7 @@ configMapList: v1.#ConfigMapList & {
 	}]
 }
 
-configMapList: items: [{
+#ConfigMapList: items: [{
 	//################################################################################################################
 	// The deployment for the rook operator
 	// Contains the common settings for most Kubernetes deployments.

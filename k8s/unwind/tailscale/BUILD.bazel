@@ -10,7 +10,7 @@ cue_library(
         "namespace_list.cue",
         "role_binding_list.cue",
         "role_list.cue",
-        "secret_list.cue",
+        "secret_provider_class_list.cue",
         "service_account_list.cue",
     ],
     importpath = "github.com/uhthomas/automata/k8s/unwind/tailscale",

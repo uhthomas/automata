@@ -6,10 +6,22 @@ package v1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/types"
 )
 
-#JobCompletionIndexAnnotationAlpha: "batch.kubernetes.io/job-completion-index"
+#JobCompletionIndexAnnotation: "batch.kubernetes.io/job-completion-index"
+
+// JobTrackingFinalizer is a finalizer for Job's pods. It prevents them from
+// being deleted before being accounted in the Job status.
+//
+// Additionally, the apiserver and job controller use this string as a Job
+// annotation, to mark Jobs that are being tracked using pod finalizers.
+// However, this behavior is deprecated in kubernetes 1.26. This means that, in
+// 1.27+, one release after JobTrackingWithFinalizers graduates to GA, the
+// apiserver and job controller will ignore this annotation and they will
+// always track jobs using finalizers.
+#JobTrackingFinalizer: "batch.kubernetes.io/job-tracking"
 
 // Job represents the configuration of a single job.
 #Job: {
@@ -45,6 +57,7 @@ import (
 }
 
 // CompletionMode specifies how Pod completions of a Job are tracked.
+// +enum
 #CompletionMode: string // #enumCompletionMode
 
 #enumCompletionMode:
@@ -61,6 +74,125 @@ import (
 // The Job is  considered complete when a Pod completes for each completion
 // index.
 #IndexedCompletion: #CompletionMode & "Indexed"
+
+// PodFailurePolicyAction specifies how a Pod failure is handled.
+// +enum
+#PodFailurePolicyAction: string // #enumPodFailurePolicyAction
+
+#enumPodFailurePolicyAction:
+	#PodFailurePolicyActionFailJob |
+	#PodFailurePolicyActionIgnore |
+	#PodFailurePolicyActionCount
+
+// This is an action which might be taken on a pod failure - mark the
+// pod's job as Failed and terminate all running pods.
+#PodFailurePolicyActionFailJob: #PodFailurePolicyAction & "FailJob"
+
+// This is an action which might be taken on a pod failure - the counter towards
+// .backoffLimit, represented by the job's .status.failed field, is not
+// incremented and a replacement pod is created.
+#PodFailurePolicyActionIgnore: #PodFailurePolicyAction & "Ignore"
+
+// This is an action which might be taken on a pod failure - the pod failure
+// is handled in the default way - the counter towards .backoffLimit,
+// represented by the job's .status.failed field, is incremented.
+#PodFailurePolicyActionCount: #PodFailurePolicyAction & "Count"
+
+// +enum
+#PodFailurePolicyOnExitCodesOperator: string // #enumPodFailurePolicyOnExitCodesOperator
+
+#enumPodFailurePolicyOnExitCodesOperator:
+	#PodFailurePolicyOnExitCodesOpIn |
+	#PodFailurePolicyOnExitCodesOpNotIn
+
+#PodFailurePolicyOnExitCodesOpIn:    #PodFailurePolicyOnExitCodesOperator & "In"
+#PodFailurePolicyOnExitCodesOpNotIn: #PodFailurePolicyOnExitCodesOperator & "NotIn"
+
+// PodFailurePolicyOnExitCodesRequirement describes the requirement for handling
+// a failed pod based on its container exit codes. In particular, it lookups the
+// .state.terminated.exitCode for each app container and init container status,
+// represented by the .status.containerStatuses and .status.initContainerStatuses
+// fields in the Pod status, respectively. Containers completed with success
+// (exit code 0) are excluded from the requirement check.
+#PodFailurePolicyOnExitCodesRequirement: {
+	// Restricts the check for exit codes to the container with the
+	// specified name. When null, the rule applies to all containers.
+	// When specified, it should match one the container or initContainer
+	// names in the pod template.
+	// +optional
+	containerName?: null | string @go(ContainerName,*string) @protobuf(1,bytes,opt)
+
+	// Represents the relationship between the container exit code(s) and the
+	// specified values. Containers completed with success (exit code 0) are
+	// excluded from the requirement check. Possible values are:
+	// - In: the requirement is satisfied if at least one container exit code
+	//   (might be multiple if there are multiple containers not restricted
+	//   by the 'containerName' field) is in the set of specified values.
+	// - NotIn: the requirement is satisfied if at least one container exit code
+	//   (might be multiple if there are multiple containers not restricted
+	//   by the 'containerName' field) is not in the set of specified values.
+	// Additional values are considered to be added in the future. Clients should
+	// react to an unknown operator by assuming the requirement is not satisfied.
+	operator: #PodFailurePolicyOnExitCodesOperator @go(Operator) @protobuf(2,bytes,req)
+
+	// Specifies the set of values. Each returned container exit code (might be
+	// multiple in case of multiple containers) is checked against this set of
+	// values with respect to the operator. The list of values must be ordered
+	// and must not contain duplicates. Value '0' cannot be used for the In operator.
+	// At least one element is required. At most 255 elements are allowed.
+	// +listType=set
+	values: [...int32] @go(Values,[]int32) @protobuf(3,varint,rep)
+}
+
+// PodFailurePolicyOnPodConditionsPattern describes a pattern for matching
+// an actual pod condition type.
+#PodFailurePolicyOnPodConditionsPattern: {
+	// Specifies the required Pod condition type. To match a pod condition
+	// it is required that specified type equals the pod condition type.
+	type: corev1.#PodConditionType @go(Type) @protobuf(1,bytes,req)
+
+	// Specifies the required Pod condition status. To match a pod condition
+	// it is required that the specified status equals the pod condition status.
+	// Defaults to True.
+	status: corev1.#ConditionStatus @go(Status) @protobuf(2,bytes,req)
+}
+
+// PodFailurePolicyRule describes how a pod failure is handled when the requirements are met.
+// One of OnExitCodes and onPodConditions, but not both, can be used in each rule.
+#PodFailurePolicyRule: {
+	// Specifies the action taken on a pod failure when the requirements are satisfied.
+	// Possible values are:
+	// - FailJob: indicates that the pod's job is marked as Failed and all
+	//   running pods are terminated.
+	// - Ignore: indicates that the counter towards the .backoffLimit is not
+	//   incremented and a replacement pod is created.
+	// - Count: indicates that the pod is handled in the default way - the
+	//   counter towards the .backoffLimit is incremented.
+	// Additional values are considered to be added in the future. Clients should
+	// react to an unknown action by skipping the rule.
+	action: #PodFailurePolicyAction @go(Action) @protobuf(1,bytes,req)
+
+	// Represents the requirement on the container exit codes.
+	// +optional
+	onExitCodes?: null | #PodFailurePolicyOnExitCodesRequirement @go(OnExitCodes,*PodFailurePolicyOnExitCodesRequirement) @protobuf(2,bytes,opt)
+
+	// Represents the requirement on the pod conditions. The requirement is represented
+	// as a list of pod condition patterns. The requirement is satisfied if at
+	// least one pattern matches an actual pod condition. At most 20 elements are allowed.
+	// +listType=atomic
+	onPodConditions: [...#PodFailurePolicyOnPodConditionsPattern] @go(OnPodConditions,[]PodFailurePolicyOnPodConditionsPattern) @protobuf(3,bytes,opt)
+}
+
+// PodFailurePolicy describes how failed pods influence the backoffLimit.
+#PodFailurePolicy: {
+	// A list of pod failure policy rules. The rules are evaluated in order.
+	// Once a rule matches a Pod failure, the remaining of the rules are ignored.
+	// When no rule matches the Pod failure, the default handling applies - the
+	// counter of pod failures is incremented and it is checked against
+	// the backoffLimit. At most 20 elements are allowed.
+	// +listType=atomic
+	rules: [...#PodFailurePolicyRule] @go(Rules,[]PodFailurePolicyRule) @protobuf(1,bytes,opt)
+}
 
 // JobSpec describes how the job execution will look like.
 #JobSpec: {
@@ -89,6 +221,19 @@ import (
 	// +optional
 	activeDeadlineSeconds?: null | int64 @go(ActiveDeadlineSeconds,*int64) @protobuf(3,varint,opt)
 
+	// Specifies the policy of handling failed pods. In particular, it allows to
+	// specify the set of actions and conditions which need to be
+	// satisfied to take the associated action.
+	// If empty, the default behaviour applies - the counter of failed pods,
+	// represented by the jobs's .status.failed field, is incremented and it is
+	// checked against the backoffLimit. This field cannot be used in combination
+	// with restartPolicy=OnFailure.
+	//
+	// This field is alpha-level. To use this field, you must enable the
+	// `JobPodFailurePolicy` feature gate (disabled by default).
+	// +optional
+	podFailurePolicy?: null | #PodFailurePolicy @go(PodFailurePolicy,*PodFailurePolicy) @protobuf(11,bytes,opt)
+
 	// Specifies the number of retries before marking this job failed.
 	// Defaults to 6
 	// +optional
@@ -115,7 +260,7 @@ import (
 
 	// Describes the pod that will be created when executing a job.
 	// More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
-	template: v1.#PodTemplateSpec @go(Template) @protobuf(6,bytes,opt)
+	template: corev1.#PodTemplateSpec @go(Template) @protobuf(6,bytes,opt)
 
 	// ttlSecondsAfterFinished limits the lifetime of a Job that has finished
 	// execution (either Complete or Failed). If this field is set,
@@ -124,8 +269,6 @@ import (
 	// guarantees (e.g. finalizers) will be honored. If this field is unset,
 	// the Job won't be automatically deleted. If this field is set to zero,
 	// the Job becomes eligible to be deleted immediately after it finishes.
-	// This field is alpha-level and is only honored by servers that enable the
-	// TTLAfterFinished feature.
 	// +optional
 	ttlSecondsAfterFinished?: null | int32 @go(TTLSecondsAfterFinished,*int32) @protobuf(8,varint,opt)
 
@@ -143,11 +286,14 @@ import (
 	// for each index.
 	// When value is `Indexed`, .spec.completions must be specified and
 	// `.spec.parallelism` must be less than or equal to 10^5.
+	// In addition, The Pod name takes the form
+	// `$(job-name)-$(index)-$(random-string)`,
+	// the Pod hostname takes the form `$(job-name)-$(index)`.
 	//
-	// This field is alpha-level and is only honored by servers that enable the
-	// IndexedJob feature gate. More completion modes can be added in the future.
-	// If the Job controller observes a mode that it doesn't recognize, the
-	// controller skips updates for the Job.
+	// More completion modes can be added in the future.
+	// If the Job controller observes a mode that it doesn't recognize, which
+	// is possible during upgrades due to version skew, the controller
+	// skips updates for the Job.
 	// +optional
 	completionMode?: null | #CompletionMode @go(CompletionMode,*CompletionMode) @protobuf(9,bytes,opt,casttype=CompletionMode)
 
@@ -157,9 +303,8 @@ import (
 	// false to true), the Job controller will delete all active Pods associated
 	// with this Job. Users must design their workload to gracefully handle this.
 	// Suspending a Job will reset the StartTime field of the Job, effectively
-	// resetting the ActiveDeadlineSeconds timer too. This is an alpha field and
-	// requires the SuspendJob feature gate to be enabled; otherwise this field
-	// may not be set to true. Defaults to false.
+	// resetting the ActiveDeadlineSeconds timer too. Defaults to false.
+	//
 	// +optional
 	suspend?: null | bool @go(Suspend,*bool) @protobuf(10,varint,opt)
 }
@@ -193,7 +338,7 @@ import (
 	// +optional
 	completionTime?: null | metav1.#Time @go(CompletionTime,*metav1.Time) @protobuf(3,bytes,opt)
 
-	// The number of actively running pods.
+	// The number of pending and running pods.
 	// +optional
 	active?: int32 @go(Active) @protobuf(4,varint,opt)
 
@@ -214,6 +359,43 @@ import (
 	// represented as "1,3-5,7".
 	// +optional
 	completedIndexes?: string @go(CompletedIndexes) @protobuf(7,bytes,opt)
+
+	// UncountedTerminatedPods holds the UIDs of Pods that have terminated but
+	// the job controller hasn't yet accounted for in the status counters.
+	//
+	// The job controller creates pods with a finalizer. When a pod terminates
+	// (succeeded or failed), the controller does three steps to account for it
+	// in the job status:
+	// (1) Add the pod UID to the arrays in this field.
+	// (2) Remove the pod finalizer.
+	// (3) Remove the pod UID from the arrays while increasing the corresponding
+	//     counter.
+	//
+	// Old jobs might not be tracked using this field, in which case the field
+	// remains null.
+	// +optional
+	uncountedTerminatedPods?: null | #UncountedTerminatedPods @go(UncountedTerminatedPods,*UncountedTerminatedPods) @protobuf(8,bytes,opt)
+
+	// The number of pods which have a Ready condition.
+	//
+	// This field is beta-level. The job controller populates the field when
+	// the feature gate JobReadyPods is enabled (enabled by default).
+	// +optional
+	ready?: null | int32 @go(Ready,*int32) @protobuf(9,varint,opt)
+}
+
+// UncountedTerminatedPods holds UIDs of Pods that have terminated but haven't
+// been accounted in Job status counters.
+#UncountedTerminatedPods: {
+	// Succeeded holds UIDs of succeeded Pods.
+	// +listType=set
+	// +optional
+	succeeded?: [...types.#UID] @go(Succeeded,[]types.UID) @protobuf(1,bytes,rep,casttype=k8s.io/apimachinery/pkg/types.UID)
+
+	// Failed holds UIDs of failed Pods.
+	// +listType=set
+	// +optional
+	failed?: [...types.#UID] @go(Failed,[]types.UID) @protobuf(2,bytes,rep,casttype=k8s.io/apimachinery/pkg/types.UID)
 }
 
 #JobConditionType: string // #enumJobConditionType
@@ -221,7 +403,8 @@ import (
 #enumJobConditionType:
 	#JobSuspended |
 	#JobComplete |
-	#JobFailed
+	#JobFailed |
+	#JobFailureTarget
 
 // JobSuspended means the job has been suspended.
 #JobSuspended: #JobConditionType & "Suspended"
@@ -232,13 +415,16 @@ import (
 // JobFailed means the job has failed its execution.
 #JobFailed: #JobConditionType & "Failed"
 
+// FailureTarget means the job is about to fail its execution.
+#JobFailureTarget: #JobConditionType & "FailureTarget"
+
 // JobCondition describes current state of a job.
 #JobCondition: {
 	// Type of job condition, Complete or Failed.
 	type: #JobConditionType @go(Type) @protobuf(1,bytes,opt,casttype=JobConditionType)
 
 	// Status of the condition, one of True, False, Unknown.
-	status: v1.#ConditionStatus @go(Status) @protobuf(2,bytes,opt,casttype=k8s.io/api/core/v1.ConditionStatus)
+	status: corev1.#ConditionStatus @go(Status) @protobuf(2,bytes,opt,casttype=k8s.io/api/core/v1.ConditionStatus)
 
 	// Last time the condition was checked.
 	// +optional
@@ -308,6 +494,19 @@ import (
 	// The schedule in Cron format, see https://en.wikipedia.org/wiki/Cron.
 	schedule: string @go(Schedule) @protobuf(1,bytes,opt)
 
+	// The time zone name for the given schedule, see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones.
+	// If not specified, this will default to the time zone of the kube-controller-manager process.
+	// The set of valid time zone names and the time zone offset is loaded from the system-wide time zone
+	// database by the API server during CronJob validation and the controller manager during execution.
+	// If no system-wide time zone database can be found a bundled version of the database is used instead.
+	// If the time zone name becomes invalid during the lifetime of a CronJob or due to a change in host
+	// configuration, the controller will stop creating new new Jobs and will create a system event with the
+	// reason UnknownTimeZone.
+	// More information can be found in https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#time-zones
+	// This is beta field and must be enabled via the `CronJobTimeZone` feature gate.
+	// +optional
+	timeZone?: null | string @go(TimeZone,*string) @protobuf(8,bytes,opt)
+
 	// Optional deadline in seconds for starting the job if it misses scheduled
 	// time for any reason.  Missed jobs executions will be counted as failed ones.
 	// +optional
@@ -344,6 +543,7 @@ import (
 // Only one of the following concurrent policies may be specified.
 // If none of the following policies is specified, the default one
 // is AllowConcurrent.
+// +enum
 #ConcurrencyPolicy: string // #enumConcurrencyPolicy
 
 #enumConcurrencyPolicy:
@@ -366,7 +566,7 @@ import (
 	// A list of pointers to currently running jobs.
 	// +optional
 	// +listType=atomic
-	active?: [...v1.#ObjectReference] @go(Active,[]v1.ObjectReference) @protobuf(1,bytes,rep)
+	active?: [...corev1.#ObjectReference] @go(Active,[]corev1.ObjectReference) @protobuf(1,bytes,rep)
 
 	// Information when was the last time the job was successfully scheduled.
 	// +optional

@@ -1,0 +1,22 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_cert_manager_csi_driver_library",
+    srcs = [
+        "cluster_role_binding_list.cue",
+        "cluster_role_list.cue",
+        "csi_driver_list.cue",
+        "daemon_set_list.cue",
+        "list.cue",
+        "namespace.cue",
+        "service_account_list.cue",
+    ],
+    importpath = "github.com/uhthomas/automata/k8s/unwind/cert_manager_csi_driver",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//cue.mod/gen/k8s.io/api/apps/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/api/rbac/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/api/storage/v1:cue_v1_library",
+    ],
+)

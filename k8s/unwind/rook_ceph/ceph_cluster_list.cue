@@ -2,16 +2,16 @@ package rook_ceph
 
 import "k8s.io/api/core/v1"
 
-cephClusterList: v1.#List & {
-	apiVersion: "v1"
-	kind:       "List"
+#CephClusterList: v1.#List & {
+	apiVersion: "ceph.rook.io/v1"
+	kind:       "CephClusterList"
 	items: [...{
 		apiVersion: "ceph.rook.io/v1"
 		kind:       "CephCluster"
 	}]
 }
 
-cephClusterList: items: [{
+#CephClusterList: items: [{
 	spec: {
 		cephVersion: {
 			image:            "quay.io/ceph/ceph:v17.2.5"
@@ -31,6 +31,9 @@ cephClusterList: items: [{
 			modules: [{
 				name:    "pg_autoscaler"
 				enabled: true
+			}, {
+				name:    "rook"
+				enabled: true
 			}]
 		}
 		dashboard: {
@@ -40,7 +43,7 @@ cephClusterList: items: [{
 		// enable prometheus alerting for cluster
 		monitoring: enabled: false
 		network: connections: {
-			encryption: enabled:  false
+			encryption: enabled:  true
 			compression: enabled: true
 		}
 		crashCollector: disable: false
@@ -75,29 +78,7 @@ cephClusterList: items: [{
 			useAllNodes:   false
 			useAllDevices: false
 			nodes: [{
-				name: "talos-6xb-myy"
-				devices: [{
-					// HGST H7280A520SUN8.0T
-					name: "/dev/disk/by-id/wwn-0x5000cca23b43d9ec"
-					config: deviceClass: "hdd"
-				}, {
-					// HGST H7280A520SUN8.0T
-					name: "/dev/disk/by-id/wwn-0x5000cca23b30dca4"
-					config: deviceClass: "hdd"
-				}]
-			}, {
-				name: "talos-8op-x2k"
-				devices: [{
-					// HGST H7280A520SUN8.0T
-					name: "/dev/disk/by-id/wwn-0x5000cca23b43eb7c"
-					config: deviceClass: "hdd"
-				}, {
-					// HGST H7280A520SUN8.0T
-					name: "/dev/disk/by-id/wwn-0x5000cca23b3573bc"
-					config: deviceClass: "hdd"
-				}]
-			}, {
-				name: "talos-nlu-hin"
+				name: "talos-avz-rb5"
 				devices: [{
 					// HGST H7280A520SUN8.0T
 					name: "/dev/disk/by-id/wwn-0x5000cca23b366958"
@@ -108,7 +89,7 @@ cephClusterList: items: [{
 					config: deviceClass: "hdd"
 				}]
 			}, {
-				name: "talos-rh9-xsk"
+				name: "talos-god-636"
 				devices: [{
 					// HGST H7280A520SUN8.0T
 					name: "/dev/disk/by-id/wwn-0x5000cca261057c98"
@@ -119,7 +100,7 @@ cephClusterList: items: [{
 					config: deviceClass: "hdd"
 				}]
 			}, {
-				name: "talos-x7c-56v"
+				name: "talos-su3-l23"
 				devices: [{
 					// HGST H7280A520SUN8.0T
 					name: "/dev/disk/by-id/wwn-0x5000cca23b184d70"
@@ -127,6 +108,28 @@ cephClusterList: items: [{
 				}, {
 					// HGST H7280A520SUN8.0T
 					name: "/dev/disk/by-id/wwn-0x5000cca23b356ba0"
+					config: deviceClass: "hdd"
+				}]
+			}, {
+				name: "talos-3sl-aqp"
+				devices: [{
+					// HGST H7280A520SUN8.0T
+					name: "/dev/disk/by-id/wwn-0x5000cca23b43eb7c"
+					config: deviceClass: "hdd"
+				}, {
+					// HGST H7280A520SUN8.0T
+					name: "/dev/disk/by-id/wwn-0x5000cca23b3573bc"
+					config: deviceClass: "hdd"
+				}]
+			}, {
+				name: "talos-l94-p4c"
+				devices: [{
+					// HGST H7280A520SUN8.0T
+					name: "/dev/disk/by-id/wwn-0x5000cca23b43d9ec"
+					config: deviceClass: "hdd"
+				}, {
+					// HGST H7280A520SUN8.0T
+					name: "/dev/disk/by-id/wwn-0x5000cca23b30dca4"
 					config: deviceClass: "hdd"
 				}]
 			}]

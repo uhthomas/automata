@@ -5,7 +5,7 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-deploymentList: appsv1.#DeploymentList & {
+#DeploymentList: appsv1.#DeploymentList & {
 	apiVersion: "apps/v1"
 	kind:       "DeploymentList"
 	items: [...{
@@ -14,7 +14,7 @@ deploymentList: appsv1.#DeploymentList & {
 	}]
 }
 
-deploymentList: items: [{
+#DeploymentList: items: [{
 	metadata: name: "operator"
 	spec: {
 		replicas: 1
@@ -23,19 +23,20 @@ deploymentList: items: [{
 		template: {
 			metadata: labels: app: "operator"
 			spec: {
-				serviceAccountName: "operator"
 				volumes: [{
+					name: "config"
+					emptyDir: {}
+				}, {
 					name: "oauth"
-					secret: secretName: "operator-oauth"
+					csi: {
+						driver:   "secrets-store.csi.k8s.io"
+						readOnly: true
+						volumeAttributes: secretProviderClass: #Name
+					}
 				}]
 				containers: [{
-					name:            "operator"
-					image:           "tailscale/k8s-operator:unstable"
-					imagePullPolicy: v1.#PullIfNotPresent
-					resources: requests: {
-						cpu:    "500m"
-						memory: "100Mi"
-					}
+					name:  "operator"
+					image: "tailscale/k8s-operator:unstable-v1.39.55"
 					env: [{
 						name:  "OPERATOR_HOSTNAME"
 						value: "tailscale-operator"
@@ -44,7 +45,7 @@ deploymentList: items: [{
 						value: "operator"
 					}, {
 						name:  "OPERATOR_LOGGING"
-						value: "info"
+						value: "debug"
 					}, {
 						name: "OPERATOR_NAMESPACE"
 						valueFrom: fieldRef: fieldPath: "metadata.namespace"
@@ -56,20 +57,41 @@ deploymentList: items: [{
 						value: "/oauth/client_secret"
 					}, {
 						name:  "PROXY_IMAGE"
-						value: "tailscale/tailscale:unstable"
+						value: "tailscale/tailscale:v1.38.1"
 					}, {
 						name:  "PROXY_TAGS"
-						value: "tag:k8s"
+						value: "tag:k8s,tag:unwind"
 					}, {
 						name:  "AUTH_PROXY"
 						value: "true"
 					}]
+					resources: requests: {
+						cpu:    "500m"
+						memory: "100Mi"
+					}
 					volumeMounts: [{
+						name:      "config"
+						mountPath: "/.config"
+					}, {
 						name:      "oauth"
-						mountPath: "/oauth"
 						readOnly:  true
+						mountPath: "/oauth"
 					}]
+					imagePullPolicy: v1.#PullIfNotPresent
+					securityContext: {
+						capabilities: drop: ["ALL"]
+						readOnlyRootFilesystem:   true
+						allowPrivilegeEscalation: false
+					}
 				}]
+				serviceAccountName: "operator"
+				securityContext: {
+					runAsUser:    1000
+					runAsGroup:   3000
+					runAsNonRoot: true
+					fsGroup:      2000
+					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
+				}
 			}
 		}
 	}

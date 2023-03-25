@@ -2,7 +2,7 @@ package grafana
 
 import "k8s.io/api/core/v1"
 
-serviceList: v1.#ServiceList & {
+#ServiceList: v1.#ServiceList & {
 	apiVersion: "v1"
 	kind:       "ServiceList"
 	items: [...{
@@ -11,18 +11,15 @@ serviceList: v1.#ServiceList & {
 	}]
 }
 
-serviceList: items: [{
+#ServiceList: items: [{
+	metadata: annotations: "tailscale.com/hostname": "\(#Name)-unwind"
 	spec: {
 		ports: [{
 			name:       "http"
 			port:       80
 			targetPort: "grafana"
 		}]
-		selector: {
-			"app.kubernetes.io/name":      "grafana"
-			"app.kubernetes.io/instance":  "grafana"
-			"app.kubernetes.io/component": "grafana"
-		}
+		selector: "app.kubernetes.io/name": #Name
 		type:              v1.#ServiceTypeLoadBalancer
 		loadBalancerClass: "tailscale"
 	}

@@ -11,5 +11,6 @@ cue_library(
     deps = [
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
         "//cue.mod/gen/k8s.io/apimachinery/pkg/apis/meta/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/apimachinery/pkg/types:cue_types_library",
     ],
 )

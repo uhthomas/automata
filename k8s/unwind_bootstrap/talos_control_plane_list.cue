@@ -19,7 +19,7 @@ talosControlPlaneList: items: [{
 	spec: {
 		controlPlaneConfig: controlplane: {
 			generateType: "controlplane"
-			talosVersion: "v1.3.5"
+			talosVersion: "v1.3.6"
 			configPatches: [{
 				op:    "add"
 				path:  "/cluster/allowSchedulingOnControlPlanes"
@@ -32,6 +32,6 @@ talosControlPlaneList: items: [{
 			name:       "unwind-cp"
 		}
 		replicas: 5
-		version:  "v1.26.1"
+		version:  "v1.26.2"
 	}
 }]

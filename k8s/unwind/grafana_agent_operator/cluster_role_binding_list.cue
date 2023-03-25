@@ -2,7 +2,7 @@ package grafana_agent_operator
 
 import rbacv1 "k8s.io/api/rbac/v1"
 
-clusterRoleBindingList: rbacv1.#ClusterRoleBindingList & {
+#ClusterRoleBindingList: rbacv1.#ClusterRoleBindingList & {
 	apiVersion: "rbac.authorization.k8s.io/v1"
 	kind:       "ClusterRoleBindingList"
 	items: [...{
@@ -11,15 +11,15 @@ clusterRoleBindingList: rbacv1.#ClusterRoleBindingList & {
 	}]
 }
 
-clusterRoleBindingList: items: [{
+#ClusterRoleBindingList: items: [{
 	roleRef: {
-		apiGroup: "rbac.authorization.k8s.io"
+		apiGroup: rbacv1.#GroupName
 		kind:     "ClusterRole"
 		name:     "grafana-agent-operator"
 	}
 	subjects: [{
-		kind:      "ServiceAccount"
+		kind:      rbacv1.#ServiceAccountKind
 		name:      "grafana-agent-operator"
-		namespace: "default"
+		namespace: #Namespace
 	}]
 }]

@@ -2,7 +2,7 @@ package rook_ceph
 
 import "k8s.io/api/core/v1"
 
-namespaceList: v1.#NamespaceList & {
+#NamespaceList: v1.#NamespaceList & {
 	apiVersion: "v1"
 	kind:       "NamespaceList"
 	items: [...{
@@ -11,4 +11,4 @@ namespaceList: v1.#NamespaceList & {
 	}]
 }
 
-namespaceList: items: [{metadata: labels: "pod-security.kubernetes.io/enforce": "privileged"}]
+#NamespaceList: items: [{metadata: labels: "pod-security.kubernetes.io/enforce": "privileged"}]

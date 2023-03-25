@@ -2,7 +2,7 @@ package rook_ceph
 
 import rbacv1 "k8s.io/api/rbac/v1"
 
-roleList: rbacv1.#RoleList & {
+#RoleList: rbacv1.#RoleList & {
 	apiVersion: "rbac.authorization.k8s.io/v1"
 	kind:       "RoleList"
 	items: [...{
@@ -11,7 +11,7 @@ roleList: rbacv1.#RoleList & {
 	}]
 }
 
-roleList: items: [{
+#RoleList: items: [{
 	metadata: name: "cephfs-external-provisioner-cfg"
 	rules: [{
 		apiGroups: ["coordination.k8s.io"]

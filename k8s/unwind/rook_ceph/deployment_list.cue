@@ -5,7 +5,7 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-deploymentList: appsv1.#DeploymentList & {
+#DeploymentList: appsv1.#DeploymentList & {
 	apiVersion: "apps/v1"
 	kind:       "DeploymentList"
 	items: [...{
@@ -14,7 +14,7 @@ deploymentList: appsv1.#DeploymentList & {
 	}]
 }
 
-deploymentList: items: [{
+#DeploymentList: items: [{
 	// Domain labels define which node labels to use as domains
 	// for CSI nodeplugins to advertise their domains
 	// NOTE: the value here serves as an example and needs to be
@@ -42,7 +42,7 @@ deploymentList: items: [{
 				serviceAccountName: "rook-ceph-system"
 				containers: [{
 					name:            "rook-ceph-operator"
-					image:           "rook/ceph:v1.10.11"
+					image:           "rook/ceph:v1.11.0"
 					imagePullPolicy: v1.#PullIfNotPresent
 					args: ["ceph", "operator"]
 					securityContext: {

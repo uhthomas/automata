@@ -1,0 +1,31 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_export")
+
+cue_export(
+    name = "deployment_list",
+    src = "deployment_list.cue",
+    visibility = ["//visibility:public"],
+)
+
+cue_export(
+    name = "list",
+    src = "list.cue",
+    visibility = ["//visibility:public"],
+)
+
+cue_export(
+    name = "namespace_list",
+    src = "namespace_list.cue",
+    visibility = ["//visibility:public"],
+)
+
+cue_export(
+    name = "persistent_volume_claim_list",
+    src = "persistent_volume_claim_list.cue",
+    visibility = ["//visibility:public"],
+)
+
+cue_export(
+    name = "service_list",
+    src = "service_list.cue",
+    visibility = ["//visibility:public"],
+)

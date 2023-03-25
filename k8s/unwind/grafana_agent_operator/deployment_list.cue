@@ -5,7 +5,7 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-deploymentList: appsv1.#DeploymentList & {
+#DeploymentList: appsv1.#DeploymentList & {
 	apiVersion: "apps/v1"
 	kind:       "DeploymentList"
 	items: [...{
@@ -14,7 +14,7 @@ deploymentList: appsv1.#DeploymentList & {
 	}]
 }
 
-deploymentList: items: [{
+#DeploymentList: items: [{
 	spec: {
 		replicas: 1
 		selector: matchLabels: {
@@ -30,9 +30,9 @@ deploymentList: items: [{
 				serviceAccountName: "grafana-agent-operator"
 				containers: [{
 					name:            "grafana-agent-operator"
-					image:           "docker.io/grafana/agent-operator:v0.31.3"
+					image:           "docker.io/grafana/agent-operator:v0.32.1"
 					imagePullPolicy: v1.#PullIfNotPresent
-					args: [ "--kubelet-service=default/kubelet"]
+					args: ["--kubelet-service=default/kubelet"]
 				}]
 			}
 		}

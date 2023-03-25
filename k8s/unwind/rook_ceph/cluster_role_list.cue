@@ -2,7 +2,7 @@ package rook_ceph
 
 import rbacv1 "k8s.io/api/rbac/v1"
 
-clusterRoleList: rbacv1.#ClusterRoleList & {
+#ClusterRoleList: rbacv1.#ClusterRoleList & {
 	apiVersion: "rbac.authorization.k8s.io/v1"
 	kind:       "ClusterRoleList"
 	items: [...{
@@ -11,7 +11,7 @@ clusterRoleList: rbacv1.#ClusterRoleList & {
 	}]
 }
 
-clusterRoleList: items: [{
+#ClusterRoleList: items: [{
 	// TODO: remove this, once https://github.com/rook/rook/issues/10141
 	// is resolved.
 	metadata: name: "cephfs-csi-nodeplugin"

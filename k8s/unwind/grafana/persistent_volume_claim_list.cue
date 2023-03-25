@@ -2,7 +2,7 @@ package grafana
 
 import "k8s.io/api/core/v1"
 
-persistentVolumeClaimList: v1.#PersistentVolumeClaimList & {
+#PersistentVolumeClaimList: v1.#PersistentVolumeClaimList & {
 	apiVersion: "v1"
 	kind:       "PersistentVolumeClaimList"
 	items: [...{
@@ -11,7 +11,7 @@ persistentVolumeClaimList: v1.#PersistentVolumeClaimList & {
 	}]
 }
 
-persistentVolumeClaimList: items: [{
+#PersistentVolumeClaimList: items: [{
 	spec: {
 		accessModes: [v1.#ReadWriteOnce]
 		resources: requests: storage: "10Gi"

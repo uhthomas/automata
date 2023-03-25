@@ -2,7 +2,7 @@ package grafana_agent_operator
 
 import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 
-customResourceDefinitionList: apiextensionsv1.#CustomResourceDefinitionList & {
+#CustomResourceDefinitionList: apiextensionsv1.#CustomResourceDefinitionList & {
 	apiVersion: "apiextensions.k8s.io/v1"
 	kind:       "CustomResourceDefinitionList"
 	items: [...{
@@ -11,7 +11,7 @@ customResourceDefinitionList: apiextensionsv1.#CustomResourceDefinitionList & {
 	}]
 }
 
-customResourceDefinitionList: items: [{
+#CustomResourceDefinitionList: items: [{
 	metadata: name: "podmonitors.monitoring.coreos.com"
 	spec: {
 		group: "monitoring.coreos.com"
@@ -27,7 +27,7 @@ customResourceDefinitionList: items: [{
 			]
 			singular: "podmonitor"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			name: "v1"
 			schema: openAPIV3Schema: {
@@ -116,7 +116,7 @@ customResourceDefinitionList: items: [{
 															type: "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 															type: "string"
 														}
@@ -154,7 +154,7 @@ customResourceDefinitionList: items: [{
 															type: "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 															type: "string"
 														}
@@ -180,7 +180,7 @@ customResourceDefinitionList: items: [{
 															type: "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 															type: "string"
 														}
@@ -209,7 +209,7 @@ customResourceDefinitionList: items: [{
 													type: "string"
 												}
 												name: {
-													description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+													description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 													type: "string"
 												}
@@ -347,7 +347,7 @@ customResourceDefinitionList: items: [{
 																	type:        "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -372,7 +372,7 @@ customResourceDefinitionList: items: [{
 																	type: "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -400,7 +400,7 @@ customResourceDefinitionList: items: [{
 															type: "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 															type: "string"
 														}
@@ -572,7 +572,7 @@ customResourceDefinitionList: items: [{
 																	type:        "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -597,7 +597,7 @@ customResourceDefinitionList: items: [{
 																	type: "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -628,7 +628,7 @@ customResourceDefinitionList: items: [{
 																	type:        "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -653,7 +653,7 @@ customResourceDefinitionList: items: [{
 																	type: "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -686,7 +686,7 @@ customResourceDefinitionList: items: [{
 															type: "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 															type: "string"
 														}
@@ -810,7 +810,7 @@ customResourceDefinitionList: items: [{
 			]
 			singular: "probe"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			name: "v1"
 			schema: openAPIV3Schema: {
@@ -844,7 +844,7 @@ customResourceDefinitionList: items: [{
 												type: "string"
 											}
 											name: {
-												description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+												description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 												type: "string"
 											}
@@ -882,7 +882,7 @@ customResourceDefinitionList: items: [{
 												type: "string"
 											}
 											name: {
-												description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+												description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 												type: "string"
 											}
@@ -908,7 +908,7 @@ customResourceDefinitionList: items: [{
 												type: "string"
 											}
 											name: {
-												description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+												description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 												type: "string"
 											}
@@ -937,7 +937,7 @@ customResourceDefinitionList: items: [{
 										type: "string"
 									}
 									name: {
-										description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+										description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 										type: "string"
 									}
@@ -1075,7 +1075,7 @@ customResourceDefinitionList: items: [{
 														type:        "string"
 													}
 													name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -1100,7 +1100,7 @@ customResourceDefinitionList: items: [{
 														type: "string"
 													}
 													name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -1128,7 +1128,7 @@ customResourceDefinitionList: items: [{
 												type: "string"
 											}
 											name: {
-												description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+												description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 												type: "string"
 											}
@@ -1470,7 +1470,7 @@ customResourceDefinitionList: items: [{
 														type:        "string"
 													}
 													name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -1495,7 +1495,7 @@ customResourceDefinitionList: items: [{
 														type: "string"
 													}
 													name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -1525,7 +1525,7 @@ customResourceDefinitionList: items: [{
 														type:        "string"
 													}
 													name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -1550,7 +1550,7 @@ customResourceDefinitionList: items: [{
 														type: "string"
 													}
 													name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -1582,7 +1582,7 @@ customResourceDefinitionList: items: [{
 												type: "string"
 											}
 											name: {
-												description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+												description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 												type: "string"
 											}
@@ -1634,7 +1634,7 @@ customResourceDefinitionList: items: [{
 			]
 			singular: "servicemonitor"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			name: "v1"
 			schema: openAPIV3Schema: {
@@ -1684,7 +1684,7 @@ customResourceDefinitionList: items: [{
 															type: "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 															type: "string"
 														}
@@ -1722,7 +1722,7 @@ customResourceDefinitionList: items: [{
 															type: "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 															type: "string"
 														}
@@ -1748,7 +1748,7 @@ customResourceDefinitionList: items: [{
 															type: "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 															type: "string"
 														}
@@ -1781,7 +1781,7 @@ customResourceDefinitionList: items: [{
 													type: "string"
 												}
 												name: {
-													description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+													description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 													type: "string"
 												}
@@ -1919,7 +1919,7 @@ customResourceDefinitionList: items: [{
 																	type:        "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -1944,7 +1944,7 @@ customResourceDefinitionList: items: [{
 																	type: "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -1972,7 +1972,7 @@ customResourceDefinitionList: items: [{
 															type: "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 															type: "string"
 														}
@@ -2145,7 +2145,7 @@ customResourceDefinitionList: items: [{
 																	type:        "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -2170,7 +2170,7 @@ customResourceDefinitionList: items: [{
 																	type: "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -2206,7 +2206,7 @@ customResourceDefinitionList: items: [{
 																	type:        "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -2231,7 +2231,7 @@ customResourceDefinitionList: items: [{
 																	type: "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -2274,7 +2274,7 @@ customResourceDefinitionList: items: [{
 															type: "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 															type: "string"
 														}
@@ -2445,7 +2445,7 @@ customResourceDefinitionList: items: [{
 			plural:   "grafanaagents"
 			singular: "grafanaagent"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			name: "v1alpha1"
 			schema: openAPIV3Schema: {
@@ -3196,7 +3196,7 @@ customResourceDefinitionList: items: [{
 														type: "string"
 													}
 													name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -3239,7 +3239,7 @@ customResourceDefinitionList: items: [{
 														type: "string"
 													}
 													name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -3265,7 +3265,7 @@ customResourceDefinitionList: items: [{
 														type: "string"
 													}
 													name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -3313,7 +3313,7 @@ customResourceDefinitionList: items: [{
 																type:        "string"
 															}
 															name: {
-																description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																type: "string"
 															}
@@ -3338,7 +3338,7 @@ customResourceDefinitionList: items: [{
 																type: "string"
 															}
 															name: {
-																description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																type: "string"
 															}
@@ -3374,7 +3374,7 @@ customResourceDefinitionList: items: [{
 																type:        "string"
 															}
 															name: {
-																description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																type: "string"
 															}
@@ -3399,7 +3399,7 @@ customResourceDefinitionList: items: [{
 																type: "string"
 															}
 															name: {
-																description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																type: "string"
 															}
@@ -3442,7 +3442,7 @@ customResourceDefinitionList: items: [{
 														type: "string"
 													}
 													name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -3525,7 +3525,7 @@ customResourceDefinitionList: items: [{
 																		type:        "string"
 																	}
 																	name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																		type: "string"
 																	}
@@ -3603,7 +3603,7 @@ customResourceDefinitionList: items: [{
 																		type: "string"
 																	}
 																	name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																		type: "string"
 																	}
@@ -3641,7 +3641,7 @@ customResourceDefinitionList: items: [{
 														description: "The ConfigMap to select from"
 														properties: {
 															name: {
-																description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																type: "string"
 															}
@@ -3663,7 +3663,7 @@ customResourceDefinitionList: items: [{
 														description: "The Secret to select from"
 														properties: {
 															name: {
-																description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																type: "string"
 															}
@@ -4744,7 +4744,7 @@ customResourceDefinitionList: items: [{
 									description: "LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace."
 
 									properties: name: {
-										description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+										description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 										type: "string"
 									}
@@ -4801,7 +4801,7 @@ customResourceDefinitionList: items: [{
 																		type:        "string"
 																	}
 																	name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																		type: "string"
 																	}
@@ -4879,7 +4879,7 @@ customResourceDefinitionList: items: [{
 																		type: "string"
 																	}
 																	name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																		type: "string"
 																	}
@@ -4917,7 +4917,7 @@ customResourceDefinitionList: items: [{
 														description: "The ConfigMap to select from"
 														properties: {
 															name: {
-																description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																type: "string"
 															}
@@ -4939,7 +4939,7 @@ customResourceDefinitionList: items: [{
 														description: "The Secret to select from"
 														properties: {
 															name: {
-																description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																type: "string"
 															}
@@ -6147,7 +6147,7 @@ customResourceDefinitionList: items: [{
 																	type: "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -6173,7 +6173,7 @@ customResourceDefinitionList: items: [{
 																	type: "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -6247,7 +6247,7 @@ customResourceDefinitionList: items: [{
 																			type:        "string"
 																		}
 																		name: {
-																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																			type: "string"
 																		}
@@ -6273,7 +6273,7 @@ customResourceDefinitionList: items: [{
 																			type: "string"
 																		}
 																		name: {
-																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																			type: "string"
 																		}
@@ -6310,7 +6310,7 @@ customResourceDefinitionList: items: [{
 																			type:        "string"
 																		}
 																		name: {
-																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																			type: "string"
 																		}
@@ -6336,7 +6336,7 @@ customResourceDefinitionList: items: [{
 																			type: "string"
 																		}
 																		name: {
-																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																			type: "string"
 																		}
@@ -6379,7 +6379,7 @@ customResourceDefinitionList: items: [{
 																	type: "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -6690,7 +6690,7 @@ customResourceDefinitionList: items: [{
 																	type: "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -6716,7 +6716,7 @@ customResourceDefinitionList: items: [{
 																	type: "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -6787,7 +6787,7 @@ customResourceDefinitionList: items: [{
 																			type:        "string"
 																		}
 																		name: {
-																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																			type: "string"
 																		}
@@ -6813,7 +6813,7 @@ customResourceDefinitionList: items: [{
 																			type: "string"
 																		}
 																		name: {
-																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																			type: "string"
 																		}
@@ -6842,7 +6842,7 @@ customResourceDefinitionList: items: [{
 																	type: "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -6955,7 +6955,7 @@ customResourceDefinitionList: items: [{
 																	type: "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -6996,7 +6996,7 @@ customResourceDefinitionList: items: [{
 																	type: "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -7031,7 +7031,7 @@ customResourceDefinitionList: items: [{
 																			type:        "string"
 																		}
 																		name: {
-																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																			type: "string"
 																		}
@@ -7057,7 +7057,7 @@ customResourceDefinitionList: items: [{
 																			type: "string"
 																		}
 																		name: {
-																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																			type: "string"
 																		}
@@ -7094,7 +7094,7 @@ customResourceDefinitionList: items: [{
 																			type:        "string"
 																		}
 																		name: {
-																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																			type: "string"
 																		}
@@ -7120,7 +7120,7 @@ customResourceDefinitionList: items: [{
 																			type: "string"
 																		}
 																		name: {
-																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																			description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																			type: "string"
 																		}
@@ -7163,7 +7163,7 @@ customResourceDefinitionList: items: [{
 																	type: "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -7330,7 +7330,7 @@ customResourceDefinitionList: items: [{
 										type: "object"
 									}
 									name: {
-										description: "Name must be unique within a namespace. Is required when creating resources, although some resources may allow a client to request the generation of an appropriate name automatically. Name is primarily intended for creation idempotence and configuration definition. Cannot be updated. More info: http://kubernetes.io/docs/user-guide/identifiers#names"
+										description: "Name must be unique within a namespace. Is required when creating resources, although some resources may allow a client to request the generation of an appropriate name automatically. Name is primarily intended for creation idempotence and configuration definition. Cannot be updated. More info: http://kubernetes.io/docs/user-guide/identifiers#Names"
 
 										type: "string"
 									}
@@ -7788,7 +7788,7 @@ customResourceDefinitionList: items: [{
 														type: "object"
 													}
 													name: {
-														description: "Name must be unique within a namespace. Is required when creating resources, although some resources may allow a client to request the generation of an appropriate name automatically. Name is primarily intended for creation idempotence and configuration definition. Cannot be updated. More info: http://kubernetes.io/docs/user-guide/identifiers#names"
+														description: "Name must be unique within a namespace. Is required when creating resources, although some resources may allow a client to request the generation of an appropriate name automatically. Name is primarily intended for creation idempotence and configuration definition. Cannot be updated. More info: http://kubernetes.io/docs/user-guide/identifiers#Names"
 
 														type: "string"
 													}
@@ -8385,7 +8385,7 @@ customResourceDefinitionList: items: [{
 													description: "secretRef is Optional: SecretRef is reference to the authentication secret for User, default is empty. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
 
 													properties: name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -8421,7 +8421,7 @@ customResourceDefinitionList: items: [{
 													description: "secretRef is optional: points to a secret object containing parameters used to connect to OpenStack."
 
 													properties: name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -8480,7 +8480,7 @@ customResourceDefinitionList: items: [{
 													type: "array"
 												}
 												name: {
-													description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+													description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 													type: "string"
 												}
@@ -8511,7 +8511,7 @@ customResourceDefinitionList: items: [{
 													description: "nodePublishSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodePublishVolume and NodeUnpublishVolume calls. This field is optional, and  may be empty if no secret is required. If the secret object contains more than one secret, all secret references are passed."
 
 													properties: name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -8905,7 +8905,7 @@ customResourceDefinitionList: items: [{
 													description: "secretRef is Optional: secretRef is reference to the secret object containing sensitive information to pass to the plugin scripts. This may be empty if no secret object is specified. If the secret object contains more than one secret, all secrets are passed to the plugin scripts."
 
 													properties: name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -9089,7 +9089,7 @@ customResourceDefinitionList: items: [{
 													description: "secretRef is the CHAP Secret for iSCSI target and initiator authentication"
 
 													properties: name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -9110,7 +9110,7 @@ customResourceDefinitionList: items: [{
 											type: "object"
 										}
 										name: {
-											description: "name of the volume. Must be a DNS_LABEL and unique within the pod. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names"
+											description: "name of the volume. Must be a DNS_LABEL and unique within the pod. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names"
 
 											type: "string"
 										}
@@ -9256,7 +9256,7 @@ customResourceDefinitionList: items: [{
 																		type: "array"
 																	}
 																	name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																		type: "string"
 																	}
@@ -9389,7 +9389,7 @@ customResourceDefinitionList: items: [{
 																		type: "array"
 																	}
 																	name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																		type: "string"
 																	}
@@ -9516,7 +9516,7 @@ customResourceDefinitionList: items: [{
 													description: "secretRef is name of the authentication secret for RBDUser. If provided overrides keyring. Default is nil. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
 
 													properties: name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -9563,7 +9563,7 @@ customResourceDefinitionList: items: [{
 													description: "secretRef references to the secret for ScaleIO user and other sensitive information. If this is not provided, Login operation will fail."
 
 													properties: name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -9674,7 +9674,7 @@ customResourceDefinitionList: items: [{
 													description: "secretRef specifies the secret to use for obtaining the StorageOS API credentials.  If not specified, default values will be attempted."
 
 													properties: name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -9755,7 +9755,7 @@ customResourceDefinitionList: items: [{
 			plural:   "integrations"
 			singular: "integration"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			name: "v1alpha1"
 			schema: openAPIV3Schema: {
@@ -9805,7 +9805,7 @@ customResourceDefinitionList: items: [{
 											type:        "string"
 										}
 										name: {
-											description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+											description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 											type: "string"
 										}
@@ -9843,7 +9843,7 @@ customResourceDefinitionList: items: [{
 											type: "string"
 										}
 										name: {
-											description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+											description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 											type: "string"
 										}
@@ -10061,7 +10061,7 @@ customResourceDefinitionList: items: [{
 													description: "secretRef is Optional: SecretRef is reference to the authentication secret for User, default is empty. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
 
 													properties: name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -10097,7 +10097,7 @@ customResourceDefinitionList: items: [{
 													description: "secretRef is optional: points to a secret object containing parameters used to connect to OpenStack."
 
 													properties: name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -10156,7 +10156,7 @@ customResourceDefinitionList: items: [{
 													type: "array"
 												}
 												name: {
-													description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+													description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 													type: "string"
 												}
@@ -10187,7 +10187,7 @@ customResourceDefinitionList: items: [{
 													description: "nodePublishSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodePublishVolume and NodeUnpublishVolume calls. This field is optional, and  may be empty if no secret is required. If the secret object contains more than one secret, all secret references are passed."
 
 													properties: name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -10581,7 +10581,7 @@ customResourceDefinitionList: items: [{
 													description: "secretRef is Optional: secretRef is reference to the secret object containing sensitive information to pass to the plugin scripts. This may be empty if no secret object is specified. If the secret object contains more than one secret, all secrets are passed to the plugin scripts."
 
 													properties: name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -10765,7 +10765,7 @@ customResourceDefinitionList: items: [{
 													description: "secretRef is the CHAP Secret for iSCSI target and initiator authentication"
 
 													properties: name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -10786,7 +10786,7 @@ customResourceDefinitionList: items: [{
 											type: "object"
 										}
 										name: {
-											description: "name of the volume. Must be a DNS_LABEL and unique within the pod. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names"
+											description: "name of the volume. Must be a DNS_LABEL and unique within the pod. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names"
 
 											type: "string"
 										}
@@ -10932,7 +10932,7 @@ customResourceDefinitionList: items: [{
 																		type: "array"
 																	}
 																	name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																		type: "string"
 																	}
@@ -11065,7 +11065,7 @@ customResourceDefinitionList: items: [{
 																		type: "array"
 																	}
 																	name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																		type: "string"
 																	}
@@ -11192,7 +11192,7 @@ customResourceDefinitionList: items: [{
 													description: "secretRef is name of the authentication secret for RBDUser. If provided overrides keyring. Default is nil. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
 
 													properties: name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -11239,7 +11239,7 @@ customResourceDefinitionList: items: [{
 													description: "secretRef references to the secret for ScaleIO user and other sensitive information. If this is not provided, Login operation will fail."
 
 													properties: name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -11350,7 +11350,7 @@ customResourceDefinitionList: items: [{
 													description: "secretRef specifies the secret to use for obtaining the StorageOS API credentials.  If not specified, default values will be attempted."
 
 													properties: name: {
-														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+														description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 														type: "string"
 													}
@@ -11436,7 +11436,7 @@ customResourceDefinitionList: items: [{
 			plural:   "logsinstances"
 			singular: "logsinstance"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			name: "v1alpha1"
 			schema: openAPIV3Schema: {
@@ -11473,7 +11473,7 @@ customResourceDefinitionList: items: [{
 										type: "string"
 									}
 									name: {
-										description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+										description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 										type: "string"
 									}
@@ -11528,7 +11528,7 @@ customResourceDefinitionList: items: [{
 															type: "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 															type: "string"
 														}
@@ -11554,7 +11554,7 @@ customResourceDefinitionList: items: [{
 															type: "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 															type: "string"
 														}
@@ -11628,7 +11628,7 @@ customResourceDefinitionList: items: [{
 																	type:        "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -11653,7 +11653,7 @@ customResourceDefinitionList: items: [{
 																	type: "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -11689,7 +11689,7 @@ customResourceDefinitionList: items: [{
 																	type:        "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -11714,7 +11714,7 @@ customResourceDefinitionList: items: [{
 																	type: "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -11757,7 +11757,7 @@ customResourceDefinitionList: items: [{
 															type: "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 															type: "string"
 														}
@@ -11917,7 +11917,7 @@ customResourceDefinitionList: items: [{
 			plural:   "metricsinstances"
 			singular: "metricsinstance"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			name: "v1alpha1"
 			schema: openAPIV3Schema: {
@@ -11949,7 +11949,7 @@ customResourceDefinitionList: items: [{
 										type: "string"
 									}
 									name: {
-										description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+										description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 										type: "string"
 									}
@@ -12182,7 +12182,7 @@ customResourceDefinitionList: items: [{
 															type: "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 															type: "string"
 														}
@@ -12208,7 +12208,7 @@ customResourceDefinitionList: items: [{
 															type: "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 															type: "string"
 														}
@@ -12279,7 +12279,7 @@ customResourceDefinitionList: items: [{
 																	type:        "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -12304,7 +12304,7 @@ customResourceDefinitionList: items: [{
 																	type: "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -12332,7 +12332,7 @@ customResourceDefinitionList: items: [{
 															type: "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 															type: "string"
 														}
@@ -12445,7 +12445,7 @@ customResourceDefinitionList: items: [{
 															type: "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 															type: "string"
 														}
@@ -12486,7 +12486,7 @@ customResourceDefinitionList: items: [{
 															type: "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 															type: "string"
 														}
@@ -12521,7 +12521,7 @@ customResourceDefinitionList: items: [{
 																	type:        "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -12546,7 +12546,7 @@ customResourceDefinitionList: items: [{
 																	type: "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -12582,7 +12582,7 @@ customResourceDefinitionList: items: [{
 																	type:        "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -12607,7 +12607,7 @@ customResourceDefinitionList: items: [{
 																	type: "string"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+																	description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 																	type: "string"
 																}
@@ -12650,7 +12650,7 @@ customResourceDefinitionList: items: [{
 															type: "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#Names TODO: Add other useful fields. apiVersion, kind, uid?"
 
 															type: "string"
 														}
@@ -12885,7 +12885,7 @@ customResourceDefinitionList: items: [{
 			plural:   "podlogs"
 			singular: "podlogs"
 		}
-		scope: "Namespaced"
+		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
 			name: "v1alpha1"
 			schema: openAPIV3Schema: {

@@ -2,16 +2,16 @@ package rook_ceph
 
 import "k8s.io/api/core/v1"
 
-cephBlockPoolList: v1.#List & {
-	apiVersion: "v1"
-	kind:       "List"
+#CephBlockPoolList: v1.#List & {
+	apiVersion: "ceph.rook.io/v1"
+	kind:       "CephBlockPoolList"
 	items: [...{
 		apiVersion: "ceph.rook.io/v1"
 		kind:       "CephBlockPool"
 	}]
 }
 
-cephBlockPoolList: items: [{
+#CephBlockPoolList: items: [{
 	metadata: name: "ecpool"
 	spec: {
 		erasureCoded: {

@@ -6,7 +6,7 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-configMapList: v1.#ConfigMapList & {
+#ConfigMapList: v1.#ConfigMapList & {
 	apiVersion: "v1"
 	kind:       "ConfigMapList"
 	items: [...{
@@ -15,7 +15,7 @@ configMapList: v1.#ConfigMapList & {
 	}]
 }
 
-configMapList: items: [{
+#ConfigMapList: items: [{
 	data: {
 		"datasources.yaml": yaml.Marshal({})
 		// "datasources.yaml": yaml.Marshal({
@@ -53,11 +53,8 @@ configMapList: items: [{
 			plugins = /var/lib/grafana/plugins
 			provisioning = /etc/grafana/provisioning
 
-			[server]
-			domain = ''
-
 			[database]
-			path = /etc/grafana/database/grafana.db
+			path = /var/lib/grafana/database/grafana.db
 
 			[auth.anonymous]
 			enabled = true
