@@ -55,6 +55,15 @@ import (
 						protocol:      v1.#ProtocolUDP
 					}]
 					env: [{
+						// .NET CoreCLR crashes when run
+						// in a container with a
+						// read-only filesystem.
+						//
+						// https://github.com/Radarr/Radarr/issues/7030#issuecomment-1039689518
+						// https://github.com/dotnet/runtime/issues/9336
+						name:  "COMPlus_EnableDiagnostics"
+						value: "0"
+					}, {
 						name:  "JELLYFIN_CONFIG_DIR"
 						value: configDirectory
 					}, {
