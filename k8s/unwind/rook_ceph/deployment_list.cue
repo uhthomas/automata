@@ -42,7 +42,7 @@ import (
 				serviceAccountName: "rook-ceph-system"
 				containers: [{
 					name:            "rook-ceph-operator"
-					image:           "rook/ceph:v1.11.0"
+					image:           "rook/ceph:v\(#Version)"
 					imagePullPolicy: v1.#PullIfNotPresent
 					args: ["ceph", "operator"]
 					securityContext: {
