@@ -37,7 +37,8 @@ import "k8s.io/api/core/v1"
 	#StorageClassList.items +
 
 	// CRDs.
+	#CephBlockPoolList.items +
 	#CephClusterList.items +
-	#CephBlockPoolList.items
+	#CephFilesystemList.items
 // #CephObjectStoreList.items +
 // #ObjectBucketClaimList.items
