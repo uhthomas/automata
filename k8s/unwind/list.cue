@@ -1,4 +1,6 @@
 import (
+	"list"
+
 	"github.com/uhthomas/automata/k8s/unwind/media"
 	"github.com/uhthomas/automata/k8s/unwind/cert_manager_csi_driver"
 	"github.com/uhthomas/automata/k8s/unwind/cert_manager"
@@ -22,24 +24,27 @@ import (
 
 // items are grouped by dependency requirements, and sorted lexicographically
 // where possible.
-#List: items:
-	cert_manager.#List.items +
-	cert_manager_csi_driver.#List.items +
-	rook_ceph.#List.items +
-	secrets_store_csi_driver.#List.items +
+#List: items: list.Concat(_items)
+
+_items: [
+	cert_manager.#List.items,
+	cert_manager_csi_driver.#List.items,
+	rook_ceph.#List.items,
+	secrets_store_csi_driver.#List.items,
 
 	// Requires rook_ceph and secrets_store_csi_driver.
-	vault.#List.items +
-	vault_csi_provider.#List.items +
-	vault_config_operator.#List.items +
+	vault.#List.items,
+	vault_csi_provider.#List.items,
+	vault_config_operator.#List.items,
 
 	// Requires secrets_store_csi_driver.
-	tailscale.#List.items +
+	tailscale.#List.items,
 
 	// Requires rook_ceph and tailscale.
-	grafana_agent_operator.#List.items +
-	grafana_agent.#List.items +
-	grafana.#List.items +
-	media.#List.items
+	grafana_agent_operator.#List.items,
+	grafana_agent.#List.items,
+	grafana.#List.items,
+	media.#List.items,
+]
 
 #List

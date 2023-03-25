@@ -1,6 +1,10 @@
 package recyclarr
 
-import "k8s.io/api/core/v1"
+import (
+	"list"
+
+	"k8s.io/api/core/v1"
+)
 
 #Name:    "recyclarr"
 #Version: "4.3.0"
@@ -21,6 +25,9 @@ import "k8s.io/api/core/v1"
 
 }
 
-#List: items:
-	#ConfigMapList.items +
-	#CronJobList.items
+#List: items: list.Concat(_items)
+
+_items: [
+	#ConfigMapList.items,
+	#CronJobList.items,
+]

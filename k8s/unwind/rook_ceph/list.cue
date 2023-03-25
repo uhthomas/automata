@@ -1,6 +1,10 @@
 package rook_ceph
 
-import "k8s.io/api/core/v1"
+import (
+	"list"
+
+	"k8s.io/api/core/v1"
+)
 
 #Name:      "rook-ceph"
 #Namespace: #Name
@@ -23,22 +27,28 @@ import "k8s.io/api/core/v1"
 	}]
 }
 
-#List: items:
-	#NamespaceList.items +
-	#ClusterRoleBindingList.items +
-	#ClusterRoleList.items +
-	#ConfigMapList.items +
-	#CustomResourceDefinitionList.items +
-	#DeploymentList.items +
-	#RoleBindingList.items +
-	#RoleList.items +
-	#ServiceAccountList.items +
-	#ServiceList.items +
-	#StorageClassList.items +
+#List: items: list.Concat(_items)
+
+_items: [
+	// The namespace must be created first.
+	#NamespaceList.items,
+
+	// Lexicographic ordering.
+	#ClusterRoleBindingList.items,
+	#ClusterRoleList.items,
+	#ConfigMapList.items,
+	#CustomResourceDefinitionList.items,
+	#DeploymentList.items,
+	#RoleBindingList.items,
+	#RoleList.items,
+	#ServiceAccountList.items,
+	#ServiceList.items,
+	#StorageClassList.items,
 
 	// CRDs.
-	#CephBlockPoolList.items +
-	#CephClusterList.items +
-	#CephFilesystemList.items
-// #CephObjectStoreList.items +
-// #ObjectBucketClaimList.items
+	#CephBlockPoolList.items,
+	#CephClusterList.items,
+	#CephFilesystemList.items,
+]
+// #CephObjectStoreList.items,
+// #ObjectBucketClaimList.items,

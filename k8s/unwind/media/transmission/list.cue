@@ -1,6 +1,10 @@
 package transmission
 
-import "k8s.io/api/core/v1"
+import (
+	"list"
+
+	"k8s.io/api/core/v1"
+)
 
 #Name:    "transmission"
 #Version: "0.1.0"
@@ -20,4 +24,6 @@ import "k8s.io/api/core/v1"
 
 }
 
-#List: items: []
+#List: items: list.Concat(_items)
+
+_items: []

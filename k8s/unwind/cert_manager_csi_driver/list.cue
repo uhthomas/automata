@@ -1,6 +1,10 @@
 package cert_manager_csi_driver
 
-import "k8s.io/api/core/v1"
+import (
+	"list"
+
+	"k8s.io/api/core/v1"
+)
 
 #Name:      "cert-manager-csi-driver"
 #Namespace: #Name
@@ -21,12 +25,16 @@ import "k8s.io/api/core/v1"
 	}]
 }
 
-#List: items:
+#List: items: list.Concat(_items)
+
+_items: [
 	// The namespace must be created first.
-	#NamespaceList.items +
+	#NamespaceList.items,
+
 	// Lexicographic ordering.
-	#ClusterRoleBindingList.items +
-	#ClusterRoleList.items +
-	#CSIDriverList.items +
-	#DaemonSetList.items +
-	#ServiceAccountList.items
+	#ClusterRoleBindingList.items,
+	#ClusterRoleList.items,
+	#CSIDriverList.items,
+	#DaemonSetList.items,
+	#ServiceAccountList.items,
+]

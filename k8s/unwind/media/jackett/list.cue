@@ -1,6 +1,10 @@
 package jackett
 
-import "k8s.io/api/core/v1"
+import (
+	"list"
+
+	"k8s.io/api/core/v1"
+)
 
 #Name:    "jackett"
 #Version: "0.20.3678"
@@ -20,7 +24,10 @@ import "k8s.io/api/core/v1"
 
 }
 
-#List: items:
-	#DeploymentList.items +
-	#PersistentVolumeClaimList.items +
-	#ServiceList.items
+#List: items: list.Concat(_items)
+
+_items: [
+	#DeploymentList.items,
+	#PersistentVolumeClaimList.items,
+	#ServiceList.items,
+]

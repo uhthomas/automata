@@ -1,6 +1,8 @@
 package media
 
 import (
+	"list"
+
 	"github.com/uhthomas/automata/k8s/unwind/media/bazarr"
 	"github.com/uhthomas/automata/k8s/unwind/media/jackett"
 	"github.com/uhthomas/automata/k8s/unwind/media/jellyfin"
@@ -22,16 +24,20 @@ import (
 
 }
 
-#List: items:
+#List: items: list.Concat(_items)
+
+_items: [
 	// The namespace must be created first.
-	#NamespaceList.items +
+	#NamespaceList.items,
+
 	// Lexicographic ordering.
-	#PersistentVolumeClaimList.items +
-	bazarr.#List.items +
-	jackett.#List.items +
-	jellyfin.#List.items +
-	jellyseerr.#List.items +
-	radarr.#List.items +
-	recyclarr.#List.items +
-	sonarr.#List.items +
-	transmission.#List.items
+	#PersistentVolumeClaimList.items,
+	bazarr.#List.items,
+	jackett.#List.items,
+	jellyfin.#List.items,
+	jellyseerr.#List.items,
+	radarr.#List.items,
+	recyclarr.#List.items,
+	sonarr.#List.items,
+	transmission.#List.items,
+]

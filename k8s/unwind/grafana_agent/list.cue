@@ -1,6 +1,10 @@
 package grafana_agent
 
-import "k8s.io/api/core/v1"
+import (
+	"list"
+
+	"k8s.io/api/core/v1"
+)
 
 #Name:      "grafana-agent"
 #Namespace: #Name
@@ -21,9 +25,15 @@ import "k8s.io/api/core/v1"
 	}]
 }
 
-#List: items:
-	#NamespaceList.items +
-	#ClusterRoleBindingList.items +
-	#ClusterRoleList.items +
-	#GrafanaAgentList.items +
-	#ServiceAccountList.items
+#List: items: list.Concat(_items)
+
+_items: [
+	// The namespace must be created first.
+	#NamespaceList.items,
+
+	// Lexicographic ordering.
+	#ClusterRoleBindingList.items,
+	#ClusterRoleList.items,
+	#GrafanaAgentList.items,
+	#ServiceAccountList.items,
+]

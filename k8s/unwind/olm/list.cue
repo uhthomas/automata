@@ -1,6 +1,10 @@
 package olm
 
-import "k8s.io/api/core/v1"
+import (
+	"list"
+
+	"k8s.io/api/core/v1"
+)
 
 #Name:      "olm"
 #Namespace: #Name
@@ -22,15 +26,21 @@ import "k8s.io/api/core/v1"
 	}]
 }
 
-#List: items:
-	#NamespaceList.items
-// #ClusterRoleBindingList.items +
-// #ClusterRoleList.items +
-// #ConfigMapList.items +
-// #CustomResourceDefinitionList.items +
-// #DeploymentList.items +
-// #RoleBindingList.items +
-// #RoleList.items +
-// #ServiceAccountList.items +
-// #ServiceList.items +
-// #StorageClassList.items
+#List: items: list.Concat(_items)
+
+_items: [
+	// The namespace must be created first.
+	#NamespaceList.items,
+]
+
+// Lexicographic ordering.
+// #ClusterRoleBindingList.items,
+// #ClusterRoleList.items,
+// #ConfigMapList.items,
+// #CustomResourceDefinitionList.items,
+// #DeploymentList.items,
+// #RoleBindingList.items,
+// #RoleList.items,
+// #ServiceAccountList.items,
+// #ServiceList.items,
+// #StorageClassList.items,

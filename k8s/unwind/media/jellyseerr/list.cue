@@ -1,6 +1,10 @@
 package jellyseerr
 
-import "k8s.io/api/core/v1"
+import (
+	"list"
+
+	"k8s.io/api/core/v1"
+)
 
 #Name:    "jellyseerr"
 #Version: "1.4.1"
@@ -20,7 +24,10 @@ import "k8s.io/api/core/v1"
 
 }
 
-#List: items:
-	#DeploymentList.items +
-	#PersistentVolumeClaimList.items +
-	#ServiceList.items
+#List: items: list.Concat(_items)
+
+_items: [
+	#DeploymentList.items,
+	#PersistentVolumeClaimList.items,
+	#ServiceList.items,
+]

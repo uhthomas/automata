@@ -1,6 +1,10 @@
 package vault_config_operator
 
-import "k8s.io/api/core/v1"
+import (
+	"list"
+
+	"k8s.io/api/core/v1"
+)
 
 #Name:      "vault-config-operator"
 #Namespace: #Name
@@ -22,18 +26,22 @@ import "k8s.io/api/core/v1"
 
 }
 
-#List: items:
+#List: items: list.Concat(_items)
+
+_items: [
 	// The namespace must be created first.
-	#NamespaceList.items +
+	#NamespaceList.items,
+
 	// Lexicographic ordering.
-	#CertificateList.items +
-	#ClusterRoleBindingList.items +
-	#ConfigMapList.items +
-	#DeploymentList.items +
-	#IssuerList.items +
-	#MutatingWebhookConfigurationList.items +
-	#RoleBindingList.items +
-	#RoleList.items +
-	#ServiceAccountList.items +
-	#ServiceList.items +
-	#ValidatingWebhookConfigurationList.items
+	#CertificateList.items,
+	#ClusterRoleBindingList.items,
+	#ConfigMapList.items,
+	#DeploymentList.items,
+	#IssuerList.items,
+	#MutatingWebhookConfigurationList.items,
+	#RoleBindingList.items,
+	#RoleList.items,
+	#ServiceAccountList.items,
+	#ServiceList.items,
+	#ValidatingWebhookConfigurationList.items,
+]

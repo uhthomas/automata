@@ -1,6 +1,9 @@
 package grafana_agent_operator
 
-import "k8s.io/api/core/v1"
+import (
+	"list"
+	"k8s.io/api/core/v1"
+)
 
 #Namespace: "grafana-agent-operator"
 
@@ -21,10 +24,16 @@ import "k8s.io/api/core/v1"
 	}]
 }
 
-#List: items:
-	#NamespaceList.items +
-	#ClusterRoleBindingList.items +
-	#ClusterRoleList.items +
-	#CustomResourceDefinitionList.items +
-	#DeploymentList.items +
-	#ServiceAccountList.items
+#List: items: list.Concat(_items)
+
+_items: [
+	// The namespace must be created first.
+	#NamespaceList.items,
+
+	// Lexicographic ordering.
+	#ClusterRoleBindingList.items,
+	#ClusterRoleList.items,
+	#CustomResourceDefinitionList.items,
+	#DeploymentList.items,
+	#ServiceAccountList.items,
+]

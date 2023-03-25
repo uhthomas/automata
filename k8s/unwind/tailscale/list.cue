@@ -1,6 +1,10 @@
 package tailscale
 
-import "k8s.io/api/core/v1"
+import (
+	"list"
+
+	"k8s.io/api/core/v1"
+)
 
 #Name:      "tailscale"
 #Namespace: #Name
@@ -17,14 +21,18 @@ import "k8s.io/api/core/v1"
 
 }
 
-#List: items:
+#List: items: list.Concat(_items)
+
+_items: [
 	// The namespace must be created first.
-	#NamespaceList.items +
+	#NamespaceList.items,
+
 	// Lexicographic ordering.
-	#ClusterRoleBindingList.items +
-	#ClusterRoleList.items +
-	#DeploymentList.items +
-	#RoleBindingList.items +
-	#RoleList.items +
-	#SecretProviderClassList.items +
-	#ServiceAccountList.items
+	#ClusterRoleBindingList.items,
+	#ClusterRoleList.items,
+	#DeploymentList.items,
+	#RoleBindingList.items,
+	#RoleList.items,
+	#SecretProviderClassList.items,
+	#ServiceAccountList.items,
+]
