@@ -14,11 +14,12 @@ import "k8s.io/api/core/v1"
 #GrafanaAgentList: items: [{
 	spec: {
 		image: "grafana/agent:v0.32.1"
-		// integrations: selector: matchLabels: agent: #Name
-		logs: instanceSelector: matchLabels: agent: #Name
+		integrations: selector: matchLabels: "app.kubernetes.io/name": #Name
+		logs: instanceSelector: matchLabels: "app.kubernetes.io/name": #Name
 		metrics: {
 			externalLabels: cluster: "unwind"
-			instanceSelector: matchLabels: agent: #Name
+			instanceSelector: matchLabels: "app.kubernetes.io/name": #Name
+			scrapeInterval: "15s"
 		}
 		serviceAccountName: #Name
 	}

@@ -35,5 +35,12 @@ _items: [
 	#ClusterRoleBindingList.items,
 	#ClusterRoleList.items,
 	#GrafanaAgentList.items,
+	#IntegrationList.items,
+	#LogsInstanceList.items,
+	#MetricsInstanceList.items,
+	#PersistentVolumeClaimList.items,
+	#PodLogsList.items,
+	#PodMonitorList.items,
 	#ServiceAccountList.items,
+	#ServiceMonitorList.items,
 ]

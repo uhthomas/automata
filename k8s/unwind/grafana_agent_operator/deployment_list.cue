@@ -29,11 +29,23 @@ import (
 			spec: {
 				serviceAccountName: #Name
 				containers: [{
-					name:            #Name
-					image:           "docker.io/grafana/agent-operator:v\(#Version)"
+					name:            "operator"
+					image:           "grafana/agent-operator:v\(#Version)"
 					imagePullPolicy: v1.#PullIfNotPresent
-					args: ["--kubelet-service=\(#Namespace)/kubelet"]
+					args: ["--log.level=debug", "--kubelet-service=\(#Namespace)/kubelet"]
+					securityContext: {
+						capabilities: drop: ["ALL"]
+						readOnlyRootFilesystem:   true
+						allowPrivilegeEscalation: false
+					}
 				}]
+				securityContext: {
+					runAsUser:    1000
+					runAsGroup:   3000
+					runAsNonRoot: true
+					fsGroup:      2000
+					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
+				}
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-package grafana_agent_operator
+package grafana_agent
 
 import "k8s.io/api/core/v1"
 
@@ -12,20 +12,12 @@ import "k8s.io/api/core/v1"
 }
 
 #LogsInstanceList: items: [{
-	clients: [{
-		basicAuth: {
-			password: {
-				key:  "password"
-				name: "logs-secret"
-			}
-			username: {
-				key:  "username"
-				name: "logs-secret"
-			}
-		}
-		externalLabels: cluster: "${CLUSTER}"
-		url: "${LOGS_URL}"
-	}]
-	podLogsNamespaceSelector: {}
-	podLogsSelector: matchLabels: instance: "primary"
+	spec: {
+		clients: [{
+			externalLabels: cluster: "unwind"
+			url: "http://loki-gateway.loki.svc/loki/api/v1/push"
+		}]
+		podLogsNamespaceSelector: {}
+		podLogsSelector: matchLabels: {}
+	}
 }]

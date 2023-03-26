@@ -49,7 +49,7 @@ import (
 				reject_old_samples_max_age:    "168h"
 				split_queries_by_interval:     "15m"
 			}
-			memberlist: join_members: [ "loki-memberlist"]
+			memberlist: join_members: ["loki-memberlist"]
 			query_range: align_queries_with_step: true
 			ruler: storage: type: "s3"
 			runtime_config: file: "/etc/loki/runtime-config/runtime-config.yaml"
