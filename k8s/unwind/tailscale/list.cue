@@ -8,6 +8,7 @@ import (
 
 #Name:      "tailscale"
 #Namespace: #Name
+#Version:   "1.39.55"
 
 #List: v1.#List & {
 	apiVersion: "v1"
@@ -16,6 +17,10 @@ import (
 		metadata: {
 			name:      string | *#Name
 			namespace: #Namespace
+			labels: {
+				"app.kubernetes.io/name":    #Name
+				"app.kubernetes.io/version": #Version
+			}
 		}
 	}]
 

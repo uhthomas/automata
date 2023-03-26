@@ -18,10 +18,10 @@ import (
 	metadata: name: "operator"
 	spec: {
 		replicas: 1
-		strategy: type: "Recreate"
-		selector: matchLabels: app: "operator"
+		strategy: type: v1.#RecreateDeploymentStrategyType
+		selector: matchLabels: "app.kubernetes.io/name": "operator"
 		template: {
-			metadata: labels: app: "operator"
+			metadata: labels: "app.kubernetes.io/name": "operator"
 			spec: {
 				volumes: [{
 					name: "config"
@@ -36,7 +36,7 @@ import (
 				}]
 				containers: [{
 					name:  "operator"
-					image: "tailscale/k8s-operator:unstable-v1.39.55"
+					image: "tailscale/k8s-operator:unstable-v\(#Version)"
 					env: [{
 						name:  "OPERATOR_HOSTNAME"
 						value: "tailscale-operator"
