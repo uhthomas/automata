@@ -18,21 +18,21 @@ import (
 	spec: {
 		replicas: 1
 		selector: matchLabels: {
-			"app.kubernetes.io/name":     "grafana-agent-operator"
-			"app.kubernetes.io/instance": "grafana-agent-operator"
+			"app.kubernetes.io/name":     #Name
+			"app.kubernetes.io/instance": #Name
 		}
 		template: {
 			metadata: labels: {
-				"app.kubernetes.io/name":     "grafana-agent-operator"
-				"app.kubernetes.io/instance": "grafana-agent-operator"
+				"app.kubernetes.io/name":     #Name
+				"app.kubernetes.io/instance": #Name
 			}
 			spec: {
-				serviceAccountName: "grafana-agent-operator"
+				serviceAccountName: #Name
 				containers: [{
-					name:            "grafana-agent-operator"
-					image:           "docker.io/grafana/agent-operator:v0.32.1"
+					name:            #Name
+					image:           "docker.io/grafana/agent-operator:v\(#Version)"
 					imagePullPolicy: v1.#PullIfNotPresent
-					args: ["--kubelet-service=default/kubelet"]
+					args: ["--kubelet-service=\(#Namespace)/kubelet"]
 				}]
 			}
 		}

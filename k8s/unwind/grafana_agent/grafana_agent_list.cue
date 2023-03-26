@@ -14,7 +14,7 @@ import "k8s.io/api/core/v1"
 #GrafanaAgentList: items: [{
 	spec: {
 		image: "grafana/agent:v0.32.1"
-		integrations: selector: matchLabels: agent: #Name
+		// integrations: selector: matchLabels: agent: #Name
 		logs: instanceSelector: matchLabels: agent: #Name
 		metrics: {
 			externalLabels: cluster: "unwind"

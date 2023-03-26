@@ -5,18 +5,20 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-#Namespace: "grafana-agent-operator"
+#Name:      "grafana-agent-operator"
+#Namespace: #Name
+#Version:   "0.32.1"
 
 #List: v1.#List & {
 	apiVersion: "v1"
 	kind:       "List"
 	items: [...{
 		metadata: {
-			name:      string | *"grafana-agent-operator"
+			name:      string | *#Name
 			namespace: #Namespace
 			labels: {
-				"app.kubernetes.io/name":      "grafana-agent-operator"
-				"app.kubernetes.io/instance":  "grafana-agent-operator"
+				"app.kubernetes.io/name":      #Name
+				"app.kubernetes.io/instance":  #Name
 				"app.kubernetes.io/version":   "0.32.1"
 				"app.kubernetes.io/component": string | *"operator"
 			}

@@ -15,11 +15,11 @@ import rbacv1 "k8s.io/api/rbac/v1"
 	roleRef: {
 		apiGroup: rbacv1.#GroupName
 		kind:     "ClusterRole"
-		name:     "grafana-agent-operator"
+		name:     #Name
 	}
 	subjects: [{
 		kind:      rbacv1.#ServiceAccountKind
-		name:      "grafana-agent-operator"
+		name:      #Name
 		namespace: #Namespace
 	}]
 }]
