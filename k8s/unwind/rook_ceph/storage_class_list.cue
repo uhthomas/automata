@@ -61,4 +61,18 @@ import (
 		objectStoreName:      "ecstore-hdd"
 		objectStoreNamespace: #Namespace
 	}
+}, {
+	metadata: name: "rook-ceph-mimir-blocks-bucket"
+	provisioner: "rook-ceph.ceph.rook.io/bucket"
+	parameters: {
+		objectStoreName:      "ecstore-hdd"
+		objectStoreNamespace: #Namespace
+	}
+}, {
+	metadata: name: "rook-ceph-mimir-ruler-bucket"
+	provisioner: "rook-ceph.ceph.rook.io/bucket"
+	parameters: {
+		objectStoreName:      "ecstore-hdd"
+		objectStoreNamespace: #Namespace
+	}
 }]

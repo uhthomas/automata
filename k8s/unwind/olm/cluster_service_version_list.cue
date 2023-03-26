@@ -113,7 +113,7 @@ import "k8s.io/api/core/v1"
 							spec: {
 								securityContext: {
 									runAsNonRoot: true
-									seccompProfile: type: "RuntimeDefault"
+									seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 								}
 								serviceAccountName: "olm-operator-serviceaccount"
 								nodeSelector: "kubernetes.io/os": "linux"

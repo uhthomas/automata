@@ -29,7 +29,7 @@ import (
 			spec: {
 				securityContext: {
 					runAsNonRoot: true
-					seccompProfile: type: "RuntimeDefault"
+					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 				}
 				serviceAccountName: "olm-operator-serviceaccount"
 				containers: [{
@@ -95,7 +95,7 @@ import (
 			spec: {
 				securityContext: {
 					runAsNonRoot: true
-					seccompProfile: type: "RuntimeDefault"
+					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 				}
 				serviceAccountName: "olm-operator-serviceaccount"
 				containers: [{

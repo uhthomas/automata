@@ -34,7 +34,7 @@ import (
 				replication_factor: 3
 				storage: s3: {
 					bucketnames:       "loki"
-					endpoint:          "'${AWS_HOST}:${AWS_PORT}'"
+					endpoint:          "${BUCKET_HOST}"
 					region:            ""
 					access_key_id:     "'${AWS_ACCESS_KEY_ID}'"
 					secret_access_key: "'${AWS_SECRET_ACCESS_KEY}'"

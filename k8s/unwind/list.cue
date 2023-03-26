@@ -8,6 +8,7 @@ import (
 	"github.com/uhthomas/automata/k8s/unwind/grafana"
 	"github.com/uhthomas/automata/k8s/unwind/loki"
 	"github.com/uhthomas/automata/k8s/unwind/media"
+	"github.com/uhthomas/automata/k8s/unwind/mimir"
 	"github.com/uhthomas/automata/k8s/unwind/rook_ceph"
 	"github.com/uhthomas/automata/k8s/unwind/secrets_store_csi_driver"
 	"github.com/uhthomas/automata/k8s/unwind/tailscale"
@@ -47,6 +48,7 @@ _items: [
 	grafana.#List.items,
 	loki.#List.items,
 	media.#List.items,
+	mimir.#List.items,
 ]
 
 #List

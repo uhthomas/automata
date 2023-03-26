@@ -23,6 +23,7 @@ cue_export(
         "//k8s/unwind/grafana_agent_operator:cue_grafana_agent_operator_library",
         "//k8s/unwind/loki:cue_loki_library",
         "//k8s/unwind/media:cue_media_library",
+        "//k8s/unwind/mimir:cue_mimir_library",
         "//k8s/unwind/rook_ceph:cue_rook_ceph_library",
         "//k8s/unwind/secrets_store_csi_driver:cue_secrets_store_csi_driver_library",
         "//k8s/unwind/tailscale:cue_tailscale_library",
