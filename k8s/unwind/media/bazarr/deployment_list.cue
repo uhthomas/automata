@@ -77,7 +77,7 @@ import (
 					runAsUser:    0
 					runAsGroup:   0
 					runAsNonRoot: false
-					fsGroup:      0
+					fsGroup:      2000
 					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 				}
 			}
