@@ -15,7 +15,10 @@ import (
 }
 
 #StorageClassList: items: [{
-	metadata: name: "rook-ceph-hdd-ec-delete-block"
+	metadata: {
+		name: "rook-ceph-hdd-ec-delete-block"
+		annotations: "storageclass.kubernetes.io/is-default-class": "true"
+	}
 	provisioner: "\(#Namespace).rbd.csi.ceph.com"
 	parameters: {
 		clusterID:     #Namespace
