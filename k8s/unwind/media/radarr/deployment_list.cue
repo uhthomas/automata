@@ -38,6 +38,13 @@ import (
 						name:          "http"
 						containerPort: 7878
 					}]
+					env: [{
+						name:  "PUID"
+						value: "2000"
+					}, {
+						name:  "PGID"
+						value: "2000"
+					}]
 					resources: {
 						limits: {
 							cpu:    "1"
