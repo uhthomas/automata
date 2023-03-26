@@ -30,6 +30,9 @@ import (
 					name: "data"
 					persistentVolumeClaim: claimName: "\(#Name)-data"
 				}, {
+					name: "media-books"
+					persistentVolumeClaim: claimName: "media-books"
+				}, {
 					name: "media-movies"
 					persistentVolumeClaim: claimName: "media-movies"
 				}, {
@@ -89,6 +92,9 @@ import (
 					}, {
 						name:      "data"
 						mountPath: "/data"
+					}, {
+						name:      "media-books"
+						mountPath: "/media/books"
 					}, {
 						name:      "media-movies"
 						mountPath: "/media/movies"

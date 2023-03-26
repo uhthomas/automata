@@ -9,6 +9,7 @@ import (
 	"github.com/uhthomas/automata/k8s/unwind/media/lidarr"
 	"github.com/uhthomas/automata/k8s/unwind/media/prowlarr"
 	"github.com/uhthomas/automata/k8s/unwind/media/radarr"
+	"github.com/uhthomas/automata/k8s/unwind/media/readarr"
 	"github.com/uhthomas/automata/k8s/unwind/media/recyclarr"
 	"github.com/uhthomas/automata/k8s/unwind/media/sonarr"
 	"github.com/uhthomas/automata/k8s/unwind/media/transmission"
@@ -39,6 +40,7 @@ _items: [
 	lidarr.#List.items,
 	prowlarr.#List.items,
 	radarr.#List.items,
+	readarr.#List.items,
 	recyclarr.#List.items,
 	sonarr.#List.items,
 	transmission.#List.items,
