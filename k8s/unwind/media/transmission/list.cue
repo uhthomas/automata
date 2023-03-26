@@ -7,7 +7,7 @@ import (
 )
 
 #Name:    "transmission"
-#Version: "0.1.0"
+#Version: "4.0.2"
 
 #List: v1.#List & {
 	apiVersion: "v1"
@@ -26,4 +26,8 @@ import (
 
 #List: items: list.Concat(_items)
 
-_items: []
+_items: [
+	#DeploymentList.items,
+	#ServiceList.items,
+	#PersistentVolumeClaimList.items,
+]
