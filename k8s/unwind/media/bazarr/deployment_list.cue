@@ -28,8 +28,8 @@ import (
 					name: "movies"
 					persistentVolumeClaim: claimName: "media-movies"
 				}, {
-					name: "tv"
-					persistentVolumeClaim: claimName: "media-tv"
+					name: "shows"
+					persistentVolumeClaim: claimName: "media-shows"
 				}]
 				containers: [{
 					name:  #Name
@@ -55,7 +55,7 @@ import (
 						name:      "movies"
 						mountPath: "/movies"
 					}, {
-						name:      "tv"
+						name:      "shows"
 						mountPath: "/tv"
 					}]
 					livenessProbe: httpGet: {

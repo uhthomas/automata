@@ -25,8 +25,8 @@ import (
 					name: "config"
 					persistentVolumeClaim: claimName: "\(#Name)-config"
 				}, {
-					name: "tv"
-					persistentVolumeClaim: claimName: "media-tv"
+					name: "shows"
+					persistentVolumeClaim: claimName: "media-shows"
 				}, {
 					name: "downloads"
 					persistentVolumeClaim: claimName: "media-downloads"
@@ -52,7 +52,7 @@ import (
 						name:      "config"
 						mountPath: "/config"
 					}, {
-						name:      "tv"
+						name:      "shows"
 						mountPath: "/tv"
 					}, {
 						name:      "downloads"
