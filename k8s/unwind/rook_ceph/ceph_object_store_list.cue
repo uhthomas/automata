@@ -14,11 +14,11 @@ import "k8s.io/api/core/v1"
 #CephObjectStoreList: items: [{
 	metadata: name: "ecstore-hdd"
 	spec: {
-		metadataPool: replicated: 3
+		metadataPool: replicated: size: 3
 		dataPool: erasureCoded: {
 			dataChunks:   3
 			codingChunks: 2
-			deviceClass:  "hdd"
 		}
+		gateway: port: 80
 	}
 }]

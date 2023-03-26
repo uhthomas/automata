@@ -6,6 +6,7 @@ cue_library(
         "ceph_block_pool_list.cue",
         "ceph_cluster_list.cue",
         "ceph_filesystem_list.cue",
+        "ceph_object_store_list.cue",
         "cluster_role_binding_list.cue",
         "cluster_role_list.cue",
         "config_map_list.cue",

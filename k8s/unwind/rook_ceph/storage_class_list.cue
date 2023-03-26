@@ -55,7 +55,7 @@ import (
 	allowVolumeExpansion: true
 	reclaimPolicy:        v1.#PersistentVolumeReclaimRetain
 }, {
-	metadata: name: "rook-ceph-hdd-ec-delete-bucket"
+	metadata: name: "rook-ceph-loki-bucket"
 	provisioner: "rook-ceph.ceph.rook.io/bucket"
 	parameters: {
 		objectStoreName:      "ecstore-hdd"
