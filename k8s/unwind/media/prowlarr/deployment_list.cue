@@ -1,4 +1,4 @@
-package jackett
+package prowlarr
 
 import (
 	appsv1 "k8s.io/api/apps/v1"
@@ -24,20 +24,13 @@ import (
 				volumes: [{
 					name: "config"
 					persistentVolumeClaim: claimName: "\(#Name)-config"
-				}, {
-					name: "downloads"
-					persistentVolumeClaim: claimName: "media-downloads"
 				}]
 				containers: [{
 					name:  #Name
-					image: "linuxserver/jackett:\(#Version)@sha256:fff8134e1767e7d73a72231990682fdf5f70793a551fc09f04f8457cbcfeba7d"
+					image: "linuxserver/prowlarr:\(#Version)@sha256:05fa9628c7c86c50faf208d519b5d4721609e000f7cbf6f5b7e34491e4bcdca8"
 					ports: [{
 						name:          "http"
-						containerPort: 9117
-					}]
-					env: [{
-						name:  "AUTO_UPDATE"
-						value: "false"
+						containerPort: 9696
 					}]
 					resources: {
 						limits: {
@@ -52,9 +45,6 @@ import (
 					volumeMounts: [{
 						name:      "config"
 						mountPath: "/config"
-					}, {
-						name:      "downloads"
-						mountPath: "/downloads"
 					}]
 					livenessProbe: httpGet: {
 						path: "/health"

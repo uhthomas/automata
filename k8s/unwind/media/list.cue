@@ -4,9 +4,9 @@ import (
 	"list"
 
 	"github.com/uhthomas/automata/k8s/unwind/media/bazarr"
-	"github.com/uhthomas/automata/k8s/unwind/media/jackett"
 	"github.com/uhthomas/automata/k8s/unwind/media/jellyfin"
 	"github.com/uhthomas/automata/k8s/unwind/media/jellyseerr"
+	"github.com/uhthomas/automata/k8s/unwind/media/prowlarr"
 	"github.com/uhthomas/automata/k8s/unwind/media/radarr"
 	"github.com/uhthomas/automata/k8s/unwind/media/recyclarr"
 	"github.com/uhthomas/automata/k8s/unwind/media/sonarr"
@@ -33,9 +33,9 @@ _items: [
 	// Lexicographic ordering.
 	#PersistentVolumeClaimList.items,
 	bazarr.#List.items,
-	jackett.#List.items,
 	jellyfin.#List.items,
 	jellyseerr.#List.items,
+	prowlarr.#List.items,
 	radarr.#List.items,
 	recyclarr.#List.items,
 	sonarr.#List.items,

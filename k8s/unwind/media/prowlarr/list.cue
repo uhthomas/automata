@@ -1,4 +1,4 @@
-package jackett
+package prowlarr
 
 import (
 	"list"
@@ -6,8 +6,8 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-#Name:    "jackett"
-#Version: "0.20.3678"
+#Name:    "prowlarr"
+#Version: "1.2.2"
 
 #List: v1.#List & {
 	apiVersion: "v1"

@@ -1,4 +1,4 @@
-package jackett
+package prowlarr
 
 import "k8s.io/api/core/v1"
 
