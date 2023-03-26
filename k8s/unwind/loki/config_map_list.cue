@@ -33,13 +33,12 @@ import (
 				path_prefix:        "/var/loki"
 				replication_factor: 3
 				storage: s3: {
-					bucketnames:       "loki"
+					bucketnames:       "${BUCKET_NAME}"
 					endpoint:          "${BUCKET_HOST}"
-					region:            ""
-					access_key_id:     "'${AWS_ACCESS_KEY_ID}'"
-					secret_access_key: "'${AWS_SECRET_ACCESS_KEY}'"
-					insecure:          false
-					s3forcepathstyle:  false
+					access_key_id:     "${AWS_ACCESS_KEY_ID}"
+					secret_access_key: "${AWS_SECRET_ACCESS_KEY}"
+					insecure:          true
+					s3forcepathstyle:  true
 				}
 			}
 			limits_config: {
