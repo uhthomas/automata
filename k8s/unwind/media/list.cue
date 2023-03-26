@@ -6,6 +6,7 @@ import (
 	"github.com/uhthomas/automata/k8s/unwind/media/bazarr"
 	"github.com/uhthomas/automata/k8s/unwind/media/jellyfin"
 	"github.com/uhthomas/automata/k8s/unwind/media/jellyseerr"
+	"github.com/uhthomas/automata/k8s/unwind/media/lidarr"
 	"github.com/uhthomas/automata/k8s/unwind/media/prowlarr"
 	"github.com/uhthomas/automata/k8s/unwind/media/radarr"
 	"github.com/uhthomas/automata/k8s/unwind/media/recyclarr"
@@ -35,6 +36,7 @@ _items: [
 	bazarr.#List.items,
 	jellyfin.#List.items,
 	jellyseerr.#List.items,
+	lidarr.#List.items,
 	prowlarr.#List.items,
 	radarr.#List.items,
 	recyclarr.#List.items,

@@ -33,6 +33,9 @@ import (
 					name: "media-movies"
 					persistentVolumeClaim: claimName: "media-movies"
 				}, {
+					name: "media-music"
+					persistentVolumeClaim: claimName: "media-music"
+				}, {
 					name: "media-shows"
 					persistentVolumeClaim: claimName: "media-shows"
 				}]
@@ -89,6 +92,9 @@ import (
 					}, {
 						name:      "media-movies"
 						mountPath: "/media/movies"
+					}, {
+						name:      "media-music"
+						mountPath: "/media/music"
 					}, {
 						name:      "media-shows"
 						mountPath: "/media/shows"

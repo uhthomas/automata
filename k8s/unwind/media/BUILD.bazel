@@ -14,6 +14,7 @@ cue_library(
         "//k8s/unwind/media/bazarr:cue_bazarr_library",
         "//k8s/unwind/media/jellyfin:cue_jellyfin_library",
         "//k8s/unwind/media/jellyseerr:cue_jellyseerr_library",
+        "//k8s/unwind/media/lidarr:cue_lidarr_library",
         "//k8s/unwind/media/prowlarr:cue_prowlarr_library",
         "//k8s/unwind/media/radarr:cue_radarr_library",
         "//k8s/unwind/media/recyclarr:cue_recyclarr_library",

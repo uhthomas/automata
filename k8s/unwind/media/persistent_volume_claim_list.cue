@@ -26,6 +26,13 @@ import "k8s.io/api/core/v1"
 		resources: requests: storage: "500Gi"
 	}
 }, {
+	metadata: name: "\(#Name)-music"
+	spec: {
+		accessModes: [v1.#ReadWriteMany]
+		storageClassName: "rook-cephfs-hdd-ec-retain"
+		resources: requests: storage: "500Gi"
+	}
+}, {
 	metadata: name: "\(#Name)-shows"
 	spec: {
 		accessModes: [v1.#ReadWriteMany]
