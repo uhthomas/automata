@@ -76,7 +76,7 @@ import (
 						memory: "160Mi"
 					}
 				}]
-				nodeSelector: "kubernetes.io/os": "linux"
+				nodeSelector: (v1.#LabelOSStable): v1.#Linux
 			}
 		}
 	}
@@ -137,7 +137,7 @@ import (
 						memory: "80Mi"
 					}
 				}]
-				nodeSelector: "kubernetes.io/os": "linux"
+				nodeSelector: (v1.#LabelOSStable): v1.#Linux
 			}
 		}
 	}

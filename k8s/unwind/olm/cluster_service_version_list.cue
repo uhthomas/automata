@@ -116,7 +116,7 @@ import "k8s.io/api/core/v1"
 									seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 								}
 								serviceAccountName: "olm-operator-serviceaccount"
-								nodeSelector: "kubernetes.io/os": "linux"
+								nodeSelector: (v1.#LabelOSStable): v1.#Linux
 								containers: [{
 									name: "packageserver"
 									securityContext: {

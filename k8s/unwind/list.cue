@@ -6,6 +6,7 @@ import (
 	"github.com/uhthomas/automata/k8s/unwind/grafana_agent_operator"
 	"github.com/uhthomas/automata/k8s/unwind/grafana_agent"
 	"github.com/uhthomas/automata/k8s/unwind/grafana"
+	"github.com/uhthomas/automata/k8s/unwind/kube_state_metrics"
 	"github.com/uhthomas/automata/k8s/unwind/loki"
 	"github.com/uhthomas/automata/k8s/unwind/media"
 	"github.com/uhthomas/automata/k8s/unwind/mimir"
@@ -29,8 +30,9 @@ import (
 #List: items: list.Concat(_items)
 
 _items: [
-	cert_manager.#List.items,
 	cert_manager_csi_driver.#List.items,
+	cert_manager.#List.items,
+	kube_state_metrics.#List.items,
 	rook_ceph.#List.items,
 	secrets_store_csi_driver.#List.items,
 

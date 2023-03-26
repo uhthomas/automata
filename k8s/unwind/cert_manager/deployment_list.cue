@@ -61,7 +61,7 @@ import (
 						capabilities: drop: ["ALL"]
 					}
 				}]
-				nodeSelector: "kubernetes.io/os": v1.#Linux
+				nodeSelector: (v1.#LabelOSStable): v1.#Linux
 			}
 		}
 	}
@@ -125,7 +125,7 @@ import (
 						valueFrom: fieldRef: fieldPath: "metadata.namespace"
 					}]
 				}]
-				nodeSelector: "kubernetes.io/os": v1.#Linux
+				nodeSelector: (v1.#LabelOSStable): v1.#Linux
 			}
 		}
 	}
@@ -214,7 +214,7 @@ import (
 						valueFrom: fieldRef: fieldPath: "metadata.namespace"
 					}]
 				}]
-				nodeSelector: "kubernetes.io/os": v1.#Linux
+				nodeSelector: (v1.#LabelOSStable): v1.#Linux
 			}
 		}
 	}
