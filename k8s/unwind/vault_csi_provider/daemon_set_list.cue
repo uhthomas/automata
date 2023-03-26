@@ -21,7 +21,6 @@ import (
 		template: {
 			metadata: labels: #Labels
 			spec: {
-
 				serviceAccountName: #Name
 				containers: [{
 					name:            "vault-csi-provider"

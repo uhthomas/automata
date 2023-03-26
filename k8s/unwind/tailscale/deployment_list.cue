@@ -18,7 +18,7 @@ import (
 	metadata: name: "operator"
 	spec: {
 		replicas: 1
-		strategy: type: v1.#RecreateDeploymentStrategyType
+		strategy: type: appsv1.#RecreateDeploymentStrategyType
 		selector: matchLabels: "app.kubernetes.io/name": "operator"
 		template: {
 			metadata: labels: "app.kubernetes.io/name": "operator"
