@@ -9,7 +9,6 @@ import (
 #Name:    "recyclarr"
 #Version: "4.3.0"
 
-// TODO: Provision secrets.
 #List: v1.#List & {
 	apiVersion: "v1"
 	kind:       "List"
@@ -30,4 +29,6 @@ import (
 _items: [
 	#ConfigMapList.items,
 	#CronJobList.items,
+	#SecretProviderClassList.items,
+	#ServiceAccountList.items,
 ]

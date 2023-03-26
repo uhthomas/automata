@@ -6,6 +6,8 @@ cue_library(
         "config_map_list.cue",
         "cron_job_list.cue",
         "list.cue",
+        "secret_provider_class_list.cue",
+        "service_account_list.cue",
     ],
     importpath = "github.com/uhthomas/automata/k8s/unwind/media/recyclarr",
     visibility = ["//visibility:public"],
