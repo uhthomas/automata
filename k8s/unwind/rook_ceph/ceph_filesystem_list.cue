@@ -18,12 +18,14 @@ import "k8s.io/api/core/v1"
 		dataPools: [{
 			name: "default"
 			replicated: size: 3
+			deviceClass: "hdd"
 		}, {
 			name: "erasurecoded"
 			erasureCoded: {
 				dataChunks:   3
 				codingChunks: 2
 			}
+			deviceClass: "hdd"
 		}]
 		preserveFilesystemOnDelete: true
 		metadataServer: {

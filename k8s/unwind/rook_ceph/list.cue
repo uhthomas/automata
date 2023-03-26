@@ -49,7 +49,5 @@ _items: [
 	#CephBlockPoolList.items,
 	#CephClusterList.items,
 	#CephFilesystemList.items,
+	#CephObjectStoreList.items,
 ]
-
-// #CephObjectStoreList.items,
-// #ObjectBucketClaimList.items,
