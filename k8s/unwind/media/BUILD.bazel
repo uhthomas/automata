@@ -19,6 +19,7 @@ cue_library(
         "//k8s/unwind/media/radarr:cue_radarr_library",
         "//k8s/unwind/media/readarr:cue_readarr_library",
         "//k8s/unwind/media/recyclarr:cue_recyclarr_library",
+        "//k8s/unwind/media/sabnzbd:cue_sabnzbd_library",
         "//k8s/unwind/media/sonarr:cue_sonarr_library",
         "//k8s/unwind/media/transmission:cue_transmission_library",
     ],
