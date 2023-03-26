@@ -24,6 +24,15 @@ import (
 				volumes: [{
 					name: "config"
 					persistentVolumeClaim: claimName: "\(#Name)-config"
+				}, {
+					name: "tmp"
+					emptyDir: {}
+				}, {
+					name: "yarn-cache"
+					emptyDir: {}
+				}, {
+					name: "yarn"
+					emptyDir: {}
 				}]
 				containers: [{
 					name:  #Name
@@ -49,6 +58,15 @@ import (
 					volumeMounts: [{
 						name:      "config"
 						mountPath: "/app/config"
+					}, {
+						name:      "tmp"
+						mountPath: "/tmp"
+					}, {
+						name:      "yarn-cache"
+						mountPath: "/home/node/.cache/yarn"
+					}, {
+						name:      "yarn"
+						mountPath: "/home/node/.yarn"
 					}]
 					livenessProbe: httpGet: {
 						path: "/health"
