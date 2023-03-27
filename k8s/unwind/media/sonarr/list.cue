@@ -7,7 +7,7 @@ import (
 )
 
 #Name:    "sonarr"
-#Version: "3.0.10"
+#Version: "4.0.0-develop"
 
 #List: v1.#List & {
 	apiVersion: "v1"

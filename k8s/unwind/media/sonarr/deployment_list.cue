@@ -33,7 +33,7 @@ import (
 				}]
 				containers: [{
 					name:  #Name
-					image: "linuxserver/sonarr:\(#Version)@sha256:86e607185c4b07cac135f351e2635acf4d1ea8b32fc0cadf46b5fb596f6c1db6"
+					image: "linuxserver/sonarr:\(#Version)@sha256:6e25101a7bdeb29cab23c50ad33c73073bd0e989ab2a8d0f7a2bd79b79b9a172"
 					ports: [{
 						name:          "http"
 						containerPort: 8989
