@@ -15,20 +15,70 @@ import (
 }
 
 #CronJobList: items: [{
-	let configPath = "/etc/\(#Name)/config.yaml"
+	let configDirectory = "/etc/\(#Name)"
+	let configPath = "\(configDirectory)/config.yaml"
 	spec: {
 		schedule:          "0 0 * * *" // every day
 		concurrencyPolicy: batchv1.#ForbidConcurrent
 		jobTemplate: spec: template: spec: {
 			volumes: [{
-				name: "config"
+				name: "config-init"
 				configMap: name: #Name
+			}, {
+				name: "config"
+				emptyDir: {}
+			}, {
+				name: "tmp"
+				emptyDir: {}
 			}, {
 				name: "secrets-store-inline"
 				csi: {
 					driver:   "secrets-store.csi.k8s.io"
 					readOnly: true
 					volumeAttributes: secretProviderClass: #Name
+				}
+			}]
+			// CUE doesn't support writing YAML tags.
+			//
+			// https://github.com/cue-lang/cue/issues/2316
+			initContainers: [{
+				let initConfigPath = "/tmp/init/config.yaml"
+				name:  "copy-config"
+				image: "alpine:3.17.2@sha256:e2e16842c9b54d985bf1ef9242a313f36b856181f188de21313820e177002501"
+				command: ["cp"]
+				args: [initConfigPath, configPath]
+				volumeMounts: [{
+					name:      "config-init"
+					mountPath: initConfigPath
+					subPath:   "config.yaml"
+				}, {
+					name:      "config"
+					mountPath: configDirectory
+					subPath:   "config.yaml"
+				}]
+				imagePullPolicy: v1.#PullIfNotPresent
+				securityContext: {
+					capabilities: drop: ["ALL"]
+					readOnlyRootFilesystem:   true
+					allowPrivilegeEscalation: false
+				}
+			}, {
+				name:  "yaml-tags"
+				image: "mikefarah/yq:4.33.1@sha256:ddf60fa876a4f73414477fab551bcfb864a179cad6ce998b13ba4180e0f5702d"
+				args: ["-i", ".[][].api_key tag = \"!env_var\"", configPath]
+				volumeMounts: [{
+					name:      "config"
+					mountPath: configDirectory
+					subPath:   "config.yaml"
+				}, {
+					name:      "tmp"
+					mountPath: "/tmp"
+				}]
+				imagePullPolicy: v1.#PullIfNotPresent
+				securityContext: {
+					capabilities: drop: ["ALL"]
+					readOnlyRootFilesystem:   true
+					allowPrivilegeEscalation: false
 				}
 			}]
 			containers: [{
@@ -60,7 +110,7 @@ import (
 				}]
 				volumeMounts: [{
 					name:      "config"
-					mountPath: configPath
+					mountPath: configDirectory
 					subPath:   "config.yaml"
 				}, {
 					name:      "secrets-store-inline"

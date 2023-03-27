@@ -40,31 +40,28 @@ _#RecylarrConfig: {
 		preferred_ratio?: number & >=0 & <=1
 	}
 
-	sonarr: [string]: {
+	#Instance: {
 		base_url:            string
-		api_key:             string
+		api_key?:            string
 		quality_definition?: #QualityDefinition
 		quality_profiles?: [...#QualityProfiles]
 		delete_old_custom_formats?:       bool
 		replace_existing_custom_formats?: bool
 		custom_formats?: [...#CustomFormats]
 	}
-	radarr: [string]: {
-		base_url:            string
-		api_key:             string
-		quality_definition?: #QualityDefinition
-		quality_profiles?: [...#QualityProfiles]
-		delete_old_custom_formats?:       bool
-		replace_existing_custom_formats?: bool
-		custom_formats?: [...#CustomFormats]
-	}
+
+	sonarr: [string]: #Instance
+	radarr: [string]: #Instance
 }
 
 #ConfigMapList: items: [{
 	data: "config.yaml": yaml.Marshal(_#RecylarrConfig & {
 		radarr: main: {
 			base_url: "http://radarr"
-			api_key:  "!env_var RADARR_API_KEY"
+			// An "env_var!" tag is added by an init container.
+			//
+			// https://recyclarr.dev/wiki/yaml/env-vars
+			api_key: "RADARR_API_KEY"
 			quality_definition: {
 				type:            "movie"
 				preferred_ratio: 0.5
@@ -102,7 +99,10 @@ _#RecylarrConfig: {
 		}
 		sonarr: main: {
 			base_url: "http://sonarr"
-			api_key:  "!env_var SONARR_API_KEY"
+			// An "env_var!" tag is added by an init container.
+			//
+			// https://recyclarr.dev/wiki/yaml/env-vars
+			api_key: "SONARR_API_KEY"
 			quality_definition: type: "series"
 			custom_formats: [{
 				trash_ids: [
