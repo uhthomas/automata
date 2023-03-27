@@ -25,9 +25,6 @@ import (
 					name: "config"
 					persistentVolumeClaim: claimName: "\(#Name)-config"
 				}, {
-					name: "incomplete-downloads"
-					persistentVolumeClaim: claimName: "\(#Name)-incomplete-downloads"
-				}, {
 					name: "downloads"
 					persistentVolumeClaim: claimName: "media-downloads"
 				}]
@@ -59,11 +56,8 @@ import (
 						name:      "config"
 						mountPath: "/config"
 					}, {
-						name:      "incomplete-downloads"
-						mountPath: "/incomplete-downloads"
-					}, {
 						name:      "downloads"
-						mountPath: "/downloads"
+						mountPath: "/config/Downloads"
 					}]
 					livenessProbe: httpGet: {
 						path: "/"

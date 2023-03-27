@@ -18,11 +18,4 @@ import "k8s.io/api/core/v1"
 		storageClassName: "rook-ceph-hdd-ec-delete-block"
 		resources: requests: storage: "32Gi"
 	}
-}, {
-	metadata: name: "\(#Name)-incomplete-downloads"
-	spec: {
-		accessModes: [v1.#ReadWriteOnce]
-		storageClassName: "rook-ceph-hdd-ec-delete-block"
-		resources: requests: storage: "32Gi"
-	}
 }]
