@@ -24,6 +24,16 @@ import (
 				volumes: [{
 					name: "config"
 					persistentVolumeClaim: claimName: "\(#Name)-config"
+				}, {
+					name: "tmp"
+					emptyDir: {}
+				}, {
+					name: "secrets-store-inline"
+					csi: {
+						driver:   "secrets-store.csi.k8s.io"
+						readOnly: true
+						volumeAttributes: secretProviderClass: "\(#Name)-tailscale"
+					}
 				}]
 				containers: [{
 					name:  #Name
@@ -56,7 +66,47 @@ import (
 						// readOnlyRootFilesystem:   true
 						allowPrivilegeEscalation: false
 					}
+				}, {
+					name:  "tailscale"
+					image: "tailscale/tailscale:v1.38.2@sha256:176f2bca0906d605f411f189bd6a9747a1cf8418ca5fa55908879497774cb73b"
+					env: [{
+						name:  "TS_KUBE_SECRET"
+						value: "\(#Name)-tailscale-state"
+					}, {
+						name:  "TS_USERSPACE"
+						value: "true"
+					}, {
+						name: "TS_AUTHKEY"
+						valueFrom: secretKeyRef: {
+							name: "\(#Name)-tailscale"
+							key:  "authkey"
+						}
+					}, {
+						name:  "TS_TAILSCALED_EXTRA_ARGS"
+						value: "--socks5-server=localhost:1055"
+					}, {
+						name:  "TS_EXTRA_ARGS"
+						value: "--exit-node=100.87.32.47"
+					}]
+					volumeMounts: [{
+						name:      "tmp"
+						mountPath: "/tmp"
+					}, {
+						name:      "secrets-store-inline"
+						readOnly:  true
+						mountPath: "/mnt/secrets-store"
+					}]
+					imagePullPolicy: v1.#PullIfNotPresent
+					securityContext: {
+						capabilities: drop: ["ALL"]
+						runAsUser:                1000
+						runAsGroup:               3000
+						runAsNonRoot:             true
+						readOnlyRootFilesystem:   true
+						allowPrivilegeEscalation: false
+					}
 				}]
+				serviceAccountName: #Name
 				// The s6 overlay requires root... It may be
 				// better to build our own image instead.
 				//

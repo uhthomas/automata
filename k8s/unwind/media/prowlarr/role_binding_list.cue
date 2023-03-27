@@ -1,4 +1,4 @@
-package tailscale
+package prowlarr
 
 import rbacv1 "k8s.io/api/rbac/v1"
 
@@ -12,27 +12,15 @@ import rbacv1 "k8s.io/api/rbac/v1"
 }
 
 #RoleBindingList: items: [{
-	metadata: name: "operator"
+	metadata: name: "\(#Name)-tailscale-state"
 	subjects: [{
 		kind:      rbacv1.#ServiceAccountKind
-		name:      "operator"
+		name:      #Name
 		namespace: #Namespace
 	}]
 	roleRef: {
 		kind:     "Role"
-		name:     "operator"
-		apiGroup: rbacv1.#GroupName
-	}
-}, {
-	metadata: name: "proxies"
-	subjects: [{
-		kind:      rbacv1.#ServiceAccountKind
-		name:      "proxies"
-		namespace: #Namespace
-	}]
-	roleRef: {
-		kind:     "Role"
-		name:     "proxies"
+		name:     metadata.name
 		apiGroup: rbacv1.#GroupName
 	}
 }]

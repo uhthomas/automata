@@ -6,8 +6,9 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-#Name:    "prowlarr"
-#Version: "1.2.2"
+#Name:      "prowlarr"
+#Namespace: "media"
+#Version:   "1.2.2"
 
 #List: v1.#List & {
 	apiVersion: "v1"
@@ -29,5 +30,9 @@ import (
 _items: [
 	#DeploymentList.items,
 	#PersistentVolumeClaimList.items,
+	#RoleBindingList.items,
+	#RoleList.items,
+	#SecretProviderClassList.items,
+	#ServiceAccountList.items,
 	#ServiceList.items,
 ]
