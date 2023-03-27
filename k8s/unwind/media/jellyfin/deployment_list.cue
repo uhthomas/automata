@@ -23,24 +23,15 @@ import (
 		template: {
 			metadata: labels: "app.kubernetes.io/name": #Name
 			spec: {
-				volumes: [ {
+				volumes: [{
 					name: "config"
 					persistentVolumeClaim: claimName: "\(#Name)-config"
 				}, {
 					name: "data"
 					persistentVolumeClaim: claimName: "\(#Name)-data"
 				}, {
-					name: "media-books"
-					persistentVolumeClaim: claimName: "media-books"
-				}, {
-					name: "media-movies"
-					persistentVolumeClaim: claimName: "media-movies"
-				}, {
-					name: "media-music"
-					persistentVolumeClaim: claimName: "media-music"
-				}, {
-					name: "media-shows"
-					persistentVolumeClaim: claimName: "media-shows"
+					name: "media"
+					persistentVolumeClaim: claimName: "media"
 				}]
 				containers: [{
 					name:  #Name
@@ -93,17 +84,8 @@ import (
 						name:      "data"
 						mountPath: "/data"
 					}, {
-						name:      "media-books"
-						mountPath: "/media/books"
-					}, {
-						name:      "media-movies"
-						mountPath: "/media/movies"
-					}, {
-						name:      "media-music"
-						mountPath: "/media/music"
-					}, {
-						name:      "media-shows"
-						mountPath: "/media/shows"
+						name:      "media"
+						mountPath: "/media"
 					}]
 					livenessProbe: httpGet: {
 						path: "/health"

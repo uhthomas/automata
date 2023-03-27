@@ -25,11 +25,8 @@ import (
 					name: "config"
 					persistentVolumeClaim: claimName: "\(#Name)-config"
 				}, {
-					name: "movies"
-					persistentVolumeClaim: claimName: "media-movies"
-				}, {
-					name: "downloads"
-					persistentVolumeClaim: claimName: "media-downloads"
+					name: "media"
+					persistentVolumeClaim: claimName: "media"
 				}]
 				containers: [{
 					name:  #Name
@@ -40,10 +37,10 @@ import (
 					}]
 					env: [{
 						name:  "PUID"
-						value: "2000"
+						value: "1000"
 					}, {
 						name:  "PGID"
-						value: "2000"
+						value: "3000"
 					}]
 					resources: {
 						limits: {
@@ -59,11 +56,8 @@ import (
 						name:      "config"
 						mountPath: "/config"
 					}, {
-						name:      "movies"
-						mountPath: "/movies"
-					}, {
-						name:      "downloads"
-						mountPath: "/downloads"
+						name:      "media"
+						mountPath: "/media"
 					}]
 					livenessProbe: httpGet: {
 						path: "/health"
