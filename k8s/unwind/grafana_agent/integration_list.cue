@@ -12,6 +12,7 @@ import "k8s.io/api/core/v1"
 }
 
 #IntegrationList: items: [{
+	metadata: name: "\(#Name)-eventhandler"
 	spec: {
 		config: {
 			cache_path:    "/etc/eventhandler/eventhandler.cache"
@@ -29,6 +30,7 @@ import "k8s.io/api/core/v1"
 		}]
 	}
 }, {
+	metadata: name: "\(#Name)-node-exporter"
 	spec: {
 		config: {
 			autoscrape: {
