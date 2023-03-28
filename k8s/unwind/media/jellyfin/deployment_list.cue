@@ -69,12 +69,12 @@ import (
 					}]
 					resources: {
 						limits: {
-							cpu:    "2"
-							memory: "8Gi"
+							cpu:    "4"
+							memory: "16Gi"
 						}
 						requests: {
-							cpu:    "1"
-							memory: "2Gi"
+							cpu:    "2"
+							memory: "4Gi"
 						}
 					}
 					volumeMounts: [{
