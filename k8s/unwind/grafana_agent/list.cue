@@ -6,7 +6,8 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-#Name:      "grafana-agent"
+#Name: "grafana-agent"
+
 #Namespace: #Name
 
 #List: v1.#List & {

@@ -16,7 +16,7 @@ import "k8s.io/api/core/v1"
 	spec: {
 		config: {
 			cache_path:    "/etc/eventhandler/eventhandler.cache"
-			logs_instance: "\(#Namespace)/grafana-agent-logs"
+			logs_instance: "\(#Namespace)/\(#Name)"
 		}
 		name: "eventhandler"
 		type: unique: true
@@ -35,7 +35,7 @@ import "k8s.io/api/core/v1"
 		config: {
 			autoscrape: {
 				enable:           true
-				metrics_instance: "\(#Namespace)/grafana-agent-metrics"
+				metrics_instance: "\(#Namespace)/\(#Name)"
 			}
 			procfs_path: "host/proc"
 			rootfs_path: "/host/root"
