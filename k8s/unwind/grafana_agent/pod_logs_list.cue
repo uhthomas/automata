@@ -12,12 +12,6 @@ import "k8s.io/api/core/v1"
 }
 
 #PodLogsList: items: [{
-	spec: {
-		pipelineStages: [{cri: {}}, {docker: {}}, {json: {}}]
-		namespaceSelector: any: true
-		selector: matchLabels: {}
-	}
-}, {
 	metadata: name: "\(#Name)-kubernetes-logs"
 	spec: {
 		namespaceSelector: any: true
