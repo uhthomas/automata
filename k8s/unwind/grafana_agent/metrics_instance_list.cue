@@ -13,7 +13,24 @@ import "k8s.io/api/core/v1"
 
 #MetricsInstanceList: items: [{
 	spec: {
-		remoteWrite: [{url: "http://mimir-nginx.mimir.svc/api/v1/push"}]
+		remoteWrite: [{
+			url: "http://mimir-nginx.mimir.svc/api/v1/push"
+		}, {
+			{
+				basicAuth: {
+					let secretName = "\(#Name)-grafana-cloud"
+					username: {
+						name: secretName
+						key:  "metrics-username"
+					}
+					password: {
+						name: secretName
+						key:  "metrics-password"
+					}
+				}
+				url: "https://prometheus-us-central1.grafana.net/api/prom/push"
+			}
+		}]
 
 		serviceMonitorNamespaceSelector: {}
 		serviceMonitorSelector: matchLabels: {}

@@ -22,5 +22,18 @@ import "k8s.io/api/core/v1"
 			scrapeInterval: "15s"
 		}
 		serviceAccountName: #Name
+		volumes: [{
+			name: "secrets-store-inline"
+			csi: {
+				driver:   "secrets-store.csi.k8s.io"
+				readOnly: true
+				volumeAttributes: secretProviderClass: "\(#Name)-grafana-cloud"
+			}
+		}]
+		volumeMounts: [{
+			name:      "secrets-store-inline"
+			readOnly:  true
+			mountPath: "/mnt/secrets-store"
+		}]
 	}
 }]

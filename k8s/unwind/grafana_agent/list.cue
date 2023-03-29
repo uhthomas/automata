@@ -42,6 +42,7 @@ _items: [
 	#PersistentVolumeClaimList.items,
 	#PodLogsList.items,
 	#PodMonitorList.items,
+	#SecretProviderClassList.items,
 	#ServiceAccountList.items,
 	#ServiceMonitorList.items,
 ]
