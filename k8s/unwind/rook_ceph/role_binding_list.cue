@@ -23,9 +23,7 @@ import rbacv1 "k8s.io/api/rbac/v1"
 		apiGroup: rbacv1.#GroupName
 	}
 }, {
-	metadata: {
-		name: "rbd-csi-nodeplugin-role-cfg"
-	}
+	metadata: name: "rbd-csi-nodeplugin-role-cfg"
 	subjects: [{
 		kind: rbacv1.#ServiceAccountKind
 		name: "rook-csi-rbd-plugin-sa"
