@@ -252,6 +252,7 @@ import rbacv1 "k8s.io/api/rbac/v1"
 		]
 		verbs: [
 			"delete",
+			"deletecollection",
 		]
 	}, {
 		apiGroups: [
