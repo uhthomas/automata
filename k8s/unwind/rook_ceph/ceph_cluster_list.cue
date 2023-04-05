@@ -111,7 +111,7 @@ import "k8s.io/api/core/v1"
 					config: deviceClass: "hdd"
 				}]
 			}, {
-				name: "talos-3sl-aqp"
+				name: "talos-e5f-w4m"
 				devices: [{
 					// HGST H7280A520SUN8.0T
 					name: "/dev/disk/by-id/wwn-0x5000cca23b43eb7c"
