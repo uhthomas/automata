@@ -68,7 +68,7 @@ import "k8s.io/api/core/v1"
 			// If set to true, cephCluster deletion does not wait for the PVs to be deleted.
 			allowUninstallWithVolumes: false
 		}
-		removeOSDsIfOutAndSafeToRemove: false
+		removeOSDsIfOutAndSafeToRemove: true
 		priorityClassNames: {
 			mon: "system-node-critical"
 			osd: "system-node-critical"
