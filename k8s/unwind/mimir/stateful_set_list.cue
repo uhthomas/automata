@@ -163,7 +163,7 @@ import (
 			metadata: name: "storage"
 			spec: {
 				accessModes: ["ReadWriteOnce"]
-				resources: requests: storage: "20Gi"
+				resources: requests: storage: "200Gi"
 			}
 		}]
 		template: {
@@ -297,7 +297,7 @@ import (
 			metadata: name: "storage"
 			spec: {
 				accessModes: ["ReadWriteOnce"]
-				resources: requests: storage: "20Gi"
+				resources: requests: storage: "200Gi"
 			}
 		}]
 		template: {
@@ -429,7 +429,7 @@ import (
 			metadata: name: "storage"
 			spec: {
 				accessModes: ["ReadWriteOnce"]
-				resources: requests: storage: "20Gi"
+				resources: requests: storage: "200Gi"
 			}
 		}]
 		template: {
