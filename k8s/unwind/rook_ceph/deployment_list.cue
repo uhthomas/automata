@@ -48,6 +48,9 @@ import (
 				}, {
 					name: "webhook-cert"
 					emptyDir: {}
+				}, {
+					name: "tmp"
+					emptyDir: {}
 				}]
 				containers: [{
 					name:  "rook-ceph-operator"
@@ -164,6 +167,9 @@ import (
 					}, {
 						mountPath: "/etc/webhook"
 						name:      "webhook-cert"
+					}, {
+						name:      "tmp"
+						mountPath: "/tmp"
 					}]
 					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: {
