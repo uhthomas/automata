@@ -49,8 +49,8 @@ import (
 				containers: [{
 					name:  "nfd-worker"
 					image: "registry.k8s.io/nfd/node-feature-discovery:v\(#Version)"
-					command: [ "nfd-worker"]
-					args: [ "-server=nfd-master:8080"]
+					command: ["nfd-worker"]
+					args: ["-server=nfd-master:8080"]
 					env: [{
 						name: "NODE_NAME"
 						valueFrom: fieldRef: fieldPath: "spec.nodeName"

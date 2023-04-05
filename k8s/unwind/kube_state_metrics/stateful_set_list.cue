@@ -66,7 +66,7 @@ import (
 					}
 					securityContext: {
 						allowPrivilegeEscalation: false
-						capabilities: drop: [ "ALL"]
+						capabilities: drop: ["ALL"]
 						readOnlyRootFilesystem: true
 						runAsUser:              65534
 					}
