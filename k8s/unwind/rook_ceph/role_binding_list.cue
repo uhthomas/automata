@@ -147,4 +147,40 @@ import rbacv1 "k8s.io/api/rbac/v1"
 		kind: rbacv1.#ServiceAccountKind
 		name: "rook-ceph-system"
 	}]
+}, {
+	metadata: name: "rook-ceph-monitor"
+	roleRef: {
+		apiGroup: rbacv1.#GroupName
+		kind:     "Role"
+		name:     "rook-ceph-monitor"
+	}
+	subjects: [{
+		kind:      rbacv1.#ServiceAccountKind
+		name:      "rook-ceph-system"
+		namespace: #Namespace
+	}]
+}, {
+	metadata: name: "rook-ceph-metrics"
+	roleRef: {
+		apiGroup: rbacv1.#GroupName
+		kind:     "Role"
+		name:     "rook-ceph-metrics"
+	}
+	subjects: [{
+		kind:      rbacv1.#ServiceAccountKind
+		name:      "prometheus-k8s"
+		namespace: #Namespace
+	}]
+}, {
+	metadata: name: "rook-ceph-monitor-mgr"
+	roleRef: {
+		apiGroup: rbacv1.#GroupName
+		kind:     "Role"
+		name:     "rook-ceph-monitor-mgr"
+	}
+	subjects: [{
+		kind:      rbacv1.#ServiceAccountKind
+		name:      "rook-ceph-mgr"
+		namespace: #Namespace
+	}]
 }]

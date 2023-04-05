@@ -41,7 +41,7 @@ import "k8s.io/api/core/v1"
 			ssl:     true
 		}
 		// enable prometheus alerting for cluster
-		monitoring: enabled: false
+		monitoring: enabled: true
 		network: connections: {
 			encryption: enabled:  true
 			compression: enabled: true
