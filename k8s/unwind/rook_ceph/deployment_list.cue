@@ -34,36 +34,28 @@ import (
 	}
 	spec: {
 		selector: matchLabels: app: "rook-ceph-operator"
-		strategy: type: "Recreate"
+		strategy: type: appsv1.#RecreateDeploymentStrategyType
 		replicas: 1
 		template: {
 			metadata: labels: app: "rook-ceph-operator"
 			spec: {
-				serviceAccountName: "rook-ceph-system"
+				volumes: [{
+					name: "rook-config"
+					emptyDir: {}
+				}, {
+					name: "default-config-dir"
+					emptyDir: {}
+				}, {
+					name: "webhook-cert"
+					emptyDir: {}
+				}]
 				containers: [{
-					name:            "rook-ceph-operator"
-					image:           "rook/ceph:v\(#Version)"
-					imagePullPolicy: v1.#PullIfNotPresent
+					name:  "rook-ceph-operator"
+					image: "rook/ceph:v\(#Version)"
 					args: ["ceph", "operator"]
-					securityContext: {
-						runAsNonRoot: true
-						runAsUser:    2016
-						runAsGroup:   2016
-					}
-					volumeMounts: [{
-						mountPath: "/var/lib/rook"
-						name:      "rook-config"
-					}, {
-						mountPath: "/etc/ceph"
-						name:      "default-config-dir"
-					}, {
-						mountPath: "/etc/webhook"
-						name:      "webhook-cert"
-					}]
 					ports: [{
-						containerPort: 9443
 						name:          "https-webhook"
-						protocol:      "TCP"
+						containerPort: 9443
 					}]
 					env: [{
 						// If the operator should only watch for cluster CRDs in the same namespace, set this to "true".
@@ -153,30 +145,46 @@ import (
 						name: "POD_NAMESPACE"
 						valueFrom: fieldRef: fieldPath: "metadata.namespace"
 					}]
+					resources: {
+						limits: {
+							cpu:    "500m"
+							memory: "512Mi"
+						}
+						requests: {
+							cpu:    "100m"
+							memory: "128Mi"
+						}
+					}
+					volumeMounts: [{
+						mountPath: "/var/lib/rook"
+						name:      "rook-config"
+					}, {
+						mountPath: "/etc/ceph"
+						name:      "default-config-dir"
+					}, {
+						mountPath: "/etc/webhook"
+						name:      "webhook-cert"
+					}]
+					imagePullPolicy: v1.#PullIfNotPresent
+					securityContext: {
+						capabilities: drop: ["ALL"]
+						readOnlyRootFilesystem:   true
+						allowPrivilegeEscalation: false
+					}
 				}]
-				// Recommended resource requests and limits, if desired
-				//resources:
-				//  limits:
-				//    cpu: 500m
-				//    memory: 512Mi
-				//  requests:
-				//    cpu: 100m
-				//    memory: 128Mi
 				//  Uncomment it to run lib bucket provisioner in multithreaded mode
 				//- name: LIB_BUCKET_PROVISIONER_THREADS
 				//  value: "5"
 				// Uncomment it to run rook operator on the host network
 				//hostNetwork: true
-				volumes: [{
-					name: "rook-config"
-					emptyDir: {}
-				}, {
-					name: "default-config-dir"
-					emptyDir: {}
-				}, {
-					name: "webhook-cert"
-					emptyDir: {}
-				}]
+				serviceAccountName: "rook-ceph-system"
+				securityContext: {
+					runAsUser:    1000
+					runAsGroup:   3000
+					runAsNonRoot: true
+					fsGroup:      2000
+					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
+				}
 			}
 		}
 	}
@@ -191,7 +199,29 @@ import (
 		template: {
 			metadata: labels: app: "rook-ceph-tools"
 			spec: {
-				dnsPolicy: "ClusterFirstWithHostNet"
+				volumes: [{
+					name: "ceph-admin-secret"
+					secret: {
+						secretName: "rook-ceph-mon"
+						optional:   false
+						items: [{
+							key:  "ceph-secret"
+							path: "secret.keyring"
+						}]
+					}
+				}, {
+					name: "mon-endpoint-volume"
+					configMap: {
+						name: "rook-ceph-mon-endpoints"
+						items: [{
+							key:  "data"
+							path: "mon-endpoints"
+						}]
+					}
+				}, {
+					name: "ceph-config"
+					emptyDir: {}
+				}]
 				containers: [{
 					name:  "rook-ceph-tools"
 					image: "quay.io/ceph/ceph:v17.2.5"
@@ -264,13 +294,7 @@ import (
 
 						""",
 					]
-					imagePullPolicy: v1.#PullIfNotPresent
-					tty:             true
-					securityContext: {
-						runAsNonRoot: true
-						runAsUser:    2016
-						runAsGroup:   2016
-					}
+					tty: true
 					env: [{
 						name: "ROOK_CEPH_USERNAME"
 						valueFrom: secretKeyRef: {
@@ -289,30 +313,21 @@ import (
 						mountPath: "/var/lib/rook-ceph-mon"
 						readOnly:  true
 					}]
-				}]
-				volumes: [{
-					name: "ceph-admin-secret"
-					secret: {
-						secretName: "rook-ceph-mon"
-						optional:   false
-						items: [{
-							key:  "ceph-secret"
-							path: "secret.keyring"
-						}]
+					imagePullPolicy: v1.#PullIfNotPresent
+					securityContext: {
+						capabilities: drop: ["ALL"]
+						readOnlyRootFilesystem:   true
+						allowPrivilegeEscalation: false
 					}
-				}, {
-					name: "mon-endpoint-volume"
-					configMap: {
-						name: "rook-ceph-mon-endpoints"
-						items: [{
-							key:  "data"
-							path: "mon-endpoints"
-						}]
-					}
-				}, {
-					name: "ceph-config"
-					emptyDir: {}
 				}]
+				dnsPolicy: v1.#DNSClusterFirstWithHostNet
+				securityContext: {
+					runAsUser:    1000
+					runAsGroup:   3000
+					runAsNonRoot: true
+					fsGroup:      2000
+					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
+				}
 				tolerations: [{
 					key:               "node.kubernetes.io/unreachable"
 					operator:          "Exists"
