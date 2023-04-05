@@ -6,6 +6,7 @@ import (
 	"github.com/uhthomas/automata/k8s/unwind/grafana_agent_operator"
 	"github.com/uhthomas/automata/k8s/unwind/grafana_agent"
 	"github.com/uhthomas/automata/k8s/unwind/grafana"
+	"github.com/uhthomas/automata/k8s/unwind/intel_gpu_plugin"
 	"github.com/uhthomas/automata/k8s/unwind/kube_state_metrics"
 	"github.com/uhthomas/automata/k8s/unwind/loki"
 	"github.com/uhthomas/automata/k8s/unwind/media"
@@ -37,6 +38,9 @@ _items: [
 	node_feature_discovery.#List.items,
 	rook_ceph.#List.items,
 	secrets_store_csi_driver.#List.items,
+
+	// Requires node_feature_discovery.
+	intel_gpu_plugin.#List.items,
 
 	// Requires rook_ceph and secrets_store_csi_driver.
 	vault.#List.items,

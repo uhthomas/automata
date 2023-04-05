@@ -21,6 +21,7 @@ cue_export(
         "//k8s/unwind/grafana:cue_grafana_library",
         "//k8s/unwind/grafana_agent:cue_grafana_agent_library",
         "//k8s/unwind/grafana_agent_operator:cue_grafana_agent_operator_library",
+        "//k8s/unwind/intel_gpu_plugin:cue_intel_gpu_plugin_library",
         "//k8s/unwind/kube_state_metrics:cue_kube_state_metrics_library",
         "//k8s/unwind/loki:cue_loki_library",
         "//k8s/unwind/media:cue_media_library",
