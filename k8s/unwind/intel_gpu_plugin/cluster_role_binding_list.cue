@@ -15,7 +15,7 @@ import rbacv1 "k8s.io/api/rbac/v1"
 	roleRef: {
 		apiGroup: rbacv1.#GroupName
 		kind:     "ClusterRole"
-		name:     "gpu-manager-role"
+		name:     #Name
 	}
 	subjects: [{
 		kind:      rbacv1.#ServiceAccountKind
