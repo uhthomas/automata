@@ -14,7 +14,7 @@ import "k8s.io/api/core/v1"
 #ServiceList: items: [{
 	metadata: {
 		name: "rook-ceph-mgr-dashboard-tailscale"
-		annotations: "tailscale.com/hostname": "\(#Name)-unwind"
+		annotations: "tailscale.com/hostname": "\(#Name)-unwind-k8s"
 	}
 	spec: {
 		ports: [{

@@ -86,7 +86,7 @@ import "k8s.io/api/core/v1"
 }, {
 	metadata: {
 		name: "\(#Name)-tailscale"
-		annotations: "tailscale.com/hostname": "\(#Name)-unwind"
+		annotations: "tailscale.com/hostname": "\(#Name)-unwind-k8s"
 	}
 	spec: {
 		ports: [{
