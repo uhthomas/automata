@@ -322,7 +322,7 @@ import (
 					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: {
 						capabilities: drop: ["ALL"]
-						readOnlyRootFilesystem:   true
+						// readOnlyRootFilesystem:   true
 						allowPrivilegeEscalation: false
 					}
 				}]
