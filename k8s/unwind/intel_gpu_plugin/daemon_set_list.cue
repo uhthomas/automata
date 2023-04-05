@@ -90,6 +90,12 @@ import (
 					securityContext: {
 						capabilities: drop: ["ALL"]
 						seLinuxOptions: type: "container_device_plugin_init_t"
+
+						// Required for permission to
+						// write to the host path.
+						runAsUser:    0
+						runAsNonRoot: false
+
 						readOnlyRootFilesystem:   true
 						allowPrivilegeEscalation: false
 					}
