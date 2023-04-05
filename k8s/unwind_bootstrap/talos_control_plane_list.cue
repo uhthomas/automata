@@ -1,6 +1,9 @@
 package unwind_bootstrap
 
-import "k8s.io/api/core/v1"
+import (
+	"github.com/uhthomas/automata/tools/jsonpatch"
+	"k8s.io/api/core/v1"
+)
 
 talosControlPlaneList: v1.#List & {
 	apiVersion: "v1"
@@ -19,9 +22,8 @@ talosControlPlaneList: items: [{
 	spec: {
 		controlPlaneConfig: controlplane: {
 			generateType: "controlplane"
-			talosVersion: "v1.3.6"
-			configPatches: [{
-				op:    "add"
+			talosVersion: "v1.4.0-alpha.4"
+			configPatches: [jsonpatch.#Add & {
 				path:  "/cluster/allowSchedulingOnControlPlanes"
 				value: true
 			}]

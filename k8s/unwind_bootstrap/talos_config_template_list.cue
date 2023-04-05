@@ -18,6 +18,6 @@ talosConfigTemplateList: items: [{
 	}
 	spec: template: spec: {
 		generateType: "join"
-		talosVersion: "v1.3.6"
+		talosVersion: "v1.4.0-alpha.4"
 	}
 }]
