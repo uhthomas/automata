@@ -46,7 +46,6 @@ import (
 					runAsUser:    10001
 					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 				}
-				initContainers: []
 				containers: [{
 					name:            "distributor"
 					image:           "grafana/mimir:2.7.1"
