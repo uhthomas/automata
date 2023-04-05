@@ -15,9 +15,13 @@ import "k8s.io/api/core/v1"
 	metadata: name: "nfd-master"
 	spec: {
 		ports: [{
-			port:     8080
-			protocol: "TCP"
+			name:       "http"
+			port:       8080
+			targetPort: "http"
 		}]
-		selector: app: "nfd-master"
+		selector: {
+			"app.kubernetes.io/name":      #Name
+			"app.kubernetes.io/component": "master"
+		}
 	}
 }]

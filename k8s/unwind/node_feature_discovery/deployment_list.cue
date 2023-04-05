@@ -18,24 +18,32 @@ import (
 #DeploymentList: items: [{
 	metadata: {
 		name: "nfd-master"
-		labels: app: "nfd"
+		labels: "app.kubernetes.io/component": "master"
 	}
 	spec: {
 		replicas: 1
-		selector: matchLabels: app: "nfd-master"
+		selector: matchLabels: {
+			"app.kubernetes.io/name":      #Name
+			"app.kubernetes.io/component": "master"
+		}
 		template: {
-			metadata: labels: app: "nfd-master"
+			metadata: labels: {
+				"app.kubernetes.io/name":      #Name
+				"app.kubernetes.io/component": "master"
+			}
 			spec: {
-
 				containers: [{
 					name:  "nfd-master"
 					image: "registry.k8s.io/nfd/node-feature-discovery:v\(#Version)"
 					command: ["nfd-master"]
+					ports: [{
+						name:          "http"
+						containerPort: 8080
+					}]
 					env: [{
 						name: "NODE_NAME"
 						valueFrom: fieldRef: fieldPath: "spec.nodeName"
 					}]
-					imagePullPolicy: v1.#PullIfNotPresent
 					livenessProbe: {
 						exec: command: [
 							"/usr/bin/grpc_health_probe",
@@ -53,11 +61,11 @@ import (
 						initialDelaySeconds: 5
 						periodSeconds:       10
 					}
+					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: {
-						allowPrivilegeEscalation: false
 						capabilities: drop: ["ALL"]
-						readOnlyRootFilesystem: true
-						runAsNonRoot:           true
+						readOnlyRootFilesystem:   true
+						allowPrivilegeEscalation: false
 					}
 				}]
 				serviceAccountName: "nfd-master"
@@ -87,6 +95,13 @@ import (
 					operator: v1.#TolerationOpEqual
 					value:    ""
 				}]
+				securityContext: {
+					runAsUser:    1000
+					runAsGroup:   3000
+					runAsNonRoot: true
+					fsGroup:      2000
+					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
+				}
 			}
 		}
 	}

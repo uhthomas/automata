@@ -17,12 +17,18 @@ import (
 #DaemonSetList: items: [{
 	metadata: {
 		name: "nfd-worker"
-		labels: app: "nfd"
+		labels: "app.kubernetes.io/component": "worker"
 	}
 	spec: {
-		selector: matchLabels: app: "nfd-worker"
+		selector: matchLabels: {
+			"app.kubernetes.io/name":      #Name
+			"app.kubernetes.io/component": "worker"
+		}
 		template: {
-			metadata: labels: app: "nfd-worker"
+			metadata: labels: {
+				"app.kubernetes.io/name":      #Name
+				"app.kubernetes.io/component": "worker"
+			}
 			spec: {
 				volumes: [{
 					hostPath: path: "/boot"
@@ -86,14 +92,20 @@ import (
 					}]
 					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: {
-						allowPrivilegeEscalation: false
 						capabilities: drop: ["ALL"]
-						readOnlyRootFilesystem: true
-						runAsNonRoot:           true
+						readOnlyRootFilesystem:   true
+						allowPrivilegeEscalation: false
 					}
 				}]
 				serviceAccountName: "nfd-worker"
 				dnsPolicy:          v1.#DNSClusterFirstWithHostNet
+				securityContext: {
+					runAsUser:    1000
+					runAsGroup:   3000
+					runAsNonRoot: true
+					fsGroup:      2000
+					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
+				}
 			}
 		}
 	}
