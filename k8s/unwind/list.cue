@@ -3,6 +3,7 @@ import (
 
 	"github.com/uhthomas/automata/k8s/unwind/cert_manager_csi_driver"
 	"github.com/uhthomas/automata/k8s/unwind/cert_manager"
+	"github.com/uhthomas/automata/k8s/unwind/csi_snapshotter"
 	"github.com/uhthomas/automata/k8s/unwind/grafana_agent_operator"
 	"github.com/uhthomas/automata/k8s/unwind/grafana_agent"
 	"github.com/uhthomas/automata/k8s/unwind/grafana"
@@ -14,6 +15,7 @@ import (
 	"github.com/uhthomas/automata/k8s/unwind/node_feature_discovery"
 	"github.com/uhthomas/automata/k8s/unwind/rook_ceph"
 	"github.com/uhthomas/automata/k8s/unwind/secrets_store_csi_driver"
+	"github.com/uhthomas/automata/k8s/unwind/snapshot_controller"
 	"github.com/uhthomas/automata/k8s/unwind/tailscale"
 	"github.com/uhthomas/automata/k8s/unwind/vault_config_operator"
 	"github.com/uhthomas/automata/k8s/unwind/vault_csi_provider"
@@ -34,10 +36,12 @@ import (
 _items: [
 	cert_manager_csi_driver.#List.items,
 	cert_manager.#List.items,
+	csi_snapshotter.#List.items,
 	kube_state_metrics.#List.items,
 	node_feature_discovery.#List.items,
 	rook_ceph.#List.items,
 	secrets_store_csi_driver.#List.items,
+	snapshot_controller.#List.items,
 
 	// Requires node_feature_discovery.
 	intel_gpu_plugin.#List.items,
