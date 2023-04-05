@@ -35,7 +35,7 @@ import (
 				}]
 				containers: [{
 					name:  #Name
-					image: "jellyfin/jellyfin:\(#Version)"
+					image: "jellyfin/jellyfin:\(#Version)@sha256:28824fd860d288905e0c7b2d591d52c606bfa96e65f2baefb7465ac84bd582f9"
 					ports: [{
 						name:          "http"
 						containerPort: 8096
