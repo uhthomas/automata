@@ -69,8 +69,9 @@ import (
 					}]
 					resources: {
 						limits: {
-							cpu:    "4"
-							memory: "16Gi"
+							cpu:                  "4"
+							memory:               "16Gi"
+							"gpu.intel.com/i915": 1
 						}
 						requests: {
 							cpu:    "2"
