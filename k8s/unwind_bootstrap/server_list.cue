@@ -115,7 +115,7 @@ serverList: items: [{
 	}, #networkConfigPatch & {
 		value: interfaces: [{
 			addresses: ["10.0.0.104"]
-			bond: interfaces: ["eth0", "eth1"]
+			bond: deviceSelectors: [{hardwareAddr: "e4:11:5b:62:f2:f8"}]
 		}]
 	}]
 }, {
