@@ -12,17 +12,7 @@ import "k8s.io/api/core/v1"
 }
 
 #ServiceAccountList: items: [{
-	apiVersion: "v1"
-	kind:       "ServiceAccount"
-	metadata: {
-		name:      "nfd-master"
-		namespace: "node-feature-discovery"
-	}
+	metadata: name: "nfd-master"
 }, {
-	apiVersion: "v1"
-	kind:       "ServiceAccount"
-	metadata: {
-		name:      "nfd-worker"
-		namespace: "node-feature-discovery"
-	}
+	metadata: name: "nfd-worker"
 }]

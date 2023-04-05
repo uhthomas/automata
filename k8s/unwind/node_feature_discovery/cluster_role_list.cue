@@ -15,8 +15,6 @@ import (
 }
 
 #ClusterRoleList: items: [{
-	apiVersion: "rbac.authorization.k8s.io/v1"
-	kind:       "ClusterRole"
 	metadata: name: "nfd-master"
 	rules: [{
 		apiGroups: [v1.#GroupName]

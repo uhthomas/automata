@@ -1,4 +1,4 @@
-load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_export", "cue_library")
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
 
 cue_library(
     name = "cue_cert_manager_library",
@@ -26,10 +26,4 @@ cue_library(
         "//cue.mod/gen/k8s.io/api/rbac/v1:cue_v1_library",
         "//cue.mod/gen/k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1:cue_v1_library",
     ],
-)
-
-cue_export(
-    name = "cert_manager",
-    src = "cert-manager.cue",
-    visibility = ["//visibility:public"],
 )
