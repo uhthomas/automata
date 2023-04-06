@@ -7,6 +7,7 @@ import (
 	"github.com/uhthomas/automata/k8s/unwind/grafana_agent_operator"
 	"github.com/uhthomas/automata/k8s/unwind/grafana_agent"
 	"github.com/uhthomas/automata/k8s/unwind/grafana"
+	"github.com/uhthomas/automata/k8s/unwind/home_assistant"
 	"github.com/uhthomas/automata/k8s/unwind/intel_gpu_plugin"
 	"github.com/uhthomas/automata/k8s/unwind/kube_state_metrics"
 	"github.com/uhthomas/automata/k8s/unwind/loki"
@@ -52,6 +53,7 @@ _items: [
 	grafana_agent_operator.#List.items,
 	grafana_agent.#List.items,
 	grafana.#List.items,
+	home_assistant.#List.items,
 	intel_gpu_plugin.#List.items,
 	kube_state_metrics.#List.items,
 	loki.#List.items,
