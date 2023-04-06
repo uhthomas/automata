@@ -13,6 +13,7 @@ import (
 	"github.com/uhthomas/automata/k8s/unwind/media"
 	"github.com/uhthomas/automata/k8s/unwind/mimir"
 	"github.com/uhthomas/automata/k8s/unwind/node_feature_discovery"
+	"github.com/uhthomas/automata/k8s/unwind/node_problem_detector"
 	"github.com/uhthomas/automata/k8s/unwind/rook_ceph"
 	"github.com/uhthomas/automata/k8s/unwind/secrets_store_csi_driver"
 	"github.com/uhthomas/automata/k8s/unwind/snapshot_controller"
@@ -61,6 +62,9 @@ _items: [
 	loki.#List.items,
 	media.#List.items,
 	mimir.#List.items,
+
+	// Required grafana_agent_operator.
+	node_problem_detector.#List.items,
 ]
 
 #List

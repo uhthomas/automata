@@ -28,6 +28,7 @@ cue_export(
         "//k8s/unwind/media:cue_media_library",
         "//k8s/unwind/mimir:cue_mimir_library",
         "//k8s/unwind/node_feature_discovery:cue_node_feature_discovery_library",
+        "//k8s/unwind/node_problem_detector:cue_node_problem_detector_library",
         "//k8s/unwind/rook_ceph:cue_rook_ceph_library",
         "//k8s/unwind/secrets_store_csi_driver:cue_secrets_store_csi_driver_library",
         "//k8s/unwind/snapshot_controller:cue_snapshot_controller_library",
