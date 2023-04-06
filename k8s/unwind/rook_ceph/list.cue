@@ -30,24 +30,19 @@ import (
 #List: items: list.Concat(_items)
 
 _items: [
-	// The namespace must be created first.
-	#NamespaceList.items,
-
-	// Lexicographic ordering.
+	#CephBlockPoolList.items,
+	#CephClusterList.items,
+	#CephFilesystemList.items,
+	#CephObjectStoreList.items,
 	#ClusterRoleBindingList.items,
 	#ClusterRoleList.items,
 	#ConfigMapList.items,
 	#CustomResourceDefinitionList.items,
 	#DeploymentList.items,
+	#NamespaceList.items,
 	#RoleBindingList.items,
 	#RoleList.items,
 	#ServiceAccountList.items,
 	#ServiceList.items,
 	#StorageClassList.items,
-
-	// CRDs.
-	#CephBlockPoolList.items,
-	#CephClusterList.items,
-	#CephFilesystemList.items,
-	#CephObjectStoreList.items,
 ]

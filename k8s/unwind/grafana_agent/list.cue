@@ -29,16 +29,13 @@ import (
 #List: items: list.Concat(_items)
 
 _items: [
-	// The namespace must be created first.
-	#NamespaceList.items,
-
-	// Lexicographic ordering.
 	#ClusterRoleBindingList.items,
 	#ClusterRoleList.items,
 	#GrafanaAgentList.items,
 	#IntegrationList.items,
 	#LogsInstanceList.items,
 	#MetricsInstanceList.items,
+	#NamespaceList.items,
 	#PersistentVolumeClaimList.items,
 	#PodLogsList.items,
 	#PodMonitorList.items,

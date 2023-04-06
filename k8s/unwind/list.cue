@@ -30,41 +30,42 @@ import (
 	items: [...{metadata: labels: "app.kubernetes.io/managed-by": "automata"}]
 }
 
-// items are grouped by dependency requirements, and sorted lexicographically
-// where possible.
-#List: items: list.Concat(_items)
+_#KindWeight: {
+	kind:   string | *"?"
+	weight: [
+		if kind == "CustomResourceDefinition" {1},
+		if kind == "Namespace" {0},
+		-1,
+	][0]
+}
+
+#List: items: list.Sort(list.Concat(_items), {
+	x:    _
+	y:    _
+	less: (_#KindWeight & {kind: x.kind}).weight > (_#KindWeight & {kind: y.kind}).weight
+})
 
 _items: [
 	cert_manager_csi_driver.#List.items,
 	cert_manager.#List.items,
 	csi_snapshotter.#List.items,
-	kube_state_metrics.#List.items,
-	node_feature_discovery.#List.items,
-	rook_ceph.#List.items,
-	secrets_store_csi_driver.#List.items,
-	snapshot_controller.#List.items,
-
-	// Requires node_feature_discovery.
-	intel_gpu_plugin.#List.items,
-
-	// Requires rook_ceph and secrets_store_csi_driver.
-	vault.#List.items,
-	vault_csi_provider.#List.items,
-	vault_config_operator.#List.items,
-
-	// Requires secrets_store_csi_driver.
-	tailscale.#List.items,
-
-	// Requires rook_ceph and tailscale.
 	grafana_agent_operator.#List.items,
 	grafana_agent.#List.items,
 	grafana.#List.items,
+	intel_gpu_plugin.#List.items,
+	kube_state_metrics.#List.items,
 	loki.#List.items,
 	media.#List.items,
 	mimir.#List.items,
-
-	// Required grafana_agent_operator.
+	node_feature_discovery.#List.items,
 	node_problem_detector.#List.items,
+	rook_ceph.#List.items,
+	secrets_store_csi_driver.#List.items,
+	snapshot_controller.#List.items,
+	tailscale.#List.items,
+	vault_config_operator.#List.items,
+	vault_csi_provider.#List.items,
+	vault.#List.items,
 ]
 
 #List

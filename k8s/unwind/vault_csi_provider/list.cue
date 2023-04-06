@@ -31,12 +31,9 @@ import (
 #List: items: list.Concat(_items)
 
 _items: [
-	// The namespace must be created first.
-	#NamespaceList.items,
-
-	// Lexicographic ordering.
-	#ServiceAccountList.items,
 	#ClusterRoleBindingList.items,
 	#ClusterRoleList.items,
 	#DaemonSetList.items,
+	#NamespaceList.items,
+	#ServiceAccountList.items,
 ]
