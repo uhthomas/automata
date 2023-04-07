@@ -16,9 +16,7 @@ import (
 
 #StatefulSetList: items: [{
 	spec: {
-		replicas: 1
 		selector: matchLabels: "app.kubernetes.io/name": #Name
-		serviceName: #Name
 		template: {
 			metadata: labels: "app.kubernetes.io/name": #Name
 			spec: {
@@ -48,5 +46,6 @@ import (
 				resources: requests: storage: "32Gi"
 			}
 		}]
+		serviceName: #Name
 	}
 }]

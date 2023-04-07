@@ -13,6 +13,7 @@ import (
 	"github.com/uhthomas/automata/k8s/unwind/media/recyclarr"
 	"github.com/uhthomas/automata/k8s/unwind/media/sabnzbd"
 	"github.com/uhthomas/automata/k8s/unwind/media/sonarr"
+	"github.com/uhthomas/automata/k8s/unwind/media/tdarr"
 	"github.com/uhthomas/automata/k8s/unwind/media/transmission"
 	"k8s.io/api/core/v1"
 )
@@ -42,5 +43,6 @@ _items: [
 	recyclarr.#List.items,
 	sabnzbd.#List.items,
 	sonarr.#List.items,
+	tdarr.#List.items,
 	transmission.#List.items,
 ]
