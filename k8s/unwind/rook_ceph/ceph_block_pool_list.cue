@@ -12,6 +12,19 @@ import "k8s.io/api/core/v1"
 }
 
 #CephBlockPoolList: items: [{
+	metadata: name: "builtin-mgr"
+	spec: {
+		name:          ".mgr"
+		failureDomain: "host"
+		replicated: {
+			size:                   3
+			requireSafeReplicaSize: true
+		}
+		deviceClass: "hdd"
+		parameters: compression_mode: "none"
+		mirroring: enabled:           false
+	}
+}, {
 	metadata: name: "ecpool"
 	spec: {
 		erasureCoded: {

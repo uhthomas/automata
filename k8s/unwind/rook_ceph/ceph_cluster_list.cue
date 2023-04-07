@@ -82,55 +82,45 @@ import "k8s.io/api/core/v1"
 				devices: [{
 					// HGST H7280A520SUN8.0T
 					name: "/dev/disk/by-id/wwn-0x5000cca23b366958"
-					config: deviceClass: "hdd"
 				}, {
 					// IBM-ESXS HUH728080AL420
 					name: "/dev/disk/by-id/wwn-0x5000cca26105b87c"
-					config: deviceClass: "hdd"
 				}]
 			}, {
 				name: "talos-god-636"
 				devices: [{
 					// HGST H7280A520SUN8.0T
 					name: "/dev/disk/by-id/wwn-0x5000cca261057c98"
-					config: deviceClass: "hdd"
 				}, {
 					// IBM-ESXS HUH728080AL420
 					name: "/dev/disk/by-id/wwn-0x5000cca23b435a24"
-					config: deviceClass: "hdd"
 				}]
 			}, {
 				name: "talos-su3-l23"
 				devices: [{
 					// HGST H7280A520SUN8.0T
 					name: "/dev/disk/by-id/wwn-0x5000cca23b184d70"
-					config: deviceClass: "hdd"
 				}, {
 					// HGST H7280A520SUN8.0T
 					name: "/dev/disk/by-id/wwn-0x5000cca23b356ba0"
-					config: deviceClass: "hdd"
 				}]
 			}, {
 				name: "talos-e5f-w4m"
 				devices: [{
 					// HGST H7280A520SUN8.0T
 					name: "/dev/disk/by-id/wwn-0x5000cca23b43eb7c"
-					config: deviceClass: "hdd"
 				}, {
 					// HGST H7280A520SUN8.0T
 					name: "/dev/disk/by-id/wwn-0x5000cca23b3573bc"
-					config: deviceClass: "hdd"
 				}]
 			}, {
 				name: "talos-l94-p4c"
 				devices: [{
 					// HGST H7280A520SUN8.0T
 					name: "/dev/disk/by-id/wwn-0x5000cca23b43d9ec"
-					config: deviceClass: "hdd"
 				}, {
 					// HGST H7280A520SUN8.0T
 					name: "/dev/disk/by-id/wwn-0x5000cca23b30dca4"
-					config: deviceClass: "hdd"
 				}]
 			}]
 			onlyApplyOSDPlacement: false

@@ -14,7 +14,10 @@ import "k8s.io/api/core/v1"
 #CephFilesystemList: items: [{
 	metadata: name: "mainfs-ec"
 	spec: {
-		metadataPool: replicated: size: 3
+		metadataPool: {
+			replicated: size: 3
+			deviceClass: "hdd"
+		}
 		dataPools: [{
 			name: "default"
 			replicated: size: 3
