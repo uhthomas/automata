@@ -83,7 +83,7 @@ import (
 			}]
 			containers: [{
 				name:  #Name
-				image: "recyclarr/recyclarr:\(#Version)@sha256:5eaf56031aa5f8675eb335a65d413a4bf04d0c86ddb7b213cdd09d4b5c2095be"
+				image: "recyclarr/recyclarr:\(#Version)@sha256:96f7922eb444c68f73a71e993ff6d834f7668010b38b07925f8b76adff5ac862"
 				command: ["recyclarr"]
 				args: ["sync", "-c", configPath]
 				env: [{
