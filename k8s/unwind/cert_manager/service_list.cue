@@ -11,7 +11,7 @@ import "k8s.io/api/core/v1"
 	}]
 }
 
-#ServiceList: items: [ {
+#ServiceList: items: [{
 	metadata: labels: {
 		app:                           "cert-manager"
 		"app.kubernetes.io/name":      "cert-manager"

@@ -3,6 +3,7 @@ import (
 
 	"github.com/uhthomas/automata/k8s/unwind/cert_manager_csi_driver"
 	"github.com/uhthomas/automata/k8s/unwind/cert_manager"
+	"github.com/uhthomas/automata/k8s/unwind/cockroach_operator_system"
 	"github.com/uhthomas/automata/k8s/unwind/csi_snapshotter"
 	"github.com/uhthomas/automata/k8s/unwind/grafana_agent_operator"
 	"github.com/uhthomas/automata/k8s/unwind/grafana_agent"
@@ -49,6 +50,7 @@ _#KindWeight: {
 _items: [
 	cert_manager_csi_driver.#List.items,
 	cert_manager.#List.items,
+	cockroach_operator_system.#List.items,
 	csi_snapshotter.#List.items,
 	grafana_agent_operator.#List.items,
 	grafana_agent.#List.items,
