@@ -26,7 +26,8 @@ import (
 				}]
 				containers: [{
 					name:  #Name
-					image: "ghcr.io/haveagitgat/tdarr:\(#Version)@sha256:75e128ebb10f769615e5878fc2dad618adbd17a01e3a96060338e28dc8978a1c"
+					image: "haveagitgat/tdarr_acc:\(#Version)"
+					// image: "ghcr.io/haveagitgat/tdarr:\(#Version)@sha256:75e128ebb10f769615e5878fc2dad618adbd17a01e3a96060338e28dc8978a1c"
 					ports: [{
 						name:          "http"
 						containerPort: 8265
