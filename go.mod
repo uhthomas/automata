@@ -5,10 +5,10 @@ go 1.19
 require (
 	cuelang.org/go v0.4.3
 	github.com/prometheus/prometheus v0.43.0
-	k8s.io/api v0.26.3
-	k8s.io/apiextensions-apiserver v0.26.3
-	k8s.io/client-go v0.26.3
-	k8s.io/kube-aggregator v0.26.3
+	k8s.io/api v0.27.0
+	k8s.io/apiextensions-apiserver v0.27.0
+	k8s.io/client-go v0.27.0
+	k8s.io/kube-aggregator v0.27.0
 )
 
 require (
@@ -84,9 +84,9 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
 	github.com/stretchr/testify v1.8.2 // indirect
-	go.etcd.io/etcd/api/v3 v3.5.5 // indirect
-	go.etcd.io/etcd/client/pkg/v3 v3.5.5 // indirect
-	go.etcd.io/etcd/client/v3 v3.5.5 // indirect
+	go.etcd.io/etcd/api/v3 v3.5.7 // indirect
+	go.etcd.io/etcd/client/pkg/v3 v3.5.7 // indirect
+	go.etcd.io/etcd/client/v3 v3.5.7 // indirect
 	go.opentelemetry.io/contrib v0.20.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.35.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.40.0 // indirect
@@ -125,14 +125,14 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apimachinery v0.26.3 // indirect
-	k8s.io/apiserver v0.26.3 // indirect
-	k8s.io/component-base v0.26.3 // indirect
+	k8s.io/apimachinery v0.27.0 // indirect
+	k8s.io/apiserver v0.27.0 // indirect
+	k8s.io/component-base v0.27.0 // indirect
 	k8s.io/klog/v2 v2.90.1 // indirect
-	k8s.io/kms v0.26.3 // indirect
-	k8s.io/kube-openapi v0.0.0-20230303024457-afdc3dddf62d // indirect
+	k8s.io/kms v0.27.0 // indirect
+	k8s.io/kube-openapi v0.0.0-20230308215209-15aac26d736a // indirect
 	k8s.io/utils v0.0.0-20230308161112-d77c459e9343 // indirect
-	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.36 // indirect
+	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.1.1 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
