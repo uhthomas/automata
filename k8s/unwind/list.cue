@@ -16,6 +16,7 @@ import (
 	"github.com/uhthomas/automata/k8s/unwind/mimir"
 	"github.com/uhthomas/automata/k8s/unwind/node_feature_discovery"
 	"github.com/uhthomas/automata/k8s/unwind/node_problem_detector"
+	"github.com/uhthomas/automata/k8s/unwind/redis_operator"
 	"github.com/uhthomas/automata/k8s/unwind/rook_ceph"
 	"github.com/uhthomas/automata/k8s/unwind/secrets_store_csi_driver"
 	"github.com/uhthomas/automata/k8s/unwind/snapshot_controller"
@@ -63,6 +64,7 @@ _items: [
 	mimir.#List.items,
 	node_feature_discovery.#List.items,
 	node_problem_detector.#List.items,
+	redis_operator.#List.items,
 	rook_ceph.#List.items,
 	secrets_store_csi_driver.#List.items,
 	snapshot_controller.#List.items,
