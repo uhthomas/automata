@@ -5,10 +5,10 @@ go 1.19
 require (
 	cuelang.org/go v0.5.0
 	github.com/prometheus/prometheus v0.43.0
-	k8s.io/api v0.27.0
-	k8s.io/apiextensions-apiserver v0.27.0
-	k8s.io/client-go v0.27.0
-	k8s.io/kube-aggregator v0.27.0
+	k8s.io/api v0.27.1
+	k8s.io/apiextensions-apiserver v0.27.1
+	k8s.io/client-go v0.27.1
+	k8s.io/kube-aggregator v0.27.1
 )
 
 require (
@@ -126,11 +126,11 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apimachinery v0.27.0 // indirect
-	k8s.io/apiserver v0.27.0 // indirect
-	k8s.io/component-base v0.27.0 // indirect
+	k8s.io/apimachinery v0.27.1 // indirect
+	k8s.io/apiserver v0.27.1 // indirect
+	k8s.io/component-base v0.27.1 // indirect
 	k8s.io/klog/v2 v2.90.1 // indirect
-	k8s.io/kms v0.27.0 // indirect
+	k8s.io/kms v0.27.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20230308215209-15aac26d736a // indirect
 	k8s.io/utils v0.0.0-20230308161112-d77c459e9343 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.1.1 // indirect
