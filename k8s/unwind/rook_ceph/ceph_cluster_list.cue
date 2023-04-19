@@ -142,6 +142,9 @@ import "k8s.io/api/core/v1"
 				}, {
 					// IBM-ESXS HUH728080AL420
 					name: "/dev/disk/by-id/wwn-0x5000cca23b435a24"
+				}, {
+					// WDC WD120EMAZ-11
+					name: "/dev/disk/by-id/wwn-0x5000cca291cccc74"
 				}]
 			}, {
 				name: "talos-su3-l23"
