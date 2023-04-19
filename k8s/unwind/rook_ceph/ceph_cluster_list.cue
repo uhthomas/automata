@@ -80,6 +80,48 @@ import "k8s.io/api/core/v1"
 			osd: "system-node-critical"
 			mgr: "system-cluster-critical"
 		}
+		resources: {
+			api: {
+				requests: {
+					cpu:    "500m"
+					memory: "512Mi"
+				}
+				limits: {
+					cpu:    "500m"
+					memory: "512Mi"
+				}
+			}
+			mgr: {
+				requests: {
+					cpu:    "500m"
+					memory: "512Mi"
+				}
+				limits: {
+					cpu:    "500m"
+					memory: "512Mi"
+				}
+			}
+			mon: {
+				requests: {
+					cpu:    "500m"
+					memory: "512Mi"
+				}
+				limits: {
+					cpu:    "500m"
+					memory: "512Mi"
+				}
+			}
+			osd: {
+				requests: {
+					cpu:    "500m"
+					memory: "512Mi"
+				}
+				limits: {
+					cpu:    "1"
+					memory: "4Gi"
+				}
+			}
+		}
 		storage: {
 			useAllNodes:   false
 			useAllDevices: false
