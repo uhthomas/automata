@@ -32,6 +32,9 @@ import "k8s.io/api/core/v1"
 				name:    "diskprediction_local"
 				enabled: true
 			}, {
+				name:    "nfs"
+				enabled: false
+			}, {
 				name:    "pg_autoscaler"
 				enabled: true
 			}, {
