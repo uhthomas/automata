@@ -1,4 +1,4 @@
-package cockroach_operator_system
+package immich_web
 
 import "k8s.io/api/core/v1"
 
@@ -12,14 +12,11 @@ import "k8s.io/api/core/v1"
 }
 
 #ServiceList: items: [{
-	metadata: {
-		name: "cockroach-operator-webhook-service"
-		labels: "control-plane": "cockroach-operator"
-	}
 	spec: {
 		ports: [{
-			port:       443
-			targetPort: 9443
+			name:       "http"
+			port:       3000
+			targetPort: "http"
 		}]
 		selector: "app.kubernetes.io/name": #Name
 	}
