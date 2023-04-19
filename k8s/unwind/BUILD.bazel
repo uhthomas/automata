@@ -3,7 +3,10 @@ load("@io_bazel_rules_k8s//k8s:object.bzl", "k8s_object")
 
 k8s_object(
     name = "object",
-    args = ["-l=app.kubernetes.io/managed-by=automata"],
+    args = [
+        "--server-side",
+        "-l=app.kubernetes.io/managed-by=automata",
+    ],
     context = "unwind",
     kind = "Deployment",
     template = ":list",
