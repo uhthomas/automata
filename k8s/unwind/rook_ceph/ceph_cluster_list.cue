@@ -29,6 +29,9 @@ import "k8s.io/api/core/v1"
 			count:                2
 			allowMultiplePerNode: false
 			modules: [{
+				name:    "diskprediction_local"
+				enabled: true
+			}, {
 				name:    "pg_autoscaler"
 				enabled: true
 			}, {
