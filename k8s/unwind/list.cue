@@ -1,6 +1,7 @@
 import (
 	"list"
 
+	"github.com/uhthomas/automata/k8s/unwind"
 	"github.com/uhthomas/automata/k8s/unwind/cert_manager_csi_driver"
 	"github.com/uhthomas/automata/k8s/unwind/cert_manager"
 	"github.com/uhthomas/automata/k8s/unwind/cockroach_operator_system"
@@ -73,6 +74,7 @@ _items: [
 	snapshot_controller.#List.items,
 	tailscale.#List.items,
 	thomas.#List.items,
+	unwind.#ClusterRoleBindingList.items,
 	vault_config_operator.#List.items,
 	vault_csi_provider.#List.items,
 	vault.#List.items,
