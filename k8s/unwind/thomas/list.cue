@@ -23,4 +23,7 @@ import (
 
 #List: items: list.Concat(_items)
 
-_items: [#NamespaceList.items]
+_items: [
+	#JobList.items,
+	#NamespaceList.items,
+]
