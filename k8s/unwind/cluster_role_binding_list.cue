@@ -11,8 +11,11 @@ import rbacv1 "k8s.io/api/rbac/v1"
 	}]
 }
 
-#ClusterRoleBindingList: items: [{
-	metadata: name: "thomas@starjunk.net"
+#ClusterRoleBindingList: items: [ for _name in [
+	"thomas@starjunk.net",
+	"github-automata-unwind-k8s-apply.tailnet-fbec.ts.net",
+] {
+	metadata: name: _name
 	roleRef: {
 		apiGroup: rbacv1.#GroupName
 		kind:     "ClusterRole"
@@ -21,6 +24,6 @@ import rbacv1 "k8s.io/api/rbac/v1"
 	subjects: [{
 		apiGroup: rbacv1.#GroupName
 		kind:     rbacv1.#UserKind
-		name:     metadata.name
+		name:     _name
 	}]
 }]
