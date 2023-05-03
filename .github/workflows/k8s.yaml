@@ -1,27 +1,24 @@
-# name: K8s
-# on:
-#   push:
-#     branches: [main]
-# jobs:
-#   pillowtalk:
-#     name: Pillowtalk
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v3
-#       - uses: tailscale/github-action@main
-#         with:
-#           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
-#           version: "1.32.0"
-#       - name: Install Bazelisk
-#         run: curl -L "https://github.com/bazelbuild/bazelisk/releases/download/v1.10.1/bazelisk-linux-amd64" | install -D /dev/stdin "${GITHUB_WORKSPACE}/bin/bazel"
-#       - run: bazel build //...
-#       - uses: azure/k8s-set-context@v2
-#         with:
-#           kubeconfig: ${{ secrets.KUBE_CONFIG }}
-#       # https://github.com/bazelbuild/rules_k8s/issues/640
-#       - name: Apply
-#         run: |
-#           bazel run \
-#           --config=ci \
-#           --remote_header=x-buildbuddy-api-key=${{ secrets.BUILDBUDDY_ORG_API_KEY }} \
-#           //k8s/pillowtalk:object.apply -- --prune
+name: k8s
+on:
+  push:
+    branches: [main]
+jobs:
+  unwind:
+    name: Unwind
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: tailscale/github-action@main
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+      - name: Login to the Kubernetes cluster
+        run: tailscale configure kubeconfig tailscale-operator
+      - uses: bazelbuild/setup-bazelisk@v2
+      # https://github.com/bazelbuild/rules_k8s/issues/640
+      # TODO: use --prune
+      - name: Apply
+        run: |
+          bazel run \
+          --config=ci \
+          --remote_header=x-buildbuddy-api-key=${{ secrets.BUILDBUDDY_ORG_API_KEY }} \
+          //k8s/unwind:object.apply

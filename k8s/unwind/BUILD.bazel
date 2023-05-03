@@ -7,7 +7,7 @@ k8s_object(
         "--server-side",
         "-l=app.kubernetes.io/managed-by=automata",
     ],
-    context = "unwind",
+    context = "",
     kind = "Deployment",
     template = ":list",
     visibility = ["//visibility:public"],
