@@ -15,6 +15,11 @@ jobs:
       - name: Login to the Kubernetes cluster
         run: tailscale configure kubeconfig tailscale-operator
       - uses: bazelbuild/setup-bazelisk@v2
+      - name: Mount bazel cache
+        uses: actions/cache@v3
+        with:
+          path: "~/.cache/bazel"
+          key: bazel
       # https://github.com/bazelbuild/rules_k8s/issues/640
       # TODO: use --prune
       - name: Apply
