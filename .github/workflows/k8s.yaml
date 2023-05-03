@@ -11,6 +11,7 @@ jobs:
       - uses: tailscale/github-action@main
         with:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          version: "1.40.0"
       - name: Login to the Kubernetes cluster
         run: tailscale configure kubeconfig tailscale-operator
       - uses: bazelbuild/setup-bazelisk@v2
