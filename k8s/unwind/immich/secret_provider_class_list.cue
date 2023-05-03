@@ -15,4 +15,4 @@ import (
 	}]
 }
 
-#SecretProviderClassList: items: [{}]
+#SecretProviderClassList: items: []
