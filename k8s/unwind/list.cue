@@ -22,6 +22,7 @@ import (
 	"github.com/uhthomas/automata/k8s/unwind/secrets_store_csi_driver"
 	"github.com/uhthomas/automata/k8s/unwind/snapshot_controller"
 	"github.com/uhthomas/automata/k8s/unwind/tailscale"
+	"github.com/uhthomas/automata/k8s/unwind/thomas"
 	"github.com/uhthomas/automata/k8s/unwind/vault_config_operator"
 	"github.com/uhthomas/automata/k8s/unwind/vault_csi_provider"
 	"github.com/uhthomas/automata/k8s/unwind/vault"
@@ -71,6 +72,7 @@ _items: [
 	secrets_store_csi_driver.#List.items,
 	snapshot_controller.#List.items,
 	tailscale.#List.items,
+	thomas.#List.items,
 	vault_config_operator.#List.items,
 	vault_csi_provider.#List.items,
 	vault.#List.items,
