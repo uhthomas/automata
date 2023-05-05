@@ -40,10 +40,7 @@ _disks: [{
 	spec: template: spec: {
 		volumes: [{
 			name: "disk"
-			hostPath: {
-				path: "/dev/disk/by-id/\(disk.wwn)"
-				type: v1.#HostPathFile
-			}
+			hostPath: path: "/dev/disk/by-id/\(disk.wwn)"
 		}]
 		containers: [{
 			name:  metadata.name
