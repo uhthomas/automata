@@ -9,7 +9,19 @@ gazelle_binary(
 # gazelle:prefix github.com/uhthomas/automata
 gazelle(
     name = "gazelle",
+    external = "static",
     gazelle = ":gazelle_binary",
+)
+
+gazelle(
+    name = "gazelle-update-repos",
+    args = [
+        "--build_file_proto_mode=disable_global",
+        "--from_file=go.mod",
+        "--prune",
+        "--to_macro=go_deps.bzl%go_dependencies",
+    ],
+    command = "update-repos",
 )
 
 buildifier(name = "buildifier")

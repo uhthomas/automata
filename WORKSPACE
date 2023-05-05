@@ -9,7 +9,7 @@ load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_depe
 
 go_rules_dependencies()
 
-go_register_toolchains(version = "1.19.2")
+go_register_toolchains(version = "1.20.4")
 
 load("//:go_deps.bzl", "go_dependencies")
 
@@ -32,6 +32,13 @@ container_repositories()
 load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
 
 container_deps()
+
+# load("@io_bazel_rules_k8s//toolchains/kubectl:kubectl_configure.bzl", "kubectl_configure")
+
+# kubectl_configure(
+#     name = "k8s_config",
+#     kubectl_path = "@io_k8s_kubernetes//cmd/kubectl",
+# )
 
 load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_repositories")
 

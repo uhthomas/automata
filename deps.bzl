@@ -17,9 +17,9 @@ def dependencies():
     )
     http_archive(
         name = "com_github_tnarg_rules_cue",
-        # sha256 = "3e067cf11aff8a08cec42ad6c8b37cb84f9656fa48192c17b5795016d6fbee41",
-        strip_prefix = "rules_cue-f85546145bab07a5cada175e74a736bee82ace68",
-        urls = ["https://github.com/tnarg/rules_cue/archive/f85546145bab07a5cada175e74a736bee82ace68.tar.gz"],
+        sha256 = "b11f3210df95e55220075a5df9a00b85172d98ed7a36f3c79bb9dee7a868c7e3",
+        strip_prefix = "rules_cue-664aaeefe4c3b20af9cc68ca8b0cb7e34085f70b",
+        urls = ["https://github.com/uhthomas/rules_cue/archive/664aaeefe4c3b20af9cc68ca8b0cb7e34085f70b.tar.gz"],
     )
     http_archive(
         name = "rules_proto",
@@ -39,10 +39,10 @@ def dependencies():
     )
     http_archive(
         name = "io_bazel_rules_go",
-        sha256 = "099a9fb96a376ccbbb7d291ed4ecbdfd42f6bc822ab77ae6f1b5cb9e914e94fa",
+        sha256 = "6b65cb7917b4d1709f9410ffe00ecf3e160edf674b78c54a894471320862184f",
         urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.35.0/rules_go-v0.35.0.zip",
-            "https://github.com/bazelbuild/rules_go/releases/download/v0.39.1/rules_go-v0.35.0.zip",
+            "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.39.0/rules_go-v0.39.0.zip",
+            "https://github.com/bazelbuild/rules_go/releases/download/v0.39.0/rules_go-v0.39.0.zip",
         ],
     )
     http_archive(
