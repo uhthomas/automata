@@ -21,13 +21,38 @@ import (
 //  "wwn-0x5000c500c9566239", // talos-e5f-w4m ST6000DM003-2CY1
 // ]
 
-#JobList: items: [{
-	metadata: name: "smartmontoolstest"
+_disks: [{
+	node: "talos-su3-l23"
+	wwn:  "wwn-0x50014ee20a85be27"
+}, {
+	node: "talos-su3-l23"
+	wwn:  "wwn-0x5000c500c95641d1"
+}, {
+	node: "talos-e5f-w4m"
+	wwn:  "wwn-0x50014ee20a0d98d1"
+}, {
+	node: "talos-e5f-w4m"
+	wwn:  "wwn-0x5000c500c9566239"
+}]
+
+#JobList: items: [ for disk in _disks {
+	metadata: name: "smartmontools-\(disk.node)-\(disk.wwn)"
 	spec: template: spec: {
+		volumes: [{
+			name: "disk"
+			hostPath: path: "/disk/by-id/\(disk.wwn)"
+		}]
 		containers: [{
 			name:  metadata.name
 			image: "ghcr.io/uhthomas/automata/smartmontools:{STABLE_GIT_COMMIT}"
+			command: ["smartctl"]
+			args: ["-a", "/dev/sda"]
+			volumeMounts: [{
+				name:      "disk"
+				mountPath: "/dev/sda"
+			}]
 		}]
 		restartPolicy: v1.#RestartPolicyNever
+		nodeName:      disk.node
 	}
 }]
