@@ -1,7 +1,7 @@
 package thomas
 
 import (
-	// "k8s.io/api/core/v1"
+	"k8s.io/api/core/v1"
 	batchv1 "k8s.io/api/batch/v1"
 )
 
@@ -21,4 +21,13 @@ import (
 //  "wwn-0x5000c500c9566239", // talos-e5f-w4m ST6000DM003-2CY1
 // ]
 
-#JobList: items: []
+#JobList: items: [{
+	metadata: name: "smartmontoolstest"
+	spec: template: spec: {
+		containers: [{
+			name:  metadata.name
+			image: "ghcr.io/uhthomas/automata/smartmontools:{STABLE_GIT_COMMIT}"
+		}]
+		restartPolicy: v1.#RestartPolicyNever
+	}
+}]
