@@ -39,7 +39,7 @@ _disks: [{
 	metadata: name: "smartmontools-\(disk.node)-\(disk.wwn)"
 	spec: template: spec: {
 		volumes: [{
-			name: "disk-by-id"
+			name: "disk"
 			hostPath: {
 				path: "/dev/disk/by-id/\(disk.wwn)"
 				type: v1.#HostPathFile
