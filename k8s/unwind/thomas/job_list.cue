@@ -36,7 +36,7 @@ _disks: [{
 }]
 
 #JobList: items: [ for disk in _disks {
-	metadata: name: "smartmontools-\(disk.node)-\(disk.wwn)"
+	metadata: name: "shred-\(disk.wwn)"
 	spec: {
 		backoffLimit: 0
 		template: spec: {
@@ -46,9 +46,9 @@ _disks: [{
 			}]
 			containers: [{
 				name:  metadata.name
-				image: "ghcr.io/uhthomas/automata/smartmontools:{STABLE_GIT_COMMIT}"
-				command: ["smartctl"]
-				args: ["-a", "/dev/sda"]
+				image: "debian:bookworm-slim@sha256:5c1586cd384b778f88ece4920aa36d083da02a26ea628036cc20af86f15ed42e"
+				command: ["shred"]
+				args: ["-vfz", "/dev/sda"]
 				volumeMounts: [{
 					name:      "disk"
 					mountPath: "/dev/sda"
