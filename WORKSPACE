@@ -33,6 +33,10 @@ load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
 
 container_deps()
 
+load("//:container_deps.bzl", "container_dependencies")
+
+container_dependencies()
+
 # load("@io_bazel_rules_k8s//toolchains/kubectl:kubectl_configure.bzl", "kubectl_configure")
 
 # kubectl_configure(
