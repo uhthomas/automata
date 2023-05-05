@@ -37,22 +37,27 @@ _disks: [{
 
 #JobList: items: [ for disk in _disks {
 	metadata: name: "smartmontools-\(disk.node)-\(disk.wwn)"
-	spec: template: spec: {
-		volumes: [{
-			name: "disk"
-			hostPath: path: "/dev/disk/by-id/\(disk.wwn)"
-		}]
-		containers: [{
-			name:  metadata.name
-			image: "ghcr.io/uhthomas/automata/smartmontools:{STABLE_GIT_COMMIT}"
-			command: ["smartctl"]
-			args: ["-a", "/dev/sda"]
-			volumeMounts: [{
-				name:      "disk"
-				mountPath: "/dev/sda"
+	spec: {
+		backoffLimit: 0
+		template: spec: {
+			volumes: [{
+				name: "disk"
+				hostPath: path: "/dev/disk/by-id/\(disk.wwn)"
 			}]
-		}]
-		restartPolicy: v1.#RestartPolicyNever
-		nodeName:      disk.node
+			containers: [{
+				name:  metadata.name
+				image: "ghcr.io/uhthomas/automata/smartmontools:{STABLE_GIT_COMMIT}"
+				command: ["smartctl"]
+				args: ["-a", "/dev/sda"]
+				volumeMounts: [{
+					name:      "disk"
+					mountPath: "/dev/sda"
+				}]
+				imagePullPolicy: v1.#PullIfNotPresent
+				securityContext: privileged: true
+			}]
+			restartPolicy: v1.#RestartPolicyNever
+			nodeName:      disk.node
+		}
 	}
 }]
