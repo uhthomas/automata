@@ -27,10 +27,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       # https://github.com/bazelbuild/rules_k8s/issues/640
-      # TODO: use --prune
       - name: Apply
         run: |
           bazel run \
           --config=ci \
           --remote_header=x-buildbuddy-api-key=${{ secrets.BUILDBUDDY_ORG_API_KEY }} \
-          //k8s/unwind:object.apply
+          //k8s/unwind:object.apply -- --prune
