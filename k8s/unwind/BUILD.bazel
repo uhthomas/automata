@@ -8,6 +8,9 @@ k8s_object(
         "-l=app.kubernetes.io/managed-by=automata",
     ],
     context = "",
+    images = {
+        "ghcr.io/uhthomas/automata/smartmontools:{STABLE_GIT_COMMIT}": "//container/smartmontools:image",
+    },
     kind = "Deployment",
     template = ":list",
     visibility = ["//visibility:public"],

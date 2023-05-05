@@ -19,4 +19,5 @@ install_pkgs(
 container_image(
     name = "image",
     base = ":pkgs_image.tar",
+    visibility = ["//visibility:public"],
 )

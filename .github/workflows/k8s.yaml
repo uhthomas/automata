@@ -20,6 +20,12 @@ jobs:
         with:
           path: "~/.cache/bazel"
           key: bazel
+      - name: Login to the GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       # https://github.com/bazelbuild/rules_k8s/issues/640
       # TODO: use --prune
       - name: Apply
