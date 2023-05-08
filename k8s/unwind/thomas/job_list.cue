@@ -23,7 +23,7 @@ _disks: [{
 }]
 
 #JobList: items: [ for disk in _disks {
-	metadata: name: "smartctl-\(disk.wwn)"
+	metadata: name: "shred-\(disk.wwn)"
 	spec: {
 		backoffLimit: 0
 		template: spec: {
@@ -32,10 +32,10 @@ _disks: [{
 				hostPath: path: "/dev/disk/by-id/\(disk.wwn)"
 			}]
 			containers: [{
-				name:  "smartctl"
-				image: "ghcr.io/uhthomas/automata/smartmontools:{STABLE_GIT_COMMIT}"
-				command: ["smartctl"]
-				args: ["-a", "/dev/sda"]
+				name:  "shred"
+				image: "debian:bookworm-slim@sha256:5c1586cd384b778f88ece4920aa36d083da02a26ea628036cc20af86f15ed42e"
+				command: ["shred"]
+				args: ["-vfz", "/dev/sda"]
 				volumeMounts: [{
 					name:      "disk"
 					mountPath: "/dev/sda"
@@ -48,30 +48,3 @@ _disks: [{
 		}
 	}
 }]
-
-// #JobList: items: [ for disk in _disks {
-//  metadata: name: "shred-\(disk.wwn)"
-//  spec: {
-//   backoffLimit: 0
-//   template: spec: {
-//    volumes: [{
-//     name: "disk"
-//     hostPath: path: "/dev/disk/by-id/\(disk.wwn)"
-//    }]
-//    containers: [{
-//     name:  metadata.name
-//     image: "debian:bookworm-slim@sha256:5c1586cd384b778f88ece4920aa36d083da02a26ea628036cc20af86f15ed42e"
-//     command: ["shred"]
-//     args: ["-vfz", "/dev/sda"]
-//     volumeMounts: [{
-//      name:      "disk"
-//      mountPath: "/dev/sda"
-//     }]
-//     imagePullPolicy: v1.#PullIfNotPresent
-//     securityContext: privileged: true
-//    }]
-//    restartPolicy: v1.#RestartPolicyNever
-//    nodeName:      disk.node
-//   }
-//  }
-// }]
