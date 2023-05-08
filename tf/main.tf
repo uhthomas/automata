@@ -8,7 +8,6 @@ terraform {
 }
 
 provider "cloudflare" {
-  email     = "thomas@6f.io"
   api_token = var.cloudflare_api_token
 }
 
