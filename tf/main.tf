@@ -12,6 +12,7 @@ provider "cloudflare" {
 }
 
 resource "cloudflare_zone" "starjunk_net" {
+  account_id = var.cloudflare_account_id
   zone = var.cloudflare_zone
   plan = "business"
   type = "full"
