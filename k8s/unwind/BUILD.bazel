@@ -6,6 +6,8 @@ k8s_object(
     args = [
         "--server-side",
         "-l=app.kubernetes.io/managed-by=automata",
+        "-applyset=automata",
+        "--prune",
     ],
     context = "",
     images = {

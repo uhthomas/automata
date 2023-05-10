@@ -26,9 +26,10 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      # TODO: Prune resources.
       # https://github.com/bazelbuild/rules_k8s/issues/640
       - name: Apply
+        env:
+          KUBECTL_APPLYSET: "true"
         run: |
           bazel run \
           --config=ci \
