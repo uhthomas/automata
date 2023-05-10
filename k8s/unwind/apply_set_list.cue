@@ -11,4 +11,9 @@ import "k8s.io/api/core/v1"
 	}]
 }
 
-#ApplySetList: items: [{metadata: name: "automata"}]
+#ApplySetList: items: [{
+	metadata: {
+		name: "automata"
+		annotations: "applyset.kubernetes.io/tooling": "kubectl/1.27"
+	}
+}]
