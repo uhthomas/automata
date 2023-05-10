@@ -12,22 +12,19 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 }
 
 #CustomResourceDefinitionList: items: [{
-	metadata: name: "applysetparents.starjunk.net"
+	metadata: name: "applysets.starjunk.net"
 	spec: {
 		group: "starjunk.net"
 		names: {
-			kind:   "ApplySetParent"
-			plural: "applysetparents"
+			kind:   "ApplySet"
+			plural: "applysets"
 		}
 		scope: apiextensionsv1.#ClusterScoped
 		versions: [{
 			name:    "v1"
 			served:  true
 			storage: true
-			schema: openAPIV3Schema: {
-				type: "object"
-				properties: spec: type: "object"
-			}
+			schema: openAPIV3Schema: {}
 		}]
 	}
 }]
