@@ -12,7 +12,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 }
 
 #CustomResourceDefinitionList: items: [{
-	metadata: name: "applysets.starjunk.net"
+	metadata: {
+		name: "applysets.starjunk.net"
+		labels: "applyset.kubernetes.io/is-parent-type": "true"
+	}
 	spec: {
 		group: "starjunk.net"
 		names: {
