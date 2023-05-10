@@ -73,6 +73,7 @@ _items: [
 	snapshot_controller.#List.items,
 	tailscale.#List.items,
 	thomas.#List.items,
+	unwind.#ApplySetList.items,
 	unwind.#CustomResourceDefinitionList.items,
 	unwind.#ClusterRoleBindingList.items,
 	vault_config_operator.#List.items,
