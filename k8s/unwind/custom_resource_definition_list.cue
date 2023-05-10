@@ -24,7 +24,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			name:    "v1"
 			served:  true
 			storage: true
-			schema: openAPIV3Schema: {}
+			schema: openAPIV3Schema: type: "object"
 		}]
 	}
 }]
