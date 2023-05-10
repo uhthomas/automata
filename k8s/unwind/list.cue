@@ -33,7 +33,6 @@ import (
 #List: v1.#List & {
 	apiVersion: "v1"
 	kind:       "List"
-	items: [...{metadata: labels: "app.kubernetes.io/managed-by": "automata"}]
 }
 
 _#KindWeight: {
