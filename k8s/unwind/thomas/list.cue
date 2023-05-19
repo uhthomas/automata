@@ -3,6 +3,7 @@ package thomas
 import (
 	"list"
 
+	"github.com/uhthomas/automata/k8s/unwind/thomas/synologybackup"
 	"k8s.io/api/core/v1"
 )
 
@@ -26,4 +27,5 @@ import (
 _items: [
 	#JobList.items,
 	#NamespaceList.items,
+	synologybackup.#List.items,
 ]
