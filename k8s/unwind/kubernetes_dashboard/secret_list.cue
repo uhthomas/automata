@@ -15,7 +15,6 @@ import "k8s.io/api/core/v1"
 	metadata: name: "\(#Name)-certs"
 }, {
 	metadata: name: "\(#Name)-csrf"
-	data: csrf:     ''
 }, {
 	metadata: name: "\(#Name)-key-holder"
 }]
