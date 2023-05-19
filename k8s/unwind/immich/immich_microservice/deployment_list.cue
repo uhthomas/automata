@@ -65,6 +65,9 @@ import (
 					}, {
 						name:  "REDIS_HOSTNAME"
 						value: "rfs-redis"
+					}, {
+						name:  "TYPESENSE_API_KEY"
+						value: "???"
 					}]
 					volumeMounts: [{
 						name:      "geocoding-dump"
