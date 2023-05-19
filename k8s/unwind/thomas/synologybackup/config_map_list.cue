@@ -12,6 +12,7 @@ import "k8s.io/api/core/v1"
 }
 
 #ConfigMapList: items: [{
+	metadata: name: "\(#Name)-rclone"
 	data: "rclone.conf": """
 		[smb]
 		type = smb

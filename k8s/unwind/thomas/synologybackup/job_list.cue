@@ -22,6 +22,9 @@ import (
 			volumes: [{
 				name: "data"
 				persistentVolumeClaim: claimName: #Name
+			}, {
+				name: "config"
+				configMap: name: "\(#Name)-rclone"
 			}]
 			containers: [{
 				name:  "rclone"
@@ -30,6 +33,10 @@ import (
 				volumeMounts: [{
 					name:      "data"
 					mountPath: "/data"
+				}, {
+					name:      "config"
+					mountPath: "/config/rclone/rclone.conf"
+					subPath:   "rclone.conf"
 				}]
 				imagePullPolicy: v1.#PullIfNotPresent
 				securityContext: {

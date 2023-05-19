@@ -12,6 +12,7 @@ import "k8s.io/api/core/v1"
 }
 
 #PersistentVolumeClaimList: items: [{
+	metadata: name: #Name
 	spec: {
 		accessModes: [v1.#ReadWriteOnce]
 		storageClassName: "rook-ceph-hdd-ec-retain-block"
