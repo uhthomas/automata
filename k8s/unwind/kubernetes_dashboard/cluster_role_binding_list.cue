@@ -22,4 +22,16 @@ import rbacv1 "k8s.io/api/rbac/v1"
 		name:      #Name
 		namespace: #Namespace
 	}]
+}, {
+	metadata: name: "admin-user"
+	roleRef: {
+		apiGroup: rbacv1.#GroupName
+		kind:     "ClusterRole"
+		name:     "cluster-admin"
+	}
+	subjects: [{
+		kind:      rbacv1.#ServiceAccountKind
+		name:      "admin-user"
+		namespace: #Namespace
+	}]
 }]
