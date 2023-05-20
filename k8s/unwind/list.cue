@@ -13,6 +13,7 @@ import (
 	"github.com/uhthomas/automata/k8s/unwind/immich"
 	"github.com/uhthomas/automata/k8s/unwind/intel_gpu_plugin"
 	"github.com/uhthomas/automata/k8s/unwind/kube_state_metrics"
+	"github.com/uhthomas/automata/k8s/unwind/postgres_operator"
 	"github.com/uhthomas/automata/k8s/unwind/kubernetes_dashboard"
 	"github.com/uhthomas/automata/k8s/unwind/loki"
 	"github.com/uhthomas/automata/k8s/unwind/media"
@@ -68,6 +69,7 @@ _items: [
 	media.#List.items,
 	mimir.#List.items,
 	node_feature_discovery.#List.items,
+	postgres_operator.#List.items,
 	node_problem_detector.#List.items,
 	redis_operator.#List.items,
 	rook_ceph.#List.items,
