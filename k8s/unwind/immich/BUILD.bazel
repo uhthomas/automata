@@ -13,7 +13,6 @@ cue_library(
     visibility = ["//visibility:public"],
     deps = [
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
-        "//k8s/unwind/immich/cockroach:cue_cockroach_library",
         "//k8s/unwind/immich/immich_machine_learning:cue_immich_machine_learning_library",
         "//k8s/unwind/immich/immich_microservice:cue_immich_microservice_library",
         "//k8s/unwind/immich/immich_proxy:cue_immich_proxy_library",

@@ -3,7 +3,6 @@ package immich
 import (
 	"list"
 
-	"github.com/uhthomas/automata/k8s/unwind/immich/cockroach"
 	"github.com/uhthomas/automata/k8s/unwind/immich/immich_machine_learning"
 	"github.com/uhthomas/automata/k8s/unwind/immich/immich_microservice"
 	"github.com/uhthomas/automata/k8s/unwind/immich/immich_proxy"
@@ -31,7 +30,6 @@ _items: [
 	#PersistentVolumeClaimList.items,
 	#PostgresClusterList.items,
 	#SecretProviderClassList.items,
-	cockroach.#List.items,
 	immich_machine_learning.#List.items,
 	immich_microservice.#List.items,
 	immich_proxy.#List.items,
