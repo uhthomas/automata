@@ -29,6 +29,7 @@ import (
 _items: [
 	#NamespaceList.items,
 	#PersistentVolumeClaimList.items,
+	#PostgresClusterList.items,
 	#SecretProviderClassList.items,
 	cockroach.#List.items,
 	immich_machine_learning.#List.items,
