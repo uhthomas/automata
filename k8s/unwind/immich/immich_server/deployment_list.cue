@@ -46,6 +46,9 @@ import (
 							key:  "uri"
 						}
 					}, {
+						name:  "PGSSLMODE"
+						value: "no-verify"
+					}, {
 						name:  "ENABLE_MAPBOX"
 						value: "false"
 					}, {
