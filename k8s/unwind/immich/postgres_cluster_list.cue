@@ -29,6 +29,7 @@ import "k8s.io/api/core/v1"
 		backups: pgbackrest: {
 			image: "registry.developers.crunchydata.com/crunchydata/crunchy-pgbackrest:ubi8-2.41-4"
 			repos: [{
+				name: "repo1"
 				volume: volumeClaimSpec: {
 					accessModes: [v1.#ReadWriteOnce]
 					storageClassName: "rook-ceph-hdd-ec-delete-block"
