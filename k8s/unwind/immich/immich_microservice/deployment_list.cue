@@ -39,17 +39,29 @@ import (
 					command: ["/bin/sh"]
 					args: ["./start-microservices.sh"]
 					env: [{
-						name:  "DB_DATABASE_NAME"
-						value: "immich"
+						name: "DB_DATABASE_NAME"
+						valueFrom: secretKeyRef: {
+							name: "hippo-pguser-hippo"
+							key:  "dbname"
+						}
 					}, {
-						name:  "DB_HOSTNAME"
-						value: "immich-postgresql"
+						name: "DB_HOSTNAME"
+						valueFrom: secretKeyRef: {
+							name: "hippo-pguser-hippo"
+							key:  "host"
+						}
 					}, {
-						name:  "DB_PASSWORD"
-						value: "thisshouldnotbeyourpassword"
+						name: "DB_PASSWORD"
+						valueFrom: secretKeyRef: {
+							name: "hippo-pguser-hippo"
+							key:  "password"
+						}
 					}, {
-						name:  "DB_USERNAME"
-						value: "immich"
+						name: "DB_USERNAME"
+						valueFrom: secretKeyRef: {
+							name: "hippo-pguser-hippo"
+							key:  "user"
+						}
 					}, {
 						name:  "ENABLE_MAPBOX"
 						value: "false"
