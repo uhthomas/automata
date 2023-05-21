@@ -41,7 +41,7 @@ import (
 					env: [{
 						name: "DB_URL"
 						valueFrom: secretKeyRef: {
-							name: "hippo-pguser-hippo"
+							name: "postgres-pguser-immich"
 							key:  "uri"
 						}
 					}, {

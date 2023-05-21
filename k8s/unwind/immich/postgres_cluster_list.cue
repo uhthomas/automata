@@ -13,10 +13,18 @@ import "k8s.io/api/core/v1"
 
 #PostgresClusterList: items: [{
 	metadata: {
-		name: "hippo"
-		labels: "app.kubernetes.io/name": name
+		name: "postgres"
+		labels: {
+			"app.kubernetes.io/name":      #Name
+			"app.kubernetes.io/component": "postgres"
+		}
 	}
 	spec: {
+		users: [{
+			name: "immich"
+			databases: ["immich"]
+			options: "SUPERUSER"
+		}]
 		image:           "registry.developers.crunchydata.com/crunchydata/crunchy-postgres:ubi8-15.2-0"
 		postgresVersion: 15
 		instances: [{

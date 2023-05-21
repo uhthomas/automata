@@ -29,18 +29,6 @@ import (
 					command: ["/bin/sh"]
 					args: ["./entrypoint.sh"]
 					env: [{
-						name:  "DB_DATABASE_NAME"
-						value: "immich"
-					}, {
-						name:  "DB_HOSTNAME"
-						value: "immich-postgresql"
-					}, {
-						name:  "DB_PASSWORD"
-						value: "thisshouldnotbeyourpassword"
-					}, {
-						name:  "DB_USERNAME"
-						value: "immich"
-					}, {
 						name:  "ENABLE_MAPBOX"
 						value: "false"
 					}, {
