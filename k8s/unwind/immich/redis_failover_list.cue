@@ -1,4 +1,4 @@
-package redis
+package immich
 
 import "k8s.io/api/core/v1"
 
@@ -12,6 +12,12 @@ import "k8s.io/api/core/v1"
 }
 
 #RedisFailoverList: items: [{
+	_name: "redis"
+
+	metadata: {
+		name: _name
+		labels: "app.kubernetes.io/name": _name
+	}
 	spec: {
 		sentinel: exporter: enabled: true
 		redis: {
@@ -29,7 +35,7 @@ import "k8s.io/api/core/v1"
 				allowPrivilegeEscalation: false
 			}
 			storage: persistentVolumeClaim: {
-				metadata: name: #Name
+				metadata: name: _name
 				spec: {
 					accessModes: [v1.#ReadWriteOnce]
 					storageClassName: "rook-ceph-hdd-ec-delete-block"

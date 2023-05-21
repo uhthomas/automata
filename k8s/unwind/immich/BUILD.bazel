@@ -7,6 +7,7 @@ cue_library(
         "namespace_list.cue",
         "persistent_volume_claim_list.cue",
         "postgres_cluster_list.cue",
+        "redis_failover_list.cue",
         "secret_provider_class_list.cue",
     ],
     importpath = "github.com/uhthomas/automata/k8s/unwind/immich",
@@ -18,7 +19,6 @@ cue_library(
         "//k8s/unwind/immich/immich_proxy:cue_immich_proxy_library",
         "//k8s/unwind/immich/immich_server:cue_immich_server_library",
         "//k8s/unwind/immich/immich_web:cue_immich_web_library",
-        "//k8s/unwind/immich/redis:cue_redis_library",
         "//k8s/unwind/immich/typesense:cue_typesense_library",
     ],
 )
