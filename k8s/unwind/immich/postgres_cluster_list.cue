@@ -12,7 +12,10 @@ import "k8s.io/api/core/v1"
 }
 
 #PostgresClusterList: items: [{
-	metadata: name: "hippo"
+	metadata: {
+		name: "hippo"
+		labels: "app.kubernetes.io/name": name
+	}
 	spec: {
 		image:           "registry.developers.crunchydata.com/crunchydata/crunchy-postgres:ubi8-15.2-0"
 		postgresVersion: 15
