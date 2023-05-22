@@ -15,7 +15,7 @@ import "k8s.io/api/core/v1"
 	spec: {
 		ports: [{
 			name:       "http"
-			port:       3001
+			port:       80
 			targetPort: "http"
 		}]
 		selector: "app.kubernetes.io/name": #Name
