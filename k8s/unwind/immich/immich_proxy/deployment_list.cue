@@ -36,10 +36,10 @@ import (
 					}]
 					env: [{
 						name:  "IMMICH_WEB_URL"
-						value: "immich-web"
+						value: "http://immich-web"
 					}, {
 						name:  "IMMICH_SERVER_URL"
-						value: "immich-server"
+						value: "http://immich-server"
 					}]
 					volumeMounts: [{
 						name:      "tmp"
