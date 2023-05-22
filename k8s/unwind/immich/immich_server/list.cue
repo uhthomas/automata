@@ -7,7 +7,7 @@ import (
 )
 
 #Name:      "immich-server"
-#Version:   "1.53.0"
+#Version:   "1.56.2"
 #Component: "server"
 
 #List: v1.#List & {
