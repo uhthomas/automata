@@ -3,11 +3,11 @@ load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
 cue_library(
     name = "cue_immich_library",
     srcs = [
+        "dragonfly_list.cue",
         "list.cue",
         "namespace_list.cue",
         "persistent_volume_claim_list.cue",
         "postgres_cluster_list.cue",
-        "redis_failover_list.cue",
         "secret_provider_class_list.cue",
     ],
     importpath = "github.com/uhthomas/automata/k8s/unwind/immich",
