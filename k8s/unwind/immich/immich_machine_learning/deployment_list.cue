@@ -27,6 +27,9 @@ import (
 					name: "tmp"
 					emptyDir: {}
 				}, {
+					name: "cache"
+					emptyDir: {}
+				}, {
 					name: "geocoding-dump"
 					emptyDir: {}
 				}, {
@@ -65,6 +68,9 @@ import (
 					volumeMounts: [{
 						name:      "tmp"
 						mountPath: "/tmp"
+					}, {
+						name:      "cache"
+						mountPath: "/cache"
 					}, {
 						name:      "geocoding-dump"
 						mountPath: "/usr/src/app/.reverse-geocoding-dump"
