@@ -43,7 +43,7 @@ import (
 					}]
 					volumeMounts: [{
 						name:      "tmp"
-						mountPath: "/tmp"
+						mountPath: "/etc/nginx/conf.d"
 					}]
 
 					_probe: httpGet: {
