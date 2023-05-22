@@ -24,6 +24,9 @@ import (
 			}
 			spec: {
 				volumes: [{
+					name: "tmp"
+					emptyDir: {}
+				}, {
 					name: "geocoding-dump"
 					emptyDir: {}
 				}, {
@@ -67,6 +70,9 @@ import (
 						value: "???"
 					}]
 					volumeMounts: [{
+						name:      "tmp"
+						mountPath: "/tmp"
+					}, {
 						name:      "geocoding-dump"
 						mountPath: "/usr/src/app/.reverse-geocoding-dump"
 					}, {
