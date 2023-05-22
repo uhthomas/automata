@@ -24,9 +24,6 @@ import (
 			}
 			spec: {
 				volumes: [{
-					name: "tmp"
-					emptyDir: {}
-				}, {
 					name: "geocoding-dump"
 					emptyDir: {}
 				}, {
@@ -69,10 +66,7 @@ import (
 						name:  "TYPESENSE_API_KEY"
 						value: "???"
 					}]
-					volumeMounts: [{
-						name:      "tmp"
-						mountPath: "/tmp"
-					}, {
+					volumeMounts: [ {
 						name:      "geocoding-dump"
 						mountPath: "/usr/src/app/.reverse-geocoding-dump"
 					}, {
