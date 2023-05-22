@@ -26,6 +26,9 @@ import (
 				volumes: [{
 					name: "tmp"
 					emptyDir: {}
+				}, {
+					name: "nginx-conf"
+					emptyDir: {}
 				}]
 				containers: [{
 					name:  #Name
@@ -43,6 +46,9 @@ import (
 					}]
 					volumeMounts: [{
 						name:      "tmp"
+						mountPath: "/tmp"
+					}, {
+						name:      "nginx-conf"
 						mountPath: "/etc/nginx/conf.d"
 					}]
 
