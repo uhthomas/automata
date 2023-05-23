@@ -82,6 +82,9 @@ import (
 							name: #Name
 							key:  "typesense-api-key"
 						}
+					}, {
+						name:  "IMMICH_MACHINE_LEARNING_URL"
+						value: "http://immich-machine-learning"
 					}]
 					volumeMounts: [ {
 						name:      "geocoding-dump"
