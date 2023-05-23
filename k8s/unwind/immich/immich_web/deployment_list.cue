@@ -43,6 +43,9 @@ import (
 					}, {
 						name:  "REDIS_HOSTNAME"
 						value: "dragonfly"
+					}, {
+						name:  "IMMICH_SERVER_URL"
+						value: "http://immich-server"
 					}]
 					ports: [{
 						name:          "http"
