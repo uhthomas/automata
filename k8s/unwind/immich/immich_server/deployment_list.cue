@@ -64,6 +64,7 @@ import (
 					}, {
 						name:  "REDIS_URL"
 						value: "ioredis://\(base64.Encode(null, json.Marshal({
+							name: "mymaster"
 							sentinels: [{
 								host: "rfs-redis"
 								port: 26379
