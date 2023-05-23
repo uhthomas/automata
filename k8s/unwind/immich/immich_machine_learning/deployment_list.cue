@@ -56,7 +56,7 @@ import (
 						value: "production"
 					}, {
 						name:  "REDIS_HOSTNAME"
-						value: "rfs-redis"
+						value: "dragonfly"
 					}, {
 						name:  "TRANSFORMERS_CACHE"
 						value: "/usr/src/app/.transformers_cache"
