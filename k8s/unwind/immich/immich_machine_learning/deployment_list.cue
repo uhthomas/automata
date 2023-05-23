@@ -27,17 +27,17 @@ import (
 					name: "tmp"
 					emptyDir: {}
 				}, {
-					name: "cache"
-					emptyDir: {}
-				}, {
 					name: "geocoding-dump"
 					emptyDir: {}
 				}, {
-					name: "library"
-					persistentVolumeClaim: claimName: "immich-library"
-				}, {
 					name: "transformers-cache"
 					emptyDir: {}
+				}, {
+					name: "cache"
+					persistentVolumeClaim: claimName: "\(#Name)-cache"
+				}, {
+					name: "library"
+					persistentVolumeClaim: claimName: "immich-library"
 				}]
 				containers: [{
 					name:  #Name

@@ -15,7 +15,7 @@ import (
 	kind:       "List"
 	items: [...{
 		metadata: {
-			name: #Name
+			name: string | *#Name
 			labels: {
 				"app.kubernetes.io/name":      #Name
 				"app.kubernetes.io/version":   #Version
@@ -29,5 +29,6 @@ import (
 
 _items: [
 	#DeploymentList.items,
+	#PersistentVolumeClaimList.items,
 	#ServiceList.items,
 ]
