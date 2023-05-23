@@ -66,11 +66,11 @@ import (
 						value: "dragonfly"
 					}, {
 						name:  "TYPESENSE_URL"
-						value: "ha://\(base64.Encode(null, json.Marshal({
+						value: "ha://\(base64.Encode(null, json.Marshal([{
 							host:     "typesense"
 							port:     8108
 							protocol: "http"
-						})))"
+						}])))"
 					}, {
 						name: "TYPESENSE_API_KEY"
 						valueFrom: secretKeyRef: {
