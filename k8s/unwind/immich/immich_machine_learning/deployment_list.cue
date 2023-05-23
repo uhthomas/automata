@@ -70,9 +70,11 @@ import (
 						mountPath: "/usr/src/app/.transformers_cache"
 					}]
 
-					_probe: httpGet: {
-						path:                "/ping"
-						port:                "http"
+					_probe: {
+						httpGet: {
+							path: "/ping"
+							port: "http"
+						}
 						initialDelaySeconds: 30
 					}
 
