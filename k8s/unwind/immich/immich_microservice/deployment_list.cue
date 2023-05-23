@@ -1,6 +1,9 @@
 package immich_microservice
 
 import (
+	"encoding/base64"
+	"encoding/json"
+
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/api/core/v1"
 )
@@ -60,6 +63,13 @@ import (
 					}, {
 						name:  "REDIS_HOSTNAME"
 						value: "dragonfly"
+					}, {
+						name:  "TYPESENSE_URL"
+						value: "ha://\(base64.Encode(null, json.Marshal({
+							host:     "typesense"
+							port:     8108
+							protocol: "http"
+						})))"
 					}, {
 						name: "TYPESENSE_API_KEY"
 						valueFrom: secretKeyRef: {
