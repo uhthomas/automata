@@ -30,6 +30,9 @@ import (
 					name: "geocoding-dump"
 					emptyDir: {}
 				}, {
+					name: "geonames-dump"
+					emptyDir: {}
+				}, {
 					name: "library"
 					persistentVolumeClaim: claimName: "immich-library"
 				}, {
@@ -89,6 +92,9 @@ import (
 					volumeMounts: [ {
 						name:      "geocoding-dump"
 						mountPath: "/usr/src/app/.reverse-geocoding-dump"
+					}, {
+						name:      "geonames-dump"
+						mountPath: "/usr/src/app/node_modules/local-reverse-geocoder/geonames_dump"
 					}, {
 						name:      "library"
 						mountPath: "/usr/src/app/upload"
