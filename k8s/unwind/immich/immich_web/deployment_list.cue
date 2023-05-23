@@ -32,9 +32,6 @@ import (
 						name:  "NODE_ENV"
 						value: "production"
 					}, {
-						name:  "REDIS_HOSTNAME"
-						value: "dragonfly"
-					}, {
 						name:  "IMMICH_SERVER_URL"
 						value: "http://immich-server"
 					}]

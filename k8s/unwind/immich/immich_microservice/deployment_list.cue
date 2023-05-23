@@ -62,7 +62,7 @@ import (
 						value: "no-verify"
 					}, {
 						name:  "REDIS_HOSTNAME"
-						value: "dragonfly"
+						value: "rfr-redis"
 					}, {
 						name:  "TYPESENSE_URL"
 						value: "ha://\(base64.Encode(null, json.Marshal([{

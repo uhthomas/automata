@@ -46,9 +46,6 @@ import (
 						name:  "NODE_ENV"
 						value: "production"
 					}, {
-						name:  "REDIS_HOSTNAME"
-						value: "dragonfly"
-					}, {
 						name:  "TRANSFORMERS_CACHE"
 						value: "/usr/src/app/.transformers_cache"
 					}]

@@ -25,10 +25,10 @@ import (
 #List: items: list.Concat(_items)
 
 _items: [
-	#DragonflyList.items,
 	#NamespaceList.items,
 	#PersistentVolumeClaimList.items,
 	#PostgresClusterList.items,
+	#RedisFailoverList.items,
 	immich_machine_learning.#List.items,
 	immich_microservice.#List.items,
 	immich_proxy.#List.items,
