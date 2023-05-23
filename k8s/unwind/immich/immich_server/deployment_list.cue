@@ -63,7 +63,10 @@ import (
 						value: "no-verify"
 					}, {
 						name:  "REDIS_HOSTNAME"
-						value: "rfr-redis"
+						value: "rfs-redis"
+					}, {
+						name:  "REDIS_PORT"
+						value: "26379"
 					}, {
 						name:  "TYPESENSE_URL"
 						value: "ha://\(base64.Encode(null, json.Marshal([{
