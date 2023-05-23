@@ -43,9 +43,6 @@ import (
 					name:  #Name
 					image: "ghcr.io/immich-app/immich-machine-learning:v\(#Version)"
 					env: [{
-						name:  "JWT_SECRET"
-						value: "randomstringthatissolongandpowerfulthatnoonecanguess"
-					}, {
 						name:  "NODE_ENV"
 						value: "production"
 					}, {

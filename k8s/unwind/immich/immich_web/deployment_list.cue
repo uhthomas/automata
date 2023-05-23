@@ -29,9 +29,6 @@ import (
 					command: ["/bin/sh"]
 					args: ["./entrypoint.sh"]
 					env: [{
-						name:  "JWT_SECRET"
-						value: "randomstringthatissolongandpowerfulthatnoonecanguess"
-					}, {
 						name:  "NODE_ENV"
 						value: "production"
 					}, {

@@ -48,9 +48,6 @@ import (
 						name:  "PGSSLMODE"
 						value: "no-verify"
 					}, {
-						name:  "JWT_SECRET"
-						value: "randomstringthatissolongandpowerfulthatnoonecanguess"
-					}, {
 						name:  "NODE_ENV"
 						value: "production"
 					}, {
