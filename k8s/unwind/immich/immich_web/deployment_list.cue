@@ -42,7 +42,7 @@ import (
 						value: "production"
 					}, {
 						name:  "REDIS_HOSTNAME"
-						value: "rfs-redis"
+						value: "dragonfly"
 					}]
 					ports: [{
 						name:          "http"
