@@ -19,5 +19,6 @@ import "k8s.io/api/core/v1"
 			targetPort: "http"
 		}]
 		selector: "app.kubernetes.io/name": #Name
+		clusterIP: v1.#ClusterIPNone
 	}
 }]
