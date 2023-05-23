@@ -29,5 +29,7 @@ import (
 
 _items: [
 	#DeploymentList.items,
+	#SecretProviderClassList.items,
+	#ServiceAccountList.items,
 	#ServiceList.items,
 ]

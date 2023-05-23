@@ -32,6 +32,13 @@ import (
 				}, {
 					name: "transformers-cache"
 					emptyDir: {}
+				}, {
+					name: "secrets-store-inline"
+					csi: {
+						driver:   "secrets-store.csi.k8s.io"
+						readOnly: true
+						volumeAttributes: secretProviderClass: #Name
+					}
 				}]
 				containers: [{
 					name:            #Name
@@ -55,11 +62,11 @@ import (
 						name:  "REDIS_HOSTNAME"
 						value: "dragonfly"
 					}, {
-						name:  "TYPESENSE_API_KEY"
-						value: "???"
-					}, {
-						name:  "TYPESENSE_ENABLED"
-						value: "false"
+						name: "TYPESENSE_API_KEY"
+						valueFrom: secretKeyRef: {
+							name: #Name
+							key:  "typesense-api-key"
+						}
 					}]
 					ports: [{
 						name:          "http"
@@ -89,6 +96,7 @@ import (
 						allowPrivilegeEscalation: false
 					}
 				}]
+				serviceAccountName: #Name
 				securityContext: {
 					runAsUser:    1000
 					runAsGroup:   3000

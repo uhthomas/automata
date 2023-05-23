@@ -27,4 +27,8 @@ import (
 
 #List: items: list.Concat(_items)
 
-_items: [#DeploymentList.items]
+_items: [
+	#DeploymentList.items,
+	#SecretProviderClassList.items,
+	#ServiceAccountList.items,
+]

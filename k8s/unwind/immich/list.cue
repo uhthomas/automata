@@ -29,7 +29,6 @@ _items: [
 	#NamespaceList.items,
 	#PersistentVolumeClaimList.items,
 	#PostgresClusterList.items,
-	#SecretProviderClassList.items,
 	immich_machine_learning.#List.items,
 	immich_microservice.#List.items,
 	immich_proxy.#List.items,

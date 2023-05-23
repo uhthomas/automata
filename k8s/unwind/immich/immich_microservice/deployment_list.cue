@@ -32,6 +32,13 @@ import (
 				}, {
 					name: "transformers-cache"
 					emptyDir: {}
+				}, {
+					name: "secrets-store-inline"
+					csi: {
+						driver:   "secrets-store.csi.k8s.io"
+						readOnly: true
+						volumeAttributes: secretProviderClass: #Name
+					}
 				}]
 				containers: [{
 					name:  #Name
@@ -39,6 +46,9 @@ import (
 					command: ["/bin/sh"]
 					args: ["./start-microservices.sh"]
 					env: [{
+						name:  "NODE_ENV"
+						value: "production"
+					}, {
 						name: "DB_URL"
 						valueFrom: secretKeyRef: {
 							name: "postgres-pguser-immich"
@@ -48,14 +58,14 @@ import (
 						name:  "PGSSLMODE"
 						value: "no-verify"
 					}, {
-						name:  "NODE_ENV"
-						value: "production"
-					}, {
 						name:  "REDIS_HOSTNAME"
 						value: "dragonfly"
 					}, {
-						name:  "TYPESENSE_API_KEY"
-						value: "???"
+						name: "TYPESENSE_API_KEY"
+						valueFrom: secretKeyRef: {
+							name: #Name
+							key:  "typesense-api-key"
+						}
 					}]
 					volumeMounts: [ {
 						name:      "geocoding-dump"
@@ -74,6 +84,7 @@ import (
 						allowPrivilegeEscalation: false
 					}
 				}]
+				serviceAccountName: #Name
 				securityContext: {
 					runAsUser:    1000
 					runAsGroup:   3000

@@ -4,6 +4,8 @@ cue_library(
     name = "cue_typesense_library",
     srcs = [
         "list.cue",
+        "secret_provider_class_list.cue",
+        "service_account_list.cue",
         "service_list.cue",
         "stateful_set_list.cue",
     ],
