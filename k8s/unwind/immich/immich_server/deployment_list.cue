@@ -66,6 +66,9 @@ import (
 					}, {
 						name:  "TYPESENSE_API_KEY"
 						value: "???"
+					}, {
+						name:  "TYPESENSE_ENABLED"
+						value: "false"
 					}]
 					ports: [{
 						name:          "http"
