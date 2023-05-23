@@ -58,6 +58,10 @@ import (
 					volumeMounts: [{
 						name:      "data"
 						mountPath: "/var/lib/typesense"
+					}, {
+						name:      "secrets-store-inline"
+						readOnly:  true
+						mountPath: "/mnt/secrets-store"
 					}]
 					securityContext: {
 						capabilities: drop: ["ALL"]

@@ -86,6 +86,10 @@ import (
 					}, {
 						name:      "transformers-cache"
 						mountPath: "/usr/src/app/.transformers_cache"
+					}, {
+						name:      "secrets-store-inline"
+						readOnly:  true
+						mountPath: "/mnt/secrets-store"
 					}]
 					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: {
