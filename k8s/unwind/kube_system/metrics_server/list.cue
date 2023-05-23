@@ -7,7 +7,7 @@ import (
 )
 
 #Name:      "metrics-server"
-#Namespace: #Name
+#Namespace: "kube-system"
 #Version:   "0.6.3"
 
 #List: v1.#List & {
@@ -15,8 +15,7 @@ import (
 	kind:       "List"
 	items: [...{
 		metadata: {
-			name:      string | *#Name
-			namespace: #Namespace
+			name: string | *#Name
 			labels: {
 				"app.kubernetes.io/name":    #Name
 				"app.kubernetes.io/version": #Version
@@ -32,7 +31,6 @@ _items: [
 	#ClusterRoleBindingList.items,
 	#ClusterRoleList.items,
 	#DeploymentList.items,
-	#NamespaceList.items,
 	#RoleBindingList.items,
 	#ServiceAccountList.items,
 	#ServiceList.items,

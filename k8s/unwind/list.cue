@@ -14,10 +14,10 @@ import (
 	"github.com/uhthomas/automata/k8s/unwind/immich"
 	"github.com/uhthomas/automata/k8s/unwind/intel_gpu_plugin"
 	"github.com/uhthomas/automata/k8s/unwind/kube_state_metrics"
+	"github.com/uhthomas/automata/k8s/unwind/kube_system"
 	"github.com/uhthomas/automata/k8s/unwind/kubernetes_dashboard"
 	"github.com/uhthomas/automata/k8s/unwind/loki"
 	"github.com/uhthomas/automata/k8s/unwind/media"
-	"github.com/uhthomas/automata/k8s/unwind/metrics_server"
 	"github.com/uhthomas/automata/k8s/unwind/mimir"
 	"github.com/uhthomas/automata/k8s/unwind/node_feature_discovery"
 	"github.com/uhthomas/automata/k8s/unwind/node_problem_detector"
@@ -67,10 +67,10 @@ _items: [
 	immich.#List.items,
 	intel_gpu_plugin.#List.items,
 	kube_state_metrics.#List.items,
+	kube_system.#List.items,
 	kubernetes_dashboard.#List.items,
 	loki.#List.items,
 	media.#List.items,
-	metrics_server.#List.items,
 	mimir.#List.items,
 	node_feature_discovery.#List.items,
 	node_problem_detector.#List.items,
