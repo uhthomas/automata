@@ -25,7 +25,6 @@ import (
 			labels:    #Labels
 		}
 	}]
-
 }
 
 #List: items: list.Concat(_items)

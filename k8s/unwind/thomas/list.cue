@@ -19,7 +19,6 @@ import (
 			namespace: #Namespace
 		}
 	}]
-
 }
 
 #List: items: list.Concat(_items)

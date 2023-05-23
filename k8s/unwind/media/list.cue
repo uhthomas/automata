@@ -25,7 +25,6 @@ import (
 	apiVersion: "v1"
 	kind:       "List"
 	items: [...{metadata: namespace: #Namespace}]
-
 }
 
 #List: items: list.Concat(_items)
