@@ -71,8 +71,9 @@ import (
 					}]
 
 					_probe: httpGet: {
-						path: "/ping"
-						port: "http"
+						path:                "/ping"
+						port:                "http"
+						initialDelaySeconds: 30
 					}
 
 					livenessProbe:  _probe
