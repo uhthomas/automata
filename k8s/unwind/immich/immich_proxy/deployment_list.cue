@@ -52,14 +52,6 @@ import (
 						mountPath: "/etc/nginx/conf.d"
 					}]
 
-					_probe: httpGet: {
-						path: "/"
-						port: "http"
-					}
-
-					livenessProbe:  _probe
-					readinessProbe: _probe
-
 					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: {
 						capabilities: drop: ["ALL"]
