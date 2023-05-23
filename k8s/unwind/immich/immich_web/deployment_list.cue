@@ -29,14 +29,8 @@ import (
 					command: ["/bin/sh"]
 					args: ["./entrypoint.sh"]
 					env: [{
-						name:  "ENABLE_MAPBOX"
-						value: "false"
-					}, {
 						name:  "JWT_SECRET"
 						value: "randomstringthatissolongandpowerfulthatnoonecanguess"
-					}, {
-						name:  "MAPBOX_KEY"
-						value: ""
 					}, {
 						name:  "NODE_ENV"
 						value: "production"
