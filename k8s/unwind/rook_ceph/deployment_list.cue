@@ -181,8 +181,6 @@ import (
 				//  Uncomment it to run lib bucket provisioner in multithreaded mode
 				//- name: LIB_BUCKET_PROVISIONER_THREADS
 				//  value: "5"
-				// Uncomment it to run rook operator on the host network
-				//hostNetwork: true
 				serviceAccountName: "rook-ceph-system"
 				securityContext: {
 					runAsUser:    1000
@@ -335,9 +333,9 @@ import (
 					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 				}
 				tolerations: [{
-					key:               "node.kubernetes.io/unreachable"
-					operator:          "Exists"
-					effect:            "NoExecute"
+					key:               v1.#TaintNodeUnreachable
+					operator:          v1.#NodeSelectorOpExists
+					effect:            v1.#TaintEffectNoExecute
 					tolerationSeconds: 5
 				}]
 			}
