@@ -43,6 +43,7 @@ import (
 					name:  "loki"
 					image: "grafana/loki:2.8.2@sha256:dc4328febf349d9198ef0f1c893160483fc7b2180d7e31485325f6e702ee73c4"
 					args: [
+						"-config.expand-env=true",
 						"-config.file=/etc/loki/config/config.yaml",
 						"-target=backend",
 						"-legacy-read-mode=false",
@@ -56,6 +57,11 @@ import (
 					}, {
 						name:          "http-memberlist"
 						containerPort: 7946
+					}]
+					envFrom: [{
+						configMapRef: name: "loki-bucket"
+					}, {
+						secretRef: name: "loki-bucket"
 					}]
 					volumeMounts: [{
 						name:      "config"
