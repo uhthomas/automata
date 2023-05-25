@@ -12,7 +12,7 @@ import "k8s.io/api/core/v1"
 }
 
 #ObjectBucketClaimList: items: [{
-	metadata: name: "loki-bucket"
+	metadata: name: "\(#Name)-bucket"
 	spec: {
 		generateBucketName: "loki"
 		storageClassName:   "rook-ceph-loki-bucket"

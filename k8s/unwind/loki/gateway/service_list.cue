@@ -1,4 +1,4 @@
-package loki
+package gateway
 
 import "k8s.io/api/core/v1"
 
@@ -12,17 +12,15 @@ import "k8s.io/api/core/v1"
 }
 
 #ServiceList: items: [{
-	metadata: name: "\(#Name)-memberlist"
 	spec: {
 		ports: [{
-			name:       "tcp"
-			port:       7946
-			targetPort: "http-memberlist"
+			name:       "http"
+			port:       80
+			targetPort: "http"
 		}]
 		selector: {
-			"app.kubernetes.io/name":    "loki"
-			"app.kubernetes.io/part-of": "memberlist"
+			"app.kubernetes.io/name":      "loki"
+			"app.kubernetes.io/component": "gateway"
 		}
-		clusterIP: v1.#ClusterIPNone
 	}
 }]

@@ -11,4 +11,7 @@ import "k8s.io/api/core/v1"
 	}]
 }
 
-#ServiceAccountList: items: [{automountServiceAccountToken: true}]
+#ServiceAccountList: items: [{
+	metadata: name: #Name
+	automountServiceAccountToken: true
+}]

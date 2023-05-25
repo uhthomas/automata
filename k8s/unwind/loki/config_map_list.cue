@@ -17,204 +17,67 @@ import (
 }
 
 #ConfigMapList: items: [{
-	metadata: {
-		name: "loki"
-		labels: {
-			"app.kubernetes.io/name":     "loki"
-			"app.kubernetes.io/instance": "loki"
-		}
-	}
-	data: {
-		"config.yaml": yaml.Marshal(_cue_config_yaml)
-		let _cue_config_yaml = {
-			auth_enabled: false
-			common: {
-				compactor_address:  "loki-read"
-				path_prefix:        "/var/loki"
-				replication_factor: 3
-				storage: s3: {
-					bucketnames:       "${BUCKET_NAME}"
-					endpoint:          "${BUCKET_HOST}"
-					access_key_id:     "${AWS_ACCESS_KEY_ID}"
-					secret_access_key: "${AWS_SECRET_ACCESS_KEY}"
-					insecure:          true
-					s3forcepathstyle:  true
-				}
-			}
-			limits_config: {
-				enforce_metric_name:           false
-				max_cache_freshness_per_query: "10m"
-				reject_old_samples:            true
-				reject_old_samples_max_age:    "168h"
-				split_queries_by_interval:     "15m"
-			}
-			memberlist: join_members: ["loki-memberlist"]
-			query_range: align_queries_with_step: true
-			ruler: storage: type: "s3"
-			runtime_config: file: "/etc/loki/runtime-config/runtime-config.yaml"
-			schema_config: configs: [{
-				from: "2022-01-11"
-				index: {
-					period: "24h"
-					prefix: "loki_index_"
-				}
-				object_store: "s3"
-				schema:       "v12"
-				store:        "boltdb-shipper"
-			}]
-			server: {
-				grpc_listen_port: 9095
-				http_listen_port: 3100
-			}
-			storage_config: hedging: {
-				at:             "250ms"
-				max_per_second: 20
-				up_to:          3
-			}
-			table_manager: {
-				retention_deletes_enabled: false
-				retention_period:          0
+	metadata: name:      #Name
+	data: "config.yaml": yaml.Marshal({
+		auth_enabled: false
+		common: {
+			compactor_address:  "loki-backend"
+			path_prefix:        "/var/loki"
+			replication_factor: 3
+			storage: s3: {
+				bucketnames:       "${BUCKET_NAME}"
+				endpoint:          "${BUCKET_HOST}"
+				access_key_id:     "${AWS_ACCESS_KEY_ID}"
+				secret_access_key: "${AWS_SECRET_ACCESS_KEY}"
+				insecure:          true
+				s3forcepathstyle:  true
 			}
 		}
-	}
+		frontend: scheduler_address:        "query-scheduler-discovery.loki.svc.cluster.local.:9095"
+		frontend_worker: scheduler_address: "query-scheduler-discovery.loki.svc.cluster.local.:9095"
+		index_gateway: mode:                "ring"
+		limits_config: {
+			enforce_metric_name:           false
+			max_cache_freshness_per_query: "10m"
+			reject_old_samples:            true
+			reject_old_samples_max_age:    "168h"
+			split_queries_by_interval:     "15m"
+		}
+		memberlist: join_members: ["loki-memberlist"]
+		query_range: align_queries_with_step: true
+		ruler: storage: type: "s3"
+		runtime_config: file: "/etc/loki/runtime-config/runtime-config.yaml"
+		schema_config: configs: [{
+			from: "2022-01-11"
+			index: {
+				period: "24h"
+				prefix: "loki_index_"
+			}
+			object_store: "s3"
+			schema:       "v12"
+			store:        "boltdb-shipper"
+		}]
+		server: {
+			grpc_listen_port: 9095
+			http_listen_port: 3100
+		}
+		storage_config: hedging: {
+			at:             "250ms"
+			max_per_second: 20
+			up_to:          3
+		}
+		table_manager: {
+			retention_deletes_enabled: false
+			retention_period:          0
+		}
+	})
 }, {
 	metadata: {
-		name: "loki-gateway"
-		labels: {
-			"app.kubernetes.io/name":      "loki"
-			"app.kubernetes.io/instance":  "loki"
-			"app.kubernetes.io/component": "gateway"
-		}
-	}
-	data: "nginx.conf": """
-		worker_processes  5;  ## Default: 1
-		error_log  /dev/stderr;
-		pid        /tmp/nginx.pid;
-		worker_rlimit_nofile 8192;
-
-		events {
-		  worker_connections  4096;  ## Default: 1024
-		}
-
-		http {
-		  client_body_temp_path /tmp/client_temp;
-		  proxy_temp_path       /tmp/proxy_temp_path;
-		  fastcgi_temp_path     /tmp/fastcgi_temp;
-		  uwsgi_temp_path       /tmp/uwsgi_temp;
-		  scgi_temp_path        /tmp/scgi_temp;
-
-		  client_max_body_size 4M;
-
-		  proxy_read_timeout    600; ## 6 minutes
-		  proxy_send_timeout    600;
-		  proxy_connect_timeout 600;
-
-		  proxy_http_version    1.1;
-
-		  default_type application/octet-stream;
-		  log_format   main '$remote_addr - $remote_user [$time_local]  $status '
-		        '\"$request\" $body_bytes_sent \"$http_referer\" '
-		        '\"$http_user_agent\" \"$http_x_forwarded_for\"';
-		  access_log   /dev/stderr  main;
-
-		  sendfile     on;
-		  tcp_nopush   on;
-		  resolver kube-dns.kube-system.svc.cluster.local.;
-
-
-		  server {
-		    listen             8080;
-
-		    location = / {
-		      return 200 'OK';
-		      auth_basic off;
-		    }
-
-		    location = /api/prom/push {
-		      proxy_pass       http://loki-write.loki.svc.cluster.local:3100$request_uri;
-		    }
-
-		    location = /api/prom/tail {
-		      proxy_pass       http://loki-read.loki.svc.cluster.local:3100$request_uri;
-		      proxy_set_header Upgrade $http_upgrade;
-		      proxy_set_header Connection \"upgrade\";
-		    }
-
-		    location ~ /api/prom/.* {
-		      proxy_pass       http://loki-read.loki.svc.cluster.local:3100$request_uri;
-		    }
-
-		    location ~ /prometheus/api/v1/alerts.* {
-		      proxy_pass       http://loki-read.loki.svc.cluster.local:3100$request_uri;
-		    }
-		    location ~ /prometheus/api/v1/rules.* {
-		      proxy_pass       http://loki-read.loki.svc.cluster.local:3100$request_uri;
-		    }
-		    location ~ /ruler/.* {
-		      proxy_pass       http://loki-read.loki.svc.cluster.local:3100$request_uri;
-		    }
-
-		    location = /loki/api/v1/push {
-		      proxy_pass       http://loki-write.loki.svc.cluster.local:3100$request_uri;
-		    }
-
-		    location = /loki/api/v1/tail {
-		      proxy_pass       http://loki-read.loki.svc.cluster.local:3100$request_uri;
-		      proxy_set_header Upgrade $http_upgrade;
-		      proxy_set_header Connection \"upgrade\";
-		    }
-
-		    location ~ /compactor/.* {
-		      proxy_pass       http://loki-read.loki.svc.cluster.local:3100$request_uri;
-		    }
-
-		    location ~ /distributor/.* {
-		      proxy_pass       http://loki-write.loki.svc.cluster.local:3100$request_uri;
-		    }
-
-		    location ~ /ring {
-		      proxy_pass       http://loki-write.loki.svc.cluster.local:3100$request_uri;
-		    }
-
-		    location ~ /ingester/.* {
-		      proxy_pass       http://loki-write.loki.svc.cluster.local:3100$request_uri;
-		    }
-
-		    location ~ /store-gateway/.* {
-		      proxy_pass       http://loki-read.loki.svc.cluster.local:3100$request_uri;
-		    }
-
-		    location ~ /query-scheduler/.* {
-		      proxy_pass       http://loki-read.loki.svc.cluster.local:3100$request_uri;
-		    }
-		    location ~ /scheduler/.* {
-		      proxy_pass       http://loki-read.loki.svc.cluster.local:3100$request_uri;
-		    }
-
-		    location ~ /loki/api/.* {
-		      proxy_pass       http://loki-read.loki.svc.cluster.local:3100$request_uri;
-		    }
-
-		    location ~ /admin/api/.* {
-		      proxy_pass       http://loki-write.loki.svc.cluster.local:3100$request_uri;
-		    }
-		  }
-		}
-
-		"""
-}, {
-	metadata: {
-		name:      "loki-dashboards-1"
-		namespace: "loki"
-		labels: {
-			"app.kubernetes.io/name":     "loki"
-			"app.kubernetes.io/instance": "loki"
-			grafana_dashboard:            "1"
-		}
+		name: "loki-dashboards-1"
+		labels: grafana_dashboard: "1"
 	}
 	data: {
-		"loki-chunks.json": json.Marshal(_cue_loki_chunks_json)
-		let _cue_loki_chunks_json = {
+		"loki-chunks.json": json.Marshal({
 			annotations: list: []
 			editable:     true
 			gnetId:       null
@@ -1369,10 +1232,8 @@ import (
 			title:    "Loki / Chunks"
 			uid:      "chunks"
 			version:  0
-		}
-
-		"loki-deletion.json": json.Marshal(_cue_loki_deletion_json)
-		let _cue_loki_deletion_json = {
+		})
+		"loki-deletion.json": json.Marshal({
 			annotations: list: []
 			editable:     true
 			gnetId:       null
@@ -1910,10 +1771,8 @@ import (
 			title:    "Loki / Deletion"
 			uid:      "deletion"
 			version:  0
-		}
-
-		"loki-logs.json": json.Marshal(_cue_loki_logs_json)
-		let _cue_loki_logs_json = {
+		})
+		"loki-logs.json": json.Marshal({
 			annotations: list: []
 			editable:     true
 			gnetId:       null
@@ -2839,10 +2698,8 @@ import (
 			title:    "Loki / Logs"
 			uid:      "logs"
 			version:  0
-		}
-
-		"loki-mixin-recording-rules.json": json.Marshal(_cue_loki_mixin_recording_rules_json)
-		let _cue_loki_mixin_recording_rules_json = {
+		})
+		"loki-mixin-recording-rules.json": json.Marshal({
 			annotations: list: [{
 				builtIn:    1
 				datasource: "-- Grafana --"
@@ -3373,10 +3230,8 @@ import (
 			uid:       "2xKA_ZK7k"
 			version:   9
 			weekStart: ""
-		}
-
-		"loki-operational.json": json.Marshal(_cue_loki_operational_json)
-		let _cue_loki_operational_json = {
+		})
+		"loki-operational.json": json.Marshal({
 			annotations: list: []
 			editable:     true
 			gnetId:       null
@@ -5080,8 +4935,7 @@ import (
 					points:      false
 					renderer:    "flot"
 					seriesOverrides: [{
-						alias: json.Marshal(_cue_alias)
-						let _cue_alias = {}
+						alias: json.Marshal({})
 						color: "#C4162A"
 					}]
 					spaceLength: 10
@@ -6150,8 +6004,7 @@ import (
 					points:      false
 					renderer:    "flot"
 					seriesOverrides: [{
-						alias: json.Marshal(_cue_xalias)
-						let _cue_xalias = {}
+						alias: json.Marshal({})
 						color: "#F2495C"
 					}]
 					spaceLength: 10
@@ -8773,21 +8626,15 @@ import (
 			title:    "Loki / Operational"
 			uid:      "operational"
 			version:  0
-		}
+		})
 	}
 }, {
 	metadata: {
-		name:      "loki-dashboards-2"
-		namespace: "loki"
-		labels: {
-			"app.kubernetes.io/name":     "loki"
-			"app.kubernetes.io/instance": "loki"
-			grafana_dashboard:            "1"
-		}
+		name: "loki-dashboards-2"
+		labels: grafana_dashboard: "1"
 	}
 	data: {
-		"loki-reads-resources.json": json.Marshal(_cue_loki_reads_resources_json)
-		let _cue_loki_reads_resources_json = {
+		"loki-reads-resources.json": json.Marshal({
 			annotations: list: []
 			editable:     true
 			gnetId:       null
@@ -9605,10 +9452,8 @@ import (
 			title:    "Loki / Reads Resources"
 			uid:      "reads-resources"
 			version:  0
-		}
-
-		"loki-reads.json": json.Marshal(_cue_loki_reads_json)
-		let _cue_loki_reads_json = {
+		})
+		"loki-reads.json": json.Marshal({
 			annotations: list: []
 			editable:     true
 			gnetId:       null
@@ -10024,10 +9869,8 @@ import (
 			title:    "Loki / Reads"
 			uid:      "reads"
 			version:  0
-		}
-
-		"loki-retention.json": json.Marshal(_cue_loki_retention_json)
-		let _cue_loki_retention_json = {
+		})
+		"loki-retention.json": json.Marshal({
 			annotations: list: []
 			editable:     true
 			gnetId:       null
@@ -11263,10 +11106,7 @@ import (
 					id:         17
 					span:       12
 					targets: [{
-						expr: yaml.Marshal(_cue_expr)
-						let _cue_expr = {
-							"cluster=~\"$cluster\"": null, "job=~\"($namespace)/(loki|enterprise-logs)-read\"": null
-						}
+						expr:  "{cluster=~\"$cluster\", job=~\"($namespace)/(loki|enterprise-logs)-read\"}"
 						refId: "A"
 					}]
 					title: "Compactor Logs"
@@ -11360,10 +11200,8 @@ import (
 			title:    "Loki / Retention"
 			uid:      "retention"
 			version:  0
-		}
-
-		"loki-writes-resources.json": json.Marshal(_cue_loki_writes_resources_json)
-		let _cue_loki_writes_resources_json = {
+		})
+		"loki-writes-resources.json": json.Marshal({
 			annotations: list: []
 			editable:     true
 			gnetId:       null
@@ -11953,10 +11791,8 @@ import (
 			title:    "Loki / Writes Resources"
 			uid:      "writes-resources"
 			version:  0
-		}
-
-		"loki-writes.json": json.Marshal(_cue_loki_writes_json)
-		let _cue_loki_writes_json = {
+		})
+		"loki-writes.json": json.Marshal({
 			annotations: list: []
 			editable:     true
 			gnetId:       null
@@ -12372,19 +12208,9 @@ import (
 			title:    "Loki / Writes"
 			uid:      "writes"
 			version:  0
-		}
+		})
 	}
 }, {
-	metadata: {
-		name: "loki-runtime"
-		labels: {
-			"app.kubernetes.io/name":     "loki"
-			"app.kubernetes.io/instance": "loki"
-		}
-	}
-	data: {
-		"runtime-config.yaml": json.Marshal(_cue_runtime_config_yaml)
-		let _cue_runtime_config_yaml =
-		{}
-	}
+	metadata: name:              "\(#Name)-runtime"
+	data: "runtime-config.yaml": json.Marshal({})
 }]
