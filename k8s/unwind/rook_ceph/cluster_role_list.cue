@@ -594,8 +594,6 @@ import rbacv1 "k8s.io/api/rbac/v1"
 			"delete",
 		]
 	}, {
-		// OBC controller creates an OB when an OBC's bucket has been provisioned by Ceph, updates them
-		// when an OBC is updated, and deletes them when the OBC is de-provisioned.
 
 		apiGroups: ["objectbucket.io"]
 		resources: ["objectbucketclaims/status", "objectbuckets/status"]
@@ -604,6 +602,8 @@ import rbacv1 "k8s.io/api/rbac/v1"
 		[
 			"update",
 		]
+		// OBC controller creates an OB when an OBC's bucket has been provisioned by Ceph, updates them
+		// when an OBC is updated, and deletes them when the OBC is de-provisioned.
 	}, {
 		apiGroups: ["objectbucket.io"]
 		// This does not strictly allow the OBC/OB controllers to update finalizers. That is handled by
