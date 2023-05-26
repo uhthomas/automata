@@ -647,7 +647,7 @@ import (
 // State set when expansion has failed in kubelet with a terminal error. Transient errors don't set NodeExpansionFailed.
 #PersistentVolumeClaimNodeExpansionFailed: #PersistentVolumeClaimResizeStatus & "NodeExpansionFailed"
 
-// PersistentVolumeClaimCondition contails details about state of pvc
+// PersistentVolumeClaimCondition contains details about state of pvc
 #PersistentVolumeClaimCondition: {
 	type:   #PersistentVolumeClaimConditionType @go(Type) @protobuf(1,bytes,opt,casttype=PersistentVolumeClaimConditionType)
 	status: #ConditionStatus                    @go(Status) @protobuf(2,bytes,opt,casttype=ConditionStatus)
@@ -852,7 +852,7 @@ import (
 	// The maximum usage on memory medium EmptyDir would be the minimum value between
 	// the SizeLimit specified here and the sum of memory limits of all containers in a pod.
 	// The default is nil which means that the limit is undefined.
-	// More info: http://kubernetes.io/docs/user-guide/volumes#emptydir
+	// More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
 	// +optional
 	sizeLimit?: null | resource.#Quantity @go(SizeLimit,*resource.Quantity) @protobuf(2,bytes,opt)
 }
@@ -2082,7 +2082,6 @@ import (
 	// controllerExpandSecretRef is a reference to the secret object containing
 	// sensitive information to pass to the CSI driver to complete the CSI
 	// ControllerExpandVolume call.
-	// This is an beta field and requires enabling ExpandCSIVolumes feature gate.
 	// This field is optional, and may be empty if no secret is required. If the
 	// secret object contains more than one secret, all secrets are passed.
 	// +optional
@@ -2091,9 +2090,10 @@ import (
 	// nodeExpandSecretRef is a reference to the secret object containing
 	// sensitive information to pass to the CSI driver to complete the CSI
 	// NodeExpandVolume call.
-	// This is an alpha field and requires enabling CSINodeExpandSecret feature gate.
+	// This is a beta field which is enabled default by CSINodeExpandSecret feature gate.
 	// This field is optional, may be omitted if no secret is required. If the
 	// secret object contains more than one secret, all secrets are passed.
+	// +featureGate=CSINodeExpandSecret
 	// +optional
 	nodeExpandSecretRef?: null | #SecretReference @go(NodeExpandSecretRef,*SecretReference) @protobuf(10,bytes,opt)
 }
@@ -2414,7 +2414,8 @@ import (
 
 // HTTPHeader describes a custom header to be used in HTTP probes
 #HTTPHeader: {
-	// The header field name
+	// The header field name.
+	// This will be canonicalized upon output, so case-variant names will be understood as the same header.
 	name: string @go(Name) @protobuf(1,bytes,opt)
 
 	// The header field value
@@ -2560,6 +2561,36 @@ import (
 // PullIfNotPresent means that kubelet pulls if the image isn't present on disk. Container will fail if the image isn't present and the pull fails.
 #PullIfNotPresent: #PullPolicy & "IfNotPresent"
 
+// ResourceResizeRestartPolicy specifies how to handle container resource resize.
+#ResourceResizeRestartPolicy: string // #enumResourceResizeRestartPolicy
+
+#enumResourceResizeRestartPolicy:
+	#NotRequired |
+	#RestartContainer
+
+// 'NotRequired' means Kubernetes will try to resize the container
+// without restarting it, if possible. Kubernetes may however choose to
+// restart the container if it is unable to actuate resize without a
+// restart. For e.g. the runtime doesn't support restart-free resizing.
+#NotRequired: #ResourceResizeRestartPolicy & "NotRequired"
+
+// 'RestartContainer' means Kubernetes will resize the container in-place
+// by stopping and starting the container when new resources are applied.
+// This is needed for legacy applications. For e.g. java apps using the
+// -xmxN flag which are unable to use resized memory without restarting.
+#RestartContainer: #ResourceResizeRestartPolicy & "RestartContainer"
+
+// ContainerResizePolicy represents resource resize policy for the container.
+#ContainerResizePolicy: {
+	// Name of the resource to which this resource resize policy applies.
+	// Supported values: cpu, memory.
+	resourceName: #ResourceName @go(ResourceName) @protobuf(1,bytes,opt,casttype=ResourceName)
+
+	// Restart policy to apply when specified resource is resized.
+	// If not specified, it defaults to NotRequired.
+	restartPolicy: #ResourceResizeRestartPolicy @go(RestartPolicy) @protobuf(2,bytes,opt,casttype=ResourceResizeRestartPolicy)
+}
+
 // PreemptionPolicy describes a policy for if/when to preempt a pod.
 // +enum
 #PreemptionPolicy: string // #enumPreemptionPolicy
@@ -2614,7 +2645,7 @@ import (
 
 	// Requests describes the minimum amount of compute resources required.
 	// If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
-	// otherwise to an implementation-defined value.
+	// otherwise to an implementation-defined value. Requests cannot exceed Limits.
 	// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 	// +optional
 	requests?: #ResourceList @go(Requests) @protobuf(2,bytes,rep,casttype=ResourceList,castkey=ResourceName)
@@ -2625,7 +2656,7 @@ import (
 	// This is an alpha field and requires enabling the
 	// DynamicResourceAllocation feature gate.
 	//
-	// This field is immutable.
+	// This field is immutable. It can only be set for containers.
 	//
 	// +listType=map
 	// +listMapKey=name
@@ -2724,6 +2755,12 @@ import (
 	// More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 	// +optional
 	resources?: #ResourceRequirements @go(Resources) @protobuf(8,bytes,opt)
+
+	// Resources resize policy for the container.
+	// +featureGate=InPlacePodVerticalScaling
+	// +optional
+	// +listType=atomic
+	resizePolicy?: [...#ContainerResizePolicy] @go(ResizePolicy,[]ContainerResizePolicy) @protobuf(23,bytes,rep)
 
 	// Pod volumes to mount into the container's filesystem.
 	// Cannot be updated.
@@ -2839,8 +2876,6 @@ import (
 	tcpSocket?: null | #TCPSocketAction @go(TCPSocket,*TCPSocketAction) @protobuf(3,bytes,opt)
 
 	// GRPC specifies an action involving a GRPC port.
-	// This is a beta field and requires enabling GRPCContainerProbe feature gate.
-	// +featureGate=GRPCContainerProbe
 	// +optional
 	grpc?: null | #GRPCAction @go(GRPC,*GRPCAction) @protobuf(4,bytes,opt)
 }
@@ -2965,41 +3000,76 @@ import (
 
 // ContainerStatus contains details for the current status of this container.
 #ContainerStatus: {
-	// This must be a DNS_LABEL. Each container in a pod must have a unique name.
+	// Name is a DNS_LABEL representing the unique name of the container.
+	// Each container in a pod must have a unique name across all container types.
 	// Cannot be updated.
 	name: string @go(Name) @protobuf(1,bytes,opt)
 
-	// Details about the container's current condition.
+	// State holds details about the container's current condition.
 	// +optional
 	state?: #ContainerState @go(State) @protobuf(2,bytes,opt)
 
-	// Details about the container's last termination condition.
+	// LastTerminationState holds the last termination state of the container to
+	// help debug container crashes and restarts. This field is not
+	// populated if the container is still running and RestartCount is 0.
 	// +optional
 	lastState?: #ContainerState @go(LastTerminationState) @protobuf(3,bytes,opt)
 
-	// Specifies whether the container has passed its readiness probe.
+	// Ready specifies whether the container is currently passing its readiness check.
+	// The value will change as readiness probes keep executing. If no readiness
+	// probes are specified, this field defaults to true once the container is
+	// fully started (see Started field).
+	//
+	// The value is typically used to determine whether a container is ready to
+	// accept traffic.
 	ready: bool @go(Ready) @protobuf(4,varint,opt)
 
-	// The number of times the container has been restarted.
+	// RestartCount holds the number of times the container has been restarted.
+	// Kubelet makes an effort to always increment the value, but there
+	// are cases when the state may be lost due to node restarts and then the value
+	// may be reset to 0. The value is never negative.
 	restartCount: int32 @go(RestartCount) @protobuf(5,varint,opt)
 
-	// The image the container is running.
+	// Image is the name of container image that the container is running.
+	// The container image may not match the image used in the PodSpec,
+	// as it may have been resolved by the runtime.
 	// More info: https://kubernetes.io/docs/concepts/containers/images.
 	image: string @go(Image) @protobuf(6,bytes,opt)
 
-	// ImageID of the container's image.
+	// ImageID is the image ID of the container's image. The image ID may not
+	// match the image ID of the image used in the PodSpec, as it may have been
+	// resolved by the runtime.
 	imageID: string @go(ImageID) @protobuf(7,bytes,opt)
 
-	// Container's ID in the format '<type>://<container_id>'.
+	// ContainerID is the ID of the container in the format '<type>://<container_id>'.
+	// Where type is a container runtime identifier, returned from Version call of CRI API
+	// (for example "containerd").
 	// +optional
 	containerID?: string @go(ContainerID) @protobuf(8,bytes,opt)
 
-	// Specifies whether the container has passed its startup probe.
-	// Initialized as false, becomes true after startupProbe is considered successful.
-	// Resets to false when the container is restarted, or if kubelet loses state temporarily.
-	// Is always true when no startupProbe is defined.
+	// Started indicates whether the container has finished its postStart lifecycle hook
+	// and passed its startup probe.
+	// Initialized as false, becomes true after startupProbe is considered
+	// successful. Resets to false when the container is restarted, or if kubelet
+	// loses state temporarily. In both cases, startup probes will run again.
+	// Is always true when no startupProbe is defined and container is running and
+	// has passed the postStart lifecycle hook. The null value must be treated the
+	// same as false.
 	// +optional
 	started?: null | bool @go(Started,*bool) @protobuf(9,varint,opt)
+
+	// AllocatedResources represents the compute resources allocated for this container by the
+	// node. Kubelet sets this value to Container.Resources.Requests upon successful pod admission
+	// and after successfully admitting desired pod resize.
+	// +featureGate=InPlacePodVerticalScaling
+	// +optional
+	allocatedResources?: #ResourceList @go(AllocatedResources) @protobuf(10,bytes,rep,casttype=ResourceList,castkey=ResourceName)
+
+	// Resources represents the compute resource requests and limits that have been successfully
+	// enacted on the running container after it has been started or has been successfully resized.
+	// +featureGate=InPlacePodVerticalScaling
+	// +optional
+	resources?: null | #ResourceRequirements @go(Resources,*ResourceRequirements) @protobuf(11,bytes,opt)
 }
 
 // PodPhase is a label for the condition of a pod at the current time.
@@ -3078,6 +3148,10 @@ import (
 // is initiated by kubelet
 #PodReasonTerminationByKubelet: "TerminationByKubelet"
 
+// PodReasonPreemptionByScheduler reason in DisruptionTarget pod condition indicates that the
+// disruption was initiated by scheduler's preemption.
+#PodReasonPreemptionByScheduler: "PreemptionByScheduler"
+
 // PodCondition contains details for the current condition of this pod.
 #PodCondition: {
 	// Type is the type of the condition.
@@ -3105,6 +3179,27 @@ import (
 	// +optional
 	message?: string @go(Message) @protobuf(6,bytes,opt)
 }
+
+// PodResizeStatus shows status of desired resize of a pod's containers.
+#PodResizeStatus: string // #enumPodResizeStatus
+
+#enumPodResizeStatus:
+	#PodResizeStatusProposed |
+	#PodResizeStatusInProgress |
+	#PodResizeStatusDeferred |
+	#PodResizeStatusInfeasible
+
+// Pod resources resize has been requested and will be evaluated by node.
+#PodResizeStatusProposed: #PodResizeStatus & "Proposed"
+
+// Pod resources resize has been accepted by node and is being actuated.
+#PodResizeStatusInProgress: #PodResizeStatus & "InProgress"
+
+// Node cannot resize the pod at this time and will keep retrying.
+#PodResizeStatusDeferred: #PodResizeStatus & "Deferred"
+
+// Requested pod resize is not feasible and will not be re-evaluated.
+#PodResizeStatusInfeasible: #PodResizeStatus & "Infeasible"
 
 // RestartPolicy describes how the container should be restarted.
 // Only one of the following restart policies may be specified.
@@ -3520,7 +3615,7 @@ import (
 	ephemeralContainers?: [...#EphemeralContainer] @go(EphemeralContainers,[]EphemeralContainer) @protobuf(34,bytes,rep)
 
 	// Restart policy for all containers within the pod.
-	// One of Always, OnFailure, Never.
+	// One of Always, OnFailure, Never. In some contexts, only a subset of those values may be permitted.
 	// Default to Always.
 	// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#restart-policy
 	// +optional
@@ -3775,14 +3870,19 @@ import (
 	hostUsers?: null | bool @go(HostUsers,*bool) @protobuf(37,bytes,opt)
 
 	// SchedulingGates is an opaque list of values that if specified will block scheduling the pod.
-	// More info:  https://git.k8s.io/enhancements/keps/sig-scheduling/3521-pod-scheduling-readiness.
+	// If schedulingGates is not empty, the pod will stay in the SchedulingGated state and the
+	// scheduler will not attempt to schedule the pod.
 	//
-	// This is an alpha-level feature enabled by PodSchedulingReadiness feature gate.
-	// +optional
+	// SchedulingGates can only be set at pod creation time, and be removed only afterwards.
+	//
+	// This is a beta feature enabled by the PodSchedulingReadiness feature gate.
+	//
 	// +patchMergeKey=name
 	// +patchStrategy=merge
 	// +listType=map
 	// +listMapKey=name
+	// +featureGate=PodSchedulingReadiness
+	// +optional
 	schedulingGates?: [...#PodSchedulingGate] @go(SchedulingGates,[]PodSchedulingGate) @protobuf(38,bytes,opt)
 
 	// ResourceClaims defines which ResourceClaims must be allocated
@@ -4018,8 +4118,12 @@ import (
 	// spreading will be calculated. The keys are used to lookup values from the
 	// incoming pod labels, those key-value labels are ANDed with labelSelector
 	// to select the group of existing pods over which spreading will be calculated
-	// for the incoming pod. Keys that don't exist in the incoming pod labels will
+	// for the incoming pod. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector.
+	// MatchLabelKeys cannot be set when LabelSelector isn't set.
+	// Keys that don't exist in the incoming pod labels will
 	// be ignored. A null or empty list means only match against labelSelector.
+	//
+	// This is a beta field and requires the MatchLabelKeysInPodTopologySpread feature gate to be enabled (enabled by default).
 	// +listType=atomic
 	// +optional
 	matchLabelKeys?: [...string] @go(MatchLabelKeys,[]string) @protobuf(8,bytes,opt)
@@ -4243,7 +4347,7 @@ import (
 // IP address information for entries in the (plural) PodIPs field.
 // Each entry includes:
 //
-// IP: An IP address allocated to the pod. Routable at least within the cluster.
+//	IP: An IP address allocated to the pod. Routable at least within the cluster.
 #PodIP: {
 	// ip is an IP address (IPv4 or IPv6) assigned to the pod
 	ip?: string @go(IP) @protobuf(1,bytes,opt)
@@ -4320,6 +4424,12 @@ import (
 	// already allocated to the pod.
 	// +optional
 	resources?: #ResourceRequirements @go(Resources) @protobuf(8,bytes,opt)
+
+	// Resources resize policy for the container.
+	// +featureGate=InPlacePodVerticalScaling
+	// +optional
+	// +listType=atomic
+	resizePolicy?: [...#ContainerResizePolicy] @go(ResizePolicy,[]ContainerResizePolicy) @protobuf(23,bytes,rep)
 
 	// Pod volumes to mount into the container's filesystem. Subpath mounts are not allowed for ephemeral containers.
 	// Cannot be updated.
@@ -4512,13 +4622,20 @@ import (
 
 	// The Quality of Service (QOS) classification assigned to the pod based on resource requirements
 	// See PodQOSClass type for available QOS classes
-	// More info: https://git.k8s.io/community/contributors/design-proposals/node/resource-qos.md
+	// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-qos/#quality-of-service-classes
 	// +optional
 	qosClass?: #PodQOSClass @go(QOSClass) @protobuf(9,bytes,rep)
 
 	// Status for any ephemeral containers that have run in this pod.
 	// +optional
 	ephemeralContainerStatuses?: [...#ContainerStatus] @go(EphemeralContainerStatuses,[]ContainerStatus) @protobuf(13,bytes,rep)
+
+	// Status of resources resize desired for pod's containers.
+	// It is empty if no resources resize is pending.
+	// Any changes to container resources will automatically set this to "Proposed"
+	// +featureGate=InPlacePodVerticalScaling
+	// +optional
+	resize?: #PodResizeStatus @go(Resize) @protobuf(14,bytes,opt,casttype=PodResizeStatus)
 }
 
 // PodStatusResult is a wrapper for PodStatus returned by kubelet that can be encode/decoded
@@ -4644,6 +4761,7 @@ import (
 
 	// Template is the object that describes the pod that will be created if
 	// insufficient replicas are detected. This takes precedence over a TemplateRef.
+	// The only allowed template.spec.restartPolicy value is "Always".
 	// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
 	// +optional
 	template?: null | #PodTemplateSpec @go(Template,*PodTemplateSpec) @protobuf(3,bytes,opt)
@@ -4808,43 +4926,70 @@ import (
 // record, with no exposing or proxying of any pods involved.
 #ServiceTypeExternalName: #ServiceType & "ExternalName"
 
-// ServiceInternalTrafficPolicyType describes how nodes distribute service traffic they
+// ServiceInternalTrafficPolicy describes how nodes distribute service traffic they
 // receive on the ClusterIP.
 // +enum
-#ServiceInternalTrafficPolicyType: string // #enumServiceInternalTrafficPolicyType
+#ServiceInternalTrafficPolicy: string // #enumServiceInternalTrafficPolicy
+
+#enumServiceInternalTrafficPolicy:
+	#ServiceInternalTrafficPolicyCluster |
+	#ServiceInternalTrafficPolicyLocal
+
+// ServiceInternalTrafficPolicyCluster routes traffic to all endpoints.
+#ServiceInternalTrafficPolicyCluster: #ServiceInternalTrafficPolicy & "Cluster"
+
+// ServiceInternalTrafficPolicyLocal routes traffic only to endpoints on the same
+// node as the client pod (dropping the traffic if there are no local endpoints).
+#ServiceInternalTrafficPolicyLocal: #ServiceInternalTrafficPolicy & "Local"
+
+// for backwards compat
+// +enum
+#ServiceInternalTrafficPolicyType: #ServiceInternalTrafficPolicy // #enumServiceInternalTrafficPolicyType
 
 #enumServiceInternalTrafficPolicyType:
 	#ServiceInternalTrafficPolicyCluster |
 	#ServiceInternalTrafficPolicyLocal
 
-// ServiceInternalTrafficPolicyCluster routes traffic to all endpoints.
-#ServiceInternalTrafficPolicyCluster: #ServiceInternalTrafficPolicyType & "Cluster"
-
-// ServiceInternalTrafficPolicyLocal routes traffic only to endpoints on the same
-// node as the client pod (dropping the traffic if there are no local endpoints).
-#ServiceInternalTrafficPolicyLocal: #ServiceInternalTrafficPolicyType & "Local"
-
-// ServiceExternalTrafficPolicyType describes how nodes distribute service traffic they
+// ServiceExternalTrafficPolicy describes how nodes distribute service traffic they
 // receive on one of the Service's "externally-facing" addresses (NodePorts, ExternalIPs,
-// and LoadBalancer IPs).
+// and LoadBalancer IPs.
 // +enum
-#ServiceExternalTrafficPolicyType: string // #enumServiceExternalTrafficPolicyType
+#ServiceExternalTrafficPolicy: string // #enumServiceExternalTrafficPolicy
 
-#enumServiceExternalTrafficPolicyType:
-	#ServiceExternalTrafficPolicyTypeCluster |
-	#ServiceExternalTrafficPolicyTypeLocal
+#enumServiceExternalTrafficPolicy:
+	#ServiceExternalTrafficPolicyCluster |
+	#ServiceExternalTrafficPolicyLocal |
+	#ServiceExternalTrafficPolicyTypeLocal |
+	#ServiceExternalTrafficPolicyTypeCluster
 
-// ServiceExternalTrafficPolicyTypeCluster routes traffic to all endpoints.
-#ServiceExternalTrafficPolicyTypeCluster: #ServiceExternalTrafficPolicyType & "Cluster"
+// ServiceExternalTrafficPolicyCluster routes traffic to all endpoints.
+#ServiceExternalTrafficPolicyCluster: #ServiceExternalTrafficPolicy & "Cluster"
 
-// ServiceExternalTrafficPolicyTypeLocal preserves the source IP of the traffic by
+// ServiceExternalTrafficPolicyLocal preserves the source IP of the traffic by
 // routing only to endpoints on the same node as the traffic was received on
 // (dropping the traffic if there are no local endpoints).
-#ServiceExternalTrafficPolicyTypeLocal: #ServiceExternalTrafficPolicyType & "Local"
+#ServiceExternalTrafficPolicyLocal: #ServiceExternalTrafficPolicy & "Local"
+
+// for backwards compat
+// +enum
+#ServiceExternalTrafficPolicyType: #ServiceExternalTrafficPolicy // #enumServiceExternalTrafficPolicyType
+
+#enumServiceExternalTrafficPolicyType:
+	#ServiceExternalTrafficPolicyCluster |
+	#ServiceExternalTrafficPolicyLocal |
+	#ServiceExternalTrafficPolicyTypeLocal |
+	#ServiceExternalTrafficPolicyTypeCluster
+
+#ServiceExternalTrafficPolicyTypeLocal:   #ServiceExternalTrafficPolicy & "Local"
+#ServiceExternalTrafficPolicyTypeCluster: #ServiceExternalTrafficPolicy & "Cluster"
 
 // LoadBalancerPortsError represents the condition of the requested ports
 // on the cloud load balancer instance.
 #LoadBalancerPortsError: "LoadBalancerPortsError"
+
+// LoadBalancerPortsErrorReason reason in ServiceStatus condition LoadBalancerPortsError
+// means the LoadBalancer was not able to be configured correctly.
+#LoadBalancerPortsErrorReason: "LoadBalancerMixedProtocolNotSupported"
 
 // ServiceStatus represents the current status of a service.
 #ServiceStatus: {
@@ -5083,7 +5228,7 @@ import (
 	// a NodePort from within the cluster may need to take traffic policy into account
 	// when picking a node.
 	// +optional
-	externalTrafficPolicy?: #ServiceExternalTrafficPolicyType @go(ExternalTrafficPolicy) @protobuf(11,bytes,opt)
+	externalTrafficPolicy?: #ServiceExternalTrafficPolicy @go(ExternalTrafficPolicy) @protobuf(11,bytes,opt)
 
 	// healthCheckNodePort specifies the healthcheck nodePort for the service.
 	// This only applies when type is set to LoadBalancer and
@@ -5174,7 +5319,7 @@ import (
 	// "Cluster", uses the standard behavior of routing to all endpoints evenly
 	// (possibly modified by topology and other features).
 	// +optional
-	internalTrafficPolicy?: null | #ServiceInternalTrafficPolicyType @go(InternalTrafficPolicy,*ServiceInternalTrafficPolicyType) @protobuf(22,bytes,opt)
+	internalTrafficPolicy?: null | #ServiceInternalTrafficPolicy @go(InternalTrafficPolicy,*ServiceInternalTrafficPolicy) @protobuf(22,bytes,opt)
 }
 
 // ServicePort contains information on service's port.
@@ -5321,17 +5466,17 @@ import (
 
 // Endpoints is a collection of endpoints that implement the actual service. Example:
 //
-//  Name: "mysvc",
-//  Subsets: [
-//    {
-//      Addresses: [{"ip": "10.10.1.1"}, {"ip": "10.10.2.2"}],
-//      Ports: [{"name": "a", "port": 8675}, {"name": "b", "port": 309}]
-//    },
-//    {
-//      Addresses: [{"ip": "10.10.3.3"}],
-//      Ports: [{"name": "a", "port": 93}, {"name": "b", "port": 76}]
-//    },
-// ]
+//	 Name: "mysvc",
+//	 Subsets: [
+//	   {
+//	     Addresses: [{"ip": "10.10.1.1"}, {"ip": "10.10.2.2"}],
+//	     Ports: [{"name": "a", "port": 8675}, {"name": "b", "port": 309}]
+//	   },
+//	   {
+//	     Addresses: [{"ip": "10.10.3.3"}],
+//	     Ports: [{"name": "a", "port": 93}, {"name": "b", "port": 76}]
+//	   },
+//	]
 #Endpoints: {
 	metav1.#TypeMeta
 
@@ -5355,15 +5500,15 @@ import (
 // expanded set of endpoints is the Cartesian product of Addresses x Ports.
 // For example, given:
 //
-// {
-//   Addresses: [{"ip": "10.10.1.1"}, {"ip": "10.10.2.2"}],
-//   Ports:     [{"name": "a", "port": 8675}, {"name": "b", "port": 309}]
-// }
+//	{
+//	  Addresses: [{"ip": "10.10.1.1"}, {"ip": "10.10.2.2"}],
+//	  Ports:     [{"name": "a", "port": 8675}, {"name": "b", "port": 309}]
+//	}
 //
 // The resulting set of endpoints can be viewed as:
 //
-// a: [ 10.10.1.1:8675, 10.10.2.2:8675 ],
-// b: [ 10.10.1.1:309, 10.10.2.2:309 ]
+//	a: [ 10.10.1.1:8675, 10.10.2.2:8675 ],
+//	b: [ 10.10.1.1:309, 10.10.2.2:309 ]
 #EndpointSubset: {
 	// IP addresses which offer the related ports that are marked as ready. These endpoints
 	// should be considered safe for load balancers and clients to utilize.
@@ -5385,11 +5530,8 @@ import (
 // +structType=atomic
 #EndpointAddress: {
 	// The IP of this endpoint.
-	// May not be loopback (127.0.0.0/8), link-local (169.254.0.0/16),
-	// or link-local multicast ((224.0.0.0/24).
-	// IPv6 is also accepted but not fully supported on all platforms. Also, certain
-	// kubernetes components, like kube-proxy, are not IPv6 ready.
-	// TODO: This should allow hostname or IP, See #4447.
+	// May not be loopback (127.0.0.0/8 or ::1), link-local (169.254.0.0/16 or fe80::/10),
+	// or link-local multicast (224.0.0.0/24 or ff02::/16).
 	ip: string @go(IP) @protobuf(1,bytes,opt)
 
 	// The Hostname of this endpoint
@@ -5425,10 +5567,17 @@ import (
 	protocol?: #Protocol @go(Protocol) @protobuf(3,bytes,opt,casttype=Protocol)
 
 	// The application protocol for this port.
+	// This is used as a hint for implementations to offer richer behavior for protocols that they understand.
 	// This field follows standard Kubernetes label syntax.
-	// Un-prefixed names are reserved for IANA standard service names (as per
+	// Valid values are either:
+	//
+	// * Un-prefixed protocol names - reserved for IANA standard service names (as per
 	// RFC-6335 and https://www.iana.org/assignments/service-names).
-	// Non-standard protocols should use prefixed names such as
+	//
+	// * Kubernetes-defined prefixed names:
+	//   * 'kubernetes.io/h2c' - HTTP/2 over cleartext as described in https://www.rfc-editor.org/rfc/rfc7540
+	//
+	// * Other protocols should use implementation-defined prefixed names such as
 	// mycompany.com/my-custom-protocol.
 	// +optional
 	appProtocol?: null | string @go(AppProtocol,*string) @protobuf(4,bytes,opt)
@@ -5647,6 +5796,10 @@ import (
 	// Note: This field is declared as mergeable, but the merge key is not sufficiently
 	// unique, which can cause data corruption when it is merged. Callers should instead
 	// use a full-replacement patch. See https://pr.k8s.io/79391 for an example.
+	// Consumers should assume that addresses can change during the
+	// lifetime of a Node. However, there are some exceptions where this may not
+	// be possible, such as Pods that inherit a Node's address in its own status or
+	// consumers of the downward API (status.hostIP).
 	// +optional
 	// +patchMergeKey=type
 	// +patchStrategy=merge
@@ -7302,6 +7455,11 @@ import (
 // Name of header that specifies a request ID used to associate the error
 // and data streams for a single forwarded connection
 #PortForwardRequestIDHeader: "requestID"
+
+// MixedProtocolNotSupported error in PortStatus means that the cloud provider
+// can't publish the port on the load balancer because mixed values of protocols
+// on the same LoadBalancer type of Service are not supported by the cloud provider.
+#MixedProtocolNotSupported: "MixedProtocolNotSupported"
 
 #PortStatus: {
 	// Port is the port number of the service port of which status is recorded here

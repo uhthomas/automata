@@ -2,12 +2,35 @@ load("@bazel_gazelle//:deps.bzl", "go_repository")
 
 def go_dependencies():
     go_repository(
+        name = "cc_mvdan_gofumpt",
+        build_file_proto_mode = "disable_global",
+        importpath = "mvdan.cc/gofumpt",
+        sum = "h1:avhhrOmv0IuvQVK7fvwV91oFSGAk5/6Po8GXTzICeu8=",
+        version = "v0.3.1",
+    )
+
+    go_repository(
         name = "co_honnef_go_tools",
         build_file_proto_mode = "disable_global",
         importpath = "honnef.co/go/tools",
         sum = "h1:UoveltGrhghAA7ePc+e+QYDHXrBps2PqFZiHkGR/xK8=",
         version = "v0.0.1-2020.1.4",
     )
+    go_repository(
+        name = "com_github_abdullin_seq",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/abdullin/seq",
+        sum = "h1:DBNMBMuMiWYu0b+8KMJuWmfCkcxl09JwdlqwDZZ6U14=",
+        version = "v0.0.0-20160510034733-d5467c17e7af",
+    )
+    go_repository(
+        name = "com_github_aerospike_aerospike_client_go_v5",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/aerospike/aerospike-client-go/v5",
+        sum = "h1:tRxcUq0HY8fFPQEzF3EgrknF+w1xFO0YDfUb9Nm8yRI=",
+        version = "v5.6.0",
+    )
+
     go_repository(
         name = "com_github_alecthomas_kingpin_v2",
         build_file_proto_mode = "disable_global",
@@ -31,6 +54,28 @@ def go_dependencies():
         version = "v0.0.0-20211218093645-b94a6e3cc137",
     )
     go_repository(
+        name = "com_github_aliyun_alibaba_cloud_sdk_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/aliyun/alibaba-cloud-sdk-go",
+        sum = "h1:zAH0YjWzonbKHvNkfbxqTmX51uHbkQYu+jJah2IAiCA=",
+        version = "v1.62.146",
+    )
+    go_repository(
+        name = "com_github_aliyun_aliyun_oss_go_sdk",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/aliyun/aliyun-oss-go-sdk",
+        sum = "h1:nWDRPCyCltiTsANwC/n3QZH7Vww33Npq9MKqlwRzI/c=",
+        version = "v0.0.0-20190307165228-86c17b95fcd5",
+    )
+    go_repository(
+        name = "com_github_andybalholm_brotli",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/andybalholm/brotli",
+        sum = "h1:V7DdXeJtZscaqfNuAdSRuRFzuiKlHSC/Zh3zl9qY3JY=",
+        version = "v1.0.4",
+    )
+
+    go_repository(
         name = "com_github_antihax_optional",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/antihax/optional",
@@ -51,6 +96,27 @@ def go_dependencies():
         sum = "h1:7RFfzj4SSt6nnvCPbCqijJi1nWCd+TqAT3bYCStRC18=",
         version = "v4.0.0-20230305170008-8188dc5388df",
     )
+    go_repository(
+        name = "com_github_apache_arrow_go_arrow",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/apache/arrow/go/arrow",
+        sum = "h1:ZsPrlYPY/v1PR7pGrmYD/rq5BFiSPalH8i9eEkSfnnI=",
+        version = "v0.0.0-20210818145353-234c94e4ce64",
+    )
+    go_repository(
+        name = "com_github_apache_thrift",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/apache/thrift",
+        sum = "h1:pODnxUFNcjP9UTLZGTdeh+j16A8lJbRvD3rOtrk/7bs=",
+        version = "v0.12.0",
+    )
+    go_repository(
+        name = "com_github_apple_foundationdb_bindings_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/apple/foundationdb/bindings/go",
+        sum = "h1:VoHKYIXEQU5LWoambPBOvYxyLqZYHuj+rj5DVnMUc3k=",
+        version = "v0.0.0-20190411004307-cd5c9d91fad2",
+    )
 
     go_repository(
         name = "com_github_armon_circbuf",
@@ -67,6 +133,21 @@ def go_dependencies():
         sum = "h1:hR91U9KYmb6bLBYLQjyM+3j+rcd/UhE+G78SFnF8gJA=",
         version = "v0.4.1",
     )
+    go_repository(
+        name = "com_github_armon_go_proxyproto",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/armon/go-proxyproto",
+        sum = "h1:h0gP0hBU6DsA5IQduhLWGOEfIUKzJS5hhXQBSgHuF/g=",
+        version = "v0.0.0-20190211145416-68259f75880e",
+    )
+    go_repository(
+        name = "com_github_armon_go_radix",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/armon/go-radix",
+        sum = "h1:F4z6KzEeeQIMeLFa97iZU6vupzoecKdU5TX24SNppXI=",
+        version = "v1.0.0",
+    )
+
     go_repository(
         name = "com_github_armon_go_socks5",
         build_file_proto_mode = "disable_global",
@@ -90,11 +171,166 @@ def go_dependencies():
         version = "v1.44.267",
     )
     go_repository(
+        name = "com_github_aws_aws_sdk_go_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/aws/aws-sdk-go-v2",
+        sum = "h1:HcN6yDnHV9S7D69E7To0aUppJhiJNEzQSNcUxc7r3qo=",
+        version = "v1.8.0",
+    )
+    go_repository(
+        name = "com_github_aws_aws_sdk_go_v2_config",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/aws/aws-sdk-go-v2/config",
+        sum = "h1:rtoCnNObhVm7me+v9sA2aY+NtHNZjjWWC3ifXVci+wE=",
+        version = "v1.6.0",
+    )
+    go_repository(
+        name = "com_github_aws_aws_sdk_go_v2_credentials",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/aws/aws-sdk-go-v2/credentials",
+        sum = "h1:Uud/fZzm0lqqhE8kvXYJFAJ3PGnagKoUcvHq1hXfBZw=",
+        version = "v1.3.2",
+    )
+    go_repository(
+        name = "com_github_aws_aws_sdk_go_v2_feature_ec2_imds",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/aws/aws-sdk-go-v2/feature/ec2/imds",
+        sum = "h1:SGqDJun6tydgsSIFxv9+EYBJVqVUwg2QMJp6PbNq8C8=",
+        version = "v1.4.0",
+    )
+    go_repository(
+        name = "com_github_aws_aws_sdk_go_v2_feature_s3_manager",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/aws/aws-sdk-go-v2/feature/s3/manager",
+        sum = "h1:Iqp2aHeRF3kaaNuDS82bHBzER285NM6lLPAgsxHCR2A=",
+        version = "v1.4.0",
+    )
+    go_repository(
+        name = "com_github_aws_aws_sdk_go_v2_internal_ini",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/aws/aws-sdk-go-v2/internal/ini",
+        sum = "h1:xu45foJnwMwBqSkIMKyJP9kbyHi5hdhZ/WiJ7D2sHZ0=",
+        version = "v1.2.0",
+    )
+    go_repository(
+        name = "com_github_aws_aws_sdk_go_v2_service_internal_accept_encoding",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding",
+        sum = "h1:YcGVEqLQGHDa81776C3daai6ZkkRGf/8RAQ07hV0QcU=",
+        version = "v1.2.2",
+    )
+    go_repository(
+        name = "com_github_aws_aws_sdk_go_v2_service_internal_presigned_url",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/aws/aws-sdk-go-v2/service/internal/presigned-url",
+        sum = "h1:Xv1rGYgsRRn0xw9JFNnfpBMZam54PrWpC4rJOJ9koA8=",
+        version = "v1.2.2",
+    )
+    go_repository(
+        name = "com_github_aws_aws_sdk_go_v2_service_internal_s3shared",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/aws/aws-sdk-go-v2/service/internal/s3shared",
+        sum = "h1:ewIpdVz12MDinJJB/nu1uUiFIWFnvtd3iV7cEW7lR+M=",
+        version = "v1.5.2",
+    )
+    go_repository(
+        name = "com_github_aws_aws_sdk_go_v2_service_s3",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/aws/aws-sdk-go-v2/service/s3",
+        sum = "h1:cxZbzTYXgiQrZ6u2/RJZAkkgZssqYOdydvJPBgIHlsM=",
+        version = "v1.12.0",
+    )
+    go_repository(
+        name = "com_github_aws_aws_sdk_go_v2_service_sso",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/aws/aws-sdk-go-v2/service/sso",
+        sum = "h1:b+U3WrF9ON3f32FH19geqmiod4uKcMv/q+wosQjjyyM=",
+        version = "v1.3.2",
+    )
+    go_repository(
+        name = "com_github_aws_aws_sdk_go_v2_service_sts",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/aws/aws-sdk-go-v2/service/sts",
+        sum = "h1:1Pls85C5CFjhE3aH+h85/hyAk89kQNlAWlEQtIkaFyc=",
+        version = "v1.6.1",
+    )
+    go_repository(
+        name = "com_github_aws_smithy_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/aws/smithy-go",
+        sum = "h1:+cLHMRrDZvQ4wk+KuQ9yH6eEg6KZEJ9RI2IkDqnygCg=",
+        version = "v1.7.0",
+    )
+    go_repository(
+        name = "com_github_axiomhq_hyperloglog",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/axiomhq/hyperloglog",
+        sum = "h1:eqjiAL3qooftPm8b9C1GsSSRcmlw7iOva8vdBTmV2PY=",
+        version = "v0.0.0-20220105174342-98591331716a",
+    )
+    go_repository(
+        name = "com_github_azure_azure_pipeline_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/Azure/azure-pipeline-go",
+        sum = "h1:7U9HBg1JFK3jHl5qmo4CTZKFTVgMwdFHMVtCdfBE21U=",
+        version = "v0.2.3",
+    )
+
+    go_repository(
         name = "com_github_azure_azure_sdk_for_go",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/Azure/azure-sdk-for-go",
-        sum = "h1:HzKLt3kIwMm4KeJYTdx9EbjRYTySD/t8i1Ee/W5EGXw=",
-        version = "v65.0.0+incompatible",
+        sum = "h1:Uu/Ww6ernvPTrpq31kITVTIm/I5jlJ1wjtEH/bmSB2k=",
+        version = "v67.2.0+incompatible",
+    )
+    go_repository(
+        name = "com_github_azure_azure_sdk_for_go_sdk_azcore",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/Azure/azure-sdk-for-go/sdk/azcore",
+        sum = "h1:gVXuXcWd1i4C2Ruxe321aU+IKGaStvGB/S90PUPB/W8=",
+        version = "v1.3.1",
+    )
+    go_repository(
+        name = "com_github_azure_azure_sdk_for_go_sdk_azidentity",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/Azure/azure-sdk-for-go/sdk/azidentity",
+        sum = "h1:T8quHYlUGyb/oqtSTwqlCr1ilJHrDv+ZtpSfo+hm1BU=",
+        version = "v1.2.1",
+    )
+    go_repository(
+        name = "com_github_azure_azure_sdk_for_go_sdk_internal",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/Azure/azure-sdk-for-go/sdk/internal",
+        sum = "h1:+5VZ72z0Qan5Bog5C+ZkgSqUbeVUd9wgtHOrIKuc5b8=",
+        version = "v1.1.2",
+    )
+    go_repository(
+        name = "com_github_azure_azure_sdk_for_go_sdk_resourcemanager_compute_armcompute_v4",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute/v4",
+        sum = "h1:Vjq3Uy3JAU1DTxbA+uX6BegIhgO2pyFltbfbmDa9KdI=",
+        version = "v4.1.0",
+    )
+    go_repository(
+        name = "com_github_azure_azure_sdk_for_go_sdk_resourcemanager_msi_armmsi",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/msi/armmsi",
+        sum = "h1:ZOt3s8LxEoRGgdD/k7Co4wGAWKmO4+jdPRCRBa8Rzc0=",
+        version = "v1.0.0",
+    )
+    go_repository(
+        name = "com_github_azure_azure_sdk_for_go_sdk_resourcemanager_resources_armresources",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resources/armresources",
+        sum = "h1:ECsQtyERDVz3NP3kvDOTLvbQhqWp/x9EsGKtb4ogUr8=",
+        version = "v1.0.0",
+    )
+    go_repository(
+        name = "com_github_azure_azure_storage_blob_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/Azure/azure-storage-blob-go",
+        sum = "h1:1BCg74AmVdYwO3dlKwtFU1V0wU2PZdREkXvAmZJRUlM=",
+        version = "v0.14.0",
     )
 
     go_repository(
@@ -125,6 +361,21 @@ def go_dependencies():
         sum = "h1:Yepx8CvFxwNKpH6ja7RZ+sKX+DWYNldbLiALMC3BTz8=",
         version = "v0.9.23",
     )
+    go_repository(
+        name = "com_github_azure_go_autorest_autorest_azure_auth",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/Azure/go-autorest/autorest/azure/auth",
+        sum = "h1:wkAZRgT/pn8HhFyzfe9UnqOjJYqlembgCTi72Bm/xKk=",
+        version = "v0.5.12",
+    )
+    go_repository(
+        name = "com_github_azure_go_autorest_autorest_azure_cli",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/Azure/go-autorest/autorest/azure/cli",
+        sum = "h1:0W/yGmFdTIT77fvdlGZ0LMISoLHFJ7Tx4U0yeB+uFs4=",
+        version = "v0.4.5",
+    )
+
     go_repository(
         name = "com_github_azure_go_autorest_autorest_date",
         build_file_proto_mode = "disable_global",
@@ -169,6 +420,28 @@ def go_dependencies():
         version = "v0.6.0",
     )
     go_repository(
+        name = "com_github_azure_go_ntlmssp",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/Azure/go-ntlmssp",
+        sum = "h1:/IBSNwUN8+eKzUzbJPqhK839ygXJ82sde8x3ogr6R28=",
+        version = "v0.0.0-20200615164410-66371956d46c",
+    )
+    go_repository(
+        name = "com_github_azuread_microsoft_authentication_library_for_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/AzureAD/microsoft-authentication-library-for-go",
+        sum = "h1:oPdPEZFSbl7oSPEAIPMPBMUmiL+mqgzBJwM/9qYcwNg=",
+        version = "v0.8.1",
+    )
+    go_repository(
+        name = "com_github_baiyubin_aliyun_sts_go_sdk",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/baiyubin/aliyun-sts-go-sdk",
+        sum = "h1:ZNv7On9kyUzm7fvRZumSyy/IUiSC7AzL0I1jKKtwooA=",
+        version = "v0.0.0-20180326062324-cfa1a18b161f",
+    )
+
+    go_repository(
         name = "com_github_benbjohnson_clock",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/benbjohnson/clock",
@@ -184,12 +457,63 @@ def go_dependencies():
         version = "v1.0.1",
     )
     go_repository(
+        name = "com_github_bgentry_speakeasy",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/bgentry/speakeasy",
+        sum = "h1:ByYyxL9InA1OWqxJqqp2A5pYHUrCiAL6K3J+LKSsQkY=",
+        version = "v0.1.0",
+    )
+    go_repository(
+        name = "com_github_bitly_go_hostpool",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/bitly/go-hostpool",
+        sum = "h1:mXoPYz/Ul5HYEDvkta6I8/rnYM5gSdSV2tJ6XbZuEtY=",
+        version = "v0.0.0-20171023180738-a3a6125de932",
+    )
+    go_repository(
+        name = "com_github_bketelsen_crypt",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/bketelsen/crypt",
+        sum = "h1:+0HFd5KSZ/mm3JmhmrDukiId5iR6w4+BdFtfSy4yWIc=",
+        version = "v0.0.3-0.20200106085610-5cbc8cc4026c",
+    )
+
+    go_repository(
         name = "com_github_blang_semver_v4",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/blang/semver/v4",
         sum = "h1:1PFHFE6yCCTv8C1TeyNNarDzntLi7wMI5i/pzqYIsAM=",
         version = "v4.0.0",
     )
+    go_repository(
+        name = "com_github_bmizerany_assert",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/bmizerany/assert",
+        sum = "h1:DDGfHa7BWjL4YnC6+E63dPcxHo2sUxDIu8g3QgEJdRY=",
+        version = "v0.0.0-20160611221934-b7ed37b82869",
+    )
+    go_repository(
+        name = "com_github_boltdb_bolt",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/boltdb/bolt",
+        sum = "h1:JQmyP4ZBrce+ZQu0dY660FMfatumYDLun9hBCUVIkF4=",
+        version = "v1.3.1",
+    )
+    go_repository(
+        name = "com_github_boombuler_barcode",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/boombuler/barcode",
+        sum = "h1:biVzkmvwrH8WK8raXaxBx6fRVTlJILwEwQGL1I/ByEI=",
+        version = "v1.0.1-0.20190219062509-6c824513bacc",
+    )
+    go_repository(
+        name = "com_github_briankassouf_jose",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/briankassouf/jose",
+        sum = "h1:ZMEzE7R0WNqgbHplzSBaYJhJi5AZWTCK9baU0ebzG6g=",
+        version = "v0.9.2-0.20180619214549-d2569464773f",
+    )
+
     go_repository(
         name = "com_github_buger_jsonparser",
         build_file_proto_mode = "disable_global",
@@ -202,8 +526,8 @@ def go_dependencies():
         name = "com_github_burntsushi_toml",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/BurntSushi/toml",
-        sum = "h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=",
-        version = "v0.3.1",
+        sum = "h1:Rt8g24XnyGTyglgET/PRUNlrUeu9F5L+7FilkXfZgs0=",
+        version = "v1.2.0",
     )
     go_repository(
         name = "com_github_burntsushi_xgb",
@@ -212,6 +536,21 @@ def go_dependencies():
         sum = "h1:1BDTz0u9nC3//pOCMdNH+CiXJVYJh5UQNCOBG7jbELc=",
         version = "v0.0.0-20160522181843-27f122750802",
     )
+    go_repository(
+        name = "com_github_cenkalti_backoff",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/cenkalti/backoff",
+        sum = "h1:tNowT99t7UNflLxfYYSlKYsBpXdEet03Pg2g16Swow4=",
+        version = "v2.2.1+incompatible",
+    )
+    go_repository(
+        name = "com_github_cenkalti_backoff_v3",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/cenkalti/backoff/v3",
+        sum = "h1:cfUAAO3yvKMYKPrvhDuHSwQnhZNk/RMHKdZqKTxfm6M=",
+        version = "v3.2.2",
+    )
+
     go_repository(
         name = "com_github_cenkalti_backoff_v4",
         build_file_proto_mode = "disable_global",
@@ -227,6 +566,21 @@ def go_dependencies():
         sum = "h1:iKLQ0xPNFxR/2hzXZMrBo8f1j86j5WHzznCCQxV/b8g=",
         version = "v0.4.1",
     )
+    go_repository(
+        name = "com_github_centrify_cloud_golang_sdk",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/centrify/cloud-golang-sdk",
+        sum = "h1:jQ93fKqb/wRmK/KiHpa7Tk9rmHeKXhp4j+5Sg/tENiY=",
+        version = "v0.0.0-20210923165758-a8c48d049166",
+    )
+    go_repository(
+        name = "com_github_certifi_gocertifi",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/certifi/gocertifi",
+        sum = "h1:uH66TXeswKn5PW5zdZ39xEwfS9an067BirqA+P4QaLI=",
+        version = "v0.0.0-20200922220541-2c3bb06c6054",
+    )
+
     go_repository(
         name = "com_github_cespare_xxhash",
         build_file_proto_mode = "disable_global",
@@ -254,6 +608,13 @@ def go_dependencies():
         importpath = "github.com/checkpoint-restore/go-criu/v5",
         sum = "h1:wpFFOoomK3389ue2lAb0Boag6XPht5QYpipxmSNL4d8=",
         version = "v5.3.0",
+    )
+    go_repository(
+        name = "com_github_chrismalek_oktasdk_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/chrismalek/oktasdk-go",
+        sum = "h1:CWU8piLyqoi9qXEUwzOh5KFKGgmSU5ZhktJyYcq6ryQ=",
+        version = "v0.0.0-20181212195951-3430665dfaa0",
     )
 
     go_repository(
@@ -284,6 +645,20 @@ def go_dependencies():
         sum = "h1:1k/q3ATgxSXRdrmPfH8d7YK0GfqVsEKZAX9dQZvs56k=",
         version = "v0.7.0",
     )
+    go_repository(
+        name = "com_github_circonus_labs_circonus_gometrics",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/circonus-labs/circonus-gometrics",
+        sum = "h1:C29Ae4G5GtYyYMm1aztcyj/J5ckgJm2zwdDajFbx1NY=",
+        version = "v2.3.1+incompatible",
+    )
+    go_repository(
+        name = "com_github_circonus_labs_circonusllhist",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/circonus-labs/circonusllhist",
+        sum = "h1:TJH+oke8D16535+jHExHj4nQvzlZrj7ug5D7I/orNUA=",
+        version = "v0.1.3",
+    )
 
     go_repository(
         name = "com_github_client9_misspell",
@@ -292,6 +667,21 @@ def go_dependencies():
         sum = "h1:ta993UF76GwbvJcIo3Y68y/M3WxlpEHPWIGDkJYwzJI=",
         version = "v0.3.4",
     )
+    go_repository(
+        name = "com_github_cloudflare_circl",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/cloudflare/circl",
+        sum = "h1:bZgT/A+cikZnKIwn7xL2OBj012Bmvho/o6RpRvv3GKY=",
+        version = "v1.1.0",
+    )
+    go_repository(
+        name = "com_github_cloudfoundry_community_go_cfclient",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/cloudfoundry-community/go-cfclient",
+        sum = "h1:k8q2Nsz7kNaUlysVCnWIFLMUSqiKXaGLdIf9P0GsX2Y=",
+        version = "v0.0.0-20210823134051-721f0e559306",
+    )
+
     go_repository(
         name = "com_github_cncf_udpa_go",
         build_file_proto_mode = "disable_global",
@@ -306,6 +696,13 @@ def go_dependencies():
         sum = "h1:58f1tJ1ra+zFINPlwLWvQsR9CzAKt2e+EWV2yX9oXQ4=",
         version = "v0.0.0-20230310173818-32f1caf87195",
     )
+    go_repository(
+        name = "com_github_cockroachdb_apd",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/cockroachdb/apd",
+        sum = "h1:3LFP3629v+1aKXU5Q37mxmRxX/pIu1nijXydLShEq5I=",
+        version = "v1.1.0",
+    )
 
     go_repository(
         name = "com_github_cockroachdb_apd_v2",
@@ -314,6 +711,42 @@ def go_dependencies():
         sum = "h1:weh8u7Cneje73dDh+2tEVLUvyBc89iwepWCD8b8034E=",
         version = "v2.0.2",
     )
+    go_repository(
+        name = "com_github_cockroachdb_cockroach_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/cockroachdb/cockroach-go",
+        sum = "h1:2zRrJWIt/f9c9HhNHAgrRgq0San5gRRUJTBXLkchal0=",
+        version = "v0.0.0-20181001143604-e0a95dfd547c",
+    )
+    go_repository(
+        name = "com_github_cockroachdb_datadriven",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/cockroachdb/datadriven",
+        sum = "h1:xD/lrqdvwsc+O2bjSSi3YqY73Ke3LAiSCx49aCesA0E=",
+        version = "v0.0.0-20200714090401-bf6692d28da5",
+    )
+    go_repository(
+        name = "com_github_cockroachdb_errors",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/cockroachdb/errors",
+        sum = "h1:Lap807SXTH5tri2TivECb/4abUkMZC9zRoLarvcKDqs=",
+        version = "v1.2.4",
+    )
+    go_repository(
+        name = "com_github_cockroachdb_logtags",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/cockroachdb/logtags",
+        sum = "h1:o/kfcElHqOiXqcou5a3rIlMc7oJbMQkeLk0VQJ7zgqY=",
+        version = "v0.0.0-20190617123548-eb05cc24525f",
+    )
+    go_repository(
+        name = "com_github_codegangsta_inject",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/codegangsta/inject",
+        sum = "h1:sDMmm+q/3+BukdIpxwO365v/Rbspp2Nt5XntgQRXq8Q=",
+        version = "v0.0.0-20150114235600-33e0aa1cb7c0",
+    )
+
     go_repository(
         name = "com_github_container_storage_interface_spec",
         build_file_proto_mode = "disable_global",
@@ -325,8 +758,8 @@ def go_dependencies():
         name = "com_github_containerd_cgroups",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/containerd/cgroups",
-        sum = "h1:iJnMvco9XGvKUvNQkv88bE4uJXxRQH18efbKo9w5vHQ=",
-        version = "v1.0.1",
+        sum = "h1:ADZftAkglvCiD44c77s5YmMqaP2pzVCFZvBmAlBdAP4=",
+        version = "v1.0.3",
     )
     go_repository(
         name = "com_github_containerd_console",
@@ -335,6 +768,21 @@ def go_dependencies():
         sum = "h1:lIr7SlA5PxZyMV30bDW0MGbiOPXwc63yRuCP0ARubLw=",
         version = "v1.0.3",
     )
+    go_repository(
+        name = "com_github_containerd_containerd",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/containerd/containerd",
+        sum = "h1:NLDEI//zhMZpR3DS/AP0qiN+dzYKNAwJaNXCnCmYcgY=",
+        version = "v1.5.17",
+    )
+    go_repository(
+        name = "com_github_containerd_continuity",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/containerd/continuity",
+        sum = "h1:nisirsYROK15TAMVukJOUyGJjz4BNQJBVsNvAXZJ/eg=",
+        version = "v0.3.0",
+    )
+
     go_repository(
         name = "com_github_containerd_ttrpc",
         build_file_proto_mode = "disable_global",
@@ -356,14 +804,36 @@ def go_dependencies():
         sum = "h1:MdOkT6F3ehju/n9tgxlGct8XAajOX2vN+wG7To4BWSI=",
         version = "v1.0.20",
     )
+    go_repository(
+        name = "com_github_coreos_bbolt",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/coreos/bbolt",
+        sum = "h1:wZwiHHUieZCquLkDL0B8UhzreNWsPHooDAG3q34zk0s=",
+        version = "v1.3.2",
+    )
+    go_repository(
+        name = "com_github_coreos_etcd",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/coreos/etcd",
+        sum = "h1:8F3hqu9fGYLBifCmRCJsicFqDx/D68Rt3q1JMazcgBQ=",
+        version = "v3.3.13+incompatible",
+    )
 
     go_repository(
         name = "com_github_coreos_go_oidc",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/coreos/go-oidc",
-        sum = "h1:sdJrfw8akMnCuUlaZU3tE/uYXFgfqom8DBE9so9EBsM=",
-        version = "v2.1.0+incompatible",
+        sum = "h1:mh48q/BqXqgjVHpy2ZY7WnWAbenxRjsz9N1i1YxjHAk=",
+        version = "v2.2.1+incompatible",
     )
+    go_repository(
+        name = "com_github_coreos_go_oidc_v3",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/coreos/go-oidc/v3",
+        sum = "h1:6avEvcdvTa1qYsOZ6I5PRkSYHzpTNWgKYmaJfaYbrRw=",
+        version = "v3.1.0",
+    )
+
     go_repository(
         name = "com_github_coreos_go_semver",
         build_file_proto_mode = "disable_global",
@@ -372,11 +842,40 @@ def go_dependencies():
         version = "v0.3.1",
     )
     go_repository(
+        name = "com_github_coreos_go_systemd",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/coreos/go-systemd",
+        sum = "h1:iW4rZ826su+pqaw19uhpSCzhj44qo35pNgKFGqzDKkU=",
+        version = "v0.0.0-20191104093116-d3cd4ed1dbcf",
+    )
+
+    go_repository(
         name = "com_github_coreos_go_systemd_v22",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/coreos/go-systemd/v22",
         sum = "h1:RrqgGjYQKalulkV8NGVIfkXQf6YYmOyiJKk8iXXhfZs=",
         version = "v22.5.0",
+    )
+    go_repository(
+        name = "com_github_coreos_pkg",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/coreos/pkg",
+        sum = "h1:GOPo6vn/vTN+3IwZBvXX0y5doJfSC7My0cdzelyOCsQ=",
+        version = "v0.0.0-20220810130054-c7d1c02cb6cf",
+    )
+    go_repository(
+        name = "com_github_couchbase_gocb_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/couchbase/gocb/v2",
+        sum = "h1:OItaIrFqXR1ba9J77E2YOU+CSF9G9FHYivV26Xgoi98=",
+        version = "v2.3.3",
+    )
+    go_repository(
+        name = "com_github_couchbase_gocbcore_v10",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/couchbase/gocbcore/v10",
+        sum = "h1:RJ+dSXxMUbrpfgYEEUhMYwPH1S5KvcQYve3D2aKHP28=",
+        version = "v10.0.4",
     )
 
     go_repository(
@@ -400,13 +899,27 @@ def go_dependencies():
         sum = "h1:YX6ebbZCZP7VkM3scTTokDgBL2TY741X51MTk3ycuNI=",
         version = "v0.2.3",
     )
+    go_repository(
+        name = "com_github_datadog_datadog_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/DataDog/datadog-go",
+        sum = "h1:qSG2N4FghB1He/r2mFrWKCaL7dXCilEuNEeAn20fdD4=",
+        version = "v3.2.0+incompatible",
+    )
+    go_repository(
+        name = "com_github_datadog_zstd",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/DataDog/zstd",
+        sum = "h1:+IawcoXhCBylN7ccwdwf8LOH2jKq7NavGpEPanrlTzE=",
+        version = "v1.4.4",
+    )
 
     go_repository(
         name = "com_github_davecgh_go_spew",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/davecgh/go-spew",
-        sum = "h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=",
-        version = "v1.1.1",
+        sum = "h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=",
+        version = "v1.1.2-0.20180830191138-d8f796af33cc",
     )
     go_repository(
         name = "com_github_daviddengcn_go_colortext",
@@ -416,6 +929,14 @@ def go_dependencies():
         version = "v1.0.0",
     )
     go_repository(
+        name = "com_github_denisenkom_go_mssqldb",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/denisenkom/go-mssqldb",
+        sum = "h1:1OcPn5GBIobjWNd+8yjfHNIaFX14B1pWI3F9HZy5KXw=",
+        version = "v0.12.2",
+    )
+
+    go_repository(
         name = "com_github_dennwc_varint",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/dennwc/varint",
@@ -423,12 +944,63 @@ def go_dependencies():
         version = "v1.0.0",
     )
     go_repository(
+        name = "com_github_denverdino_aliyungo",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/denverdino/aliyungo",
+        sum = "h1:p6poVbjHDkKa+wtC8frBMwQtT3BmqGYBjzMwJ63tuR4=",
+        version = "v0.0.0-20190125010748-a747050bb1ba",
+    )
+    go_repository(
+        name = "com_github_dgrijalva_jwt_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/dgrijalva/jwt-go",
+        sum = "h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=",
+        version = "v3.2.0+incompatible",
+    )
+    go_repository(
+        name = "com_github_dgryski_go_metro",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/dgryski/go-metro",
+        sum = "h1:8WFBn63wegobsYAX0YjD+8suexZDga5CctH4CCTx2+8=",
+        version = "v0.0.0-20180109044635-280f6062b5bc",
+    )
+    go_repository(
+        name = "com_github_dgryski_go_sip13",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/dgryski/go-sip13",
+        sum = "h1:RMLoZVzv4GliuWafOuPuQDKSm1SJph7uCRnnS61JAn4=",
+        version = "v0.0.0-20181026042036-e10d5fee7954",
+    )
+
+    go_repository(
         name = "com_github_digitalocean_godo",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/digitalocean/godo",
         sum = "h1:potyC1eD0N9n5/P4/WmJuKgg+OGYZOBWEW+/aKTX6QQ=",
         version = "v1.98.0",
     )
+    go_repository(
+        name = "com_github_dimchansky_utfbom",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/dimchansky/utfbom",
+        sum = "h1:vV6w1AhK4VMnhBno/TPVCoK9U/LP0PkLCS9tbxHdi/U=",
+        version = "v1.1.1",
+    )
+    go_repository(
+        name = "com_github_dnaeon_go_vcr",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/dnaeon/go-vcr",
+        sum = "h1:r8L/HqC0Hje5AXMu1ooW8oyQyOFv4GxqpL0nRP7SLLY=",
+        version = "v1.0.1",
+    )
+    go_repository(
+        name = "com_github_docker_cli",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/docker/cli",
+        sum = "h1:f/GQLsVpo10VvToRay2IraVA1wHz9KktZyjev3SIVDU=",
+        version = "v20.10.18+incompatible",
+    )
+
     go_repository(
         name = "com_github_docker_distribution",
         build_file_proto_mode = "disable_global",
@@ -457,6 +1029,13 @@ def go_dependencies():
         sum = "h1:69rxXcBk27SvSaaxTtLh/8llcHD8vYHT7WSdRZ/jvr4=",
         version = "v0.5.0",
     )
+    go_repository(
+        name = "com_github_docker_spdystream",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/docker/spdystream",
+        sum = "h1:ZfSZ3P3BedhKGUhzj7BQlPSU4OvT6tfOKe3DVHzOA7s=",
+        version = "v0.0.0-20181023171402-6480d4af844c",
+    )
 
     go_repository(
         name = "com_github_docopt_docopt_go",
@@ -466,6 +1045,28 @@ def go_dependencies():
         version = "v0.0.0-20180111231733-ee0de3bc6815",
     )
     go_repository(
+        name = "com_github_dsnet_compress",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/dsnet/compress",
+        sum = "h1:iFaUwBSo5Svw6L7HYpRu/0lE3e0BaElwnNO1qkNQxBY=",
+        version = "v0.0.2-0.20210315054119-f66993602bf5",
+    )
+    go_repository(
+        name = "com_github_dsnet_golib",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/dsnet/golib",
+        sum = "h1:tFh1tRc4CA31yP6qDcu+Trax5wW5GuMxvkIba07qVLY=",
+        version = "v0.0.0-20171103203638-1ea166775780",
+    )
+    go_repository(
+        name = "com_github_duosecurity_duo_api_golang",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/duosecurity/duo_api_golang",
+        sum = "h1:2MIhn2R6oXQbgW5yHfS+d6YqyMfXiu2L55rFZC4UD/M=",
+        version = "v0.0.0-20190308151101-6c680f768e74",
+    )
+
+    go_repository(
         name = "com_github_dustin_go_humanize",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/dustin/go-humanize",
@@ -473,12 +1074,56 @@ def go_dependencies():
         version = "v1.0.0",
     )
     go_repository(
+        name = "com_github_eapache_go_resiliency",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/eapache/go-resiliency",
+        sum = "h1:1NtRmCAqadE2FN4ZcN6g90TP3uk8cg9rn9eNK2197aU=",
+        version = "v1.1.0",
+    )
+    go_repository(
+        name = "com_github_eapache_go_xerial_snappy",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/eapache/go-xerial-snappy",
+        sum = "h1:YEetp8/yCZMuEPMUDHG0CW/brkkEp8mzqk2+ODEitlw=",
+        version = "v0.0.0-20180814174437-776d5712da21",
+    )
+    go_repository(
+        name = "com_github_eapache_queue",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/eapache/queue",
+        sum = "h1:YOEu7KNc61ntiQlcEeUIoDTJ2o8mQznoNvUhiigpIqc=",
+        version = "v1.1.0",
+    )
+
+    go_repository(
         name = "com_github_edsrzf_mmap_go",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/edsrzf/mmap-go",
         sum = "h1:6EUwBLQ/Mcr1EYLE4Tn1VdW1A4ckqCQWZBw8Hr0kjpQ=",
         version = "v1.1.0",
     )
+    go_repository(
+        name = "com_github_elazarl_go_bindata_assetfs",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/elazarl/go-bindata-assetfs",
+        sum = "h1:G/bYguwHIzWq9ZoyUQqrjTmJbbYn3j3CKKpKinvZLFk=",
+        version = "v1.0.0",
+    )
+    go_repository(
+        name = "com_github_elazarl_goproxy",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/elazarl/goproxy",
+        sum = "h1:pEtiCjIXx3RvGjlUJuCNxNOw0MNblyR9Wi+vJGBFh+8=",
+        version = "v0.0.0-20191011121108-aa519ddbe484",
+    )
+    go_repository(
+        name = "com_github_elazarl_goproxy_ext",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/elazarl/goproxy/ext",
+        sum = "h1:dWB6v3RcOy03t/bUadywsbyrQwCqZeNIEX6M1OtSZOM=",
+        version = "v0.0.0-20190711103511-473e67f1d7d2",
+    )
+
     go_repository(
         name = "com_github_emicklei_go_restful_v3",
         build_file_proto_mode = "disable_global",
@@ -524,6 +1169,14 @@ def go_dependencies():
         version = "v5.6.0+incompatible",
     )
     go_repository(
+        name = "com_github_evanphx_json_patch_v5",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/evanphx/json-patch/v5",
+        sum = "h1:b91NhWfaz02IuVxO9faSllyAtNXHMPkC5J8sJCLunww=",
+        version = "v5.6.0",
+    )
+
+    go_repository(
         name = "com_github_exponent_io_jsonpath",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/exponent-io/jsonpath",
@@ -546,6 +1199,21 @@ def go_dependencies():
         version = "v1.14.1",
     )
     go_repository(
+        name = "com_github_fatih_structs",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/fatih/structs",
+        sum = "h1:Q7juDM0QtcnhCpeyLGQKyg4TOIghuNXrkL32pHAUMxo=",
+        version = "v1.1.0",
+    )
+    go_repository(
+        name = "com_github_favadi_protoc_go_inject_tag",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/favadi/protoc-go-inject-tag",
+        sum = "h1:JPrmsmc/uBShG85uY5xGZIa5WJ0IaNZn6LZhQR9tIQE=",
+        version = "v1.3.0",
+    )
+
+    go_repository(
         name = "com_github_felixge_httpsnoop",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/felixge/httpsnoop",
@@ -559,6 +1227,20 @@ def go_dependencies():
         sum = "h1:dCrjGJRXIlbDsLAgTJZTjhwUJnnxVWl1OgNyYh5nyDc=",
         version = "v0.1.1",
     )
+    go_repository(
+        name = "com_github_form3tech_oss_jwt_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/form3tech-oss/jwt-go",
+        sum = "h1:/l4kBbb4/vGSsdtB5nUe8L7B9mImVMaBPw9L/0TBHU8=",
+        version = "v3.2.5+incompatible",
+    )
+    go_repository(
+        name = "com_github_frankban_quicktest",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/frankban/quicktest",
+        sum = "h1:yNZif1OkDfNoDfb9zZa9aXIpejNR4F23Wely0c+Qdqk=",
+        version = "v1.13.0",
+    )
 
     go_repository(
         name = "com_github_fsnotify_fsnotify",
@@ -568,20 +1250,64 @@ def go_dependencies():
         version = "v1.6.0",
     )
     go_repository(
+        name = "com_github_fullsailor_pkcs7",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/fullsailor/pkcs7",
+        sum = "h1:RDBNVkRviHZtvDvId8XSGPu3rmpmSe+wKRcEWNgsfWU=",
+        version = "v0.0.0-20190404230743-d7302db945fa",
+    )
+
+    go_repository(
         name = "com_github_fvbommel_sortorder",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/fvbommel/sortorder",
         sum = "h1:fUmoe+HLsBTctBDoaBwpQo5N+nrCp8g/BjKb/6ZQmYw=",
         version = "v1.1.0",
     )
+    go_repository(
+        name = "com_github_gabriel_vasile_mimetype",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/gabriel-vasile/mimetype",
+        sum = "h1:qevA6c2MtE1RorlScnixeG0VA1H4xrXyhyX3oWBynNQ=",
+        version = "v1.3.1",
+    )
+    go_repository(
+        name = "com_github_gammazero_deque",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/gammazero/deque",
+        sum = "h1:D2LrfOPgGHQprIxmsTpxtzhpmF66HoM6rXSmcqaX7h8=",
+        version = "v0.0.0-20190130191400-2afb3858e9c7",
+    )
+    go_repository(
+        name = "com_github_gammazero_workerpool",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/gammazero/workerpool",
+        sum = "h1:VzbudKn/nvxYKOdzgkEBS6SSreRjAgoJ+ZeS4wPFkgc=",
+        version = "v0.0.0-20190406235159-88d534f22b56",
+    )
+    go_repository(
+        name = "com_github_getsentry_raven_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/getsentry/raven-go",
+        sum = "h1:no+xWJRb5ZI7eE8TWgIq1jLulQiIoLG0IfYxv5JYMGs=",
+        version = "v0.2.0",
+    )
 
     go_repository(
         name = "com_github_ghodss_yaml",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/ghodss/yaml",
-        sum = "h1:wQHKEahhL6wmXdzwWG11gIVCkOv05bNOh+Rxn0yngAk=",
-        version = "v1.0.0",
+        sum = "h1:Mn26/9ZMNWSw9C9ERFA1PUxfmGpolnw2v0bKOREu5ew=",
+        version = "v1.0.1-0.20190212211648-25d852aebe32",
     )
+    go_repository(
+        name = "com_github_go_asn1_ber_asn1_ber",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/go-asn1-ber/asn1-ber",
+        sum = "h1:pDbRAunXzIUXfx4CB2QJFv5IuPiuoW+sWvr/Us009o8=",
+        version = "v1.5.1",
+    )
+
     go_repository(
         name = "com_github_go_errors_errors",
         build_file_proto_mode = "disable_global",
@@ -618,6 +1344,27 @@ def go_dependencies():
         sum = "h1:MRVx0/zhvdseW+Gza6N9rVzU/IVzaeE1SFI4raAhmBU=",
         version = "v0.2.1",
     )
+    go_repository(
+        name = "com_github_go_ldap_ldap",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/go-ldap/ldap",
+        sum = "h1:kD5HQcAzlQ7yrhfn+h+MSABeAy/jAJhvIJ/QDllP44g=",
+        version = "v3.0.2+incompatible",
+    )
+    go_repository(
+        name = "com_github_go_ldap_ldap_v3",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/go-ldap/ldap/v3",
+        sum = "h1:fU/0xli6HY02ocbMuozHAYsaHLcnkLjvho2r5a34BUU=",
+        version = "v3.4.1",
+    )
+    go_repository(
+        name = "com_github_go_ldap_ldif",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/go-ldap/ldif",
+        sum = "h1:sfz1YppV05y4sYaW7kXZtrocU/+vimnIWt4cxAYh7+o=",
+        version = "v0.0.0-20200320164324-fd88d9b715b3",
+    )
 
     go_repository(
         name = "com_github_go_logfmt_logfmt",
@@ -647,6 +1394,21 @@ def go_dependencies():
         sum = "h1:a9vnzlIBPQBBkeaR9IuMUfmVOrQlkoC4YfPoFkX3T7A=",
         version = "v1.2.3",
     )
+    go_repository(
+        name = "com_github_go_martini_martini",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/go-martini/martini",
+        sum = "h1:xveKWz2iaueeTaUgdetzel+U7exyigDYBryyVfV/rZk=",
+        version = "v0.0.0-20170121215854-22fa46961aab",
+    )
+    go_repository(
+        name = "com_github_go_ole_go_ole",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/go-ole/go-ole",
+        sum = "h1:/Fpf6oFPoeFik9ty7siob0G6Ke8QvQEuVcuChpwXzpY=",
+        version = "v1.2.6",
+    )
+
     go_repository(
         name = "com_github_go_openapi_analysis",
         build_file_proto_mode = "disable_global",
@@ -683,6 +1445,13 @@ def go_dependencies():
         sum = "h1:r2a/xFIYeZ4Qd2TnGpWDIQNcP80dIaZgf704za8enro=",
         version = "v0.21.2",
     )
+    go_repository(
+        name = "com_github_go_openapi_runtime",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/go-openapi/runtime",
+        sum = "h1:TqagMVlRAOTwllE/7hNKx6rQ10O6T8ZzeJdMjSTKaD4=",
+        version = "v0.19.24",
+    )
 
     go_repository(
         name = "com_github_go_openapi_spec",
@@ -714,11 +1483,26 @@ def go_dependencies():
         version = "v0.22.1",
     )
     go_repository(
+        name = "com_github_go_ozzo_ozzo_validation",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/go-ozzo/ozzo-validation",
+        sum = "h1:msy24VGS42fKO9K1vLz82/GeYW1cILu7Nuuj1N3BBkE=",
+        version = "v3.6.0+incompatible",
+    )
+
+    go_repository(
         name = "com_github_go_resty_resty_v2",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/go-resty/resty/v2",
         sum = "h1:me+K9p3uhSmXtrBZ4k9jcEAfJmuC8IivWHwaLZwPrFY=",
         version = "v2.7.0",
+    )
+    go_repository(
+        name = "com_github_go_sql_driver_mysql",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/go-sql-driver/mysql",
+        sum = "h1:BCTh4TKNUYmOmMUcQ3IipzF5prigylS7XXjEkfCHuOE=",
+        version = "v1.6.0",
     )
 
     go_repository(
@@ -736,12 +1520,35 @@ def go_dependencies():
         version = "v0.0.0-20210107165309-348f09dbbbc0",
     )
     go_repository(
+        name = "com_github_go_test_deep",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/go-test/deep",
+        sum = "h1:WOcxcdHcvdgThNXjw0t76K42FXTU7HpNQWHpA2HHNlg=",
+        version = "v1.1.0",
+    )
+    go_repository(
+        name = "com_github_go_yaml_yaml",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/go-yaml/yaml",
+        sum = "h1:RYi2hDdss1u4YE7GwixGzWwVo47T8UQwnTLB6vQiq+o=",
+        version = "v2.1.0+incompatible",
+    )
+
+    go_repository(
         name = "com_github_go_zookeeper_zk",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/go-zookeeper/zk",
         sum = "h1:7M2kwOsc//9VeeFiPtf+uSJlVpU66x9Ba5+8XK7/TDg=",
         version = "v1.0.3",
     )
+    go_repository(
+        name = "com_github_gocql_gocql",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/gocql/gocql",
+        sum = "h1:UnbTERpP72VZ/viKE1Q1gPtmLvyTZTvuAstvSRydw/c=",
+        version = "v1.0.0",
+    )
+
     go_repository(
         name = "com_github_godbus_dbus_v5",
         build_file_proto_mode = "disable_global",
@@ -753,8 +1560,8 @@ def go_dependencies():
         name = "com_github_gofrs_uuid",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/gofrs/uuid",
-        sum = "h1:1SD/1F5pU8p29ybwgQSwpQk+mwdRrXCYuPhW6m+TnJw=",
-        version = "v4.0.0+incompatible",
+        sum = "h1:CaSVZxm5B+7o45rtab4jC2G37WGYX1zQfuU2i6DSvnc=",
+        version = "v4.3.0+incompatible",
     )
 
     go_repository(
@@ -764,6 +1571,14 @@ def go_dependencies():
         sum = "h1:Ov1cvc58UF3b5XjBnZv7+opcTcQFZebYjWzi34vdm4Q=",
         version = "v1.3.2",
     )
+    go_repository(
+        name = "com_github_goji_httpauth",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/goji/httpauth",
+        sum = "h1:lBXNCxVENCipq4D1Is42JVOP4eQjlB8TQ6H69Yx5J9Q=",
+        version = "v0.0.0-20160601135302-2da839ab0f4d",
+    )
+
     go_repository(
         name = "com_github_golang_glog",
         build_file_proto_mode = "disable_global",
@@ -784,6 +1599,13 @@ def go_dependencies():
         importpath = "github.com/golang-jwt/jwt/v4",
         sum = "h1:7cYmW1XlMY7h7ii7UhUyChSgS5wUJEnm9uZVTGqOWzg=",
         version = "v4.5.0",
+    )
+    go_repository(
+        name = "com_github_golang_lint",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/golang/lint",
+        sum = "h1:2hRPrmiwPrp3fQX967rNJIhQPtiGXdlQWAxKbKw3VHA=",
+        version = "v0.0.0-20180702182130-06c8688daad7",
     )
 
     go_repository(
@@ -807,6 +1629,28 @@ def go_dependencies():
         sum = "h1:yAGX7huGHXlcLOEtBnF4w7FQwA26wojNCwOYAEhLjQM=",
         version = "v0.0.4",
     )
+    go_repository(
+        name = "com_github_golang_sql_civil",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/golang-sql/civil",
+        sum = "h1:lXe2qZdvpiX5WZkZR4hgp4KJVfY3nMkvmwbVkpv1rVY=",
+        version = "v0.0.0-20190719163853-cb61b32ac6fe",
+    )
+    go_repository(
+        name = "com_github_golang_sql_sqlexp",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/golang-sql/sqlexp",
+        sum = "h1:ZCD6MBpcuOVfGVqsEmY5/4FtYiKz6tSyUv9LPEDei6A=",
+        version = "v0.1.0",
+    )
+    go_repository(
+        name = "com_github_golangci_revgrep",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/golangci/revgrep",
+        sum = "h1:DIPQnGy2Gv2FSA4B/hh8Q7xx3B7AIDk3DAMeHclH1vQ=",
+        version = "v0.0.0-20220804021717-745bb2f7c2e6",
+    )
+
     go_repository(
         name = "com_github_golangplus_bytes",
         build_file_proto_mode = "disable_global",
@@ -851,6 +1695,14 @@ def go_dependencies():
         version = "v0.15.2",
     )
     go_repository(
+        name = "com_github_google_flatbuffers",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/google/flatbuffers",
+        sum = "h1:dicJ2oXwypfwUGnB2/TYWYEKiuk9eYQlQO/AnOHl5mI=",
+        version = "v2.0.0+incompatible",
+    )
+
+    go_repository(
         name = "com_github_google_gnostic",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/google/gnostic",
@@ -865,6 +1717,21 @@ def go_dependencies():
         sum = "h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=",
         version = "v0.5.9",
     )
+    go_repository(
+        name = "com_github_google_go_github",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/google/go-github",
+        sum = "h1:N0LgJ1j65A7kfXrZnUDaYCs/Sf4rEjNlfyDHW9dolSY=",
+        version = "v17.0.0+incompatible",
+    )
+    go_repository(
+        name = "com_github_google_go_metrics_stackdriver",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/google/go-metrics-stackdriver",
+        sum = "h1:rbs2sxHAPn2OtUj9JdR/Gij1YKGl0BTVD0augB+HEjE=",
+        version = "v0.2.0",
+    )
+
     go_repository(
         name = "com_github_google_go_querystring",
         build_file_proto_mode = "disable_global",
@@ -891,8 +1758,8 @@ def go_dependencies():
         name = "com_github_google_martian_v3",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/google/martian/v3",
-        sum = "h1:pMen7vLs8nvgEYhywH3KDWJIJTeEr2ULsVWHWYHQyBs=",
-        version = "v3.0.0",
+        sum = "h1:d8MncMlErDFTwQGBK1xhv026j9kqhvw1Qv9IbWT1VLQ=",
+        version = "v3.2.1",
     )
 
     go_repository(
@@ -915,6 +1782,13 @@ def go_dependencies():
         importpath = "github.com/google/shlex",
         sum = "h1:El6M4kTTCOh6aBiKaUGG7oYTSPP8MxqL4YI3kZKwcP4=",
         version = "v0.0.0-20191202100458-e7afc7fbc510",
+    )
+    go_repository(
+        name = "com_github_google_tink_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/google/tink/go",
+        sum = "h1:t7JHqO8Ath2w2ig5vjwQYJzhGEZymedQc90lQXUBa4I=",
+        version = "v1.6.1",
     )
 
     go_repository(
@@ -940,6 +1814,14 @@ def go_dependencies():
         version = "v2.7.1",
     )
     go_repository(
+        name = "com_github_googleapis_gnostic",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/googleapis/gnostic",
+        sum = "h1:WeAefnSUHlBb0iJKwxFDZdbfGwkd7xRNuV+IpXMJhYk=",
+        version = "v0.3.1",
+    )
+
+    go_repository(
         name = "com_github_googlecloudplatform_k8s_cloud_provider",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/GoogleCloudPlatform/k8s-cloud-provider",
@@ -953,6 +1835,48 @@ def go_dependencies():
         sum = "h1:RUKyCMiZoQR3VlVR5E3K7PK1AC3/qppsWYo6dtBiqs8=",
         version = "v1.3.0",
     )
+    go_repository(
+        name = "com_github_gopherjs_gopherjs",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/gopherjs/gopherjs",
+        sum = "h1:EGx4pi6eqNxGaHF6qqu48+N2wcFQ5qg5FXgOdqsJ5d8=",
+        version = "v0.0.0-20181017120253-0766667cb4d1",
+    )
+    go_repository(
+        name = "com_github_gorhill_cronexpr",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/gorhill/cronexpr",
+        sum = "h1:f0n1xnMSmBLzVfsMMvriDyA75NB/oBgILX2GcHXIQzY=",
+        version = "v0.0.0-20180427100037-88b0669f7d75",
+    )
+    go_repository(
+        name = "com_github_gorilla_context",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/gorilla/context",
+        sum = "h1:AWwleXJkX/nhcU9bZSnZoi3h/qGYqQAGhq6zZe/aQW8=",
+        version = "v1.1.1",
+    )
+    go_repository(
+        name = "com_github_gorilla_mux",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/gorilla/mux",
+        sum = "h1:Pgr17XVTNXAk3q/r4CpKzC5xBM/qW1uVLV+IhRZpIIk=",
+        version = "v1.6.2",
+    )
+    go_repository(
+        name = "com_github_gorilla_securecookie",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/gorilla/securecookie",
+        sum = "h1:miw7JPhV+b/lAHSXz4qd/nN9jRiAFV5FwjeKyCS8BvQ=",
+        version = "v1.1.1",
+    )
+    go_repository(
+        name = "com_github_gorilla_sessions",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/gorilla/sessions",
+        sum = "h1:S7P+1Hm5V/AT9cjEcUD5uDaQSX0OE577aCXgoaKpYbQ=",
+        version = "v1.2.0",
+    )
 
     go_repository(
         name = "com_github_gorilla_websocket",
@@ -961,6 +1885,14 @@ def go_dependencies():
         sum = "h1:PPwGk2jz7EePpoHN/+ClbZu8SPxiqlu12wZP/3sWmnc=",
         version = "v1.5.0",
     )
+    go_repository(
+        name = "com_github_gotestyourself_gotestyourself",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/gotestyourself/gotestyourself",
+        sum = "h1:AQwinXlbQR2HvPjQZOmDhRqsv5mZf+Jb1RnSLxcqZcI=",
+        version = "v2.2.0+incompatible",
+    )
+
     go_repository(
         name = "com_github_grafana_regexp",
         build_file_proto_mode = "disable_global",
@@ -1004,6 +1936,27 @@ def go_dependencies():
         sum = "h1:gDLXvp5S9izjldquuoAhDzccbskOL6tDC5jMSyx3zxE=",
         version = "v2.15.2",
     )
+    go_repository(
+        name = "com_github_h2non_parth",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/h2non/parth",
+        sum = "h1:2VTzZjLZBgl62/EtslCrtky5vbi9dd7HrQPQIx6wqiw=",
+        version = "v0.0.0-20190131123155-b4df798d6542",
+    )
+    go_repository(
+        name = "com_github_hailocab_go_hostpool",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hailocab/go-hostpool",
+        sum = "h1:5upAirOpQc1Q53c0bnx2ufif5kANL7bfZWcc6VJWJd8=",
+        version = "v0.0.0-20160125115350-e80d13ce29ed",
+    )
+    go_repository(
+        name = "com_github_hashicorp_cap",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/cap",
+        sum = "h1:Vgv3jG0kicczshK+lOHWJ9OososZjnjSu1YslqofFYY=",
+        version = "v0.2.1-0.20220727210936-60cd1534e220",
+    )
 
     go_repository(
         name = "com_github_hashicorp_consul_api",
@@ -1012,6 +1965,21 @@ def go_dependencies():
         sum = "h1:9IHTjNVSZ7MIwjlW3N3a7iGiykCMDpxZu8jsxFJh0yc=",
         version = "v1.20.0",
     )
+    go_repository(
+        name = "com_github_hashicorp_consul_sdk",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/consul/sdk",
+        sum = "h1:zBtCfKJZcJDBvSCkQJch4ulp59m1rATFLKwNo/LYY30=",
+        version = "v0.4.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_consul_template",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/consul-template",
+        sum = "h1:tzEo93RqODAX2cgOe/ke8xcpdPdxg5rxl6d22wE3f6c=",
+        version = "v0.29.5",
+    )
+
     go_repository(
         name = "com_github_hashicorp_cronexpr",
         build_file_proto_mode = "disable_global",
@@ -1028,6 +1996,14 @@ def go_dependencies():
         version = "v1.1.0",
     )
     go_repository(
+        name = "com_github_hashicorp_eventlogger",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/eventlogger",
+        sum = "h1:zyCjxsy7KunFsMPZKU5PnwWEakSrp1zjj2vPFmrDaeo=",
+        version = "v0.1.1",
+    )
+
+    go_repository(
         name = "com_github_hashicorp_go_cleanhttp",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/hashicorp/go-cleanhttp",
@@ -1035,11 +2011,33 @@ def go_dependencies():
         version = "v0.5.2",
     )
     go_repository(
+        name = "com_github_hashicorp_go_discover",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-discover",
+        sum = "h1:eje2KOX8Sf7aYPiAsLnpWdAIrGRMcpFjN/Go/Exb7Zo=",
+        version = "v0.0.0-20210818145131-c573d69da192",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_gatedio",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-gatedio",
+        sum = "h1:Jm1X5yP4yCqqWj5L1TgW7iZwCVPGtVc+mro5r/XX7Tg=",
+        version = "v0.5.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_gcp_common",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-gcp-common",
+        sum = "h1:/2vGAbCU1v+BZ3YHXTCzTvxqma9WOJHYtADTfhZixLo=",
+        version = "v0.8.0",
+    )
+
+    go_repository(
         name = "com_github_hashicorp_go_hclog",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/hashicorp/go-hclog",
-        sum = "h1:ctuWFGrhFha8BnnzxqeRGidlEcQkDyL5u8J8t5eA11I=",
-        version = "v1.4.0",
+        sum = "h1:bI2ocEMgcVlz55Oj1xZNBsVi900c7II+fWDyV9o+13c=",
+        version = "v1.5.0",
     )
 
     go_repository(
@@ -1049,6 +2047,104 @@ def go_dependencies():
         sum = "h1:DKHmCUm2hRBK510BaiZlwvpD40f8bJFeZnpfm2KLowc=",
         version = "v1.3.1",
     )
+    go_repository(
+        name = "com_github_hashicorp_go_kms_wrapping",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-kms-wrapping",
+        sum = "h1:Ed6Z5gV3LY3J9Ora4cwxVmV8Hyt6CPOTrQoGIPry2Ew=",
+        version = "v0.5.1",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_kms_wrapping_entropy",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-kms-wrapping/entropy",
+        sum = "h1:xuTi5ZwjimfpvpL09jDE71smCBRpnF5xfo871BSX4gs=",
+        version = "v0.1.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_kms_wrapping_entropy_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-kms-wrapping/entropy/v2",
+        sum = "h1:pSjQfW3vPtrOTcasTUKgCTQT7OGPPTTMVRrOfU6FJD8=",
+        version = "v2.0.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_kms_wrapping_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-kms-wrapping/v2",
+        sum = "h1:9Q2lu1YbbmiAgvYZ7Pr31RdlVonUpX+mmDL7Z7qTA2U=",
+        version = "v2.0.8",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_kms_wrapping_wrappers_aead_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-kms-wrapping/wrappers/aead/v2",
+        sum = "h1:ZV26VJYcITBom0QqYSUOIj4HOHCVPEFjLqjxyXV/AbA=",
+        version = "v2.0.7-1",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_kms_wrapping_wrappers_alicloudkms_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-kms-wrapping/wrappers/alicloudkms/v2",
+        sum = "h1:ydUCtmr8f9F+mHZ1iCsvzqFTXqNVpewX3s9zcYipMKI=",
+        version = "v2.0.1",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_kms_wrapping_wrappers_awskms_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-kms-wrapping/wrappers/awskms/v2",
+        sum = "h1:E3eEWpkofgPNrYyYznfS1+drq4/jFcqHQVNcL7WhUCo=",
+        version = "v2.0.7",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_kms_wrapping_wrappers_azurekeyvault_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-kms-wrapping/wrappers/azurekeyvault/v2",
+        sum = "h1:X27JWuPW6Gmi2l7NMm0pvnp7z7hhtns2TeIOQU93mqI=",
+        version = "v2.0.7",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_kms_wrapping_wrappers_gcpckms_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-kms-wrapping/wrappers/gcpckms/v2",
+        sum = "h1:16I8OqBEuxZIowwn3jiLvhlx+z+ia4dJc9stvz0yUBU=",
+        version = "v2.0.8",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_kms_wrapping_wrappers_ocikms_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-kms-wrapping/wrappers/ocikms/v2",
+        sum = "h1:KeG3QGrbxbr2qAqCJdf3NR4ijAYwdcWLTmwSbR0yusM=",
+        version = "v2.0.7",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_kms_wrapping_wrappers_transit_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-kms-wrapping/wrappers/transit/v2",
+        sum = "h1:G25tZFw/LrAzJWxvS0/BFI7V1xAP/UsAIsgBwiE0mwo=",
+        version = "v2.0.7",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_memdb",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-memdb",
+        sum = "h1:oGfEWrFuxtIUF3W2q/Jzt6G85TrMk9ey6XfYLvVe1Wo=",
+        version = "v1.3.3",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_msgpack",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-msgpack",
+        sum = "h1:9byZdVjKTe5mce63pRVNP1L7UAmdHOTEMGehn6KvJWs=",
+        version = "v1.1.5",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_msgpack_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-msgpack/v2",
+        sum = "h1:c1fiLq1LNghmLOry1ipGhvLDi+/zEoaEP2JrE1oFJ9s=",
+        version = "v2.0.0",
+    )
 
     go_repository(
         name = "com_github_hashicorp_go_multierror",
@@ -1057,6 +2153,28 @@ def go_dependencies():
         sum = "h1:H5DkEtf6CXdFp0N0Em5UCwQpXMWke8IA0+lD48awMYo=",
         version = "v1.1.1",
     )
+    go_repository(
+        name = "com_github_hashicorp_go_net",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go.net",
+        sum = "h1:sNCoNyDEvN1xa+X0baata4RdcpKwcMS6DH+xwfqPgjw=",
+        version = "v0.0.1",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_plugin",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-plugin",
+        sum = "h1:CHGwpxYDOttQOY7HOWgETU9dyVjOXzniXDqJcYJE1zM=",
+        version = "v1.4.8",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_raftchunking",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-raftchunking",
+        sum = "h1:FmnBDwGwlTgugDGbVxwV8UavqSMACbGrUpfc98yFLR4=",
+        version = "v0.6.3-0.20191002164813-7e9e8525653a",
+    )
+
     go_repository(
         name = "com_github_hashicorp_go_retryablehttp",
         build_file_proto_mode = "disable_global",
@@ -1072,6 +2190,125 @@ def go_dependencies():
         sum = "h1:jzhAVGtqPKbwpyCPELlgNWhE1znq+qwJtW5Oi2viEzc=",
         version = "v1.0.2",
     )
+    go_repository(
+        name = "com_github_hashicorp_go_secure_stdlib_awsutil",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-secure-stdlib/awsutil",
+        sum = "h1:W9WN8p6moV1fjKLkeqEgkAMu5rauy9QeYDAmIaPuuiA=",
+        version = "v0.1.6",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_secure_stdlib_base62",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-secure-stdlib/base62",
+        sum = "h1:ET4pqyjiGmY09R5y+rSd70J2w45CtbWDNvGqWp/R3Ng=",
+        version = "v0.1.2",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_secure_stdlib_fileutil",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-secure-stdlib/fileutil",
+        sum = "h1:f2mwVgMJjXuX/+eWD6ZW30+oIRgCofL+XMWknFkB1WM=",
+        version = "v0.1.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_secure_stdlib_gatedwriter",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-secure-stdlib/gatedwriter",
+        sum = "h1:9um9R8i0+HbRHS9d64kdvWR0/LJvo12sIonvR9zr1+U=",
+        version = "v0.1.1",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_secure_stdlib_kv_builder",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-secure-stdlib/kv-builder",
+        sum = "h1:NS6BHieb/pDfx3M9jDdaPpGyyVp+aD4A3DjX3dgRmzs=",
+        version = "v0.1.2",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_secure_stdlib_mlock",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-secure-stdlib/mlock",
+        sum = "h1:p4AKXPPS24tO8Wc8i1gLvSKdmkiSY5xuju57czJ/IJQ=",
+        version = "v0.1.2",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_secure_stdlib_parseutil",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-secure-stdlib/parseutil",
+        sum = "h1:UpiO20jno/eV1eVZcxqWnUohyKRe1g8FPV/xH1s/2qs=",
+        version = "v0.1.7",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_secure_stdlib_password",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-secure-stdlib/password",
+        sum = "h1:6JzmBqXprakgFEHwBgdchsjaA9x3GyjdI568bXKxa60=",
+        version = "v0.1.1",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_secure_stdlib_reloadutil",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-secure-stdlib/reloadutil",
+        sum = "h1:SMGUnbpAcat8rIKHkBPjfv81yC46a8eCNZ2hsR2l1EI=",
+        version = "v0.1.1",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_secure_stdlib_strutil",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-secure-stdlib/strutil",
+        sum = "h1:kes8mmyCpxJsI7FTwtzRqEy9CdjCtrXrXGuOpxEA7Ts=",
+        version = "v0.1.2",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_secure_stdlib_tlsutil",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-secure-stdlib/tlsutil",
+        sum = "h1:phcbL8urUzF/kxA/Oj6awENaRwfWsjP59GW7u2qlDyY=",
+        version = "v0.1.2",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_slug",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-slug",
+        sum = "h1:8HIi6oreWPtnhpYd8lIGQBgp4rXzDWQTOhfILZm+nok=",
+        version = "v0.7.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_sockaddr",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-sockaddr",
+        sum = "h1:ztczhD1jLxIRjVejw8gFomI1BQZOe2WoVOu0SyteCQc=",
+        version = "v1.0.2",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_syslog",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-syslog",
+        sum = "h1:KaodqZuhUoZereWVIYmpUgZysurB1kBLX2j0MwMrUAE=",
+        version = "v1.0.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_tfe",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-tfe",
+        sum = "h1:XUAhKoCX8ZUQfwBebC8hz7nkSSnqgNkaablIfxnZ0PQ=",
+        version = "v0.20.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_uuid",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-uuid",
+        sum = "h1:2gKiV6YVmrJ1i2CKKa9obLvRieoRGviZFL26PcT/Co8=",
+        version = "v1.0.3",
+    )
+    go_repository(
+        name = "com_github_hashicorp_go_version",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/go-version",
+        sum = "h1:feTTfFNnjP967rlCxM/I9g701jU+RN74YKx2mOkIeek=",
+        version = "v1.6.0",
+    )
 
     go_repository(
         name = "com_github_hashicorp_golang_lru",
@@ -1081,11 +2318,110 @@ def go_dependencies():
         version = "v0.6.0",
     )
     go_repository(
+        name = "com_github_hashicorp_hcl",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/hcl",
+        sum = "h1:kI3hhbbyzr4dldA8UdTb7ZlVVlI2DACdCfz31RPDgJM=",
+        version = "v1.0.1-vault-5",
+    )
+    go_repository(
+        name = "com_github_hashicorp_hcp_link",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/hcp-link",
+        sum = "h1:F6F1cpADc+o5EBI5CbJn5RX4qdFSLpuA4fN69eeE5lQ=",
+        version = "v0.1.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_hcp_scada_provider",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/hcp-scada-provider",
+        sum = "h1:yr+Uxini7SWTZ2t49d3Xi+6+X/rbsSFx8gq6WVcC91c=",
+        version = "v0.2.1",
+    )
+    go_repository(
+        name = "com_github_hashicorp_hcp_sdk_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/hcp-sdk-go",
+        sum = "h1:3WarkQSK0VzxJaH6psHIGQagag3ujL+NjWagZZHpiZM=",
+        version = "v0.23.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_jsonapi",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/jsonapi",
+        sum = "h1:9ARUJJ1VVynB176G1HCwleORqCaXm/Vx0uUi0dL26I0=",
+        version = "v0.0.0-20210826224640-ee7dae0fb22d",
+    )
+    go_repository(
+        name = "com_github_hashicorp_logutils",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/logutils",
+        sum = "h1:dLEQVugN8vlakKOUE3ihGLTZJRB4j+M2cdTm/ORI65Y=",
+        version = "v1.0.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_mdns",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/mdns",
+        sum = "h1:sY0CMhFmjIPDMlTB+HfymFHCaYLhgifZ0QhjaYKD/UQ=",
+        version = "v1.0.4",
+    )
+    go_repository(
+        name = "com_github_hashicorp_memberlist",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/memberlist",
+        sum = "h1:gkyML/r71w3FL8gUi74Vk76avkj/9lYAY9lvg0OcoGs=",
+        version = "v0.1.4",
+    )
+    go_repository(
+        name = "com_github_hashicorp_net_rpc_msgpackrpc_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/net-rpc-msgpackrpc/v2",
+        sum = "h1:kBpVVl1sl3MaSrs97e0+pDQhSrqJv9gVbSUrPpVfl1w=",
+        version = "v2.0.0",
+    )
+
+    go_repository(
         name = "com_github_hashicorp_nomad_api",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/hashicorp/nomad/api",
         sum = "h1:I5xhKLePXpXgM6pZ4xZNTiurLLS3sGuZrZFFzAbM67A=",
         version = "v0.0.0-20230418003350-3067191c5197",
+    )
+    go_repository(
+        name = "com_github_hashicorp_raft",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/raft",
+        sum = "h1:LR5QZX1VQd0DFWZfeCwWawyeKfpS/Tm1yjnJIY5X4Tw=",
+        version = "v1.3.10",
+    )
+    go_repository(
+        name = "com_github_hashicorp_raft_autopilot",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/raft-autopilot",
+        sum = "h1:C1q3RNF2FfXNZfHWbvVAu0QixaQK8K5pX4O5lh+9z4I=",
+        version = "v0.1.6",
+    )
+    go_repository(
+        name = "com_github_hashicorp_raft_boltdb",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/raft-boltdb",
+        sum = "h1:xykPFhrBAS2J0VBzVa5e80b5ZtYuNQtgXjN40qBZlD4=",
+        version = "v0.0.0-20171010151810-6e5ba93211ea",
+    )
+    go_repository(
+        name = "com_github_hashicorp_raft_boltdb_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/raft-boltdb/v2",
+        sum = "h1:oiKun9QlrOz5yQxMZJ3tf1kWtFYuKSJzxzEDxDPevj4=",
+        version = "v2.0.0-20210421194847-a7e34179d62c",
+    )
+    go_repository(
+        name = "com_github_hashicorp_raft_snapshot",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/raft-snapshot",
+        sum = "h1:EuDuayAJPdiDmVk1ygTDnG2zDzrs0/6/yBuma1IYSow=",
+        version = "v1.0.4",
     )
 
     go_repository(
@@ -1096,20 +2432,295 @@ def go_dependencies():
         version = "v0.10.1",
     )
     go_repository(
+        name = "com_github_hashicorp_vault",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault",
+        sum = "h1:4Q31hCWCwD2XRCwGL+9gsrCwxn6+ngToBgjT0FCTG+M=",
+        version = "v1.13.1",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_api",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault/api",
+        sum = "h1:ab7dI6W8DuCY7yCU8blo0UCYl2oHre/dloCmzMWg9w8=",
+        version = "v1.9.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_api_auth_approle",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault/api/auth/approle",
+        sum = "h1:Ib0oCNXsCq/QZhPYtXPzJEbGS5WR/KoZf8c84QoFdkU=",
+        version = "v0.3.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_api_auth_kubernetes",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault/api/auth/kubernetes",
+        sum = "h1:HkaCmTKzcgLa2tjdiAid1rbmyQNmQGHfnmvIIM2WorY=",
+        version = "v0.3.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_api_auth_userpass",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault/api/auth/userpass",
+        sum = "h1:C6OdAYczMbzd1Pe1LLf2SHDulxOq/iybWV3kbgV/PS4=",
+        version = "v0.1.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_auth_alicloud",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-auth-alicloud",
+        sum = "h1:O6tNk0s/arubLUbLeCyaRs5xGo9VwmbQazISY/BfPK4=",
+        version = "v0.14.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_auth_azure",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-auth-azure",
+        sum = "h1:1j8fPQPumYg9oZG+MCFftglu/Edd6YGOuBvEWEkK0qQ=",
+        version = "v0.13.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_auth_centrify",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-auth-centrify",
+        sum = "h1:qZKnqU1tX1WS6+11+PskGMhlXl5LnfkVrDvJO4BRY7s=",
+        version = "v0.14.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_auth_cf",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-auth-cf",
+        sum = "h1:n/ojZukcH8YAOy/7JXITJn21byr1yxhujlR3DKlR3FY=",
+        version = "v0.14.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_auth_gcp",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-auth-gcp",
+        sum = "h1:EmfbQkYufMSFcbnOyn0f7bv2QYyyQyMx/D+qO04jfr0=",
+        version = "v0.15.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_auth_jwt",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-auth-jwt",
+        sum = "h1:GGS/64MmoobWZFA07nYEPan9NLw2NhqRrmVLra7JHNM=",
+        version = "v0.15.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_auth_kerberos",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-auth-kerberos",
+        sum = "h1:gdbrEwpPICDt8xQ7C595M+DXaojHvkA9/AhCKbvE+jY=",
+        version = "v0.9.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_auth_kubernetes",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-auth-kubernetes",
+        sum = "h1:uHsn1fJqxGxbWiiD2resMYZzPJWPwPMCGNCEziGHfwE=",
+        version = "v0.15.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_auth_oci",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-auth-oci",
+        sum = "h1:xThaZC9jzZoqqccfxTk11hfwgqwN3yEZ3kYOnY2v2Fs=",
+        version = "v0.13.1",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_database_couchbase",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-database-couchbase",
+        sum = "h1:hJOHJ9yZ9kt1/DuRaU5Sa339j3/QcPL4esT9JLQonYA=",
+        version = "v0.9.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_database_elasticsearch",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-database-elasticsearch",
+        sum = "h1:nVO6F8V69E2fAQklh/Ds+EypVMutN4iIlt3sat9qW9M=",
+        version = "v0.13.1",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_database_mongodbatlas",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-database-mongodbatlas",
+        sum = "h1:wlWrg1z5Pyx+FTUCOzA9yh0FTI+pfA9tMrsFPFBcjjA=",
+        version = "v0.9.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_database_redis",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-database-redis",
+        sum = "h1:Fg1inevnDhj58+/y5SY1CihLftytG1D+3QqbUJbHYUM=",
+        version = "v0.2.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_database_redis_elasticache",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-database-redis-elasticache",
+        sum = "h1:dgTT7E8xj56hjktMxHNAgFpy7pchpoQ20cIhDsBcgz8=",
+        version = "v0.2.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_database_snowflake",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-database-snowflake",
+        sum = "h1:Od5M2ddxRiHjDkHFto+aInru44/6Dy4jjrxyoKh3AW4=",
+        version = "v0.7.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_mock",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-mock",
+        sum = "h1:5QQvSUHxDjEEbrd2REOeacqyJnCLPD51IQzy71hx8P0=",
+        version = "v0.16.1",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_secrets_ad",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-secrets-ad",
+        sum = "h1:4y/CtX4977uJXPWh5d70Raw5Mo+kCGDo9de2A6cOFso=",
+        version = "v0.15.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_secrets_alicloud",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-secrets-alicloud",
+        sum = "h1:kFcdTltTe5HP0ILuB+YNw++Iy/PZMLv/i2FsmdXfGfM=",
+        version = "v0.14.1",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_secrets_azure",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-secrets-azure",
+        sum = "h1:R/3KLTOwvPIZenMrmeSIBWymKq5nYgA/bucXzBPyb3Q=",
+        version = "v0.15.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_secrets_gcp",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-secrets-gcp",
+        sum = "h1:SfYIFmgFg/8p4fgLCV8YxxkI+iQN0c4gSjMJhg9vFJw=",
+        version = "v0.15.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_secrets_gcpkms",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-secrets-gcpkms",
+        sum = "h1:eUC5ltK+1bkc+SVMzAUq4tBeNrsDXyCuITH8jeajXcM=",
+        version = "v0.14.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_secrets_kubernetes",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-secrets-kubernetes",
+        sum = "h1:Joz9SBwjpEOGu+Ynv60JC3fAA4UuLJzu7NcrKm6wMMs=",
+        version = "v0.3.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_secrets_kv",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-secrets-kv",
+        sum = "h1:13p50RIltQM/JH32uWZe9sAp16Uaj0zCLmVGPvS09qo=",
+        version = "v0.14.2",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_secrets_mongodbatlas",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-secrets-mongodbatlas",
+        sum = "h1:WkW8fyHxEdz1wGSTxCnSCrzXvgLXqXr8Iqp7upa/s4E=",
+        version = "v0.9.1",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_secrets_openldap",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-secrets-openldap",
+        sum = "h1:EN3/iEjPPmcpX9yihybQNHvewc+YoJw7aoKsio1WK5s=",
+        version = "v0.10.1",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_plugin_secrets_terraform",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-plugin-secrets-terraform",
+        sum = "h1:jgJpVKhV0Eh6EjpUEIf7VYH2D6D0xW2Lry9/3PI8hy0=",
+        version = "v0.7.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_sdk",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault/sdk",
+        sum = "h1:Cbu9ezaZafZTXnen98QKVmufEPquhZ+r1ORZ7csNLFU=",
+        version = "v0.9.0",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_testing_stepwise",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault-testing-stepwise",
+        sum = "h1:7ASzAq/gPihP/HAd8RmS9c7LiJtDMnjkPbfWKhm/XiI=",
+        version = "v0.1.3-0.20230203193428-3a789cb2c68f",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vault_vault_hcp_link_proto",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vault/vault/hcp_link/proto",
+        sum = "h1:Y/+BtwxmRak3Us9jrByARvYW6uNeqZlEpMylIdXVIjY=",
+        version = "v0.0.0-20230201201504-b741fa893d77",
+    )
+    go_repository(
+        name = "com_github_hashicorp_vic",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/vic",
+        sum = "h1:O/pT5C1Q3mVXMyuqg7yuAWUg/jMZR1/0QTzTRdNR6Uw=",
+        version = "v1.5.1-0.20190403131502-bbfe86ec9443",
+    )
+    go_repository(
+        name = "com_github_hashicorp_yamux",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hashicorp/yamux",
+        sum = "h1:yrQxtgseBDrq9Y652vSRDvsKCJKOUD+GzTS4Y0Y8pvE=",
+        version = "v0.1.1",
+    )
+
+    go_repository(
         name = "com_github_hetznercloud_hcloud_go",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/hetznercloud/hcloud-go",
         sum = "h1:Es/CDOForQN3nOOP5Vxh1N/YHjpCg386iYEX5zCgi+A=",
         version = "v1.42.0",
     )
+    go_repository(
+        name = "com_github_hpcloud_tail",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/hpcloud/tail",
+        sum = "h1:nfCOvKYfkgYP8hkirhJocXT2+zOD8yUNjXaWfTlyFKI=",
+        version = "v1.0.0",
+    )
+    go_repository(
+        name = "com_github_huandu_xstrings",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/huandu/xstrings",
+        sum = "h1:L18LIDzqlW6xN2rEkpdV8+oL/IXWJ1APd+vsdYy4Wdw=",
+        version = "v1.3.2",
+    )
 
     go_repository(
         name = "com_github_ianlancetaylor_demangle",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/ianlancetaylor/demangle",
-        sum = "h1:UDMh68UUwekSh5iP2OMhRRZJiiBccgV7axzUG8vi56c=",
-        version = "v0.0.0-20181102032728-5e5cf60278f6",
+        sum = "h1:mV02weKRL81bEnm8A0HT1/CAelMQDBuQIfLw8n+d6xI=",
+        version = "v0.0.0-20200824232613-28f6c0f3b639",
     )
+    go_repository(
+        name = "com_github_ibm_keyprotect_go_client",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/IBM/keyprotect-go-client",
+        sum = "h1:zryNbTAwrg4ZOdn0PvZDxzTb805OM2MgvyFwz5sPyt4=",
+        version = "v0.5.1",
+    )
+
     go_repository(
         name = "com_github_imdario_mergo",
         build_file_proto_mode = "disable_global",
@@ -1125,6 +2736,21 @@ def go_dependencies():
         version = "v1.1.0",
     )
     go_repository(
+        name = "com_github_influxdata_influxdb",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/influxdata/influxdb",
+        sum = "h1:3K3KcD4S6/Y2hevi70EzUTNKOS3cryQyhUnkjE6Tz0w=",
+        version = "v0.0.0-20190411212539-d24b7ba8c4c4",
+    )
+    go_repository(
+        name = "com_github_influxdata_influxdb1_client",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/influxdata/influxdb1-client",
+        sum = "h1:HqW4xhhynfjrtEiiSGcQUd6vrK23iMam1FO8rI7mwig=",
+        version = "v0.0.0-20200827194710-b269163b24ab",
+    )
+
+    go_repository(
         name = "com_github_ionos_cloud_sdk_go_v6",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/ionos-cloud/sdk-go/v6",
@@ -1139,12 +2765,182 @@ def go_dependencies():
         version = "v0.0.0-20190723014705-7c296d48a2b5",
     )
     go_repository(
+        name = "com_github_jackc_chunkreader_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jackc/chunkreader/v2",
+        sum = "h1:i+RDz65UE+mmpjTfyz0MoVTnzeYxroil2G82ki7MGG8=",
+        version = "v2.0.1",
+    )
+    go_repository(
+        name = "com_github_jackc_fake",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jackc/fake",
+        sum = "h1:vr3AYkKovP8uR8AvSGGUK1IDqRa5lAAvEkZG1LKaCRc=",
+        version = "v0.0.0-20150926172116-812a484cc733",
+    )
+    go_repository(
+        name = "com_github_jackc_pgconn",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jackc/pgconn",
+        sum = "h1:HiHArx4yFbwl91X3qqIHtUFoiIfLNJXCQRsnzkiwwaQ=",
+        version = "v1.11.0",
+    )
+    go_repository(
+        name = "com_github_jackc_pgio",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jackc/pgio",
+        sum = "h1:g12B9UwVnzGhueNavwioyEEpAmqMe1E/BN9ES+8ovkE=",
+        version = "v1.0.0",
+    )
+    go_repository(
+        name = "com_github_jackc_pgpassfile",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jackc/pgpassfile",
+        sum = "h1:/6Hmqy13Ss2zCq62VdNG8tM1wchn8zjSGOBJ6icpsIM=",
+        version = "v1.0.0",
+    )
+    go_repository(
+        name = "com_github_jackc_pgproto3_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jackc/pgproto3/v2",
+        sum = "h1:r7JypeP2D3onoQTCxWdTpCtJ4D+qpKr0TxvoyMhZ5ns=",
+        version = "v2.2.0",
+    )
+    go_repository(
+        name = "com_github_jackc_pgservicefile",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jackc/pgservicefile",
+        sum = "h1:C8S2+VttkHFdOOCXJe+YGfa4vHYwlt4Zx+IVXQ97jYg=",
+        version = "v0.0.0-20200714003250-2b9c44734f2b",
+    )
+    go_repository(
+        name = "com_github_jackc_pgtype",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jackc/pgtype",
+        sum = "h1:ILnBWrRMSXGczYvmkYD6PsYyVFUNLTnIUJHHDLmqk38=",
+        version = "v1.10.0",
+    )
+    go_repository(
+        name = "com_github_jackc_pgx",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jackc/pgx",
+        sum = "h1:Wa90/+qsITBAPkAZjiByeIGHFcj3Ztu+VzrrIpHjL90=",
+        version = "v3.3.0+incompatible",
+    )
+    go_repository(
+        name = "com_github_jackc_pgx_v4",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jackc/pgx/v4",
+        sum = "h1:B7dTkXsdILD3MF987WGGCcg+tvLW6bZJdEcqVFeU//w=",
+        version = "v4.15.0",
+    )
+    go_repository(
+        name = "com_github_jcmturner_aescts",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jcmturner/aescts",
+        sum = "h1:5jhUSHbHSZjQeWFY//Lv8dpP/O3sMDOxrGV/IfCqh44=",
+        version = "v1.0.1",
+    )
+    go_repository(
+        name = "com_github_jcmturner_aescts_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jcmturner/aescts/v2",
+        sum = "h1:9YKLH6ey7H4eDBXW8khjYslgyqG2xZikXP0EQFKrle8=",
+        version = "v2.0.0",
+    )
+    go_repository(
+        name = "com_github_jcmturner_dnsutils",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jcmturner/dnsutils",
+        sum = "h1:zkF8SbVatbr5LGrvcPSes62SV68lASVv6+x9wo2De+w=",
+        version = "v1.0.1",
+    )
+    go_repository(
+        name = "com_github_jcmturner_dnsutils_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jcmturner/dnsutils/v2",
+        sum = "h1:lltnkeZGL0wILNvrNiVCR6Ro5PGU/SeBvVO/8c/iPbo=",
+        version = "v2.0.0",
+    )
+    go_repository(
+        name = "com_github_jcmturner_gofork",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jcmturner/gofork",
+        sum = "h1:QH0l3hzAU1tfT3rZCnW5zXl+orbkNMMRGJfdJjHVETg=",
+        version = "v1.7.6",
+    )
+    go_repository(
+        name = "com_github_jcmturner_goidentity_v6",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jcmturner/goidentity/v6",
+        sum = "h1:VKnZd2oEIMorCTsFBnJWbExfNN7yZr3EhJAxwOkZg6o=",
+        version = "v6.0.1",
+    )
+    go_repository(
+        name = "com_github_jcmturner_gokrb5_v8",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jcmturner/gokrb5/v8",
+        sum = "h1:iTonLeSJOn7MVUtyMT+arAn5AKAPrkilzhGw8wE/Tq8=",
+        version = "v8.4.3",
+    )
+    go_repository(
+        name = "com_github_jcmturner_rpc_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jcmturner/rpc/v2",
+        sum = "h1:7FXXj8Ti1IaVFpSAziCZWNzbNuZmnvw/i6CqLNdWfZY=",
+        version = "v2.0.3",
+    )
+    go_repository(
+        name = "com_github_jeffail_gabs",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/Jeffail/gabs",
+        sum = "h1:V0uzR08Hj22EX8+8QMhyI9sX2hwRu+/RJhJUmnwda/E=",
+        version = "v1.1.1",
+    )
+
+    go_repository(
         name = "com_github_jeffashton_win_pdh",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/JeffAshton/win_pdh",
         sum = "h1:UKkYhof1njT1/xq4SEg5z+VpTgjmNeHwPGRQl7takDI=",
         version = "v0.0.0-20161109143554-76bb4ee9f0ab",
     )
+    go_repository(
+        name = "com_github_jeffchao_backoff",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jeffchao/backoff",
+        sum = "h1:mex1izRBCD+7WjieGgRdy7e651vD/lvB1bD9vNE/3K4=",
+        version = "v0.0.0-20140404060208-9d7fd7aa17f2",
+    )
+    go_repository(
+        name = "com_github_jefferai_isbadcipher",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jefferai/isbadcipher",
+        sum = "h1:E87tDTVS5W65euzixn7clSzK66puSt1H4I5SC0EmHH4=",
+        version = "v0.0.0-20190226160619-51d2077c035f",
+    )
+    go_repository(
+        name = "com_github_jefferai_jsonx",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jefferai/jsonx",
+        sum = "h1:Xoz0ZbmkpBvED5W9W1B5B/zc3Oiq7oXqiW7iRV3B6EI=",
+        version = "v1.0.0",
+    )
+    go_repository(
+        name = "com_github_jessevdk_go_flags",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jessevdk/go-flags",
+        sum = "h1:4IU2WS7AumrZ/40jfhf4QVDMsQwqA7VEHozFRrGARJA=",
+        version = "v1.4.0",
+    )
+    go_repository(
+        name = "com_github_jhump_protoreflect",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jhump/protoreflect",
+        sum = "h1:h5jfMVslIg6l29nsMs0D8Wj17RDVdNYti0vDN/PZZoE=",
+        version = "v1.6.0",
+    )
+
     go_repository(
         name = "com_github_jmespath_go_jmespath",
         build_file_proto_mode = "disable_global",
@@ -1175,6 +2971,14 @@ def go_dependencies():
         version = "v1.0.0",
     )
     go_repository(
+        name = "com_github_joyent_triton_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/joyent/triton-go",
+        sum = "h1:ENpDacvnr8faw5ugQmEF1QYk+f/Y9lXFvuYmRxykago=",
+        version = "v1.7.1-0.20200416154420-6801d15b779f",
+    )
+
+    go_repository(
         name = "com_github_jpillora_backoff",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/jpillora/backoff",
@@ -1196,6 +3000,13 @@ def go_dependencies():
         sum = "h1:6QPYqodiu3GuPL+7mfx+NwDdp2eTkp9IfEUpgAwUN0o=",
         version = "v0.9.1",
     )
+    go_repository(
+        name = "com_github_jtolds_gls",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/jtolds/gls",
+        sum = "h1:xdiiI2gbIgH/gLH7ADydsJ1uDOEzR8yvV7C0MuV77Wo=",
+        version = "v4.20.0+incompatible",
+    )
 
     go_repository(
         name = "com_github_julienschmidt_httprouter",
@@ -1210,6 +3021,20 @@ def go_dependencies():
         importpath = "github.com/karrick/godirwalk",
         sum = "h1:b4kY7nqDdioR/6qnbHQyDvmA17u5G1cZ6J+CZXwSWoI=",
         version = "v1.17.0",
+    )
+    go_repository(
+        name = "com_github_kelseyhightower_envconfig",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/kelseyhightower/envconfig",
+        sum = "h1:Im6hONhd3pLkfDFsbRgu68RDNkGF1r3dvMUtDTo2cv8=",
+        version = "v1.4.0",
+    )
+    go_repository(
+        name = "com_github_keybase_go_crypto",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/keybase/go-crypto",
+        sum = "h1:Gsc9mVHLRqBjMgdQCghN9NObCcRncDqxJvBvEaIIQEo=",
+        version = "v0.0.0-20190403132359-d65b6b94177f",
     )
 
     go_repository(
@@ -1226,6 +3051,28 @@ def go_dependencies():
         sum = "h1:AV2c/EiW3KqPNT9ZKl07ehoAGi4C5/01Cfbblndcapg=",
         version = "v1.0.0",
     )
+    go_repository(
+        name = "com_github_klauspost_compress",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/klauspost/compress",
+        sum = "h1:EF27CXIuDsYJ6mmvtBRlEuB2UVOqHG1tAXgZ7yIO+lw=",
+        version = "v1.15.15",
+    )
+    go_repository(
+        name = "com_github_klauspost_cpuid",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/klauspost/cpuid",
+        sum = "h1:NMpwD2G9JSFOE1/TJjGSo5zG7Yb2bTe7eq1jH+irmeE=",
+        version = "v1.2.0",
+    )
+    go_repository(
+        name = "com_github_klauspost_pgzip",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/klauspost/pgzip",
+        sum = "h1:qnWYvvKqedOF2ulHpMG72XQol4ILEJ8k2wwRl/Km8oE=",
+        version = "v1.2.5",
+    )
+
     go_repository(
         name = "com_github_kolo_xmlrpc",
         build_file_proto_mode = "disable_global",
@@ -1270,6 +3117,21 @@ def go_dependencies():
         version = "v0.2.0",
     )
     go_repository(
+        name = "com_github_kube_object_storage_lib_bucket_provisioner",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/kube-object-storage/lib-bucket-provisioner",
+        sum = "h1:dQEHhTfi+bSIOSViQrKY9PqJvZenD6tFz+3lPzux58o=",
+        version = "v0.0.0-20221122204822-d1a8c34382f1",
+    )
+    go_repository(
+        name = "com_github_kubernetes_csi_external_snapshotter_client_v4",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/kubernetes-csi/external-snapshotter/client/v4",
+        sum = "h1:ipLtV9ubLEYx42YvwDa12eVPQvjuGZoPdbCozGzVNRc=",
+        version = "v4.0.0",
+    )
+
+    go_repository(
         name = "com_github_kylelemons_godebug",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/kylelemons/godebug",
@@ -1280,16 +3142,46 @@ def go_dependencies():
         name = "com_github_lib_pq",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/lib/pq",
-        sum = "h1:X5PMW56eZitiTeO7tKzZxFCSpbFZJtkMMooicw2us9A=",
-        version = "v1.0.0",
+        sum = "h1:jbk+ZieJ0D7EVGJYpL9QTz7/YW6UHbmdnZWYyK5cdBs=",
+        version = "v1.10.6",
     )
+    go_repository(
+        name = "com_github_libopenstorage_autopilot_api",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/libopenstorage/autopilot-api",
+        sum = "h1:PpwnWKh2Fa8JIXFbSEKci8k67f/jHPU4J+S0DFRrJYQ=",
+        version = "v0.6.1-0.20210128210103-5fbb67948648",
+    )
+
     go_repository(
         name = "com_github_libopenstorage_openstorage",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/libopenstorage/openstorage",
-        sum = "h1:GLPam7/0mpdP8ZZtKjbfcXJBTIA/T1O6CBErVEFEyIM=",
-        version = "v1.0.0",
+        sum = "h1:C4cFpStNOhsqShZSDRtW+4t5uCHbcdyPszG5ADwIRTM=",
+        version = "v8.0.0+incompatible",
     )
+    go_repository(
+        name = "com_github_libopenstorage_operator",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/libopenstorage/operator",
+        sum = "h1:Idj0mi+1f1xTBdtTbJKmgoMQqVYoTmw2geekszGGhT4=",
+        version = "v0.0.0-20200725001727-48d03e197117",
+    )
+    go_repository(
+        name = "com_github_libopenstorage_secrets",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/libopenstorage/secrets",
+        sum = "h1:dHCYranrn+6LzONAnhB3YPHBpMz4vP1IN8BsZNaY+IY=",
+        version = "v0.0.0-20220823020833-2ecadaf59d8a",
+    )
+    go_repository(
+        name = "com_github_libopenstorage_stork",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/libopenstorage/stork",
+        sum = "h1:ew2s3COKTFudvNCZoyZuGS7KbUOU0qxiMw38f8xMrH0=",
+        version = "v1.3.0-beta1.0.20200630005842-9255e7a98775",
+    )
+
     go_repository(
         name = "com_github_liggitt_tabwriter",
         build_file_proto_mode = "disable_global",
@@ -1311,6 +3203,20 @@ def go_dependencies():
         sum = "h1:VNzHMVCBNG1j0fh3OrsFRkVUwStdDArbgBWoPAffktY=",
         version = "v1.1.0",
     )
+    go_repository(
+        name = "com_github_lufia_plan9stats",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/lufia/plan9stats",
+        sum = "h1:6E+4a0GO5zZEnZ81pIr0yLvtUWk2if982qA3F3QD6H4=",
+        version = "v0.0.0-20211012122336-39d0f177ccd0",
+    )
+    go_repository(
+        name = "com_github_magiconair_properties",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/magiconair/properties",
+        sum = "h1:ZC2Vc7/ZFkGmsVC9KvOjumD+G5lXy2RtTKyzRKO2BQ4=",
+        version = "v1.8.1",
+    )
 
     go_repository(
         name = "com_github_mailru_easyjson",
@@ -1326,6 +3232,34 @@ def go_dependencies():
         sum = "h1:cXCdzVdstXyiTqTvfqk9SDHpKNjxuom+DOlyEeQ4pzQ=",
         version = "v1.0.0",
     )
+    go_repository(
+        name = "com_github_martini_contrib_render",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/martini-contrib/render",
+        sum = "h1:YFh+sjyJTMQSYjKwM4dFKhJPJC/wfo98tPUc17HdoYw=",
+        version = "v0.0.0-20150707142108-ec18f8345a11",
+    )
+    go_repository(
+        name = "com_github_masterminds_goutils",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/Masterminds/goutils",
+        sum = "h1:5nUrii3FMTL5diU80unEVvNevw1nH4+ZV4DSLVJLSYI=",
+        version = "v1.1.1",
+    )
+    go_repository(
+        name = "com_github_masterminds_semver",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/Masterminds/semver",
+        sum = "h1:H65muMkzWKEuNDnfl9d70GUjFniHKHRbFPGBuZ3QEww=",
+        version = "v1.5.0",
+    )
+    go_repository(
+        name = "com_github_masterminds_sprig",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/Masterminds/sprig",
+        sum = "h1:z4yfnGrZ7netVz+0EDJ0Wi+5VZCSYp4Z0m2dk6cEM60=",
+        version = "v2.22.0+incompatible",
+    )
 
     go_repository(
         name = "com_github_mattn_go_colorable",
@@ -1335,11 +3269,33 @@ def go_dependencies():
         version = "v0.1.13",
     )
     go_repository(
+        name = "com_github_mattn_go_ieproxy",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/mattn/go-ieproxy",
+        sum = "h1:qiyop7gCflfhwCzGyeT0gro3sF9AIg9HU98JORTkqfI=",
+        version = "v0.0.1",
+    )
+
+    go_repository(
         name = "com_github_mattn_go_isatty",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/mattn/go-isatty",
         sum = "h1:BTarxUcIeDqL27Mc+vyvdWYSL28zpIhv3RoTdsLMPng=",
         version = "v0.0.17",
+    )
+    go_repository(
+        name = "com_github_mattn_go_runewidth",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/mattn/go-runewidth",
+        sum = "h1:UnlwIPBGaTZfPQ6T1IGzPI0EkYAQmT9fAEJ/poFC63o=",
+        version = "v0.0.2",
+    )
+    go_repository(
+        name = "com_github_mattn_go_shellwords",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/mattn/go-shellwords",
+        sum = "h1:JhhFTIOslh5ZsPrpa3Wdg8bF0WI3b44EMblmU9wIsXc=",
+        version = "v1.0.5",
     )
 
     go_repository(
@@ -1349,6 +3305,42 @@ def go_dependencies():
         sum = "h1:mmDVorXM7PCGKw94cs5zkfA9PSy5pEvNWRP0ET0TIVo=",
         version = "v1.0.4",
     )
+    go_repository(
+        name = "com_github_mediocregopher_radix_v4",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/mediocregopher/radix/v4",
+        sum = "h1:JkZBEp0y8pWGNZkmO3RR5oEO5huwd4zKKt4rh1C+P8s=",
+        version = "v4.1.1",
+    )
+    go_repository(
+        name = "com_github_mholt_archiver",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/mholt/archiver",
+        sum = "h1:1dCVxuqs0dJseYEhi5pl7MYPH9zDa1wBi7mF09cbNkU=",
+        version = "v3.1.1+incompatible",
+    )
+    go_repository(
+        name = "com_github_mholt_archiver_v3",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/mholt/archiver/v3",
+        sum = "h1:rDjOBX9JSF5BvoJGvjqK479aL70qh9DIpZCl+k7Clwo=",
+        version = "v3.5.1",
+    )
+    go_repository(
+        name = "com_github_michaelklishin_rabbit_hole",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/michaelklishin/rabbit-hole",
+        sum = "h1:uA3b4GgZMZxAJsTkd+CVQ85b7KBlD7HLpd/FfTNlGN0=",
+        version = "v0.0.0-20191008194146-93d9988f0cd5",
+    )
+    go_repository(
+        name = "com_github_michaelklishin_rabbit_hole_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/michaelklishin/rabbit-hole/v2",
+        sum = "h1:946p6jOYFcVJdtBBX8MwXvuBkpPjwm1Nm2Qg8oX+uFk=",
+        version = "v2.12.0",
+    )
+
     go_repository(
         name = "com_github_microsoft_go_winio",
         build_file_proto_mode = "disable_global",
@@ -1360,8 +3352,8 @@ def go_dependencies():
         name = "com_github_microsoft_hcsshim",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/Microsoft/hcsshim",
-        sum = "h1:fRMwXiwk3qDwc0P05eHnh+y2v07JdtsfQ1fuAc69m9g=",
-        version = "v0.8.25",
+        sum = "h1:BBgYMxl5YZDZVIijz02AlDINpYZOzQqRNCl9CZM13vk=",
+        version = "v0.9.0",
     )
 
     go_repository(
@@ -1372,11 +3364,40 @@ def go_dependencies():
         version = "v1.1.53",
     )
     go_repository(
+        name = "com_github_mikesmitty_edkey",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/mikesmitty/edkey",
+        sum = "h1:eU8j/ClY2Ty3qdHnn0TyW3ivFoPC/0F1gQZz8yTxbbE=",
+        version = "v0.0.0-20170222072505-3356ea4e686a",
+    )
+
+    go_repository(
         name = "com_github_mistifyio_go_zfs",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/mistifyio/go-zfs",
         sum = "h1:aKW/4cBs+yK6gpqU3K/oIwk9Q/XICqd3zOX/UFuvqmk=",
         version = "v2.1.2-0.20190413222219-f784269be439+incompatible",
+    )
+    go_repository(
+        name = "com_github_mitchellh_cli",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/mitchellh/cli",
+        sum = "h1:PvH+lL2B7IQ101xQL63Of8yFS2y+aDlsFcsqNc+u/Kw=",
+        version = "v1.1.2",
+    )
+    go_repository(
+        name = "com_github_mitchellh_colorstring",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/mitchellh/colorstring",
+        sum = "h1:62I3jR2EmQ4l5rM/4FEfDWcRD+abF5XlKShorW5LRoQ=",
+        version = "v0.0.0-20190213212951-d06e56a500db",
+    )
+    go_repository(
+        name = "com_github_mitchellh_copystructure",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/mitchellh/copystructure",
+        sum = "h1:vpKXTN4ewci03Vljg/q9QvCGUDttBOGBIa15WveJJGw=",
+        version = "v1.2.0",
     )
 
     go_repository(
@@ -1387,11 +3408,40 @@ def go_dependencies():
         version = "v1.1.0",
     )
     go_repository(
+        name = "com_github_mitchellh_go_testing_interface",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/mitchellh/go-testing-interface",
+        sum = "h1:jrgshOhYAUVNMAJiKbEu7EqAwgJJ2JqpQmpLJOu07cU=",
+        version = "v1.14.1",
+    )
+
+    go_repository(
         name = "com_github_mitchellh_go_wordwrap",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/mitchellh/go-wordwrap",
         sum = "h1:TLuKupo69TCn6TQSyGxwI1EblZZEsQ0vMlAFQflz0v0=",
         version = "v1.0.1",
+    )
+    go_repository(
+        name = "com_github_mitchellh_gox",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/mitchellh/gox",
+        sum = "h1:lfGJxY7ToLJQjHHwi0EX6uYBdK78egf954SQl13PQJc=",
+        version = "v0.4.0",
+    )
+    go_repository(
+        name = "com_github_mitchellh_hashstructure",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/mitchellh/hashstructure",
+        sum = "h1:P6P1hdjqAAknpY/M1CGipelZgp+4y9ja9kmUZPXP+H0=",
+        version = "v1.1.0",
+    )
+    go_repository(
+        name = "com_github_mitchellh_iochan",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/mitchellh/iochan",
+        sum = "h1:C+X3KsSTLFVBr/tK1eYN/vs4rJcvsiLU338UhYPJWeY=",
+        version = "v1.0.0",
     )
 
     go_repository(
@@ -1401,6 +3451,21 @@ def go_dependencies():
         sum = "h1:jeMsZIYE/09sWLaz43PL7Gy6RuMjD2eJVyuac5Z2hdY=",
         version = "v1.5.0",
     )
+    go_repository(
+        name = "com_github_mitchellh_pointerstructure",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/mitchellh/pointerstructure",
+        sum = "h1:O+i9nHnXS3l/9Wu7r4NrEdwA2VFTicjUEN1uBnDo34A=",
+        version = "v1.2.0",
+    )
+    go_repository(
+        name = "com_github_mitchellh_reflectwalk",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/mitchellh/reflectwalk",
+        sum = "h1:G2LzWKi524PWgd3mLHV8Y5k7s6XUvT0Gef6zxSIeXaQ=",
+        version = "v1.0.2",
+    )
+
     go_repository(
         name = "com_github_moby_ipvs",
         build_file_proto_mode = "disable_global",
@@ -1416,6 +3481,14 @@ def go_dependencies():
         sum = "h1:cjW1zVyyoiM0T7b6UoySUFqzXMoqRckQtXwGPiBhOM8=",
         version = "v0.2.0",
     )
+    go_repository(
+        name = "com_github_moby_sys_mount",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/moby/sys/mount",
+        sum = "h1:WhCW5B355jtxndN5ovugJlMFJawbUODuW8fSnEH6SSM=",
+        version = "v0.2.0",
+    )
+
     go_repository(
         name = "com_github_moby_sys_mountinfo",
         build_file_proto_mode = "disable_global",
@@ -1449,9 +3522,24 @@ def go_dependencies():
         name = "com_github_mohae_deepcopy",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/mohae/deepcopy",
-        sum = "h1:e+l77LJOEqXTIQihQJVkA6ZxPOUmfPM5e4H7rcpgtSk=",
-        version = "v0.0.0-20170603005431-491d3605edfb",
+        sum = "h1:RWengNIwukTxcDr9M+97sNutRR1RKhG96O6jWumTTnw=",
+        version = "v0.0.0-20170929034955-c48cc78d4826",
     )
+    go_repository(
+        name = "com_github_mongodb_forks_digest",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/mongodb-forks/digest",
+        sum = "h1:ZUK1vyZnBiRMvET0O1SzmnBmv935CkcOTjhfR4zIQ2s=",
+        version = "v1.0.3",
+    )
+    go_repository(
+        name = "com_github_mongodb_go_client_mongodb_atlas",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/mongodb/go-client-mongodb-atlas",
+        sum = "h1:qmUme1TlQBPZupmXMnpD8DxnfGXLVGs3w+0Z17HBiSA=",
+        version = "v0.1.2",
+    )
+
     go_repository(
         name = "com_github_monochromegane_go_gitignore",
         build_file_proto_mode = "disable_global",
@@ -1490,6 +3578,14 @@ def go_dependencies():
         version = "v0.0.0-20191010083416-a7dc8b61c822",
     )
     go_repository(
+        name = "com_github_mwielbut_pointy",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/mwielbut/pointy",
+        sum = "h1:U5/YEfoIkaGCHv0St3CgjduqXID4FNRoyZgLM1kY9vg=",
+        version = "v1.1.0",
+    )
+
+    go_repository(
         name = "com_github_mwitkow_go_conntrack",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/mwitkow/go-conntrack",
@@ -1502,6 +3598,62 @@ def go_dependencies():
         importpath = "github.com/mxk/go-flowrate",
         sum = "h1:y5//uYreIhSUg3J1GEMiLbxo1LJaP8RfCpH6pymGZus=",
         version = "v0.0.0-20140419014527-cca7078d478f",
+    )
+    go_repository(
+        name = "com_github_natefinch_atomic",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/natefinch/atomic",
+        sum = "h1:7xGrl4tTpBQu5Zjll08WupHyq+Sp0Z/adtyf1cfk3Q8=",
+        version = "v0.0.0-20150920032501-a62ce929ffcc",
+    )
+    go_repository(
+        name = "com_github_nbio_st",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/nbio/st",
+        sum = "h1:W6apQkHrMkS0Muv8G/TipAy/FJl/rCYT0+EuS8+Z0z4=",
+        version = "v0.0.0-20140626010706-e9e8d9816f32",
+    )
+    go_repository(
+        name = "com_github_ncw_swift",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/ncw/swift",
+        sum = "h1:4DQRPj35Y41WogBxyhOXlrI37nzGlyEcsforeudyYPQ=",
+        version = "v1.0.47",
+    )
+    go_repository(
+        name = "com_github_nicolai86_scaleway_sdk",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/nicolai86/scaleway-sdk",
+        sum = "h1:BQ1HW7hr4IVovMwWg0E0PYcyW8CzqDcVmaew9cujU4s=",
+        version = "v1.10.2-0.20180628010248-798f60e20bb2",
+    )
+    go_repository(
+        name = "com_github_niemeyer_pretty",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/niemeyer/pretty",
+        sum = "h1:fD57ERR4JtEqsWbfPhv4DMiApHyliiK5xCTNVSPiaAs=",
+        version = "v0.0.0-20200227124842-a10e7caefd8e",
+    )
+    go_repository(
+        name = "com_github_nvveen_gotty",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/Nvveen/Gotty",
+        sum = "h1:TngWCqHvy9oXAN6lEVMRuU21PR1EtLVZJmdB18Gu3Rw=",
+        version = "v0.0.0-20120604004816-cd527374f1e5",
+    )
+    go_repository(
+        name = "com_github_nwaples_rardecode",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/nwaples/rardecode",
+        sum = "h1:Cj0yZY6T1Zx1R7AhTbyGSALm44/Mmq+BAPc4B/p/d3M=",
+        version = "v1.1.2",
+    )
+    go_repository(
+        name = "com_github_nxadm_tail",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/nxadm/tail",
+        sum = "h1:nPr65rt6Y5JFSKQO7qToXr7pePgD6Gwiw05lkbyAQTE=",
+        version = "v1.4.8",
     )
 
     go_repository(
@@ -1526,6 +3678,27 @@ def go_dependencies():
         sum = "h1:EGfNDEx6MqHz8B3uNV6QAib1UR2Lm97sHi3ocA6ESJ4=",
         version = "v1.3.1",
     )
+    go_repository(
+        name = "com_github_okta_okta_sdk_golang",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/okta/okta-sdk-golang",
+        sum = "h1:1DGm5+h2JvfdHz07yVVM7+LgUVSwxnk+6RoLUOB6CwI=",
+        version = "v1.0.1",
+    )
+    go_repository(
+        name = "com_github_okta_okta_sdk_golang_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/okta/okta-sdk-golang/v2",
+        sum = "h1:U+smE7trkHSZO8Mval3Ow85dbxawO+pMAr692VZq9gM=",
+        version = "v2.12.1",
+    )
+    go_repository(
+        name = "com_github_olekukonko_tablewriter",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/olekukonko/tablewriter",
+        sum = "h1:58+kh9C6jJVXYjt8IE48G2eWl6BjwU5Gj0gqY84fy78=",
+        version = "v0.0.0-20170122224234-a0225b3f23b5",
+    )
 
     go_repository(
         name = "com_github_oneofone_xxhash",
@@ -1534,6 +3707,14 @@ def go_dependencies():
         sum = "h1:KMrpdQIwFcEqXDklaen+P1axHaj9BSKzvpUUfnHldSE=",
         version = "v1.2.2",
     )
+    go_repository(
+        name = "com_github_onsi_ginkgo",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/onsi/ginkgo",
+        sum = "h1:29JGrr5oVBm5ulCWet69zQkzWipVXIol6ygQUe/EzNc=",
+        version = "v1.16.4",
+    )
+
     go_repository(
         name = "com_github_onsi_ginkgo_v2",
         build_file_proto_mode = "disable_global",
@@ -1585,11 +3766,124 @@ def go_dependencies():
         version = "v1.10.0",
     )
     go_repository(
+        name = "com_github_openlyinc_pointy",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/openlyinc/pointy",
+        sum = "h1:LywVV2BWC5Sp5v7FoP4bUD+2Yn5k0VNeRbU5vq9jUMY=",
+        version = "v1.1.2",
+    )
+    go_repository(
+        name = "com_github_openshift_api",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/openshift/api",
+        sum = "h1:9wG43AJGupRUUAAF/GN2CtQgVlo+BzdIlmsTwUlIATE=",
+        version = "v0.0.0-20210105115604-44119421ec6b",
+    )
+    go_repository(
+        name = "com_github_openshift_build_machinery_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/openshift/build-machinery-go",
+        sum = "h1:lBrojddP6C9C2p67EMs2vcdpC8eF+H0DDom+fgI2IF0=",
+        version = "v0.0.0-20200917070002-f171684f77ab",
+    )
+    go_repository(
+        name = "com_github_openshift_client_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/openshift/client-go",
+        sum = "h1:+TEY29DK0XhqB7HFC9OfV8qf3wffSyi7MWv3AP28DGQ=",
+        version = "v0.0.0-20210112165513-ebc401615f47",
+    )
+    go_repository(
+        name = "com_github_opentracing_opentracing_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/opentracing/opentracing-go",
+        sum = "h1:FfH+VrHHk6Lxt9HdVS0PXzSXFyS2NbZKXv33FYPol0A=",
+        version = "v1.2.1-0.20220228012449-10b1cf09e00b",
+    )
+    go_repository(
+        name = "com_github_openzipkin_zipkin_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/openzipkin/zipkin-go",
+        sum = "h1:yXiysv1CSK7Q5yjGy1710zZGnsbMUIjluWBxtLXHPBo=",
+        version = "v0.1.6",
+    )
+    go_repository(
+        name = "com_github_oracle_oci_go_sdk",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/oracle/oci-go-sdk",
+        sum = "h1:x4mcfb4agelf1O4/1/auGlZ1lr97jXRSSN5MxTgG/zU=",
+        version = "v24.3.0+incompatible",
+    )
+    go_repository(
+        name = "com_github_oracle_oci_go_sdk_v60",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/oracle/oci-go-sdk/v60",
+        sum = "h1:EJAWjEi4SY5Raha6iUzq4LTQ0uM5YFw/wat/L1ehIEM=",
+        version = "v60.0.0",
+    )
+    go_repository(
+        name = "com_github_ory_dockertest",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/ory/dockertest",
+        sum = "h1:iLLK6SQwIhcbrG783Dghaaa3WPzGc+4Emza6EbVUUGA=",
+        version = "v3.3.5+incompatible",
+    )
+    go_repository(
+        name = "com_github_ory_dockertest_v3",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/ory/dockertest/v3",
+        sum = "h1:v4dkG+dlu76goxMiTT2j8zV7s4oPPEppKT8K8p2f1kY=",
+        version = "v3.9.1",
+    )
+
+    go_repository(
         name = "com_github_ovh_go_ovh",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/ovh/go-ovh",
         sum = "h1:VBGa5wMyQtTP7Zb+w97zRCh9sLtM/2YKRyy+MEJmWaM=",
         version = "v1.4.1",
+    )
+    go_repository(
+        name = "com_github_oxtoacart_bpool",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/oxtoacart/bpool",
+        sum = "h1:CXwSGu/LYmbjEab5aMCs5usQRVBGThelUKBNnoSOuso=",
+        version = "v0.0.0-20150712133111-4e1c5567d7c2",
+    )
+    go_repository(
+        name = "com_github_packethost_packngo",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/packethost/packngo",
+        sum = "h1:vwpFWvAO8DeIZfFeqASzZfsxuWPno9ncAebBEP0N3uE=",
+        version = "v0.1.1-0.20180711074735-b9cb5096f54c",
+    )
+    go_repository(
+        name = "com_github_pascaldekloe_goe",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/pascaldekloe/goe",
+        sum = "h1:cBOtyMzM9HTpWjXfbbunk26uA6nG3a8n06Wieeh0MwY=",
+        version = "v0.1.0",
+    )
+    go_repository(
+        name = "com_github_patrickmn_go_cache",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/patrickmn/go-cache",
+        sum = "h1:HRMgzkcYKYpi3C8ajMPV8OFXaaRUnok+kx1WdO15EQc=",
+        version = "v2.1.0+incompatible",
+    )
+    go_repository(
+        name = "com_github_pborman_uuid",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/pborman/uuid",
+        sum = "h1:J7Q5mO4ysT1dv8hyrUGHb9+ooztCXu1D8MY8DZYsu3g=",
+        version = "v1.2.0",
+    )
+    go_repository(
+        name = "com_github_pelletier_go_toml",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/pelletier/go-toml",
+        sum = "h1:T5zMGML61Wp+FlcbWjRDT7yAxhJNAiPPLOFECq181zc=",
+        version = "v1.2.0",
     )
 
     go_repository(
@@ -1599,6 +3893,42 @@ def go_dependencies():
         sum = "h1:UBdAOUP5p4RWqPBg048CAvpKN+vxiaj6gdUUzhl4XmI=",
         version = "v2.0.1+incompatible",
     )
+    go_repository(
+        name = "com_github_petermattis_goid",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/petermattis/goid",
+        sum = "h1:q2e307iGHPdTGp0hoxKjt1H5pDo6utceo3dQVK3I5XQ=",
+        version = "v0.0.0-20180202154549-b0b1615b78e5",
+    )
+    go_repository(
+        name = "com_github_pierrec_lz4",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/pierrec/lz4",
+        sum = "h1:9UY3+iC23yxF0UfGaYrGplQ+79Rg+h/q9FV9ix19jjM=",
+        version = "v2.6.1+incompatible",
+    )
+    go_repository(
+        name = "com_github_pierrec_lz4_v4",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/pierrec/lz4/v4",
+        sum = "h1:ieHkV+i2BRzngO4Wd/3HGowuZStgq6QkPsD1eolNAO4=",
+        version = "v4.1.8",
+    )
+    go_repository(
+        name = "com_github_pires_go_proxyproto",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/pires/go-proxyproto",
+        sum = "h1:EBupykFmo22SDjv4fQVQd2J9NOoLPmyZA/15ldOGkPw=",
+        version = "v0.6.1",
+    )
+    go_repository(
+        name = "com_github_pkg_browser",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/pkg/browser",
+        sum = "h1:KoWmjvw+nsYOo29YJK9vDA65RGE3NrOnUtO7a+RF9HU=",
+        version = "v0.0.0-20210911075715-681adbf594b8",
+    )
+
     go_repository(
         name = "com_github_pkg_diff",
         build_file_proto_mode = "disable_global",
@@ -1617,8 +3947,51 @@ def go_dependencies():
         name = "com_github_pmezard_go_difflib",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/pmezard/go-difflib",
-        sum = "h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=",
-        version = "v1.0.0",
+        sum = "h1:Jamvg5psRIccs7FGNTlIRMkT8wgtp5eCXdBlqhYGL6U=",
+        version = "v1.0.1-0.20181226105442-5d4384ee4fb2",
+    )
+    go_repository(
+        name = "com_github_portworx_dcos_secrets",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/portworx/dcos-secrets",
+        sum = "h1:JTJ9Vl7Wnd0aKzmGbKPR0P/N6wOM8DAIqjrwrxl1vOM=",
+        version = "v0.0.0-20180616013705-8e8ec3f66611",
+    )
+    go_repository(
+        name = "com_github_portworx_kvdb",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/portworx/kvdb",
+        sum = "h1:jkqzdbOnejgSN5HG/FLt4enNrozWT/K+nlmaRm3P1II=",
+        version = "v0.0.0-20200929023115-b312c7519467",
+    )
+    go_repository(
+        name = "com_github_portworx_sched_ops",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/portworx/sched-ops",
+        replace = "github.com/portworx/sched-ops",
+        sum = "h1:tXnHsjZT2wZ2BCXf8avDoya7zGyCgLNUC8Upt+WEQrY=",
+        version = "v0.20.4-openstorage-rc3",
+    )
+    go_repository(
+        name = "com_github_portworx_talisman",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/portworx/talisman",
+        sum = "h1:r4LpGHxnh3tliXnaJcciROXU/snARMN6/OXhGPJyzGA=",
+        version = "v0.0.0-20191007232806-837747f38224",
+    )
+    go_repository(
+        name = "com_github_posener_complete",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/posener/complete",
+        sum = "h1:NP0eAhjcjImqslEwo/1hq7gpajME0fTLTezBKDqfXqo=",
+        version = "v1.2.3",
+    )
+    go_repository(
+        name = "com_github_power_devops_perfstat",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/power-devops/perfstat",
+        sum = "h1:ncq/mPwQF4JjgDlrVEn3C11VoGHZN7m8qihwgMEtzYw=",
+        version = "v0.0.0-20210106213030-5aafc221ea8c",
     )
 
     go_repository(
@@ -1628,6 +4001,14 @@ def go_dependencies():
         sum = "h1:yJMy84ti9h/+OEWa752kBTKv4XC30OtVVHYv/8cTqKc=",
         version = "v0.1.0",
     )
+    go_repository(
+        name = "com_github_pquerna_otp",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/pquerna/otp",
+        sum = "h1:PinQItctnaL2LtkaSM678+ZLLy5TajwOeXzWvYC7tII=",
+        version = "v1.2.1-0.20191009055518-468c2dd2b58d",
+    )
+
     go_repository(
         name = "com_github_prometheus_alertmanager",
         build_file_proto_mode = "disable_global",
@@ -1678,6 +4059,20 @@ def go_dependencies():
         sum = "h1:cNkC01riqiOS+kh3zdnNwRsbe/Blh0WwK3ij5rPJ9Sw=",
         version = "v0.9.1",
     )
+    go_repository(
+        name = "com_github_prometheus_operator_prometheus_operator_pkg_apis_monitoring",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring",
+        sum = "h1:J+aQlaDVIemgZDR1f/48MBaiA7rDTm6OyKSRhDX2ZTY=",
+        version = "v0.46.0",
+    )
+    go_repository(
+        name = "com_github_prometheus_operator_prometheus_operator_pkg_client",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/prometheus-operator/prometheus-operator/pkg/client",
+        sum = "h1:J5gQysJlkhJWOzCZQUx/POBqD6dpM5OI6TRZtAXgYpM=",
+        version = "v0.46.0",
+    )
 
     go_repository(
         name = "com_github_prometheus_procfs",
@@ -1693,6 +4088,13 @@ def go_dependencies():
         sum = "h1:sgn8Fdx+uE5tHQn0/622swlk2XnIj6udoZCnbVjHIgc=",
         version = "v0.44.0",
     )
+    go_repository(
+        name = "com_github_prometheus_tsdb",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/prometheus/tsdb",
+        sum = "h1:YZcsG11NqnK4czYLrWd9mpEuAJIHVQLwdrleYfszMAA=",
+        version = "v0.7.1",
+    )
 
     go_repository(
         name = "com_github_protocolbuffers_txtpbfmt",
@@ -1701,6 +4103,49 @@ def go_dependencies():
         sum = "h1:XHLAvwaTYM0PxS/HO7E0PfBaY/y0jGM5NM7g05lCb0k=",
         version = "v0.0.0-20230412060525-fa9f017c0ded",
     )
+    go_repository(
+        name = "com_github_protonmail_go_crypto",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/ProtonMail/go-crypto",
+        sum = "h1:NsReiLpErIPzRrnogAXYwSoU7txA977LjDGrbkewJbg=",
+        version = "v0.0.0-20220824120805-4b6e5c587895",
+    )
+    go_repository(
+        name = "com_github_puerkitobio_purell",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/PuerkitoBio/purell",
+        sum = "h1:WEQqlqaGbrPkxLJWfBwQmfEAE1Z7ONdDLqrN38tNFfI=",
+        version = "v1.1.1",
+    )
+    go_repository(
+        name = "com_github_puerkitobio_urlesc",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/PuerkitoBio/urlesc",
+        sum = "h1:d+Bc7a5rLufV/sSk/8dngufqelfh6jnri85riMAaF/M=",
+        version = "v0.0.0-20170810143723-de5bf2ad4578",
+    )
+    go_repository(
+        name = "com_github_rboyer_safeio",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/rboyer/safeio",
+        sum = "h1:05xhhdRNAdS3apYm7JRjOqngf4xruaW959jmRxGDuSU=",
+        version = "v0.2.1",
+    )
+    go_repository(
+        name = "com_github_rcrowley_go_metrics",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/rcrowley/go-metrics",
+        sum = "h1:9ZKAASQSHhDYGoxY8uLVpewe1GDZ2vu2Tr/vTdVAkFQ=",
+        version = "v0.0.0-20181016184325-3113b8401b8a",
+    )
+    go_repository(
+        name = "com_github_renier_xmlrpc",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/renier/xmlrpc",
+        sum = "h1:Wdi9nwnhFNAlseAOekn6B5G/+GMtks9UKbvRU/CMM/o=",
+        version = "v0.0.0-20170708154548-ce4a1a486c03",
+    )
+
     go_repository(
         name = "com_github_robfig_cron_v3",
         build_file_proto_mode = "disable_global",
@@ -1717,12 +4162,28 @@ def go_dependencies():
         version = "v1.2.0",
     )
     go_repository(
+        name = "com_github_rogpeppe_go_charset",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/rogpeppe/go-charset",
+        sum = "h1:BN/Nyn2nWMoqGRA7G7paDNDqTXE30mXGqzzybrfo05w=",
+        version = "v0.0.0-20180617210344-2471d30d28b4",
+    )
+
+    go_repository(
         name = "com_github_rogpeppe_go_internal",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/rogpeppe/go-internal",
         sum = "h1:TMyTOH3F/DB16zRVcYyreMH6GnZZrwQVAoYjRBZyWFQ=",
         version = "v1.10.0",
     )
+    go_repository(
+        name = "com_github_rook_rook_pkg_apis",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/rook/rook/pkg/apis",
+        sum = "h1:WWQ05yYL5G3VlFNBI3pS9eyEBD4h/K9/omyY17ELK2s=",
+        version = "v0.0.0-20230524222013-4af3f3784bd8",
+    )
+
     go_repository(
         name = "com_github_rubiojr_go_vhd",
         build_file_proto_mode = "disable_global",
@@ -1739,12 +4200,63 @@ def go_dependencies():
         version = "v2.1.0",
     )
     go_repository(
+        name = "com_github_ryanuber_columnize",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/ryanuber/columnize",
+        sum = "h1:j1Wcmh8OrK4Q7GXY+V7SVSY8nUWQxHW5TkBe7YUl+2s=",
+        version = "v2.1.0+incompatible",
+    )
+    go_repository(
+        name = "com_github_ryanuber_go_glob",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/ryanuber/go-glob",
+        sum = "h1:iQh3xXAumdQ+4Ufa5b25cRpC5TYKlno6hsv6Cb3pkBk=",
+        version = "v1.0.0",
+    )
+    go_repository(
+        name = "com_github_samuel_go_zookeeper",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/samuel/go-zookeeper",
+        sum = "h1:6ncX5ko6B9LntYM0YBRXkiSaZMmLYeZ/NWcmeB43mMY=",
+        version = "v0.0.0-20180130194729-c4fab1ac1bec",
+    )
+    go_repository(
+        name = "com_github_sap_go_hdb",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/SAP/go-hdb",
+        sum = "h1:hkw4ozGZ/i4eak7ZuGkY5e0hxiXFdNUBNhr4AvZVNFE=",
+        version = "v0.14.1",
+    )
+    go_repository(
+        name = "com_github_sasha_s_go_deadlock",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/sasha-s/go-deadlock",
+        sum = "h1:lMqc+fUb7RrFS3gQLtoQsJ7/6TV/pAIFvBsqX73DK8Y=",
+        version = "v0.2.0",
+    )
+    go_repository(
+        name = "com_github_satori_go_uuid",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/satori/go.uuid",
+        sum = "h1:0uYX9dsZ2yD7q2RtLRtPSdGDWzjeM3TbMJP9utgA0ww=",
+        version = "v1.2.0",
+    )
+
+    go_repository(
         name = "com_github_scaleway_scaleway_sdk_go",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/scaleway/scaleway-sdk-go",
         sum = "h1:Y7xOFbD+3jaPw+VN7lkakNJ/pa+ZSQVFp1ONtJaBxns=",
         version = "v1.0.0-beta.15",
     )
+    go_repository(
+        name = "com_github_sean_seed",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/sean-/seed",
+        sum = "h1:nn5Wsu0esKSJiIVhscUtVbo7ada43DJhG55ua/hjS5I=",
+        version = "v0.0.0-20170313163322-e2103e2c3529",
+    )
+
     go_repository(
         name = "com_github_seccomp_libseccomp_golang",
         build_file_proto_mode = "disable_global",
@@ -1753,6 +4265,14 @@ def go_dependencies():
         version = "v0.9.2-0.20220502022130-f33da4d89646",
     )
     go_repository(
+        name = "com_github_sectorbob_mlab_ns2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/Sectorbob/mlab-ns2",
+        sum = "h1:KFHLI4QGttB0i7M3qOkAo8Zn/GSsxwwCnInFqBaYtkM=",
+        version = "v0.0.0-20171030222938-d3aa0c295a8a",
+    )
+
+    go_repository(
         name = "com_github_sergi_go_diff",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/sergi/go-diff",
@@ -1760,11 +4280,68 @@ def go_dependencies():
         version = "v1.1.0",
     )
     go_repository(
+        name = "com_github_sethvargo_go_limiter",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/sethvargo/go-limiter",
+        sum = "h1:FgC4N7RMpV5gMrUdda15FaFTkQ/L4fEqM7seXMs4oO8=",
+        version = "v0.7.2",
+    )
+    go_repository(
+        name = "com_github_shirou_gopsutil",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/shirou/gopsutil",
+        sum = "h1:IrPVlK4nfwW10DF7pW+7YJKws9NkgNzWozwwWv9FsgY=",
+        version = "v2.19.9+incompatible",
+    )
+    go_repository(
+        name = "com_github_shirou_gopsutil_v3",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/shirou/gopsutil/v3",
+        sum = "h1:FnHOFOh+cYAM0C30P+zysPISzlknLC5Z1G4EAElznfQ=",
+        version = "v3.22.6",
+    )
+    go_repository(
+        name = "com_github_shirou_w32",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/shirou/w32",
+        sum = "h1:udFKJ0aHUL60LboW/A+DfgoHVedieIzIXE8uylPue0U=",
+        version = "v0.0.0-20160930032740-bb4de0191aa4",
+    )
+    go_repository(
+        name = "com_github_shopify_sarama",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/Shopify/sarama",
+        sum = "h1:9oksLxC6uxVPHPVYUmq6xhr1BOF/hHobWH2UzO67z1s=",
+        version = "v1.19.0",
+    )
+    go_repository(
+        name = "com_github_shopify_toxiproxy",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/Shopify/toxiproxy",
+        sum = "h1:TKdv8HiTLgE5wdJuEML90aBgNWsokNbMijUGhmcoBJc=",
+        version = "v2.1.4+incompatible",
+    )
+    go_repository(
+        name = "com_github_shopspring_decimal",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/shopspring/decimal",
+        sum = "h1:pntxY8Ary0t43dCZ5dqY4YTJCObLY1kIXl0uzMv+7DE=",
+        version = "v0.0.0-20180709203117-cd690d0c9e24",
+    )
+
+    go_repository(
         name = "com_github_shurcool_httpfs",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/shurcooL/httpfs",
         sum = "h1:bUGsEnyNbVPw06Bs80sCeARAlK8lhwqGyi6UT8ymuGk=",
         version = "v0.0.0-20190707220628-8d4bc4ba7749",
+    )
+    go_repository(
+        name = "com_github_shurcool_sanitized_anchor_name",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/shurcooL/sanitized_anchor_name",
+        sum = "h1:PdmoCO6wvbs+7yrJyMORt4/BmY5IYyJwS/kOiWx8mHo=",
+        version = "v1.0.0",
     )
 
     go_repository(
@@ -1773,6 +4350,41 @@ def go_dependencies():
         importpath = "github.com/sirupsen/logrus",
         sum = "h1:trlNQbNUG3OdDrDil03MCb1H2o9nJ1x4/5LYw7byDE0=",
         version = "v1.9.0",
+    )
+    go_repository(
+        name = "com_github_skratchdot_open_golang",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/skratchdot/open-golang",
+        sum = "h1:JIAuq3EEf9cgbU6AtGPK4CTG3Zf6CKMNqf0MHTggAUA=",
+        version = "v0.0.0-20200116055534-eef842397966",
+    )
+    go_repository(
+        name = "com_github_smartystreets_assertions",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/smartystreets/assertions",
+        sum = "h1:zE9ykElWQ6/NYmHa3jpm/yHnI4xSofP+UP6SpjHcSeM=",
+        version = "v0.0.0-20180927180507-b2de0cb4f26d",
+    )
+    go_repository(
+        name = "com_github_smartystreets_goconvey",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/smartystreets/goconvey",
+        sum = "h1:fv0U8FUIMPNf1L9lnHLvLhgicrIVChEkdzIKYqbNC9s=",
+        version = "v1.6.4",
+    )
+    go_repository(
+        name = "com_github_snowflakedb_gosnowflake",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/snowflakedb/gosnowflake",
+        sum = "h1:EJDdDi74YbYt1ty164ge3fMZ0eVZ6KA7b1zmAa/wnRo=",
+        version = "v1.6.3",
+    )
+    go_repository(
+        name = "com_github_softlayer_softlayer_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/softlayer/softlayer-go",
+        sum = "h1:bVQRCxQvfjNUeRqaY/uT0tFuvuFY0ulgnczuR684Xic=",
+        version = "v0.0.0-20180806151055-260589d94c7d",
     )
 
     go_repository(
@@ -1783,11 +4395,33 @@ def go_dependencies():
         version = "v0.1.5",
     )
     go_repository(
+        name = "com_github_sony_gobreaker",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/sony/gobreaker",
+        sum = "h1:br+bPNZsJWKicw/5rALEo67QHs5weyD5tf8WST+4sJ0=",
+        version = "v0.4.2-0.20210216022020-dd874f9dd33b",
+    )
+
+    go_repository(
         name = "com_github_spaolacci_murmur3",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/spaolacci/murmur3",
         sum = "h1:qLC7fQah7D6K1B0ujays3HV9gkFtllcxhzImRR7ArPQ=",
         version = "v0.0.0-20180118202830-f09979ecbc72",
+    )
+    go_repository(
+        name = "com_github_spf13_afero",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/spf13/afero",
+        sum = "h1:5jhuqJyZCZf2JRofRvN/nIFgIWNzPa3/Vz8mYylgbWc=",
+        version = "v1.2.2",
+    )
+    go_repository(
+        name = "com_github_spf13_cast",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/spf13/cast",
+        sum = "h1:oget//CVOEoFewqQxwr0Ej5yjygnqGkvggSE/gB35Q8=",
+        version = "v1.3.0",
     )
 
     go_repository(
@@ -1796,6 +4430,13 @@ def go_dependencies():
         importpath = "github.com/spf13/cobra",
         sum = "h1:hyqWnYt1ZQShIddO5kBpj3vu05/++x6tJ6dg8EC572I=",
         version = "v1.7.0",
+    )
+    go_repository(
+        name = "com_github_spf13_jwalterweatherman",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/spf13/jwalterweatherman",
+        sum = "h1:XHEdyB+EcvlqZamSM4ZOMGlc93t6AcsBEu9Gc1vn7yk=",
+        version = "v1.0.0",
     )
 
     go_repository(
@@ -1806,11 +4447,33 @@ def go_dependencies():
         version = "v1.0.5",
     )
     go_repository(
+        name = "com_github_spf13_viper",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/spf13/viper",
+        sum = "h1:xVKxvI7ouOI5I+U9s2eeiUfMaWBVoXA3AWskkrqK0VM=",
+        version = "v1.7.0",
+    )
+    go_repository(
+        name = "com_github_stackexchange_wmi",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/StackExchange/wmi",
+        sum = "h1:fLjPD/aNc3UIOA6tDi6QXUemppXK3P9BI7mr2hd6gx8=",
+        version = "v0.0.0-20180116203802-5d049714c4a6",
+    )
+
+    go_repository(
         name = "com_github_stoewer_go_strcase",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/stoewer/go-strcase",
         sum = "h1:g0eASXYtp+yvN9fK8sH94oCIk0fau9uV1/ZdJ0AVEzs=",
         version = "v1.3.0",
+    )
+    go_repository(
+        name = "com_github_streadway_amqp",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/streadway/amqp",
+        sum = "h1:0ngsPmuP6XIjiFRNFYlvKwSr5zff2v+uPHaffZ6/M4k=",
+        version = "v0.0.0-20190404075320-75d898a42a94",
     )
 
     go_repository(
@@ -1828,11 +4491,54 @@ def go_dependencies():
         version = "v1.8.3",
     )
     go_repository(
+        name = "com_github_subosito_gotenv",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/subosito/gotenv",
+        sum = "h1:Slr1R9HxAlEKefgq5jn9U+DnETlIUa6HfgEzj0g5d7s=",
+        version = "v1.2.0",
+    )
+
+    go_repository(
         name = "com_github_syndtr_gocapability",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/syndtr/gocapability",
         sum = "h1:kdXcSzyDtseVEc4yCz2qF8ZrQvIDBJLl4S1c3GCXmoI=",
         version = "v0.0.0-20200815063812-42c35b437635",
+    )
+    go_repository(
+        name = "com_github_tencentcloud_tencentcloud_sdk_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/tencentcloud/tencentcloud-sdk-go",
+        sum = "h1:K3fcS92NS8cRntIdu8Uqy2ZSePvX73nNhOkKuPGJLXQ=",
+        version = "v3.0.171+incompatible",
+    )
+    go_repository(
+        name = "com_github_tidwall_pretty",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/tidwall/pretty",
+        sum = "h1:HsD+QiTn7sK6flMKIvNmpqz1qrpP3Ps6jOKIKMooyg4=",
+        version = "v1.0.0",
+    )
+    go_repository(
+        name = "com_github_tilinna_clock",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/tilinna/clock",
+        sum = "h1:6BO2tyAC9JbPExKH/z9zl44FLu1lImh3nDNKA0kgrkI=",
+        version = "v1.0.2",
+    )
+    go_repository(
+        name = "com_github_tklauser_go_sysconf",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/tklauser/go-sysconf",
+        sum = "h1:IJ1AZGZRWbY8T5Vfk04D9WOA5WSejdflXxP03OUqALw=",
+        version = "v0.3.10",
+    )
+    go_repository(
+        name = "com_github_tklauser_numcpus",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/tklauser/numcpus",
+        sum = "h1:E53Dm1HjH1/R2/aoCtXtPgzmElmn51aOkhCFSuZq//o=",
+        version = "v0.4.0",
     )
 
     go_repository(
@@ -1842,6 +4548,28 @@ def go_dependencies():
         sum = "h1:6fotK7otjonDflCTK0BCfls4SPy3NcCVb5dqqmbRknE=",
         version = "v0.0.0-20220101234140-673ab2c3ae75",
     )
+    go_repository(
+        name = "com_github_tv42_httpunix",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/tv42/httpunix",
+        sum = "h1:u6SKchux2yDvFQnDHS3lPnIRmfVJ5Sxy3ao2SIdysLQ=",
+        version = "v0.0.0-20191220191345-2ba4b9c3382c",
+    )
+    go_repository(
+        name = "com_github_ulikunitz_xz",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/ulikunitz/xz",
+        sum = "h1:t92gobL9l3HE202wg3rlk19F6X+JOxl9BBrCCMYEYd8=",
+        version = "v0.5.10",
+    )
+    go_repository(
+        name = "com_github_urfave_cli",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/urfave/cli",
+        sum = "h1:fDqGv3UG/4jbVl/QkFwEdddtEDjh/5Ov6X+0B/3bPaw=",
+        version = "v1.20.0",
+    )
+
     go_repository(
         name = "com_github_vishvananda_netlink",
         build_file_proto_mode = "disable_global",
@@ -1871,11 +4599,47 @@ def go_dependencies():
         version = "v2.17.2",
     )
     go_repository(
+        name = "com_github_xdg_go_pbkdf2",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/xdg-go/pbkdf2",
+        sum = "h1:Su7DPu48wXMwC3bs7MCNG+z4FhcyEuz5dlvchbq0B0c=",
+        version = "v1.0.0",
+    )
+    go_repository(
+        name = "com_github_xdg_go_scram",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/xdg-go/scram",
+        sum = "h1:akYIkZ28e6A96dkWNJQu3nmCzH3YfwMPQExUYDaRv7w=",
+        version = "v1.0.2",
+    )
+    go_repository(
+        name = "com_github_xdg_go_stringprep",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/xdg-go/stringprep",
+        sum = "h1:6iq84/ryjjeRmMJwxutI51F2GIPlP5BfTvXHeYjyhBc=",
+        version = "v1.0.2",
+    )
+    go_repository(
+        name = "com_github_xdg_scram",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/xdg/scram",
+        sum = "h1:u40Z8hqBAAQyv+vATcGgV0YCnDjqSL7/q/JyPhhJSPk=",
+        version = "v0.0.0-20180814205039-7eeb5667e42c",
+    )
+    go_repository(
+        name = "com_github_xdg_stringprep",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/xdg/stringprep",
+        sum = "h1:d9X0esnoa3dFsV0FG35rAT0RIhYFlPq7MiP+DW89La0=",
+        version = "v1.0.0",
+    )
+
+    go_repository(
         name = "com_github_xeipuuv_gojsonpointer",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/xeipuuv/gojsonpointer",
-        sum = "h1:J9EGpcZtP0E/raorCMxlFGSTBrsSlaDGf3jU/qvAE2c=",
-        version = "v0.0.0-20180127040702-4e3ac2762d5f",
+        sum = "h1:zGWFAtiMcyryUHoUjUJX0/lt1H2+i2Ka2n+D3DImSNo=",
+        version = "v0.0.0-20190905194746-02993c407bfb",
     )
     go_repository(
         name = "com_github_xeipuuv_gojsonreference",
@@ -1899,6 +4663,13 @@ def go_dependencies():
         sum = "h1:lxklc02Drh6ynqX+DdPyp5pCKLUQpRT8bp8Ydu2Bstc=",
         version = "v2.1.0",
     )
+    go_repository(
+        name = "com_github_xi2_xz",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/xi2/xz",
+        sum = "h1:nIPpBwaJSVYIxUFsDv3M8ofmx9yWTog9BfvIu0q41lo=",
+        version = "v0.0.0-20171230120015-48954b6210f8",
+    )
 
     go_repository(
         name = "com_github_xiang90_probing",
@@ -1914,6 +4685,13 @@ def go_dependencies():
         sum = "h1:HzHnuAF1plUN2zGlAFHbSQP2qJ0ZAD3XF5XD7OesXRQ=",
         version = "v1.2.0",
     )
+    go_repository(
+        name = "com_github_youmark_pkcs8",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/youmark/pkcs8",
+        sum = "h1:splanxYIlg+5LfHAM6xpdFEAYOk8iySO56hMFq6uLyA=",
+        version = "v0.0.0-20181117223130-1be2e3e5546d",
+    )
 
     go_repository(
         name = "com_github_yuin_goldmark",
@@ -1922,6 +4700,21 @@ def go_dependencies():
         sum = "h1:fVcFKWvrslecOb/tg+Cc05dkeYx540o0FuFt3nUVDoE=",
         version = "v1.4.13",
     )
+    go_repository(
+        name = "com_github_yuin_gopher_lua",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/yuin/gopher-lua",
+        sum = "h1:k/gmLsJDWwWqbLCur2yWnJzwQEKRcAHXo6seXGuSwWw=",
+        version = "v0.0.0-20210529063254-f4c35e4016d9",
+    )
+    go_repository(
+        name = "com_github_yusufpapurcu_wmi",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/yusufpapurcu/wmi",
+        sum = "h1:KBNDSne4vP5mbSWnJbO+51IMOXJB67QiYCSBrubbPRg=",
+        version = "v1.2.2",
+    )
+
     go_repository(
         name = "com_google_cloud_go",
         build_file_proto_mode = "disable_global",
@@ -2680,8 +5473,8 @@ def go_dependencies():
         name = "com_google_cloud_go_storage",
         build_file_proto_mode = "disable_global",
         importpath = "cloud.google.com/go/storage",
-        sum = "h1:STgFzyU5/8miMl0//zKh2aQeTyeaUH3WN9bSUiJ09bA=",
-        version = "v1.10.0",
+        sum = "h1:YOO045NZI9RKfCj1c5A/ZtuuENUc8OAW+gHdGnDgyMQ=",
+        version = "v1.27.0",
     )
     go_repository(
         name = "com_google_cloud_go_storagetransfer",
@@ -2788,6 +5581,13 @@ def go_dependencies():
         sum = "h1:FfGp9w0cYnaKZJhUOMqCOJCYT/WlvYBfTQhFWV3sRKI=",
         version = "v1.10.0",
     )
+    go_repository(
+        name = "com_layeh_radius",
+        build_file_proto_mode = "disable_global",
+        importpath = "layeh.com/radius",
+        sum = "h1:BDXFaFzUt5EIqe/4wrTc4AcYZWP6iC6Ult+jQWLh5eU=",
+        version = "v0.0.0-20190322222518-890bc1058917",
+    )
 
     go_repository(
         name = "com_shuralyov_dmitri_gpu_mtl",
@@ -2804,11 +5604,26 @@ def go_dependencies():
         version = "v2.2.6",
     )
     go_repository(
+        name = "in_gopkg_asn1_ber_v1",
+        build_file_proto_mode = "disable_global",
+        importpath = "gopkg.in/asn1-ber.v1",
+        sum = "h1:TxyelI5cVkbREznMhfzycHdkp5cLA7DpE+GKjSslYhM=",
+        version = "v1.0.0-20181015200546-f715ec2f112d",
+    )
+
+    go_repository(
         name = "in_gopkg_check_v1",
         build_file_proto_mode = "disable_global",
         importpath = "gopkg.in/check.v1",
         sum = "h1:Hei/4ADfdWqJk1ZMxUNpqntNwaWcugrBjAiHlqqRiVk=",
         version = "v1.0.0-20201130134442-10cb98267c6c",
+    )
+    go_repository(
+        name = "in_gopkg_cheggaaa_pb_v1",
+        build_file_proto_mode = "disable_global",
+        importpath = "gopkg.in/cheggaaa/pb.v1",
+        sum = "h1:Ev7yu1/f6+d+b3pi5vPdRPc6nNtP1umSfcWiEfRqv6I=",
+        version = "v1.0.25",
     )
 
     go_repository(
@@ -2819,11 +5634,26 @@ def go_dependencies():
         version = "v2.1.0",
     )
     go_repository(
+        name = "in_gopkg_fsnotify_v1",
+        build_file_proto_mode = "disable_global",
+        importpath = "gopkg.in/fsnotify.v1",
+        sum = "h1:xOHLXZwVvI9hhs+cLKq5+I5onOuwQLhQwiu63xxlHs4=",
+        version = "v1.4.7",
+    )
+
+    go_repository(
         name = "in_gopkg_gcfg_v1",
         build_file_proto_mode = "disable_global",
         importpath = "gopkg.in/gcfg.v1",
         sum = "h1:0HIbH907iBTAntm+88IJV2qmJALDAh8sPekI9Vc1fm0=",
         version = "v1.2.0",
+    )
+    go_repository(
+        name = "in_gopkg_h2non_gock_v1",
+        build_file_proto_mode = "disable_global",
+        importpath = "gopkg.in/h2non/gock.v1",
+        sum = "h1:SzLqcIlb/fDfg7UvukMpNcWsu7sI5tWwL+KCATZqks0=",
+        version = "v1.0.15",
     )
 
     go_repository(
@@ -2841,11 +5671,47 @@ def go_dependencies():
         version = "v1.67.0",
     )
     go_repository(
+        name = "in_gopkg_jcmturner_goidentity_v3",
+        build_file_proto_mode = "disable_global",
+        importpath = "gopkg.in/jcmturner/goidentity.v3",
+        sum = "h1:1duIyWiTaYvVx3YX2CYtpJbUFd7/UuPYCfgXtQ3VTbI=",
+        version = "v3.0.0",
+    )
+    go_repository(
+        name = "in_gopkg_ldap_v3",
+        build_file_proto_mode = "disable_global",
+        importpath = "gopkg.in/ldap.v3",
+        sum = "h1:YKRHW/2sIl05JsCtx/5ZuUueFuJyoj/6+DGXe3wp6ro=",
+        version = "v3.0.3",
+    )
+    go_repository(
+        name = "in_gopkg_mgo_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "gopkg.in/mgo.v2",
+        sum = "h1:xcEWjVhvbDy+nHP67nPDDpbYrY+ILlfndk4bRioVHaU=",
+        version = "v2.0.0-20180705113604-9856a29383ce",
+    )
+
+    go_repository(
         name = "in_gopkg_natefinch_lumberjack_v2",
         build_file_proto_mode = "disable_global",
         importpath = "gopkg.in/natefinch/lumberjack.v2",
         sum = "h1:bBRl1b0OH9s/DuPhuXpNl+VtCaJXFZ5/uEFST95x9zc=",
         version = "v2.2.1",
+    )
+    go_repository(
+        name = "in_gopkg_ory_am_dockertest_v3",
+        build_file_proto_mode = "disable_global",
+        importpath = "gopkg.in/ory-am/dockertest.v3",
+        sum = "h1:oen8RiwxVNxtQ1pRoV4e4jqh6UjNsOuIZ1NXns6jdcw=",
+        version = "v3.3.4",
+    )
+    go_repository(
+        name = "in_gopkg_resty_v1",
+        build_file_proto_mode = "disable_global",
+        importpath = "gopkg.in/resty.v1",
+        sum = "h1:CuXP0Pjfw9rOuY6EP+UvtNvt5DSqHpIxILZKT/quCZI=",
+        version = "v1.12.0",
     )
 
     go_repository(
@@ -2855,6 +5721,14 @@ def go_dependencies():
         sum = "h1:NGk74WTnPKBNUhNzQX7PYcTLUjoq7mzKk2OKbvwk2iI=",
         version = "v2.6.0",
     )
+    go_repository(
+        name = "in_gopkg_tomb_v1",
+        build_file_proto_mode = "disable_global",
+        importpath = "gopkg.in/tomb.v1",
+        sum = "h1:uRGJdciOHaEIrze2W8Q3AKkepLTh2hOroT7a+7czfdQ=",
+        version = "v1.0.0-20141024135613-dd632973f1e7",
+    )
+
     go_repository(
         name = "in_gopkg_warnings_v0",
         build_file_proto_mode = "disable_global",
@@ -2884,6 +5758,14 @@ def go_dependencies():
         sum = "h1:/ecaJf0sk1l4l6V4awd65v2C3ILy7MSj+s/x1ADCIMU=",
         version = "v1.3.6",
     )
+    go_repository(
+        name = "io_etcd_go_etcd",
+        build_file_proto_mode = "disable_global",
+        importpath = "go.etcd.io/etcd",
+        sum = "h1:lWF4f9Nypl1ZqSb4gLeh/DGvBYVaUYHuiB93teOmwgc=",
+        version = "v0.5.0-alpha.5.0.20191023171146-3cf2f69b5738",
+    )
+
     go_repository(
         name = "io_etcd_go_etcd_api_v3",
         build_file_proto_mode = "disable_global",
@@ -3200,6 +6082,14 @@ def go_dependencies():
         version = "v0.1.3",
     )
     go_repository(
+        name = "io_k8s_sigs_controller_runtime",
+        build_file_proto_mode = "disable_global",
+        importpath = "sigs.k8s.io/controller-runtime",
+        sum = "h1:6xaWFqzT5KuAQ9ufgUaj1G/+C4Y1GRkhrxl+BJ9i+5s=",
+        version = "v0.14.5",
+    )
+
+    go_repository(
         name = "io_k8s_sigs_json",
         build_file_proto_mode = "disable_global",
         importpath = "sigs.k8s.io/json",
@@ -3243,6 +6133,14 @@ def go_dependencies():
         version = "v4.2.3",
     )
     go_repository(
+        name = "io_k8s_sigs_testing_frameworks",
+        build_file_proto_mode = "disable_global",
+        importpath = "sigs.k8s.io/testing_frameworks",
+        sum = "h1:cP2l8fkA3O9vekpy5Ks8mmA0NW/F7yBdXf8brkWhVrs=",
+        version = "v0.1.1",
+    )
+
+    go_repository(
         name = "io_k8s_sigs_yaml",
         build_file_proto_mode = "disable_global",
         importpath = "sigs.k8s.io/yaml",
@@ -3264,6 +6162,14 @@ def go_dependencies():
         sum = "h1:EObNQ3TW2D+WptiYXlApGNLVy0zm/JIBVY9i+M4wpAU=",
         version = "v0.0.0-20230505201702-9f6742963106",
     )
+    go_repository(
+        name = "io_nhooyr_websocket",
+        build_file_proto_mode = "disable_global",
+        importpath = "nhooyr.io/websocket",
+        sum = "h1:usjR2uOr/zjjkVMy0lW+PPohFok7PCow5sDjLgX4P4g=",
+        version = "v1.8.7",
+    )
+
     go_repository(
         name = "io_opencensus_go",
         build_file_proto_mode = "disable_global",
@@ -3385,11 +6291,26 @@ def go_dependencies():
         version = "v0.0.0-20230302034142-4b1e35fe2254",
     )
     go_repository(
+        name = "org_apache_git_thrift_git",
+        build_file_proto_mode = "disable_global",
+        importpath = "git.apache.org/thrift.git",
+        sum = "h1:CMxsZlAmxKs+VAZMlDDL0wXciMblJcutQbEe3A9CYUM=",
+        version = "v0.12.0",
+    )
+
+    go_repository(
         name = "org_bitbucket_bertimus9_systemstat",
         build_file_proto_mode = "disable_global",
         importpath = "bitbucket.org/bertimus9/systemstat",
         sum = "h1:n0aLnh2Jo4nBUBym9cE5PJDG8GT6g+4VuS2Ya2jYYpA=",
         version = "v0.5.0",
+    )
+    go_repository(
+        name = "org_cloudfoundry_code_gofileutils",
+        build_file_proto_mode = "disable_global",
+        importpath = "code.cloudfoundry.org/gofileutils",
+        sum = "h1:UrKzEwTgeiff9vxdrfdqxibzpWjxLnuXDI5m6z3GJAk=",
+        version = "v0.0.0-20170111115228-4d0c80011a0f",
     )
 
     go_repository(
@@ -3428,6 +6349,14 @@ def go_dependencies():
         version = "v1.55.0",
     )
     go_repository(
+        name = "org_golang_google_grpc_cmd_protoc_gen_go_grpc",
+        build_file_proto_mode = "disable_global",
+        importpath = "google.golang.org/grpc/cmd/protoc-gen-go-grpc",
+        sum = "h1:M1YKkFIboKNieVO5DLUEVzQfGwJD30Nv2jfUgzb5UcE=",
+        version = "v1.1.0",
+    )
+
+    go_repository(
         name = "org_golang_google_protobuf",
         build_file_proto_mode = "disable_global",
         importpath = "google.golang.org/protobuf",
@@ -3459,8 +6388,8 @@ def go_dependencies():
         name = "org_golang_x_lint",
         build_file_proto_mode = "disable_global",
         importpath = "golang.org/x/lint",
-        sum = "h1:Wh+f8QHJXR411sJR8/vRBTZ7YapZaRvUcLFFJhusH0k=",
-        version = "v0.0.0-20200302205851-738671d3881b",
+        sum = "h1:VLliZ0d+/avPrXXH+OakdXhpJuEoBZuwh1m2j7U6Iug=",
+        version = "v0.0.0-20210508222113-6edffad5e616",
     )
     go_repository(
         name = "org_golang_x_mobile",
@@ -3540,6 +6469,14 @@ def go_dependencies():
         version = "v0.0.0-20220907171357-04be3eba64a2",
     )
     go_repository(
+        name = "org_mongodb_go_atlas",
+        build_file_proto_mode = "disable_global",
+        importpath = "go.mongodb.org/atlas",
+        sum = "h1:YyOBdBIuI//krRITf4r7PSirJ3YDNNUfNmapxwSyDow=",
+        version = "v0.15.0",
+    )
+
+    go_repository(
         name = "org_mongodb_go_mongo_driver",
         build_file_proto_mode = "disable_global",
         importpath = "go.mongodb.org/mongo-driver",
@@ -3584,12 +6521,28 @@ def go_dependencies():
         version = "v1.24.0",
     )
     go_repository(
+        name = "tools_gotest",
+        build_file_proto_mode = "disable_global",
+        importpath = "gotest.tools",
+        sum = "h1:VsBPFP1AI068pPrMxtb/S8Zkgf9xEmTLJjfM+P5UIEo=",
+        version = "v2.2.0+incompatible",
+    )
+
+    go_repository(
         name = "tools_gotest_v3",
         build_file_proto_mode = "disable_global",
         importpath = "gotest.tools/v3",
         sum = "h1:4AuOwCGf4lLR9u3YOe2awrHygurzhO/HeQ6laiA6Sx0=",
         version = "v3.0.3",
     )
+    go_repository(
+        name = "xyz_gomodules_jsonpatch_v2",
+        build_file_proto_mode = "disable_global",
+        importpath = "gomodules.xyz/jsonpatch/v2",
+        sum = "h1:4pT439QV83L+G9FkcCriY6EkpcK6r6bK+A5FBUMI7qY=",
+        version = "v2.2.0",
+    )
+
     manual_go_dependencies()
 
 def manual_go_dependencies():

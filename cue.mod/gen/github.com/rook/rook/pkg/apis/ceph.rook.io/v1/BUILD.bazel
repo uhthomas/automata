@@ -1,0 +1,26 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_v1_library",
+    srcs = [
+        "annotations_go_gen.cue",
+        "cleanup_go_gen.cue",
+        "doc_go_gen.cue",
+        "keys_go_gen.cue",
+        "labels_go_gen.cue",
+        "object_go_gen.cue",
+        "placement_go_gen.cue",
+        "register_go_gen.cue",
+        "resources_go_gen.cue",
+        "status_go_gen.cue",
+        "storage_go_gen.cue",
+        "types_go_gen.cue",
+    ],
+    importpath = "github.com/rook/rook/pkg/apis/ceph.rook.io/v1",  # keep
+    visibility = ["//visibility:public"],
+    deps = [
+        "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/apimachinery/pkg/api/resource:cue_resource_library",
+        "//cue.mod/gen/k8s.io/apimachinery/pkg/apis/meta/v1:cue_v1_library",
+    ],
+)

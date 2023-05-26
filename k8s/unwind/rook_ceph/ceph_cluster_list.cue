@@ -1,8 +1,8 @@
 package rook_ceph
 
-import "k8s.io/api/core/v1"
+import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 
-#CephClusterList: v1.#List & {
+#CephClusterList: cephv1.#CephClusterList & {
 	apiVersion: "ceph.rook.io/v1"
 	kind:       "CephClusterList"
 	items: [...{
@@ -66,8 +66,8 @@ import "k8s.io/api/core/v1"
 			// If the empty string is set, Rook will not destroy any data on hosts during uninstall.
 			confirmation: ""
 			sanitizeDisks: {
-				method:     "quick"
-				dataSource: "zero"
+				method:     cephv1.#SanitizeMethodQuick
+				dataSource: cephv1.#SanitizeDataSourceZero
 				iteration:  1
 			}
 			// allowUninstallWithVolumes defines how the uninstall should be performed

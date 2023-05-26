@@ -1,8 +1,8 @@
 package rook_ceph
 
-import "k8s.io/api/core/v1"
+import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 
-#CephBlockPoolList: v1.#List & {
+#CephBlockPoolList: cephv1.#CephBlockPoolList & {
 	apiVersion: "ceph.rook.io/v1"
 	kind:       "CephBlockPoolList"
 	items: [...{
