@@ -8,6 +8,6 @@ cue_library(
         "zoneinfo_go_gen.cue",
         "zoneinfo_read_go_gen.cue",
     ],
-    importpath = "github.com/uhthomas/automata/cue.mod/gen/time",
+    importpath = "pkg.go.dev/time",
     visibility = ["//visibility:public"],
 )

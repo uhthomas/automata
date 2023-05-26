@@ -6,7 +6,7 @@ package v1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"time"
+	"pkg.go.dev/time"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/api/core/v1"
 )

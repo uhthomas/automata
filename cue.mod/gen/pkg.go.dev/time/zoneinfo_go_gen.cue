@@ -12,4 +12,9 @@ package time
 }
 
 _#alpha: -9223372036854775808
+
 _#omega: 9223372036854775807
+
+// _#ruleJulian:       _#ruleKind & 0
+// _#ruleDOY:          _#ruleKind & 1
+// _#ruleMonthWeekDay: _#ruleKind & 2

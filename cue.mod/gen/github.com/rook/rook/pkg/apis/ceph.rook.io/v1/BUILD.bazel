@@ -16,11 +16,12 @@ cue_library(
         "storage_go_gen.cue",
         "types_go_gen.cue",
     ],
-    importpath = "github.com/rook/rook/pkg/apis/ceph.rook.io/v1",  # keep
+    importpath = "github.com/rook/rook/pkg/apis/ceph.rook.io/v1",
     visibility = ["//visibility:public"],
     deps = [
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
         "//cue.mod/gen/k8s.io/apimachinery/pkg/api/resource:cue_resource_library",
         "//cue.mod/gen/k8s.io/apimachinery/pkg/apis/meta/v1:cue_v1_library",
+        "//cue.mod/gen/pkg.go.dev/time:cue_time_library",
     ],
 )
