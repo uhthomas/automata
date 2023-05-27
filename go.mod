@@ -230,7 +230,7 @@ replace (
 
 // https://github.com/rook/rook/blob/4af3f3784bd822eda9ef7c04b7310c070e5c141b/pkg/apis/go.mod#L108-L109
 replace (
-	github.com/kubernetes-incubator/external-storage => github.com/libopenstorage/external-storage v0.20.4-rc1
+	github.com/kubernetes-incubator/external-storage => github.com/libopenstorage/external-storage v5.2.0+incompatible
 	github.com/portworx/sched-ops => github.com/portworx/sched-ops v0.20.4-openstorage-rc3
 )
 
