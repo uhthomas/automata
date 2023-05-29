@@ -84,7 +84,7 @@ import (
 		strategy: type: appsv1.#RecreateDeploymentStrategyType
 	}
 }, {
-	_name: "\(#Name)-upgrade"
+	let _name = "\(#Name)-upgrade"
 
 	metadata: {
 		name: _name

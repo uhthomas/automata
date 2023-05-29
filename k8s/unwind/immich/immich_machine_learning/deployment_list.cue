@@ -70,7 +70,7 @@ import (
 						mountPath: "/usr/src/app/.transformers_cache"
 					}]
 
-					_probe: {
+					let probe = {
 						httpGet: {
 							path: "/ping"
 							port: "http"
@@ -78,8 +78,8 @@ import (
 						initialDelaySeconds: 30
 					}
 
-					livenessProbe:  _probe
-					readinessProbe: _probe
+					livenessProbe:  probe
+					readinessProbe: probe
 
 					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: {

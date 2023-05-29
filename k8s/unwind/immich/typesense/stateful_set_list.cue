@@ -46,13 +46,15 @@ import (
 						}
 					}]
 
-					_probe: httpGet: {
-						path: "/health"
-						port: "http"
+					let probe = {
+						httpGet: {
+							path: "/health"
+							port: "http"
+						}
 					}
 
-					livenessProbe:  _probe
-					readinessProbe: _probe
+					livenessProbe:  probe
+					readinessProbe: probe
 
 					imagePullPolicy: v1.#PullIfNotPresent
 					volumeMounts: [{

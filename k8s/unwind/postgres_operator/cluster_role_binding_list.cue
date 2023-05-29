@@ -24,7 +24,7 @@ import rbacv1 "k8s.io/api/rbac/v1"
 		namespace: #Namespace
 	}]
 }, {
-	_name: "\(#Name)-upgrade"
+	let _name = "\(#Name)-upgrade"
 
 	metadata: {
 		name: _name

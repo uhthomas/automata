@@ -103,13 +103,15 @@ import (
 						mountPath: "/mnt/secrets-store"
 					}]
 
-					_probe: httpGet: {
-						path: "/server-info/ping"
-						port: "http"
+					let probe = {
+						httpGet: {
+							path: "/server-info/ping"
+							port: "http"
+						}
 					}
 
-					livenessProbe:  _probe
-					readinessProbe: _probe
+					livenessProbe:  probe
+					readinessProbe: probe
 					securityContext: {
 						capabilities: drop: ["ALL"]
 						readOnlyRootFilesystem:   true

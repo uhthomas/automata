@@ -12,7 +12,7 @@ import "k8s.io/api/core/v1"
 }
 
 #RedisFailoverList: items: [{
-	_name: "redis"
+	let _name = "redis"
 
 	metadata: {
 		name: _name
