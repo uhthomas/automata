@@ -1,11 +1,29 @@
 {
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:base"
   ],
   "packageRules": [
     {
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
       "automerge": true
+    }
+  ],
+  "regexManagers": [
+    {
+      "fileMatch": [
+        "\\.cue$"
+      ],
+      "matchStrings": [
+        "image:\\s*\"(?<depName>[^:]+):(?<currentValue>[^\\\"]+)\""
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
     }
   ]
 }
