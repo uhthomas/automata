@@ -82,7 +82,7 @@ _items: [
 	tailscale.#List.items,
 	thomas.#List.items,
 	unwind.#ApplySetList.items,
-	unwind.#ClusterRoleBindingList.items,
+	unwind.#CustomResourceDefinitionList.items,
 	unwind.#ClusterRoleBindingList.items,
 	unwind.#StorageClassList.items,
 	vault_config_operator.#List.items,
