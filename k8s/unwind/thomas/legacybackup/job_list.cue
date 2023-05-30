@@ -29,8 +29,8 @@ import (
 			containers: [{
 				name:  "rsync"
 				image: "ghcr.io/uhthomas/automata/rsync:{STABLE_GIT_COMMIT}"
-				command: ["rsync"]
-				args: ["-ahirv", "--info=progress2", "/data/from/*", "/data/to"]
+				command: ["/bin/sh"]
+				args: ["rsync", "-ahirv", "--info=progress2", "/data/from/*", "/data/to"]
 				volumeMounts: [{
 					name:      "from"
 					mountPath: "/data/from"
