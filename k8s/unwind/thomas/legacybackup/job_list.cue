@@ -20,6 +20,9 @@ import (
 		backoffLimit: 0
 		template: spec: {
 			volumes: [{
+				name: "data"
+				emptyDir: {}
+			}, {
 				name: "from"
 				persistentVolumeClaim: claimName: "\(#Name)-legacy"
 			}, {
@@ -29,9 +32,12 @@ import (
 			containers: [{
 				name:  "rsync"
 				image: "ghcr.io/uhthomas/automata/rsync:{STABLE_GIT_COMMIT}"
-				command: ["/bin/sh"]
-				args: ["/usr/bin/rsync", "-ahirv --info=progress2 /data/from/* /data/to"]
+				command: ["rsync"]
+				args: ["-ahirv", "--info=progress2", "/data/from/", "/data/to"]
 				volumeMounts: [{
+					name:      "data"
+					mountPath: "/data"
+				}, {
 					name:      "from"
 					mountPath: "/data/from"
 				}, {
