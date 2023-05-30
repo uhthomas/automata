@@ -10,6 +10,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 		kind:       "CustomResourceDefinition"
 	}]
 }
+
 #CustomResourceDefinitionList: items: [{
 	metadata: name: "dragonflies.dragonflydb.io"
 	spec: {
