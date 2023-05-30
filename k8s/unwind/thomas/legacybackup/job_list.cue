@@ -36,7 +36,7 @@ import (
 				name:  "rsync"
 				image: "ghcr.io/uhthomas/automata/rsync:{STABLE_GIT_COMMIT}"
 				command: ["rsync"]
-				args: ["-ahirv", "--info=progress2", "/data/from/", "/data/to"]
+				args: ["-ahirvO", "--info=progress2", "/data/from/", "/data/to"]
 				volumeMounts: [{
 					name:      "data"
 					mountPath: "/data"
