@@ -20,7 +20,7 @@
         "\\.cue$"
       ],
       "matchStrings": [
-        "image:\\s*\"(?<depName>[^:]+):(?<currentValue>[^\\\"]+)\""
+        "image:\\s*\"(?<depName>.*?):(?<currentValue>.*?)@(?<currentDigest>sha256:[a-f0-9]+)\""
       ],
       "datasourceTemplate": "docker",
       "versioningTemplate": "docker"
