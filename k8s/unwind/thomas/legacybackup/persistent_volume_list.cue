@@ -14,7 +14,8 @@ import "k8s.io/api/core/v1"
 #PersistentVolumeList: items: [{
 	metadata: name: "\(#Name)-legacy"
 	spec: {
-		local: path: "/dev/disk/by-id/wwn-0x5000c500cb5f5237-part2"
+		capacity: storage: "16Ti"
+		local: path:       "/dev/disk/by-id/wwn-0x5000c500cb5f5237-part2"
 		claimRef: {
 			apiVersion: "v1"
 			kind:       "PersistentVolumeClaim"
