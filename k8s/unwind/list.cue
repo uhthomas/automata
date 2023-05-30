@@ -16,6 +16,7 @@ import (
 	"github.com/uhthomas/automata/k8s/unwind/kube_state_metrics"
 	"github.com/uhthomas/automata/k8s/unwind/kube_system"
 	"github.com/uhthomas/automata/k8s/unwind/kubernetes_dashboard"
+	"github.com/uhthomas/automata/k8s/unwind/kubevirt"
 	"github.com/uhthomas/automata/k8s/unwind/loki"
 	"github.com/uhthomas/automata/k8s/unwind/media"
 	"github.com/uhthomas/automata/k8s/unwind/mimir"
@@ -69,6 +70,7 @@ _items: [
 	kube_state_metrics.#List.items,
 	kube_system.#List.items,
 	kubernetes_dashboard.#List.items,
+	kubevirt.#List.items,
 	loki.#List.items,
 	media.#List.items,
 	mimir.#List.items,
@@ -82,8 +84,8 @@ _items: [
 	tailscale.#List.items,
 	thomas.#List.items,
 	unwind.#ApplySetList.items,
-	unwind.#CustomResourceDefinitionList.items,
 	unwind.#ClusterRoleBindingList.items,
+	unwind.#CustomResourceDefinitionList.items,
 	unwind.#StorageClassList.items,
 	vault_config_operator.#List.items,
 	vault_csi_provider.#List.items,
