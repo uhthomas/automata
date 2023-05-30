@@ -15,7 +15,10 @@ import "k8s.io/api/core/v1"
 	metadata: name: "\(#Name)-legacy"
 	spec: {
 		capacity: storage: "16Ti"
-		local: path:       "/dev/disk/by-id/wwn-0x5000c500cb5f5237-part1"
+		local: {
+			path:   "/dev/disk/by-id/wwn-0x5000c500cb5f5237-part2"
+			fsType: "ntfs"
+		}
 		claimRef: {
 			apiVersion: "v1"
 			kind:       "PersistentVolumeClaim"
