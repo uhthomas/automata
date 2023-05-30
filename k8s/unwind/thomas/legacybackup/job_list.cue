@@ -21,7 +21,7 @@ import (
 		template: spec: {
 			volumes: [{
 				name: "from"
-				hostPath: path: "/dev/disk/by-id/wwn-0x5000c500cb5f5237-part2"
+				persistentVolumeClaim: claimName: "\(#Name)-legacy"
 			}, {
 				name: "to"
 				persistentVolumeClaim: claimName: #Name
@@ -45,7 +45,6 @@ import (
 					allowPrivilegeEscalation: false
 				}
 			}]
-			nodeName: "talos-avz-rb5"
 			securityContext: {
 				runAsUser:    1000
 				runAsGroup:   3000

@@ -6,6 +6,7 @@ cue_library(
         "job_list.cue",
         "list.cue",
         "persistent_volume_claim_list.cue",
+        "persistent_volume_list.cue",
     ],
     importpath = "github.com/uhthomas/automata/k8s/unwind/thomas/legacybackup",
     visibility = ["//visibility:public"],

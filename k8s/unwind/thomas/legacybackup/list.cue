@@ -6,7 +6,8 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-#Name: "legacybackup"
+#Name:      "legacybackup"
+#Namespace: "thomas"
 
 #List: v1.#List & {
 	apiVersion: "v1"
@@ -18,4 +19,5 @@ import (
 _items: [
 	#JobList.items,
 	#PersistentVolumeClaimList.items,
+	#PersistentVolumeList.items,
 ]
