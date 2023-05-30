@@ -24,7 +24,10 @@ import (
 				emptyDir: {}
 			}, {
 				name: "from"
-				persistentVolumeClaim: claimName: "\(#Name)-legacy"
+				persistentVolumeClaim: {
+					claimName: "\(#Name)-legacy"
+					readOnly:  true
+				}
 			}, {
 				name: "to"
 				persistentVolumeClaim: claimName: #Name
