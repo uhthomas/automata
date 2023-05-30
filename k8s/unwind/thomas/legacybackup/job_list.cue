@@ -20,9 +20,6 @@ import (
 		backoffLimit: 0
 		template: spec: {
 			volumes: [{
-				name: "data"
-				emptyDir: {}
-			}, {
 				name: "from"
 				persistentVolumeClaim: {
 					claimName: "\(#Name)-legacy"
@@ -38,9 +35,6 @@ import (
 				command: ["rsync"]
 				args: ["-ahirvO", "--info=progress2", "/data/from/", "/data/to"]
 				volumeMounts: [{
-					name:      "data"
-					mountPath: "/data"
-				}, {
 					name:      "from"
 					mountPath: "/data/from"
 				}, {
