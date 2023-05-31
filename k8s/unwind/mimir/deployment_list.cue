@@ -160,7 +160,7 @@ import (
 				terminationGracePeriodSeconds: 30
 				containers: [{
 					name:            "nginx"
-					image:           "docker.io/nginxinc/nginx-unprivileged:1.22-alpine"
+					image:           "docker.io/nginxinc/nginx-unprivileged:1.25-alpine"
 					imagePullPolicy: v1.#PullIfNotPresent
 					ports: [{
 						name:          "http-metric"
