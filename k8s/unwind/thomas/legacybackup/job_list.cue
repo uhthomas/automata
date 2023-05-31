@@ -53,7 +53,10 @@ import (
 				}]
 				imagePullPolicy: v1.#PullIfNotPresent
 				securityContext: {
-					capabilities: drop: ["ALL"]
+					capabilities: {
+						add: ["SYS_ADMIN"]
+						drop: ["ALL"]
+					}
 					readOnlyRootFilesystem:   true
 					allowPrivilegeEscalation: false
 				}
