@@ -24,5 +24,6 @@ import "k8s.io/api/core/v1"
 		accessModes: [v1.#ReadWriteOnce]
 		storageClassName: "local-storage"
 		resources: requests: storage: "16Ti"
+		volumeMode: v1.#PersistentVolumeBlock
 	}
 }]
