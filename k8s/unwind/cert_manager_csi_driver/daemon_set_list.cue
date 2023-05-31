@@ -22,7 +22,7 @@ import (
 			spec: {
 				containers: [{
 					name:            "node-driver-registrar"
-					image:           "k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.5.0"
+					image:           "registry\.k8s\.io/sig-storage/csi-node-driver-registrar:v2.5.0"
 					imagePullPolicy: v1.#PullIfNotPresent
 					args: [
 						"-v=1",
