@@ -52,22 +52,23 @@ import (
 					devicePath: "/dev/disk/by-id/wwn-0x5000c500cb5f5237-part2"
 				}]
 				imagePullPolicy: v1.#PullIfNotPresent
-				securityContext: {
-					capabilities: {
-						add: ["SYS_ADMIN"]
-						drop: ["ALL"]
-					}
-					readOnlyRootFilesystem:   true
-					allowPrivilegeEscalation: false
-				}
+				securityContext: privileged: true
+				// securityContext: {
+				// 	capabilities: {
+				// 		add: ["SYS_ADMIN"]
+				// 		drop: ["ALL"]
+				// 	}
+				// 	readOnlyRootFilesystem:   true
+				// 	allowPrivilegeEscalation: false
+				// }
 			}]
-			securityContext: {
-				runAsUser:    1000
-				runAsGroup:   3000
-				runAsNonRoot: true
-				fsGroup:      2000
-				seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
-			}
+			// securityContext: {
+			// 	runAsUser:    1000
+			// 	runAsGroup:   3000
+			// 	runAsNonRoot: true
+			// 	fsGroup:      2000
+			// 	seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
+			// }
 			restartPolicy: v1.#RestartPolicyNever
 		}
 	}
