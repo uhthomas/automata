@@ -26,7 +26,7 @@ import (
 				name: "from"
 				persistentVolumeClaim: {
 					claimName: "\(#Name)-legacy"
-					readOnly:  true
+					// readOnly:  true
 				}
 			}, {
 				name: "to"
