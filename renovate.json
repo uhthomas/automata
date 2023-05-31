@@ -12,6 +12,12 @@
         "digest"
       ],
       "automerge": true
+    },
+    {
+      "matchManagers": [
+        "regex"
+      ],
+      "automerge": false
     }
   ],
   "regexManagers": [
