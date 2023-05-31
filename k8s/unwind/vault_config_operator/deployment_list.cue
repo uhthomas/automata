@@ -60,7 +60,7 @@ import (
 					}
 				}, {
 					name:            "vault-config-operator"
-					image:           "quay.io/redhat-cop/vault-config-operator:v0.8.13"
+					image:           "quay.io/redhat-cop/vault-config-operator:v0.8.15"
 					imagePullPolicy: v1.#PullIfNotPresent
 					command: ["/manager"]
 					args: ["--leader-elect"]
