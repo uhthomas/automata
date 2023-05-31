@@ -17,7 +17,7 @@ import rbacv1 "k8s.io/api/rbac/v1"
 		labels: "kubevirt.io": ""
 	}
 	roleRef: {
-		apiGroup: rbacv1.#ServiceAccountKind
+		apiGroup: rbacv1.#GroupName
 		kind:     "Role"
 		name:     "kubevirt-operator"
 	}
