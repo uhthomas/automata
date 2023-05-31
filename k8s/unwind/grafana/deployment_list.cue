@@ -30,7 +30,7 @@ import (
 				}
 				initContainers: [{
 					name:            "init-chown-data"
-					image:           "busybox:1.31.1"
+					image:           "busybox:1.36.1"
 					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: {
 						runAsNonRoot: false
