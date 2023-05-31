@@ -8,7 +8,7 @@ import (
 
 #Name:      "dragonfly-operator"
 #Namespace: "dragonfly-operator-system"
-#Version:   "0.0.4"
+#Version:   "0.0.5"
 
 #List: v1.#List & {
 	apiVersion: "v1"
