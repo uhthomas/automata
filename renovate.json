@@ -20,6 +20,7 @@
       "automerge": false
     }
   ],
+  "pinDigests": true,
   "regexManagers": [
     {
       "fileMatch": [
