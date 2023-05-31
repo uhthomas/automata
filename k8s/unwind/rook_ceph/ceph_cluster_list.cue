@@ -14,7 +14,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 #CephClusterList: items: [{
 	spec: {
 		cephVersion: {
-			image:            "quay.io/ceph/ceph:v17.2.5"
+			image:            "quay.io/ceph/ceph:v17.2.6"
 			allowUnsupported: false
 		}
 		dataDirHostPath:                            "/var/lib/rook"
