@@ -15,10 +15,7 @@ import "k8s.io/api/core/v1"
 	metadata: name: "\(#Name)-legacy"
 	spec: {
 		capacity: storage: "16Ti"
-		local: {
-			path:   "/dev/disk/by-id/wwn-0x5000c500cb5f5237-part2"
-			fsType: "ntfs"
-		}
+		local: path:       "/dev/disk/by-id/wwn-0x5000c500cb5f5237-part2"
 		claimRef: {
 			apiVersion: "v1"
 			kind:       "PersistentVolumeClaim"
@@ -27,6 +24,7 @@ import "k8s.io/api/core/v1"
 		}
 		accessModes: [v1.#ReadWriteOnce]
 		storageClassName: "local-storage"
+		volumeMode:       v1.#PersistentVolumeBlock
 		nodeAffinity: required: nodeSelectorTerms: [{
 			matchExpressions: [{
 				key:      v1.#LabelHostname

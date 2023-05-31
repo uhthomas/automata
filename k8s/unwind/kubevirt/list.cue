@@ -27,6 +27,8 @@ import (
 
 #List: items: list.Concat(_items)
 
+#List
+
 _items: [
 	#ClusterRoleBindingList.items,
 	#ClusterRoleList.items,
