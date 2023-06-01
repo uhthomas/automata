@@ -57,24 +57,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v3
-      - name: Display structure of downloaded files
-        run: ls -R
-      - name: Diff
-        id: diff
-        # diff returns a non-zero error if there's a diff, which obviously is fine.
-        continue-on-error: true
-        run: |
-          diff -urN base head > diff.txt
-          echo "diff=" >> "$GITHUB_OUTPUT"
-          "$GITHUB_OUTPUT" << diff.txt
       - name: Comment diff on PR
-        if: ${{ steps.diff.outcome == 'failure' }}
         uses: actions/github-script@v6
         with:
           script: |
+            const { exitCode, stdout } = exec.getExecOutput('diff', ['-urN', 'base', 'head'])
+
+            if (exitcode === 0) {
+              core.warning(`diff returned 0, stdout: ${stdout}`)
+              return
+            }
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: "```diff\n${{ steps.diff.outputs.diff }}```"
+              body: "```diff\n${stdout}```"
             })
