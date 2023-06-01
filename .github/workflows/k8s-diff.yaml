@@ -70,6 +70,11 @@ jobs:
               return
             }
 
+            if (!stdout) {
+              core.warning(`diff returned non-zero exit code, but no stdout`)
+              return
+            }
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
