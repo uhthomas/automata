@@ -20,6 +20,10 @@ import (
 		template: {
 			metadata: labels: "app.kubernetes.io/name": #Name
 			spec: {
+				volumes: [{
+					name: "tmp"
+					emptyDir: {}
+				}]
 				containers: [{
 					name:  "minecraft-server"
 					image: "itzg/minecraft-server:\(#Version)"
@@ -45,6 +49,9 @@ import (
 						}
 					}
 					volumeMounts: [{
+						name:      "tmp"
+						mountPath: "/tmp"
+					}, {
 						name:      "data"
 						mountPath: "/data"
 					}]
@@ -53,7 +60,7 @@ import (
 
 					livenessProbe:  probe
 					readinessProbe: probe
-					startupProbe:   probe
+					startupProbe:   probe & {initialDelaySeconds: 60}
 
 					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: {
