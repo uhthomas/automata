@@ -60,4 +60,18 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -R
       - name: Diff
+        id: diff
+        # diff returns a non-zero error if there's a diff, which obviously is fine.
+        continue-on-error: true
         run: diff -urN base head
+      - name: Comment diff on PR
+        if: ${{ steps.diff.outcome == 'failure' }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: "```diff\n${{ steps.diff.outputs.stdout }}```"
+            })
