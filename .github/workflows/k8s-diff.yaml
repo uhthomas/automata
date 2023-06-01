@@ -53,6 +53,7 @@ jobs:
           path: "${{ steps.get-output-path.outputs.PATH }}"
   compare:
     name: Compare
+    needs: [base, head]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v3
