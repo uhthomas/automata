@@ -37,6 +37,12 @@ import (
 					env: [{
 						name:  "EULA"
 						value: "TRUE"
+					}, {
+						name: "MEMORY"
+						value: ""
+					}, {
+						name: "JVM_XX_OPTS"
+						value: "-XX:MaxRAMPercentage=75"
 					}]
 					resources: {
 						limits: {

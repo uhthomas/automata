@@ -46,6 +46,12 @@ import (
 					}, {
 						name: "FTB_MODPACK_VERSION_ID"
 						value: "6477"
+					}, {
+						name: "MEMORY"
+						value: ""
+					}, {
+						name: "JVM_XX_OPTS"
+						value: "-XX:MaxRAMPercentage=75"
 					}]
 					resources: {
 						limits: {
