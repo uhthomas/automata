@@ -61,17 +61,17 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const { exitCode, stdout } = exec.getExecOutput('diff', ['-urN', 'base', 'head'], {
+            const { exitCode, stderr } = exec.getExecOutput('diff', ['-urN', 'base', 'head'], {
               ignoreReturnCode: true
             })
 
             if (exitCode === 0) {
-              core.warning(`diff returned 0, stdout: ${stdout}`)
+              core.warning(`diff returned 0, stderr: ${stderr}`)
               return
             }
 
-            if (!stdout) {
-              core.warning(`diff returned non-zero exit code, but no stdout`)
+            if (!stderr) {
+              core.warning(`diff returned non-zero exit code, but no stderr`)
               return
             }
 
@@ -79,5 +79,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `\`\`\`diff\n${stdout}\`\`\``
+              body: `\`\`\`diff\n${stderr}\`\`\``
             })
