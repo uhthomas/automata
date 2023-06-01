@@ -63,7 +63,7 @@ jobs:
           script: |
             const { exitCode, stdout } = exec.getExecOutput('diff', ['-urN', 'base', 'head'])
 
-            if (exitcode === 0) {
+            if (exitCode === 0) {
               core.warning(`diff returned 0, stdout: ${stdout}`)
               return
             }
