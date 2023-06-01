@@ -61,7 +61,9 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const { exitCode, stdout } = exec.getExecOutput('diff', ['-urN', 'base', 'head'])
+            const { exitCode, stdout } = exec.getExecOutput('diff', ['-urN', 'base', 'head'], {
+              ignoreReturnCode: true
+            })
 
             if (exitCode === 0) {
               core.warning(`diff returned 0, stdout: ${stdout}`)
