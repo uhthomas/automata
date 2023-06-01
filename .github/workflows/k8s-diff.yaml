@@ -63,7 +63,10 @@ jobs:
         id: diff
         # diff returns a non-zero error if there's a diff, which obviously is fine.
         continue-on-error: true
-        run: diff -urN base head
+        run: |
+          diff -urN base head > diff.txt
+          echo "diff=" >> "$GITHUB_OUTPUT"
+          "$GITHUB_OUTPUT" << diff.txt
       - name: Comment diff on PR
         if: ${{ steps.diff.outcome == 'failure' }}
         uses: actions/github-script@v6
@@ -73,5 +76,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: "```diff\n${{ steps.diff.outputs.stdout }}```"
+              body: "```diff\n${{ steps.diff.outputs.diff }}```"
             })
