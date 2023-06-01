@@ -39,7 +39,7 @@ import (
 						value: "TRUE"
 					}, {
 						name: "MEMORY"
-						value: "16G"
+						value: ""
 					}, {
 						name: "JVM_XX_OPTS"
 						value: "-XX:MaxRAMPercentage=75"
