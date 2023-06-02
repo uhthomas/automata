@@ -18,6 +18,18 @@
         "regex"
       ],
       "automerge": false
+    },
+    {
+      "matchUpdateTypes": [
+        "digest"
+      ],
+      "matchPackagePrefixes": [
+        "kubevirt.io/api"
+      ],
+      "matchManagers": [
+        "gomod"
+      ],
+      "enabled": false
     }
   ],
   "pinDigests": true,
