@@ -6,8 +6,7 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-#Name:    "minecraft-cf-atm8"
-#Version: "2023.3.0"
+#Name: "minecraft-cf-atm8"
 
 #List: v1.#List & {
 	apiVersion: "v1"

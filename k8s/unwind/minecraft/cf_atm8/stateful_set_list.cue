@@ -61,7 +61,7 @@ import (
 				}]
 				containers: [{
 					name:  "minecraft-server"
-					image: "itzg/minecraft-server:\(#Version)"
+					image: "itzg/minecraft-server@sha256:2dac9ce79aa6e106cd0107ed2b47e6c7cb73f133fd23057faa160739cf6fc2b0"
 					ports: [{
 						name:          "minecraft"
 						containerPort: 25565
