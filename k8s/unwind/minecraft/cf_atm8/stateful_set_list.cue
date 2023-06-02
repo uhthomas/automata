@@ -26,6 +26,9 @@ import (
 					name: "tmp"
 					emptyDir: {}
 				}, {
+					name: "init-etc-ssl-certs"
+					emptyDir: {}
+				}, {
 					name: "secrets-store-inline"
 					csi: {
 						driver:   "secrets-store.csi.k8s.io"
@@ -49,6 +52,9 @@ import (
 						memory: "1Gi"
 					}
 					volumeMounts: [{
+						name:      "init-etc-ssl-certs"
+						mountPath: "/etc/ssl/certs"
+					}, {
 						name:      "downloads"
 						mountPath: "/downloads"
 					}]
