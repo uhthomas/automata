@@ -42,7 +42,7 @@ import (
 						"https://mediafilez.forgecdn.net/files/4322/445/moreoverlays-1.21.5-mc1.19.2.jar",
 						"https://mediafilez.forgecdn.net/files/4466/686/hexerei-0.3.0.jar",
 					], ",")
-					args: ["-LOf", "{\(urls)}"]
+					args: ["-C", "-", "-LOf", "{\(urls)}"]
 					workingDir: "/downloads"
 					resources: limits: {
 						cpu:    "1"
