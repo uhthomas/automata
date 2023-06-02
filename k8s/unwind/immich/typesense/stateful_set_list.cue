@@ -25,7 +25,7 @@ import (
 					csi: {
 						driver:   "secrets-store.csi.k8s.io"
 						readOnly: true
-						volumeAttributes: secretProviderClass: "minecraft"
+						volumeAttributes: secretProviderClass: #Name
 					}
 				}]
 				containers: [{
