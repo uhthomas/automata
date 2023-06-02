@@ -1,7 +1,6 @@
 package cf_atm8
 
 import (
-	"strconv"
 	"strings"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -38,12 +37,12 @@ import (
 					name:  "download"
 					image: "ghcr.io/uhthomas/automata/curl:{STABLE_GIT_COMMIT}"
 					command: ["curl"]
-					let urls = [
+					let urls = strings.Join([
 						"https://mediafilez.forgecdn.net/files/4178/188/ExperienceBugFix-1.19-1.41.2.3.jar",
 						"https://mediafilez.forgecdn.net/files/4322/445/moreoverlays-1.21.5-mc1.19.2.jar",
 						"https://mediafilez.forgecdn.net/files/4466/686/hexerei-0.3.0.jar",
-					]
-					args: ["-LOf", strconv.Quote("{\(strings.Join(urls, ","))}"), "/downloads"]
+					], ",")
+					args: ["-LOf", "{\(urls)}", "/downloads"]
 					workingDir: "/downloads"
 					resources: limits: {
 						cpu:    "1"
