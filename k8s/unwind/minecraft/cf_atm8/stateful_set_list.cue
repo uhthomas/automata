@@ -65,11 +65,12 @@ import (
 					image: "itzg/minecraft-server:\(#Version)"
 					ports: [{
 						name:          "minecraft"
-						containerPort: 25565[
-						"https://mediafilez.forgecdn.net/files/4178/188/ExperienceBugFix-1.19-1.41.2.3.jar",
-						"https://mediafilez.forgecdn.net/files/4322/445/moreoverlays-1.21.5-mc1.19.2.jar",
-						"https://mediafilez.forgecdn.net/files/4466/686/hexerei-0.3.0.jar",
-					]
+						containerPort: 25565
+					}, {
+						name:          "rcon"
+						containerPort: 25575
+					}]
+					env: [{
 						name:  "EULA"
 						value: "TRUE"
 					}, {
