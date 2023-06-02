@@ -60,6 +60,9 @@ import (
 						name: "CF_FILE_ID"
 						value: "4545872"
 					}, {
+						name: "CF_PARALLEL_DOWNLOADS"
+						value: "1"
+					}, {
 						name: "MEMORY"
 						value: ""
 					}, {
