@@ -1,6 +1,9 @@
 package cf_atm8
 
 import (
+	"strconv"
+	"strings"
+
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/api/core/v1"
 )
@@ -31,21 +34,46 @@ import (
 						volumeAttributes: secretProviderClass: "minecraft"
 					}
 				}]
+				initContainers: [{
+					name:  "download"
+					image: "ghcr.io/uhthomas/automata/curl:{STABLE_GIT_COMMIT}"
+					command: ["curl"]
+					let urls = [
+						"https://mediafilez.forgecdn.net/files/4178/188/ExperienceBugFix-1.19-1.41.2.3.jar",
+						"https://mediafilez.forgecdn.net/files/4322/445/moreoverlays-1.21.5-mc1.19.2.jar",
+						"https://mediafilez.forgecdn.net/files/4466/686/hexerei-0.3.0.jar",
+					]
+					args: ["-LOf", strconv.Quote("{\(strings.Join(urls, ","))}"), "/downloads"]
+					workingDir: "/downloads"
+					resources: limits: {
+						cpu:    "1"
+						memory: "1Gi"
+					}
+					volumeMounts: [{
+						name:      "downloads"
+						mountPath: "/downloads"
+					}]
+					imagePullPolicy: v1.#PullIfNotPresent
+					securityContext: {
+						capabilities: drop: ["ALL"]
+						readOnlyRootFilesystem:   true
+						allowPrivilegeEscalation: false
+					}
+				}]
 				containers: [{
 					name:  "minecraft-server"
 					image: "itzg/minecraft-server:\(#Version)"
 					ports: [{
 						name:          "minecraft"
-						containerPort: 25565
-					}, {
-						name:          "rcon"
-						containerPort: 25575
-					}]
-					env: [{
+						containerPort: 25565[
+						"https://mediafilez.forgecdn.net/files/4178/188/ExperienceBugFix-1.19-1.41.2.3.jar",
+						"https://mediafilez.forgecdn.net/files/4322/445/moreoverlays-1.21.5-mc1.19.2.jar",
+						"https://mediafilez.forgecdn.net/files/4466/686/hexerei-0.3.0.jar",
+					]
 						name:  "EULA"
 						value: "TRUE"
 					}, {
-						name: "TYPE"
+						name:  "TYPE"
 						value: "AUTO_CURSEFORGE"
 					}, {
 						name: "CF_API_KEY"
@@ -54,19 +82,19 @@ import (
 							key:  "cf-api-key"
 						}
 					}, {
-						name: "CF_SLUG"
+						name:  "CF_SLUG"
 						value: "all-the-mods-8"
 					}, {
-						name: "CF_FILE_ID"
+						name:  "CF_FILE_ID"
 						value: "4545872"
 					}, {
-						name: "CF_PARALLEL_DOWNLOADS"
+						name:  "CF_PARALLEL_DOWNLOADS"
 						value: "1"
 					}, {
-						name: "MEMORY"
+						name:  "MEMORY"
 						value: ""
 					}, {
-						name: "JVM_XX_OPTS"
+						name:  "JVM_XX_OPTS"
 						value: "-XX:MaxRAMPercentage=75"
 					}]
 					resources: {
@@ -85,6 +113,9 @@ import (
 					}, {
 						name:      "data"
 						mountPath: "/data"
+					}, {
+						name:      "downloads"
+						mountPath: "/downloads"
 					}, {
 						name:      "secrets-store-inline"
 						readOnly:  true
@@ -119,6 +150,13 @@ import (
 				accessModes: [v1.#ReadWriteOnce]
 				storageClassName: "rook-ceph-hdd-ec-delete-block"
 				resources: requests: storage: "32Gi"
+			}
+		}, {
+			metadata: name: "downloads"
+			spec: {
+				accessModes: [v1.#ReadWriteOnce]
+				storageClassName: "rook-ceph-hdd-ec-delete-block"
+				resources: requests: storage: "8Gi"
 			}
 		}]
 		serviceName: #Name

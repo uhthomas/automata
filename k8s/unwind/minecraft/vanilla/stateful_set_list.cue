@@ -38,10 +38,10 @@ import (
 						name:  "EULA"
 						value: "TRUE"
 					}, {
-						name: "MEMORY"
+						name:  "MEMORY"
 						value: ""
 					}, {
-						name: "JVM_XX_OPTS"
+						name:  "JVM_XX_OPTS"
 						value: "-XX:MaxRAMPercentage=75"
 					}]
 					resources: {

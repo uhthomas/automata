@@ -39,19 +39,19 @@ import (
 						name:  "EULA"
 						value: "TRUE"
 					}, {
-						name: "TYPE"
+						name:  "TYPE"
 						value: "FTBA"
 					}, {
-						name: "FTB_MODPACK_ID"
+						name:  "FTB_MODPACK_ID"
 						value: "102"
 					}, {
-						name: "FTB_MODPACK_VERSION_ID"
+						name:  "FTB_MODPACK_VERSION_ID"
 						value: "6477"
 					}, {
-						name: "MEMORY"
+						name:  "MEMORY"
 						value: ""
 					}, {
-						name: "JVM_XX_OPTS"
+						name:  "JVM_XX_OPTS"
 						value: "-XX:MaxRAMPercentage=75"
 					}]
 					resources: {

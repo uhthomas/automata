@@ -9,7 +9,7 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-#Name: "minecraft"
+#Name:      "minecraft"
 #Namespace: #Name
 #Version:   "2023.3.0"
 
