@@ -35,14 +35,13 @@ import (
 				}]
 				initContainers: [{
 					name:  "download"
-					image: "ghcr.io/uhthomas/automata/curl:{STABLE_GIT_COMMIT}"
+					image: "curlimages/curl:8.1.1"
 					command: ["curl"]
-					let urls = strings.Join([
+					args: ["-C", "-", "-LOf", "{\(strings.Join([
 						"https://mediafilez.forgecdn.net/files/4178/188/ExperienceBugFix-1.19-1.41.2.3.jar",
 						"https://mediafilez.forgecdn.net/files/4322/445/moreoverlays-1.21.5-mc1.19.2.jar",
 						"https://mediafilez.forgecdn.net/files/4466/686/hexerei-0.3.0.jar",
-					], ",")
-					args: ["-C", "-", "-LOf", "{\(urls)}"]
+					], ","))}"]
 					workingDir: "/downloads"
 					resources: limits: {
 						cpu:    "1"
@@ -100,7 +99,7 @@ import (
 					resources: {
 						limits: {
 							cpu:    "6"
-							memory: "24Gi"
+							memory: "16Gi"
 						}
 						requests: {
 							cpu:    "2"
