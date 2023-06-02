@@ -36,7 +36,6 @@ import (
 				initContainers: [{
 					name:  "download"
 					image: "curlimages/curl:8.1.1"
-					command: ["curl"]
 					args: ["-C", "-", "-LOf", "{\(strings.Join([
 						"https://mediafilez.forgecdn.net/files/4178/188/ExperienceBugFix-1.19-1.41.2.3.jar",
 						"https://mediafilez.forgecdn.net/files/4322/445/moreoverlays-1.21.5-mc1.19.2.jar",
