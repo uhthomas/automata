@@ -126,7 +126,10 @@ import (
 
 					livenessProbe:  probe
 					readinessProbe: probe
-					startupProbe:   probe & {initialDelaySeconds: 360}
+					startupProbe:   probe & {
+						initialDelaySeconds: 240
+						failureThreshold:    30
+					}
 
 					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: {
