@@ -1,4 +1,4 @@
-package typesense
+package cf_atm8
 
 import (
 	appsv1 "k8s.io/api/apps/v1"
@@ -21,6 +21,9 @@ import (
 			metadata: labels: "app.kubernetes.io/name": #Name
 			spec: {
 				volumes: [{
+					name: "tmp"
+					emptyDir: {}
+				}, {
 					name: "secrets-store-inline"
 					csi: {
 						driver:   "secrets-store.csi.k8s.io"
@@ -29,49 +32,75 @@ import (
 					}
 				}]
 				containers: [{
-					name:  #Name
-					image: "typesense/typesense:v\(#Version)@sha256:e6ef6a082a62fb19c7fa80f596293f6519ce445670a59ae6ec4b750283865859"
+					name:  "minecraft-server"
+					image: "itzg/minecraft-server:\(#Version)"
 					ports: [{
-						name:          "http"
-						containerPort: 8108
+						name:          "minecraft"
+						containerPort: 25565
+					}, {
+						name:          "rcon"
+						containerPort: 25575
 					}]
 					env: [{
-						name:  "TYPESENSE_DATA_DIR"
-						value: "/var/lib/typesense"
+						name:  "EULA"
+						value: "TRUE"
 					}, {
-						name: "TYPESENSE_API_KEY"
+						name: "TYPE"
+						value: "AUTO_CURSEFORGE"
+					}, {
+						name: "CF_API_KEY"
 						valueFrom: secretKeyRef: {
-							name: #Name
-							key:  "typesense-api-key"
+							name: "minecraft"
+							key:  "cf-api-key"
 						}
+					}, {
+						name: "CF_SLUG"
+						value: "all-the-mods-8"
+					}, {
+						name: "CF_FILE_ID"
+						value: "4545872"
+					}, {
+						name: "MEMORY"
+						value: ""
+					}, {
+						name: "JVM_XX_OPTS"
+						value: "-XX:MaxRAMPercentage=75"
 					}]
-
-					let probe = {
-						httpGet: {
-							path: "/health"
-							port: "http"
+					resources: {
+						limits: {
+							cpu:    "4"
+							memory: "16Gi"
+						}
+						requests: {
+							cpu:    "2"
+							memory: "8Gi"
 						}
 					}
-
-					livenessProbe:  probe
-					readinessProbe: probe
-
-					imagePullPolicy: v1.#PullIfNotPresent
 					volumeMounts: [{
+						name:      "tmp"
+						mountPath: "/tmp"
+					}, {
 						name:      "data"
-						mountPath: "/var/lib/typesense"
+						mountPath: "/data"
 					}, {
 						name:      "secrets-store-inline"
 						readOnly:  true
 						mountPath: "/mnt/secrets-store"
 					}]
+
+					let probe = {exec: command: ["mc-health"]}
+
+					livenessProbe:  probe
+					readinessProbe: probe
+					startupProbe:   probe & {initialDelaySeconds: 180}
+
+					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: {
 						capabilities: drop: ["ALL"]
 						readOnlyRootFilesystem:   true
 						allowPrivilegeEscalation: false
 					}
 				}]
-				serviceAccountName: #Name
 				securityContext: {
 					runAsUser:    1000
 					runAsGroup:   3000
