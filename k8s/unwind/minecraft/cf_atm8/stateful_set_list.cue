@@ -94,9 +94,6 @@ import (
 					}, {
 						name:  "JVM_XX_OPTS"
 						value: "-XX:MaxRAMPercentage=75"
-					}, {
-						name:  "SPAWN_PROTECTION"
-						value: "0"
 					}]
 					resources: {
 						limits: {
