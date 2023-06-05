@@ -36,11 +36,15 @@ import (
 				initContainers: [{
 					name:  "download"
 					image: "curlimages/curl:8.1.1"
-					args: ["-C", "-", "-LOf", "{\(strings.Join([
+					// Can be templated directly with args,
+					// but syntax highlighting for vscode is
+					// broken.
+					let urls = strings.Join([
 						"https://mediafilez.forgecdn.net/files/4178/188/ExperienceBugFix-1.19-1.41.2.3.jar",
 						"https://mediafilez.forgecdn.net/files/4322/445/moreoverlays-1.21.5-mc1.19.2.jar",
 						"https://mediafilez.forgecdn.net/files/4466/686/hexerei-0.3.0.jar",
-					], ","))}"]
+					], ",")
+					args: ["-C", "-", "-LOf", "{\(urls)}"]
 					workingDir: "/downloads"
 					resources: limits: {
 						cpu:    "1"
@@ -92,18 +96,13 @@ import (
 						name:  "MEMORY"
 						value: ""
 					}, {
-						name:  "JVM_XX_OPTS"
-						value: "-XX:MaxRAMPercentage=75"
+						name: "JVM_XX_OPTS"
+						// https://www.reddit.com/r/feedthebeast/comments/5jhuk9/modded_mc_and_memory_usage_a_history_with_a/
+						value: "-XX:InitialRAMPercentage=75 -XX:MaxRAMPercentage=75 -XX:+UseG1GC -Dsun.rmi.dgc.server.gcInterval=2147483646 -XX:+UnlockExperimentalVMOptions -XX:G1NewSizePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M"
 					}]
-					resources: {
-						limits: {
-							cpu:    "6"
-							memory: "16Gi"
-						}
-						requests: {
-							cpu:    "2"
-							memory: "16Gi"
-						}
+					resources: limits: {
+						cpu:    "6"
+						memory: "24Gi"
 					}
 					volumeMounts: [{
 						name:      "tmp"
