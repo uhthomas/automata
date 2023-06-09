@@ -112,6 +112,8 @@ github.com/NYTimes/gziphandler v1.1.1/go.mod h1:n/CVRwUEOgIxrgPvAQhUUr9oeUtvrhMo
 github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5/go.mod h1:lmUJ/7eu/Q8D7ML55dXQrVaamCz2vxCfdQBasLZfHKk=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/ProtonMail/go-crypto v0.0.0-20220824120805-4b6e5c587895 h1:NsReiLpErIPzRrnogAXYwSoU7txA977LjDGrbkewJbg=
+github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
+github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
 github.com/SAP/go-hdb v0.14.1/go.mod h1:7fdQLVC2lER3urZLjZCm0AuMQfApof92n3aylBPEkMo=
 github.com/Sectorbob/mlab-ns2 v0.0.0-20171030222938-d3aa0c295a8a/go.mod h1:D73UAuEPckrDorYZdtlCu2ySOLuPB5W4rhIkmmc/XbI=
 github.com/Shopify/sarama v1.19.0/go.mod h1:FVkBWblsNy7DGZRfXLU0O9RCGt5g3g3yEuWXgklEdEo=
@@ -862,6 +864,7 @@ github.com/kube-object-storage/lib-bucket-provisioner v0.0.0-20221122204822-d1a8
 github.com/kube-object-storage/lib-bucket-provisioner v0.0.0-20221122204822-d1a8c34382f1/go.mod h1:my+EVjOJLeQ9lUR9uVkxRvNNkhO2saSGIgzV8GZT9HY=
 github.com/kubernetes-csi/external-snapshotter/client/v4 v4.0.0/go.mod h1:YBCo4DoEeDndqvAn6eeu0vWM7QdXmHEeI9cFWplmBys=
 github.com/kylelemons/godebug v1.1.0 h1:RPNrshWIDI6G2gRW9EHilWtl7Z6Sb1BR0xunSBf0SNc=
+github.com/kylelemons/godebug v1.1.0/go.mod h1:9/0rRGxNHcop5bhtWyNeEfOS8JIWk580+fNqagV/RAw=
 github.com/lib/pq v1.2.0/go.mod h1:5WUZQaWbwv1U+lTReE5YruASi9Al49XbQIvNi/34Woo=
 github.com/lib/pq v1.10.6 h1:jbk+ZieJ0D7EVGJYpL9QTz7/YW6UHbmdnZWYyK5cdBs=
 github.com/libopenstorage/autopilot-api v0.6.1-0.20210128210103-5fbb67948648/go.mod h1:6JLrPbR3ZJQFbUY/+QJMl/aF00YdIrLf8/GWAplgvJs=
@@ -1156,6 +1159,8 @@ github.com/rook/rook/pkg/apis v0.0.0-20230531211437-13c7c6bae5ff h1:whWddcccmbh2
 github.com/rook/rook/pkg/apis v0.0.0-20230531211437-13c7c6bae5ff/go.mod h1:0PRtc3cP3it11iCwxCxcksqGzBWIAHCf35G+BkcZxvo=
 github.com/rook/rook/pkg/apis v0.0.0-20230601200950-56b3bf90e64c h1:SG16RsRvFnews5XHB7NeLYmIU5JfUzsKguk97Kcw+N0=
 github.com/rook/rook/pkg/apis v0.0.0-20230601200950-56b3bf90e64c/go.mod h1:0PRtc3cP3it11iCwxCxcksqGzBWIAHCf35G+BkcZxvo=
+github.com/rook/rook/pkg/apis v0.0.0-20230608225042-12d79814d3ce h1:wmQeHKC/cv9XiLo5TbxEAajN926cz2rhw72I4XB/oHA=
+github.com/rook/rook/pkg/apis v0.0.0-20230608225042-12d79814d3ce/go.mod h1:0PRtc3cP3it11iCwxCxcksqGzBWIAHCf35G+BkcZxvo=
 github.com/russross/blackfriday/v2 v2.0.1/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/russross/blackfriday/v2 v2.1.0 h1:JIOH55/0cWyOuilr9/qlrm0BSXldqnqwMsf35Ld67mk=
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
