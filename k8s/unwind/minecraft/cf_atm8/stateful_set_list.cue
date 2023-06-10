@@ -35,7 +35,7 @@ import (
 				}]
 				initContainers: [{
 					name:  "download"
-					image: "curlimages/curl:8.1.1"
+					image: "curlimages/curl:8.1.2"
 					// Can be templated directly with args,
 					// but syntax highlighting for vscode is
 					// broken.
