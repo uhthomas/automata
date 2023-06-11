@@ -4,6 +4,7 @@ import (
 	"list"
 
 	"github.com/uhthomas/automata/k8s/unwind/thomas/legacybackup"
+	"github.com/uhthomas/automata/k8s/unwind/thomas/smartctl"
 	"github.com/uhthomas/automata/k8s/unwind/thomas/synologybackup"
 	"k8s.io/api/core/v1"
 )
@@ -25,8 +26,8 @@ import (
 #List: items: list.Concat(_items)
 
 _items: [
-	#JobList.items,
 	#NamespaceList.items,
 	legacybackup.#List.items,
+	smartctl.#List.items,
 	synologybackup.#List.items,
 ]

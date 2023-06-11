@@ -12,7 +12,7 @@ k8s_object(
     images = {
         "ghcr.io/uhthomas/automata/ntfs3grsync:{STABLE_GIT_COMMIT}": "//container/ntfs3grsync:image",
         # "ghcr.io/uhthomas/automata/rsync:{STABLE_GIT_COMMIT}": "//container/rsync:image",
-        # "ghcr.io/uhthomas/automata/smartmontools:{STABLE_GIT_COMMIT}": "//container/smartmontools:image",
+        "ghcr.io/uhthomas/automata/smartmontools:{STABLE_GIT_COMMIT}": "//container/smartmontools:image",
     },
     kind = "Deployment",
     template = ":list",

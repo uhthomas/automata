@@ -19,5 +19,6 @@ install_pkgs(
 container_image(
     name = "image",
     base = ":pkgs_image.tar",
+    entrypoint = ["smartctl"],
     visibility = ["//visibility:public"],
 )
