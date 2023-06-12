@@ -3,6 +3,7 @@ package thomas
 import (
 	"list"
 
+	"github.com/uhthomas/automata/k8s/unwind/thomas/identify_partitions"
 	"github.com/uhthomas/automata/k8s/unwind/thomas/legacybackup"
 	"github.com/uhthomas/automata/k8s/unwind/thomas/smartctl"
 	"github.com/uhthomas/automata/k8s/unwind/thomas/synologybackup"
@@ -27,6 +28,7 @@ import (
 
 _items: [
 	#NamespaceList.items,
+	identify_partitions.#List.items,
 	legacybackup.#List.items,
 	smartctl.#List.items,
 	synologybackup.#List.items,
