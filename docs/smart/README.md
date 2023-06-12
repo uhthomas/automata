@@ -1,6 +1,6 @@
 # S.M.A.R.T
 
-S.M.A.R.T information from drives operated by automata.
+S.M.A.R.T information from disks operated by automata.
 
 | Model           | WWN                                                 |
 | --------------- | --------------------------------------------------- |
