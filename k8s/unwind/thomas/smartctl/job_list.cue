@@ -26,18 +26,17 @@ import (
 	spec: {
 		backoffLimit: 0
 		template: spec: {
-			let _path = "/dev/disk/by-id/\(disk)"
 			volumes: [{
 				name: "disk"
-				hostPath: path: _path
+				hostPath: path: "/dev/disk/by-id/\(disk)"
 			}]
 			containers: [{
 				name:  "smartctl"
 				image: "ghcr.io/uhthomas/automata/smartmontools:{STABLE_GIT_COMMIT}"
-				args: ["-a", _path]
+				args: ["-a", "/dev/sda"]
 				volumeMounts: [{
 					name:      "disk"
-					mountPath: _path
+					mountPath: "/dev/sda"
 				}]
 				imagePullPolicy: v1.#PullIfNotPresent
 				securityContext: privileged: true
