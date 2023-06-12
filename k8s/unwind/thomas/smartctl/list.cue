@@ -15,4 +15,4 @@ import (
 
 #List: items: list.Concat(_items)
 
-_items: [ #JobList.items]
+_items: [#JobList.items]
