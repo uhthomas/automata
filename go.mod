@@ -5,7 +5,7 @@ go 1.19
 require (
 	cuelang.org/go v0.5.0
 	github.com/prometheus/prometheus v2.5.0+incompatible
-	github.com/rook/rook/pkg/apis v0.0.0-20230608225042-12d79814d3ce
+	github.com/rook/rook/pkg/apis v0.0.0-20230610013550-97bf52d769c2
 	k8s.io/api v0.27.2
 	k8s.io/apiextensions-apiserver v0.27.2
 	k8s.io/client-go v12.0.0+incompatible
