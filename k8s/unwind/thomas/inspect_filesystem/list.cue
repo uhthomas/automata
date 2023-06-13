@@ -1,4 +1,4 @@
-package identify_partitions
+package inspect_filesystem
 
 import (
 	"list"
@@ -6,7 +6,7 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-#Name: "identify-partitions"
+#Name: "inspect-filesystem"
 
 #List: v1.#List & {
 	apiVersion: "v1"

@@ -1,4 +1,4 @@
-package identify_partitions
+package inspect_filesystem
 
 import (
 	"k8s.io/api/core/v1"
@@ -21,31 +21,18 @@ import (
 		backoffLimit: 0
 		template: spec: {
 			volumes: [{
-				name: "disk"
-				hostPath: path: "/dev/disk/by-id/\(disk)"
-			}, {
-				name: "disk-part1"
-				hostPath: path: "/dev/disk/by-id/\(disk)-part1"
-			}, {
 				name: "disk-part2"
 				hostPath: path: "/dev/disk/by-id/\(disk)-part2"
 			}]
 			containers: [{
-				name:  "blkid"
-				image: "debian:bookworm-slim"
+				name:  "inspect"
+				image: "ghcr.io/uhthomas/automata/ntfs3g:{STABLE_GIT_COMMIT}"
 				command: ["sh", "-c"]
 				args: ["""
-					blkid /dev/sda
-					blkid /dev/sda1
-					blkid /dev/sda2
+					mount -t ntfs /dev/sda2 /mnt
+					ls -al /mnt
 					"""]
 				volumeMounts: [{
-					name:      "disk"
-					mountPath: "/dev/sda"
-				}, {
-					name:      "disk-part1"
-					mountPath: "/dev/sda1"
-				}, {
 					name:      "disk-part2"
 					mountPath: "/dev/sda2"
 				}]
