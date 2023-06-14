@@ -3,7 +3,6 @@ package thomas
 import (
 	"list"
 
-	"github.com/uhthomas/automata/k8s/unwind/thomas/inspect_filesystem"
 	"github.com/uhthomas/automata/k8s/unwind/thomas/legacybackup"
 	"github.com/uhthomas/automata/k8s/unwind/thomas/smartctl"
 	"github.com/uhthomas/automata/k8s/unwind/thomas/synologybackup"
@@ -28,7 +27,6 @@ import (
 
 _items: [
 	#NamespaceList.items,
-	inspect_filesystem.#List.items,
 	legacybackup.#List.items,
 	smartctl.#List.items,
 	synologybackup.#List.items,
