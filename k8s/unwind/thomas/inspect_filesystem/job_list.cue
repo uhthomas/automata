@@ -26,11 +26,11 @@ import (
 			}]
 			containers: [{
 				name:  "inspect"
-				image: "ghcr.io/uhthomas/automata/ntfs3g:{STABLE_GIT_COMMIT}"
+				image: "ghcr.io/uhthomas/automata/ntfs3gtree:{STABLE_GIT_COMMIT}"
 				command: ["sh", "-c"]
 				args: ["""
 					mount -t ntfs /dev/sda2 /mnt
-					ls -al /mnt
+					tree /mnt
 					"""]
 				volumeMounts: [{
 					name:      "disk-part2"

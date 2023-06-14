@@ -10,8 +10,8 @@ k8s_object(
     ],
     context = "",
     images = {
-        "ghcr.io/uhthomas/automata/ntfs3g:{STABLE_GIT_COMMIT}": "//container/ntfs3g:image",
         "ghcr.io/uhthomas/automata/ntfs3grsync:{STABLE_GIT_COMMIT}": "//container/ntfs3grsync:image",
+        "ghcr.io/uhthomas/automata/ntfs3gtree:{STABLE_GIT_COMMIT}": "//container/ntfs3gtree:image",
         # "ghcr.io/uhthomas/automata/rsync:{STABLE_GIT_COMMIT}": "//container/rsync:image",
         # "ghcr.io/uhthomas/automata/smartmontools:{STABLE_GIT_COMMIT}": "//container/smartmontools:image",
     },
