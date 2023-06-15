@@ -22,7 +22,7 @@ import (
 	// HUH721010AL5200
 	"wwn-0x5000cca26c015ed8",
 ] {
-	metadata: name: "\(#Name)-t-long-\(disk)"
+	metadata: name: "\(#Name)-a-\(disk)"
 	spec: {
 		backoffLimit: 0
 		template: spec: {
@@ -33,7 +33,7 @@ import (
 			containers: [{
 				name:  "smartctl"
 				image: "ghcr.io/uhthomas/automata/smartmontools:{STABLE_GIT_COMMIT}"
-				args: ["-t", "long", "/dev/sda"]
+				args: ["-a", "/dev/sda"]
 				volumeMounts: [{
 					name:      "disk"
 					mountPath: "/dev/sda"
