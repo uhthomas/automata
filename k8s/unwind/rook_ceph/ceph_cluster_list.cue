@@ -133,6 +133,9 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 				}, {
 					// IBM-ESXS HUH728080AL420
 					name: "/dev/disk/by-id/wwn-0x5000cca26105b87c"
+				}, {
+					// HGST HUH721010AL5200
+					name: "/dev/disk/by-id/wwn-0x5000cca26c015ed8"
 				}]
 			}, {
 				name: "talos-god-636"
@@ -142,6 +145,9 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 				}, {
 					// IBM-ESXS HUH728080AL420
 					name: "/dev/disk/by-id/wwn-0x5000cca23b435a24"
+				}, {
+					// HGST HUH721010AL5200
+					name: "/dev/disk/by-id/wwn-0x5000cca2669799a0"
 				}, {
 					// WDC WD120EMAZ-11
 					name: "/dev/disk/by-id/wwn-0x5000cca291cccc74"
