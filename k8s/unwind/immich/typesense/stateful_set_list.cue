@@ -55,6 +55,10 @@ import (
 
 					livenessProbe:  probe
 					readinessProbe: probe
+					startupProbe:   probe & {
+						failureThreshold: 12
+						periodSeconds:    10
+					}
 
 					imagePullPolicy: v1.#PullIfNotPresent
 					volumeMounts: [{
