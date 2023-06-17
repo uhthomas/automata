@@ -51,13 +51,15 @@ import (
 							path: "/health"
 							port: "http"
 						}
+						failureThreshold: 6
 					}
 
 					livenessProbe:  probe
 					readinessProbe: probe
 					startupProbe:   probe & {
-						failureThreshold: 12
-						periodSeconds:    10
+						initialDelaySeconds: 30
+						periodSeconds:       10
+						failureThreshold:    18
 					}
 
 					imagePullPolicy: v1.#PullIfNotPresent
