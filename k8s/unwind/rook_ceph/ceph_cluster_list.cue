@@ -121,6 +121,16 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 					memory: "4Gi"
 				}
 			}
+			exporter: {
+				limits: {
+					cpu:    "250m"
+					memory: "128Mi"
+				}
+				requests: {
+					cpu:    "50m"
+					memory: "50Mi"
+				}
+			}
 		}
 		storage: {
 			useAllNodes:   false
