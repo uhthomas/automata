@@ -98,7 +98,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 				}
 				limits: {
 					cpu:    "500m"
-					memory: "512Mi"
+					memory: "1Gi"
 				}
 			}
 			mon: {
