@@ -36,7 +36,7 @@ import (
 				securityContext: privileged: true
 			}]
 			restartPolicy: v1.#RestartPolicyNever
-			nodeName:      "talos-l94-p4c"
+			nodeName:      "talos-avz-rb5"
 		}
 	}
 }]
