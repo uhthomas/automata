@@ -16,8 +16,4 @@ import (
 
 #List: items: list.Concat(_items)
 
-_items: [
-	#JobList.items,
-	#PersistentVolumeClaimList.items,
-	#PersistentVolumeList.items,
-]
+_items: [#PersistentVolumeClaimList.items]

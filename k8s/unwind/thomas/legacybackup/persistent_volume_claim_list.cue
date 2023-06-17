@@ -18,12 +18,4 @@ import "k8s.io/api/core/v1"
 		storageClassName: "rook-ceph-hdd-ec-retain-block"
 		resources: requests: storage: "16Ti"
 	}
-}, {
-	metadata: name: "\(#Name)-legacy"
-	spec: {
-		accessModes: [v1.#ReadWriteOnce]
-		storageClassName: "local-storage"
-		resources: requests: storage: "16Ti"
-		volumeMode: v1.#PersistentVolumeBlock
-	}
 }]
