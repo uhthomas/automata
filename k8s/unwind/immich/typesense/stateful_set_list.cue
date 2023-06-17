@@ -51,7 +51,7 @@ import (
 							path: "/health"
 							port: "http"
 						}
-						failureThreshold: 6
+						failureThreshold: int | *6
 					}
 
 					livenessProbe:  probe
