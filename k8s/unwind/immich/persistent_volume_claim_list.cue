@@ -16,6 +16,6 @@ import "k8s.io/api/core/v1"
 	spec: {
 		accessModes: [v1.#ReadWriteMany]
 		storageClassName: "rook-cephfs-hdd-ec-retain"
-		resources: requests: storage: "1Ti"
+		resources: requests: storage: "5Ti"
 	}
 }]
