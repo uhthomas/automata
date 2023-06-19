@@ -14,6 +14,7 @@ cue_library(
         "persistent_volume_claim_list.cue",
         "pod_logs_list.cue",
         "pod_monitor_list.cue",
+        "secret_list.cue",
         "service_account_list.cue",
         "service_monitor_list.cue",
     ],

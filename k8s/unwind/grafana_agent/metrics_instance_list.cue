@@ -23,5 +23,10 @@ import "k8s.io/api/core/v1"
 
 		probeNamespaceSelector: {}
 		probeSelector: matchLabels: {}
+
+		additionalScrapeConfigs: {
+			name: "\(#Name)-additional-scrape-configs"
+			key:  "jobs.yaml"
+		}
 	}
 }]
