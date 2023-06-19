@@ -7,7 +7,7 @@ import (
 )
 
 #Name:      "immich-machine-learning"
-#Version:   "1.61.0"
+#Version:   "1.62.1"
 #Component: "machine-learning"
 
 #List: v1.#List & {

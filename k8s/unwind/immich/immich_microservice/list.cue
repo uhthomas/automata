@@ -7,7 +7,7 @@ import (
 )
 
 #Name:      "immich-microservice"
-#Version:   "1.61.0"
+#Version:   "1.62.1"
 #Component: "microservice"
 
 #List: v1.#List & {

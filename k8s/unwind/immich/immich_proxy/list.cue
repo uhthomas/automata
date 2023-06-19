@@ -7,7 +7,7 @@ import (
 )
 
 #Name:      "immich-proxy"
-#Version:   "1.61.0"
+#Version:   "1.62.1"
 #Component: "proxy"
 
 #List: v1.#List & {
