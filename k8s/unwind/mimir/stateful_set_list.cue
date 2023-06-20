@@ -84,7 +84,7 @@ import (
 				}]
 				containers: [{
 					name:            "compactor"
-					image:           "grafana/mimir:2.7.1"
+					image:           "grafana/mimir:2.9.0"
 					imagePullPolicy: "IfNotPresent"
 					args: [
 						"-target=compactor",
@@ -215,7 +215,7 @@ import (
 				}]
 				containers: [{
 					name:            "ingester"
-					image:           "grafana/mimir:2.7.1"
+					image:           "grafana/mimir:2.9.0"
 					imagePullPolicy: "IfNotPresent"
 					args: [
 						"-target=ingester",
@@ -349,7 +349,7 @@ import (
 				}]
 				containers: [{
 					name:            "ingester"
-					image:           "grafana/mimir:2.7.1"
+					image:           "grafana/mimir:2.9.0"
 					imagePullPolicy: "IfNotPresent"
 					args: [
 						"-target=ingester",
@@ -481,7 +481,7 @@ import (
 				}]
 				containers: [{
 					name:            "ingester"
-					image:           "grafana/mimir:2.7.1"
+					image:           "grafana/mimir:2.9.0"
 					imagePullPolicy: "IfNotPresent"
 					args: [
 						"-target=ingester",
@@ -612,7 +612,7 @@ import (
 				}]
 				containers: [{
 					name:            "store-gateway"
-					image:           "grafana/mimir:2.7.1"
+					image:           "grafana/mimir:2.9.0"
 					imagePullPolicy: "IfNotPresent"
 					args: [
 						"-target=store-gateway",
@@ -749,7 +749,7 @@ import (
 				}]
 				containers: [{
 					name:            "store-gateway"
-					image:           "grafana/mimir:2.7.1"
+					image:           "grafana/mimir:2.9.0"
 					imagePullPolicy: "IfNotPresent"
 					args: [
 						"-target=store-gateway",
@@ -880,7 +880,7 @@ import (
 				}]
 				containers: [{
 					name:            "store-gateway"
-					image:           "grafana/mimir:2.7.1"
+					image:           "grafana/mimir:2.9.0"
 					imagePullPolicy: "IfNotPresent"
 					args: [
 						"-target=store-gateway",

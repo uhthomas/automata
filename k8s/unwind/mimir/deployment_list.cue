@@ -48,7 +48,7 @@ import (
 				}
 				containers: [{
 					name:            "distributor"
-					image:           "grafana/mimir:2.7.1"
+					image:           "grafana/mimir:2.9.0"
 					imagePullPolicy: v1.#PullIfNotPresent
 					args: [
 						"-target=distributor",
@@ -243,7 +243,7 @@ import (
 				}
 				containers: [{
 					name:            "overrides-exporter"
-					image:           "grafana/mimir:2.7.1"
+					image:           "grafana/mimir:2.9.0"
 					imagePullPolicy: v1.#PullIfNotPresent
 					args: [
 						"-target=overrides-exporter",
@@ -352,7 +352,7 @@ import (
 				}
 				containers: [{
 					name:            "querier"
-					image:           "grafana/mimir:2.7.1"
+					image:           "grafana/mimir:2.9.0"
 					imagePullPolicy: v1.#PullIfNotPresent
 					args: [
 						"-target=querier",
@@ -463,7 +463,7 @@ import (
 				}
 				containers: [{
 					name:            "query-frontend"
-					image:           "grafana/mimir:2.7.1"
+					image:           "grafana/mimir:2.9.0"
 					imagePullPolicy: v1.#PullIfNotPresent
 					args: [
 						"-target=query-frontend",
@@ -577,7 +577,7 @@ import (
 				}
 				containers: [{
 					name:            "query-scheduler"
-					image:           "grafana/mimir:2.7.1"
+					image:           "grafana/mimir:2.9.0"
 					imagePullPolicy: v1.#PullIfNotPresent
 					args: [
 						"-target=query-scheduler",
@@ -699,7 +699,7 @@ import (
 				}
 				containers: [{
 					name:            "ruler"
-					image:           "grafana/mimir:2.7.1"
+					image:           "grafana/mimir:2.9.0"
 					imagePullPolicy: v1.#PullIfNotPresent
 					args: [
 						"-target=ruler",
