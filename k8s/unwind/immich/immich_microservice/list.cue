@@ -7,6 +7,8 @@ import (
 )
 
 #Name:      "immich-microservice"
+#Namespace: "immich"
+
 #Version:   "1.62.1"
 #Component: "microservice"
 

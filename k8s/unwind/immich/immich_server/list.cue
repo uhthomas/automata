@@ -7,6 +7,8 @@ import (
 )
 
 #Name:      "immich-server"
+#Namespace: "immich"
+
 #Version:   "1.62.1"
 #Component: "server"
 
