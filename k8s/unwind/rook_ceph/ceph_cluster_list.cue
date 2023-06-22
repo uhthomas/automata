@@ -170,6 +170,9 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 				}, {
 					// HGST H7280A520SUN8.0T
 					name: "/dev/disk/by-id/wwn-0x5000cca23b356ba0"
+				}, {
+					// HGST HUH721010AL5200
+					name: "/dev/disk/by-id/wwn-0x5000cca26697af28"
 				}]
 			}, {
 				name: "talos-e5f-w4m"
