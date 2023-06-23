@@ -19,7 +19,7 @@ import "k8s.io/api/core/v1"
 			port:        "http-metrics"
 			honorLabels: true
 			relabelings: [{
-				sourceLabels: ["__meta_kubernetes_service_annotation_prometheus_io_scrape"]
+				sourceLabels: ["__meta_kubernetes_pod_annotation_prometheus_io_scrape"]
 				action: "keep"
 				regex:  "true"
 			}]
