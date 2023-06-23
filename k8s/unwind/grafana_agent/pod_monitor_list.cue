@@ -21,7 +21,7 @@ import "k8s.io/api/core/v1"
 			relabelings: [{
 				sourceLabels: ["__meta_kubernetes_service_annotation_prometheus_io_scrape"]
 				action: "keep"
-				regex:  true
+				regex:  "true"
 			}]
 		}]
 	}
