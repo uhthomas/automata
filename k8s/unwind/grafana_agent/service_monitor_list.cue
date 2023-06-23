@@ -12,6 +12,20 @@ import "k8s.io/api/core/v1"
 }
 
 #ServiceMonitorList: items: [{
+	spec: {
+		endpoints: [{
+			port:        "http-metrics"
+			honorLabels: true
+			relabelings: [{
+				sourceLabels: ["__meta_kubernetes_service_annotation_prometheus_io_scrape"]
+				action: "keep"
+				regex:  "true"
+			}]
+		}]
+		namespaceSelector: any: true
+		selector: matchLabels: {}
+	}
+}, {
 	metadata: name: "\(#Name)-kubelet"
 	spec: {
 		endpoints: [{
@@ -81,10 +95,3 @@ import "k8s.io/api/core/v1"
 		selector: matchLabels: "app.kubernetes.io/name": "kube-state-metrics"
 	}
 }]
-
-// {
-//  spec: {
-//   namespaceSelector: any: true
-//   selector: matchLabels: {}
-//  }
-// },
