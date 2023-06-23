@@ -55,7 +55,6 @@ cue_export(
         "//k8s/unwind/tailscale:cue_tailscale_library",
         "//k8s/unwind/thomas:cue_thomas_library",
         "//k8s/unwind/vault:cue_vault_library",
-        "//k8s/unwind/vault_config_operator:cue_vault_config_operator_library",
         "//k8s/unwind/vault_csi_provider:cue_vault_csi_provider_library",
     ],
 )
