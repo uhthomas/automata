@@ -15,6 +15,14 @@ import "k8s.io/api/core/v1"
 	spec: {
 		namespaceSelector: any: true
 		selector: matchLabels: {}
-		podMetricsEndpoints: [{port: "http-metrics"}]
+		podMetricsEndpoints: [{
+			port:        "http-metrics"
+			honorLabels: true
+			relabelings: [{
+				source_labels: ["__meta_kubernetes_service_annotation_prometheus_io_scrape"]
+				action: "keep"
+				regex:  true
+			}]
+		}]
 	}
 }]
