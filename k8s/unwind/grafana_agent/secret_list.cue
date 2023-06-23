@@ -18,6 +18,7 @@ import (
 #SecretList: items: [{
 	metadata: name:    "\(#Name)-additional-scrape-configs"
 	data: "jobs.yaml": '\(yaml.Marshal({
+		honor_labels: true
 		relabel_configs: [{
 			source_labels: ["__meta_kubernetes_service_annotation_prometheus_io_scrape"]
 			action: "keep"
