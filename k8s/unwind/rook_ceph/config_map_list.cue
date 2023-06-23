@@ -467,7 +467,7 @@ import "k8s.io/api/core/v1"
 
 		// Whether to start the discovery daemon to watch for raw storage devices on nodes in the cluster.
 		// This daemon does not need to run if you are only going to create your OSDs based on StorageClassDeviceSets with PVCs.
-		ROOK_ENABLE_DISCOVERY_DAEMON: "false"
+		ROOK_ENABLE_DISCOVERY_DAEMON: "true"
 		// The timeout value (in seconds) of Ceph commands. It should be >= 1. If this variable is not set or is an invalid value, it's default to 15.
 		ROOK_CEPH_COMMANDS_TIMEOUT_SECONDS: "15"
 		// Enable the csi addons sidecar.
