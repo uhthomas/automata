@@ -15,7 +15,7 @@ import (
 }
 
 #JobList: items: [{
-	let disk = "wwn-0x5000cca261057c98"
+	let disk = "wwn-0x5000cca23b435a24"
 	metadata: name: "\(#Name)-\(disk)"
 	spec: {
 		backoffLimit: 0

@@ -154,7 +154,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 				name: "talos-god-636"
 				devices: [{
 					// IBM-ESXS HUH728080AL420
-					name: "/dev/disk/by-id/wwn-0x5000cca23b435a24"
+					name: "/dev/disk/by-id/wwn-0x5000cca261057c98"
 				}, {
 					// HGST HUH721010AL5200
 					name: "/dev/disk/by-id/wwn-0x5000cca2669799a0"
@@ -193,7 +193,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 					name: "/dev/disk/by-id/wwn-0x5000cca23b30dca4"
 				}, {
 					// HGST H7280A520SUN8.0T
-					name: "/dev/disk/by-id/wwn-0x5000cca261057c98"
+					name: "/dev/disk/by-id/wwn-0x5000cca23b435a24"
 				}]
 			}]
 			onlyApplyOSDPlacement: false
