@@ -153,9 +153,6 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 			}, {
 				name: "talos-god-636"
 				devices: [{
-					// HGST H7280A520SUN8.0T
-					name: "/dev/disk/by-id/wwn-0x5000cca261057c98"
-				}, {
 					// IBM-ESXS HUH728080AL420
 					name: "/dev/disk/by-id/wwn-0x5000cca23b435a24"
 				}, {
@@ -194,6 +191,9 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 				}, {
 					// HGST H7280A520SUN8.0T
 					name: "/dev/disk/by-id/wwn-0x5000cca23b30dca4"
+				}, {
+					// HGST H7280A520SUN8.0T
+					name: "/dev/disk/by-id/wwn-0x5000cca261057c98"
 				}]
 			}]
 			onlyApplyOSDPlacement: false
