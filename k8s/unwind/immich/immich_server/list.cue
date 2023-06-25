@@ -9,7 +9,7 @@ import (
 #Name:      "immich-server"
 #Namespace: "immich"
 
-#Version:   "1.62.1"
+#Version:   "1.63.2"
 #Component: "server"
 
 #List: v1.#List & {

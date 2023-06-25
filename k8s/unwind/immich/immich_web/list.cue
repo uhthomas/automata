@@ -7,7 +7,7 @@ import (
 )
 
 #Name:      "immich-web"
-#Version:   "1.62.1"
+#Version:   "1.63.2"
 #Component: "web"
 
 #List: v1.#List & {
