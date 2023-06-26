@@ -83,6 +83,9 @@ import (
 							name: #Name
 							key:  "typesense-api-key"
 						}
+					}, {
+						name:  "LOG_LEVEL"
+						value: "debug"
 					}]
 					ports: [{
 						name:          "http"
