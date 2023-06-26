@@ -87,7 +87,7 @@ import (
 						}
 					}, {
 						name:  "IMMICH_MACHINE_LEARNING_URL"
-						value: "http://immich-machine-learning"
+						value: "http://immich-machine-learning:80"
 					}]
 					volumeMounts: [ {
 						name:      "geocoding-dump"
