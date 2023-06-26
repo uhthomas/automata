@@ -76,7 +76,7 @@ import (
 						name:  "TYPESENSE_URL"
 						value: "ha://\(base64.Encode(null, json.Marshal([{
 							host:     "typesense-0.typesense.\(#Namespace).svc.cluster.local"
-							port:     80
+							port:     8108
 							protocol: "http"
 						}])))"
 					}, {
