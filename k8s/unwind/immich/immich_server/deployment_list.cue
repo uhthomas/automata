@@ -84,6 +84,9 @@ import (
 							key:  "typesense-api-key"
 						}
 					}, {
+						name:  "IMMICH_MACHINE_LEARNING_URL"
+						value: "http://immich-machine-learning"
+					}, {
 						name:  "LOG_LEVEL"
 						value: "debug"
 					}]
