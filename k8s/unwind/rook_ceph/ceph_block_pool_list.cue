@@ -32,6 +32,10 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 			codingChunks: 2
 		}
 		deviceClass: "hdd"
+		parameters: {
+			compression_algorithm: "zstd"
+			compression_mode:      "aggressive"
+		}
 	}
 }, {
 	metadata: name: "replicapool"
@@ -39,5 +43,9 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 		failureDomain: "host"
 		replicated: size: 3
 		deviceClass: "hdd"
+		parameters: {
+			compression_algorithm: "zstd"
+			compression_mode:      "aggressive"
+		}
 	}
 }]
