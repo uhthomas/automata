@@ -23,7 +23,7 @@ import (
 	// +optional
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	// Handler specifies the underlying runtime and configuration that the CRI
+	// handler specifies the underlying runtime and configuration that the CRI
 	// implementation will use to handle pods of this class. The possible values
 	// are specific to the node & CRI configuration.  It is assumed that all
 	// handlers are available on every node, and handlers of the same name are
@@ -35,13 +35,13 @@ import (
 	// and is immutable.
 	handler: string @go(Handler) @protobuf(2,bytes,opt)
 
-	// Overhead represents the resource overhead associated with running a pod for a
+	// overhead represents the resource overhead associated with running a pod for a
 	// given RuntimeClass. For more details, see
 	//  https://kubernetes.io/docs/concepts/scheduling-eviction/pod-overhead/
 	// +optional
 	overhead?: null | #Overhead @go(Overhead,*Overhead) @protobuf(3,bytes,opt)
 
-	// Scheduling holds the scheduling constraints to ensure that pods running
+	// scheduling holds the scheduling constraints to ensure that pods running
 	// with this RuntimeClass are scheduled to nodes that support it.
 	// If scheduling is nil, this RuntimeClass is assumed to be supported by all
 	// nodes.
@@ -51,7 +51,7 @@ import (
 
 // Overhead structure represents the resource overhead associated with running a pod.
 #Overhead: {
-	// PodFixed represents the fixed resource overhead associated with running a pod.
+	// podFixed represents the fixed resource overhead associated with running a pod.
 	// +optional
 	podFixed?: corev1.#ResourceList @go(PodFixed) @protobuf(1,bytes,opt,casttype=k8s.io/api/core/v1.ResourceList,castkey=k8s.io/api/core/v1.ResourceName,castvalue=k8s.io/apimachinery/pkg/api/resource.Quantity)
 }
@@ -85,6 +85,6 @@ import (
 	// +optional
 	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
 
-	// Items is a list of schema objects.
+	// items is a list of schema objects.
 	items: [...#RuntimeClass] @go(Items,[]RuntimeClass) @protobuf(2,bytes,rep)
 }

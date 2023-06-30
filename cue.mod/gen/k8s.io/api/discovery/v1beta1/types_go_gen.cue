@@ -155,9 +155,8 @@ import (
 
 // EndpointPort represents a Port used by an EndpointSlice
 #EndpointPort: {
-	// The name of this port. All ports in an EndpointSlice must have a unique
-	// name. If the EndpointSlice is dervied from a Kubernetes service, this
-	// corresponds to the Service.ports[].name.
+	// name represents the name of this port. All ports in an EndpointSlice must have a unique name.
+	// If the EndpointSlice is dervied from a Kubernetes service, this corresponds to the Service.ports[].name.
 	// Name must either be an empty string or pass DNS_LABEL validation:
 	// * must be no more than 63 characters long.
 	// * must consist of lower case alphanumeric characters or '-'.
@@ -165,17 +164,17 @@ import (
 	// Default is empty string.
 	name?: null | string @go(Name,*string) @protobuf(1,bytes)
 
-	// The IP protocol for this port.
+	// protocol represents the IP protocol for this port.
 	// Must be UDP, TCP, or SCTP.
 	// Default is TCP.
 	protocol?: null | v1.#Protocol @go(Protocol,*v1.Protocol) @protobuf(2,bytes)
 
-	// The port number of the endpoint.
+	// port represents the port number of the endpoint.
 	// If this is not specified, ports are not restricted and must be
 	// interpreted in the context of the specific consumer.
 	port?: null | int32 @go(Port,*int32) @protobuf(3,bytes,opt)
 
-	// The application protocol for this port.
+	// appProtocol represents the application protocol for this port.
 	// This field follows standard Kubernetes label syntax.
 	// Un-prefixed names are reserved for IANA standard service names (as per
 	// RFC-6335 and https://www.iana.org/assignments/service-names).
@@ -193,6 +192,6 @@ import (
 	// +optional
 	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
 
-	// List of endpoint slices
+	// items is the list of endpoint slices
 	items: [...#EndpointSlice] @go(Items,[]EndpointSlice) @protobuf(2,bytes,rep)
 }

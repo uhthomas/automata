@@ -10,21 +10,6 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-// JobTemplate describes a template for creating copies of a predefined pod.
-#JobTemplate: {
-	metav1.#TypeMeta
-
-	// Standard object's metadata.
-	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-	// +optional
-	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
-
-	// Defines jobs that will be created from this template.
-	// https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	// +optional
-	template?: #JobTemplateSpec @go(Template) @protobuf(2,bytes,opt)
-}
-
 // JobTemplateSpec describes the data a Job should have when created from a template
 #JobTemplateSpec: {
 	// Standard object's metadata of the jobs created from this template.
@@ -85,7 +70,6 @@ import (
 	// configuration, the controller will stop creating new new Jobs and will create a system event with the
 	// reason UnknownTimeZone.
 	// More information can be found in https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#time-zones
-	// This is beta field and must be enabled via the `CronJobTimeZone` feature gate.
 	// +optional
 	timeZone?: null | string @go(TimeZone,*string) @protobuf(8,bytes,opt)
 
@@ -96,6 +80,7 @@ import (
 
 	// Specifies how to treat concurrent executions of a Job.
 	// Valid values are:
+	//
 	// - "Allow" (default): allows CronJobs to run concurrently;
 	// - "Forbid": forbids concurrent runs, skipping next run if previous run hasn't finished yet;
 	// - "Replace": cancels currently running job and replaces it with a new one

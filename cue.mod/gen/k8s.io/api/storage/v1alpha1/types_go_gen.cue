@@ -22,11 +22,11 @@ import (
 	// +optional
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	// Specification of the desired attach/detach volume behavior.
+	// spec represents specification of the desired attach/detach volume behavior.
 	// Populated by the Kubernetes system.
 	spec: #VolumeAttachmentSpec @go(Spec) @protobuf(2,bytes,opt)
 
-	// Status of the VolumeAttachment request.
+	// status represents status of the VolumeAttachment request.
 	// Populated by the entity completing the attach or detach
 	// operation, i.e. the external-attacher.
 	// +optional
@@ -42,20 +42,20 @@ import (
 	// +optional
 	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
 
-	// Items is the list of VolumeAttachments
+	// items is the list of VolumeAttachments
 	items: [...#VolumeAttachment] @go(Items,[]VolumeAttachment) @protobuf(2,bytes,rep)
 }
 
 // VolumeAttachmentSpec is the specification of a VolumeAttachment request.
 #VolumeAttachmentSpec: {
-	// Attacher indicates the name of the volume driver that MUST handle this
+	// attacher indicates the name of the volume driver that MUST handle this
 	// request. This is the name returned by GetPluginName().
 	attacher: string @go(Attacher) @protobuf(1,bytes,opt)
 
-	// Source represents the volume that should be attached.
+	// source represents the volume that should be attached.
 	source: #VolumeAttachmentSource @go(Source) @protobuf(2,bytes,opt)
 
-	// The node that the volume should be attached to.
+	// nodeName represents the node that the volume should be attached to.
 	nodeName: string @go(NodeName) @protobuf(3,bytes,opt)
 }
 
@@ -64,7 +64,7 @@ import (
 // in future we may allow also inline volumes in pods.
 // Exactly one member can be set.
 #VolumeAttachmentSource: {
-	// Name of the persistent volume to attach.
+	// persistentVolumeName represents the name of the persistent volume to attach.
 	// +optional
 	persistentVolumeName?: null | string @go(PersistentVolumeName,*string) @protobuf(1,bytes,opt)
 
@@ -80,26 +80,26 @@ import (
 
 // VolumeAttachmentStatus is the status of a VolumeAttachment request.
 #VolumeAttachmentStatus: {
-	// Indicates the volume is successfully attached.
+	// attached indicates the volume is successfully attached.
 	// This field must only be set by the entity completing the attach
 	// operation, i.e. the external-attacher.
 	attached: bool @go(Attached) @protobuf(1,varint,opt)
 
-	// Upon successful attach, this field is populated with any
-	// information returned by the attach operation that must be passed
+	// attachmentMetadata is populated with any
+	// information returned by the attach operation, upon successful attach, that must be passed
 	// into subsequent WaitForAttach or Mount calls.
 	// This field must only be set by the entity completing the attach
 	// operation, i.e. the external-attacher.
 	// +optional
 	attachmentMetadata?: {[string]: string} @go(AttachmentMetadata,map[string]string) @protobuf(2,bytes,rep)
 
-	// The last error encountered during attach operation, if any.
+	// attachError represents the last error encountered during attach operation, if any.
 	// This field must only be set by the entity completing the attach
 	// operation, i.e. the external-attacher.
 	// +optional
 	attachError?: null | #VolumeError @go(AttachError,*VolumeError) @protobuf(3,bytes,opt,casttype=VolumeError)
 
-	// The last error encountered during detach operation, if any.
+	// detachError represents the last error encountered during detach operation, if any.
 	// This field must only be set by the entity completing the detach
 	// operation, i.e. the external-attacher.
 	// +optional
@@ -108,11 +108,11 @@ import (
 
 // VolumeError captures an error encountered during a volume operation.
 #VolumeError: {
-	// Time the error was encountered.
+	// time represents the time the error was encountered.
 	// +optional
 	time?: metav1.#Time @go(Time) @protobuf(1,bytes,opt)
 
-	// String detailing the error encountered during Attach or Detach operation.
+	// message represents the error encountered during Attach or Detach operation.
 	// This string maybe logged, so it should not contain sensitive
 	// information.
 	// +optional
@@ -158,7 +158,7 @@ import (
 	// +optional
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	// NodeTopology defines which nodes have access to the storage
+	// nodeTopology defines which nodes have access to the storage
 	// for which capacity was reported. If not set, the storage is
 	// not accessible from any node in the cluster. If empty, the
 	// storage is accessible from all nodes. This field is
@@ -167,7 +167,7 @@ import (
 	// +optional
 	nodeTopology?: null | metav1.#LabelSelector @go(NodeTopology,*metav1.LabelSelector) @protobuf(2,bytes,opt)
 
-	// The name of the StorageClass that the reported capacity applies to.
+	// storageClassName represents the name of the StorageClass that the reported capacity applies to.
 	// It must meet the same requirements as the name of a StorageClass
 	// object (non-empty, DNS subdomain). If that object no longer exists,
 	// the CSIStorageCapacity object is obsolete and should be removed by its
@@ -175,7 +175,7 @@ import (
 	// This field is immutable.
 	storageClassName: string @go(StorageClassName) @protobuf(3,bytes)
 
-	// Capacity is the value reported by the CSI driver in its GetCapacityResponse
+	// capacity is the value reported by the CSI driver in its GetCapacityResponse
 	// for a GetCapacityRequest with topology and parameters that match the
 	// previous fields.
 	//
@@ -187,7 +187,7 @@ import (
 	// +optional
 	capacity?: null | resource.#Quantity @go(Capacity,*resource.Quantity) @protobuf(4,bytes,opt)
 
-	// MaximumVolumeSize is the value reported by the CSI driver in its GetCapacityResponse
+	// maximumVolumeSize is the value reported by the CSI driver in its GetCapacityResponse
 	// for a GetCapacityRequest with topology and parameters that match the
 	// previous fields.
 	//
@@ -211,7 +211,7 @@ import (
 	// +optional
 	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
 
-	// Items is the list of CSIStorageCapacity objects.
+	// items is the list of CSIStorageCapacity objects.
 	// +listType=map
 	// +listMapKey=name
 	items: [...#CSIStorageCapacity] @go(Items,[]CSIStorageCapacity) @protobuf(2,bytes,rep)

@@ -4,7 +4,10 @@
 
 package v1beta1
 
-import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/api/authentication/v1"
+)
 
 // TokenReview attempts to authenticate a token to a known user.
 // Note: TokenReview requests may be cached by the webhook token authenticator
@@ -93,3 +96,25 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // +protobuf.nullable=true
 // +protobuf.options.(gogoproto.goproto_stringer)=false
 #ExtraValue: [...string]
+
+// SelfSubjectReview contains the user information that the kube-apiserver has about the user making this request.
+// When using impersonation, users will receive the user info of the user being impersonated.  If impersonation or
+// request header authentication is used, any extra keys will have their case ignored and returned as lowercase.
+#SelfSubjectReview: {
+	metav1.#TypeMeta
+
+	// Standard object's metadata.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	// +optional
+	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
+
+	// Status is filled in by the server with the user attributes.
+	status?: #SelfSubjectReviewStatus @go(Status) @protobuf(2,bytes,opt)
+}
+
+// SelfSubjectReviewStatus is filled by the kube-apiserver and sent back to a user.
+#SelfSubjectReviewStatus: {
+	// User attributes of the user making this request.
+	// +optional
+	userInfo?: v1.#UserInfo @go(UserInfo) @protobuf(1,bytes,opt)
+}

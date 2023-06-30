@@ -8,5 +8,8 @@ cue_library(
     ],
     importpath = "k8s.io/api/authentication/v1beta1",
     visibility = ["//visibility:public"],
-    deps = ["//cue.mod/gen/k8s.io/apimachinery/pkg/apis/meta/v1:cue_v1_library"],
+    deps = [
+        "//cue.mod/gen/k8s.io/api/authentication/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/apimachinery/pkg/apis/meta/v1:cue_v1_library",
+    ],
 )

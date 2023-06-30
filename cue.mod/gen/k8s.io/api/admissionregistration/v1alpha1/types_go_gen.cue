@@ -70,6 +70,53 @@ import (
 
 	// Specification of the desired behavior of the ValidatingAdmissionPolicy.
 	spec?: #ValidatingAdmissionPolicySpec @go(Spec) @protobuf(2,bytes,opt)
+
+	// The status of the ValidatingAdmissionPolicy, including warnings that are useful to determine if the policy
+	// behaves in the expected way.
+	// Populated by the system.
+	// Read-only.
+	// +optional
+	status?: #ValidatingAdmissionPolicyStatus @go(Status) @protobuf(3,bytes,opt)
+}
+
+// ValidatingAdmissionPolicyStatus represents the status of a ValidatingAdmissionPolicy.
+#ValidatingAdmissionPolicyStatus: {
+	// The generation observed by the controller.
+	// +optional
+	observedGeneration?: int64 @go(ObservedGeneration) @protobuf(1,varint,opt)
+
+	// The results of type checking for each expression.
+	// Presence of this field indicates the completion of the type checking.
+	// +optional
+	typeChecking?: null | #TypeChecking @go(TypeChecking,*TypeChecking) @protobuf(2,bytes,opt)
+
+	// The conditions represent the latest available observations of a policy's current state.
+	// +optional
+	// +listType=map
+	// +listMapKey=type
+	conditions?: [...metav1.#Condition] @go(Conditions,[]metav1.Condition) @protobuf(3,bytes,rep)
+}
+
+// TypeChecking contains results of type checking the expressions in the
+// ValidatingAdmissionPolicy
+#TypeChecking: {
+	// The type checking warnings for each expression.
+	// +optional
+	// +listType=atomic
+	expressionWarnings?: [...#ExpressionWarning] @go(ExpressionWarnings,[]ExpressionWarning) @protobuf(1,bytes,rep)
+}
+
+// ExpressionWarning is a warning information that targets a specific expression.
+#ExpressionWarning: {
+	// The path to the field that refers the expression.
+	// For example, the reference to the expression of the first item of
+	// validations is "spec.validations[0].expression"
+	fieldRef: string @go(FieldRef) @protobuf(2,bytes,opt)
+
+	// The content of type checking information in a human-readable form.
+	// Each line of the warning contains the type that the expression is checked
+	// against, followed by the type check error from the compiler.
+	warning: string @go(Warning) @protobuf(3,bytes,opt)
 }
 
 // ValidatingAdmissionPolicyList is a list of ValidatingAdmissionPolicy.
@@ -102,19 +149,60 @@ import (
 	matchConstraints?: null | #MatchResources @go(MatchConstraints,*MatchResources) @protobuf(2,bytes,rep)
 
 	// Validations contain CEL expressions which is used to apply the validation.
-	// A minimum of one validation is required for a policy definition.
+	// Validations and AuditAnnotations may not both be empty; a minimum of one Validations or AuditAnnotations is
+	// required.
 	// +listType=atomic
-	// Required.
-	validations: [...#Validation] @go(Validations,[]Validation) @protobuf(3,bytes,rep)
+	// +optional
+	validations?: [...#Validation] @go(Validations,[]Validation) @protobuf(3,bytes,rep)
 
-	// FailurePolicy defines how to handle failures for the admission policy.
-	// Failures can occur from invalid or mis-configured policy definitions or bindings.
+	// failurePolicy defines how to handle failures for the admission policy. Failures can
+	// occur from CEL expression parse errors, type check errors, runtime errors and invalid
+	// or mis-configured policy definitions or bindings.
+	//
 	// A policy is invalid if spec.paramKind refers to a non-existent Kind.
 	// A binding is invalid if spec.paramRef.name refers to a non-existent resource.
+	//
+	// failurePolicy does not define how validations that evaluate to false are handled.
+	//
+	// When failurePolicy is set to Fail, ValidatingAdmissionPolicyBinding validationActions
+	// define how failures are enforced.
+	//
 	// Allowed values are Ignore or Fail. Defaults to Fail.
 	// +optional
 	failurePolicy?: null | #FailurePolicyType @go(FailurePolicy,*FailurePolicyType) @protobuf(4,bytes,opt,casttype=FailurePolicyType)
+
+	// auditAnnotations contains CEL expressions which are used to produce audit
+	// annotations for the audit event of the API request.
+	// validations and auditAnnotations may not both be empty; a least one of validations or auditAnnotations is
+	// required.
+	// +listType=atomic
+	// +optional
+	auditAnnotations?: [...#AuditAnnotation] @go(AuditAnnotations,[]AuditAnnotation) @protobuf(5,bytes,rep)
+
+	// MatchConditions is a list of conditions that must be met for a request to be validated.
+	// Match conditions filter requests that have already been matched by the rules,
+	// namespaceSelector, and objectSelector. An empty list of matchConditions matches all requests.
+	// There are a maximum of 64 match conditions allowed.
+	//
+	// If a parameter object is provided, it can be accessed via the `params` handle in the same
+	// manner as validation expressions.
+	//
+	// The exact matching logic is (in order):
+	//   1. If ANY matchCondition evaluates to FALSE, the policy is skipped.
+	//   2. If ALL matchConditions evaluate to TRUE, the policy is evaluated.
+	//   3. If any matchCondition evaluates to an error (but none are FALSE):
+	//      - If failurePolicy=Fail, reject the request
+	//      - If failurePolicy=Ignore, the policy is skipped
+	//
+	// +patchMergeKey=name
+	// +patchStrategy=merge
+	// +listType=map
+	// +listMapKey=name
+	// +optional
+	matchConditions?: [...#MatchCondition] @go(MatchConditions,[]MatchCondition) @protobuf(6,bytes,rep)
 }
+
+#MatchCondition: v1.#MatchCondition
 
 // ParamKind is a tuple of Group Kind and Version.
 // +structType=atomic
@@ -133,12 +221,16 @@ import (
 #Validation: {
 	// Expression represents the expression which will be evaluated by CEL.
 	// ref: https://github.com/google/cel-spec
-	// CEL expressions have access to the contents of the Admission request/response, organized into CEL variables as well as some other useful variables:
+	// CEL expressions have access to the contents of the API request/response, organized into CEL variables as well as some other useful variables:
 	//
-	//'object' - The object from the incoming request. The value is null for DELETE requests.
-	//'oldObject' - The existing object. The value is null for CREATE requests.
-	//'request' - Attributes of the admission request([ref](/pkg/apis/admission/types.go#AdmissionRequest)).
-	//'params' - Parameter resource referred to by the policy binding being evaluated. Only populated if the policy has a ParamKind.
+	// - 'object' - The object from the incoming request. The value is null for DELETE requests.
+	// - 'oldObject' - The existing object. The value is null for CREATE requests.
+	// - 'request' - Attributes of the API request([ref](/pkg/apis/admission/types.go#AdmissionRequest)).
+	// - 'params' - Parameter resource referred to by the policy binding being evaluated. Only populated if the policy has a ParamKind.
+	// - 'authorizer' - A CEL Authorizer. May be used to perform authorization checks for the principal (user or service account) of the request.
+	//   See https://pkg.go.dev/k8s.io/apiserver/pkg/cel/library#Authz
+	// - 'authorizer.requestResource' - A CEL ResourceCheck constructed from the 'authorizer' and configured with the
+	//   request resource.
 	//
 	// The `apiVersion`, `kind`, `metadata.name` and `metadata.generateName` are always accessible from the root of the
 	// object. No other metadata properties are accessible.
@@ -150,8 +242,8 @@ import (
 	// - '-' escapes to '__dash__'
 	// - '/' escapes to '__slash__'
 	// - Property names that exactly match a CEL RESERVED keyword escape to '__{keyword}__'. The keywords are:
-	//   "true", "false", "null", "in", "as", "break", "const", "continue", "else", "for", "function", "if",
-	//   "import", "let", "loop", "package", "namespace", "return".
+	//	  "true", "false", "null", "in", "as", "break", "const", "continue", "else", "for", "function", "if",
+	//	  "import", "let", "loop", "package", "namespace", "return".
 	// Examples:
 	//   - Expression accessing a property named "namespace": {"Expression": "object.__namespace__ > 0"}
 	//   - Expression accessing a property named "x-prop": {"Expression": "object.x__dash__prop > 0"}
@@ -185,6 +277,56 @@ import (
 	// If not set, StatusReasonInvalid is used in the response to the client.
 	// +optional
 	reason?: null | metav1.#StatusReason @go(Reason,*metav1.StatusReason) @protobuf(3,bytes,opt)
+
+	// messageExpression declares a CEL expression that evaluates to the validation failure message that is returned when this rule fails.
+	// Since messageExpression is used as a failure message, it must evaluate to a string.
+	// If both message and messageExpression are present on a validation, then messageExpression will be used if validation fails.
+	// If messageExpression results in a runtime error, the runtime error is logged, and the validation failure message is produced
+	// as if the messageExpression field were unset. If messageExpression evaluates to an empty string, a string with only spaces, or a string
+	// that contains line breaks, then the validation failure message will also be produced as if the messageExpression field were unset, and
+	// the fact that messageExpression produced an empty string/string with only spaces/string with line breaks will be logged.
+	// messageExpression has access to all the same variables as the `expression` except for 'authorizer' and 'authorizer.requestResource'.
+	// Example:
+	// "object.x must be less than max ("+string(params.max)+")"
+	// +optional
+	messageExpression?: string @go(MessageExpression) @protobuf(4,bytes,opt)
+}
+
+// AuditAnnotation describes how to produce an audit annotation for an API request.
+#AuditAnnotation: {
+	// key specifies the audit annotation key. The audit annotation keys of
+	// a ValidatingAdmissionPolicy must be unique. The key must be a qualified
+	// name ([A-Za-z0-9][-A-Za-z0-9_.]*) no more than 63 bytes in length.
+	//
+	// The key is combined with the resource name of the
+	// ValidatingAdmissionPolicy to construct an audit annotation key:
+	// "{ValidatingAdmissionPolicy name}/{key}".
+	//
+	// If an admission webhook uses the same resource name as this ValidatingAdmissionPolicy
+	// and the same audit annotation key, the annotation key will be identical.
+	// In this case, the first annotation written with the key will be included
+	// in the audit event and all subsequent annotations with the same key
+	// will be discarded.
+	//
+	// Required.
+	key: string @go(Key) @protobuf(1,bytes,opt)
+
+	// valueExpression represents the expression which is evaluated by CEL to
+	// produce an audit annotation value. The expression must evaluate to either
+	// a string or null value. If the expression evaluates to a string, the
+	// audit annotation is included with the string value. If the expression
+	// evaluates to null or empty string the audit annotation will be omitted.
+	// The valueExpression may be no longer than 5kb in length.
+	// If the result of the valueExpression is more than 10kb in length, it
+	// will be truncated to 10kb.
+	//
+	// If multiple ValidatingAdmissionPolicyBinding resources match an
+	// API request, then the valueExpression will be evaluated for
+	// each binding. All unique values produced by the valueExpressions
+	// will be joined together in a comma-separated list.
+	//
+	// Required.
+	valueExpression: string @go(ValueExpression) @protobuf(2,bytes,opt)
 }
 
 // ValidatingAdmissionPolicyBinding binds the ValidatingAdmissionPolicy with paramerized resources.
@@ -233,6 +375,48 @@ import (
 	// Note that this is differs from ValidatingAdmissionPolicy matchConstraints, where resourceRules are required.
 	// +optional
 	matchResources?: null | #MatchResources @go(MatchResources,*MatchResources) @protobuf(3,bytes,rep)
+
+	// validationActions declares how Validations of the referenced ValidatingAdmissionPolicy are enforced.
+	// If a validation evaluates to false it is always enforced according to these actions.
+	//
+	// Failures defined by the ValidatingAdmissionPolicy's FailurePolicy are enforced according
+	// to these actions only if the FailurePolicy is set to Fail, otherwise the failures are
+	// ignored. This includes compilation errors, runtime errors and misconfigurations of the policy.
+	//
+	// validationActions is declared as a set of action values. Order does
+	// not matter. validationActions may not contain duplicates of the same action.
+	//
+	// The supported actions values are:
+	//
+	// "Deny" specifies that a validation failure results in a denied request.
+	//
+	// "Warn" specifies that a validation failure is reported to the request client
+	// in HTTP Warning headers, with a warning code of 299. Warnings can be sent
+	// both for allowed or denied admission responses.
+	//
+	// "Audit" specifies that a validation failure is included in the published
+	// audit event for the request. The audit event will contain a
+	// `validation.policy.admission.k8s.io/validation_failure` audit annotation
+	// with a value containing the details of the validation failures, formatted as
+	// a JSON list of objects, each with the following fields:
+	// - message: The validation failure message string
+	// - policy: The resource name of the ValidatingAdmissionPolicy
+	// - binding: The resource name of the ValidatingAdmissionPolicyBinding
+	// - expressionIndex: The index of the failed validations in the ValidatingAdmissionPolicy
+	// - validationActions: The enforcement actions enacted for the validation failure
+	// Example audit annotation:
+	// `"validation.policy.admission.k8s.io/validation_failure": "[{\"message\": \"Invalid value\", {\"policy\": \"policy.example.com\", {\"binding\": \"policybinding.example.com\", {\"expressionIndex\": \"1\", {\"validationActions\": [\"Audit\"]}]"`
+	//
+	// Clients should expect to handle additional values by ignoring
+	// any values not recognized.
+	//
+	// "Deny" and "Warn" may not be used together since this combination
+	// needlessly duplicates the validation failure both in the
+	// API response body and the HTTP warning headers.
+	//
+	// Required.
+	// +listType=set
+	validationActions?: [...#ValidationAction] @go(ValidationActions,[]ValidationAction) @protobuf(4,bytes,rep)
 }
 
 // ParamRef references a parameter resource
@@ -341,6 +525,29 @@ import (
 	// +optional
 	matchPolicy?: null | #MatchPolicyType @go(MatchPolicy,*MatchPolicyType) @protobuf(7,bytes,opt,casttype=MatchPolicyType)
 }
+
+// ValidationAction specifies a policy enforcement action.
+// +enum
+#ValidationAction: string // #enumValidationAction
+
+#enumValidationAction:
+	#Deny |
+	#Warn |
+	#Audit
+
+// Deny specifies that a validation failure results in a denied request.
+#Deny: #ValidationAction & "Deny"
+
+// Warn specifies that a validation failure is reported to the request client
+// in HTTP Warning headers, with a warning code of 299. Warnings can be sent
+// both for allowed or denied admission responses.
+#Warn: #ValidationAction & "Warn"
+
+// Audit specifies that a validation failure is included in the published
+// audit event for the request. The audit event will contain a
+// `validation.policy.admission.k8s.io/validation_failure` audit annotation
+// with a value containing the details of the validation failure.
+#Audit: #ValidationAction & "Audit"
 
 // NamedRuleWithOperations is a tuple of Operations and Resources with ResourceNames.
 // +structType=atomic

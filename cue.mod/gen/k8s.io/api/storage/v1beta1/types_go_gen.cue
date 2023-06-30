@@ -23,36 +23,36 @@ import (
 	// +optional
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	// Provisioner indicates the type of the provisioner.
+	// provisioner indicates the type of the provisioner.
 	provisioner: string @go(Provisioner) @protobuf(2,bytes,opt)
 
-	// Parameters holds the parameters for the provisioner that should
+	// parameters holds the parameters for the provisioner that should
 	// create volumes of this storage class.
 	// +optional
 	parameters?: {[string]: string} @go(Parameters,map[string]string) @protobuf(3,bytes,rep)
 
-	// Dynamically provisioned PersistentVolumes of this storage class are
-	// created with this reclaimPolicy. Defaults to Delete.
+	// reclaimPolicy controls the reclaimPolicy for dynamically provisioned PersistentVolumes of this storage class.
+	// Defaults to Delete.
 	// +optional
 	reclaimPolicy?: null | v1.#PersistentVolumeReclaimPolicy @go(ReclaimPolicy,*v1.PersistentVolumeReclaimPolicy) @protobuf(4,bytes,opt,casttype=k8s.io/api/core/v1.PersistentVolumeReclaimPolicy)
 
-	// Dynamically provisioned PersistentVolumes of this storage class are
-	// created with these mountOptions, e.g. ["ro", "soft"]. Not validated -
+	// mountOptions controls the mountOptions for dynamically provisioned PersistentVolumes of this storage class.
+	// e.g. ["ro", "soft"]. Not validated -
 	// mount of the PVs will simply fail if one is invalid.
 	// +optional
 	mountOptions?: [...string] @go(MountOptions,[]string) @protobuf(5,bytes,opt)
 
-	// AllowVolumeExpansion shows whether the storage class allow volume expand
+	// allowVolumeExpansion shows whether the storage class allow volume expand
 	// +optional
 	allowVolumeExpansion?: null | bool @go(AllowVolumeExpansion,*bool) @protobuf(6,varint,opt)
 
-	// VolumeBindingMode indicates how PersistentVolumeClaims should be
+	// volumeBindingMode indicates how PersistentVolumeClaims should be
 	// provisioned and bound.  When unset, VolumeBindingImmediate is used.
 	// This field is only honored by servers that enable the VolumeScheduling feature.
 	// +optional
 	volumeBindingMode?: null | #VolumeBindingMode @go(VolumeBindingMode,*VolumeBindingMode) @protobuf(7,bytes,opt)
 
-	// Restrict the node topologies where volumes can be dynamically provisioned.
+	// allowedTopologies restrict the node topologies where volumes can be dynamically provisioned.
 	// Each volume plugin defines its own supported topology specifications.
 	// An empty TopologySelectorTerm list means there is no topology restriction.
 	// This field is only honored by servers that enable the VolumeScheduling feature.
@@ -70,7 +70,7 @@ import (
 	// +optional
 	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
 
-	// Items is the list of StorageClasses
+	// items is the list of StorageClasses
 	items: [...#StorageClass] @go(Items,[]StorageClass) @protobuf(2,bytes,rep)
 }
 
@@ -103,11 +103,11 @@ import (
 	// +optional
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	// Specification of the desired attach/detach volume behavior.
+	// spec represents specification of the desired attach/detach volume behavior.
 	// Populated by the Kubernetes system.
 	spec: #VolumeAttachmentSpec @go(Spec) @protobuf(2,bytes,opt)
 
-	// Status of the VolumeAttachment request.
+	// status represents status of the VolumeAttachment request.
 	// Populated by the entity completing the attach or detach
 	// operation, i.e. the external-attacher.
 	// +optional
@@ -123,20 +123,20 @@ import (
 	// +optional
 	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
 
-	// Items is the list of VolumeAttachments
+	// items is the list of VolumeAttachments
 	items: [...#VolumeAttachment] @go(Items,[]VolumeAttachment) @protobuf(2,bytes,rep)
 }
 
 // VolumeAttachmentSpec is the specification of a VolumeAttachment request.
 #VolumeAttachmentSpec: {
-	// Attacher indicates the name of the volume driver that MUST handle this
+	// attacher indicates the name of the volume driver that MUST handle this
 	// request. This is the name returned by GetPluginName().
 	attacher: string @go(Attacher) @protobuf(1,bytes,opt)
 
-	// Source represents the volume that should be attached.
+	// source represents the volume that should be attached.
 	source: #VolumeAttachmentSource @go(Source) @protobuf(2,bytes,opt)
 
-	// The node that the volume should be attached to.
+	// nodeName represents the node that the volume should be attached to.
 	nodeName: string @go(NodeName) @protobuf(3,bytes,opt)
 }
 
@@ -145,7 +145,7 @@ import (
 // in future we may allow also inline volumes in pods.
 // Exactly one member can be set.
 #VolumeAttachmentSource: {
-	// Name of the persistent volume to attach.
+	// persistentVolumeName represents the name of the persistent volume to attach.
 	// +optional
 	persistentVolumeName?: null | string @go(PersistentVolumeName,*string) @protobuf(1,bytes,opt)
 
@@ -161,26 +161,26 @@ import (
 
 // VolumeAttachmentStatus is the status of a VolumeAttachment request.
 #VolumeAttachmentStatus: {
-	// Indicates the volume is successfully attached.
+	// attached indicates the volume is successfully attached.
 	// This field must only be set by the entity completing the attach
 	// operation, i.e. the external-attacher.
 	attached: bool @go(Attached) @protobuf(1,varint,opt)
 
-	// Upon successful attach, this field is populated with any
-	// information returned by the attach operation that must be passed
+	// attachmentMetadata is populated with any
+	// information returned by the attach operation, upon successful attach, that must be passed
 	// into subsequent WaitForAttach or Mount calls.
 	// This field must only be set by the entity completing the attach
 	// operation, i.e. the external-attacher.
 	// +optional
 	attachmentMetadata?: {[string]: string} @go(AttachmentMetadata,map[string]string) @protobuf(2,bytes,rep)
 
-	// The last error encountered during attach operation, if any.
+	// attachError represents the last error encountered during attach operation, if any.
 	// This field must only be set by the entity completing the attach
 	// operation, i.e. the external-attacher.
 	// +optional
 	attachError?: null | #VolumeError @go(AttachError,*VolumeError) @protobuf(3,bytes,opt,casttype=VolumeError)
 
-	// The last error encountered during detach operation, if any.
+	// detachError represents the last error encountered during detach operation, if any.
 	// This field must only be set by the entity completing the detach
 	// operation, i.e. the external-attacher.
 	// +optional
@@ -189,11 +189,11 @@ import (
 
 // VolumeError captures an error encountered during a volume operation.
 #VolumeError: {
-	// Time the error was encountered.
+	// time represents the time the error was encountered.
 	// +optional
 	time?: metav1.#Time @go(Time) @protobuf(1,bytes,opt)
 
-	// String detailing the error encountered during Attach or Detach operation.
+	// message represents the error encountered during Attach or Detach operation.
 	// This string may be logged, so it should not contain sensitive
 	// information.
 	// +optional
@@ -221,7 +221,7 @@ import (
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	// Specification of the CSI Driver.
+	// spec represents the specification of the CSI Driver.
 	spec: #CSIDriverSpec @go(Spec) @protobuf(2,bytes,opt)
 }
 
@@ -256,16 +256,15 @@ import (
 	// +optional
 	attachRequired?: null | bool @go(AttachRequired,*bool) @protobuf(1,varint,opt)
 
-	// If set to true, podInfoOnMount indicates this CSI volume driver
-	// requires additional pod information (like podName, podUID, etc.) during
-	// mount operations.
+	// podInfoOnMount indicates this CSI volume driver requires additional pod information (like podName, podUID, etc.)
+	// during mount operations, if set to true.
 	// If set to false, pod information will not be passed on mount.
 	// Default is false.
+	//
 	// The CSI driver specifies podInfoOnMount as part of driver deployment.
-	// If true, Kubelet will pass pod information as VolumeContext in the CSI
-	// NodePublishVolume() calls.
-	// The CSI driver is responsible for parsing and validating the information
-	// passed in as VolumeContext.
+	// If true, Kubelet will pass pod information as VolumeContext in the CSI NodePublishVolume() calls.
+	// The CSI driver is responsible for parsing and validating the information passed in as VolumeContext.
+	//
 	// The following VolumeConext will be passed if podInfoOnMount is set to true.
 	// This list might grow, but the prefix will be used.
 	// "csi.storage.k8s.io/pod.name": pod.Name
@@ -286,14 +285,14 @@ import (
 	// +optional
 	podInfoOnMount?: null | bool @go(PodInfoOnMount,*bool) @protobuf(2,bytes,opt)
 
-	// VolumeLifecycleModes defines what kind of volumes this CSI volume driver supports.
-	// The default if the list is empty is "Persistent", which is the usage
-	// defined by the CSI specification and implemented in Kubernetes via the usual
-	// PV/PVC mechanism.
-	// The other mode is "Ephemeral". In this mode, volumes are defined inline
-	// inside the pod spec with CSIVolumeSource and their lifecycle is tied to
-	// the lifecycle of that pod. A driver has to be aware of this
-	// because it is only going to get a NodePublishVolume call for such a volume.
+	// volumeLifecycleModes defines what kind of volumes this CSI volume driver supports.
+	// The default if the list is empty is "Persistent", which is the usage defined by the
+	// CSI specification and implemented in Kubernetes via the usual PV/PVC mechanism.
+	//
+	// The other mode is "Ephemeral". In this mode, volumes are defined inline inside the pod spec
+	// with CSIVolumeSource and their lifecycle is tied to the lifecycle of that pod.
+	// A driver has to be aware of this because it is only going to get a NodePublishVolume call for such a volume.
+	//
 	// For more information about implementing this mode, see
 	// https://kubernetes-csi.github.io/docs/ephemeral-local-volumes.html
 	// A driver can support one or more of these modes and
@@ -304,11 +303,9 @@ import (
 	// +optional
 	volumeLifecycleModes?: [...#VolumeLifecycleMode] @go(VolumeLifecycleModes,[]VolumeLifecycleMode) @protobuf(3,bytes,opt)
 
-	// If set to true, storageCapacity indicates that the CSI
-	// volume driver wants pod scheduling to consider the storage
+	// storageCapacity indicates that the CSI volume driver wants pod scheduling to consider the storage
 	// capacity that the driver deployment will report by creating
-	// CSIStorageCapacity objects with capacity information.
-	//
+	// CSIStorageCapacity objects with capacity information, if set to true.
 	//
 	// The check can be enabled immediately when deploying a driver.
 	// In that case, provisioning new volumes with late binding
@@ -324,7 +321,7 @@ import (
 	// +optional
 	storageCapacity?: null | bool @go(StorageCapacity,*bool) @protobuf(4,bytes,opt)
 
-	// Defines if the underlying volume supports changing ownership and
+	// fsGroupPolicy defines if the underlying volume supports changing ownership and
 	// permission of the volume before being mounted.
 	// Refer to the specific FSGroupPolicy values for additional details.
 	//
@@ -334,10 +331,11 @@ import (
 	// to determine if Kubernetes should modify ownership and permissions of the volume.
 	// With the default policy the defined fsGroup will only be applied
 	// if a fstype is defined and the volume's access mode contains ReadWriteOnce.
+	//
 	// +optional
 	fsGroupPolicy?: null | #FSGroupPolicy @go(FSGroupPolicy,*FSGroupPolicy) @protobuf(5,bytes,opt)
 
-	// TokenRequests indicates the CSI driver needs pods' service account
+	// tokenRequests indicates the CSI driver needs pods' service account
 	// tokens it is mounting volume for to do necessary authentication. Kubelet
 	// will pass the tokens in VolumeContext in the CSI NodePublishVolume calls.
 	// The CSI driver should parse and validate the following VolumeContext:
@@ -357,7 +355,7 @@ import (
 	// +listType=atomic
 	tokenRequests?: [...#TokenRequest] @go(TokenRequests,[]TokenRequest) @protobuf(6,bytes,opt)
 
-	// RequiresRepublish indicates the CSI driver wants `NodePublishVolume`
+	// requiresRepublish indicates the CSI driver wants `NodePublishVolume`
 	// being periodically called to reflect any possible change in the mounted
 	// volume. This field defaults to false.
 	//
@@ -368,7 +366,7 @@ import (
 	// +optional
 	requiresRepublish?: null | bool @go(RequiresRepublish,*bool) @protobuf(7,varint,opt)
 
-	// SELinuxMount specifies if the CSI driver supports "-o context"
+	// seLinuxMount specifies if the CSI driver supports "-o context"
 	// mount option.
 	//
 	// When "true", the CSI driver must ensure that all volumes provided by this CSI
@@ -386,6 +384,7 @@ import (
 	//
 	// Default is "false".
 	//
+	// +featureGate=SELinuxMountReadWriteOncePod
 	// +optional
 	seLinuxMount?: null | bool @go(SELinuxMount,*bool) @protobuf(8,varint,opt)
 }
@@ -430,12 +429,11 @@ import (
 
 // TokenRequest contains parameters of a service account token.
 #TokenRequest: {
-	// Audience is the intended audience of the token in "TokenRequestSpec".
+	// audience is the intended audience of the token in "TokenRequestSpec".
 	// It will default to the audiences of kube apiserver.
-	//
 	audience: string @go(Audience) @protobuf(1,bytes,opt)
 
-	// ExpirationSeconds is the duration of validity of the token in "TokenRequestSpec".
+	// expirationSeconds is the duration of validity of the token in "TokenRequestSpec".
 	// It has the same default value of "ExpirationSeconds" in "TokenRequestSpec"
 	//
 	// +optional
@@ -493,7 +491,7 @@ import (
 
 // CSINodeDriver holds information about the specification of one CSI driver installed on a node
 #CSINodeDriver: {
-	// This is the name of the CSI driver that this object refers to.
+	// name represents the name of the CSI driver that this object refers to.
 	// This MUST be the same name returned by the CSI GetPluginName() call for
 	// that driver.
 	name: string @go(Name) @protobuf(1,bytes,opt)
@@ -529,7 +527,7 @@ import (
 
 // VolumeNodeResources is a set of resource limits for scheduling of volumes.
 #VolumeNodeResources: {
-	// Maximum number of unique volumes managed by the CSI driver that can be used on a node.
+	// count indicates the maximum number of unique volumes managed by the CSI driver that can be used on a node.
 	// A volume that is both attached and mounted on a node is considered to be used once, not twice.
 	// The same rule applies for a unique volume that is shared among multiple pods on the same node.
 	// If this field is nil, then the supported number of volumes on this node is unbounded.
@@ -589,7 +587,7 @@ import (
 	// +optional
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	// NodeTopology defines which nodes have access to the storage
+	// nodeTopology defines which nodes have access to the storage
 	// for which capacity was reported. If not set, the storage is
 	// not accessible from any node in the cluster. If empty, the
 	// storage is accessible from all nodes. This field is
@@ -598,7 +596,7 @@ import (
 	// +optional
 	nodeTopology?: null | metav1.#LabelSelector @go(NodeTopology,*metav1.LabelSelector) @protobuf(2,bytes,opt)
 
-	// The name of the StorageClass that the reported capacity applies to.
+	// storageClassName represents the name of the StorageClass that the reported capacity applies to.
 	// It must meet the same requirements as the name of a StorageClass
 	// object (non-empty, DNS subdomain). If that object no longer exists,
 	// the CSIStorageCapacity object is obsolete and should be removed by its
@@ -606,7 +604,7 @@ import (
 	// This field is immutable.
 	storageClassName: string @go(StorageClassName) @protobuf(3,bytes)
 
-	// Capacity is the value reported by the CSI driver in its GetCapacityResponse
+	// capacity is the value reported by the CSI driver in its GetCapacityResponse
 	// for a GetCapacityRequest with topology and parameters that match the
 	// previous fields.
 	//
@@ -618,7 +616,7 @@ import (
 	// +optional
 	capacity?: null | resource.#Quantity @go(Capacity,*resource.Quantity) @protobuf(4,bytes,opt)
 
-	// MaximumVolumeSize is the value reported by the CSI driver in its GetCapacityResponse
+	// maximumVolumeSize is the value reported by the CSI driver in its GetCapacityResponse
 	// for a GetCapacityRequest with topology and parameters that match the
 	// previous fields.
 	//
@@ -642,7 +640,7 @@ import (
 	// +optional
 	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
 
-	// Items is the list of CSIStorageCapacity objects.
+	// items is the list of CSIStorageCapacity objects.
 	// +listType=map
 	// +listMapKey=name
 	items: [...#CSIStorageCapacity] @go(Items,[]CSIStorageCapacity) @protobuf(2,bytes,rep)

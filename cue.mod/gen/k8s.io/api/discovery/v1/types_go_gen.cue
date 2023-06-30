@@ -118,7 +118,9 @@ import (
 	// according to whatever system is managing the endpoint. A nil value
 	// indicates an unknown state. In most cases consumers should interpret this
 	// unknown state as ready. For compatibility reasons, ready should never be
-	// "true" for terminating endpoints.
+	// "true" for terminating endpoints, except when the normal readiness
+	// behavior is being explicitly overridden, for example when the associated
+	// Service has set the publishNotReadyAddresses flag.
 	// +optional
 	ready?: null | bool @go(Ready,*bool) @protobuf(1,bytes)
 
@@ -153,9 +155,8 @@ import (
 // EndpointPort represents a Port used by an EndpointSlice
 // +structType=atomic
 #EndpointPort: {
-	// The name of this port. All ports in an EndpointSlice must have a unique
-	// name. If the EndpointSlice is dervied from a Kubernetes service, this
-	// corresponds to the Service.ports[].name.
+	// name represents the name of this port. All ports in an EndpointSlice must have a unique name.
+	// If the EndpointSlice is dervied from a Kubernetes service, this corresponds to the Service.ports[].name.
 	// Name must either be an empty string or pass DNS_LABEL validation:
 	// * must be no more than 63 characters long.
 	// * must consist of lower case alphanumeric characters or '-'.
@@ -163,21 +164,28 @@ import (
 	// Default is empty string.
 	name?: null | string @go(Name,*string) @protobuf(1,bytes)
 
-	// The IP protocol for this port.
+	// protocol represents the IP protocol for this port.
 	// Must be UDP, TCP, or SCTP.
 	// Default is TCP.
 	protocol?: null | v1.#Protocol @go(Protocol,*v1.Protocol) @protobuf(2,bytes)
 
-	// The port number of the endpoint.
+	// port represents the port number of the endpoint.
 	// If this is not specified, ports are not restricted and must be
 	// interpreted in the context of the specific consumer.
 	port?: null | int32 @go(Port,*int32) @protobuf(3,bytes,opt)
 
 	// The application protocol for this port.
+	// This is used as a hint for implementations to offer richer behavior for protocols that they understand.
 	// This field follows standard Kubernetes label syntax.
-	// Un-prefixed names are reserved for IANA standard service names (as per
+	// Valid values are either:
+	//
+	// * Un-prefixed protocol names - reserved for IANA standard service names (as per
 	// RFC-6335 and https://www.iana.org/assignments/service-names).
-	// Non-standard protocols should use prefixed names such as
+	//
+	// * Kubernetes-defined prefixed names:
+	//   * 'kubernetes.io/h2c' - HTTP/2 over cleartext as described in https://www.rfc-editor.org/rfc/rfc7540
+	//
+	// * Other protocols should use implementation-defined prefixed names such as
 	// mycompany.com/my-custom-protocol.
 	// +optional
 	appProtocol?: null | string @go(AppProtocol,*string) @protobuf(4,bytes)
@@ -191,6 +199,6 @@ import (
 	// +optional
 	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
 
-	// List of endpoint slices
+	// items is the list of endpoint slices
 	items: [...#EndpointSlice] @go(Items,[]EndpointSlice) @protobuf(2,bytes,rep)
 }

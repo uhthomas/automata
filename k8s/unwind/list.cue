@@ -32,6 +32,7 @@ import (
 	"github.com/uhthomas/automata/k8s/unwind/thomas"
 	"github.com/uhthomas/automata/k8s/unwind/vault_csi_provider"
 	"github.com/uhthomas/automata/k8s/unwind/vault"
+	"github.com/uhthomas/automata/k8s/unwind/vm_operator"
 	"k8s.io/api/core/v1"
 )
 
@@ -90,6 +91,7 @@ _items: [
 	unwind.#StorageClassList.items,
 	vault_csi_provider.#List.items,
 	vault.#List.items,
+	vm_operator.#List.items,
 ]
 
 #List

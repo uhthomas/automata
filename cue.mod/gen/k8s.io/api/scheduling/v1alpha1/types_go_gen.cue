@@ -20,7 +20,7 @@ import (
 	// +optional
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	// The value of this priority class. This is the actual priority that pods
+	// value represents the integer value of this priority class. This is the actual priority that pods
 	// receive when they have the name of this class in their pod spec.
 	value: int32 @go(Value) @protobuf(2,bytes,opt)
 
@@ -37,7 +37,7 @@ import (
 	// +optional
 	description?: string @go(Description) @protobuf(4,bytes,opt)
 
-	// PreemptionPolicy is the Policy for preempting pods with lower priority.
+	// preemptionPolicy is the Policy for preempting pods with lower priority.
 	// One of Never, PreemptLowerPriority.
 	// Defaults to PreemptLowerPriority if unset.
 	// +optional

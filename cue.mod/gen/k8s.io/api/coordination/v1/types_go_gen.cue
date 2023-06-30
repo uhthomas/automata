@@ -14,7 +14,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// +optional
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	// Specification of the Lease.
+	// spec contains the specification of the Lease.
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 	// +optional
 	spec?: #LeaseSpec @go(Spec) @protobuf(2,bytes,opt)
@@ -28,7 +28,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	// leaseDurationSeconds is a duration that candidates for a lease need
 	// to wait to force acquire it. This is measure against time of last
-	// observed RenewTime.
+	// observed renewTime.
 	// +optional
 	leaseDurationSeconds?: null | int32 @go(LeaseDurationSeconds,*int32) @protobuf(2,varint,opt)
 
@@ -56,6 +56,6 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// +optional
 	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
 
-	// Items is a list of schema objects.
+	// items is a list of schema objects.
 	items: [...#Lease] @go(Items,[]Lease) @protobuf(2,bytes,rep)
 }

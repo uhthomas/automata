@@ -17,21 +17,21 @@ import (
 
 // ScaleSpec describes the attributes of a scale subresource
 #ScaleSpec: {
-	// desired number of instances for the scaled object.
+	// replicas is the number of observed instances of the scaled object.
 	// +optional
 	replicas?: int32 @go(Replicas) @protobuf(1,varint,opt)
 }
 
 // ScaleStatus represents the current status of a scale subresource.
 #ScaleStatus: {
-	// actual number of observed instances of the scaled object.
+	// replias is the actual number of observed instances of the scaled object.
 	replicas: int32 @go(Replicas) @protobuf(1,varint,opt)
 
-	// label query over pods that should match the replicas count. More info: http://kubernetes.io/docs/user-guide/labels#label-selectors
+	// selector is a label query over pods that should match the replicas count. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 	// +optional
 	selector?: {[string]: string} @go(Selector,map[string]string) @protobuf(2,bytes,rep)
 
-	// label selector for pods that should match the replicas count. This is a serializated
+	// targetSelector is the label selector for pods that should match the replicas count. This is a serializated
 	// version of both map-based and more expressive set-based selectors. This is done to
 	// avoid introspection in the clients. The string will be in the same format as the
 	// query-param syntax. If the target type only supports map-based selectors, both this
@@ -49,11 +49,11 @@ import (
 	// +optional
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	// defines the behavior of the scale. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status.
+	// spec defines the behavior of the scale. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status.
 	// +optional
 	spec?: #ScaleSpec @go(Spec) @protobuf(2,bytes,opt)
 
-	// current status of the scale. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status. Read-only.
+	// status defines current status of the scale. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status. Read-only.
 	// +optional
 	status?: #ScaleStatus @go(Status) @protobuf(3,bytes,opt)
 }
@@ -142,7 +142,7 @@ import (
 	// This is helpful in being able to do a canary based deployment. The default value is 0.
 	partition?: null | int32 @go(Partition,*int32) @protobuf(1,varint,opt)
 
-	// The maximum number of pods that can be unavailable during the update.
+	// maxUnavailable is the maximum number of pods that can be unavailable during the update.
 	// Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
 	// Absolute number is calculated from percentage by rounding up. This can not be 0.
 	// Defaults to 1. This field is alpha-level and is only honored by servers that enable the
@@ -177,13 +177,13 @@ import (
 // StatefulSetPersistentVolumeClaimRetentionPolicy describes the policy used for PVCs
 // created from the StatefulSet VolumeClaimTemplates.
 #StatefulSetPersistentVolumeClaimRetentionPolicy: {
-	// WhenDeleted specifies what happens to PVCs created from StatefulSet
+	// whenDeleted specifies what happens to PVCs created from StatefulSet
 	// VolumeClaimTemplates when the StatefulSet is deleted. The default policy
 	// of `Retain` causes PVCs to not be affected by StatefulSet deletion. The
 	// `Delete` policy causes those PVCs to be deleted.
 	whenDeleted?: #PersistentVolumeClaimRetentionPolicyType @go(WhenDeleted) @protobuf(1,bytes,opt,casttype=PersistentVolumeClaimRetentionPolicyType)
 
-	// WhenScaled specifies what happens to PVCs created from StatefulSet
+	// whenScaled specifies what happens to PVCs created from StatefulSet
 	// VolumeClaimTemplates when the StatefulSet is scaled down. The default
 	// policy of `Retain` causes PVCs to not be affected by a scaledown. The
 	// `Delete` policy causes the associated PVCs for any excess pods above
@@ -269,7 +269,7 @@ import (
 	// StatefulSetSpec version. The default value is 10.
 	revisionHistoryLimit?: null | int32 @go(RevisionHistoryLimit,*int32) @protobuf(8,varint,opt)
 
-	// Minimum number of seconds for which a newly created pod should be ready
+	// minReadySeconds is the minimum number of seconds for which a newly created pod should be ready
 	// without any of its container crashing for it to be considered available.
 	// Defaults to 0 (pod will be considered available as soon as it is ready)
 	// +optional
@@ -285,7 +285,7 @@ import (
 	// default ordinals behavior assigns a "0" index to the first replica and
 	// increments the index by one for each additional replica requested. Using
 	// the ordinals field requires the StatefulSetStartOrdinal feature gate to be
-	// enabled, which is alpha.
+	// enabled, which is beta.
 	// +optional
 	ordinals?: null | #StatefulSetOrdinals @go(Ordinals,*StatefulSetOrdinals) @protobuf(11,bytes,opt)
 }
@@ -325,13 +325,13 @@ import (
 	// +optional
 	collisionCount?: null | int32 @go(CollisionCount,*int32) @protobuf(9,varint,opt)
 
-	// Represents the latest available observations of a statefulset's current state.
+	// conditions represent the latest available observations of a statefulset's current state.
 	// +optional
 	// +patchMergeKey=type
 	// +patchStrategy=merge
 	conditions?: [...#StatefulSetCondition] @go(Conditions,[]StatefulSetCondition) @protobuf(10,bytes,rep)
 
-	// Total number of available pods (ready for at least minReadySeconds) targeted by this StatefulSet.
+	// availableReplicas is the total number of available pods (ready for at least minReadySeconds) targeted by this StatefulSet.
 	// +optional
 	availableReplicas: int32 @go(AvailableReplicas) @protobuf(11,varint,opt)
 }
@@ -389,17 +389,18 @@ import (
 
 // DeploymentSpec is the specification of the desired behavior of the Deployment.
 #DeploymentSpec: {
-	// Number of desired pods. This is a pointer to distinguish between explicit
+	// replicas is the number of desired pods. This is a pointer to distinguish between explicit
 	// zero and not specified. Defaults to 1.
 	// +optional
 	replicas?: null | int32 @go(Replicas,*int32) @protobuf(1,varint,opt)
 
-	// Label selector for pods. Existing ReplicaSets whose pods are
+	// selector is the label selector for pods. Existing ReplicaSets whose pods are
 	// selected by this will be the ones affected by this deployment.
 	// +optional
 	selector?: null | metav1.#LabelSelector @go(Selector,*metav1.LabelSelector) @protobuf(2,bytes,opt)
 
 	// Template describes the pods that will be created.
+	// The only allowed template.spec.restartPolicy value is "Always".
 	template: v1.#PodTemplateSpec @go(Template) @protobuf(3,bytes,opt)
 
 	// The deployment strategy to use to replace existing pods with new ones.
@@ -407,28 +408,28 @@ import (
 	// +patchStrategy=retainKeys
 	strategy?: #DeploymentStrategy @go(Strategy) @protobuf(4,bytes,opt)
 
-	// Minimum number of seconds for which a newly created pod should be ready
+	// minReadySeconds is the minimum number of seconds for which a newly created pod should be ready
 	// without any of its container crashing, for it to be considered available.
 	// Defaults to 0 (pod will be considered available as soon as it is ready)
 	// +optional
 	minReadySeconds?: int32 @go(MinReadySeconds) @protobuf(5,varint,opt)
 
-	// The number of old ReplicaSets to retain to allow rollback.
+	// revisionHistoryLimit is the number of old ReplicaSets to retain to allow rollback.
 	// This is a pointer to distinguish between explicit zero and not specified.
 	// Defaults to 2.
 	// +optional
 	revisionHistoryLimit?: null | int32 @go(RevisionHistoryLimit,*int32) @protobuf(6,varint,opt)
 
-	// Indicates that the deployment is paused.
+	// paused indicates that the deployment is paused.
 	// +optional
 	paused?: bool @go(Paused) @protobuf(7,varint,opt)
 
 	// DEPRECATED.
-	// The config this deployment is rolling back to. Will be cleared after rollback is done.
+	// rollbackTo is the config this deployment is rolling back to. Will be cleared after rollback is done.
 	// +optional
 	rollbackTo?: null | #RollbackConfig @go(RollbackTo,*RollbackConfig) @protobuf(8,bytes,opt)
 
-	// The maximum time in seconds for a deployment to make progress before it
+	// progressDeadlineSeconds is the maximum time in seconds for a deployment to make progress before it
 	// is considered to be failed. The deployment controller will continue to
 	// process failed deployments and a condition with a ProgressDeadlineExceeded
 	// reason will be surfaced in the deployment status. Note that progress will
@@ -524,15 +525,15 @@ import (
 
 // DeploymentStatus is the most recently observed status of the Deployment.
 #DeploymentStatus: {
-	// The generation observed by the deployment controller.
+	// observedGeneration is the generation observed by the deployment controller.
 	// +optional
 	observedGeneration?: int64 @go(ObservedGeneration) @protobuf(1,varint,opt)
 
-	// Total number of non-terminated pods targeted by this deployment (their labels match the selector).
+	// replicas is the total number of non-terminated pods targeted by this deployment (their labels match the selector).
 	// +optional
 	replicas?: int32 @go(Replicas) @protobuf(2,varint,opt)
 
-	// Total number of non-terminated pods targeted by this deployment that have the desired template spec.
+	// updatedReplicas is the total number of non-terminated pods targeted by this deployment that have the desired template spec.
 	// +optional
 	updatedReplicas?: int32 @go(UpdatedReplicas) @protobuf(3,varint,opt)
 
@@ -544,18 +545,18 @@ import (
 	// +optional
 	availableReplicas?: int32 @go(AvailableReplicas) @protobuf(4,varint,opt)
 
-	// Total number of unavailable pods targeted by this deployment. This is the total number of
+	// unavailableReplicas is the total number of unavailable pods targeted by this deployment. This is the total number of
 	// pods that are still required for the deployment to have 100% available capacity. They may
 	// either be pods that are running but not yet available or pods that still have not been created.
 	// +optional
 	unavailableReplicas?: int32 @go(UnavailableReplicas) @protobuf(5,varint,opt)
 
-	// Represents the latest available observations of a deployment's current state.
+	// Conditions represent the latest available observations of a deployment's current state.
 	// +patchMergeKey=type
 	// +patchStrategy=merge
 	conditions?: [...#DeploymentCondition] @go(Conditions,[]DeploymentCondition) @protobuf(6,bytes,rep)
 
-	// Count of hash collisions for the Deployment. The Deployment controller uses this
+	// collisionCount is the count of hash collisions for the Deployment. The Deployment controller uses this
 	// field as a collision avoidance mechanism when it needs to create the name for the
 	// newest ReplicaSet.
 	// +optional
@@ -635,10 +636,10 @@ import (
 	// +optional
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	// Data is the serialized representation of the state.
+	// data is the serialized representation of the state.
 	data?: runtime.#RawExtension @go(Data) @protobuf(2,bytes,opt)
 
-	// Revision indicates the revision of the state represented by Data.
+	// revision indicates the revision of the state represented by Data.
 	revision: int64 @go(Revision) @protobuf(3,varint,opt)
 }
 

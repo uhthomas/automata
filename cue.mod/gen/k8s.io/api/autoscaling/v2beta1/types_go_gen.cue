@@ -15,7 +15,7 @@ import (
 	// Kind of the referent; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
 	kind: string @go(Kind) @protobuf(1,bytes,opt)
 
-	// Name of the referent; More info: http://kubernetes.io/docs/user-guide/identifiers#names
+	// Name of the referent; More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
 	name: string @go(Name) @protobuf(2,bytes,opt)
 
 	// API version of the referent

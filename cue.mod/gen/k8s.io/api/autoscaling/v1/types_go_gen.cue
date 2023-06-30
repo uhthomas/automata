@@ -13,13 +13,13 @@ import (
 // CrossVersionObjectReference contains enough information to let you identify the referred resource.
 // +structType=atomic
 #CrossVersionObjectReference: {
-	// Kind of the referent; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+	// kind is the kind of the referent; More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
 	kind: string @go(Kind) @protobuf(1,bytes,opt)
 
-	// Name of the referent; More info: http://kubernetes.io/docs/user-guide/identifiers#names
+	// name is the name of the referent; More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
 	name: string @go(Name) @protobuf(2,bytes,opt)
 
-	// API version of the referent
+	// apiVersion is the API version of the referent
 	// +optional
 	apiVersion?: string @go(APIVersion) @protobuf(3,bytes,opt)
 }
@@ -38,10 +38,10 @@ import (
 	// +optional
 	minReplicas?: null | int32 @go(MinReplicas,*int32) @protobuf(2,varint,opt)
 
-	// upper limit for the number of pods that can be set by the autoscaler; cannot be smaller than MinReplicas.
+	// maxReplicas is the upper limit for the number of pods that can be set by the autoscaler; cannot be smaller than MinReplicas.
 	maxReplicas: int32 @go(MaxReplicas) @protobuf(3,varint,opt)
 
-	// target average CPU utilization (represented as a percentage of requested CPU) over all the pods;
+	// targetCPUUtilizationPercentage is the target average CPU utilization (represented as a percentage of requested CPU) over all the pods;
 	// if not specified the default autoscaling policy will be used.
 	// +optional
 	targetCPUUtilizationPercentage?: null | int32 @go(TargetCPUUtilizationPercentage,*int32) @protobuf(4,varint,opt)
@@ -49,22 +49,22 @@ import (
 
 // current status of a horizontal pod autoscaler
 #HorizontalPodAutoscalerStatus: {
-	// most recent generation observed by this autoscaler.
+	// observedGeneration is the most recent generation observed by this autoscaler.
 	// +optional
 	observedGeneration?: null | int64 @go(ObservedGeneration,*int64) @protobuf(1,varint,opt)
 
-	// last time the HorizontalPodAutoscaler scaled the number of pods;
+	// lastScaleTime is the last time the HorizontalPodAutoscaler scaled the number of pods;
 	// used by the autoscaler to control how often the number of pods is changed.
 	// +optional
 	lastScaleTime?: null | metav1.#Time @go(LastScaleTime,*metav1.Time) @protobuf(2,bytes,opt)
 
-	// current number of replicas of pods managed by this autoscaler.
+	// currentReplicas is the current number of replicas of pods managed by this autoscaler.
 	currentReplicas: int32 @go(CurrentReplicas) @protobuf(3,varint,opt)
 
-	// desired number of replicas of pods managed by this autoscaler.
+	// desiredReplicas is the  desired number of replicas of pods managed by this autoscaler.
 	desiredReplicas: int32 @go(DesiredReplicas) @protobuf(4,varint,opt)
 
-	// current average CPU utilization over all pods, represented as a percentage of requested CPU,
+	// currentCPUUtilizationPercentage is the current average CPU utilization over all pods, represented as a percentage of requested CPU,
 	// e.g. 70 means that an average pod is using now 70% of its requested CPU.
 	// +optional
 	currentCPUUtilizationPercentage?: null | int32 @go(CurrentCPUUtilizationPercentage,*int32) @protobuf(5,varint,opt)
@@ -78,11 +78,11 @@ import (
 	// +optional
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	// behaviour of autoscaler. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status.
+	// spec defines the behaviour of autoscaler. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status.
 	// +optional
 	spec?: #HorizontalPodAutoscalerSpec @go(Spec) @protobuf(2,bytes,opt)
 
-	// current information about the autoscaler.
+	// status is the current information about the autoscaler.
 	// +optional
 	status?: #HorizontalPodAutoscalerStatus @go(Status) @protobuf(3,bytes,opt)
 }
@@ -95,7 +95,7 @@ import (
 	// +optional
 	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
 
-	// list of horizontal pod autoscaler objects.
+	// items is the list of horizontal pod autoscaler objects.
 	items: [...#HorizontalPodAutoscaler] @go(Items,[]HorizontalPodAutoscaler) @protobuf(2,bytes,rep)
 }
 
@@ -107,31 +107,31 @@ import (
 	// +optional
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
-	// defines the behavior of the scale. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status.
+	// spec defines the behavior of the scale. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status.
 	// +optional
 	spec?: #ScaleSpec @go(Spec) @protobuf(2,bytes,opt)
 
-	// current status of the scale. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status. Read-only.
+	// status is the current status of the scale. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status. Read-only.
 	// +optional
 	status?: #ScaleStatus @go(Status) @protobuf(3,bytes,opt)
 }
 
 // ScaleSpec describes the attributes of a scale subresource.
 #ScaleSpec: {
-	// desired number of instances for the scaled object.
+	// replicas is the desired number of instances for the scaled object.
 	// +optional
 	replicas?: int32 @go(Replicas) @protobuf(1,varint,opt)
 }
 
 // ScaleStatus represents the current status of a scale subresource.
 #ScaleStatus: {
-	// actual number of observed instances of the scaled object.
+	// replicas is the actual number of observed instances of the scaled object.
 	replicas: int32 @go(Replicas) @protobuf(1,varint,opt)
 
-	// label query over pods that should match the replicas count. This is same
+	// selector is the label query over pods that should match the replicas count. This is same
 	// as the label selector but in the string format to avoid introspection
 	// by clients. The string will be in the same format as the query-param syntax.
-	// More info about label selectors: http://kubernetes.io/docs/user-guide/labels#label-selectors
+	// More info about label selectors: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 	// +optional
 	selector?: string @go(Selector) @protobuf(2,bytes,opt)
 }
@@ -205,7 +205,7 @@ import (
 	// +optional
 	resource?: null | #ResourceMetricSource @go(Resource,*ResourceMetricSource) @protobuf(4,bytes,opt)
 
-	// container resource refers to a resource metric (such as those specified in
+	// containerResource refers to a resource metric (such as those specified in
 	// requests and limits) known to Kubernetes describing a single container in each pod of the
 	// current scale target (e.g. CPU or memory). Such metrics are built in to
 	// Kubernetes, and have special scaling options on top of those available
@@ -367,7 +367,7 @@ import (
 	// +optional
 	resource?: null | #ResourceMetricStatus @go(Resource,*ResourceMetricStatus) @protobuf(4,bytes,opt)
 
-	// container resource refers to a resource metric (such as those specified in
+	// containerResource refers to a resource metric (such as those specified in
 	// requests and limits) known to Kubernetes describing a single container in each pod in the
 	// current scale target (e.g. CPU or memory). Such metrics are built in to
 	// Kubernetes, and have special scaling options on top of those available
