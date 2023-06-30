@@ -21,9 +21,9 @@ import (
 			metadata: labels: "app.kubernetes.io/name": #Name
 			spec: {
 				volumes: [{
-					name: "cert"
+					name: "certificate"
 					secret: {
-						secretName:  "\(#Name)-webhook"
+						secretName:  "\(#Name)-webhook-certificate"
 						defaultMode: 0o420
 					}
 				}]
@@ -51,7 +51,7 @@ import (
 						}
 					}
 					volumeMounts: [{
-						name:      "cert"
+						name:      "certificate"
 						mountPath: "/tmp/k8s-webhook-server/serving-certs"
 						readOnly:  true
 					}]
