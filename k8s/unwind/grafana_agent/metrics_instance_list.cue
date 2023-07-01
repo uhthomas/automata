@@ -13,7 +13,11 @@ import "k8s.io/api/core/v1"
 
 #MetricsInstanceList: items: [{
 	spec: {
-		remoteWrite: [{url: "http://mimir-nginx.mimir.svc/api/v1/push"}]
+		remoteWrite: [{
+			url: "http://mimir-nginx.mimir.svc/api/v1/push"
+		}, {
+			url: "http://vminsert-vm.vm.svc:8480/insert/0/prometheus"
+		}]
 
 		serviceMonitorNamespaceSelector: {}
 		serviceMonitorSelector: matchLabels: {}
