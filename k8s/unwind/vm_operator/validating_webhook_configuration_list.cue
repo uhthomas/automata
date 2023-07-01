@@ -15,7 +15,7 @@ import (
 }
 
 #ValidatingWebhookConfigurationList: items: [{
-	metadata: annotations: (certmanagerv1.#WantInjectAnnotation): "\(#Namespace)/\(#Name)-webhook-certificate"
+	metadata: annotations: (certmanagerv1.#WantInjectAnnotation): "\(#Namespace)/\(#Name)-webhook"
 	webhooks: [{
 		name: "vvmagent.kb.io"
 		clientConfig: service: {
