@@ -166,9 +166,6 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 				name: "talos-su3-l23"
 				devices: [{
 					// HGST H7280A520SUN8.0T
-					name: "/dev/disk/by-id/wwn-0x5000cca23b184d70"
-				}, {
-					// HGST H7280A520SUN8.0T
 					name: "/dev/disk/by-id/wwn-0x5000cca23b356ba0"
 				}, {
 					// HGST HUH721010AL5200
