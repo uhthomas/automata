@@ -36,16 +36,16 @@ import "k8s.io/api/core/v1"
 				resources: requests: storage: "8Gi"
 			}
 			resources: limits: {
-				cpu:    "300m"
-				memory: "300Mi"
+				cpu:    "1000m"
+				memory: "512Mi"
 			}
 		}
 		vminsert: {
 			replicaCount:    2
 			securityContext: defaultSecurityContext
 			resources: limits: {
-				cpu:    "300m"
-				memory: "300Mi"
+				cpu:    "1000m"
+				memory: "512Mi"
 			}
 		}
 		vmstorage: {
@@ -57,8 +57,8 @@ import "k8s.io/api/core/v1"
 				resources: requests: storage: "16Gi"
 			}
 			resources: limits: {
-				cpu:    "500m"
-				memory: "500Mi"
+				cpu:    "1000m"
+				memory: "512Mi"
 			}
 		}
 	}
