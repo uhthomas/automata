@@ -28,7 +28,7 @@ import "k8s.io/api/core/v1"
 		}
 
 		vmselect: {
-			replicaCount:    2
+			replicaCount:    3
 			securityContext: defaultSecurityContext
 			cacheMountPath:  "/select-cache"
 			storage: volumeClaimTemplate: spec: {
@@ -41,7 +41,7 @@ import "k8s.io/api/core/v1"
 			}
 		}
 		vminsert: {
-			replicaCount:    2
+			replicaCount:    3
 			securityContext: defaultSecurityContext
 			resources: limits: {
 				cpu:    "1"
@@ -49,7 +49,7 @@ import "k8s.io/api/core/v1"
 			}
 		}
 		vmstorage: {
-			replicaCount:    2
+			replicaCount:    3
 			securityContext: defaultSecurityContext
 			storageDataPath: "/vm-data"
 			storage: volumeClaimTemplate: spec: {
@@ -58,7 +58,7 @@ import "k8s.io/api/core/v1"
 			}
 			resources: limits: {
 				cpu:    "1"
-				memory: "512Mi"
+				memory: "1Gi"
 			}
 		}
 	}
