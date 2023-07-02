@@ -178,6 +178,9 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 					name: "/dev/disk/by-id/wwn-0x5000cca23b43eb7c"
 				}, {
 					// HGST H7280A520SUN8.0T
+					name: "/dev/disk/by-id/wwn-0x5000cca23b184d70"
+				}, {
+					// HGST H7280A520SUN8.0T
 					name: "/dev/disk/by-id/wwn-0x5000cca23b3573bc"
 				}]
 			}, {
