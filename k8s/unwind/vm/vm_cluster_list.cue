@@ -36,7 +36,7 @@ import "k8s.io/api/core/v1"
 				resources: requests: storage: "8Gi"
 			}
 			resources: limits: {
-				cpu:    "1000m"
+				cpu:    "1"
 				memory: "512Mi"
 			}
 		}
@@ -44,7 +44,7 @@ import "k8s.io/api/core/v1"
 			replicaCount:    2
 			securityContext: defaultSecurityContext
 			resources: limits: {
-				cpu:    "1000m"
+				cpu:    "1"
 				memory: "512Mi"
 			}
 		}
@@ -57,7 +57,7 @@ import "k8s.io/api/core/v1"
 				resources: requests: storage: "16Gi"
 			}
 			resources: limits: {
-				cpu:    "1000m"
+				cpu:    "1"
 				memory: "512Mi"
 			}
 		}
