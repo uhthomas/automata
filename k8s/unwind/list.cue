@@ -19,7 +19,6 @@ import (
 	"github.com/uhthomas/automata/k8s/unwind/kubevirt"
 	"github.com/uhthomas/automata/k8s/unwind/loki"
 	"github.com/uhthomas/automata/k8s/unwind/media"
-	"github.com/uhthomas/automata/k8s/unwind/mimir"
 	"github.com/uhthomas/automata/k8s/unwind/minecraft"
 	"github.com/uhthomas/automata/k8s/unwind/node_feature_discovery"
 	"github.com/uhthomas/automata/k8s/unwind/node_problem_detector"
@@ -75,7 +74,6 @@ _items: [
 	kubevirt.#List.items,
 	loki.#List.items,
 	media.#List.items,
-	mimir.#List.items,
 	minecraft.#List.items,
 	node_feature_discovery.#List.items,
 	node_problem_detector.#List.items,

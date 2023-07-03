@@ -43,7 +43,6 @@ cue_export(
         "//k8s/unwind/kubevirt:cue_kubevirt_library",
         "//k8s/unwind/loki:cue_loki_library",
         "//k8s/unwind/media:cue_media_library",
-        "//k8s/unwind/mimir:cue_mimir_library",
         "//k8s/unwind/minecraft:cue_minecraft_library",
         "//k8s/unwind/node_feature_discovery:cue_node_feature_discovery_library",
         "//k8s/unwind/node_problem_detector:cue_node_problem_detector_library",
