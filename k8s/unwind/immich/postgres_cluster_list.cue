@@ -49,6 +49,7 @@ import (
 			}
 		}]
 		postgresVersion: 15
+		monitoring: pgmonitor: exporter: image: "registry.developers.crunchydata.com/crunchydata/crunchy-postgres-exporter:ubi8-5.3.2-0"
 		users: [{
 			name: "immich"
 			databases: ["immich"]
