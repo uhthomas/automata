@@ -1,0 +1,23 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_v1beta1_library",
+    srcs = [
+        "groupversion_info_go_gen.cue",
+        "patroni_types_go_gen.cue",
+        "pgadmin_types_go_gen.cue",
+        "pgbackrest_types_go_gen.cue",
+        "pgbouncer_types_go_gen.cue",
+        "pgupgrade_types_go_gen.cue",
+        "postgres_types_go_gen.cue",
+        "postgrescluster_types_go_gen.cue",
+        "shared_types_go_gen.cue",
+    ],
+    importpath = "github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/apimachinery/pkg/apis/meta/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/apimachinery/pkg/util/intstr:cue_intstr_library",
+    ],
+)

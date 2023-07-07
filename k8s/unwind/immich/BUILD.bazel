@@ -12,6 +12,7 @@ cue_library(
     importpath = "github.com/uhthomas/automata/k8s/unwind/immich",
     visibility = ["//visibility:public"],
     deps = [
+        "//cue.mod/gen/github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1:cue_v1beta1_library",
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
         "//k8s/unwind/immich/immich_machine_learning:cue_immich_machine_learning_library",
         "//k8s/unwind/immich/immich_microservice:cue_immich_microservice_library",

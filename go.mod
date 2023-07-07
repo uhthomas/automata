@@ -5,6 +5,7 @@ go 1.19
 require (
 	cuelang.org/go v0.5.0
 	github.com/cert-manager/cert-manager v1.12.2
+	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
 	github.com/prometheus/prometheus v0.45.0
 	github.com/rook/rook/pkg/apis v0.0.0-20230629173939-aee57ea9ffee
 	k8s.io/api v0.27.3
@@ -182,7 +183,6 @@ require (
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
-	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/apimachinery v0.27.3 // indirect
@@ -246,3 +246,5 @@ replace (
 )
 
 exclude github.com/kubernetes-incubator/external-storage v0.20.4-openstorage-rc2
+
+replace github.com/crunchydata/postgres-operator => github.com/crunchydata/postgres-operator v1.3.3-0.20230629151007-94ebcf2df74d
