@@ -39,6 +39,9 @@ import (
 					env: [{
 						name:  "WATCH_NAMESPACE"
 						value: ""
+					}, {
+						name:  "VM_FILTERCHILDLABELPREFIXES"
+						value: "applyset.kubernetes.io"
 					}]
 					resources: {
 						limits: {
