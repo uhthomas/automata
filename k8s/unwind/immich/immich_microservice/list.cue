@@ -9,7 +9,7 @@ import (
 #Name:      "immich-microservice"
 #Namespace: "immich"
 
-#Version:   "1.65.0"
+#Version:   "1.66.1"
 #Component: "microservice"
 
 #List: v1.#List & {
