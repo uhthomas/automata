@@ -42,6 +42,10 @@ import (
 				containers: [{
 					name:  #Name
 					image: "ghcr.io/immich-app/immich-machine-learning:v\(#Version)"
+					ports: [{
+						name:          "http"
+						containerPort: 3003
+					}]
 					env: [{
 						name:  "NODE_ENV"
 						value: "production"
@@ -49,10 +53,10 @@ import (
 						name:  "TRANSFORMERS_CACHE"
 						value: "/usr/src/app/.transformers_cache"
 					}]
-					ports: [{
-						name:          "http"
-						containerPort: 3003
-					}]
+					resources: limits: {
+						cpu:    "10000m"
+						memory: "12Gi"
+					}
 					volumeMounts: [{
 						name:      "tmp"
 						mountPath: "/tmp"
