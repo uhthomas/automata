@@ -44,6 +44,10 @@ import (
 						name:  "IMMICH_SERVER_URL"
 						value: "http://immich-server"
 					}]
+					resources: limits: {
+						cpu:    "600m"
+						memory: "128Mi"
+					}
 					volumeMounts: [{
 						name:      "tmp"
 						mountPath: "/tmp"
