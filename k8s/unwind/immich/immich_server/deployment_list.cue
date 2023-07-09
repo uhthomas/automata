@@ -49,6 +49,10 @@ import (
 					imagePullPolicy: v1.#PullIfNotPresent
 					command: ["/bin/sh"]
 					args: ["./start-server.sh"]
+					ports: [{
+						name:          "http"
+						containerPort: 3001
+					}]
 					env: [{
 						name:  "NODE_ENV"
 						value: "production"
@@ -90,10 +94,10 @@ import (
 						name:  "LOG_LEVEL"
 						value: "debug"
 					}]
-					ports: [{
-						name:          "http"
-						containerPort: 3001
-					}]
+					resources: limits: {
+						cpu:    "2000m"
+						memory: "4Gi"
+					}
 					volumeMounts: [{
 						name:      "geocoding-dump"
 						mountPath: "/usr/src/app/.reverse-geocoding-dump"
