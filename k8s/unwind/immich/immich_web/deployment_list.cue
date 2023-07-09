@@ -28,6 +28,10 @@ import (
 					image: "ghcr.io/immich-app/immich-web:v\(#Version)"
 					command: ["/bin/sh"]
 					args: ["./entrypoint.sh"]
+					ports: [{
+						name:          "http"
+						containerPort: 3000
+					}]
 					env: [{
 						name:  "NODE_ENV"
 						value: "production"
@@ -35,10 +39,10 @@ import (
 						name:  "IMMICH_SERVER_URL"
 						value: "http://immich-server"
 					}]
-					ports: [{
-						name:          "http"
-						containerPort: 3000
-					}]
+					resources: limits: {
+						cpu:    "100m"
+						memory: "64Mi"
+					}
 
 					// _probe: httpGet: {
 					//  path: "/"
