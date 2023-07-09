@@ -89,6 +89,10 @@ import (
 						name:  "IMMICH_MACHINE_LEARNING_URL"
 						value: "http://immich-machine-learning"
 					}]
+					resources: limits: {
+						cpu:    "16000m"
+						memory: "6Gi"
+					}
 					volumeMounts: [ {
 						name:      "geocoding-dump"
 						mountPath: "/usr/src/app/.reverse-geocoding-dump"
