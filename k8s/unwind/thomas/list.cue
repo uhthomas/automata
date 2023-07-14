@@ -5,7 +5,6 @@ import (
 
 	"github.com/uhthomas/automata/k8s/unwind/thomas/legacybackup"
 	"github.com/uhthomas/automata/k8s/unwind/thomas/synologybackup"
-	"github.com/uhthomas/automata/k8s/unwind/thomas/wipefs"
 	"k8s.io/api/core/v1"
 )
 
@@ -29,5 +28,4 @@ _items: [
 	#NamespaceList.items,
 	legacybackup.#List.items,
 	synologybackup.#List.items,
-	wipefs.#List.items,
 ]
