@@ -149,6 +149,9 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 				}, {
 					// HGST HUH721010AL5200
 					name: "/dev/disk/by-id/wwn-0x5000cca26c015ed8"
+				}, {
+					// Samsung SSD 970 EVO Plus 2TB
+					name: "/dev/disk/by-id/nvme-eui.0025385531b3b814"
 				}]
 			}, {
 				name: "talos-god-636"
@@ -161,6 +164,9 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 				}, {
 					// WDC WD120EMAZ-11
 					name: "/dev/disk/by-id/wwn-0x5000cca291cccc74"
+				}, {
+					// Samsung SSD 970 EVO Plus 2TB
+					name: "/dev/disk/by-id/nvme-eui.0025385531b3a96f"
 				}]
 			}, {
 				name: "talos-su3-l23"
