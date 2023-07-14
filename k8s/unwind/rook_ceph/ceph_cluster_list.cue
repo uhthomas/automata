@@ -152,6 +152,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 				}, {
 					// Samsung SSD 970 EVO Plus 2TB
 					name: "/dev/disk/by-id/nvme-eui.0025385531b3b814"
+					config: osdsPerDevice: "2"
 				}]
 			}, {
 				name: "talos-god-636"
@@ -167,6 +168,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 				}, {
 					// Samsung SSD 970 EVO Plus 2TB
 					name: "/dev/disk/by-id/nvme-eui.0025385531b3a96f"
+					config: osdsPerDevice: "2"
 				}]
 			}, {
 				name: "talos-su3-l23"
@@ -179,6 +181,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 				}, {
 					// Samsung SSD 970 EVO Plus 2TB
 					name: "/dev/disk/by-id/nvme-eui.0025385531b39d87"
+					config: osdsPerDevice: "2"
 				}]
 			}, {
 				name: "talos-e5f-w4m"
