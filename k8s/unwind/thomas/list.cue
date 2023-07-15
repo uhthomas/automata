@@ -3,6 +3,7 @@ package thomas
 import (
 	"list"
 
+	"github.com/uhthomas/automata/k8s/unwind/thomas/blkdiscard"
 	"github.com/uhthomas/automata/k8s/unwind/thomas/legacybackup"
 	"github.com/uhthomas/automata/k8s/unwind/thomas/synologybackup"
 	"k8s.io/api/core/v1"
@@ -26,6 +27,7 @@ import (
 
 _items: [
 	#NamespaceList.items,
+	blkdiscard.#List.items,
 	legacybackup.#List.items,
 	synologybackup.#List.items,
 ]
