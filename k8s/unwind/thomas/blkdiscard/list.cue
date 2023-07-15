@@ -6,7 +6,7 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-#Name: "wipefs"
+#Name: "blksdiscard"
 
 #List: v1.#List & {
 	apiVersion: "v1"
