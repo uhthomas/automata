@@ -1,4 +1,4 @@
-package nvme_format
+package sgdisk_z
 
 import (
 	"list"
@@ -6,7 +6,7 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-#Name: "nvme-format"
+#Name: "sgdisk-z"
 
 #List: v1.#List & {
 	apiVersion: "v1"

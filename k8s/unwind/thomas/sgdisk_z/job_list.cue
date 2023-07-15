@@ -1,4 +1,4 @@
-package nvme_format
+package sgdisk_z
 
 import (
 	"k8s.io/api/core/v1"
@@ -34,8 +34,8 @@ import (
 			}]
 			containers: [{
 				name:  "nvme-format"
-				image: "ghcr.io/uhthomas/automata/nvme-cli:{STABLE_GIT_COMMIT}"
-				args: ["nvme", "format", "-s1", "/dev/nvme0n1"]
+				image: "ghcr.io/uhthomas/automata/gdisk:{STABLE_GIT_COMMIT}"
+				args: ["sgdisk", "-Z", "/dev/nvme0n1"]
 				volumeMounts: [{
 					name:      "disk"
 					mountPath: "/dev/nvme0n1"

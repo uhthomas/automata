@@ -11,7 +11,7 @@ cue_library(
     deps = [
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
         "//k8s/unwind/thomas/legacybackup:cue_legacybackup_library",
-        "//k8s/unwind/thomas/nvme_format:cue_nvme_format_library",
+        "//k8s/unwind/thomas/sgdisk_z:cue_sgdisk_z_library",
         "//k8s/unwind/thomas/synologybackup:cue_synologybackup_library",
     ],
 )
