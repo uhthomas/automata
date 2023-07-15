@@ -1,4 +1,4 @@
-package blkdiscard
+package nvme_format
 
 import (
 	"list"
@@ -6,7 +6,7 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-#Name: "blksdiscard"
+#Name: "nvme-format"
 
 #List: v1.#List & {
 	apiVersion: "v1"

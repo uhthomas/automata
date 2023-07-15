@@ -1,4 +1,4 @@
-package blkdiscard
+package nvme_format
 
 import (
 	"k8s.io/api/core/v1"
@@ -33,9 +33,9 @@ import (
 				hostPath: path: "/dev/disk/by-id/\(disk.name)"
 			}]
 			containers: [{
-				name:  "blkdiscard"
-				image: "debian:bookworm-slim"
-				args: ["blkdiscard", "/dev/nvme0n1"]
+				name:  "nvme-format"
+				image: "ghcr.io/uhthomas/automata/nvme-cli:{STABLE_GIT_COMMIT}"
+				args: ["nvme", "format", "-s1", "/dev/nvme0n1"]
 				volumeMounts: [{
 					name:      "disk"
 					mountPath: "/dev/nvme0n1"
