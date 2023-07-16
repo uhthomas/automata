@@ -14,7 +14,7 @@ import "k8s.io/api/core/v1"
 #ServiceList: items: [{
 	metadata: {
 		name: "\(#Name)-syncthing"
-		annotations: "tailscale.com/hostname": "\(#Name)-unwind-k8s"
+		annotations: "tailscale.com/hostname": "\(name)-unwind-k8s"
 	}
 	spec: {
 		ports: [{
