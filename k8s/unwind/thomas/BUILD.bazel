@@ -10,6 +10,7 @@ cue_library(
     visibility = ["//visibility:public"],
     deps = [
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
+        "//k8s/unwind/thomas/breakfast_backup:cue_breakfast_backup_library",
         "//k8s/unwind/thomas/legacybackup:cue_legacybackup_library",
         "//k8s/unwind/thomas/synologybackup:cue_synologybackup_library",
     ],
