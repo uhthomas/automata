@@ -9,9 +9,6 @@ k8s_object(
         "--prune",
     ],
     context = "",
-    images = {
-        "ghcr.io/uhthomas/automata/gdisk:{STABLE_GIT_COMMIT}": "//container/gdisk:image",
-    },
     kind = "Deployment",
     template = ":list",
     visibility = ["//visibility:public"],
