@@ -48,11 +48,11 @@ import (
 						memory: "2Gi"
 					}
 					volumeMounts: [{
-						name:      "data"
-						mountPath: "/var/syncthing"
-					}, {
 						name:      "config"
 						mountPath: "/var/syncthing/config"
+					}, {
+						name:      "data"
+						mountPath: "/data"
 					}]
 					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: {
