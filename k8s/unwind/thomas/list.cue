@@ -5,6 +5,7 @@ import (
 
 	"github.com/uhthomas/automata/k8s/unwind/thomas/breakfast_backup"
 	"github.com/uhthomas/automata/k8s/unwind/thomas/legacybackup"
+	"github.com/uhthomas/automata/k8s/unwind/thomas/melonade_backup"
 	"github.com/uhthomas/automata/k8s/unwind/thomas/synologybackup"
 	"k8s.io/api/core/v1"
 )
@@ -29,5 +30,6 @@ _items: [
 	#NamespaceList.items,
 	breakfast_backup.#List.items,
 	legacybackup.#List.items,
+	melonade_backup.#List.items,
 	synologybackup.#List.items,
 ]
