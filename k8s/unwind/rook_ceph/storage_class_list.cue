@@ -15,10 +15,7 @@ import (
 }
 
 #StorageClassList: items: [{
-	metadata: {
-		name: "rook-ceph-hdd-ec-delete-block"
-		annotations: "storageclass.kubernetes.io/is-default-class": "true"
-	}
+	metadata: name: "rook-ceph-hdd-ec-delete-block"
 	provisioner: "\(#Namespace).rbd.csi.ceph.com"
 	parameters: {
 		clusterID:     #Namespace
@@ -38,10 +35,7 @@ import (
 	allowVolumeExpansion: true
 	reclaimPolicy:        v1.#PersistentVolumeReclaimDelete
 }, {
-	metadata: {
-		name: "rook-ceph-hdd-ec-retain-block"
-		annotations: "storageclass.kubernetes.io/is-default-class": "true"
-	}
+	metadata: name: "rook-ceph-hdd-ec-retain-block"
 	provisioner: "\(#Namespace).rbd.csi.ceph.com"
 	parameters: {
 		clusterID:     #Namespace
