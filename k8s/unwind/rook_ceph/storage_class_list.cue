@@ -61,6 +61,26 @@ import (
 	allowVolumeExpansion: true
 	reclaimPolicy:        v1.#PersistentVolumeReclaimRetain
 }, {
+	metadata: name: "rook-ceph-nvme-ec-delete-block"
+	provisioner: "\(#Namespace).rbd.csi.ceph.com"
+	parameters: {
+		clusterID:     #Namespace
+		dataPool:      "ecpool-nvme"
+		pool:          "replicapool-nvme"
+		imageFormat:   "2"
+		imageFeatures: "layering"
+
+		"csi.storage.k8s.io/provisioner-secret-name":            "rook-csi-rbd-provisioner"
+		"csi.storage.k8s.io/provisioner-secret-namespace":       #Namespace
+		"csi.storage.k8s.io/controller-expand-secret-name":      "rook-csi-rbd-provisioner"
+		"csi.storage.k8s.io/controller-expand-secret-namespace": #Namespace
+		"csi.storage.k8s.io/node-stage-secret-name":             "rook-csi-rbd-node"
+		"csi.storage.k8s.io/node-stage-secret-namespace":        #Namespace
+		"csi.storage.k8s.io/fstype":                             "ext4"
+	}
+	allowVolumeExpansion: true
+	reclaimPolicy:        v1.#PersistentVolumeReclaimDelete
+}, {
 	metadata: name: "rook-cephfs-hdd-ec-retain"
 	provisioner: "\(#Namespace).cephfs.csi.ceph.com"
 	parameters: {

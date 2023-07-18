@@ -48,4 +48,28 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 			compression_mode:      "aggressive"
 		}
 	}
+}, {
+	metadata: name: "ecpool-nvme"
+	spec: {
+		erasureCoded: {
+			dataChunks:   3
+			codingChunks: 2
+		}
+		deviceClass: "nvme"
+		parameters: {
+			compression_algorithm: "zstd"
+			compression_mode:      "aggressive"
+		}
+	}
+}, {
+	metadata: name: "replicapool-nvme"
+	spec: {
+		failureDomain: "host"
+		replicated: size: 3
+		deviceClass: "nvme"
+		parameters: {
+			compression_algorithm: "zstd"
+			compression_mode:      "aggressive"
+		}
+	}
 }]
