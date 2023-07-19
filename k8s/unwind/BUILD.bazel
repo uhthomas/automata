@@ -35,7 +35,6 @@ cue_export(
         "//k8s/unwind/kube_state_metrics:cue_kube_state_metrics_library",
         "//k8s/unwind/kube_system:cue_kube_system_library",
         "//k8s/unwind/kubernetes_dashboard:cue_kubernetes_dashboard_library",
-        "//k8s/unwind/kubevirt:cue_kubevirt_library",
         "//k8s/unwind/loki:cue_loki_library",
         "//k8s/unwind/media:cue_media_library",
         "//k8s/unwind/minecraft:cue_minecraft_library",

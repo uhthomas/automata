@@ -16,7 +16,6 @@ import (
 	"github.com/uhthomas/automata/k8s/unwind/kube_state_metrics"
 	"github.com/uhthomas/automata/k8s/unwind/kube_system"
 	"github.com/uhthomas/automata/k8s/unwind/kubernetes_dashboard"
-	"github.com/uhthomas/automata/k8s/unwind/kubevirt"
 	"github.com/uhthomas/automata/k8s/unwind/loki"
 	"github.com/uhthomas/automata/k8s/unwind/media"
 	"github.com/uhthomas/automata/k8s/unwind/minecraft"
@@ -71,7 +70,6 @@ _items: [
 	kube_state_metrics.#List.items,
 	kube_system.#List.items,
 	kubernetes_dashboard.#List.items,
-	kubevirt.#List.items,
 	loki.#List.items,
 	media.#List.items,
 	minecraft.#List.items,
