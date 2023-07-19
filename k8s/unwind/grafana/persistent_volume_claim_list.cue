@@ -14,10 +14,6 @@ import "k8s.io/api/core/v1"
 #PersistentVolumeClaimList: items: [{
 	spec: {
 		accessModes: [v1.#ReadWriteOnce]
-		dataSource: {
-			name: "grafana-hdd"
-			kind: "PersistentVolumeClaim"
-		}
 		resources: requests: storage: "8Gi"
 		storageClassName: "rook-ceph-nvme-ec-delete-block"
 	}
