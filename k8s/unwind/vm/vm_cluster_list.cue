@@ -32,7 +32,7 @@ import "k8s.io/api/core/v1"
 			securityContext: defaultSecurityContext
 			cacheMountPath:  "/select-cache"
 			storage: volumeClaimTemplate: spec: {
-				storageClassName: "rook-ceph-hdd-ec-delete-block"
+				storageClassName: "rook-ceph-nvme-ec-delete-block"
 				resources: requests: storage: "8Gi"
 			}
 			resources: limits: {
@@ -53,7 +53,7 @@ import "k8s.io/api/core/v1"
 			securityContext: defaultSecurityContext
 			storageDataPath: "/vm-data"
 			storage: volumeClaimTemplate: spec: {
-				storageClassName: "rook-ceph-hdd-ec-delete-block"
+				storageClassName: "rook-ceph-nvme-ec-delete-block"
 				resources: requests: storage: "16Gi"
 			}
 			resources: limits: {
