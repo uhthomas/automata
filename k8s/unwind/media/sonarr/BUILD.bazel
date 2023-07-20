@@ -4,7 +4,6 @@ cue_library(
     name = "cue_sonarr_library",
     srcs = [
         "list.cue",
-        "namespace_list.cue",
         "service_list.cue",
         "stateful_set_list.cue",
     ],
