@@ -14,7 +14,7 @@ import "k8s.io/api/core/v1"
 #PersistentVolumeClaimList: items: [{
 	spec: {
 		accessModes: [v1.#ReadWriteOnce]
-		resources: requests: storage: "8Gi"
+		resources: requests: storage: "10Gi"
 		storageClassName: "rook-ceph-nvme-ec-delete-block"
 	}
 }]
