@@ -29,7 +29,7 @@ import (
 				name: "repo1"
 				volume: volumeClaimSpec: {
 					accessModes: [v1.#ReadWriteOnce]
-					storageClassName: "rook-ceph-hdd-ec-delete-block"
+					storageClassName: "rook-ceph-nvme-ec-delete-block"
 					resources: requests: storage: "16Gi"
 				}
 			}]
@@ -40,7 +40,7 @@ import (
 			name: ""
 			dataVolumeClaimSpec: {
 				accessModes: [v1.#ReadWriteOnce]
-				storageClassName: "rook-ceph-hdd-ec-delete-block"
+				storageClassName: "rook-ceph-nvme-ec-delete-block"
 				resources: requests: storage: "8Gi"
 			}
 			resources: limits: {
