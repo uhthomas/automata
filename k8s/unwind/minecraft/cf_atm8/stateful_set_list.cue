@@ -18,6 +18,7 @@ import (
 
 #StatefulSetList: items: [{
 	spec: {
+		replicas: 0
 		selector: matchLabels: "app.kubernetes.io/name": #Name
 		template: {
 			metadata: labels: "app.kubernetes.io/name": #Name
