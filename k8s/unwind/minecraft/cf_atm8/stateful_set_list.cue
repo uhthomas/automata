@@ -148,14 +148,14 @@ import (
 			metadata: name: "data"
 			spec: {
 				accessModes: [v1.#ReadWriteOnce]
-				storageClassName: "rook-ceph-hdd-ec-delete-block"
+				storageClassName: "rook-ceph-nvme-ec-delete-block"
 				resources: requests: storage: "32Gi"
 			}
 		}, {
 			metadata: name: "downloads"
 			spec: {
 				accessModes: [v1.#ReadWriteOnce]
-				storageClassName: "rook-ceph-hdd-ec-delete-block"
+				storageClassName: "rook-ceph-nvme-ec-delete-block"
 				resources: requests: storage: "8Gi"
 			}
 		}]
