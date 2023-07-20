@@ -36,7 +36,7 @@ import (
 				}]
 				containers: [{
 					name:  #Name
-					image: "fallenbagel/jellyseerr:\(#Version)"
+					image: "fallenbagel/jellyseerr:\(#Version)@sha256:eacfbd18c13036b5fea87fc8c44ea165c6339d75fe15d3f0c83bbf3e39a1560e"
 					ports: [{
 						name:          "http"
 						containerPort: 5055
