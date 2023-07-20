@@ -5,26 +5,22 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-#DeploymentList: appsv1.#DeploymentList & {
+#StatefulSetList: appsv1.#StatefulSetList & {
 	apiVersion: "apps/v1"
-	kind:       "DeploymentList"
+	kind:       "StatefulSetList"
 	items: [...{
 		apiVersion: "apps/v1"
-		kind:       "Deployment"
+		kind:       "StatefulSet"
 	}]
 }
 
-#DeploymentList: items: [{
+#StatefulSetList: items: [{
 	spec: {
-		replicas: 1
 		selector: matchLabels: "app.kubernetes.io/name": #Name
 		template: {
 			metadata: labels: "app.kubernetes.io/name": #Name
 			spec: {
 				volumes: [{
-					name: "config"
-					persistentVolumeClaim: claimName: "\(#Name)-config"
-				}, {
 					name: "media"
 					persistentVolumeClaim: claimName: "media"
 				}]
@@ -83,6 +79,14 @@ import (
 				}
 			}
 		}
-		strategy: type: appsv1.#RecreateDeploymentStrategyType
+		volumeClaimTemplates: [{
+			metadata: name: "config"
+			spec: {
+				accessModes: [v1.#ReadWriteOnce]
+				storageClassName: "rook-ceph-nvme-ec-delete-block"
+				resources: requests: storage: "32Gi"
+			}
+		}]
+		serviceName: #Name
 	}
 }]
