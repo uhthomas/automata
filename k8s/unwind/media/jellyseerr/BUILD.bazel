@@ -3,10 +3,9 @@ load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
 cue_library(
     name = "cue_jellyseerr_library",
     srcs = [
-        "deployment_list.cue",
         "list.cue",
-        "persistent_volume_claim_list.cue",
         "service_list.cue",
+        "stateful_set_list.cue",
     ],
     importpath = "github.com/uhthomas/automata/k8s/unwind/media/jellyseerr",
     visibility = ["//visibility:public"],
