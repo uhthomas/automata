@@ -19,6 +19,7 @@ import (
 	"github.com/uhthomas/automata/k8s/unwind/loki"
 	"github.com/uhthomas/automata/k8s/unwind/media"
 	"github.com/uhthomas/automata/k8s/unwind/minecraft"
+	"github.com/uhthomas/automata/k8s/unwind/node_exporter"
 	"github.com/uhthomas/automata/k8s/unwind/node_feature_discovery"
 	"github.com/uhthomas/automata/k8s/unwind/node_problem_detector"
 	"github.com/uhthomas/automata/k8s/unwind/postgres_operator"
@@ -30,8 +31,8 @@ import (
 	"github.com/uhthomas/automata/k8s/unwind/thomas"
 	"github.com/uhthomas/automata/k8s/unwind/vault_csi_provider"
 	"github.com/uhthomas/automata/k8s/unwind/vault"
-	"github.com/uhthomas/automata/k8s/unwind/vm"
 	"github.com/uhthomas/automata/k8s/unwind/vm_operator"
+	"github.com/uhthomas/automata/k8s/unwind/vm"
 	"k8s.io/api/core/v1"
 )
 
@@ -73,6 +74,7 @@ _items: [
 	loki.#List.items,
 	media.#List.items,
 	minecraft.#List.items,
+	node_exporter.#List.items,
 	node_feature_discovery.#List.items,
 	node_problem_detector.#List.items,
 	postgres_operator.#List.items,
@@ -88,8 +90,8 @@ _items: [
 	unwind.#StorageClassList.items,
 	vault_csi_provider.#List.items,
 	vault.#List.items,
-	vm.#List.items,
 	vm_operator.#List.items,
+	vm.#List.items,
 ]
 
 #List
