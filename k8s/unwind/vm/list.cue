@@ -27,4 +27,5 @@ _items: [
 	#NamespaceList.items,
 	#VMAgentList.items,
 	#VMClusterList.items,
+	#VMNodeScrapeList.items,
 ]
