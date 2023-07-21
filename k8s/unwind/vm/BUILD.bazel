@@ -5,6 +5,7 @@ cue_library(
     srcs = [
         "list.cue",
         "namespace_list.cue",
+        "vm_agent_list.cue",
         "vm_cluster_list.cue",
     ],
     importpath = "github.com/uhthomas/automata/k8s/unwind/vm",
