@@ -34,7 +34,6 @@ _items: [
 	#GrafanaAgentList.items,
 	#IntegrationList.items,
 	#LogsInstanceList.items,
-	#MetricsInstanceList.items,
 	#NamespaceList.items,
 	#PersistentVolumeClaimList.items,
 	#PodLogsList.items,
