@@ -15,18 +15,20 @@ import "k8s.io/api/core/v1"
 }
 
 #VMAgentList: items: [{
-	replicaCount: 3
-	resources: limits: {
-		cpu:    "400m"
-		memory: "512Mi"
+	spec: {
+		replicaCount: 3
+		resources: limits: {
+			cpu:    "400m"
+			memory: "512Mi"
+		}
+		securityContext: {
+			runAsUser:    1000
+			runAsGroup:   3000
+			runAsNonRoot: true
+			fsGroup:      2000
+			seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
+		}
+		remoteWrite: [{url: "http://vminsert-vm:8480/insert/0/prometheus/api/v1/write"}]
+		selectAllByDefault: true
 	}
-	securityContext: {
-		runAsUser:    1000
-		runAsGroup:   3000
-		runAsNonRoot: true
-		fsGroup:      2000
-		seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
-	}
-	remoteWrite: [{url: "http://vminsert-vm:8480/insert/0/prometheus/api/v1/write"}]
-	selectAllByDefault: true
 }]
