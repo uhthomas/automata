@@ -21,7 +21,7 @@ import "k8s.io/api/core/v1"
 			port:            "metrics"
 			bearerTokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"
 		}]
-		selector: matchLabels: "kubernetes.io/name": "CoreDNS"
+		selector: matchLabels: "app.kubernetes.io/name": "CoreDNS"
 	}
 }, {
 	metadata: name: "kube-controller-manager"
@@ -36,7 +36,7 @@ import "k8s.io/api/core/v1"
 			}
 			bearerTokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"
 		}]
-		selector: matchLabels: "kubernetes.io/name": metadata.name
+		selector: matchLabels: "app.kubernetes.io/name": metadata.name
 	}
 }, {
 	metadata: name: "kube-scheduler"
@@ -48,6 +48,6 @@ import "k8s.io/api/core/v1"
 			tlsConfig: caFile: "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
 			bearerTokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"
 		}]
-		selector: matchLabels: "kubernetes.io/name": metadata.name
+		selector: matchLabels: "app.kubernetes.io/name": metadata.name
 	}
 }]
