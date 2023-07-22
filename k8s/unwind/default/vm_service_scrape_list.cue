@@ -15,7 +15,7 @@ import "k8s.io/api/core/v1"
 }
 
 #VMServiceScrapeList: items: [{
-	name: "kube-apiserver"
+	metadata: name: "kube-apiserver"
 	spec: {
 		jobLabel: "component"
 		endpoints: [{
