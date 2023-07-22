@@ -9,7 +9,6 @@ cue_library(
         "integration_list.cue",
         "list.cue",
         "logs_instance_list.cue",
-        "metrics_instance_list.cue",
         "namespace_list.cue",
         "persistent_volume_claim_list.cue",
         "pod_logs_list.cue",
