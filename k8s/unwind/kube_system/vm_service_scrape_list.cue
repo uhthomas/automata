@@ -31,9 +31,8 @@ import "k8s.io/api/core/v1"
 			port:   "metrics"
 			scheme: "https"
 			tlsConfig: {
-				caFile:             "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-				serverName:         "kubernetes"
-				insecureSkipVerify: true
+				caFile:     "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+				serverName: "kubernetes"
 			}
 			bearerTokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"
 		}]
@@ -46,10 +45,7 @@ import "k8s.io/api/core/v1"
 		endpoints: [{
 			port:   "metrics"
 			scheme: "https"
-			tlsConfig: {
-				caFile:             "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-				insecureSkipVerify: true
-			}
+			tlsConfig: caFile: "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
 			bearerTokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"
 		}]
 		selector: matchLabels: "kubernetes.io/name": metadata.name
