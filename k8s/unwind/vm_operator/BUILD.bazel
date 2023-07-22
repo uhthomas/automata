@@ -16,6 +16,7 @@ cue_library(
         "service_account_list.cue",
         "service_list.cue",
         "validating_webhook_configuration_list.cue",
+        "vm_service_scrape_list.cue",
     ],
     importpath = "github.com/uhthomas/automata/k8s/unwind/vm_operator",
     visibility = ["//visibility:public"],

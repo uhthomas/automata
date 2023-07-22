@@ -40,4 +40,5 @@ _items: [
 	#ServiceAccountList.items,
 	#ServiceList.items,
 	#ValidatingWebhookConfigurationList.items,
+	#VMServiceScrapeList.items,
 ]
