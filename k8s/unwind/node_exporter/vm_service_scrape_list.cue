@@ -16,14 +16,15 @@ import "k8s.io/api/core/v1"
 
 #VMServiceScrapeList: items: [{
 	spec: {
-		selector: matchLabels: "app.kubernetes.io/name": #Name
+		jobLabel: "app.kubernetes.io/name"
 		endpoints: [{
 			port: "metrics"
 			metricRelabelConfigs: [{
-				action: "drop"
 				source_labels: ["mountpoint"]
-				regex: "/var/lib/kubelet/pods.+"
+				regex:  "/var/lib/kubelet/pods.+"
+				action: "drop"
 			}]
 		}]
+		selector: matchLabels: "app.kubernetes.io/name": #Name
 	}
 }]
