@@ -28,6 +28,7 @@ import "k8s.io/api/core/v1"
 			fsGroup:      2000
 			seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 		}
+		externalLabels: cluster: "unwind"
 		remoteWrite: [{url: "http://vminsert-vm:8480/insert/0/prometheus/api/v1/write"}]
 		selectAllByDefault: true
 	}
