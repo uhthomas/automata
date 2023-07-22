@@ -21,7 +21,7 @@ import "k8s.io/api/core/v1"
 			name: "metrics"
 			port: 10257
 		}]
-		selector: component: "kube-controller-manager"
+		selector: "k8s-app": "kube-controller-manager"
 		clusterIP: v1.#ClusterIPNone
 	}
 }, {
@@ -34,7 +34,7 @@ import "k8s.io/api/core/v1"
 			name: "metrics"
 			port: 10251
 		}]
-		selector: component: "kube-scheduler"
+		selector: "k8s-app": "kube-scheduler"
 		clusterIP: v1.#ClusterIPNone
 	}
 }]
