@@ -37,4 +37,5 @@ _items: [
 	#ServiceAccountList.items,
 	#ServiceList.items,
 	#StatefulSetList.items,
+	#VMServiceScrapeList.items,
 ]
