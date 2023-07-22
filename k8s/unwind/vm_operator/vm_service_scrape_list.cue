@@ -16,7 +16,7 @@ import "k8s.io/api/core/v1"
 
 #VMServiceScrapeList: items: [{
 	spec: {
-		endpoints: [{port: "http"}]
+		endpoints: [{port: "https"}]
 		selector: matchLabels: "app.kubernetes.io/name": #Name
 	}
 }]
