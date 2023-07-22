@@ -5,6 +5,8 @@ cue_library(
     srcs = [
         "list.cue",
         "namespace_list.cue",
+        "service_list.cue",
+        "vm_service_scrape_list.cue",
     ],
     importpath = "github.com/uhthomas/automata/k8s/unwind/kube_system",
     visibility = ["//visibility:public"],
