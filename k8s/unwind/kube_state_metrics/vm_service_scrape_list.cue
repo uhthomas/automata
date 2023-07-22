@@ -18,7 +18,7 @@ import "k8s.io/api/core/v1"
 	spec: {
 		jobLabel: "app.kubernetes.io/name"
 		endpoints: [{
-			port:        "http"
+			port:        "http-metrics"
 			honorLabels: true
 			metricRelabelConfigs: [{
 				action: "labeldrop"
