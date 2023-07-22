@@ -6,6 +6,7 @@ import (
 	"github.com/uhthomas/automata/k8s/unwind/cert_manager"
 	"github.com/uhthomas/automata/k8s/unwind/cockroach_operator_system"
 	"github.com/uhthomas/automata/k8s/unwind/csi_snapshotter"
+	"github.com/uhthomas/automata/k8s/unwind/default"
 	"github.com/uhthomas/automata/k8s/unwind/dragonfly_operator_system"
 	"github.com/uhthomas/automata/k8s/unwind/grafana_agent_operator"
 	"github.com/uhthomas/automata/k8s/unwind/grafana_agent"
@@ -61,6 +62,7 @@ _items: [
 	cert_manager.#List.items,
 	cockroach_operator_system.#List.items,
 	csi_snapshotter.#List.items,
+	default.#List.items,
 	dragonfly_operator_system.#List.items,
 	grafana_agent_operator.#List.items,
 	grafana_agent.#List.items,

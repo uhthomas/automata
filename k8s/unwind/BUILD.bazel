@@ -26,6 +26,7 @@ cue_export(
         "//k8s/unwind/cert_manager_csi_driver:cue_cert_manager_csi_driver_library",
         "//k8s/unwind/cockroach_operator_system:cue_cockroach_operator_system_library",
         "//k8s/unwind/csi_snapshotter:cue_csi_snapshotter_library",
+        "//k8s/unwind/default:cue_default_library",
         "//k8s/unwind/dragonfly_operator_system:cue_dragonfly_operator_system_library",
         "//k8s/unwind/grafana:cue_grafana_library",
         "//k8s/unwind/grafana_agent:cue_grafana_agent_library",
