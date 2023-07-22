@@ -21,7 +21,7 @@ import "k8s.io/api/core/v1"
 			port:            "metrics"
 			bearerTokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"
 		}]
-		selector: matchLabels: "app.kubernetes.io/name": "CoreDNS"
+		selector: matchLabels: "kubernetes.io/name": "CoreDNS"
 	}
 }, {
 	metadata: name: "kube-controller-manager"
