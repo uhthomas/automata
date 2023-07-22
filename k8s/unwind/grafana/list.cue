@@ -37,4 +37,5 @@ _items: [
 	#SecretProviderClassList.items,
 	#ServiceAccountList.items,
 	#ServiceList.items,
+	#VMServiceScrapeList.items,
 ]

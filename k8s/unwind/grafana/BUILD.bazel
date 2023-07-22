@@ -11,6 +11,7 @@ cue_library(
         "secret_provider_class_list.cue",
         "service_account_list.cue",
         "service_list.cue",
+        "vm_service_scrape_list.cue",
     ],
     importpath = "github.com/uhthomas/automata/k8s/unwind/grafana",
     visibility = ["//visibility:public"],
