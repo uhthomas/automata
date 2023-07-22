@@ -22,8 +22,9 @@ import "k8s.io/api/core/v1"
 			port:   "https"
 			scheme: "https"
 			tlsConfig: {
-				caFile:     "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-				serverName: "kubernetes"
+				caFile:             "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+				serverName:         "kubernetes"
+				insecureSkipVerify: true
 			}
 			bearerTokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"
 		}]
