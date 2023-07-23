@@ -40,8 +40,8 @@ import (
 						value: "http://immich-server"
 					}]
 					resources: limits: {
-						cpu:    "100m"
-						memory: "64Mi"
+						cpu:    "200m"
+						memory: "128Mi"
 					}
 
 					// _probe: httpGet: {
