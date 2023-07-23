@@ -32,7 +32,7 @@ import "k8s.io/api/core/v1"
 		remoteWrite: [{url: "http://vminsert-vm:8480/insert/0/prometheus/api/v1/write"}]
 		selectAllByDefault: true
 		serviceSpec: {
-			metadata: annotations: "tailscale.com/hostname": "\(#Name)-agent-unwind-k8s"
+			metadata: annotations: "tailscale.com/hostname": "vmagent-unwind-k8s"
 			spec: {
 				ports: [{
 					name:       "http"
