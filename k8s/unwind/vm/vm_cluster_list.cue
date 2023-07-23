@@ -28,16 +28,16 @@ import "k8s.io/api/core/v1"
 		}
 
 		vmselect: {
-			replicaCount:    3
+			replicaCount: 3
+			resources: limits: {
+				cpu:    "1"
+				memory: "512Mi"
+			}
 			securityContext: defaultSecurityContext
 			cacheMountPath:  "/select-cache"
 			storage: volumeClaimTemplate: spec: {
 				storageClassName: "rook-ceph-nvme-ec-delete-block"
 				resources: requests: storage: "8Gi"
-			}
-			resources: limits: {
-				cpu:    "1"
-				memory: "512Mi"
 			}
 			serviceSpec: {
 				metadata: annotations: "tailscale.com/hostname": "vmselect-unwind-k8s"
@@ -53,24 +53,25 @@ import "k8s.io/api/core/v1"
 			}
 		}
 		vminsert: {
-			replicaCount:    3
-			securityContext: defaultSecurityContext
+			replicaCount: 3
 			resources: limits: {
 				cpu:    "1"
 				memory: "512Mi"
 			}
+			securityContext: defaultSecurityContext
+			extraArgs: ["-maxLabelsPerTimeseries=50"]
 		}
 		vmstorage: {
-			replicaCount:    3
+			replicaCount: 3
+			resources: limits: {
+				cpu:    "1"
+				memory: "1Gi"
+			}
 			securityContext: defaultSecurityContext
 			storageDataPath: "/vm-data"
 			storage: volumeClaimTemplate: spec: {
 				storageClassName: "rook-ceph-nvme-ec-delete-block"
 				resources: requests: storage: "16Gi"
-			}
-			resources: limits: {
-				cpu:    "1"
-				memory: "1Gi"
 			}
 		}
 	}
