@@ -59,10 +59,7 @@ import "k8s.io/api/core/v1"
 				memory: "512Mi"
 			}
 			securityContext: defaultSecurityContext
-			extraArgs: {
-				"dedup.minScrapeInterval": "60s"
-				"maxLabelsPerTimeseries":  "50"
-			}
+			extraArgs: "maxLabelsPerTimeseries": "50"
 		}
 		vmstorage: {
 			replicaCount: 3
@@ -76,6 +73,7 @@ import "k8s.io/api/core/v1"
 				storageClassName: "rook-ceph-nvme-ec-delete-block"
 				resources: requests: storage: "16Gi"
 			}
+			extraArgs: "dedup.minScrapeInterval": "60s"
 		}
 	}
 }]
