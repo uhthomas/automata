@@ -41,7 +41,7 @@ import (
 					}]
 					resources: limits: {
 						cpu:    "200m"
-						memory: "128Mi"
+						memory: "256Mi"
 					}
 
 					// _probe: httpGet: {
