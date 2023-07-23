@@ -206,6 +206,9 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 				}, {
 					// HGST H7280A520SUN8.0T
 					name: "/dev/disk/by-id/wwn-0x5000cca23b435a24"
+				}, {
+					// Samsung SSD 970 EVO Plus 2TB
+					name: "/dev/disk/by-id/nvme-eui.002538570142d716"
 				}]
 			}]
 			onlyApplyOSDPlacement: false
