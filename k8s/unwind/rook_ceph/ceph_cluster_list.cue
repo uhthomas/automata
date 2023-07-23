@@ -50,7 +50,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 		// rather than with service monitors.
 		//
 		// See: https://github.com/rook/rook/issues/12422
-		monitoring: enabled: false
+		monitoring: enabled: true
 		network: connections: {
 			encryption: enabled:  true
 			compression: enabled: true
