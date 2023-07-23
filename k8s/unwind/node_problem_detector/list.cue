@@ -34,5 +34,5 @@ _items: [
 	#NamespaceList.items,
 	#ServiceAccountList.items,
 	#ServiceList.items,
-	#ServiceMonitorList.items,
+	#VMServiceScrapeList.items,
 ]
