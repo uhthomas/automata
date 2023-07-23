@@ -19,7 +19,6 @@ cue_library(
         "service_account_list.cue",
         "service_list.cue",
         "storage_class_list.cue",
-        "vm_service_scrape_list.cue",
     ],
     importpath = "github.com/uhthomas/automata/k8s/unwind/rook_ceph",
     visibility = ["//visibility:public"],

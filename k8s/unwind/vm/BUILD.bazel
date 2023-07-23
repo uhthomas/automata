@@ -6,6 +6,7 @@ cue_library(
         "list.cue",
         "namespace_list.cue",
         "vm_agent_list.cue",
+        "vm_alertmanager_list.cue",
         "vm_cluster_list.cue",
         "vm_node_scrape_list.cue",
     ],
