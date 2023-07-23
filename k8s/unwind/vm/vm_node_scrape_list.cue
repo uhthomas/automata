@@ -15,25 +15,101 @@ import "k8s.io/api/core/v1"
 }
 
 #VMNodeScrapeList: items: [{
-	metadata: name: "cadvisor-metrics"
+	metadata: name: "cadvisor"
+	spec: {
+		path:   "/metrics/cadvisor"
+		scheme: "https"
+		tlsConfig: {
+			caFile:             "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+			insecureSkipVerify: true
+		}
+		bearerTokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+		honorLabels:     true
+		metricRelabelConfigs: [{
+			regex:  "(uid)"
+			action: "labeldrop"
+		}, {
+			regex:  "(id|name)"
+			action: "labeldrop"
+		}, {
+			sourceLabels: ["__name__"]
+			regex:  "(rest_client_request_duration_seconds_bucket|rest_client_request_duration_seconds_sum|rest_client_request_duration_seconds_count)"
+			action: "drop"
+		}]
+		relabelConfigs: [{
+			regex:  "__meta_kubernetes_node_label_(.+)"
+			action: "labelmap"
+		}, {
+			targetLabel: "metrics_path"
+			sourceLabels: ["__metrics_path__"]
+		}, {
+			targetLabel: "job"
+			replacement: "kubelet"
+		}]
+	}
+}, {
+	metadata: name: "probes"
+	spec: {
+		path:   "/metrics/probes"
+		scheme: "https"
+		tlsConfig: {
+			caFile:             "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+			insecureSkipVerify: true
+		}
+		bearerTokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+		honorLabels:     true
+		metricRelabelConfigs: [{
+			regex:  "(uid)"
+			action: "labeldrop"
+		}, {
+			regex:  "(id|name)"
+			action: "labeldrop"
+		}, {
+			sourceLabels: ["__name__"]
+			regex:  "(rest_client_request_duration_seconds_bucket|rest_client_request_duration_seconds_sum|rest_client_request_duration_seconds_count)"
+			action: "drop"
+		}]
+		relabelConfigs: [{
+			regex:  "__meta_kubernetes_node_label_(.+)"
+			action: "labelmap"
+		}, {
+			targetLabel: "metrics_path"
+			sourceLabels: ["__metrics_path__"]
+		}, {
+			targetLabel: "job"
+			replacement: "kubelet"
+		}]
+	}
+}, {
+	metadata: name: "kubelet"
 	spec: {
 		scheme: "https"
 		tlsConfig: {
-			insecureSkipVerify: true
 			caFile:             "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+			insecureSkipVerify: true
 		}
 		bearerTokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+		honorLabels:     true
+		metricRelabelConfigs: [{
+			regex:  "(uid)"
+			action: "labeldrop"
+		}, {
+			regex:  "(id|name)"
+			action: "labeldrop"
+		}, {
+			sourceLabels: ["__name__"]
+			regex:  "(rest_client_request_duration_seconds_bucket|rest_client_request_duration_seconds_sum|rest_client_request_duration_seconds_count)"
+			action: "drop"
+		}]
 		relabelConfigs: [{
-			action: "labelmap"
 			regex:  "__meta_kubernetes_node_label_(.+)"
+			action: "labelmap"
 		}, {
-			targetLabel: "__address__"
-			replacement: "kubernetes.default.svc:443"
+			targetLabel: "metrics_path"
+			sourceLabels: ["__metrics_path__"]
 		}, {
-			sourceLabels: ["__meta_kubernetes_node_name"]
-			regex:       "(.+)"
-			targetLabel: "__metrics_path__"
-			replacement: "/api/v1/nodes/$1/proxy/metrics/cadvisor"
+			targetLabel: "job"
+			replacement: "kubelet"
 		}]
 	}
 }]
