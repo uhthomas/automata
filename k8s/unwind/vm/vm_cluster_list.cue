@@ -39,6 +39,18 @@ import "k8s.io/api/core/v1"
 				cpu:    "1"
 				memory: "512Mi"
 			}
+			serviceSpec: {
+				metadata: annotations: "tailscale.com/hostname": "vmselect-unwind-k8s"
+				spec: {
+					ports: [{
+						name:       "http"
+						port:       80
+						targetPort: "http"
+					}]
+					type:              v1.#ServiceTypeLoadBalancer
+					loadBalancerClass: "tailscale"
+				}
+			}
 		}
 		vminsert: {
 			replicaCount:    3
