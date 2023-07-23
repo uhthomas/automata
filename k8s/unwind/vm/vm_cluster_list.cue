@@ -60,7 +60,8 @@ import "k8s.io/api/core/v1"
 			}
 			securityContext: defaultSecurityContext
 			extraArgs: {
-				"maxLabelsPerTimeseries": "50"
+				"dedup.minScrapeInterval": "60s"
+				"maxLabelsPerTimeseries":  "50"
 			}
 		}
 		vmstorage: {
