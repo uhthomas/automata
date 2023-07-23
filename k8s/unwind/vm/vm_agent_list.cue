@@ -43,5 +43,10 @@ import "k8s.io/api/core/v1"
 				loadBalancerClass: "tailscale"
 			}
 		}
+		statefulMode: true
+		statefulStorage: volumeClaimTemplate: spec: {
+			storageClassName: "rook-ceph-nvme-ec-delete-block"
+			resources: requests: storage: "4Gi"
+		}
 	}
 }]
