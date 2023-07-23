@@ -59,7 +59,9 @@ import "k8s.io/api/core/v1"
 				memory: "512Mi"
 			}
 			securityContext: defaultSecurityContext
-			extraArgs: ["-maxLabelsPerTimeseries=50"]
+			extraArgs: {
+				"maxLabelsPerTimeseries": "50"
+			}
 		}
 		vmstorage: {
 			replicaCount: 3
