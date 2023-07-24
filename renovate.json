@@ -31,7 +31,8 @@
         "gomod"
       ],
       "enabled": false
-    }
+    },
+    {}
   ],
   "pinDigests": true,
   "regexManagers": [
@@ -53,7 +54,7 @@
       "matchStrings": [
         "datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\s#Version:\\s*\"(?<currentValue>.*)\""
       ],
-      "extractVersion": "^v(?<version>.*)$"
+      "versioningTemplate": "semver-coerced"
     }
   ]
 }
