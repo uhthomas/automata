@@ -29,6 +29,14 @@ import "k8s.io/api/core/v1"
 			fsGroup:      2000
 			seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 		}
+		containers: [{
+			name: "vmalert"
+			securityContext: {
+				capabilities: drop: ["ALL"]
+				readOnlyRootFilesystem:   true
+				allowPrivilegeEscalation: false
+			}
+		}]
 		evaluationInterval: "15s"
 		selectAllByDefault: true
 		notifiers: [{selector: labelSelector: matchLabels: "app.kubernetes.io/name": "vmalertmanager"}]

@@ -19,12 +19,18 @@ import "k8s.io/api/core/v1"
 		retentionPeriod:   "2y"
 		replicationFactor: 2
 
-		let defaultSecurityContext = {
+		let defaultPodSecurityContext = {
 			runAsUser:    1000
 			runAsGroup:   3000
 			runAsNonRoot: true
 			fsGroup:      2000
 			seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
+		}
+
+		let defaultsecurityContext = {
+			capabilities: drop: ["ALL"]
+			readOnlyRootFilesystem:   true
+			allowPrivilegeEscalation: false
 		}
 
 		vmselect: {
@@ -33,8 +39,12 @@ import "k8s.io/api/core/v1"
 				cpu:    "1"
 				memory: "512Mi"
 			}
-			securityContext: defaultSecurityContext
-			cacheMountPath:  "/select-cache"
+			securityContext: defaultPodSecurityContext
+			containers: [{
+				name:            "vmselect"
+				securityContext: defaultsecurityContext
+			}]
+			cacheMountPath: "/select-cache"
 			storage: volumeClaimTemplate: spec: {
 				storageClassName: "rook-ceph-nvme-ec-delete-block"
 				resources: requests: storage: "8Gi"
@@ -58,7 +68,11 @@ import "k8s.io/api/core/v1"
 				cpu:    "1"
 				memory: "512Mi"
 			}
-			securityContext: defaultSecurityContext
+			securityContext: defaultPodSecurityContext
+			containers: [{
+				name:            "vminsert"
+				securityContext: defaultsecurityContext
+			}]
 			extraArgs: "maxLabelsPerTimeseries": "100"
 		}
 		vmstorage: {
@@ -67,7 +81,11 @@ import "k8s.io/api/core/v1"
 				cpu:    "1"
 				memory: "1Gi"
 			}
-			securityContext: defaultSecurityContext
+			securityContext: defaultPodSecurityContext
+			containers: [{
+				name:            "vmstorage"
+				securityContext: defaultsecurityContext
+			}]
 			storageDataPath: "/vm-data"
 			storage: volumeClaimTemplate: spec: {
 				storageClassName: "rook-ceph-nvme-ec-delete-block"

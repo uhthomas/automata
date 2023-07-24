@@ -28,6 +28,14 @@ import "k8s.io/api/core/v1"
 			fsGroup:      2000
 			seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 		}
+		containers: [{
+			name: "vmagent"
+			securityContext: {
+				capabilities: drop: ["ALL"]
+				readOnlyRootFilesystem:   true
+				allowPrivilegeEscalation: false
+			}
+		}]
 		scrapeInterval: "30s"
 		externalLabels: cluster: "unwind"
 		remoteWrite: [{url: "http://vminsert-vm:8480/insert/0/prometheus/api/v1/write"}]

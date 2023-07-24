@@ -32,6 +32,14 @@ import "k8s.io/api/core/v1"
 			fsGroup:      2000
 			seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 		}
+		containers: [{
+			name: "alertmanager"
+			securityContext: {
+				capabilities: drop: ["ALL"]
+				readOnlyRootFilesystem:   true
+				allowPrivilegeEscalation: false
+			}
+		}]
 		serviceSpec: {
 			metadata: annotations: "tailscale.com/hostname": "vmalertmanager-unwind-k8s"
 			spec: {
