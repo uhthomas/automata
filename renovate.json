@@ -52,7 +52,8 @@
       ],
       "matchStrings": [
         "datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\s#Version:\\s*\"(?<currentValue>.*)\""
-      ]
+      ],
+      "extractVersion": "^v(?<version>.*)$"
     }
   ]
 }
