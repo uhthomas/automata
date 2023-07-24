@@ -44,6 +44,14 @@
       ],
       "datasourceTemplate": "docker",
       "versioningTemplate": "docker"
+    },
+    {
+      "fileMatch": [
+        "\\.cue$"
+      ],
+      "matchStrings": [
+        "datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\s#Version: \"(?<currentValue>.*)\"\\s"
+      ]
     }
   ]
 }
