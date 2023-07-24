@@ -50,7 +50,7 @@
         "\\.cue$"
       ],
       "matchStrings": [
-        "datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\s#Version: \"(?<currentValue>.*)\"\\s"
+        "datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\s#Version:\\s*\"(?<currentValue>.*)\""
       ]
     }
   ]
