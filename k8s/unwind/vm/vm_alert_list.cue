@@ -31,7 +31,7 @@ import "k8s.io/api/core/v1"
 		}
 		evaluationInterval: "15s"
 		selectAllByDefault: true
-		notifiers: [{url: "http://vmalertmanager-vm:9093"}]
+		notifiers: [{labelSelector: matchLabels: "app.kubernetes.io/name": "vmalertmanager"}]
 		remoteWrite: url:                           "http://vmselect-vm:8429/select/0/prometheus/api/v1/write"
 		remoteRead: url:                            "http://vmselect-vm:8429/select/0/prometheus"
 		datasource: url:                            "http://vmselect-vm:8429/select/0/prometheus"
