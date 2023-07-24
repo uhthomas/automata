@@ -147,8 +147,8 @@ import (
 	}, {
 		name: "vvmrule.kb.io"
 		clientConfig: service: {
-			name:      "vm-operator"
-			namespace: "victoriametrics-system"
+			namespace: #Namespace
+			name:      "\(#Name)-webhook"
 			path:      "/validate-operator-victoriametrics-com-v1beta1-vmrule"
 		}
 		rules: [{
