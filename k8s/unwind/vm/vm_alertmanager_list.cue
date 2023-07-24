@@ -27,5 +27,17 @@ import "k8s.io/api/core/v1"
 		fsGroup:      2000
 		seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 	}
+	serviceSpec: {
+		metadata: annotations: "tailscale.com/hostname": "vmalertmanager-unwind-k8s"
+		spec: {
+			ports: [{
+				name:       "http"
+				port:       80
+				targetPort: "http"
+			}]
+			type:              v1.#ServiceTypeLoadBalancer
+			loadBalancerClass: "tailscale"
+		}
+	}
 	selectAllByDefault: true
 }]
