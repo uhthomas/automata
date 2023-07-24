@@ -7,7 +7,7 @@ require (
 	github.com/cert-manager/cert-manager v1.12.2
 	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
 	github.com/prometheus/prometheus v0.45.0
-	github.com/rook/rook/pkg/apis v0.0.0-20230629173939-aee57ea9ffee
+	github.com/rook/rook/pkg/apis v0.0.0-20230718224530-cb44c7b88fb3
 	k8s.io/api v0.27.3
 	k8s.io/apiextensions-apiserver v0.27.3
 	k8s.io/client-go v12.0.0+incompatible
@@ -93,10 +93,10 @@ require (
 	github.com/hashicorp/go-sockaddr v1.0.2 // indirect
 	github.com/hashicorp/golang-lru v0.6.0 // indirect
 	github.com/hashicorp/hcl v1.0.1-vault-5 // indirect
-	github.com/hashicorp/vault v1.13.2 // indirect
+	github.com/hashicorp/vault v1.13.4 // indirect
 	github.com/hashicorp/vault/api v1.9.2 // indirect
 	github.com/hashicorp/vault/api/auth/approle v0.4.1 // indirect
-	github.com/hashicorp/vault/sdk v0.9.0 // indirect
+	github.com/hashicorp/vault/sdk v0.9.1 // indirect
 	github.com/imdario/mergo v0.3.16 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
@@ -179,8 +179,8 @@ require (
 	gomodules.xyz/jsonpatch/v2 v2.3.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 // indirect
-	google.golang.org/grpc v1.55.0 // indirect
-	google.golang.org/protobuf v1.30.0 // indirect
+	google.golang.org/grpc v1.56.1 // indirect
+	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
