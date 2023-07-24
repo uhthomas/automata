@@ -2,7 +2,7 @@
 
 [![K8s](https://github.com/uhthomas/automata/actions/workflows/k8s.yaml/badge.svg)](https://github.com/uhthomas/automata/actions/workflows/k8s.yaml)
 
-Monorepo for Starjunk and subsidiaries.
+Monorepo and automation for owned infrastructure.
 
 ## Getting started
 
@@ -13,6 +13,5 @@ Monorepo for Starjunk and subsidiaries.
 ### Apply manifests
 
 ```sh
-# the managed-by label is pre-applied, so pruning is safe
-bazel run //clusters:objects.apply -- --prune
+bazel run //k8s:objects.apply
 ```
