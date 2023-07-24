@@ -38,7 +38,7 @@ import "k8s.io/api/core/v1"
 				ports: [{
 					name:       "http"
 					port:       80
-					targetPort: "http"
+					targetPort: "web"
 				}]
 				type:              v1.#ServiceTypeLoadBalancer
 				loadBalancerClass: "tailscale"
