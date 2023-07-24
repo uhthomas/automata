@@ -16,7 +16,7 @@ import "k8s.io/api/core/v1"
 
 #VMAgentList: items: [{
 	spec: {
-		replicaCount: 3
+		replicaCount: 1
 		resources: limits: {
 			cpu:    "400m"
 			memory: "512Mi"
@@ -28,7 +28,7 @@ import "k8s.io/api/core/v1"
 			fsGroup:      2000
 			seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 		}
-		scrapeInterval: "1m"
+		scrapeInterval: "30s"
 		externalLabels: cluster: "unwind"
 		remoteWrite: [{url: "http://vminsert-vm:8480/insert/0/prometheus/api/v1/write"}]
 		selectAllByDefault: true
