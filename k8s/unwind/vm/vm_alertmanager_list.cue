@@ -15,33 +15,35 @@ import "k8s.io/api/core/v1"
 }
 
 #VMAlertmanagerList: items: [{
-	replicaCount: 3
-	storage: volumeClaimTemplate: spec: {
-		storageClassName: "rook-ceph-nvme-ec-delete-block"
-		resources: requests: storage: "512Mi"
-	}
-	resources: limits: {
-		cpu:    "200m"
-		memory: "256Mi"
-	}
-	securityContext: {
-		runAsUser:    1000
-		runAsGroup:   3000
-		runAsNonRoot: true
-		fsGroup:      2000
-		seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
-	}
-	serviceSpec: {
-		metadata: annotations: "tailscale.com/hostname": "vmalertmanager-unwind-k8s"
-		spec: {
-			ports: [{
-				name:       "http"
-				port:       80
-				targetPort: "http"
-			}]
-			type:              v1.#ServiceTypeLoadBalancer
-			loadBalancerClass: "tailscale"
+	spec: {
+		replicaCount: 3
+		storage: volumeClaimTemplate: spec: {
+			storageClassName: "rook-ceph-nvme-ec-delete-block"
+			resources: requests: storage: "512Mi"
 		}
+		resources: limits: {
+			cpu:    "200m"
+			memory: "256Mi"
+		}
+		securityContext: {
+			runAsUser:    1000
+			runAsGroup:   3000
+			runAsNonRoot: true
+			fsGroup:      2000
+			seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
+		}
+		serviceSpec: {
+			metadata: annotations: "tailscale.com/hostname": "vmalertmanager-unwind-k8s"
+			spec: {
+				ports: [{
+					name:       "http"
+					port:       80
+					targetPort: "http"
+				}]
+				type:              v1.#ServiceTypeLoadBalancer
+				loadBalancerClass: "tailscale"
+			}
+		}
+		selectAllByDefault: true
 	}
-	selectAllByDefault: true
 }]
