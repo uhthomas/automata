@@ -20,6 +20,10 @@ import "k8s.io/api/core/v1"
 		storageClassName: "rook-ceph-nvme-ec-delete-block"
 		resources: requests: storage: "512Mi"
 	}
+	resources: limits: {
+		cpu:    "200m"
+		memory: "256Mi"
+	}
 	securityContext: {
 		runAsUser:    1000
 		runAsGroup:   3000
