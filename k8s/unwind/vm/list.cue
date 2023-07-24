@@ -26,7 +26,9 @@ import (
 _items: [
 	#NamespaceList.items,
 	#VMAgentList.items,
+	#VMAlertList.items,
 	#VMAlertmanagerList.items,
 	#VMClusterList.items,
 	#VMNodeScrapeList.items,
+	#VMRuleList.items,
 ]
