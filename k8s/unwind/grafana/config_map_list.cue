@@ -17,26 +17,26 @@ import (
 
 #ConfigMapList: items: [{
 	data: {
-		"datasources.yaml": yaml.Marshal({})
-		// "datasources.yaml": yaml.Marshal({
-		//  apiVersion: 1
-		//  datasources: [{
-		//   access: "proxy"
-		//   name:   "Loki"
-		//   type:   "loki"
-		//   url:    "http://loki.loki.svc:3100"
-		//  }, {
-		//   access: "proxy"
-		//   name:   "Thanos"
-		//   type:   "prometheus"
-		//   url:    "http://query-frontend.thanos.svc"
-		//  }, {
-		//   access: "proxy"
-		//   name:   "Prometheus"
-		//   type:   "prometheus"
-		//   url:    "http://prometheus-operated.prometheus.svc:9090"
-		//  }]
-		// })
+		"datasources.yaml": yaml.Marshal({
+			apiVersion: 1
+			datasources: [{
+				name:      "VictoriaMetrics"
+				type:      "prometheus"
+				access:    "proxy"
+				url:       "http://vmselect-vm.vm.svc:8481/select/0/prometheus"
+				isDefault: true
+			}, {
+				name:   "Alertmanager"
+				type:   "alertmanager"
+				access: "proxy"
+				url:    "http://vmalertmanager-vm.vm.svc:8080"
+			}, {
+				name:   "Loki"
+				type:   "loki"
+				access: "proxy"
+				url:    "http://loki-gateway.loki.svc"
+			}]
+		})
 		"grafana.ini": """
 			[analytics]
 			check_for_updates = true
