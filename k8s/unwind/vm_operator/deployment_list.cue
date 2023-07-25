@@ -45,6 +45,9 @@ import (
 					}, {
 						name:  "VM_FILTERCHILDLABELPREFIXES"
 						value: "applyset.kubernetes.io"
+					}, {
+						name:  "VM_ENABLEDPROMETHEUSCONVERTEROWNERREFERENCES"
+						value: "true"
 					}]
 					resources: {
 						limits: {
