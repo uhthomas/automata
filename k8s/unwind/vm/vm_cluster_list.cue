@@ -49,7 +49,10 @@ import "k8s.io/api/core/v1"
 				storageClassName: "rook-ceph-nvme-ec-delete-block"
 				resources: requests: storage: "8Gi"
 			}
-			extraArgs: "vmalert.proxyURL": "http://vmalert-\(#Name):8080"
+			extraArgs: {
+				"search.minStalenessInterval": "5m"
+				"vmalert.proxyURL":            "http://vmalert-\(#Name):8080"
+			}
 			serviceSpec: {
 				metadata: annotations: "tailscale.com/hostname": "vmselect-unwind-k8s"
 				spec: {
