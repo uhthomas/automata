@@ -50,6 +50,7 @@ import "k8s.io/api/core/v1"
 				resources: requests: storage: "8Gi"
 			}
 			extraArgs: {
+				"dedup.minScrapeInterval":     "30s"
 				"search.minStalenessInterval": "5m"
 				"vmalert.proxyURL":            "http://vmalert-\(#Name):8080"
 			}
@@ -95,7 +96,7 @@ import "k8s.io/api/core/v1"
 				storageClassName: "rook-ceph-nvme-ec-delete-block"
 				resources: requests: storage: "16Gi"
 			}
-			// extraArgs: "dedup.minScrapeInterval": "1m"
+			extraArgs: "dedup.minScrapeInterval": "30s"
 		}
 	}
 }]

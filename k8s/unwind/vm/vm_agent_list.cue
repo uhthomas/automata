@@ -16,7 +16,7 @@ import "k8s.io/api/core/v1"
 
 #VMAgentList: items: [{
 	spec: {
-		replicaCount: 1
+		replicaCount: 2
 		resources: limits: {
 			cpu:    "1000m"
 			memory: "512Mi"
