@@ -19,6 +19,7 @@ import "k8s.io/api/core/v1"
 		endpoints: [{
 			port:   "https"
 			scheme: "https"
+			tlsConfig: insecureSkipVerify: true
 		}]
 		selector: matchLabels: "app.kubernetes.io/name": #Name
 	}
