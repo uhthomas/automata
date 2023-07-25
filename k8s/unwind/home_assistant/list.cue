@@ -8,7 +8,9 @@ import (
 
 #Name:      "home-assistant"
 #Namespace: #Name
-#Version:   "2023.3.6"
+
+// renovate: datasource=github-releases depName=home-assistant/core extractVersion=^v(?<version>.*)$
+#Version: "2023.3.6"
 
 #List: v1.#List & {
 	apiVersion: "v1"
