@@ -34,7 +34,7 @@ import "k8s.io/api/core/v1"
 		}
 
 		vmselect: {
-			replicaCount: 3
+			replicaCount: 2
 			resources: limits: {
 				cpu:    "1"
 				memory: "512Mi"
@@ -67,7 +67,7 @@ import "k8s.io/api/core/v1"
 			}
 		}
 		vminsert: {
-			replicaCount: 3
+			replicaCount: 2
 			resources: limits: {
 				cpu:    "1"
 				memory: "512Mi"
@@ -80,7 +80,7 @@ import "k8s.io/api/core/v1"
 			extraArgs: "maxLabelsPerTimeseries": "100"
 		}
 		vmstorage: {
-			replicaCount: 3
+			replicaCount: 2
 			resources: limits: {
 				cpu:    "1"
 				memory: "1.5Gi"
