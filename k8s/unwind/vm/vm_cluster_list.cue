@@ -80,7 +80,7 @@ import "k8s.io/api/core/v1"
 			replicaCount: 3
 			resources: limits: {
 				cpu:    "1"
-				memory: "1Gi"
+				memory: "1.5Gi"
 			}
 			securityContext: defaultPodSecurityContext
 			containers: [{
