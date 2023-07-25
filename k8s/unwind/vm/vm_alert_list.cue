@@ -37,7 +37,7 @@ import "k8s.io/api/core/v1"
 				allowPrivilegeEscalation: false
 			}
 		}]
-		evaluationInterval: "15s"
+		evaluationInterval: "1m"
 		selectAllByDefault: true
 		notifiers: [{selector: labelSelector: matchLabels: "app.kubernetes.io/name": #Name}]
 		remoteWrite: url:                           "http://vminsert-vm:8480/insert/0/prometheus/api/v1/write"
