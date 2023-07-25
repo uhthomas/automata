@@ -18,10 +18,8 @@ import (
 			name:      #Name
 			namespace: #Namespace
 			labels: {
-				"app.kubernetes.io/name":      #Name
-				"app.kubernetes.io/instance":  #Name
-				"app.kubernetes.io/version":   #Version
-				"app.kubernetes.io/component": #Name
+				"app.kubernetes.io/name":    #Name
+				"app.kubernetes.io/version": #version
 			}
 		}
 	}]
@@ -31,11 +29,9 @@ import (
 
 _items: [
 	#ConfigMapList.items,
-	#DeploymentList.items,
 	#NamespaceList.items,
-	#PersistentVolumeClaimList.items,
 	#SecretProviderClassList.items,
-	#ServiceAccountList.items,
 	#ServiceList.items,
+	#StatefulSetList.items,
 	#VMServiceScrapeList.items,
 ]

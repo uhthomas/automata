@@ -17,7 +17,7 @@ import "k8s.io/api/core/v1"
 		ports: [{
 			name:       "http"
 			port:       80
-			targetPort: "grafana"
+			targetPort: "http"
 		}]
 		selector: "app.kubernetes.io/name": #Name
 		type:              v1.#ServiceTypeLoadBalancer
