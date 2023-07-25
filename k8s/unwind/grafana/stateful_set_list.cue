@@ -82,6 +82,7 @@ import (
 						allowPrivilegeEscalation: false
 					}
 				}]
+				serviceAccountName: #Name
 				securityContext: {
 					runAsUser:    1000
 					runAsGroup:   3000

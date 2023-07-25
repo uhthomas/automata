@@ -33,6 +33,7 @@ _items: [
 	#ConfigMapList.items,
 	#NamespaceList.items,
 	#SecretProviderClassList.items,
+	#ServiceAccountList.items,
 	#ServiceList.items,
 	#StatefulSetList.items,
 	#VMServiceScrapeList.items,

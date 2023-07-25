@@ -7,6 +7,7 @@ cue_library(
         "list.cue",
         "namespace_list.cue",
         "secret_provider_class_list.cue",
+        "service_account_list.cue",
         "service_list.cue",
         "stateful_set_list.cue",
         "vm_service_scrape_list.cue",
