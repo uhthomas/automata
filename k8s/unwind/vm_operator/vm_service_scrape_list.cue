@@ -16,11 +16,7 @@ import "k8s.io/api/core/v1"
 
 #VMServiceScrapeList: items: [{
 	spec: {
-		endpoints: [{
-			port:   "https"
-			scheme: "https"
-			tlsConfig: insecureSkipVerify: true
-		}]
+		endpoints: [{port: "http"}]
 		selector: matchLabels: "app.kubernetes.io/name": #Name
 	}
 }]

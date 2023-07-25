@@ -33,6 +33,9 @@ import (
 					command: ["manager"]
 					args: ["--enable-leader-election", "--webhook.enable"]
 					ports: [{
+						name:          "http"
+						containerPort: 8080
+					}, {
 						name:          "https"
 						containerPort: 9443
 					}]
