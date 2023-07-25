@@ -76,7 +76,10 @@ import (
 					}
 
 					livenessProbe:  probe
-					readinessProbe: probe
+					readinessProbe: probe & {
+						initialDelaySeconds: 30
+						failureThreshold:    5
+					}
 
 					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: {
