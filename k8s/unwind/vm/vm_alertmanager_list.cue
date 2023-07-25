@@ -16,7 +16,7 @@ import "k8s.io/api/core/v1"
 
 #VMAlertmanagerList: items: [{
 	spec: {
-		replicaCount: 3
+		replicaCount: 2
 		storage: volumeClaimTemplate: spec: {
 			storageClassName: "rook-ceph-nvme-ec-delete-block"
 			resources: requests: storage: "512Mi"

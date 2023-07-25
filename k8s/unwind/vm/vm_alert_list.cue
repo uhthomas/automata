@@ -17,7 +17,7 @@ import "k8s.io/api/core/v1"
 #VMAlertList: items: [{
 	spec: {
 		image: tag: "v1.91.3"
-		replicaCount: 3
+		replicaCount: 2
 		resources: limits: {
 			cpu:    "200m"
 			memory: "256Mi"
