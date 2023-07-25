@@ -52,9 +52,8 @@
         "\\.cue$"
       ],
       "matchStrings": [
-        "datasource=(?<datasource>.*?) depName=(?<depName>.*?)( versioning=(?<versioning>.*?))?\\s#Version:\\s*\"(?<currentValue>.*)\""
-      ],
-      "versioningTemplate": "semver-coerced"
+        "datasource=(?<datasource>.*?) depName=(?<depName>.*?)(versioning=(?<versioning>.*?))?(extractVersion=(?<extractVersion>.*?))?\\s#Version:\\s*\"(?<currentValue>.*)\""
+      ]
     }
   ]
 }
