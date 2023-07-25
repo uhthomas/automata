@@ -103,7 +103,7 @@ import (
 			spec: {
 				accessModes: [v1.#ReadWriteOnce]
 				storageClassName: "rook-ceph-nvme-ec-delete-block"
-				resources: requests: storage: "10Gi"
+				resources: requests: storage: "1Gi"
 			}
 		}]
 		serviceName: #Name
