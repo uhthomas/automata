@@ -8,7 +8,7 @@ import (
 
 #Name:      "grafana"
 #Namespace: #Name
-#Version:   "9.3.6"
+#Version:   "10.0.2"
 
 #List: v1.#List & {
 	apiVersion: "v1"
@@ -19,7 +19,7 @@ import (
 			namespace: #Namespace
 			labels: {
 				"app.kubernetes.io/name":    #Name
-				"app.kubernetes.io/version": #version
+				"app.kubernetes.io/version": #Version
 			}
 		}
 	}]
