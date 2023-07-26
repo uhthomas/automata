@@ -22,8 +22,8 @@ import "k8s.io/api/core/v1"
 			resources: requests: storage: "512Mi"
 		}
 		resources: limits: {
-			cpu:    "200m"
-			memory: "256Mi"
+			cpu:    "10m"
+			memory: "64Mi"
 		}
 		securityContext: {
 			runAsUser:    1000
