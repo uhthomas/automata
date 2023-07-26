@@ -53,7 +53,6 @@ cue_export(
         "//k8s/unwind/vault:cue_vault_library",
         "//k8s/unwind/vault_csi_provider:cue_vault_csi_provider_library",
         "//k8s/unwind/vm:cue_vm_library",
-        "//k8s/unwind/vm4697:cue_vm4697_library",
         "//k8s/unwind/vm_operator:cue_vm_operator_library",
     ],
 )

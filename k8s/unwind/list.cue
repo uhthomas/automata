@@ -34,7 +34,6 @@ import (
 	"github.com/uhthomas/automata/k8s/unwind/vault"
 	"github.com/uhthomas/automata/k8s/unwind/vm_operator"
 	"github.com/uhthomas/automata/k8s/unwind/vm"
-	"github.com/uhthomas/automata/k8s/unwind/vm4697"
 	"k8s.io/api/core/v1"
 )
 
@@ -95,7 +94,6 @@ _items: [
 	vault.#List.items,
 	vm_operator.#List.items,
 	vm.#List.items,
-	vm4697.#List.items,
 ]
 
 #List
