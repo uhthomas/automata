@@ -33,7 +33,7 @@ _items: [
 	#CustomResourceDefinitionList.items,
 	#DeploymentList.items,
 	#NamespaceList.items,
-	#PodMonitorList.items,
 	#ServiceAccountList.items,
 	#ServiceList.items,
+	#VMServiceScrapeList.items,
 ]

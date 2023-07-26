@@ -23,6 +23,10 @@ import (
 				containers: [{
 					name:  #Name
 					image: "quay.io/spotahome/redis-operator:v\(#Version)@sha256:298767d6678598bd16248e9bb9941b897530e07c43d29eb07cb2297f55f8799c"
+					ports: [{
+						name:          "http"
+						containerPort: 9710
+					}]
 					resources: {
 						limits: {
 							cpu:    "100m"

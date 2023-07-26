@@ -12,16 +12,11 @@ import "k8s.io/api/core/v1"
 }
 
 #ServiceList: items: [{
-	metadata: annotations: {
-		"prometheus.io/path":   "/metrics"
-		"prometheus.io/port":   "http"
-		"prometheus.io/scrape": "true"
-	}
 	spec: {
 		ports: [{
-			name:       "metrics"
-			port:       9710
-			targetPort: "metrics"
+			name:       "http"
+			port:       80
+			targetPort: "http"
 		}]
 		selector: "app.kubernetes.io/name": #Name
 	}
