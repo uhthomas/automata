@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	cuelang.org/go v0.5.0
-	github.com/cert-manager/cert-manager v1.12.2
+	github.com/cert-manager/cert-manager v1.12.3
 	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
 	github.com/prometheus/prometheus v0.45.0
 	github.com/rook/rook/pkg/apis v0.0.0-20230725213142-5979b3816292
