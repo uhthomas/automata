@@ -36,11 +36,10 @@ import (
 				access: "proxy"
 				url:    "http://loki-gateway.loki.svc"
 			}, {
-				name:      "VictoriaMetrics 4697"
-				type:      "prometheus"
-				access:    "proxy"
-				url:       "http://vmselect-vm4697.vm4697.svc:8481/select/0/prometheus"
-				isDefault: true
+				name:   "VictoriaMetrics 4697"
+				type:   "prometheus"
+				access: "proxy"
+				url:    "http://vmselect-vm4697.vm4697.svc:8481/select/0/prometheus"
 			}]
 		})
 		"grafana.ini": """
