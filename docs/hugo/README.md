@@ -108,7 +108,7 @@ smaller. For example the above disk reformatted with 4k sectors has a capacity
 of 8,001,563,222,016 bytes, which is a difference of 136 gigabytes.
 
 To reformat the disk with 4k sectors, find the model number of the disk(s) and
-use hugo format. The operation will take while, ~ 12 hours for an 8TB disk.
+use hugo format. The operation will take a while, ~ 12 hours for an 8TB disk.
 
 ```sh
 ❯ sudo ./hugo f -m H7280A520SUN8.0T -n max -b 4096
