@@ -29,7 +29,7 @@ import (
 				name:   "Alertmanager"
 				type:   "alertmanager"
 				access: "proxy"
-				url:    "http://vmalertmanager-vm.vm.svc:8080"
+				url:    "http://vmalertmanager-vm.vm.svc:9093"
 			}, {
 				name:   "Loki"
 				type:   "loki"
