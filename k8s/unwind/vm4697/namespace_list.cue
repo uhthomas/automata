@@ -1,4 +1,4 @@
-package vm
+package vm4697
 
 import "k8s.io/api/core/v1"
 
