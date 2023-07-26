@@ -11,3 +11,11 @@ cue_library(
     visibility = ["//visibility:public"],
     deps = ["//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library"],
 )
+
+cue_library(
+    name = "cue_vm_library",
+    srcs = ["namespace_list.cue"],
+    importpath = "github.com/uhthomas/automata/k8s/unwind/vm4697:vm",
+    visibility = ["//visibility:public"],
+    deps = ["//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library"],
+)
