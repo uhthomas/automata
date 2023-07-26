@@ -24,6 +24,7 @@ import (
 #List: items: list.Concat(_items)
 
 _items: [
+	#NamespaceList.items,
 	#VMAgentList.items,
 	#VMClusterList.items,
 ]
