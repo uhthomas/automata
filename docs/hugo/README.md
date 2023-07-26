@@ -156,7 +156,7 @@ Neither the fast format or regular format options worked.
 ```
 
 ```sh
-sudo sg_format --format --size=4096 /dev/sdb
+❯ sudo sg_format --format --size=4096 /dev/sdb
 ```
 
 #### Hugo fast format
@@ -165,7 +165,7 @@ Hugo has the option to fast format disks, but smart tests fail if they're
 formatted this way.
 
 ```sh
-sudo ./hugo f -m H7280A520SUN8.0T --fastformat -n max -b 4096
+❯ sudo ./hugo f -m H7280A520SUN8.0T --fastformat -n max -b 4096
 ```
 
 ## Conclusion
