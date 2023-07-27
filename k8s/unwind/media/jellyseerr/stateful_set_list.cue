@@ -43,12 +43,12 @@ import (
 					}]
 					resources: {
 						limits: {
-							cpu:    "2"
-							memory: "8Gi"
+							(v1.#ResourceCPU):    "2"
+							(v1.#ResourceMemory): "8Gi"
 						}
 						requests: {
-							cpu:    "1"
-							memory: "2Gi"
+							(v1.#ResourceCPU):    "1"
+							(v1.#ResourceMemory): "2Gi"
 						}
 					}
 					volumeMounts: [{
@@ -89,7 +89,7 @@ import (
 			spec: {
 				accessModes: [v1.#ReadWriteOnce]
 				storageClassName: "rook-ceph-nvme-ec-delete-block"
-				resources: requests: storage: "2Gi"
+				resources: requests: (v1.#ResourceStorage): "2Gi"
 			}
 		}]
 		serviceName: #Name

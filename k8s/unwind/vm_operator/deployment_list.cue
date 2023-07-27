@@ -51,12 +51,12 @@ import (
 					}]
 					resources: {
 						limits: {
-							cpu:    "120m"
-							memory: "520Mi"
+							(v1.#ResourceCPU):    "120m"
+							(v1.#ResourceMemory): "520Mi"
 						}
 						requests: {
-							cpu:    "80m"
-							memory: "120Mi"
+							(v1.#ResourceCPU):    "80m"
+							(v1.#ResourceMemory): "120Mi"
 						}
 					}
 					volumeMounts: [{

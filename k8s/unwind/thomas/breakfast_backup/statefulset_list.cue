@@ -44,8 +44,8 @@ import (
 						protocol:      v1.#ProtocolUDP
 					}]
 					resources: limits: {
-						cpu:    "1"
-						memory: "2Gi"
+						(v1.#ResourceCPU):    "1"
+						(v1.#ResourceMemory): "2Gi"
 					}
 					volumeMounts: [{
 						name:      "config"
@@ -75,7 +75,7 @@ import (
 			spec: {
 				accessModes: [v1.#ReadWriteOnce]
 				storageClassName: "rook-ceph-hdd-ec-delete-block"
-				resources: requests: storage: "8Gi"
+				resources: requests: (v1.#ResourceStorage): "8Gi"
 			}
 		}]
 		serviceName: metadata.name

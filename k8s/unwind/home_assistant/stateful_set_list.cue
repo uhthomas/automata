@@ -41,7 +41,7 @@ import (
 			spec: {
 				accessModes: [v1.#ReadWriteOnce]
 				storageClassName: "rook-ceph-nvme-ec-delete-block"
-				resources: requests: storage: "32Gi"
+				resources: requests: (v1.#ResourceStorage): "32Gi"
 			}
 		}]
 		serviceName: #Name

@@ -67,8 +67,8 @@ import (
 						containerPort: 20257
 					}]
 					resources: limits: {
-						cpu:    "1"
-						memory: "500Mi"
+						(v1.#ResourceCPU):    "1"
+						(v1.#ResourceMemory): "500Mi"
 					}
 				}]
 				tolerations: [{

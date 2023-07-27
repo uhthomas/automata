@@ -90,8 +90,8 @@ import (
 						value: "http://immich-machine-learning"
 					}]
 					resources: limits: {
-						cpu:    "16000m"
-						memory: "6Gi"
+						(v1.#ResourceCPU):    "16000m"
+						(v1.#ResourceMemory): "6Gi"
 					}
 					volumeMounts: [ {
 						name:      "geocoding-dump"

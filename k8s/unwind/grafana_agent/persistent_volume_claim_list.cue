@@ -14,6 +14,6 @@ import "k8s.io/api/core/v1"
 #PersistentVolumeClaimList: items: [{
 	spec: {
 		accessModes: [v1.#ReadWriteOnce]
-		resources: requests: storage: "10Gi"
+		resources: requests: (v1.#ResourceStorage): "10Gi"
 	}
 }]

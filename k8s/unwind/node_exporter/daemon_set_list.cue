@@ -49,8 +49,8 @@ import (
 						containerPort: 9100
 					}]
 					resources: limits: {
-						cpu:    "500m"
-						memory: "256Mi"
+						(v1.#ResourceCPU):    "500m"
+						(v1.#ResourceMemory): "256Mi"
 					}
 					volumeMounts: [{
 						name:      "proc"

@@ -29,12 +29,12 @@ import (
 					}]
 					resources: {
 						limits: {
-							cpu:    "100m"
-							memory: "50Mi"
+							(v1.#ResourceCPU):    "100m"
+							(v1.#ResourceMemory): "50Mi"
 						}
 						requests: {
-							cpu:    "10m"
-							memory: "50Mi"
+							(v1.#ResourceCPU):    "10m"
+							(v1.#ResourceMemory): "50Mi"
 						}
 					}
 					imagePullPolicy: v1.#PullIfNotPresent

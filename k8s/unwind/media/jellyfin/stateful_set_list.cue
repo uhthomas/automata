@@ -62,13 +62,13 @@ import (
 					}]
 					resources: {
 						limits: {
-							cpu:                  "4"
-							memory:               "16Gi"
+							(v1.#ResourceCPU):    "4"
+							(v1.#ResourceMemory): "16Gi"
 							"gpu.intel.com/i915": 1
 						}
 						requests: {
-							cpu:    "2"
-							memory: "4Gi"
+							(v1.#ResourceCPU):    "2"
+							(v1.#ResourceMemory): "4Gi"
 						}
 					}
 					volumeMounts: [{
@@ -106,14 +106,14 @@ import (
 			spec: {
 				accessModes: [v1.#ReadWriteOnce]
 				storageClassName: "rook-ceph-nvme-ec-delete-block"
-				resources: requests: storage: "5Gi"
+				resources: requests: (v1.#ResourceStorage): "5Gi"
 			}
 		}, {
 			metadata: name: "data"
 			spec: {
 				accessModes: [v1.#ReadWriteOnce]
 				storageClassName: "rook-ceph-nvme-ec-delete-block"
-				resources: requests: storage: "64Gi"
+				resources: requests: (v1.#ResourceStorage): "64Gi"
 			}
 		}]
 		serviceName: #Name

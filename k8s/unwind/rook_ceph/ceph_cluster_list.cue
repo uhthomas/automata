@@ -1,6 +1,9 @@
 package rook_ceph
 
-import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
+import (
+	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
+	"k8s.io/api/core/v1"
+)
 
 #CephClusterList: cephv1.#CephClusterList & {
 	apiVersion: "ceph.rook.io/v1"
@@ -86,52 +89,52 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 		resources: {
 			api: {
 				requests: {
-					cpu:    "500m"
-					memory: "512Mi"
+					(v1.#ResourceCPU):    "500m"
+					(v1.#ResourceMemory): "512Mi"
 				}
 				limits: {
-					cpu:    "500m"
-					memory: "512Mi"
+					(v1.#ResourceCPU):    "500m"
+					(v1.#ResourceMemory): "512Mi"
 				}
 			}
 			mgr: {
 				requests: {
-					cpu:    "500m"
-					memory: "512Mi"
+					(v1.#ResourceCPU):    "500m"
+					(v1.#ResourceMemory): "512Mi"
 				}
 				limits: {
-					cpu:    "500m"
-					memory: "1Gi"
+					(v1.#ResourceCPU):    "500m"
+					(v1.#ResourceMemory): "1Gi"
 				}
 			}
 			mon: {
 				requests: {
-					cpu:    "500m"
-					memory: "512Mi"
+					(v1.#ResourceCPU):    "500m"
+					(v1.#ResourceMemory): "512Mi"
 				}
 				limits: {
-					cpu:    "500m"
-					memory: "512Mi"
+					(v1.#ResourceCPU):    "500m"
+					(v1.#ResourceMemory): "512Mi"
 				}
 			}
 			osd: {
 				requests: {
-					cpu:    "500m"
-					memory: "512Mi"
+					(v1.#ResourceCPU):    "500m"
+					(v1.#ResourceMemory): "512Mi"
 				}
 				limits: {
-					cpu:    "1"
-					memory: "4Gi"
+					(v1.#ResourceCPU):    "1"
+					(v1.#ResourceMemory): "4Gi"
 				}
 			}
 			exporter: {
 				limits: {
-					cpu:    "250m"
-					memory: "128Mi"
+					(v1.#ResourceCPU):    "250m"
+					(v1.#ResourceMemory): "128Mi"
 				}
 				requests: {
-					cpu:    "50m"
-					memory: "50Mi"
+					(v1.#ResourceCPU):    "50m"
+					(v1.#ResourceMemory): "50Mi"
 				}
 			}
 		}
