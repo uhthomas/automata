@@ -26,10 +26,12 @@ import (
 				url:       "http://vmselect-vm.vm.svc:8481/select/0/prometheus"
 				isDefault: true
 			}, {
-				name:   "Alertmanager"
-				type:   "alertmanager"
-				access: "proxy"
-				url:    "http://vmalertmanager-vm.vm.svc:9093"
+				name:                       "Alertmanager"
+				type:                       "alertmanager"
+				access:                     "proxy"
+				url:                        "http://vmalertmanager-vm.vm.svc:9093"
+				implementation:             "prometheus"
+				handleGrafanaManagedAlerts: true
 			}, {
 				name:   "Loki"
 				type:   "loki"
