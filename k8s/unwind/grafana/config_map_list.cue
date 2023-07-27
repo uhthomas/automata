@@ -36,6 +36,7 @@ import (
 				access: "proxy"
 				url:    "http://loki-gateway.loki.svc"
 			}]
+			deleteDatasources: [{name: "VictoriaMetrics 4697"}]
 		})
 		"grafana.ini": """
 			[analytics]
