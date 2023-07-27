@@ -18,7 +18,7 @@ import "k8s.io/api/core/v1"
 	spec: {
 		jobLabel: "app.kubernetes.io/name"
 		endpoints: [{
-			port: "metrics"
+			port: "http-metrics"
 			metricRelabelConfigs: [{
 				source_labels: ["mountpoint"]
 				regex:  "/var/lib/kubelet/pods.+"

@@ -15,9 +15,9 @@ import "k8s.io/api/core/v1"
 	metadata: annotations: "prometheus.io/scrape": "true"
 	spec: {
 		ports: [{
-			name:       "metrics"
+			name:       "http-metrics"
 			port:       9100
-			targetPort: "metrics"
+			targetPort: "http-metrics"
 		}]
 		selector: "app.kubernetes.io/name": #Name
 	}

@@ -41,7 +41,7 @@ import (
 						"--web.listen-address=[0.0.0.0]:9100",
 					]
 					ports: [{
-						name:          "metrics"
+						name:          "http-metrics"
 						containerPort: 9100
 					}]
 					resources: limits: {
@@ -66,7 +66,7 @@ import (
 					let probe = {
 						httpGet: {
 							path: "/"
-							port: "metrics"
+							port: "http-metrics"
 						}
 					}
 
