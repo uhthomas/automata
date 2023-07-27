@@ -36,7 +36,7 @@ import "k8s.io/api/core/v1"
 		vmselect: {
 			replicaCount: 2
 			resources: limits: {
-				(v1.#ResourceCPU):    "300m"
+				(v1.#ResourceCPU):    1
 				(v1.#ResourceMemory): "256Mi"
 			}
 			securityContext: defaultPodSecurityContext
