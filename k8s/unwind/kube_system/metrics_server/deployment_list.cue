@@ -41,8 +41,8 @@ import (
 						containerPort: 4443
 					}]
 					resources: requests: {
-						cpu:    "100m"
-						memory: "200Mi"
+						(v1.#ResourceCPU):   "100m"
+						(v1.#ResourceMemory): "200Mi"
 					}
 					volumeMounts: [{
 						mountPath: "/tmp"

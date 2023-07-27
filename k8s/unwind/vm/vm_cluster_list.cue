@@ -47,7 +47,7 @@ import "k8s.io/api/core/v1"
 			cacheMountPath: "/select-cache"
 			storage: volumeClaimTemplate: spec: {
 				storageClassName: "rook-ceph-nvme-ec-delete-block"
-				resources: requests: storage: "8Gi"
+				resources: requests: (v1.#ResourceStorage): "8Gi"
 			}
 			extraArgs: {
 				"dedup.minScrapeInterval":     "30s"
@@ -94,7 +94,7 @@ import "k8s.io/api/core/v1"
 			storageDataPath: "/vm-data"
 			storage: volumeClaimTemplate: spec: {
 				storageClassName: "rook-ceph-nvme-ec-delete-block"
-				resources: requests: storage: "16Gi"
+				resources: requests: (v1.#ResourceStorage): "16Gi"
 			}
 			extraArgs: "dedup.minScrapeInterval": "30s"
 		}
