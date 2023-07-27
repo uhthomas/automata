@@ -17,10 +17,6 @@ import (
 #DaemonSetList: items: [{
 	spec: {
 		selector: matchLabels: "app.kubernetes.io/name": #Name
-		updateStrategy: {
-			rollingUpdate: maxUnavailable: 1
-			type: "RollingUpdate"
-		}
 		template: {
 			metadata: labels: "app.kubernetes.io/name": #Name
 			spec: {
@@ -49,7 +45,7 @@ import (
 						containerPort: 9100
 					}]
 					resources: limits: {
-						(v1.#ResourceCPU):   "500m"
+						(v1.#ResourceCPU):    "500m"
 						(v1.#ResourceMemory): "256Mi"
 					}
 					volumeMounts: [{
