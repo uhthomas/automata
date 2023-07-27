@@ -19,7 +19,7 @@ import "k8s.io/api/core/v1"
 		replicaCount: 2
 		resources: limits: {
 			cpu:    "400m"
-			memory: "256Mi"
+			memory: "512Mi"
 		}
 		securityContext: {
 			runAsUser:    1000
