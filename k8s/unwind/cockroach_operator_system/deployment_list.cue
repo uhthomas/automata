@@ -283,8 +283,8 @@ import (
 					}]
 					imagePullPolicy: v1.#PullIfNotPresent
 					resources: requests: {
-						cpu:    "10m"
-						memory: "32Mi"
+						(v1.#ResourceCPU):   "10m"
+						(v1.#ResourceMemory): "32Mi"
 					}
 				}]
 				serviceAccountName: "cockroach-operator-sa"

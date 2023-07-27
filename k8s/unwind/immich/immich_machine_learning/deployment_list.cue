@@ -54,8 +54,8 @@ import (
 						value: "/usr/src/app/.transformers_cache"
 					}]
 					resources: limits: {
-						cpu:    "10000m"
-						memory: "12Gi"
+						(v1.#ResourceCPU):   "10000m"
+						(v1.#ResourceMemory): "12Gi"
 					}
 					volumeMounts: [{
 						name:      "tmp"

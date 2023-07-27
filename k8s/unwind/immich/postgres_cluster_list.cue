@@ -30,7 +30,7 @@ import (
 				volume: volumeClaimSpec: {
 					accessModes: [v1.#ReadWriteOnce]
 					storageClassName: "rook-ceph-nvme-ec-delete-block"
-					resources: requests: storage: "16Gi"
+					resources: requests: (v1.#ResourceStorage): "16Gi"
 				}
 			}]
 		}
@@ -41,11 +41,11 @@ import (
 			dataVolumeClaimSpec: {
 				accessModes: [v1.#ReadWriteOnce]
 				storageClassName: "rook-ceph-nvme-ec-delete-block"
-				resources: requests: storage: "8Gi"
+				resources: requests: (v1.#ResourceStorage): "8Gi"
 			}
 			resources: limits: {
-				cpu:    "1"
-				memory: "1Gi"
+				(v1.#ResourceCPU):   "1"
+				(v1.#ResourceMemory): "1Gi"
 			}
 		}]
 		postgresVersion: 15

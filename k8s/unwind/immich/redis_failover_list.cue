@@ -24,12 +24,12 @@ import "k8s.io/api/core/v1"
 			exporter: enabled: true
 			resources: {
 				requests: {
-					cpu:    "100m"
-					memory: "100Mi"
+					(v1.#ResourceCPU):   "100m"
+					(v1.#ResourceMemory): "100Mi"
 				}
 				limits: {
-					cpu:    "400m"
-					memory: "500Mi"
+					(v1.#ResourceCPU):   "400m"
+					(v1.#ResourceMemory): "500Mi"
 				}
 			}
 			securityContext: {
@@ -50,12 +50,12 @@ import "k8s.io/api/core/v1"
 			exporter: enabled: true
 			resources: {
 				requests: {
-					cpu:    "100m"
-					memory: "100Mi"
+					(v1.#ResourceCPU):   "100m"
+					(v1.#ResourceMemory): "100Mi"
 				}
 				limits: {
-					cpu:    "400m"
-					memory: "500Mi"
+					(v1.#ResourceCPU):   "400m"
+					(v1.#ResourceMemory): "500Mi"
 				}
 			}
 			securityContext: {
@@ -75,7 +75,7 @@ import "k8s.io/api/core/v1"
 				spec: {
 					accessModes: [v1.#ReadWriteOnce]
 					storageClassName: "rook-ceph-hdd-ec-delete-block"
-					resources: requests: storage: "16Gi"
+					resources: requests: (v1.#ResourceStorage): "16Gi"
 				}
 			}
 		}

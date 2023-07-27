@@ -95,8 +95,8 @@ import (
 						value: "debug"
 					}]
 					resources: limits: {
-						cpu:    "2000m"
-						memory: "4Gi"
+						(v1.#ResourceCPU):   "2000m"
+						(v1.#ResourceMemory): "4Gi"
 					}
 					volumeMounts: [{
 						name:      "geocoding-dump"

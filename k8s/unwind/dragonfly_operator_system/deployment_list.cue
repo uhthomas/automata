@@ -48,12 +48,12 @@ import (
 					}]
 					resources: {
 						limits: {
-							cpu:    "500m"
-							memory: "128Mi"
+							(v1.#ResourceCPU):   "500m"
+							(v1.#ResourceMemory): "128Mi"
 						}
 						requests: {
-							cpu:    "5m"
-							memory: "64Mi"
+							(v1.#ResourceCPU):   "5m"
+							(v1.#ResourceMemory): "64Mi"
 						}
 					}
 					securityContext: {
@@ -88,12 +88,12 @@ import (
 					}
 					resources: {
 						limits: {
-							cpu:    "500m"
-							memory: "128Mi"
+							(v1.#ResourceCPU):   "500m"
+							(v1.#ResourceMemory): "128Mi"
 						}
 						requests: {
-							cpu:    "10m"
-							memory: "64Mi"
+							(v1.#ResourceCPU):   "10m"
+							(v1.#ResourceMemory): "64Mi"
 						}
 					}
 					securityContext: {
