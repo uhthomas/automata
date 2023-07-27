@@ -36,8 +36,8 @@ import "k8s.io/api/core/v1"
 		vmselect: {
 			replicaCount: 2
 			resources: limits: {
-				cpu:    "300m"
-				memory: "256Mi"
+				(v1.#ResourceCPU):    "300m"
+				(v1.#ResourceMemory): "256Mi"
 			}
 			securityContext: defaultPodSecurityContext
 			containers: [{
@@ -70,8 +70,8 @@ import "k8s.io/api/core/v1"
 		vminsert: {
 			replicaCount: 2
 			resources: limits: {
-				cpu:    "200m"
-				memory: "256Mi"
+				(v1.#ResourceCPU):    "500m"
+				(v1.#ResourceMemory): "256Mi"
 			}
 			securityContext: defaultPodSecurityContext
 			containers: [{
@@ -83,8 +83,8 @@ import "k8s.io/api/core/v1"
 		vmstorage: {
 			replicaCount: 2
 			resources: limits: {
-				cpu:    "500m"
-				memory: "1.5Gi"
+				(v1.#ResourceCPU):    1
+				(v1.#ResourceMemory): "1.5Gi"
 			}
 			securityContext: defaultPodSecurityContext
 			containers: [{
