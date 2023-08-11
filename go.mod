@@ -7,7 +7,7 @@ require (
 	github.com/cert-manager/cert-manager v1.12.3
 	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
 	github.com/prometheus/prometheus v0.46.0
-	github.com/rook/rook/pkg/apis v0.0.0-20230809174505-71f078c0fcfe
+	github.com/rook/rook/pkg/apis v0.0.0-20230811194221-d4b806d20c06
 	k8s.io/api v0.27.4
 	k8s.io/apiextensions-apiserver v0.27.4
 	k8s.io/client-go v12.0.0+incompatible
