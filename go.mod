@@ -7,7 +7,7 @@ require (
 	github.com/cert-manager/cert-manager v1.12.3
 	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
 	github.com/prometheus/prometheus v0.46.0
-	github.com/rook/rook/pkg/apis v0.0.0-20230815172026-561511e8d43c
+	github.com/rook/rook/pkg/apis v0.0.0-20230816201154-f3764cc7ad97
 	k8s.io/api v0.28.0
 	k8s.io/apiextensions-apiserver v0.28.0
 	k8s.io/client-go v12.0.0+incompatible
@@ -27,7 +27,7 @@ require (
 	github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230305170008-8188dc5388df // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
-	github.com/aws/aws-sdk-go v1.44.302 // indirect
+	github.com/aws/aws-sdk-go v1.44.322 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/cenkalti/backoff/v3 v3.2.2 // indirect
@@ -94,10 +94,10 @@ require (
 	github.com/hashicorp/go-sockaddr v1.0.2 // indirect
 	github.com/hashicorp/golang-lru v0.6.0 // indirect
 	github.com/hashicorp/hcl v1.0.1-vault-5 // indirect
-	github.com/hashicorp/vault v1.13.4 // indirect
+	github.com/hashicorp/vault v1.13.5 // indirect
 	github.com/hashicorp/vault/api v1.9.2 // indirect
 	github.com/hashicorp/vault/api/auth/approle v0.4.1 // indirect
-	github.com/hashicorp/vault/sdk v0.9.1 // indirect
+	github.com/hashicorp/vault/sdk v0.9.2 // indirect
 	github.com/imdario/mergo v0.3.16 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
@@ -129,7 +129,7 @@ require (
 	github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
-	github.com/openshift/api v0.0.0-20211217221424-8779abfbd571 // indirect
+	github.com/openshift/api v0.0.0-20230804173756-26b8597c4de2 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8 // indirect
@@ -139,7 +139,7 @@ require (
 	github.com/prometheus/client_model v0.4.0 // indirect
 	github.com/prometheus/common v0.44.0 // indirect
 	github.com/prometheus/common/sigv4 v0.1.0 // indirect
-	github.com/prometheus/procfs v0.11.0 // indirect
+	github.com/prometheus/procfs v0.11.1 // indirect
 	github.com/protocolbuffers/txtpbfmt v0.0.0-20230412060525-fa9f017c0ded // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
@@ -167,16 +167,16 @@ require (
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/goleak v1.2.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	go.uber.org/zap v1.24.0 // indirect
-	golang.org/x/crypto v0.11.0 // indirect
+	go.uber.org/zap v1.25.0 // indirect
+	golang.org/x/crypto v0.12.0 // indirect
 	golang.org/x/exp v0.0.0-20230713183714-613f0c0eb8a1 // indirect
 	golang.org/x/mod v0.12.0 // indirect
-	golang.org/x/net v0.13.0 // indirect
-	golang.org/x/oauth2 v0.10.0 // indirect
+	golang.org/x/net v0.14.0 // indirect
+	golang.org/x/oauth2 v0.11.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
-	golang.org/x/sys v0.10.0 // indirect
-	golang.org/x/term v0.10.0 // indirect
-	golang.org/x/text v0.11.0 // indirect
+	golang.org/x/sys v0.11.0 // indirect
+	golang.org/x/term v0.11.0 // indirect
+	golang.org/x/text v0.12.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.11.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.3.0 // indirect
@@ -197,12 +197,12 @@ require (
 	k8s.io/component-helpers v0.28.0 // indirect
 	k8s.io/klog/v2 v2.100.1 // indirect
 	k8s.io/kms v0.28.0 // indirect
-	k8s.io/kube-openapi v0.0.0-20230717233707-2695361300d9 // indirect
+	k8s.io/kube-openapi v0.0.0-20230718181711-3c0fae5ee9fd // indirect
 	k8s.io/kubectl v0.27.2 // indirect
 	k8s.io/metrics v0.28.0 // indirect
-	k8s.io/utils v0.0.0-20230711102312-30195339c3c7 // indirect
+	k8s.io/utils v0.0.0-20230726121419-3b25d923346b // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.1.3 // indirect
-	sigs.k8s.io/controller-runtime v0.15.0 // indirect
+	sigs.k8s.io/controller-runtime v0.15.1 // indirect
 	sigs.k8s.io/gateway-api v0.7.0 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/kustomize/api v0.13.5-0.20230601165947-6ce0bf390ce3 // indirect
