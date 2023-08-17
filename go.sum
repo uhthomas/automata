@@ -2494,6 +2494,8 @@ github.com/rook/rook/pkg/apis v0.0.0-20230815172026-561511e8d43c h1:XfSnyOWgjfTb
 github.com/rook/rook/pkg/apis v0.0.0-20230815172026-561511e8d43c/go.mod h1:x3pir+Hs19XgJOlBmYdTxk5QR27ImpKhy68I5WS7Q/M=
 github.com/rook/rook/pkg/apis v0.0.0-20230816201154-f3764cc7ad97 h1:oFNeHEF8fbfVOn7y5zpgsxjT/bgAgrw81Vw9PkK5IB0=
 github.com/rook/rook/pkg/apis v0.0.0-20230816201154-f3764cc7ad97/go.mod h1:OnII9BWrgKO/8bZn41hIFcIsVUwh2Dow4ZrmTscN2vc=
+github.com/rook/rook/pkg/apis v0.0.0-20230817185149-430e8552a42c h1:nIflNersU4F2aremu6IpBIDUIbdLFyVS6YIyfcnvr3k=
+github.com/rook/rook/pkg/apis v0.0.0-20230817185149-430e8552a42c/go.mod h1:OnII9BWrgKO/8bZn41hIFcIsVUwh2Dow4ZrmTscN2vc=
 github.com/rs/xid v1.2.1/go.mod h1:+uKXf+4Djp6Md1KODXJxgGQPKngRmWyn10oCKFzNHOQ=
 github.com/rs/zerolog v1.4.0/go.mod h1:YbFCdg8HfsridGWAh22vktObvhZbQsZXe4/zB0OKkWU=
 github.com/rs/zerolog v1.13.0/go.mod h1:YbFCdg8HfsridGWAh22vktObvhZbQsZXe4/zB0OKkWU=
