@@ -12,7 +12,7 @@ require (
 	k8s.io/apiextensions-apiserver v0.28.1
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/kube-aggregator v0.28.1
-	k8s.io/kubernetes v1.28.0
+	k8s.io/kubernetes v1.28.1
 )
 
 require (
