@@ -63,7 +63,7 @@ import (
 					}
 				}, {
 					name:  "manager"
-					image: "docker.dragonflydb.io/dragonflydb/operator:v0.0.5"
+					image: "docker.dragonflydb.io/dragonflydb/operator:v0.0.6"
 					command: ["/manager"]
 					args: [
 						"--health-probe-bind-address=:8081",
