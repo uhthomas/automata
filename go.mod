@@ -12,7 +12,7 @@ require (
 	k8s.io/apiextensions-apiserver v0.28.1
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/kube-aggregator v0.28.1
-	k8s.io/kubernetes v1.28.1
+	k8s.io/kubernetes v1.28.2
 )
 
 require (
@@ -71,7 +71,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/btree v1.1.2 // indirect
-	github.com/google/cel-go v0.16.0 // indirect
+	github.com/google/cel-go v0.16.1 // indirect
 	github.com/google/gnostic v0.6.9 // indirect
 	github.com/google/gnostic-models v0.6.8 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
