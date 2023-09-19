@@ -98,8 +98,8 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: results.map(v => {
-                const added = v.result.split("\n").filter(line => line.startsWith("+"))
-                const deleted = v.result.split("\n").filter(line => line.startsWith("-"))
+                const added = v.result.split("\n").filter(line => line.startsWith("+")).length
+                const deleted = v.result.split("\n").filter(line => line.startsWith("-")).length
                 return `${v.name} \${\color{green}+${added}}\$ \${\color{red}-${deleted}}\$
 
             \`\`\`diff
