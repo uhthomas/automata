@@ -67,7 +67,7 @@ jobs:
           script: |
             const { diffString } = require('json-diff')
 
-            const baseList = require ('./head/list.json')
+            const baseList = require ('./base/list.json')
             const headList = require('./head/list.json')
 
             const diff = diffString(baseList, headList)
