@@ -78,7 +78,7 @@ jobs:
             const results = []
             for (const name of new Set([...Object.keys(base), ...Object.keys(head)])) {
               const result = diffString(base[name], head[name], {
-                outputKeys: ["name", "namespace"]
+                outputKeys: ["apiVersion", "kind", "name", "namespace"]
               })
               if (result) {
                 results.push({
