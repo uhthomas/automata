@@ -69,13 +69,25 @@ jobs:
 
             const reduce = o => o.items.reduce((acc, v) => ({ [`${v.metadata.namespace}/${v.metadata.name}: ${v.apiVersion}.${v.kind}`]: v, ...acc, }), {})
 
-            const baseList = require ('./base/list.json')
+            const baseList = require('./base/list.json')
             const headList = require('./head/list.json')
 
-            const diff = diffString(reduce(baseList), reduce(headList))
+            const base = reduce(baseList)
+            const head = reduce(headList)
 
-            if (!diff) {
-              core.warning(`no diff`)
+            const results = []
+            for (const name of new Set([...Object.Keys(base), ...Object.Keys(head)])) {
+              const result = diffString(base[name], head[name])
+              if (result) {
+                results.push({
+                  name,
+                  result
+                })
+              }
+            }
+
+            if (!results.length) {
+              core.warning(`no results`)
               return
             }
 
@@ -83,5 +95,11 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `\`\`\`diff\n${diff}\n\`\`\``
+              body: results.reduce((acc, v) => `${acc}
+            ###### ${v.name}
+
+            \`\`\`diff
+            ${v.result}
+            \`\`\`
+            `, '').trim()
             })
