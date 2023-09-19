@@ -9,7 +9,7 @@ import (
 #Name:      "immich-machine-learning"
 #Component: "machine-learning"
 
-// renovate: datasource=github-releases depName=immich-app/immich extractVersion=^v(?<version>.*)$
+// renovate: datasource=github-releases depName=immich-app/immich
 #Version: "1.66.1"
 
 #List: v1.#List & {
