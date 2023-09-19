@@ -57,22 +57,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm install -g json-diff
       - name: Comment diff on PR
         uses: actions/github-script@v6
         with:
           script: |
-            const { exitCode, stdout } = await exec.getExecOutput('diff', ['-urN', 'base', 'head'], {
-              ignoreReturnCode: true
-            })
+            const { diffString } = require('json-diff')
 
-            if (exitCode === 0) {
-              core.warning(`diff returned 0, stdout: ${stdout}`)
-              return
-            }
+            const baseList = require ('./head/list.json')
+            const headList = require('./head/list.json')
+
+            const diff = diffString(baseList, headList)
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `\`\`\`diff\n${stdout.trim()}\n\`\`\``
+              body: `\`\`\`diff\n${diff}\n\`\`\``
             })
