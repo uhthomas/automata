@@ -76,7 +76,7 @@ jobs:
             const head = reduce(headList)
 
             const results = []
-            for (const name of new Set([...Object.Keys(base), ...Object.Keys(head)])) {
+            for (const name of new Set([...Object.keys(base), ...Object.keys(head)])) {
               const result = diffString(base[name], head[name])
               if (result) {
                 results.push({
