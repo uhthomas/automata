@@ -72,6 +72,11 @@ jobs:
 
             const diff = diffString(baseList, headList)
 
+            if (!diff) {
+              core.warning(`no diff`)
+              return
+            }
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
