@@ -72,7 +72,7 @@ jobs:
             const baseList = require ('./base/list.json')
             const headList = require('./head/list.json')
 
-            const diff = diffString(reduce(base), reduce(head))
+            const diff = diffString(reduce(baseList), reduce(headList))
 
             if (!diff) {
               core.warning(`no diff`)
