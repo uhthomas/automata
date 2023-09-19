@@ -60,7 +60,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: npm install -g json-diff
+      - run: npm install json-diff
       - name: Comment diff on PR
         uses: actions/github-script@v6
         with:
