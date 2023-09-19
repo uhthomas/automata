@@ -65,19 +65,21 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const { diffString } = require('json-diff')
+            const { diffString } = require("json-diff")
 
-            const reduce = o => o.items.reduce((acc, v) => ({ [`${v.metadata.namespace}/${v.metadata.name} (${v.apiVersion}.${v.kind})`]: v, ...acc, }), {})
+            const reduce = o => o.items.reduce((acc, v) => ({ [`**${v.metadata.namespace}/${v.metadata.name}** ${v.kind} (${v.apiVersion})`]: v, ...acc, }), {})
 
-            const baseList = require('./base/list.json')
-            const headList = require('./head/list.json')
+            const baseList = require("./base/list.json")
+            const headList = require("./head/list.json")
 
             const base = reduce(baseList)
             const head = reduce(headList)
 
             const results = []
             for (const name of new Set([...Object.keys(base), ...Object.keys(head)])) {
-              const result = diffString(base[name], head[name])
+              const result = diffString(base[name], head[name], {
+                outputKeys: ["name", "namespace"]
+              })
               if (result) {
                 results.push({
                   name,
@@ -87,7 +89,7 @@ jobs:
             }
 
             if (!results.length) {
-              core.warning(`no results`)
+              core.warning("no results")
               return
             }
 
@@ -95,11 +97,14 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: results.reduce((acc, v) => `${acc}
-            ##### ${v.name}
+              body: results.map(v => {
+                const added = v.split("\n").filter(line => line.startsWith("+"))
+                const deleted = v.split("\n").filter(line => line.startsWith("-"))
+                return `${acc}
+            ${v.name} \${\color{green}+${added}}\$ \${\color{red}-${deleted}}\$
 
             \`\`\`diff
             ${v.result}
-            \`\`\`
-            `, '').trim()
-            })
+            \`\`\``
+              }).join("\n")
+            )})
