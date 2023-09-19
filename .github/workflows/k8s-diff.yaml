@@ -100,7 +100,7 @@ jobs:
               body: results.map(v => {
                 const added = v.result.split("\n").filter(line => line.startsWith("+")).length
                 const deleted = v.result.split("\n").filter(line => line.startsWith("-")).length
-                return `${v.name} \${\color{green}+${added}}\$ \${\color{red}-${deleted}}\$
+                return `${v.name} \${\\color{green}+${added}}\$ \${\\color{red}-${deleted}}\$
 
             \`\`\`diff
             ${v.result}
