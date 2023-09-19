@@ -75,9 +75,11 @@ jobs:
             const base = reduce(baseList)
             const head = reduce(headList)
 
+            const sort = o => Object.fromEntries(Object.entries(o).sort())
+
             const results = []
             for (const name of new Set([...Object.keys(base), ...Object.keys(head)])) {
-              const result = diffString(base[name], head[name], {
+              const result = diffString(sort(base[name]), sort(head[name]), {
                 outputKeys: ["apiVersion", "kind", "name", "namespace"]
               })
               if (result) {
