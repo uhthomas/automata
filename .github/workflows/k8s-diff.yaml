@@ -67,10 +67,12 @@ jobs:
           script: |
             const { diffString } = require('json-diff')
 
+            const reduce = o => o.items.reduce((acc, v) => ({ [`${v.metadata.namespace}/${v.metadata.name}: ${v.apiVersion}.${v.kind}`]: v, ...acc, }), {})
+
             const baseList = require ('./base/list.json')
             const headList = require('./head/list.json')
 
-            const diff = diffString(baseList, headList)
+            const diff = diffString(reduce(base), reduce(head))
 
             if (!diff) {
               core.warning(`no diff`)
