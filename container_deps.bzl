@@ -10,7 +10,7 @@ def container_dependencies():
     )
     container_pull(
         name = "io_gcr_distroless_base_debian11",
-        digest = "sha256:a17ac8990b4395aab186b9538ca04715d2a7408dfd2b6473ff7b16d098d0cb09",
+        digest = "sha256:6c871aa3c9019984dfd7f520635bd658d740ad20c6268a82faa433f69dfc9a0b",
         registry = "gcr.io",
         repository = "distroless/base-debian11",
         tag = "latest",
