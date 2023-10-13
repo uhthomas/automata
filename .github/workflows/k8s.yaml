@@ -10,8 +10,9 @@ jobs:
       - uses: actions/checkout@v3
       - uses: tailscale/github-action@main
         with:
-          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
-          version: "1.40.0"
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
       - name: Login to the Kubernetes cluster
         run: tailscale configure kubeconfig tailscale-operator
       - uses: bazelbuild/setup-bazelisk@v2
