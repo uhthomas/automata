@@ -1,3 +1,11 @@
+resource "cloudflare_zone" "terraform_managed_resource_897af3a08a43f0b90fc93479c2b8ef41" {
+  account_id = "cde22999fc6fe2ed5c9605561c508d29"
+  paused     = false
+  plan       = "enterprise"
+  type       = "full"
+  zone       = "6f.io"
+}
+
 resource "cloudflare_record" "terraform_managed_resource_db96d0c2bd7972625be5edfb3c5bffe9" {
   name    = "6f.io"
   proxied = true

@@ -1,3 +1,16 @@
+moved {
+  from = cloudflare_zone.terraform_managed_resource_acff21a4b43636283cd28bd5c5bd44a5
+  to = cloudflare_zone.starjunk_net
+}
+
+resource "cloudflare_zone" "starjunk_net" {
+  account_id = "cde22999fc6fe2ed5c9605561c508d29"
+  paused     = false
+  plan       = "business"
+  type       = "full"
+  zone       = "starjunk.net"
+}
+
 resource "cloudflare_record" "terraform_managed_resource_eedd8ec4c36e120ef1fc65c829c9bbc6" {
   name    = "amour"
   proxied = false
@@ -43,7 +56,12 @@ resource "cloudflare_record" "terraform_managed_resource_8c0fbc31ad098d40f9eccb8
   zone_id = "acff21a4b43636283cd28bd5c5bd44a5"
 }
 
-resource "cloudflare_record" "terraform_managed_resource_96ab3ddbd1d6bda8e41ad733053b18aa" {
+moved {
+  from = cloudflare_record.terraform_managed_resource_96ab3ddbd1d6bda8e41ad733053b18aa
+  to = cloudflare_record.aaaa
+}
+
+resource "cloudflare_record" "aaaa" {
   name    = "starjunk.net"
   proxied = true
   ttl     = 1
@@ -52,7 +70,12 @@ resource "cloudflare_record" "terraform_managed_resource_96ab3ddbd1d6bda8e41ad73
   zone_id = "acff21a4b43636283cd28bd5c5bd44a5"
 }
 
-resource "cloudflare_record" "terraform_managed_resource_1d02e7ffa92156a8528ad4263f5462c0" {
+moved {
+  from = cloudflare_record.terraform_managed_resource_1d02e7ffa92156a8528ad4263f5462c0
+  to = cloudflare_record.www_aaaa
+}
+
+resource "cloudflare_record" "www_aaaa" {
   name    = "www"
   proxied = true
   ttl     = 1

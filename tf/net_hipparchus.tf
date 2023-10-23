@@ -1,3 +1,11 @@
+resource "cloudflare_zone" "terraform_managed_resource_8e603296b42075dc4f1754b63f2ce5de" {
+  account_id = "cde22999fc6fe2ed5c9605561c508d29"
+  paused     = false
+  plan       = "free"
+  type       = "full"
+  zone       = "hipparchus.net"
+}
+
 resource "cloudflare_record" "terraform_managed_resource_d51aea2d5e1c71a0643f272d4f7c0b04" {
   name    = "_dmarc"
   proxied = false

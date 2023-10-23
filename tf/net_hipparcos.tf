@@ -1,3 +1,11 @@
+resource "cloudflare_zone" "terraform_managed_resource_994692a638e9a8c4ae552a9e6dacb609" {
+  account_id = "cde22999fc6fe2ed5c9605561c508d29"
+  paused     = false
+  plan       = "free"
+  type       = "full"
+  zone       = "hipparcos.net"
+}
+
 resource "cloudflare_record" "terraform_managed_resource_b861a72f5625b9e60f2610c85b08501b" {
   name    = "fm1._domainkey"
   proxied = false
