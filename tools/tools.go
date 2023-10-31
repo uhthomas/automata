@@ -6,6 +6,7 @@ package tools
 import (
 	_ "cuelang.org/go/cmd/cue"
 	_ "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
+	_ "github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2"
 	_ "github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
 	_ "github.com/prometheus/prometheus/model/rulefmt"
 	_ "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"

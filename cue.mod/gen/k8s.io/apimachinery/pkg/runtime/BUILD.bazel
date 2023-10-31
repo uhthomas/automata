@@ -12,6 +12,7 @@ cue_library(
         "helper_go_gen.cue",
         "interfaces_go_gen.cue",
         "negotiate_go_gen.cue",
+        "splice_go_gen.cue",
         "swagger_doc_generator_go_gen.cue",
         "types_go_gen.cue",
         "types_proto_go_gen.cue",

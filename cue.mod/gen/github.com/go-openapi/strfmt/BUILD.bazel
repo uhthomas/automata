@@ -1,0 +1,17 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_strfmt_library",
+    srcs = [
+        "bson_go_gen.cue",
+        "date_go_gen.cue",
+        "default_go_gen.cue",
+        "doc_go_gen.cue",
+        "duration_go_gen.cue",
+        "format_go_gen.cue",
+        "time_go_gen.cue",
+        "ulid_go_gen.cue",
+    ],
+    importpath = "github.com/go-openapi/strfmt",
+    visibility = ["//visibility:public"],
+)
