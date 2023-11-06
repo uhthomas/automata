@@ -12,7 +12,6 @@ import "k8s.io/api/core/v1"
 }
 
 #ServiceList: items: [{
-	metadata: annotations: "tailscale.com/hostname": "\(#Name)-unwind-k8s"
 	spec: {
 		ports: [{
 			name:       "http"
@@ -20,7 +19,5 @@ import "k8s.io/api/core/v1"
 			targetPort: "http"
 		}]
 		selector: "app.kubernetes.io/name": #Name
-		type:              v1.#ServiceTypeLoadBalancer
-		loadBalancerClass: "tailscale"
 	}
 }]

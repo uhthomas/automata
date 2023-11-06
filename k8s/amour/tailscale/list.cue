@@ -1,4 +1,4 @@
-package grafana
+package tailscale
 
 import (
 	"list"
@@ -6,18 +6,16 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-#Name:      "grafana"
+#Name:      "tailscale"
 #Namespace: #Name
-
-// renovate: datasource=github-releases depName=grafana/grafana extractVersion=^v(?<version>.*)$
-#Version: "10.0.2"
+#Version:   "1.53.37"
 
 #List: v1.#List & {
 	apiVersion: "v1"
 	kind:       "List"
 	items: [...{
 		metadata: {
-			name:      #Name
+			name:      string | *#Name
 			namespace: #Namespace
 			labels: {
 				"app.kubernetes.io/name":    #Name
@@ -30,11 +28,12 @@ import (
 #List: items: list.Concat(_items)
 
 _items: [
-	#ConfigMapList.items,
+	#ClusterRoleBindingList.items,
+	#ClusterRoleList.items,
+	#DeploymentList.items,
 	#ExternalSecretList.items,
-	#IngressList.items,
 	#NamespaceList.items,
-	#ServiceList.items,
-	#StatefulSetList.items,
-	#VMServiceScrapeList.items,
+	#RoleBindingList.items,
+	#RoleList.items,
+	#ServiceAccountList.items,
 ]

@@ -16,6 +16,7 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/onepassword_connect"
 	"github.com/uhthomas/automata/k8s/amour/rook_ceph"
 	"github.com/uhthomas/automata/k8s/amour/snapshot_controller"
+	"github.com/uhthomas/automata/k8s/amour/tailscale"
 	"github.com/uhthomas/automata/k8s/amour/thomas"
 	"github.com/uhthomas/automata/k8s/amour/vm_operator"
 	"github.com/uhthomas/automata/k8s/amour/vm"
@@ -60,6 +61,7 @@ _items: [
 	onepassword_connect.#List.items,
 	rook_ceph.#List.items,
 	snapshot_controller.#List.items,
+	tailscale.#List.items,
 	thomas.#List.items,
 	vm_operator.#List.items,
 	vm.#List.items,
