@@ -16,6 +16,7 @@ import (
 #DeprecatedRollbackTo:           "deprecated.deployment.rollback.to"
 #DeprecatedTemplateGeneration:   "deprecated.daemonset.template.generation"
 #StatefulSetPodNameLabel:        "statefulset.kubernetes.io/pod-name"
+#PodIndexLabel:                  "apps.kubernetes.io/pod-index"
 
 // StatefulSet represents a set of pods with consistent identities.
 // Identities are defined as:

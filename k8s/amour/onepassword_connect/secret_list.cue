@@ -11,4 +11,8 @@ import "k8s.io/api/core/v1"
 	}]
 }
 
-#SecretList: items: [{metadata: name: "onepassword-credentials"}]
+#SecretList: items: [{
+	metadata: name: "onepassword-credentials"
+}, {
+	metadata: name: "onepassword-connect-token"
+}]

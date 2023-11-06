@@ -19,5 +19,6 @@ import (
 
 _items: [
 	#NamespaceList.items,
+	#VMServiceScrapeList.items,
 	metrics_server.#List.items,
 ]

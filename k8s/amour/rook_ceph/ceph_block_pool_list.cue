@@ -15,9 +15,10 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	metadata: name: "builtin-mgr"
 	spec: {
 		name:          ".mgr"
-		failureDomain: "host"
+		failureDomain: "osd"
 		replicated: {
-			size:                   3
+			// TODO: size: 3
+			size:                   2
 			requireSafeReplicaSize: true
 		}
 		deviceClass: "nvme"
@@ -27,6 +28,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 }, {
 	metadata: name: "ecpool-nvme"
 	spec: {
+		failureDomain: "osd"
 		erasureCoded: {
 			dataChunks:   4
 			codingChunks: 6
@@ -40,8 +42,9 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 }, {
 	metadata: name: "replicapool-nvme"
 	spec: {
-		failureDomain: "host"
-		replicated: size: 3
+		failureDomain: "osd"
+		// TODO: size: 3
+		replicated: size: 2
 		deviceClass: "nvme"
 		parameters: {
 			compression_algorithm: "zstd"
@@ -51,6 +54,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 }, {
 	metadata: name: "ecpool-hdd"
 	spec: {
+		failureDomain: "osd"
 		erasureCoded: {
 			dataChunks:   4
 			codingChunks: 6
@@ -64,7 +68,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 }, {
 	metadata: name: "replicapool-hdd"
 	spec: {
-		failureDomain: "host"
+		failureDomain: "osd"
 		replicated: size: 3
 		deviceClass: "hdd"
 		parameters: {

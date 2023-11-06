@@ -22,11 +22,6 @@ import (
 	// spec represents the specification of the desired behavior for this NetworkPolicy.
 	// +optional
 	spec?: #NetworkPolicySpec @go(Spec) @protobuf(2,bytes,opt)
-
-	// status represents the current state of the NetworkPolicy.
-	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	// +optional
-	status?: #NetworkPolicyStatus @go(Status) @protobuf(3,bytes,opt)
 }
 
 // PolicyType string describes the NetworkPolicy type
@@ -191,52 +186,6 @@ import (
 	// neither of the other fields can be.
 	// +optional
 	ipBlock?: null | #IPBlock @go(IPBlock,*IPBlock) @protobuf(3,bytes,rep)
-}
-
-// NetworkPolicyConditionType is the type for status conditions on
-// a NetworkPolicy. This type should be used with the
-// NetworkPolicyStatus.Conditions field.
-#NetworkPolicyConditionType: string // #enumNetworkPolicyConditionType
-
-#enumNetworkPolicyConditionType:
-	#NetworkPolicyConditionStatusAccepted |
-	#NetworkPolicyConditionStatusPartialFailure |
-	#NetworkPolicyConditionStatusFailure
-
-// NetworkPolicyConditionStatusAccepted represents status of a Network Policy that could be properly parsed by
-// the Network Policy provider and will be implemented in the cluster
-#NetworkPolicyConditionStatusAccepted: #NetworkPolicyConditionType & "Accepted"
-
-// NetworkPolicyConditionStatusPartialFailure represents status of a Network Policy that could be partially
-// parsed by the Network Policy provider and may not be completely implemented due to a lack of a feature or some
-// other condition
-#NetworkPolicyConditionStatusPartialFailure: #NetworkPolicyConditionType & "PartialFailure"
-
-// NetworkPolicyConditionStatusFailure represents status of a Network Policy that could not be parsed by the
-// Network Policy provider and will not be implemented in the cluster
-#NetworkPolicyConditionStatusFailure: #NetworkPolicyConditionType & "Failure"
-
-// NetworkPolicyConditionReason defines the set of reasons that explain why a
-// particular NetworkPolicy condition type has been raised.
-#NetworkPolicyConditionReason: string // #enumNetworkPolicyConditionReason
-
-#enumNetworkPolicyConditionReason:
-	#NetworkPolicyConditionReasonFeatureNotSupported
-
-// NetworkPolicyConditionReasonFeatureNotSupported represents a reason where the Network Policy may not have been
-// implemented in the cluster due to a lack of some feature not supported by the Network Policy provider
-#NetworkPolicyConditionReasonFeatureNotSupported: #NetworkPolicyConditionReason & "FeatureNotSupported"
-
-// NetworkPolicyStatus describes the current state of the NetworkPolicy.
-#NetworkPolicyStatus: {
-	// conditions holds an array of metav1.Condition that describe the state of the NetworkPolicy.
-	// Current service state
-	// +optional
-	// +patchMergeKey=type
-	// +patchStrategy=merge
-	// +listType=map
-	// +listMapKey=type
-	conditions?: [...metav1.#Condition] @go(Conditions,[]metav1.Condition) @protobuf(1,bytes,rep)
 }
 
 // NetworkPolicyList is a list of NetworkPolicy objects.

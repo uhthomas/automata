@@ -18,7 +18,7 @@ import "k8s.io/api/core/v1"
 	spec: {
 		replicaCount: 2
 		storage: volumeClaimTemplate: spec: {
-			storageClassName: "rook-ceph-nvme-ec-delete-block"
+			storageClassName: "rook-ceph-nvme"
 			resources: requests: (v1.#ResourceStorage): "512Mi"
 		}
 		resources: limits: {

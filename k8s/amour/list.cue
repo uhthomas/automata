@@ -5,6 +5,8 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/cert_manager_csi_driver"
 	"github.com/uhthomas/automata/k8s/amour/cert_manager"
 	"github.com/uhthomas/automata/k8s/amour/cilium"
+	"github.com/uhthomas/automata/k8s/amour/external_secrets"
+	"github.com/uhthomas/automata/k8s/amour/grafana"
 	"github.com/uhthomas/automata/k8s/amour/intel_gpu_plugin"
 	"github.com/uhthomas/automata/k8s/amour/kube_state_metrics"
 	"github.com/uhthomas/automata/k8s/amour/kube_system"
@@ -12,8 +14,8 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/node_feature_discovery"
 	"github.com/uhthomas/automata/k8s/amour/node_problem_detector"
 	"github.com/uhthomas/automata/k8s/amour/onepassword_connect"
-	"github.com/uhthomas/automata/k8s/amour/onepassword_operator"
 	"github.com/uhthomas/automata/k8s/amour/rook_ceph"
+	"github.com/uhthomas/automata/k8s/amour/snapshot_controller"
 	"github.com/uhthomas/automata/k8s/amour/thomas"
 	"github.com/uhthomas/automata/k8s/amour/vm_operator"
 	"github.com/uhthomas/automata/k8s/amour/vm"
@@ -42,10 +44,13 @@ _#KindWeight: {
 
 _items: [
 	amour.#ApplySetList.items,
+	amour.#ClusterSecretStoreList.items,
 	amour.#CustomResourceDefinitionList.items,
 	cert_manager_csi_driver.#List.items,
 	cert_manager.#List.items,
 	cilium.#List.items,
+	external_secrets.#List.items,
+	grafana.#List.items,
 	intel_gpu_plugin.#List.items,
 	kube_state_metrics.#List.items,
 	kube_system.#List.items,
@@ -53,8 +58,8 @@ _items: [
 	node_feature_discovery.#List.items,
 	node_problem_detector.#List.items,
 	onepassword_connect.#List.items,
-	onepassword_operator.#List.items,
 	rook_ceph.#List.items,
+	snapshot_controller.#List.items,
 	thomas.#List.items,
 	vm_operator.#List.items,
 	vm.#List.items,

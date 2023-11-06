@@ -53,7 +53,7 @@ import (
 		// rather than with service monitors.
 		//
 		// See: https://github.com/rook/rook/issues/12422
-		// monitoring: enabled: true
+		monitoring: enabled: true
 		network: connections: {
 			encryption: enabled:  true
 			compression: enabled: true
