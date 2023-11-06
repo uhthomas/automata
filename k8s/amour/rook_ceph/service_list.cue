@@ -11,25 +11,18 @@ import "k8s.io/api/core/v1"
 	}]
 }
 
-#ServiceList: items: []
-
-// #ServiceList: items: [{
-// 	metadata: {
-// 		name: "rook-ceph-mgr-dashboard-tailscale"
-// 		annotations: "tailscale.com/hostname": "\(#Name)-unwind-k8s"
-// 	}
-// 	spec: {
-// 		ports: [{
-// 			name:       "https"
-// 			port:       443
-// 			targetPort: "dashboard"
-// 		}]
-// 		selector: {
-// 			app:          "rook-ceph-mgr"
-// 			mgr_role:     "active"
-// 			rook_cluster: #Namespace
-// 		}
-// 		type:              v1.#ServiceTypeLoadBalancer
-// 		loadBalancerClass: "tailscale"
-// 	}
-// }]
+#ServiceList: items: [{
+	metadata: name: "rook-ceph-mgr-dashboard-tailscale"
+	spec: {
+		ports: [{
+			name:       "https"
+			port:       443
+			targetPort: "dashboard"
+		}]
+		selector: {
+			app:          "rook-ceph-mgr"
+			mgr_role:     "active"
+			rook_cluster: #Namespace
+		}
+	}
+}]

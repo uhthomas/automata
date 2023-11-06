@@ -39,6 +39,7 @@ _items: [
 	#ConfigMapList.items,
 	#CustomResourceDefinitionList.items,
 	#DeploymentList.items,
+	#IngressList.items,
 	#NamespaceList.items,
 	#RoleBindingList.items,
 	#RoleList.items,
