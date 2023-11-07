@@ -3,7 +3,7 @@ module github.com/uhthomas/automata
 go 1.21
 
 require (
-	cuelang.org/go v0.6.1-0.20231104111545-b15fcb039af1
+	cuelang.org/go v0.6.1-0.20231106164402-8b9597173bb2
 	github.com/1Password/onepassword-operator v1.8.0
 	github.com/VictoriaMetrics/operator/api v0.0.0-20231101174116-b89ce3b1ecc1
 	github.com/cert-manager/cert-manager v1.13.2
@@ -20,7 +20,7 @@ require (
 )
 
 require (
-	cuelabs.dev/go/oci/ociregistry v0.0.0-20231004130125-2c3ad8a6ecd3 // indirect
+	cuelabs.dev/go/oci/ociregistry v0.0.0-20231103182354-93e78c079a13 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.8.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.4.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.4.0 // indirect
