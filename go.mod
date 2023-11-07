@@ -11,7 +11,7 @@ require (
 	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
 	github.com/external-secrets/external-secrets v0.9.8
 	github.com/prometheus/prometheus v0.47.2
-	github.com/rook/rook/pkg/apis v0.0.0-20230822134130-9803bd5aa7b5
+	github.com/rook/rook/pkg/apis v0.0.0-20231106173243-68625bc737af
 	k8s.io/api v0.28.3
 	k8s.io/apiextensions-apiserver v0.28.3
 	k8s.io/client-go v12.0.0+incompatible
@@ -46,6 +46,7 @@ require (
 	github.com/chai2010/gettext-go v1.0.2 // indirect
 	github.com/cilium/proxy v0.0.0-20230623092907-8fddead4e52c // indirect
 	github.com/cockroachdb/apd/v3 v3.2.1 // indirect
+	github.com/containernetworking/cni v1.1.2 // indirect
 	github.com/coreos/go-semver v0.3.1 // indirect
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf // indirect
 	github.com/coreos/go-systemd/v22 v22.5.0 // indirect
@@ -113,6 +114,7 @@ require (
 	github.com/hashicorp/vault v1.13.5 // indirect
 	github.com/hashicorp/vault/api v1.10.0 // indirect
 	github.com/hashicorp/vault/api/auth/approle v0.5.0 // indirect
+	github.com/hashicorp/vault/api/auth/kubernetes v0.5.0 // indirect
 	github.com/hashicorp/vault/sdk v0.10.0 // indirect
 	github.com/imdario/mergo v0.3.16 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
@@ -121,12 +123,13 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/k8snetworkplumbingwg/network-attachment-definition-client v1.4.0 // indirect
 	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/kube-object-storage/lib-bucket-provisioner v0.0.0-20221122204822-d1a8c34382f1 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
-	github.com/libopenstorage/secrets v0.0.0-20230417161723-1022cc4d5aeb // indirect
+	github.com/libopenstorage/secrets v0.0.0-20231011182615-5f4b25ceede1 // indirect
 	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de // indirect
 	github.com/lithammer/dedent v1.1.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
@@ -150,7 +153,7 @@ require (
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc4 // indirect
-	github.com/openshift/api v0.0.0-20230804173756-26b8597c4de2 // indirect
+	github.com/openshift/api v0.0.0-20230816181854-a7ca92db022a // indirect
 	github.com/opentracing/opentracing-go v1.2.1-0.20220228012449-10b1cf09e00b // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
