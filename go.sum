@@ -620,6 +620,8 @@ cuelang.org/go v0.6.1-0.20231106164402-8b9597173bb2 h1:+YZ2kXXI35Fijs31oRt7P3m9S
 cuelang.org/go v0.6.1-0.20231106164402-8b9597173bb2/go.mod h1:4+tMeMYAmytP2Wo9ssOLDaUEEMQYc1iLu14lVWRLJvg=
 cuelang.org/go v0.6.1-0.20231107145047-ca2065618e2e h1:alyAQT997Ctrc2IlEYDQC9kboFeB6v0ZFK0ZwR6A9HY=
 cuelang.org/go v0.6.1-0.20231107145047-ca2065618e2e/go.mod h1:4+tMeMYAmytP2Wo9ssOLDaUEEMQYc1iLu14lVWRLJvg=
+cuelang.org/go v0.6.1-0.20231108083020-f9c8d98d1c31 h1:tIy+EHvLbcj7/3DXQfmkWEJfUMdbK+IKnJTyoF+TWJ8=
+cuelang.org/go v0.6.1-0.20231108083020-f9c8d98d1c31/go.mod h1:4+tMeMYAmytP2Wo9ssOLDaUEEMQYc1iLu14lVWRLJvg=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 gioui.org v0.0.0-20210308172011-57750fc8a0a6/go.mod h1:RSH6KIUZ0p2xy5zHDxgAM4zumjgTw83q2ge/PI+yyw8=
 git.sr.ht/~sbinet/gg v0.3.1/go.mod h1:KGYtlADtqsqANL9ueOFkWymvzUvLMQllU5Ixo+8v3pc=
