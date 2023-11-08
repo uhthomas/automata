@@ -930,12 +930,16 @@ github.com/cilium/checkmate v1.0.3 h1:CQC5eOmlAZeEjPrVZY3ZwEBH64lHlx9mXYdUehEwI5
 github.com/cilium/checkmate v1.0.3/go.mod h1:KiBTasf39/F2hf2yAmHw21YFl3hcEyP4Yk6filxc12A=
 github.com/cilium/cilium v1.14.2 h1:NVz14uSoKB0Y37iFveMQGYH03ZflEuZegmQWpTMf5TM=
 github.com/cilium/cilium v1.14.2/go.mod h1:ghd9LkTSbRPtJal0Bsdq1ise+j5Ezy14xgaM2o3XLCI=
+github.com/cilium/cilium v1.14.3 h1:Nbya9Lr/k1A8Wty1oPdV+/k/qh3KoIeTb6tXRM2eLWg=
+github.com/cilium/cilium v1.14.3/go.mod h1:jcysu5KCmXET1lo3TeRq9cUvwQeFajcSRs4n6YfvTqM=
 github.com/cilium/ebpf v0.0.0-20200110133405-4032b1d8aae3/go.mod h1:MA5e5Lr8slmEg9bt0VpxxWqJlO4iwu3FBdHUzV7wQVg=
 github.com/cilium/ebpf v0.0.0-20200702112145-1c8d4c9ef775/go.mod h1:7cR51M8ViRLIdUjrmSXlK9pkrsDlLHbO8jiB8X8JnOc=
 github.com/cilium/ebpf v0.2.0/go.mod h1:To2CFviqOWL/M0gIMsvSMlqe7em/l1ALkX1PyjrX2Qs=
 github.com/cilium/ebpf v0.4.0/go.mod h1:4tRaxcgiL706VnOzHOdBlY8IEAIdxINsQBcU4xJJXRs=
 github.com/cilium/ebpf v0.6.2/go.mod h1:4tRaxcgiL706VnOzHOdBlY8IEAIdxINsQBcU4xJJXRs=
 github.com/cilium/ebpf v0.7.0/go.mod h1:/oI2+1shJiTGAMgl6/RgJr36Eo1jzrRcAWbcXO2usCA=
+github.com/cilium/ebpf v0.10.1-0.20230626090016-654491c8a500 h1:eAn1/gEVvcamZLoF4JKznmG2zKABsF7mRisyfQtwa3Q=
+github.com/cilium/ebpf v0.10.1-0.20230626090016-654491c8a500/go.mod h1:WE7CZAnqOL2RouJ4f1uyNhqr2P4CCvXFIqdRDUgWsVs=
 github.com/cilium/proxy v0.0.0-20230623092907-8fddead4e52c h1:/NqY4jLr92f7VcUJe1gHS6CgSGWFUCeD2f4QhxO8tgE=
 github.com/cilium/proxy v0.0.0-20230623092907-8fddead4e52c/go.mod h1:iOlDXIgPGBabS7J0Npbq8MC5+gfvUGSBISnxXIJjfgs=
 github.com/circonus-labs/circonus-gometrics v2.3.1+incompatible h1:C29Ae4G5GtYyYMm1aztcyj/J5ckgJm2zwdDajFbx1NY=
