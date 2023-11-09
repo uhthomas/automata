@@ -35,7 +35,7 @@ import (
 		mounter: "rbd-nbd"
 	}
 	allowVolumeExpansion: true
-	reclaimPolicy:        v1.#PersistentVolumeReclaimDelete
+	reclaimPolicy:        v1.#PersistentVolumeReclaimRetain
 }, {
 	metadata: name: "rook-ceph-hdd"
 	provisioner: "\(#Namespace).rbd.csi.ceph.com"
@@ -57,5 +57,5 @@ import (
 		mounter: "rbd-nbd"
 	}
 	allowVolumeExpansion: true
-	reclaimPolicy:        v1.#PersistentVolumeReclaimDelete
+	reclaimPolicy:        v1.#PersistentVolumeReclaimRetain
 }]
