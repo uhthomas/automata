@@ -53,7 +53,7 @@ import (
 		// rather than with service monitors.
 		//
 		// See: https://github.com/rook/rook/issues/12422
-		monitoring: enabled: true
+		// monitoring: enabled: true
 		network: connections: {
 			encryption: enabled:  true
 			compression: enabled: true
@@ -166,6 +166,14 @@ import (
 				}, {
 					// IBM-ESXS HUH728080AL420
 					name: "/dev/disk/by-id/wwn-0x5000cca26105b87c"
+					config: deviceClass: "hdd"
+				}, {
+					// WD 4TB (TEMP - DELETE SOON)
+					name: "/dev/disk/by-id/wwn-0x50014ee20a0d98d1"
+					config: deviceClass: "hdd"
+				}, {
+					// WD 4TB (TEMP - DELETE SOON)
+					name: "/dev/disk/by-id/wwn-0x50014ee20a85be27"
 					config: deviceClass: "hdd"
 				}]
 			}]

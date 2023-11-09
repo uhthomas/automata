@@ -14,47 +14,56 @@ import (
 	}]
 }
 
+let defaultParameters = {
+	"csi.storage.k8s.io/provisioner-secret-namespace":       #Namespace
+	"csi.storage.k8s.io/controller-expand-secret-namespace": #Namespace
+	"csi.storage.k8s.io/node-stage-secret-namespace":        #Namespace
+}
+
+let defaultRBDParameters = defaultParameters & {
+	clusterID:     #Namespace
+	imageFormat:   "2"
+	imageFeatures: "layering,fast-diff,object-map,deep-flatten,exclusive-lock"
+	mounter:       "rbd-nbd"
+
+	"csi.storage.k8s.io/provisioner-secret-name":       "rook-csi-rbd-provisioner"
+	"csi.storage.k8s.io/controller-expand-secret-name": "rook-csi-rbd-provisioner"
+	"csi.storage.k8s.io/node-stage-secret-name":        "rook-csi-rbd-node"
+	"csi.storage.k8s.io/fstype":                        "ext4"
+}
+
+let defaultCephFSParameters = defaultParameters & {
+	clusterID: #Namespace
+
+	"csi.storage.k8s.io/provisioner-secret-name":       "rook-csi-cephfs-provisioner"
+	"csi.storage.k8s.io/controller-expand-secret-name": "rook-csi-cephfs-provisioner"
+	"csi.storage.k8s.io/node-stage-secret-name":        "rook-csi-cephfs-node"
+}
+
 #StorageClassList: items: [{
 	metadata: name: "rook-ceph-nvme"
 	provisioner: "\(#Namespace).rbd.csi.ceph.com"
-	parameters: {
-		clusterID: #Namespace
+	parameters:  defaultRBDParameters & {
 		// dataPool:      "ecpool-nvme"
-		pool:          "replicapool-nvme"
-		imageFormat:   "2"
-		imageFeatures: "layering,fast-diff,object-map,deep-flatten,exclusive-lock"
-
-		"csi.storage.k8s.io/provisioner-secret-name":            "rook-csi-rbd-provisioner"
-		"csi.storage.k8s.io/provisioner-secret-namespace":       #Namespace
-		"csi.storage.k8s.io/controller-expand-secret-name":      "rook-csi-rbd-provisioner"
-		"csi.storage.k8s.io/controller-expand-secret-namespace": #Namespace
-		"csi.storage.k8s.io/node-stage-secret-name":             "rook-csi-rbd-node"
-		"csi.storage.k8s.io/node-stage-secret-namespace":        #Namespace
-		"csi.storage.k8s.io/fstype":                             "ext4"
-
-		mounter: "rbd-nbd"
+		pool: "replicapool-nvme"
 	}
 	allowVolumeExpansion: true
 	reclaimPolicy:        v1.#PersistentVolumeReclaimRetain
 }, {
 	metadata: name: "rook-ceph-hdd"
 	provisioner: "\(#Namespace).rbd.csi.ceph.com"
-	parameters: {
-		clusterID:     #Namespace
-		dataPool:      "ecpool-hdd"
-		pool:          "replicapool-nvme"
-		imageFormat:   "2"
-		imageFeatures: "layering,fast-diff,object-map,deep-flatten,exclusive-lock"
-
-		"csi.storage.k8s.io/provisioner-secret-name":            "rook-csi-rbd-provisioner"
-		"csi.storage.k8s.io/provisioner-secret-namespace":       #Namespace
-		"csi.storage.k8s.io/controller-expand-secret-name":      "rook-csi-rbd-provisioner"
-		"csi.storage.k8s.io/controller-expand-secret-namespace": #Namespace
-		"csi.storage.k8s.io/node-stage-secret-name":             "rook-csi-rbd-node"
-		"csi.storage.k8s.io/node-stage-secret-namespace":        #Namespace
-		"csi.storage.k8s.io/fstype":                             "ext4"
-
-		mounter: "rbd-nbd"
+	parameters:  defaultRBDParameters & {
+		dataPool: "ecpool-hdd"
+		pool:     "replicapool-nvme"
+	}
+	allowVolumeExpansion: true
+	reclaimPolicy:        v1.#PersistentVolumeReclaimRetain
+}, {
+	metadata: name: "rook-cephfs-hdd"
+	provisioner: "\(#Namespace).cephfs.csi.ceph.com"
+	parameters:  defaultCephFSParameters & {
+		fsName: "cephfs-hdd"
+		pool:   "cephfs-hdd-erasurecoded"
 	}
 	allowVolumeExpansion: true
 	reclaimPolicy:        v1.#PersistentVolumeReclaimRetain

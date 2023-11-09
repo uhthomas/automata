@@ -1,0 +1,3 @@
+# Jellyfin
+
+https://jellyfin.org/

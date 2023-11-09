@@ -23,20 +23,20 @@ import (
 				name:      "VictoriaMetrics"
 				type:      "prometheus"
 				access:    "proxy"
-				url:       "http://vmselect-vm.vm.svc:8481/select/0/prometheus"
+				url:       "http://vmselect-vm.vm.svc.cluster.local:8481/select/0/prometheus"
 				isDefault: true
 			}, {
 				name:                       "Alertmanager"
 				type:                       "alertmanager"
 				access:                     "proxy"
-				url:                        "http://vmalertmanager-vm.vm.svc:9093"
+				url:                        "http://vmalertmanager-vm.vm.svc.cluster.local:9093"
 				implementation:             "prometheus"
 				handleGrafanaManagedAlerts: true
 			}, {
 				name:   "Loki"
 				type:   "loki"
 				access: "proxy"
-				url:    "http://loki-gateway.loki.svc"
+				url:    "http://loki-gateway.loki.svc.cluster.local"
 			}]
 			deleteDatasources: [{name: "VictoriaMetrics 4697"}]
 		})

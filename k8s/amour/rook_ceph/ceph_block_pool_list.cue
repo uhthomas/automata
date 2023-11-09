@@ -26,20 +26,20 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 		mirroring: enabled:           false
 	}
 }, {
-	metadata: name: "ecpool-nvme"
-	spec: {
-		failureDomain: "osd"
-		erasureCoded: {
-			dataChunks:   4
-			codingChunks: 6
-		}
-		deviceClass: "nvme"
-		parameters: {
-			compression_algorithm: "zstd"
-			compression_mode:      "aggressive"
-		}
-	}
-}, {
+	// 	metadata: name: "ecpool-nvme"
+	// 	spec: {
+	// 		failureDomain: "osd"
+	// 		erasureCoded: {
+	// 			dataChunks:   4
+	// 			codingChunks: 6
+	// 		}
+	// 		deviceClass: "nvme"
+	// 		parameters: {
+	// 			compression_algorithm: "zstd"
+	// 			compression_mode:      "aggressive"
+	// 		}
+	// 	}
+	// }, {
 	metadata: name: "replicapool-nvme"
 	spec: {
 		failureDomain: "osd"
