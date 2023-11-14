@@ -948,6 +948,8 @@ github.com/cilium/cilium v1.14.2 h1:NVz14uSoKB0Y37iFveMQGYH03ZflEuZegmQWpTMf5TM=
 github.com/cilium/cilium v1.14.2/go.mod h1:ghd9LkTSbRPtJal0Bsdq1ise+j5Ezy14xgaM2o3XLCI=
 github.com/cilium/cilium v1.14.3 h1:Nbya9Lr/k1A8Wty1oPdV+/k/qh3KoIeTb6tXRM2eLWg=
 github.com/cilium/cilium v1.14.3/go.mod h1:jcysu5KCmXET1lo3TeRq9cUvwQeFajcSRs4n6YfvTqM=
+github.com/cilium/cilium v1.14.4 h1:iJ/LgrFMTHhl0/fMas6T1IY7VWGhtkh/B4v921GcNQk=
+github.com/cilium/cilium v1.14.4/go.mod h1:lz48ydfHJ2Q/dqAOIrAzQXmypA5w1GAi7vipQorETE8=
 github.com/cilium/ebpf v0.0.0-20200110133405-4032b1d8aae3/go.mod h1:MA5e5Lr8slmEg9bt0VpxxWqJlO4iwu3FBdHUzV7wQVg=
 github.com/cilium/ebpf v0.0.0-20200702112145-1c8d4c9ef775/go.mod h1:7cR51M8ViRLIdUjrmSXlK9pkrsDlLHbO8jiB8X8JnOc=
 github.com/cilium/ebpf v0.2.0/go.mod h1:To2CFviqOWL/M0gIMsvSMlqe7em/l1ALkX1PyjrX2Qs=
@@ -1869,6 +1871,8 @@ github.com/hashicorp/golang-lru v0.5.3/go.mod h1:iADmTwqILo4mZ8BN3D2Q6+9jd8WM5uG
 github.com/hashicorp/golang-lru v0.5.4/go.mod h1:iADmTwqILo4mZ8BN3D2Q6+9jd8WM5uGBxy+E8yxSoD4=
 github.com/hashicorp/golang-lru v1.0.2 h1:dV3g9Z/unq5DpblPpw+Oqcv4dU/1omnb4Ok8iPY6p1c=
 github.com/hashicorp/golang-lru v1.0.2/go.mod h1:iADmTwqILo4mZ8BN3D2Q6+9jd8WM5uGBxy+E8yxSoD4=
+github.com/hashicorp/golang-lru/v2 v2.0.4 h1:7GHuZcgid37q8o5i3QI9KMT4nCWQQ3Kx3Ov6bb9MfK0=
+github.com/hashicorp/golang-lru/v2 v2.0.4/go.mod h1:QeFd9opnmA6QUJc5vARoKUSoFhyfM2/ZepoAG6RGpeM=
 github.com/hashicorp/hcl v1.0.0/go.mod h1:E5yfLk+7swimpb2L/Alb/PJmXilQ/rhwaUYs4T20WEQ=
 github.com/hashicorp/hcl v1.0.1-vault-5 h1:kI3hhbbyzr4dldA8UdTb7ZlVVlI2DACdCfz31RPDgJM=
 github.com/hashicorp/hcl v1.0.1-vault-5/go.mod h1:XYhtn6ijBSAj6n4YqAaf7RBPS4I06AItNorpy+MoQNM=
