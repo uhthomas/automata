@@ -7,7 +7,7 @@ require (
 	github.com/1Password/onepassword-operator v1.8.0
 	github.com/VictoriaMetrics/operator/api v0.0.0-20231106074256-b4b79dacf4db
 	github.com/cert-manager/cert-manager v1.13.2
-	github.com/cilium/cilium v1.14.3
+	github.com/cilium/cilium v1.14.4
 	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
 	github.com/external-secrets/external-secrets v0.9.9
 	github.com/prometheus/prometheus v0.47.2
@@ -111,6 +111,7 @@ require (
 	github.com/hashicorp/go-secure-stdlib/strutil v0.1.2 // indirect
 	github.com/hashicorp/go-sockaddr v1.0.5 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
+	github.com/hashicorp/golang-lru/v2 v2.0.4 // indirect
 	github.com/hashicorp/hcl v1.0.1-vault-5 // indirect
 	github.com/hashicorp/vault v1.13.5 // indirect
 	github.com/hashicorp/vault/api v1.10.0 // indirect
