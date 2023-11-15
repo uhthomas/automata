@@ -795,6 +795,8 @@ github.com/VictoriaMetrics/operator/api v0.0.0-20231101174116-b89ce3b1ecc1 h1:Cz
 github.com/VictoriaMetrics/operator/api v0.0.0-20231101174116-b89ce3b1ecc1/go.mod h1:9xOZrc3kjanpgasau9iMeUM6vYIm37bdTpBRYB0nccY=
 github.com/VictoriaMetrics/operator/api v0.0.0-20231106074256-b4b79dacf4db h1:m1FasWBN7MtGYsieHS07kTQY2zz4a8jOJL4FEy83774=
 github.com/VictoriaMetrics/operator/api v0.0.0-20231106074256-b4b79dacf4db/go.mod h1:9xOZrc3kjanpgasau9iMeUM6vYIm37bdTpBRYB0nccY=
+github.com/VictoriaMetrics/operator/api v0.0.0-20231115201910-bc8b02fef797 h1:weEsG9JhUQBeVIvSwKG8ErIhwiApDS47ruRK4xF63zs=
+github.com/VictoriaMetrics/operator/api v0.0.0-20231115201910-bc8b02fef797/go.mod h1:9xOZrc3kjanpgasau9iMeUM6vYIm37bdTpBRYB0nccY=
 github.com/abdullin/seq v0.0.0-20160510034733-d5467c17e7af/go.mod h1:5Jv4cbFiHJMsVxt52+i0Ha45fjshj6wxYr1r19tB9bw=
 github.com/aerospike/aerospike-client-go/v5 v5.6.0/go.mod h1:rJ/KpmClE7kiBPfvAPrGw9WuNOiz8v2uKbQaUyYPXtI=
 github.com/agnivade/levenshtein v1.0.1/go.mod h1:CURSv5d9Uaml+FovSIICkLbAUZ9S4RqaHDIsdSBg7lM=

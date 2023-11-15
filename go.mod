@@ -5,7 +5,7 @@ go 1.21
 require (
 	cuelang.org/go v0.6.1-0.20231113145402-9dd0f82df8e8
 	github.com/1Password/onepassword-operator v1.8.0
-	github.com/VictoriaMetrics/operator/api v0.0.0-20231106074256-b4b79dacf4db
+	github.com/VictoriaMetrics/operator/api v0.0.0-20231115201910-bc8b02fef797
 	github.com/cert-manager/cert-manager v1.13.2
 	github.com/cilium/cilium v1.14.4
 	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
