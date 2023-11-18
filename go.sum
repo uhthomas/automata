@@ -635,6 +635,8 @@ cuelang.org/go v0.6.1-0.20231113145402-9dd0f82df8e8 h1:dIR7kY5gjTlxUtoeLsMNC0XD3
 cuelang.org/go v0.6.1-0.20231113145402-9dd0f82df8e8/go.mod h1:ix+3dM/bSpdG9xg6qpCgnJnpeLtciZu+O/rDbywoMII=
 cuelang.org/go v0.6.1-0.20231117124347-68e9d5d75f92 h1:OiLUt4n2ApS5o0ZzUqHGKLjUD8F4i5wcND7HrtWJsE4=
 cuelang.org/go v0.6.1-0.20231117124347-68e9d5d75f92/go.mod h1:ix+3dM/bSpdG9xg6qpCgnJnpeLtciZu+O/rDbywoMII=
+cuelang.org/go v0.6.1-0.20231118161246-d97b0c3bc6e5 h1:x1E5YJ1D86Kp4NtjtRQXRQNWwXj9fwoiZG+h9KyGlAA=
+cuelang.org/go v0.6.1-0.20231118161246-d97b0c3bc6e5/go.mod h1:ix+3dM/bSpdG9xg6qpCgnJnpeLtciZu+O/rDbywoMII=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 gioui.org v0.0.0-20210308172011-57750fc8a0a6/go.mod h1:RSH6KIUZ0p2xy5zHDxgAM4zumjgTw83q2ge/PI+yyw8=
 git.sr.ht/~sbinet/gg v0.3.1/go.mod h1:KGYtlADtqsqANL9ueOFkWymvzUvLMQllU5Ixo+8v3pc=
