@@ -148,15 +148,9 @@ import (
 						name: "POD_NAMESPACE"
 						valueFrom: fieldRef: fieldPath: "metadata.namespace"
 					}]
-					resources: {
-						limits: {
-							(v1.#ResourceCPU):    "500m"
-							(v1.#ResourceMemory): "512Mi"
-						}
-						requests: {
-							(v1.#ResourceCPU):    "100m"
-							(v1.#ResourceMemory): "128Mi"
-						}
+					resources: limits: {
+						(v1.#ResourceCPU):    "100m"
+						(v1.#ResourceMemory): "256Mi"
 					}
 					volumeMounts: [{
 						mountPath: "/var/lib/rook"
@@ -198,7 +192,6 @@ import (
 		labels: app: "rook-ceph-tools"
 	}
 	spec: {
-		replicas: 1
 		selector: matchLabels: app: "rook-ceph-tools"
 		template: {
 			metadata: labels: app: "rook-ceph-tools"

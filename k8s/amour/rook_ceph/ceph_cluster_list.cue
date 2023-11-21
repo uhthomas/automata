@@ -87,55 +87,25 @@ import (
 			mgr: "system-cluster-critical"
 		}
 		resources: {
-			api: {
-				requests: {
-					(v1.#ResourceCPU):    "500m"
-					(v1.#ResourceMemory): "512Mi"
-				}
-				limits: {
-					(v1.#ResourceCPU):    "500m"
-					(v1.#ResourceMemory): "512Mi"
-				}
+			api: limits: {
+				(v1.#ResourceCPU):    "100m"
+				(v1.#ResourceMemory): "512Mi"
 			}
-			mgr: {
-				requests: {
-					(v1.#ResourceCPU):    "500m"
-					(v1.#ResourceMemory): "512Mi"
-				}
-				limits: {
-					(v1.#ResourceCPU):    "500m"
-					(v1.#ResourceMemory): "1Gi"
-				}
+			mgr: limits: {
+				(v1.#ResourceCPU):    "100m"
+				(v1.#ResourceMemory): "512Mi"
 			}
-			mon: {
-				requests: {
-					(v1.#ResourceCPU):    "500m"
-					(v1.#ResourceMemory): "512Mi"
-				}
-				limits: {
-					(v1.#ResourceCPU):    "500m"
-					(v1.#ResourceMemory): "512Mi"
-				}
+			mon: limits: {
+				(v1.#ResourceCPU):    "100m"
+				(v1.#ResourceMemory): "512Mi"
 			}
-			osd: {
-				requests: {
-					(v1.#ResourceCPU):    "500m"
-					(v1.#ResourceMemory): "512Mi"
-				}
-				limits: {
-					(v1.#ResourceCPU):    "1"
-					(v1.#ResourceMemory): "4Gi"
-				}
+			osd: limits: {
+				(v1.#ResourceCPU):    "200m"
+				(v1.#ResourceMemory): "2Gi"
 			}
-			exporter: {
-				limits: {
-					(v1.#ResourceCPU):    "250m"
-					(v1.#ResourceMemory): "128Mi"
-				}
-				requests: {
-					(v1.#ResourceCPU):    "50m"
-					(v1.#ResourceMemory): "50Mi"
-				}
+			exporter: limits: {
+				(v1.#ResourceCPU):    "50m"
+				(v1.#ResourceMemory): "50Mi"
 			}
 		}
 		storage: {
