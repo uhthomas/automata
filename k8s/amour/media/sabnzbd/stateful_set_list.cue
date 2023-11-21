@@ -40,7 +40,7 @@ import (
 					}]
 					resources: limits: {
 						(v1.#ResourceCPU):    "400m"
-						(v1.#ResourceMemory): "2Gi"
+						(v1.#ResourceMemory): "3Gi"
 					}
 					volumeMounts: [{
 						name:      "config"
@@ -49,9 +49,13 @@ import (
 						name:      "media"
 						mountPath: "/media"
 					}]
-					livenessProbe: httpGet: {
-						path: "/"
-						port: "http"
+					livenessProbe: {
+						httpGet: {
+							path: "/api?mode=version"
+							port: "http"
+						}
+						timeoutSeconds:   30
+						failureThreshold: 5
 					}
 					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: {
