@@ -20,6 +20,10 @@ import (
 		ingress: [{
 			fromEntities: ["host"]
 			toPorts: [{ports: [{port: "8080"}]}]
+		}, {
+
+			fromEndpoints: [{matchLabels: "io.kubernetes.pod.namespace": "tailscale"}]
+			toPorts: [{ports: [{port: "8080"}]}]
 		}]
 		egress: [{
 			toEndpoints: [{
