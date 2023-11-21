@@ -31,7 +31,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	// 		failureDomain: "osd"
 	// 		erasureCoded: {
 	// 			dataChunks:   4
-	// 			codingChunks: 6
+	// 			codingChunks: 2
 	// 		}
 	// 		deviceClass: "nvme"
 	// 		parameters: {
@@ -57,7 +57,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 		failureDomain: "osd"
 		erasureCoded: {
 			dataChunks:   4
-			codingChunks: 6
+			codingChunks: 2
 		}
 		deviceClass: "hdd"
 		parameters: {
