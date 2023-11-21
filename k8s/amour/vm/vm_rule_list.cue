@@ -1,11 +1,8 @@
 package vm
 
-import "k8s.io/api/core/v1"
+import victoriametricsv1beta1 "github.com/VictoriaMetrics/operator/api/victoriametrics/v1beta1"
 
-// TODO: Use generated types.
-//
-// https://github.com/cue-lang/cue/issues/2466
-#VMRuleList: v1.#List & {
+#VMRuleList: victoriametricsv1beta1.#VMRuleList & {
 	apiVersion: "operator.victoriametrics.com/v1beta1"
 	kind:       "VMRuleList"
 	items: [...{

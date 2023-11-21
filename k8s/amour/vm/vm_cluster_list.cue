@@ -1,11 +1,11 @@
 package vm
 
-import "k8s.io/api/core/v1"
+import (
+	victoriametricsv1beta1 "github.com/VictoriaMetrics/operator/api/victoriametrics/v1beta1"
+	"k8s.io/api/core/v1"
+)
 
-// TODO: Use generated types.
-//
-// https://github.com/cue-lang/cue/issues/2466
-#VMClusterList: v1.#List & {
+#VMClusterList: victoriametricsv1beta1.#VMClusterList & {
 	apiVersion: "operator.victoriametrics.com/v1beta1"
 	kind:       "VMClusterList"
 	items: [...{
@@ -36,7 +36,7 @@ import "k8s.io/api/core/v1"
 		vmselect: {
 			replicaCount: 2
 			resources: limits: {
-				(v1.#ResourceCPU):    "500m"
+				(v1.#ResourceCPU):    "200m"
 				(v1.#ResourceMemory): "256Mi"
 			}
 			securityContext: defaultPodSecurityContext
@@ -70,7 +70,7 @@ import "k8s.io/api/core/v1"
 		vminsert: {
 			replicaCount: 2
 			resources: limits: {
-				(v1.#ResourceCPU):    "500m"
+				(v1.#ResourceCPU):    "200m"
 				(v1.#ResourceMemory): "256Mi"
 			}
 			securityContext: defaultPodSecurityContext
@@ -83,7 +83,7 @@ import "k8s.io/api/core/v1"
 		vmstorage: {
 			replicaCount: 2
 			resources: limits: {
-				(v1.#ResourceCPU):    "500m"
+				(v1.#ResourceCPU):    "200m"
 				(v1.#ResourceMemory): "1Gi"
 			}
 			securityContext: defaultPodSecurityContext
