@@ -8,7 +8,7 @@ import (
 
 #Name:      "vm-operator"
 #Namespace: #Name
-#Version:   "0.35.1"
+#Version:   "0.39.3"
 
 #List: v1.#List & {
 	apiVersion: "v1"
