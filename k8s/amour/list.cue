@@ -8,6 +8,7 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/external_secrets"
 	"github.com/uhthomas/automata/k8s/amour/grafana"
 	"github.com/uhthomas/automata/k8s/amour/intel_gpu_plugin"
+	"github.com/uhthomas/automata/k8s/amour/karma"
 	"github.com/uhthomas/automata/k8s/amour/kube_state_metrics"
 	"github.com/uhthomas/automata/k8s/amour/kube_system"
 	"github.com/uhthomas/automata/k8s/amour/media"
@@ -54,6 +55,7 @@ _items: [
 	external_secrets.#List.items,
 	grafana.#List.items,
 	intel_gpu_plugin.#List.items,
+	karma.#List.items,
 	kube_state_metrics.#List.items,
 	kube_system.#List.items,
 	media.#List.items,

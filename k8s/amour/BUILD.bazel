@@ -28,6 +28,7 @@ cue_export(
         "//k8s/amour/external_secrets:cue_external_secrets_library",
         "//k8s/amour/grafana:cue_grafana_library",
         "//k8s/amour/intel_gpu_plugin:cue_intel_gpu_plugin_library",
+        "//k8s/amour/karma:cue_karma_library",
         "//k8s/amour/kube_state_metrics:cue_kube_state_metrics_library",
         "//k8s/amour/kube_system:cue_kube_system_library",
         "//k8s/amour/media:cue_media_library",

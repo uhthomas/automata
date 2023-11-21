@@ -1,0 +1,21 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_karma_library",
+    srcs = [
+        "cilium_network_policy_list.cue",
+        "deployment_list.cue",
+        "ingress_list.cue",
+        "list.cue",
+        "namespace_list.cue",
+        "service_list.cue",
+    ],
+    importpath = "github.com/uhthomas/automata/k8s/amour/karma",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//cue.mod/gen/github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2:cue_v2_library",
+        "//cue.mod/gen/k8s.io/api/apps/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/api/networking/v1:cue_v1_library",
+    ],
+)
