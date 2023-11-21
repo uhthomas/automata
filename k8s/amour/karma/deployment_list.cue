@@ -32,8 +32,8 @@ import (
 						value: "http://vmalertmanager-vm.vm:9093"
 					}]
 					resources: limits: {
-						(v1.#ResourceCPU):    "100m"
-						(v1.#ResourceMemory): "64Mi"
+						(v1.#ResourceCPU):    "10m"
+						(v1.#ResourceMemory): "16Mi"
 					}
 
 					let probe = {
