@@ -1,6 +1,9 @@
 package karma
 
-import ciliumv2 "github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2"
+import (
+	ciliumv2 "github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2"
+	ciliumpolicy "github.com/cilium/cilium/pkg/policy/api"
+)
 
 #CiliumNetworkPolicyList: ciliumv2.#CiliumNetworkPolicyList & {
 	apiVersion: "cilium.io/v2"
@@ -14,7 +17,10 @@ import ciliumv2 "github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2"
 #CiliumNetworkPolicyList: items: [{
 	spec: {
 		endpointSelector: {}
-		ingress: [{}]
+		ingress: [{
+			fromEntities: ["host"]
+			toPorts: [{ports: [{port: "8080"}]}]
+		}]
 		egress: [{
 			toEndpoints: [{
 				matchLabels: {
@@ -25,20 +31,19 @@ import ciliumv2 "github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2"
 			toPorts: [{
 				ports: [{
 					port:     "53"
-					protocol: "UDP"
+					protocol: ciliumpolicy.#ProtoUDP
 				}]
 				rules: dns: [{matchPattern: "*"}]
 			}]
 		}, {
-			toServices: [{
-				k8sService: {
-					serviceName: "vmalertmanager-vm"
-					namespace:   "vm"
+			toEndpoints: [{
+				matchLabels: {
+					"io.kubernetes.pod.namespace": "vm"
+					"app.kubernetes.io/name":      "vmalertmanager"
+					"app.kubernetes.io/instance":  "vm"
 				}
 			}]
-			toPorts: [{
-				ports: [{port: "8080"}]
-			}]
+			toPorts: [{ports: [{port: "9093"}]}]
 		}]
 	}
 }]
