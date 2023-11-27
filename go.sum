@@ -670,6 +670,8 @@ github.com/VictoriaMetrics/operator/api v0.0.0-20231122165820-45bfa368a722 h1:nd
 github.com/VictoriaMetrics/operator/api v0.0.0-20231122165820-45bfa368a722/go.mod h1:9xOZrc3kjanpgasau9iMeUM6vYIm37bdTpBRYB0nccY=
 github.com/VictoriaMetrics/operator/api v0.0.0-20231123114354-fec3f9d2efa7 h1:ufVEYy2HzZFjg5zUQ3G2xSLhSqg5QNtuwuH8As+zGns=
 github.com/VictoriaMetrics/operator/api v0.0.0-20231123114354-fec3f9d2efa7/go.mod h1:9xOZrc3kjanpgasau9iMeUM6vYIm37bdTpBRYB0nccY=
+github.com/VictoriaMetrics/operator/api v0.0.0-20231127085307-e7371159e13f h1:hJLMhAVFwl6pvpfa/FoNpjFKl0IoP4uCisalowZADwY=
+github.com/VictoriaMetrics/operator/api v0.0.0-20231127085307-e7371159e13f/go.mod h1:9xOZrc3kjanpgasau9iMeUM6vYIm37bdTpBRYB0nccY=
 github.com/ajstarks/deck v0.0.0-20200831202436-30c9fc6549a9/go.mod h1:JynElWSGnm/4RlzPXRlREEwqTHAN3T56Bv2ITsFT3gY=
 github.com/ajstarks/deck/generate v0.0.0-20210309230005-c3f852c02e19/go.mod h1:T13YZdzov6OU0A1+RfKZiZN9ca6VeKdBdyDV+BY97Tk=
 github.com/ajstarks/svgo v0.0.0-20180226025133-644b8db467af/go.mod h1:K08gAheRH3/J6wwsYMMT4xOr94bZjxIelGM0+d/wbFw=
