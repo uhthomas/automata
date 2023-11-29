@@ -26,7 +26,7 @@ import (
 				}]
 				containers: [{
 					name:  #Name
-					image: "lscr.io/linuxserver/sabnzbd:\(#Version)"
+					image: "ghcr.io/onedr0p/sabnzbd:\(#Version)"
 					ports: [{
 						name:          "http"
 						containerPort: 8080
