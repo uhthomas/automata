@@ -84,7 +84,7 @@ import (
 			replicaCount: 2
 			resources: limits: {
 				(v1.#ResourceCPU):    "200m"
-				(v1.#ResourceMemory): "1Gi"
+				(v1.#ResourceMemory): "1.2Gi"
 			}
 			securityContext: defaultPodSecurityContext
 			containers: [{
