@@ -92,18 +92,22 @@ import (
 				(v1.#ResourceMemory): "512Mi"
 			}
 			mgr: limits: {
-				(v1.#ResourceCPU):    "100m"
+				(v1.#ResourceCPU):    "200m"
 				(v1.#ResourceMemory): "512Mi"
 			}
 			mon: limits: {
 				(v1.#ResourceCPU):    "100m"
-				(v1.#ResourceMemory): "512Mi"
+				(v1.#ResourceMemory): "768Mi"
 			}
 			osd: limits: {
 				(v1.#ResourceCPU):    "200m"
 				(v1.#ResourceMemory): "2Gi"
 			}
 			exporter: limits: {
+				(v1.#ResourceCPU):    "50m"
+				(v1.#ResourceMemory): "50Mi"
+			}
+			logcollector: limits: {
 				(v1.#ResourceCPU):    "50m"
 				(v1.#ResourceMemory): "50Mi"
 			}

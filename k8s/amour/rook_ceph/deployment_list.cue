@@ -149,7 +149,7 @@ import (
 						valueFrom: fieldRef: fieldPath: "metadata.namespace"
 					}]
 					resources: limits: {
-						(v1.#ResourceCPU):    "100m"
+						(v1.#ResourceCPU):    "300m"
 						(v1.#ResourceMemory): "256Mi"
 					}
 					volumeMounts: [{
