@@ -26,17 +26,10 @@ import (
 				}]
 				containers: [{
 					name:  #Name
-					image: "linuxserver/bazarr:\(#Version)@sha256:6c294db4344419150c73adfb2d6d7933573f2e6f258127787006fa971dd85161"
+					image: "ghcr.io/onedr0p/bazarr:\(#Version)"
 					ports: [{
 						name:          "http"
 						containerPort: 6767
-					}]
-					env: [{
-						name:  "PUID"
-						value: "1000"
-					}, {
-						name:  "PGID"
-						value: "3000"
 					}]
 					resources: limits: {
 						(v1.#ResourceCPU):    "100m"
@@ -55,19 +48,15 @@ import (
 					}
 					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: {
-						// capabilities: drop: ["ALL"]
-						// readOnlyRootFilesystem:   true
+						capabilities: drop: ["ALL"]
+						readOnlyRootFilesystem:   true
 						allowPrivilegeEscalation: false
 					}
 				}]
-				// The s6 overlay requires root... It may be
-				// better to build our own image instead.
-				//
-				// https://github.com/linuxserver/docker-radarr/issues/203
 				securityContext: {
-					runAsUser:    0
-					runAsGroup:   0
-					runAsNonRoot: false
+					runAsUser:    1000
+					runAsGroup:   3000
+					runAsNonRoot: true
 					fsGroup:      2000
 					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 				}
