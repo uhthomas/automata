@@ -7,7 +7,7 @@ import (
 )
 
 #Name:    "radarr"
-#Version: "5.0.3.8127-ls192"
+#Version: "5.1.3.8246"
 
 #List: v1.#List & {
 	apiVersion: "v1"
