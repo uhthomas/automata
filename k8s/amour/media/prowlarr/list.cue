@@ -8,7 +8,7 @@ import (
 
 #Name:      "prowlarr"
 #Namespace: "media"
-#Version:   "1.9.4.4039-ls37"
+#Version:   "1.10.5.4116"
 
 #List: v1.#List & {
 	apiVersion: "v1"

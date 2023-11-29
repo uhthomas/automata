@@ -26,7 +26,7 @@ import (
 				}]
 				containers: [{
 					name:  #Name
-					image: "lscr.io/linuxserver/prowlarr:\(#Version)"
+					image: "ghcr.io/onedr0p/prowlarr:\(#Version)"
 					ports: [{
 						name:          "http"
 						containerPort: 9696
