@@ -1607,6 +1607,8 @@ github.com/rook/rook/pkg/apis v0.0.0-20231127212325-d1c4667c8bd6 h1:YrO6EjqO6czQ
 github.com/rook/rook/pkg/apis v0.0.0-20231127212325-d1c4667c8bd6/go.mod h1:QjlmJbxFu9eGrZpgO+x9Xu+C8LmZVyoUEZaI04nfIfQ=
 github.com/rook/rook/pkg/apis v0.0.0-20231128183115-580760c8d38a h1:1gHrWzuuNzQzKvHuM+8AJW0E0RV7YtkVf9ozvHLvr3Q=
 github.com/rook/rook/pkg/apis v0.0.0-20231128183115-580760c8d38a/go.mod h1:QjlmJbxFu9eGrZpgO+x9Xu+C8LmZVyoUEZaI04nfIfQ=
+github.com/rook/rook/pkg/apis v0.0.0-20231129150434-a19860bab056 h1:cGbYH1YNlmKzy/ic4pAA8dB4c85Z4XiYbuPtZ62eCwE=
+github.com/rook/rook/pkg/apis v0.0.0-20231129150434-a19860bab056/go.mod h1:QjlmJbxFu9eGrZpgO+x9Xu+C8LmZVyoUEZaI04nfIfQ=
 github.com/russross/blackfriday/v2 v2.0.1/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/russross/blackfriday/v2 v2.1.0 h1:JIOH55/0cWyOuilr9/qlrm0BSXldqnqwMsf35Ld67mk=
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
