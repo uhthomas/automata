@@ -11,7 +11,7 @@ require (
 	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
 	github.com/external-secrets/external-secrets v0.9.9
 	github.com/prometheus/prometheus v0.48.0
-	github.com/rook/rook/pkg/apis v0.0.0-20231128183115-580760c8d38a
+	github.com/rook/rook/pkg/apis v0.0.0-20231129150434-a19860bab056
 	k8s.io/api v0.28.4
 	k8s.io/apiextensions-apiserver v0.28.4
 	k8s.io/client-go v12.0.0+incompatible
