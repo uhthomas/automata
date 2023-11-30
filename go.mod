@@ -3,7 +3,7 @@ module github.com/uhthomas/automata
 go 1.21
 
 require (
-	cuelang.org/go v0.6.1-0.20231129142151-bba22633a71f
+	cuelang.org/go v0.6.1-0.20231130095246-0e51dbb4ea00
 	github.com/1Password/onepassword-operator v1.8.0
 	github.com/VictoriaMetrics/operator/api v0.0.0-20231128174956-7965dba77210
 	github.com/cert-manager/cert-manager v1.13.2
