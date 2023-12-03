@@ -7,7 +7,7 @@ import (
 )
 
 #Name:    "jellyfin"
-#Version: "20231203.1-unstable"
+#Version: "10.8.13-1"
 
 #List: v1.#List & {
 	apiVersion: "v1"
