@@ -60,7 +60,7 @@ _#RecylarrConfig: {
 	#Include: {config: string} | {template: string}
 
 	#ReleaseProfile: {
-		trash_ids: [...#TrashID] & list.UniqueItems()
+		trash_ids:               [...#TrashID] & list.UniqueItems()
 		strict_negative_scores?: bool | *false
 		tags?: [...string]
 		filter?: {
@@ -109,7 +109,7 @@ _#RecylarrConfig: {
 #ConfigMapList: items: [{
 	// Mostly copied from https://recyclarr.dev/wiki/guide-configs/
 	data: "config.yaml": yaml.Marshal(_#RecylarrConfig & {
-		radarr: main: {
+		radarr: "radarr-main": {
 			base_url: "http://radarr"
 
 			// An "env_var!" tag is added by an init container.
@@ -188,7 +188,7 @@ _#RecylarrConfig: {
 				}]
 			}]
 		}
-		sonarr: main: {
+		sonarr: "sonarr-main": {
 			base_url: "http://sonarr"
 
 			// An "env_var!" tag is added by an init container.
