@@ -7,7 +7,7 @@ import (
 )
 
 #Name:    "recyclarr"
-#Version: "4.4.0"
+#Version: "6.0.2"
 
 #List: v1.#List & {
 	apiVersion: "v1"
