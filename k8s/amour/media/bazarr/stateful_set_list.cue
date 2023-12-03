@@ -43,7 +43,7 @@ import (
 					}]
 					resources: limits: {
 						(v1.#ResourceCPU):    "100m"
-						(v1.#ResourceMemory): "128Mi"
+						(v1.#ResourceMemory): "256Mi"
 					}
 					volumeMounts: [{
 						name:      "config"
