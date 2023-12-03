@@ -21,6 +21,9 @@ import (
 			metadata: labels: "app.kubernetes.io/name": #Name
 			spec: {
 				volumes: [{
+					name: "tmp"
+					emptyDir: {}
+				}, {
 					name: "media"
 					persistentVolumeClaim: claimName: "media"
 				}]
@@ -41,6 +44,9 @@ import (
 					}, {
 						name:      "media"
 						mountPath: "/media"
+					}, {
+						name:      "tmp"
+						mountPath: "/tmp"
 					}]
 					livenessProbe: {
 						httpGet: {
