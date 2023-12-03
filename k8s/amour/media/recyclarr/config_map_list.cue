@@ -117,6 +117,8 @@ _#RecylarrConfig: {
 			// https://recyclarr.dev/wiki/yaml/env-vars
 			api_key: "RADARR_API_KEY"
 
+			replace_existing_custom_formats: true
+
 			// Comment out any of the following includes to disable them
 			include: [{
 				template: "radarr-quality-definition-movie"
@@ -195,6 +197,8 @@ _#RecylarrConfig: {
 			//
 			// https://recyclarr.dev/wiki/yaml/env-vars
 			api_key: "SONARR_API_KEY"
+
+			replace_existing_custom_formats: true
 
 			// Comment out any of the following includes to disable them
 			include: [{
