@@ -10,7 +10,7 @@ require (
 	github.com/cilium/cilium v1.14.4
 	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
 	github.com/external-secrets/external-secrets v0.9.9
-	github.com/prometheus/prometheus v0.48.0
+	github.com/prometheus/prometheus v0.48.1
 	github.com/rook/rook/pkg/apis v0.0.0-20231202102720-3097455d780d
 	k8s.io/api v0.28.4
 	k8s.io/apiextensions-apiserver v0.28.4
