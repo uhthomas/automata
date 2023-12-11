@@ -764,10 +764,14 @@ github.com/cilium/checkmate v1.0.3 h1:CQC5eOmlAZeEjPrVZY3ZwEBH64lHlx9mXYdUehEwI5
 github.com/cilium/checkmate v1.0.3/go.mod h1:KiBTasf39/F2hf2yAmHw21YFl3hcEyP4Yk6filxc12A=
 github.com/cilium/cilium v1.14.4 h1:iJ/LgrFMTHhl0/fMas6T1IY7VWGhtkh/B4v921GcNQk=
 github.com/cilium/cilium v1.14.4/go.mod h1:lz48ydfHJ2Q/dqAOIrAzQXmypA5w1GAi7vipQorETE8=
+github.com/cilium/cilium v1.14.5 h1:Jx45FY/swyW5mGPJIWghrxSreuC8QP000wyz5BVZZyU=
+github.com/cilium/cilium v1.14.5/go.mod h1:ZwDeGpYME9hMZYfy+WbJ0siiJ5i3c98o1hcB072mylk=
 github.com/cilium/ebpf v0.10.1-0.20230626090016-654491c8a500 h1:eAn1/gEVvcamZLoF4JKznmG2zKABsF7mRisyfQtwa3Q=
 github.com/cilium/ebpf v0.10.1-0.20230626090016-654491c8a500/go.mod h1:WE7CZAnqOL2RouJ4f1uyNhqr2P4CCvXFIqdRDUgWsVs=
 github.com/cilium/proxy v0.0.0-20230623092907-8fddead4e52c h1:/NqY4jLr92f7VcUJe1gHS6CgSGWFUCeD2f4QhxO8tgE=
 github.com/cilium/proxy v0.0.0-20230623092907-8fddead4e52c/go.mod h1:iOlDXIgPGBabS7J0Npbq8MC5+gfvUGSBISnxXIJjfgs=
+github.com/cilium/proxy v0.0.0-20231202123106-38b645b854f3 h1:fckMszrvhMot1XdF04NUKzmGw2CBJWGc9BCpFhVPKD8=
+github.com/cilium/proxy v0.0.0-20231202123106-38b645b854f3/go.mod h1:cvRtoiPIT40QqsHRR77WyyMSj8prsz0/kaV0s8Q3LIA=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/cncf/udpa/go v0.0.0-20191209042840-269d4d468f6f/go.mod h1:M8M6+tZqaGXZJjfX53e64911xZQV5JYwmTeXPW+k8Sc=
 github.com/cncf/udpa/go v0.0.0-20200629203442-efcf912fb354/go.mod h1:WmhPx2Nbnhtbo57+VJT5O0JRkEi1Wbu0z5j0R8u5Hbk=
