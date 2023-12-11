@@ -7,7 +7,7 @@ require (
 	github.com/1Password/onepassword-operator v1.8.0
 	github.com/VictoriaMetrics/operator/api v0.0.0-20231128174956-7965dba77210
 	github.com/cert-manager/cert-manager v1.13.3
-	github.com/cilium/cilium v1.14.4
+	github.com/cilium/cilium v1.14.5
 	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
 	github.com/external-secrets/external-secrets v0.9.9
 	github.com/prometheus/prometheus v0.48.1
@@ -44,7 +44,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/chai2010/gettext-go v1.0.2 // indirect
 	github.com/cilium/ebpf v0.10.1-0.20230626090016-654491c8a500 // indirect
-	github.com/cilium/proxy v0.0.0-20230623092907-8fddead4e52c // indirect
+	github.com/cilium/proxy v0.0.0-20231202123106-38b645b854f3 // indirect
 	github.com/cockroachdb/apd/v3 v3.2.1 // indirect
 	github.com/containernetworking/cni v1.1.2 // indirect
 	github.com/coreos/go-semver v0.3.1 // indirect
