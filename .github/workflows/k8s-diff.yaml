@@ -23,7 +23,7 @@ jobs:
       - name: Get output path
         id: get-output-path
         run: echo "PATH=$(bazel cquery --output=files //k8s/unwind:list 2> /dev/null)" >> "$GITHUB_OUTPUT"
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4
         with:
           name: base
           path: "${{ steps.get-output-path.outputs.PATH }}"
@@ -47,7 +47,7 @@ jobs:
       - name: Get output path
         id: get-output-path
         run: echo "PATH=$(bazel cquery --output=files //k8s/unwind:list 2> /dev/null)" >> "$GITHUB_OUTPUT"
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4
         with:
           name: head
           path: "${{ steps.get-output-path.outputs.PATH }}"
