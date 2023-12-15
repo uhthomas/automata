@@ -54,7 +54,7 @@ import (
 							port: "http"
 						}
 						timeoutSeconds:   30
-						failureThreshold: 10
+						failureThreshold: 20
 					}
 					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: {
