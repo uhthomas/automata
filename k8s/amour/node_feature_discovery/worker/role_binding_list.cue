@@ -1,4 +1,4 @@
-package node_feature_discovery
+package worker
 
 import rbacv1 "k8s.io/api/rbac/v1"
 
@@ -12,15 +12,14 @@ import rbacv1 "k8s.io/api/rbac/v1"
 }
 
 #RoleBindingList: items: [{
-	metadata: name: "nfd-worker"
+	subjects: [{
+		kind:      rbacv1.#ServiceAccountKind
+		name:      #Name
+		namespace: #Namespace
+	}]
 	roleRef: {
 		apiGroup: rbacv1.#GroupName
 		kind:     "Role"
-		name:     "nfd-worker"
+		name:     #Name
 	}
-	subjects: [{
-		kind:      rbacv1.#ServiceAccountKind
-		name:      "nfd-worker"
-		namespace: #Namespace
-	}]
 }]

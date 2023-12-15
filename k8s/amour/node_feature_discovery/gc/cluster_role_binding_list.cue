@@ -1,4 +1,4 @@
-package node_feature_discovery
+package gc
 
 import rbacv1 "k8s.io/api/rbac/v1"
 
@@ -12,15 +12,14 @@ import rbacv1 "k8s.io/api/rbac/v1"
 }
 
 #ClusterRoleBindingList: items: [{
-	metadata: name: "nfd-master"
+	subjects: [{
+		kind:      rbacv1.#ServiceAccountKind
+		name:      #Name
+		namespace: #Namespace
+	}]
 	roleRef: {
 		apiGroup: rbacv1.#GroupName
 		kind:     "ClusterRole"
-		name:     "nfd-master"
+		name:     #Name
 	}
-	subjects: [{
-		kind:      rbacv1.#ServiceAccountKind
-		name:      "nfd-master"
-		namespace: #Namespace
-	}]
 }]

@@ -1,4 +1,4 @@
-package node_feature_discovery
+package worker
 
 import rbacv1 "k8s.io/api/rbac/v1"
 
@@ -12,7 +12,6 @@ import rbacv1 "k8s.io/api/rbac/v1"
 }
 
 #RoleList: items: [{
-	metadata: name: "nfd-worker"
 	rules: [{
 		apiGroups: ["nfd.k8s-sigs.io"]
 		resources: ["nodefeatures"]

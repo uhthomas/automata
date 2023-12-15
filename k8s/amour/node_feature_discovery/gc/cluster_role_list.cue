@@ -1,4 +1,4 @@
-package node_feature_discovery
+package gc
 
 import (
 	"k8s.io/api/core/v1"
@@ -15,14 +15,21 @@ import (
 }
 
 #ClusterRoleList: items: [{
-	metadata: name: "nfd-master"
 	rules: [{
 		apiGroups: [v1.#GroupName]
 		resources: ["nodes"]
-		verbs: ["get", "patch", "update", "list"]
+		verbs: ["list", "watch"]
+	}, {
+		apiGroups: [v1.#GroupName]
+		resources: ["nodes/proxy"]
+		verbs: ["get"]
+	}, {
+		apiGroups: ["topology.node.k8s.io"]
+		resources: ["noderesourcetopologies"]
+		verbs: ["delete", "list"]
 	}, {
 		apiGroups: ["nfd.k8s-sigs.io"]
-		resources: ["nodefeatures", "nodefeaturerules"]
-		verbs: ["get", "list", "watch"]
+		resources: ["nodefeatures"]
+		verbs: ["delete", "list"]
 	}]
 }]

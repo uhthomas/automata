@@ -27,6 +27,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			name: "v1alpha1"
 			schema: openAPIV3Schema: {
 				description: "NodeFeatureRule resource specifies a configuration for feature-based customization of node objects, such as node labeling."
+
 				properties: {
 					apiVersion: {
 						description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources"
@@ -44,6 +45,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							items: {
 								description: "Rule defines a rule for node customization such as labeling."
 								properties: {
+									extendedResources: {
+										additionalProperties: type: "string"
+										description: "ExtendedResources to create if the rule matches."
+										type:        "object"
+									}
 									labels: {
 										additionalProperties: type: "string"
 										description: "Labels to create if the rule matches."
@@ -115,10 +121,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									matchFeatures: {
 										description: "MatchFeatures specifies a set of matcher terms all of which must match."
-
 										items: {
 											description: "FeatureMatcherTerm defines requirements against one feature set. All requirements (specified as MatchExpressions) are evaluated against each element in the feature set."
-
 											properties: {
 												feature: type: "string"
 												matchExpressions: {
@@ -147,6 +151,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															}
 															value: {
 																description: "Value is the list of values that the operand evaluates the input against. Value should be empty if the operator is Exists, DoesNotExist, IsTrue or IsFalse. Value should contain exactly one element if the operator is Gt or Lt and exactly two elements if the operator is GtLt. In other cases Value should contain at least one element."
+
 																items: type: "string"
 																type: "array"
 															}
@@ -174,6 +179,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										description: "Taints to create if the rule matches."
 										items: {
 											description: "The node this Taint is attached to has the \"effect\" on any pod that does not tolerate the Taint."
+
 											properties: {
 												effect: {
 													description: "Required. The effect of the taint on pods that do not tolerate the taint. Valid effects are NoSchedule, PreferNoSchedule and NoExecute."
@@ -269,7 +275,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											required: ["elements"]
 											type: "object"
 										}
-										type: "object"
+										description: "Attributes contains all the attribute-type features of the node."
+										type:        "object"
 									}
 									flags: {
 										additionalProperties: {
@@ -284,12 +291,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											required: ["elements"]
 											type: "object"
 										}
-										type: "object"
+										description: "Flags contains all the flag-type features of the node."
+										type:        "object"
 									}
 									instances: {
 										additionalProperties: {
 											description: "InstanceFeatureSet is a set of features each of which is an instance having multiple attributes."
-
 											properties: elements: {
 												items: {
 													description: "InstanceFeature represents one instance of a complex features, e.g. a device."
@@ -305,23 +312,19 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											required: ["elements"]
 											type: "object"
 										}
-										type: "object"
+										description: "Instances contains all the instance-type features of the node."
+										type:        "object"
 									}
 								}
-								required: [
-									"attributes",
-									"flags",
-									"instances",
-								]
 								type: "object"
 							}
 							labels: {
 								additionalProperties: type: "string"
 								description: "Labels is the set of node labels that are requested to be created."
-								type:        "object"
+
+								type: "object"
 							}
 						}
-						required: ["features"]
 						type: "object"
 					}
 				}

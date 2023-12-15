@@ -3,12 +3,15 @@ package node_feature_discovery
 import (
 	"list"
 
+	"github.com/uhthomas/automata/k8s/amour/node_feature_discovery/gc"
+	"github.com/uhthomas/automata/k8s/amour/node_feature_discovery/master"
+	"github.com/uhthomas/automata/k8s/amour/node_feature_discovery/worker"
 	"k8s.io/api/core/v1"
 )
 
 #Name:      "node-feature-discovery"
 #Namespace: #Name
-#Version:   "0.12.1"
+#Version:   "0.14.3"
 
 #List: v1.#List & {
 	apiVersion: "v1"
@@ -18,7 +21,7 @@ import (
 			name:      string | *#Name
 			namespace: #Namespace
 			labels: {
-				"app.kubernetes.io/name":    #Name
+				"app.kubernetes.io/name":    string | *#Name
 				"app.kubernetes.io/version": #Version
 			}
 		}
@@ -28,15 +31,9 @@ import (
 #List: items: list.Concat(_items)
 
 _items: [
-	#ClusterRoleBindingList.items,
-	#ClusterRoleList.items,
-	#ConfigMapList.items,
 	#CustomResourceDefinitionList.items,
-	#DaemonSetList.items,
-	#DeploymentList.items,
 	#NamespaceList.items,
-	#RoleBindingList.items,
-	#RoleList.items,
-	#ServiceAccountList.items,
-	#ServiceList.items,
+	gc.#List.items,
+	master.#List.items,
+	worker.#List.items,
 ]

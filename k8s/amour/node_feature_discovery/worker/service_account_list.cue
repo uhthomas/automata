@@ -1,4 +1,4 @@
-package node_feature_discovery
+package worker
 
 import "k8s.io/api/core/v1"
 
@@ -11,8 +11,4 @@ import "k8s.io/api/core/v1"
 	}]
 }
 
-#ServiceAccountList: items: [{
-	metadata: name: "nfd-master"
-}, {
-	metadata: name: "nfd-worker"
-}]
+#ServiceAccountList: items: [{}]

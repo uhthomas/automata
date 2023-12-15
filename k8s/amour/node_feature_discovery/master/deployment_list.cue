@@ -1,4 +1,4 @@
-package node_feature_discovery
+package master
 
 import (
 	appsv1 "k8s.io/api/apps/v1"
@@ -16,51 +16,55 @@ import (
 }
 
 #DeploymentList: items: [{
-	metadata: {
-		name: "nfd-master"
-		labels: "app.kubernetes.io/component": "master"
-	}
 	spec: {
-		replicas: 1
-		selector: matchLabels: {
-			"app.kubernetes.io/name":      #Name
-			"app.kubernetes.io/component": "master"
-		}
+		selector: matchLabels: "app.kubernetes.io/name": #Name
 		template: {
-			metadata: labels: {
-				"app.kubernetes.io/name":      #Name
-				"app.kubernetes.io/component": "master"
-			}
+			metadata: labels: "app.kubernetes.io/name": #Name
 			spec: {
+				volumes: [{
+					name: "conf"
+					configMap: {
+						name: #Name
+						items: [{
+							key:  "nfd-master.conf"
+							path: "nfd-master.conf"
+						}]
+					}
+				}]
 				containers: [{
-					name:  "nfd-master"
+					name:  "master"
 					image: "registry.k8s.io/nfd/node-feature-discovery:v\(#Version)"
 					command: ["nfd-master"]
 					ports: [{
-						name:          "http"
 						containerPort: 8080
+						name:          "grpc"
+					}, {
+						containerPort: 8081
+						name:          "http-metrics"
 					}]
 					env: [{
 						name: "NODE_NAME"
 						valueFrom: fieldRef: fieldPath: "spec.nodeName"
 					}]
-					livenessProbe: {
-						exec: command: [
-							"/usr/bin/grpc_health_probe",
-							"-addr=:8080",
-						]
+					volumeMounts: [{
+						name:      "conf"
+						mountPath: "/etc/kubernetes/node-feature-discovery"
+						readOnly:  true
+					}]
+
+					let probe = {
+						grpc: port: 8080
+						periodSeconds: 10
+					}
+
+					livenessProbe: probe & {
 						initialDelaySeconds: 10
-						periodSeconds:       10
 					}
-					readinessProbe: {
-						exec: command: [
-							"/usr/bin/grpc_health_probe",
-							"-addr=:8080",
-						]
-						failureThreshold:    10
+					readinessProbe: probe & {
 						initialDelaySeconds: 5
-						periodSeconds:       10
+						failureThreshold:    10
 					}
+
 					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: {
 						capabilities: drop: ["ALL"]
@@ -68,7 +72,7 @@ import (
 						allowPrivilegeEscalation: false
 					}
 				}]
-				serviceAccountName: "nfd-master"
+				serviceAccountName: #Name
 				affinity: nodeAffinity: preferredDuringSchedulingIgnoredDuringExecution: [{
 					preference: matchExpressions: [{
 						key:      "node-role.kubernetes.io/master"

@@ -1,4 +1,4 @@
-package node_feature_discovery
+package worker
 
 import (
 	appsv1 "k8s.io/api/apps/v1"
@@ -15,79 +15,89 @@ import (
 }
 
 #DaemonSetList: items: [{
-	metadata: {
-		name: "nfd-worker"
-		labels: "app.kubernetes.io/component": "worker"
-	}
 	spec: {
-		selector: matchLabels: {
-			"app.kubernetes.io/name":      #Name
-			"app.kubernetes.io/component": "worker"
-		}
+		selector: matchLabels: "app.kubernetes.io/name": #Name
 		template: {
-			metadata: labels: {
-				"app.kubernetes.io/name":      #Name
-				"app.kubernetes.io/component": "worker"
-			}
+			metadata: labels: "app.kubernetes.io/name": #Name
 			spec: {
 				volumes: [{
-					hostPath: path: "/boot"
 					name: "host-boot"
+					hostPath: path: "/boot"
 				}, {
-					hostPath: path: "/etc/os-release"
 					name: "host-os-release"
+					hostPath: path: "/etc/os-release"
 				}, {
-					hostPath: path: "/sys"
 					name: "host-sys"
+					hostPath: path: "/sys"
 				}, {
-					hostPath: path: "/usr/lib"
 					name: "host-usr-lib"
+					hostPath: path: "/usr/lib"
 				}, {
-					hostPath: path: "/etc/kubernetes/node-feature-discovery/source.d/"
+					name: "host-lib"
+					hostPath: path: "/lib"
+				}, {
 					name: "source-d"
+					hostPath: path: "/etc/kubernetes/node-feature-discovery/source.d/"
 				}, {
-					hostPath: path: "/etc/kubernetes/node-feature-discovery/features.d/"
 					name: "features-d"
+					hostPath: path: "/etc/kubernetes/node-feature-discovery/features.d/"
 				}, {
-					configMap: name: "nfd-worker-conf"
-					name: "nfd-worker-conf"
+					name: "conf"
+					configMap: {
+						name: #Name
+						items: [{
+							key:  "nfd-worker.conf"
+							path: "nfd-worker.conf"
+						}]
+					}
 				}]
 				containers: [{
-					name:  "nfd-worker"
+					name:  "worker"
 					image: "registry.k8s.io/nfd/node-feature-discovery:v\(#Version)"
 					command: ["nfd-worker"]
-					args: ["-server=nfd-master:8080"]
+					ports: [{
+						name:          "http-metrics"
+						containerPort: 8081
+					}]
 					env: [{
 						name: "NODE_NAME"
 						valueFrom: fieldRef: fieldPath: "spec.nodeName"
 					}]
+					resources: limits: {
+						(v1.#ResourceCPU):    "50m"
+						(v1.#ResourceMemory): "64Mi"
+					}
 					volumeMounts: [{
-						mountPath: "/host-boot"
 						name:      "host-boot"
+						mountPath: "/host-boot"
 						readOnly:  true
 					}, {
-						mountPath: "/host-etc/os-release"
 						name:      "host-os-release"
+						mountPath: "/host-etc/os-release"
 						readOnly:  true
 					}, {
-						mountPath: "/host-sys"
 						name:      "host-sys"
+						mountPath: "/host-sys"
 						readOnly:  true
 					}, {
-						mountPath: "/host-usr/lib"
 						name:      "host-usr-lib"
+						mountPath: "/host-usr/lib"
 						readOnly:  true
 					}, {
-						mountPath: "/etc/kubernetes/node-feature-discovery/source.d/"
+						name:      "host-lib"
+						mountPath: "/host-lib"
+						readOnly:  true
+					}, {
 						name:      "source-d"
+						mountPath: "/etc/kubernetes/node-feature-discovery/source.d/"
 						readOnly:  true
 					}, {
-						mountPath: "/etc/kubernetes/node-feature-discovery/features.d/"
 						name:      "features-d"
+						mountPath: "/etc/kubernetes/node-feature-discovery/features.d/"
 						readOnly:  true
 					}, {
+						name:      "conf"
 						mountPath: "/etc/kubernetes/node-feature-discovery"
-						name:      "nfd-worker-conf"
 						readOnly:  true
 					}]
 					imagePullPolicy: v1.#PullIfNotPresent
@@ -96,8 +106,9 @@ import (
 						readOnlyRootFilesystem:   true
 						allowPrivilegeEscalation: false
 					}
+
 				}]
-				serviceAccountName: "nfd-worker"
+				serviceAccountName: #Name
 				dnsPolicy:          v1.#DNSClusterFirstWithHostNet
 				securityContext: {
 					runAsUser:    1000
