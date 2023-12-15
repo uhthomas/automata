@@ -7,8 +7,8 @@ https://github.com/intel/intel-device-plugins-for-kubernetes
 Imported with:
 
 ```sh
-❯ k kustomize "https://github.com/intel/intel-device-plugins-for-kubernetes/deployments/nfd/overlays/node-feature-rules/?ref=v0.26.0" > nfd.yaml
-❯ k kustomize "https://github.com/intel/intel-device-plugins-for-kubernetes/deployments/gpu_plugin/overlays/fractional_resources/?ref=v0.26.0" > gpu.yaml
+❯ k kustomize "https://github.com/intel/intel-device-plugins-for-kubernetes/deployments/nfd/overlays/node-feature-rules/?ref=v0.28.0" > nfd.yaml
+❯ k kustomize "https://github.com/intel/intel-device-plugins-for-kubernetes/deployments/gpu_plugin/overlays/fractional_resources/?ref=v0.28.0" > gpu.yaml
 ❯ cue import -R -l "strings.ToLower(kind)" --list nfd.yaml gpu.yaml
 ```
 

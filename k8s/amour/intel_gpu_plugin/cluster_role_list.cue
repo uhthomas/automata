@@ -17,7 +17,7 @@ import (
 #ClusterRoleList: items: [{
 	rules: [{
 		apiGroups: [v1.#GroupName]
-		resources: [v1.#ResourcePods]
-		verbs: ["list"]
+		resources: [v1.#ResourcePods, "nodes/proxy"]
+		verbs: ["list", "get"]
 	}]
 }]

@@ -21,23 +21,32 @@ import (
 			metadata: labels: "app.kubernetes.io/name": #Name
 			spec: {
 				volumes: [{
+					name: "kubeletcrt"
+					hostPath: {
+						path: "/var/lib/kubelet/pki/kubelet.crt"
+						type: v1.#HostPathFileOrCreate
+					}
+				}, {
+					name: "sysfsdevices"
+					hostPath: path: "/sys/devices"
+				}, {
+					name: "nfd-features"
+					hostPath: {
+						path: "/etc/kubernetes/node-feature-discovery/features.d/"
+						type: v1.#HostPathDirectoryOrCreate
+					}
+				}, {
 					name: "podresources"
 					hostPath: path: "/var/lib/kubelet/pod-resources"
 				}, {
 					name: "devfs"
 					hostPath: path: "/dev/dri"
 				}, {
-					name: "sysfs"
+					name: "sysfsdrm"
 					hostPath: path: "/sys/class/drm"
 				}, {
 					name: "kubeletsockets"
 					hostPath: path: "/var/lib/kubelet/device-plugins"
-				}, {
-					name: "nfd-source-hooks"
-					hostPath: {
-						path: "/etc/kubernetes/node-feature-discovery/source.d/"
-						type: v1.#HostPathDirectoryOrCreate
-					}
 				}]
 				containers: [{
 					name:  #Name
@@ -48,54 +57,46 @@ import (
 
 						// https://intel.github.io/intel-device-plugins-for-kubernetes/cmd/gpu_plugin/README.html#modes-and-configuration-options
 						// https://github.com/intel/intel-device-plugins-for-kubernetes/blob/1ba2f7f0c5b098baeaf00083095b9767db36ba39/deployments/gpu_plugin/overlays/monitoring_shared-dev_nfd/add-args.yaml
-						"-shared-dev-num=30",
+						// "-shared-dev-num=30",
 						"-enable-monitoring",
 						"-v=2",
 					]
 					env: [{
 						name: "NODE_NAME"
 						valueFrom: fieldRef: fieldPath: "spec.nodeName"
+					}, {
+						name: "HOST_IP"
+						valueFrom: fieldRef: fieldPath: "status.hostIP"
 					}]
 					volumeMounts: [{
-						mountPath: "/var/lib/kubelet/pod-resources"
+						name:      "kubeletcrt"
+						mountPath: "/var/lib/kubelet/pki/kubelet.crt"
+					}, {
+						name:      "nfd-features"
+						mountPath: "/etc/kubernetes/node-feature-discovery/features.d/"
+					}, {
+						name:      "sysfsdevices"
+						mountPath: "/sys/devices"
+						readOnly:  true
+					}, {
 						name:      "podresources"
+						mountPath: "/var/lib/kubelet/pod-resources"
 					}, {
-						mountPath: "/dev/dri"
 						name:      "devfs"
+						mountPath: "/dev/dri"
 						readOnly:  true
 					}, {
+						name:      "sysfsdrm"
 						mountPath: "/sys/class/drm"
-						name:      "sysfs"
 						readOnly:  true
 					}, {
-						mountPath: "/var/lib/kubelet/device-plugins"
 						name:      "kubeletsockets"
+						mountPath: "/var/lib/kubelet/device-plugins"
 					}]
 					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: {
 						capabilities: drop: ["ALL"]
 						seLinuxOptions: type: "container_device_plugin_t"
-
-						// Required for permission to
-						// write to the host path.
-						runAsUser:    0
-						runAsNonRoot: false
-
-						readOnlyRootFilesystem:   true
-						allowPrivilegeEscalation: false
-					}
-				}]
-				initContainers: [{
-					name:  "intel-gpu-initcontainer"
-					image: "intel/intel-gpu-initcontainer:\(#Version)"
-					volumeMounts: [{
-						mountPath: "/etc/kubernetes/node-feature-discovery/source.d/"
-						name:      "nfd-source-hooks"
-					}]
-					imagePullPolicy: v1.#PullIfNotPresent
-					securityContext: {
-						capabilities: drop: ["ALL"]
-						seLinuxOptions: type: "container_device_plugin_init_t"
 
 						// Required for permission to
 						// write to the host path.
