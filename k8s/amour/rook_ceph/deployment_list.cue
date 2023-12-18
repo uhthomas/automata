@@ -35,7 +35,6 @@ import (
 	spec: {
 		selector: matchLabels: app: "rook-ceph-operator"
 		strategy: type: appsv1.#RecreateDeploymentStrategyType
-		replicas: 1
 		template: {
 			metadata: labels: app: "rook-ceph-operator"
 			spec: {
@@ -149,7 +148,7 @@ import (
 						valueFrom: fieldRef: fieldPath: "metadata.namespace"
 					}]
 					resources: limits: {
-						(v1.#ResourceCPU):    "300m"
+						(v1.#ResourceCPU):    "400m"
 						(v1.#ResourceMemory): "256Mi"
 					}
 					volumeMounts: [{
