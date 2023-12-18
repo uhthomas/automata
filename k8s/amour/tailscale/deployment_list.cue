@@ -14,6 +14,9 @@ import (
 	}]
 }
 
+// renovate: datasource=docker depName=tailscale/tailscale versioning=docker
+let _tailscaleVersion = "v1.52.0"
+
 #DeploymentList: items: [{
 	metadata: name: "operator"
 	spec: {
@@ -52,7 +55,7 @@ import (
 						value: "/oauth/client-secret"
 					}, {
 						name:  "PROXY_IMAGE"
-						value: "tailscale/tailscale:v1.52.0"
+						value: "tailscale/tailscale:\(_tailscaleVersion)"
 					}, {
 						name:  "PROXY_TAGS"
 						value: "tag:k8s,tag:amour"
