@@ -7,6 +7,7 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/cilium"
 	"github.com/uhthomas/automata/k8s/amour/external_secrets"
 	"github.com/uhthomas/automata/k8s/amour/grafana"
+	"github.com/uhthomas/automata/k8s/amour/home_assistant"
 	"github.com/uhthomas/automata/k8s/amour/intel_gpu_plugin"
 	"github.com/uhthomas/automata/k8s/amour/karma"
 	"github.com/uhthomas/automata/k8s/amour/kube_state_metrics"
