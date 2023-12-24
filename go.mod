@@ -5,7 +5,7 @@ go 1.21
 require (
 	cuelang.org/go v0.7.0
 	github.com/1Password/onepassword-operator v1.8.0
-	github.com/NVIDIA/gpu-operator v1.8.3-0.20231207213517-8072420d2594
+	github.com/NVIDIA/gpu-operator v1.11.1
 	github.com/VictoriaMetrics/operator/api v0.0.0-20231128174956-7965dba77210
 	github.com/cert-manager/cert-manager v1.13.3
 	github.com/cilium/cilium v1.14.5
