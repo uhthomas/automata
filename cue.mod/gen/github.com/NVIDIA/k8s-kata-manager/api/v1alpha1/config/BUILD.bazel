@@ -1,0 +1,11 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_config_library",
+    srcs = [
+        "consts_go_gen.cue",
+        "types_go_gen.cue",
+    ],
+    importpath = "github.com/NVIDIA/k8s-kata-manager/api/v1alpha1/config",
+    visibility = ["//visibility:public"],
+)
