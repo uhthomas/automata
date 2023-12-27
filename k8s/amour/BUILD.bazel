@@ -25,6 +25,7 @@ cue_export(
         "//k8s/amour/cert_manager:cue_cert_manager_library",
         "//k8s/amour/cert_manager_csi_driver:cue_cert_manager_csi_driver_library",
         "//k8s/amour/cilium:cue_cilium_library",
+        "//k8s/amour/dcgm_exporter:cue_dcgm_exporter_library",
         "//k8s/amour/external_secrets:cue_external_secrets_library",
         "//k8s/amour/grafana:cue_grafana_library",
         "//k8s/amour/home_assistant:cue_home_assistant_library",

@@ -5,6 +5,7 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/cert_manager_csi_driver"
 	"github.com/uhthomas/automata/k8s/amour/cert_manager"
 	"github.com/uhthomas/automata/k8s/amour/cilium"
+	"github.com/uhthomas/automata/k8s/amour/dcgm_exporter"
 	"github.com/uhthomas/automata/k8s/amour/external_secrets"
 	"github.com/uhthomas/automata/k8s/amour/grafana"
 	"github.com/uhthomas/automata/k8s/amour/home_assistant"
@@ -54,6 +55,7 @@ _items: [
 	cert_manager_csi_driver.#List.items,
 	cert_manager.#List.items,
 	cilium.#List.items,
+	dcgm_exporter.#List.items,
 	external_secrets.#List.items,
 	grafana.#List.items,
 	intel_gpu_plugin.#List.items,
