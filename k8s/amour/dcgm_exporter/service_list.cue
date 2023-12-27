@@ -16,7 +16,7 @@ import "k8s.io/api/core/v1"
 		ports: [{
 			name:       "http-metrics"
 			port:       80
-			targetPort: "http"
+			targetPort: "http-metrics"
 		}]
 		selector: "app.kubernetes.io/name": #Name
 	}

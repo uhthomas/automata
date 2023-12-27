@@ -16,9 +16,9 @@ import (
 
 #DaemonSetList: items: [{
 	spec: {
-		selector: matchLabels: "app.kubernetes.io/name": "dcgm-exporter"
+		selector: matchLabels: "app.kubernetes.io/name": #Name
 		template: {
-			metadata: labels: "app.kubernetes.io/name": "dcgm-exporter"
+			metadata: labels: "app.kubernetes.io/name": #Name
 			spec: {
 				volumes: [{
 					name: "pod-gpu-resources"
