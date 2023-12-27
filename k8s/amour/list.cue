@@ -16,6 +16,7 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/node_exporter"
 	"github.com/uhthomas/automata/k8s/amour/node_feature_discovery"
 	"github.com/uhthomas/automata/k8s/amour/node_problem_detector"
+	"github.com/uhthomas/automata/k8s/amour/nvidia_device_plugin"
 	"github.com/uhthomas/automata/k8s/amour/onepassword_connect"
 	"github.com/uhthomas/automata/k8s/amour/rook_ceph"
 	"github.com/uhthomas/automata/k8s/amour/snapshot_controller"
@@ -63,6 +64,7 @@ _items: [
 	node_exporter.#List.items,
 	node_feature_discovery.#List.items,
 	node_problem_detector.#List.items,
+	nvidia_device_plugin.#List.items,
 	onepassword_connect.#List.items,
 	rook_ceph.#List.items,
 	snapshot_controller.#List.items,

@@ -36,6 +36,7 @@ cue_export(
         "//k8s/amour/node_exporter:cue_node_exporter_library",
         "//k8s/amour/node_feature_discovery:cue_node_feature_discovery_library",
         "//k8s/amour/node_problem_detector:cue_node_problem_detector_library",
+        "//k8s/amour/nvidia_device_plugin:cue_nvidia_device_plugin_library",
         "//k8s/amour/onepassword_connect:cue_onepassword_connect_library",
         "//k8s/amour/rook_ceph:cue_rook_ceph_library",
         "//k8s/amour/snapshot_controller:cue_snapshot_controller_library",
