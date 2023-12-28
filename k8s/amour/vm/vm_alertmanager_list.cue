@@ -16,13 +16,12 @@ import (
 
 #VMAlertmanagerList: items: [{
 	spec: {
-		replicaCount: 2
 		storage: volumeClaimTemplate: spec: {
 			storageClassName: "rook-ceph-nvme"
 			resources: requests: (v1.#ResourceStorage): "512Mi"
 		}
 		resources: limits: {
-			(v1.#ResourceCPU):    "10m"
+			(v1.#ResourceCPU):    "50m"
 			(v1.#ResourceMemory): "64Mi"
 		}
 		securityContext: {
@@ -40,18 +39,11 @@ import (
 				allowPrivilegeEscalation: false
 			}
 		}]
-		serviceSpec: {
-			// metadata: annotations: "tailscale.com/hostname": "vmalertmanager-unwind-k8s"
-			spec: {
-				ports: [{
-					name:       "http"
-					port:       80
-					targetPort: "web"
-				}]
-				// type:              v1.#ServiceTypeLoadBalancer
-				// loadBalancerClass: "tailscale"
-			}
-		}
+		serviceSpec: spec: ports: [{
+			name:       "http"
+			port:       80
+			targetPort: "web"
+		}]
 		selectAllByDefault: true
 	}
 }]
