@@ -16,7 +16,7 @@ import networkingv1 "k8s.io/api/networking/v1"
 		ingressClassName: "tailscale"
 		defaultBackend: service: {
 			name: #Name
-			port: name: "https"
+			port: name: "http"
 		}
 		tls: [{hosts: ["home-assistant-amour-k8s"]}]
 	}

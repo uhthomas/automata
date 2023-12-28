@@ -21,7 +21,7 @@ import (
 			metadata: labels: "app.kubernetes.io/name": #Name
 			spec: containers: [{
 				name:  #Name
-				image: "homeassistant/home-assistant:\(#Version)@sha256:58dcc33ee408a92c41c57e4f853612f8f8001d98ed8d1d3af0532d25fbaa995a"
+				image: "homeassistant/home-assistant:\(#Version)"
 				ports: [{
 					name:          "http"
 					containerPort: 8123
@@ -29,11 +29,15 @@ import (
 					name:          "https"
 					containerPort: 8443
 				}]
-				imagePullPolicy: v1.#PullIfNotPresent
+				resources: limits: {
+					(v1.#ResourceCPU):    "200m"
+					(v1.#ResourceMemory): "128Mi"
+				}
 				volumeMounts: [{
 					name:      "config"
 					mountPath: "/config"
 				}]
+				imagePullPolicy: v1.#PullIfNotPresent
 			}]
 		}
 		volumeClaimTemplates: [{

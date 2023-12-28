@@ -57,6 +57,7 @@ _items: [
 	dcgm_exporter.#List.items,
 	external_secrets.#List.items,
 	grafana.#List.items,
+	home_assistant.#List.items,
 	karma.#List.items,
 	kube_state_metrics.#List.items,
 	kube_system.#List.items,
