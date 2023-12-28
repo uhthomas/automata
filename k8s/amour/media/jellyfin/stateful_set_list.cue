@@ -67,7 +67,6 @@ import (
 						(v1.#ResourceCPU):    "1"
 						(v1.#ResourceMemory): "4Gi"
 						"nvidia.com/gpu":     "1"
-						// "gpu.intel.com/i915": 1
 					}
 					volumeMounts: [{
 						name:      "config"
