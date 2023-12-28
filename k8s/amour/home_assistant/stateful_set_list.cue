@@ -37,6 +37,17 @@ import (
 					name:      "config"
 					mountPath: "/config"
 				}]
+
+				let probe = {
+					httpGet: {
+						path: "/"
+						port: "http"
+					}
+				}
+
+				livenessProbe:  probe
+				readinessProbe: probe
+
 				imagePullPolicy: v1.#PullIfNotPresent
 			}]
 		}
