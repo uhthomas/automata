@@ -25,6 +25,9 @@ import (
 				volumes: [{
 					name: "media"
 					persistentVolumeClaim: claimName: "media"
+				}, {
+					name: "cache"
+					emptyDir: sizeLimit: "64Gi"
 				}]
 				containers: [{
 					name:  #Name
@@ -105,13 +108,6 @@ import (
 				accessModes: [v1.#ReadWriteOnce]
 				storageClassName: "rook-ceph-nvme"
 				resources: requests: (v1.#ResourceStorage): "1Gi"
-			}
-		}, {
-			metadata: name: "cache"
-			spec: {
-				accessModes: [v1.#ReadWriteOnce]
-				storageClassName: "rook-ceph-nvme"
-				resources: requests: (v1.#ResourceStorage): "16Gi"
 			}
 		}, {
 			metadata: name: "data"
