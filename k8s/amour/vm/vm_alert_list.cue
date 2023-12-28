@@ -16,8 +16,6 @@ import (
 
 #VMAlertList: items: [{
 	spec: {
-		image: tag: "v1.91.3"
-		replicaCount: 2
 		resources: limits: {
 			(v1.#ResourceCPU):    "50m"
 			(v1.#ResourceMemory): "128Mi"
