@@ -31,7 +31,7 @@ import (
 				}]
 				resources: limits: {
 					(v1.#ResourceCPU):    "200m"
-					(v1.#ResourceMemory): "128Mi"
+					(v1.#ResourceMemory): "256Mi"
 				}
 				volumeMounts: [{
 					name:      "config"
@@ -44,7 +44,7 @@ import (
 			metadata: name: "config"
 			spec: {
 				accessModes: [v1.#ReadWriteOnce]
-				storageClassName: "rook-ceph-nvme-ec-delete-block"
+				storageClassName: "rook-ceph-nvme"
 				resources: requests: (v1.#ResourceStorage): "2Gi"
 			}
 		}]
