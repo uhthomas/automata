@@ -28,7 +28,7 @@ _items: [
 	#VMAgentList.items,
 	#VMAlertList.items,
 	#VMAlertmanagerList.items,
-	#VMClusterList.items,
 	#VMNodeScrapeList.items,
 	#VMRuleList.items,
+	#VMSingleList.items,
 ]

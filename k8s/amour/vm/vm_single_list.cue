@@ -5,20 +5,25 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-#VMAgentList: victoriametricsv1beta1.#VMAgentList & {
+#VMSingleList: victoriametricsv1beta1.#VMSingleList & {
 	apiVersion: "operator.victoriametrics.com/v1beta1"
-	kind:       "VMAgentList"
+	kind:       "VMSingleList"
 	items: [...{
 		apiVersion: "operator.victoriametrics.com/v1beta1"
-		kind:       "VMAgent"
+		kind:       "VMSingle"
 	}]
 }
 
-#VMAgentList: items: [{
+#VMSingleList: items: [{
 	spec: {
+		storage: {
+			storageClassName: "rook-ceph-nvme"
+			resources: requests: (v1.#ResourceStorage): "16Gi"
+			accessModes: [v1.#ReadWriteOnce]
+		}
 		resources: limits: {
-			(v1.#ResourceCPU):    "400m"
-			(v1.#ResourceMemory): "768Mi"
+			(v1.#ResourceCPU):    "500m"
+			(v1.#ResourceMemory): "1Gi"
 		}
 		securityContext: {
 			runAsUser:    1000
@@ -28,26 +33,18 @@ import (
 			seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 		}
 		containers: [{
-			name: "vmagent"
+			name: "vmsingle"
 			securityContext: {
 				capabilities: drop: ["ALL"]
 				readOnlyRootFilesystem:   true
 				allowPrivilegeEscalation: false
 			}
 		}]
-		scrapeInterval: "30s"
-		externalLabels: cluster: "amour"
-		remoteWrite: [{url: "http://vmsingle-vm:8429/api/v1/write"}]
-		selectAllByDefault: true
-		serviceSpec: spec: ports: [{
-			name:       "http"
-			port:       80
-			targetPort: "http"
-		}]
-		statefulMode: true
-		statefulStorage: volumeClaimTemplate: spec: {
-			storageClassName: "rook-ceph-nvme"
-			resources: requests: (v1.#ResourceStorage): "4Gi"
+		removePvcAfterDelete: true
+		retentionPeriod:      "2y"
+		extraArgs: {
+			"maxLabelsPerTimeseries":      "150"
+			"vmalert.proxyURL":            "http://vmalert-\(#Name):8080"
 		}
 	}
 }]

@@ -19,7 +19,7 @@ import (
 		image: tag: "v1.91.3"
 		replicaCount: 2
 		resources: limits: {
-			(v1.#ResourceCPU):   "50m"
+			(v1.#ResourceCPU):    "50m"
 			(v1.#ResourceMemory): "128Mi"
 		}
 		securityContext: {
@@ -40,9 +40,9 @@ import (
 		evaluationInterval: "1m"
 		selectAllByDefault: true
 		notifiers: [{selector: labelSelector: matchLabels: "app.kubernetes.io/name": #Name}]
-		remoteWrite: url:                           "http://vminsert-vm:8480/insert/0/prometheus/api/v1/write"
-		remoteRead: url:                            "http://vmselect-vm:8481/select/0/prometheus"
-		datasource: url:                            "http://vmselect-vm:8481/select/0/prometheus"
+		remoteWrite: url:                           "http://vmsingle-vm:8429/api/v1/write"
+		remoteRead: url:                            "http://vmsingle-vm:8429"
+		datasource: url:                            "http://vmsingle-vm:8429"
 		extraArgs: "remoteWrite.disablePathAppend": "true"
 	}
 }]

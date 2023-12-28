@@ -222,5 +222,9 @@ import (
 		apiGroups: ["operator.victoriametrics.com"]
 		resources: ["vmalertmanagerconfigs/status"]
 		verbs: ["get", "patch", "update"]
+	}, {
+		apiGroups: ["discovery.k8s.io"]
+		resources: ["endpointslices"]
+		verbs: ["get", "list", "watch"]
 	}]
 }]

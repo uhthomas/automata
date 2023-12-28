@@ -23,7 +23,7 @@ import (
 				name:      "VictoriaMetrics"
 				type:      "prometheus"
 				access:    "proxy"
-				url:       "http://vmselect-vm.vm.svc.cluster.local:8481/select/0/prometheus"
+				url:       "http://vmsingle-vm.vm.svc.cluster.local:8429"
 				isDefault: true
 			}, {
 				name:                       "Alertmanager"
@@ -38,7 +38,6 @@ import (
 				access: "proxy"
 				url:    "http://loki-gateway.loki.svc.cluster.local"
 			}]
-			deleteDatasources: [{name: "VictoriaMetrics 4697"}]
 		})
 		"grafana.ini": """
 			[analytics]
