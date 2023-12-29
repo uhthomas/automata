@@ -22,8 +22,8 @@ import (
 			accessModes: [v1.#ReadWriteOnce]
 		}
 		resources: limits: {
-			(v1.#ResourceCPU):    "500m"
-			(v1.#ResourceMemory): "1Gi"
+			(v1.#ResourceCPU):    "300m"
+			(v1.#ResourceMemory): "768Mi"
 		}
 		securityContext: {
 			runAsUser:    1000
@@ -43,8 +43,8 @@ import (
 		removePvcAfterDelete: true
 		retentionPeriod:      "2y"
 		extraArgs: {
-			"maxLabelsPerTimeseries":      "150"
-			"vmalert.proxyURL":            "http://vmalert-\(#Name):8080"
+			"maxLabelsPerTimeseries": "150"
+			"vmalert.proxyURL":       "http://vmalert-\(#Name):8080"
 		}
 	}
 }]

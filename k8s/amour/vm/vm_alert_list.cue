@@ -17,7 +17,7 @@ import (
 #VMAlertList: items: [{
 	spec: {
 		resources: limits: {
-			(v1.#ResourceCPU):    "50m"
+			(v1.#ResourceCPU):    "100m"
 			(v1.#ResourceMemory): "128Mi"
 		}
 		securityContext: {
