@@ -100,7 +100,7 @@ import (
 				(v1.#ResourceMemory): "768Mi"
 			}
 			osd: limits: {
-				(v1.#ResourceCPU):    "200m"
+				(v1.#ResourceCPU):    "300m"
 				(v1.#ResourceMemory): "2Gi"
 			}
 			exporter: limits: {
