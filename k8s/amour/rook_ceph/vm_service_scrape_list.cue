@@ -13,7 +13,7 @@ import victoriametricsv1beta1 "github.com/VictoriaMetrics/operator/api/victoriam
 
 #VMServiceScrapeList: items: [{
 	spec: {
-		endpoints: [{port: "http-metrics"}]
+		endpoints: [{port: "ceph-exporter-http-metrics"}]
 		selector: matchLabels: {
 			app:          "rook-ceph-mgr"
 			rook_cluster: #Namespace
