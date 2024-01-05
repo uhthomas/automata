@@ -44,7 +44,7 @@ import (
 					}]
 					resources: limits: {
 						(v1.#ResourceCPU):    "100m"
-						(v1.#ResourceMemory): "256Mi"
+						(v1.#ResourceMemory): "378Mi"
 					}
 					volumeMounts: [{
 						name:      "pod-gpu-resources"
