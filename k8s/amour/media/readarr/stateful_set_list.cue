@@ -39,7 +39,7 @@ import (
 						value: "3000"
 					}]
 					resources: limits: {
-						(v1.#ResourceCPU):    "100m"
+						(v1.#ResourceCPU):    "150m"
 						(v1.#ResourceMemory): "128Mi"
 					}
 					volumeMounts: [{
