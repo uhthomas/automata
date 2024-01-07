@@ -16,23 +16,24 @@ import (
 
 #StatefulSetList: items: [{
 	spec: {
-		replicas: 2
 		selector: matchLabels: "app.kubernetes.io/name": #Name
-		serviceName: #Name
 		template: {
-			metadata: labels: {
-				"app.kubernetes.io/component": "exporter"
-				"app.kubernetes.io/name":      #Name
-				"app.kubernetes.io/version":   #Version
-			}
+			metadata: labels: "app.kubernetes.io/name": #Name
 			spec: {
-				automountServiceAccountToken: true
 				containers: [{
-					name: #Name
+					name:  #Name
+					image: "registry.k8s.io/kube-state-metrics/kube-state-metrics:v\(#Version)"
 					args: [
 						"--pod=$(POD_NAME)",
 						"--pod-namespace=$(POD_NAMESPACE)",
 					]
+					ports: [{
+						name:          "http-metrics"
+						containerPort: 8080
+					}, {
+						name:          "telemetry"
+						containerPort: 8081
+					}]
 					env: [{
 						name: "POD_NAME"
 						valueFrom: fieldRef: fieldPath: "metadata.name"
@@ -40,7 +41,10 @@ import (
 						name: "POD_NAMESPACE"
 						valueFrom: fieldRef: fieldPath: "metadata.namespace"
 					}]
-					image: "registry.k8s.io/kube-state-metrics/kube-state-metrics:v\(#Version)@sha256:ec5732e28f151de3847df60f48c5a570aacdb692ff1ce949d97105ae5e5a6722"
+					resources: limits: {
+						(v1.#ResourceCPU):    "50m"
+						(v1.#ResourceMemory): "64Mi"
+					}
 					livenessProbe: {
 						httpGet: {
 							path: "/healthz"
@@ -49,13 +53,6 @@ import (
 						initialDelaySeconds: 5
 						timeoutSeconds:      5
 					}
-					ports: [{
-						name:          "http-metrics"
-						containerPort: 8080
-					}, {
-						name:          "telemetry"
-						containerPort: 8081
-					}]
 					readinessProbe: {
 						httpGet: {
 							path: "/"
@@ -64,16 +61,25 @@ import (
 						initialDelaySeconds: 5
 						timeoutSeconds:      5
 					}
+					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: {
-						allowPrivilegeEscalation: false
 						capabilities: drop: ["ALL"]
-						readOnlyRootFilesystem: true
-						runAsUser:              65534
+						readOnlyRootFilesystem:   true
+						allowPrivilegeEscalation: false
 					}
 				}]
 				nodeSelector: (v1.#LabelOSStable): v1.#Linux
-				serviceAccountName: #Name
+				serviceAccountName:           #Name
+				automountServiceAccountToken: true
+				securityContext: {
+					runAsUser:    1000
+					runAsGroup:   3000
+					runAsNonRoot: true
+					fsGroup:      2000
+					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
+				}
 			}
 		}
+		serviceName: #Name
 	}
 }]

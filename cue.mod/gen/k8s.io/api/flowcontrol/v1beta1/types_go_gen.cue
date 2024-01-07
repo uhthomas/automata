@@ -45,7 +45,9 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 //   is a boolean false or has an invalid boolean representation
 //   (if the cluster operator sets it to 'false' it will be stomped)
 // - any changes to the spec made by the cluster operator will be
-//   stomped.
+//   stomped, except for changes to the `nominalConcurrencyShares`
+//   and `lendablePercent` fields of the PriorityLevelConfiguration
+//   named "exempt".
 //
 // The kube-apiserver will apply updates on the suggested configuration if:
 // - the cluster operator has enabled auto-update by setting the annotation
@@ -114,7 +116,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// MatchingPrecedence.  Each MatchingPrecedence value must be ranged in [1,10000].
 	// Note that if the precedence is not specified, it will be set to 1000 as default.
 	// +optional
-	matchingPrecedence: int32 @go(MatchingPrecedence) @protobuf(2,varint,opt)
+	matchingPrecedence?: int32 @go(MatchingPrecedence) @protobuf(2,varint,opt)
 
 	// `distinguisherMethod` defines how to compute the flow distinguisher for requests that match this schema.
 	// `nil` specifies that the distinguisher is disabled and thus will always be the empty string.
@@ -297,7 +299,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// This list may be empty, but only if `clusterScope` is true.
 	// +optional
 	// +listType=set
-	namespaces: [...string] @go(Namespaces,[]string) @protobuf(5,bytes,rep)
+	namespaces?: [...string] @go(Namespaces,[]string) @protobuf(5,bytes,rep)
 }
 
 // NonResourcePolicyRule is a predicate that matches non-resource requests according to their verb and the
@@ -408,6 +410,14 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// This field must be non-empty if and only if `type` is `"Limited"`.
 	// +optional
 	limited?: null | #LimitedPriorityLevelConfiguration @go(Limited,*LimitedPriorityLevelConfiguration) @protobuf(2,bytes,opt)
+
+	// `exempt` specifies how requests are handled for an exempt priority level.
+	// This field MUST be empty if `type` is `"Limited"`.
+	// This field MAY be non-empty if `type` is `"Exempt"`.
+	// If empty and `type` is `"Exempt"` then the default values
+	// for `ExemptPriorityLevelConfiguration` apply.
+	// +optional
+	exempt?: null | #ExemptPriorityLevelConfiguration @go(Exempt,*ExemptPriorityLevelConfiguration) @protobuf(3,bytes,opt)
 }
 
 // PriorityLevelEnablement indicates whether limits on execution are enabled for the priority level
@@ -430,7 +440,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 #LimitedPriorityLevelConfiguration: {
 	// `assuredConcurrencyShares` (ACS) configures the execution
 	// limit, which is a limit on the number of requests of this
-	// priority level that may be exeucting at a given time.  ACS must
+	// priority level that may be executing at a given time.  ACS must
 	// be a positive number. The server's concurrency limit (SCL) is
 	// divided among the concurrency-controlled priority levels in
 	// proportion to their assured concurrency shares. This produces
@@ -444,7 +454,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// expense of every other PL).
 	// This field has a default value of 30.
 	// +optional
-	assuredConcurrencyShares: int32 @go(AssuredConcurrencyShares) @protobuf(1,varint,opt)
+	assuredConcurrencyShares?: int32 @go(AssuredConcurrencyShares) @protobuf(1,varint,opt)
 
 	// `limitResponse` indicates what to do with requests that can not be executed right now
 	limitResponse?: #LimitResponse @go(LimitResponse) @protobuf(2,bytes,opt)
@@ -477,6 +487,40 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// When this field is left `nil`, the limit is effectively infinite.
 	// +optional
 	borrowingLimitPercent?: null | int32 @go(BorrowingLimitPercent,*int32) @protobuf(4,varint,opt)
+}
+
+// ExemptPriorityLevelConfiguration describes the configurable aspects
+// of the handling of exempt requests.
+// In the mandatory exempt configuration object the values in the fields
+// here can be modified by authorized users, unlike the rest of the `spec`.
+#ExemptPriorityLevelConfiguration: {
+	// `nominalConcurrencyShares` (NCS) contributes to the computation of the
+	// NominalConcurrencyLimit (NominalCL) of this level.
+	// This is the number of execution seats nominally reserved for this priority level.
+	// This DOES NOT limit the dispatching from this priority level
+	// but affects the other priority levels through the borrowing mechanism.
+	// The server's concurrency limit (ServerCL) is divided among all the
+	// priority levels in proportion to their NCS values:
+	//
+	// NominalCL(i)  = ceil( ServerCL * NCS(i) / sum_ncs )
+	// sum_ncs = sum[priority level k] NCS(k)
+	//
+	// Bigger numbers mean a larger nominal concurrency limit,
+	// at the expense of every other priority level.
+	// This field has a default value of zero.
+	// +optional
+	nominalConcurrencyShares?: null | int32 @go(NominalConcurrencyShares,*int32) @protobuf(1,varint,opt)
+
+	// `lendablePercent` prescribes the fraction of the level's NominalCL that
+	// can be borrowed by other priority levels.  This value of this
+	// field must be between 0 and 100, inclusive, and it defaults to 0.
+	// The number of seats that other levels can borrow from this level, known
+	// as this level's LendableConcurrencyLimit (LendableCL), is defined as follows.
+	//
+	// LendableCL(i) = round( NominalCL(i) * lendablePercent(i)/100.0 )
+	//
+	// +optional
+	lendablePercent?: null | int32 @go(LendablePercent,*int32) @protobuf(2,varint,opt)
 }
 
 // LimitResponse defines how to handle requests that can not be executed right now.
@@ -520,7 +564,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// associated flow schemas irrelevant.  This field has a default
 	// value of 64.
 	// +optional
-	queues: int32 @go(Queues) @protobuf(1,varint,opt)
+	queues?: int32 @go(Queues) @protobuf(1,varint,opt)
 
 	// `handSize` is a small positive number that configures the
 	// shuffle sharding of requests into queues.  When enqueuing a request
@@ -534,14 +578,14 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// documentation for more extensive guidance on setting this
 	// field.  This field has a default value of 8.
 	// +optional
-	handSize: int32 @go(HandSize) @protobuf(2,varint,opt)
+	handSize?: int32 @go(HandSize) @protobuf(2,varint,opt)
 
 	// `queueLengthLimit` is the maximum number of requests allowed to
 	// be waiting in a given queue of this priority level at a time;
 	// excess requests are rejected.  This value must be positive.  If
 	// not specified, it will be defaulted to 50.
 	// +optional
-	queueLengthLimit: int32 @go(QueueLengthLimit) @protobuf(3,varint,opt)
+	queueLengthLimit?: int32 @go(QueueLengthLimit) @protobuf(3,varint,opt)
 }
 
 // PriorityLevelConfigurationConditionType is a valid value for PriorityLevelConfigurationStatusCondition.Type

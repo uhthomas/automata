@@ -62,6 +62,11 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// The encodingVersion must be included in the decodableVersions.
 	// +listType=set
 	decodableVersions?: [...string] @go(DecodableVersions,[]string) @protobuf(3,bytes,opt)
+
+	// The API server can serve these versions.
+	// DecodableVersions must include all ServedVersions.
+	// +listType=set
+	servedVersions?: [...string] @go(ServedVersions,[]string) @protobuf(4,bytes,opt)
 }
 
 #StorageVersionConditionType: string // #enumStorageVersionConditionType

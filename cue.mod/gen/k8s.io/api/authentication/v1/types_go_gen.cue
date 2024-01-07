@@ -182,3 +182,25 @@ import (
 	// +optional
 	uid?: types.#UID @go(UID) @protobuf(4,bytes,opt,name=uID,casttype=k8s.io/apimachinery/pkg/types.UID)
 }
+
+// SelfSubjectReview contains the user information that the kube-apiserver has about the user making this request.
+// When using impersonation, users will receive the user info of the user being impersonated.  If impersonation or
+// request header authentication is used, any extra keys will have their case ignored and returned as lowercase.
+#SelfSubjectReview: {
+	metav1.#TypeMeta
+
+	// Standard object's metadata.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	// +optional
+	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
+
+	// Status is filled in by the server with the user attributes.
+	status?: #SelfSubjectReviewStatus @go(Status) @protobuf(2,bytes,opt)
+}
+
+// SelfSubjectReviewStatus is filled by the kube-apiserver and sent back to a user.
+#SelfSubjectReviewStatus: {
+	// User attributes of the user making this request.
+	// +optional
+	userInfo?: #UserInfo @go(UserInfo) @protobuf(1,bytes,opt)
+}

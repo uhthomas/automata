@@ -398,12 +398,12 @@ import (
 
 	// currentMetrics is the last read state of the metrics used by this autoscaler.
 	// +optional
-	currentMetrics: [...#MetricStatus] @go(CurrentMetrics,[]MetricStatus) @protobuf(5,bytes,rep)
+	currentMetrics?: [...#MetricStatus] @go(CurrentMetrics,[]MetricStatus) @protobuf(5,bytes,rep)
 
 	// conditions is the set of conditions required for this autoscaler to scale its target,
 	// and indicates whether or not those conditions are met.
 	// +optional
-	conditions: [...#HorizontalPodAutoscalerCondition] @go(Conditions,[]HorizontalPodAutoscalerCondition) @protobuf(6,bytes,rep)
+	conditions?: [...#HorizontalPodAutoscalerCondition] @go(Conditions,[]HorizontalPodAutoscalerCondition) @protobuf(6,bytes,rep)
 }
 
 // HorizontalPodAutoscalerConditionType are the valid conditions of

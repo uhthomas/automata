@@ -89,7 +89,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	// Rules holds all the PolicyRules for this Role
 	// +optional
-	rules: [...#PolicyRule] @go(Rules,[]PolicyRule) @protobuf(2,bytes,rep)
+	rules?: [...#PolicyRule] @go(Rules,[]PolicyRule) @protobuf(2,bytes,rep)
 }
 
 // RoleBinding references a role, but does not contain it.  It can reference a Role in the same namespace or a ClusterRole in the global namespace.
@@ -108,6 +108,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	// RoleRef can reference a Role in the current namespace or a ClusterRole in the global namespace.
 	// If the RoleRef cannot be resolved, the Authorizer must return an error.
+	// This field is immutable.
 	roleRef: #RoleRef @go(RoleRef) @protobuf(3,bytes,opt)
 }
 
@@ -145,7 +146,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	// Rules holds all the PolicyRules for this ClusterRole
 	// +optional
-	rules: [...#PolicyRule] @go(Rules,[]PolicyRule) @protobuf(2,bytes,rep)
+	rules?: [...#PolicyRule] @go(Rules,[]PolicyRule) @protobuf(2,bytes,rep)
 
 	// AggregationRule is an optional field that describes how to build the Rules for this ClusterRole.
 	// If AggregationRule is set, then the Rules are controller managed and direct changes to Rules will be
@@ -177,6 +178,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	// RoleRef can only reference a ClusterRole in the global namespace.
 	// If the RoleRef cannot be resolved, the Authorizer must return an error.
+	// This field is immutable.
 	roleRef: #RoleRef @go(RoleRef) @protobuf(3,bytes,opt)
 }
 

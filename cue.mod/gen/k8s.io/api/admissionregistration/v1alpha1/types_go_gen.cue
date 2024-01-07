@@ -32,6 +32,21 @@ import (
 // AllScopes means that all scopes are included.
 #AllScopes: v1.#ScopeType & "*"
 
+// ParameterNotFoundActionType specifies a failure policy that defines how a binding
+// is evaluated when the param referred by its perNamespaceParamRef is not found.
+// +enum
+#ParameterNotFoundActionType: string // #enumParameterNotFoundActionType
+
+#enumParameterNotFoundActionType:
+	#AllowAction |
+	#DenyAction
+
+// Ignore means that an error finding params for a binding is ignored
+#AllowAction: #ParameterNotFoundActionType & "Allow"
+
+// Fail means that an error finding params for a binding is ignored
+#DenyAction: #ParameterNotFoundActionType & "Deny"
+
 // FailurePolicyType specifies a failure policy that defines how unrecognized errors from the admission endpoint are handled.
 // +enum
 #FailurePolicyType: string // #enumFailurePolicyType
@@ -200,6 +215,20 @@ import (
 	// +listMapKey=name
 	// +optional
 	matchConditions?: [...#MatchCondition] @go(MatchConditions,[]MatchCondition) @protobuf(6,bytes,rep)
+
+	// Variables contain definitions of variables that can be used in composition of other expressions.
+	// Each variable is defined as a named CEL expression.
+	// The variables defined here will be available under `variables` in other expressions of the policy
+	// except MatchConditions because MatchConditions are evaluated before the rest of the policy.
+	//
+	// The expression of a variable can refer to other variables defined earlier in the list but not those after.
+	// Thus, Variables must be sorted by the order of first appearance and acyclic.
+	// +patchMergeKey=name
+	// +patchStrategy=merge
+	// +listType=map
+	// +listMapKey=name
+	// +optional
+	variables?: [...#Variable] @go(Variables,[]Variable) @protobuf(7,bytes,rep)
 }
 
 #MatchCondition: v1.#MatchCondition
@@ -227,6 +256,9 @@ import (
 	// - 'oldObject' - The existing object. The value is null for CREATE requests.
 	// - 'request' - Attributes of the API request([ref](/pkg/apis/admission/types.go#AdmissionRequest)).
 	// - 'params' - Parameter resource referred to by the policy binding being evaluated. Only populated if the policy has a ParamKind.
+	// - 'namespaceObject' - The namespace object that the incoming object belongs to. The value is null for cluster-scoped resources.
+	// - 'variables' - Map of composited variables, from its name to its lazily evaluated value.
+	//   For example, a variable named 'foo' can be accessed as 'variables.foo'.
 	// - 'authorizer' - A CEL Authorizer. May be used to perform authorization checks for the principal (user or service account) of the request.
 	//   See https://pkg.go.dev/k8s.io/apiserver/pkg/cel/library#Authz
 	// - 'authorizer.requestResource' - A CEL ResourceCheck constructed from the 'authorizer' and configured with the
@@ -292,6 +324,18 @@ import (
 	messageExpression?: string @go(MessageExpression) @protobuf(4,bytes,opt)
 }
 
+// Variable is the definition of a variable that is used for composition.
+#Variable: {
+	// Name is the name of the variable. The name must be a valid CEL identifier and unique among all variables.
+	// The variable can be accessed in other expressions through `variables`
+	// For example, if name is "foo", the variable will be available as `variables.foo`
+	name: string @go(Name) @protobuf(1,bytes,opt,name=Name)
+
+	// Expression is the expression that will be evaluated as the value of the variable.
+	// The CEL expression has access to the same identifiers as the CEL expressions in Validation.
+	expression: string @go(Expression) @protobuf(2,bytes,opt,name=Expression)
+}
+
 // AuditAnnotation describes how to produce an audit annotation for an API request.
 #AuditAnnotation: {
 	// key specifies the audit annotation key. The audit annotation keys of
@@ -331,6 +375,15 @@ import (
 
 // ValidatingAdmissionPolicyBinding binds the ValidatingAdmissionPolicy with paramerized resources.
 // ValidatingAdmissionPolicyBinding and parameter CRDs together define how cluster administrators configure policies for clusters.
+//
+// For a given admission request, each binding will cause its policy to be
+// evaluated N times, where N is 1 for policies/bindings that don't use
+// params, otherwise N is the number of parameters selected by the binding.
+//
+// The CEL expressions of a policy must have a computed CEL cost below the maximum
+// CEL budget. Each evaluation of the policy is given an independent CEL cost budget.
+// Adding/removing policies, bindings, or params can not affect whether a
+// given (policy, binding, param) combination is within its own CEL budget.
 #ValidatingAdmissionPolicyBinding: {
 	metav1.#TypeMeta
 
@@ -362,9 +415,10 @@ import (
 	// Required.
 	policyName?: string @go(PolicyName) @protobuf(1,bytes,rep)
 
-	// ParamRef specifies the parameter resource used to configure the admission control policy.
+	// paramRef specifies the parameter resource used to configure the admission control policy.
 	// It should point to a resource of the type specified in ParamKind of the bound ValidatingAdmissionPolicy.
 	// If the policy specifies a ParamKind and the resource referred to by ParamRef does not exist, this binding is considered mis-configured and the FailurePolicy of the ValidatingAdmissionPolicy applied.
+	// If the policy does not specify a ParamKind then this field is ignored, and the rules are evaluated without a param.
 	// +optional
 	paramRef?: null | #ParamRef @go(ParamRef,*ParamRef) @protobuf(2,bytes,rep)
 
@@ -419,16 +473,59 @@ import (
 	validationActions?: [...#ValidationAction] @go(ValidationActions,[]ValidationAction) @protobuf(4,bytes,rep)
 }
 
-// ParamRef references a parameter resource
+// ParamRef describes how to locate the params to be used as input to
+// expressions of rules applied by a policy binding.
 // +structType=atomic
 #ParamRef: {
-	// Name of the resource being referenced.
+	// `name` is the name of the resource being referenced.
+	//
+	// `name` and `selector` are mutually exclusive properties. If one is set,
+	// the other must be unset.
+	//
+	// +optional
 	name?: string @go(Name) @protobuf(1,bytes,rep)
 
-	// Namespace of the referenced resource.
-	// Should be empty for the cluster-scoped resources
+	// namespace is the namespace of the referenced resource. Allows limiting
+	// the search for params to a specific namespace. Applies to both `name` and
+	// `selector` fields.
+	//
+	// A per-namespace parameter may be used by specifying a namespace-scoped
+	// `paramKind` in the policy and leaving this field empty.
+	//
+	// - If `paramKind` is cluster-scoped, this field MUST be unset. Setting this
+	// field results in a configuration error.
+	//
+	// - If `paramKind` is namespace-scoped, the namespace of the object being
+	// evaluated for admission will be used when this field is left unset. Take
+	// care that if this is left empty the binding must not match any cluster-scoped
+	// resources, which will result in an error.
+	//
 	// +optional
 	namespace?: string @go(Namespace) @protobuf(2,bytes,rep)
+
+	// selector can be used to match multiple param objects based on their labels.
+	// Supply selector: {} to match all resources of the ParamKind.
+	//
+	// If multiple params are found, they are all evaluated with the policy expressions
+	// and the results are ANDed together.
+	//
+	// One of `name` or `selector` must be set, but `name` and `selector` are
+	// mutually exclusive properties. If one is set, the other must be unset.
+	//
+	// +optional
+	selector?: null | metav1.#LabelSelector @go(Selector,*metav1.LabelSelector) @protobuf(3,bytes,rep)
+
+	// `parameterNotFoundAction` controls the behavior of the binding when the resource
+	// exists, and name or selector is valid, but there are no parameters
+	// matched by the binding. If the value is set to `Allow`, then no
+	// matched parameters will be treated as successful validation by the binding.
+	// If set to `Deny`, then no matched parameters will be subject to the
+	// `failurePolicy` of the policy.
+	//
+	// Allowed values are `Allow` or `Deny`
+	// Default to `Deny`
+	// +optional
+	parameterNotFoundAction?: null | #ParameterNotFoundActionType @go(ParameterNotFoundAction,*ParameterNotFoundActionType) @protobuf(4,bytes,rep)
 }
 
 // MatchResources decides whether to run the admission control policy on an object based

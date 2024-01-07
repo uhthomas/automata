@@ -21,7 +21,7 @@ import (
 	// Standard object's metadata.
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
 	// +optional
-	metadata: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
+	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
 
 	// eventTime is the time when this Event was first observed. It is required.
 	eventTime: metav1.#MicroTime @go(EventTime) @protobuf(2,bytes,opt)

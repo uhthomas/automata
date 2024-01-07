@@ -225,7 +225,7 @@ import (
 	// that suits all pending resources. This may get increased in the
 	// future, but not reduced.
 	//
-	// +listType=set
+	// +listType=atomic
 	// +optional
 	potentialNodes?: [...string] @go(PotentialNodes,[]string) @protobuf(2,bytes,opt)
 }
@@ -256,7 +256,7 @@ import (
 	// PodSchedulingSpec.PotentialNodes. This may get increased in the
 	// future, but not reduced.
 	//
-	// +listType=set
+	// +listType=atomic
 	// +optional
 	unsuitableNodes?: [...string] @go(UnsuitableNodes,[]string) @protobuf(2,bytes,opt)
 }

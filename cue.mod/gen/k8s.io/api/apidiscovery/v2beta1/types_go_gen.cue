@@ -73,7 +73,7 @@ import "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	// responseKind describes the group, version, and kind of the serialization schema for the object type this endpoint typically returns.
 	// APIs may return other objects types at their discretion, such as error conditions, requests for alternate representations, or other operation specific behavior.
-	// This value will be null if an APIService reports subresources but supports no operations on the parent resource
+	// This value will be null or empty if an APIService reports subresources but supports no operations on the parent resource
 	responseKind?: null | v1.#GroupVersionKind @go(ResponseKind,*v1.GroupVersionKind) @protobuf(2,bytes,opt)
 
 	// scope indicates the scope of a resource, either Cluster or Namespaced
@@ -133,7 +133,7 @@ import "k8s.io/apimachinery/pkg/apis/meta/v1"
 	subresource: string @go(Subresource) @protobuf(1,bytes,opt)
 
 	// responseKind describes the group, version, and kind of the serialization schema for the object type this endpoint typically returns.
-	// Some subresources do not return normal resources, these will have null return types.
+	// Some subresources do not return normal resources, these will have null or empty return types.
 	responseKind?: null | v1.#GroupVersionKind @go(ResponseKind,*v1.GroupVersionKind) @protobuf(2,bytes,opt)
 
 	// acceptedTypes describes the kinds that this endpoint accepts.

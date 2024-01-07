@@ -320,7 +320,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//      - If failurePolicy=Fail, reject the request
 	//      - If failurePolicy=Ignore, the error is ignored and the webhook is skipped
 	//
-	// This is an alpha feature and managed by the AdmissionWebhookMatchConditions feature gate.
+	// This is a beta feature and managed by the AdmissionWebhookMatchConditions feature gate.
 	//
 	// +patchMergeKey=name
 	// +patchStrategy=merge
@@ -489,7 +489,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//      - If failurePolicy=Fail, reject the request
 	//      - If failurePolicy=Ignore, the error is ignored and the webhook is skipped
 	//
-	// This is an alpha feature and managed by the AdmissionWebhookMatchConditions feature gate.
+	// This is a beta feature and managed by the AdmissionWebhookMatchConditions feature gate.
 	//
 	// +patchMergeKey=name
 	// +patchStrategy=merge

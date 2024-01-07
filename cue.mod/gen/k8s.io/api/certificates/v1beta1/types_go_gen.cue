@@ -177,7 +177,7 @@ import (
 	// Defaults to "True".
 	// If unset, should be treated as "True".
 	// +optional
-	status: v1.#ConditionStatus @go(Status) @protobuf(6,bytes,opt,casttype=k8s.io/api/core/v1.ConditionStatus)
+	status?: v1.#ConditionStatus @go(Status) @protobuf(6,bytes,opt,casttype=k8s.io/api/core/v1.ConditionStatus)
 
 	// brief reason for the request state
 	// +optional

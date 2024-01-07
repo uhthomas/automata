@@ -4,78 +4,7 @@
 
 package v1alpha1
 
-import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/types"
-)
-
-// ClusterCIDR represents a single configuration for per-Node Pod CIDR
-// allocations when the MultiCIDRRangeAllocator is enabled (see the config for
-// kube-controller-manager).  A cluster may have any number of ClusterCIDR
-// resources, all of which will be considered when allocating a CIDR for a
-// Node.  A ClusterCIDR is eligible to be used for a given Node when the node
-// selector matches the node in question and has free CIDRs to allocate.  In
-// case of multiple matching ClusterCIDR resources, the allocator will attempt
-// to break ties using internal heuristics, but any ClusterCIDR whose node
-// selector matches the Node may be used.
-#ClusterCIDR: {
-	metav1.#TypeMeta
-
-	// Standard object's metadata.
-	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-	// +optional
-	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
-
-	// spec is the desired state of the ClusterCIDR.
-	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-	// +optional
-	spec?: #ClusterCIDRSpec @go(Spec) @protobuf(2,bytes,opt)
-}
-
-// ClusterCIDRSpec defines the desired state of ClusterCIDR.
-#ClusterCIDRSpec: {
-	// nodeSelector defines which nodes the config is applicable to.
-	// An empty or nil nodeSelector selects all nodes.
-	// This field is immutable.
-	// +optional
-	nodeSelector?: null | v1.#NodeSelector @go(NodeSelector,*v1.NodeSelector) @protobuf(1,bytes,opt)
-
-	// perNodeHostBits defines the number of host bits to be configured per node.
-	// A subnet mask determines how much of the address is used for network bits
-	// and host bits. For example an IPv4 address of 192.168.0.0/24, splits the
-	// address into 24 bits for the network portion and 8 bits for the host portion.
-	// To allocate 256 IPs, set this field to 8 (a /24 mask for IPv4 or a /120 for IPv6).
-	// Minimum value is 4 (16 IPs).
-	// This field is immutable.
-	// +required
-	perNodeHostBits: int32 @go(PerNodeHostBits) @protobuf(2,varint,opt)
-
-	// ipv4 defines an IPv4 IP block in CIDR notation(e.g. "10.0.0.0/8").
-	// At least one of ipv4 and ipv6 must be specified.
-	// This field is immutable.
-	// +optional
-	ipv4: string @go(IPv4) @protobuf(3,bytes,opt)
-
-	// ipv6 defines an IPv6 IP block in CIDR notation(e.g. "2001:db8::/64").
-	// At least one of ipv4 and ipv6 must be specified.
-	// This field is immutable.
-	// +optional
-	ipv6: string @go(IPv6) @protobuf(4,bytes,opt)
-}
-
-// ClusterCIDRList contains a list of ClusterCIDR.
-#ClusterCIDRList: {
-	metav1.#TypeMeta
-
-	// Standard object's metadata.
-	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-	// +optional
-	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
-
-	// items is the list of ClusterCIDRs.
-	items: [...#ClusterCIDR] @go(Items,[]ClusterCIDR) @protobuf(2,bytes,rep)
-}
+import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 // IPAddress represents a single IP of a single IP Family. The object is designed to be used by APIs
 // that operate on IP addresses. The object is used by the Service core API for allocation of IP addresses.
@@ -123,10 +52,6 @@ import (
 	// Name is the name of the object being referenced.
 	// +required
 	name?: string @go(Name) @protobuf(4,bytes,opt)
-
-	// UID is the uid of the object being referenced.
-	// +optional
-	uid?: types.#UID @go(UID) @protobuf(5,bytes,opt,casttype=k8s.io/apimachinery/pkg/types.UID)
 }
 
 // IPAddressList contains a list of IPAddress.
@@ -140,4 +65,67 @@ import (
 
 	// items is the list of IPAddresses.
 	items: [...#IPAddress] @go(Items,[]IPAddress) @protobuf(2,bytes,rep)
+}
+
+// ServiceCIDR defines a range of IP addresses using CIDR format (e.g. 192.168.0.0/24 or 2001:db2::/64).
+// This range is used to allocate ClusterIPs to Service objects.
+#ServiceCIDR: {
+	metav1.#TypeMeta
+
+	// Standard object's metadata.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	// +optional
+	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
+
+	// spec is the desired state of the ServiceCIDR.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+	// +optional
+	spec?: #ServiceCIDRSpec @go(Spec) @protobuf(2,bytes,opt)
+
+	// status represents the current state of the ServiceCIDR.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+	// +optional
+	status?: #ServiceCIDRStatus @go(Status) @protobuf(3,bytes,opt)
+}
+
+// ServiceCIDRSpec define the CIDRs the user wants to use for allocating ClusterIPs for Services.
+#ServiceCIDRSpec: {
+	// CIDRs defines the IP blocks in CIDR notation (e.g. "192.168.0.0/24" or "2001:db8::/64")
+	// from which to assign service cluster IPs. Max of two CIDRs is allowed, one of each IP family.
+	// This field is immutable.
+	// +optional
+	cidrs?: [...string] @go(CIDRs,[]string) @protobuf(1,bytes,opt)
+}
+
+// ServiceCIDRConditionReady represents status of a ServiceCIDR that is ready to be used by the
+// apiserver to allocate ClusterIPs for Services.
+#ServiceCIDRConditionReady: "Ready"
+
+// ServiceCIDRReasonTerminating represents a reason where a ServiceCIDR is not ready because it is
+// being deleted.
+#ServiceCIDRReasonTerminating: "Terminating"
+
+// ServiceCIDRStatus describes the current state of the ServiceCIDR.
+#ServiceCIDRStatus: {
+	// conditions holds an array of metav1.Condition that describe the state of the ServiceCIDR.
+	// Current service state
+	// +optional
+	// +patchMergeKey=type
+	// +patchStrategy=merge
+	// +listType=map
+	// +listMapKey=type
+	conditions?: [...metav1.#Condition] @go(Conditions,[]metav1.Condition) @protobuf(1,bytes,rep)
+}
+
+// ServiceCIDRList contains a list of ServiceCIDR objects.
+#ServiceCIDRList: {
+	metav1.#TypeMeta
+
+	// Standard object's metadata.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	// +optional
+	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
+
+	// items is the list of ServiceCIDRs.
+	items: [...#ServiceCIDR] @go(Items,[]ServiceCIDR) @protobuf(2,bytes,rep)
 }
