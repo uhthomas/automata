@@ -33,5 +33,6 @@ _items: [
 	#NamespaceList.items,
 	#ServiceAccountList.items,
 	#ServiceList.items,
+	#VMRuleList.items,
 	#VMServiceScrapeList.items,
 ]
