@@ -39,6 +39,7 @@ cue_export(
         "//k8s/amour/nvidia_device_plugin:cue_nvidia_device_plugin_library",
         "//k8s/amour/onepassword_connect:cue_onepassword_connect_library",
         "//k8s/amour/rook_ceph:cue_rook_ceph_library",
+        "//k8s/amour/smartctl_exporter:cue_smartctl_exporter_library",
         "//k8s/amour/snapshot_controller:cue_snapshot_controller_library",
         "//k8s/amour/tailscale:cue_tailscale_library",
         "//k8s/amour/thomas:cue_thomas_library",
