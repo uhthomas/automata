@@ -36,7 +36,7 @@ import (
 		verbs: ["get"]
 	}, {
 		apiGroups: [v1.#GroupName]
-		resources: ["pods", "nodes"]
+		resources: ["pods", "nodes", "namespaces", "configmaps"]
 		verbs: ["get", "list", "watch"]
 	}]
 }]

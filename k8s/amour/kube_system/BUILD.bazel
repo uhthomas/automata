@@ -9,8 +9,5 @@ cue_library(
     ],
     importpath = "github.com/uhthomas/automata/k8s/amour/kube_system",
     visibility = ["//visibility:public"],
-    deps = [
-        "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
-        "//k8s/amour/kube_system/metrics_server:cue_metrics_server_library",
-    ],
+    deps = ["//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library"],
 )

@@ -3,7 +3,6 @@ package kube_system
 import (
 	"list"
 
-	"github.com/uhthomas/automata/k8s/amour/kube_system/metrics_server"
 	"k8s.io/api/core/v1"
 )
 
@@ -20,5 +19,4 @@ import (
 _items: [
 	#NamespaceList.items,
 	#VMServiceScrapeList.items,
-	metrics_server.#List.items,
 ]
