@@ -42,7 +42,9 @@
       ],
       "matchStrings": [
         "image:\\s*\"(?<depName>[\\w\\/.-]*?):(?<currentValue>[\\w\\/.-]*?)\"",
-        "image:\\s*\"(?<depName>[\\w\\/.-]*?):(?<currentValue>[\\w\\/.-]*?)\"@(?<currentDigest>sha256:[a-f0-9]+)\""
+        "image:\\s*\"(?<depName>[\\w\\/.-]*?):(?<currentValue>[\\w\\/.-]*?)@(?<currentDigest>sha256:[a-f0-9]+)\"",
+        "name:\\s*\"(?<depName>[\\w\\/.-]*?)\"\\s*tag:\\s*\"(?<currentValue>[\\w\\/.-]*?)\"",
+        "name:\\s*\"(?<depName>[\\w\\/.-]*?)\"\\s*tag:\\s*\"(?<currentValue>[\\w\\/.-]*?)\"\\s*digest:\\s*\"(?<currentDigest>sha256:[a-f0-9]+)\""
       ],
       "datasourceTemplate": "docker",
       "versioningTemplate": "docker"

@@ -22,7 +22,7 @@ import (
 			spec: {
 				containers: [{
 					name:  "karma"
-					image: "ghcr.io/prymitive/karma:v\(#Version)"
+					image: _image.reference
 					ports: [{
 						name:          "http"
 						containerPort: 8080
