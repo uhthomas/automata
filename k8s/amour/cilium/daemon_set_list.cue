@@ -257,7 +257,7 @@ import (
 				}]
 				initContainers: [{
 					name:  "config"
-					image: "quay.io/cilium/cilium:v1.14.0@sha256:6263f3a3d5d63b267b538298dbeb5ae87da3efacf09a2c620446c873ba807d35"
+					image: "quay.io/cilium/cilium:v1.14.0@sha256:5a94b561f4651fcfd85970a50bc78b201cfbd6e2ab1a03848eab25a82832653a"
 					command: ["cilium", "build-config"]
 					env: [{
 						name: "K8S_NODE_NAME"
@@ -281,7 +281,7 @@ import (
 					imagePullPolicy:          v1.#PullIfNotPresent
 				}, {
 					name:  "mount-bpf-fs"
-					image: "quay.io/cilium/cilium:v1.14.0@sha256:6263f3a3d5d63b267b538298dbeb5ae87da3efacf09a2c620446c873ba807d35"
+					image: "quay.io/cilium/cilium:v1.14.0@sha256:5a94b561f4651fcfd85970a50bc78b201cfbd6e2ab1a03848eab25a82832653a"
 					args: ["mount | grep \"/sys/fs/bpf type bpf\" || mount -t bpf bpf /sys/fs/bpf"]
 					command: ["/bin/bash", "-c", "--"]
 					volumeMounts: [{
@@ -294,7 +294,7 @@ import (
 					securityContext: privileged: true
 				}, {
 					name:  "clean-cilium-state"
-					image: "quay.io/cilium/cilium:v1.14.0@sha256:6263f3a3d5d63b267b538298dbeb5ae87da3efacf09a2c620446c873ba807d35"
+					image: "quay.io/cilium/cilium:v1.14.0@sha256:5a94b561f4651fcfd85970a50bc78b201cfbd6e2ab1a03848eab25a82832653a"
 					command: ["/init-container.sh"]
 					env: [{
 						name: "CILIUM_ALL_STATE"
@@ -346,7 +346,7 @@ import (
 					}
 				}, {
 					name:  "install-cni-binaries"
-					image: "quay.io/cilium/cilium:v1.14.0@sha256:6263f3a3d5d63b267b538298dbeb5ae87da3efacf09a2c620446c873ba807d35"
+					image: "quay.io/cilium/cilium:v1.14.0@sha256:5a94b561f4651fcfd85970a50bc78b201cfbd6e2ab1a03848eab25a82832653a"
 					command: ["/install-plugin.sh"]
 					resources: requests: {
 						(v1.#ResourceCPU):    "100m"
