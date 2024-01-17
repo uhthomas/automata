@@ -15,7 +15,7 @@ import victoriametricsv1beta1 "github.com/VictoriaMetrics/operator/api/victoriam
 	spec: {
 		endpoints: [{port: "ceph-exporter-http-metrics"}]
 		selector: matchLabels: {
-			app:          "rook-ceph-mgr"
+			app:          "rook-ceph-exporter"
 			rook_cluster: #Namespace
 		}
 	}
