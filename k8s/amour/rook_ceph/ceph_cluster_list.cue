@@ -104,7 +104,7 @@ import (
 				(v1.#ResourceMemory): "2Gi"
 			}
 			exporter: limits: {
-				(v1.#ResourceCPU):    "50m"
+				(v1.#ResourceCPU):    "150m"
 				(v1.#ResourceMemory): "50Mi"
 			}
 			logcollector: limits: {
