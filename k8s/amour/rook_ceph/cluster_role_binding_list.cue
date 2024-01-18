@@ -12,6 +12,18 @@ import rbacv1 "k8s.io/api/rbac/v1"
 }
 
 #ClusterRoleBindingList: items: [{
+	metadata: name: "cephfs-csi-nodeplugin-role"
+	subjects: [{
+		kind:      rbacv1.#ServiceAccountKind
+		name:      "rook-csi-cephfs-plugin-sa"
+		namespace: #Namespace
+	}]
+	roleRef: {
+		kind:     "ClusterRole"
+		name:     "cephfs-csi-nodeplugin"
+		apiGroup: rbacv1.#GroupName
+	}
+}, {
 	metadata: name: "cephfs-csi-provisioner-role"
 	subjects: [{
 		kind:      rbacv1.#ServiceAccountKind

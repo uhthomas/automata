@@ -21,8 +21,6 @@ import (
 }
 
 #ClusterRoleList: items: [{
-	// TODO: remove this, once https://github.com/rook/rook/issues/10141
-	// is resolved.
 	metadata: name: "cephfs-csi-nodeplugin"
 	rules: [{
 		apiGroups: [v1.#GroupName]
@@ -38,7 +36,7 @@ import (
 	}, {
 		apiGroups: [v1.#GroupName]
 		resources: ["persistentvolumes"]
-		verbs: ["get", "list", "watch", "create", "delete", "patch"]
+		verbs: ["get", "list", "watch", "update", "create", "delete", "patch"]
 	}, {
 		apiGroups: [v1.#GroupName]
 		resources: ["persistentvolumeclaims"]
@@ -127,7 +125,7 @@ import (
 	}, {
 		apiGroups: [v1.#GroupName]
 		resources: ["persistentvolumes"]
-		verbs: ["get", "list", "watch", "create", "delete", "patch"]
+		verbs: ["get", "list", "watch", "create", "update", "delete", "patch"]
 	}, {
 		apiGroups: [v1.#GroupName]
 		resources: ["persistentvolumeclaims"]
@@ -223,11 +221,11 @@ import (
 	}
 	rules: [{
 		apiGroups: [v1.#GroupName]
-		resources: ["pods", "nodes", "nodes/proxy", "services", "secrets", "configmaps"]
+		resources: ["pods", "nodes", "nodes/proxy", "secrets", "configmaps"]
 		verbs: ["get", "list", "watch"]
 	}, {
 		apiGroups: [v1.#GroupName]
-		resources: ["events", "persistentvolumes", "persistentvolumeclaims", "endpoints"]
+		resources: ["events", "persistentvolumes", "persistentvolumeclaims", "endpoints", "services"]
 		verbs: ["get", "list", "watch", "patch", "create", "update", "delete"]
 	}, {
 		apiGroups: [storagev1.#GroupName]
@@ -236,7 +234,7 @@ import (
 	}, {
 		apiGroups: [batchv1.#GroupName]
 		resources: ["jobs", "cronjobs"]
-		verbs: ["get", "list", "watch", "create", "update", "delete"]
+		verbs: ["get", "list", "watch", "create", "update", "delete", "deletecollection"]
 	}, {
 		// The Rook operator must be able to watch all ceph.rook.io resources to reconcile them.
 		apiGroups: ["ceph.rook.io"]
@@ -308,6 +306,10 @@ import (
 		apiGroups: [policyv1.#GroupName, appsv1.#GroupName, extensionsv1beta1.#GroupName]
 		resources: ["poddisruptionbudgets", "deployments", "replicasets"]
 		verbs: ["get", "list", "watch", "create", "update", "delete", "deletecollection"]
+	}, {
+		apiGroups: [appsv1.#GroupName]
+		resources: ["deployments/finalizers"]
+		verbs: ["update"]
 	}, {
 		apiGroups: ["healthchecking.openshift.io"]
 		resources: ["machinedisruptionbudgets"]

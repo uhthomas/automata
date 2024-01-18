@@ -63,6 +63,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 		parameters: {
 			compression_algorithm: "zstd"
 			compression_mode:      "aggressive"
+			min_size:              "5"
 		}
 	}
 }, {
