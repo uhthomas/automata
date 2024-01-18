@@ -78,7 +78,7 @@ import (
 				}]
 				containers: [{
 					name:  "hubble-relay"
-					image: "quay.io/cilium/hubble-relay:v1.14.2@sha256:a89030b31f333e8fb1c10d2473250399a1a537c27d022cd8becc1a65d1bef1d6"
+					image: "quay.io/cilium/hubble-relay:v1.14.6@sha256:adeb90adae481bb952211483f511afee40825707953ed7ac118902d3bc8dd37f"
 					command: ["hubble-relay"]
 					args: ["serve"]
 					ports: [{
