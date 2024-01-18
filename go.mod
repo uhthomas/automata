@@ -8,7 +8,7 @@ require (
 	github.com/NVIDIA/gpu-operator v1.11.1
 	github.com/VictoriaMetrics/operator/api v0.0.0-20231128174956-7965dba77210
 	github.com/cert-manager/cert-manager v1.13.3
-	github.com/cilium/cilium v1.14.5
+	github.com/cilium/cilium v1.14.6
 	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
 	github.com/external-secrets/external-secrets v0.9.11
 	github.com/prometheus/prometheus v0.48.1
