@@ -122,6 +122,7 @@ import (
 
 	// The path on the host where config and data can be persisted
 	// +kubebuilder:validation:Pattern=`^/(\S+)`
+	// +kubebuilder:validation:XValidation:message="DataDirHostPath is immutable",rule="self == oldSelf"
 	// +optional
 	dataDirHostPath?: string @go(DataDirHostPath)
 
@@ -201,6 +202,50 @@ import (
 	// +optional
 	// +nullable
 	logCollector?: #LogCollectorSpec @go(LogCollector)
+
+	// CSI Driver Options applied per cluster.
+	// +optional
+	csi?: #CSIDriverSpec @go(CSI)
+
+	// Ceph Config options
+	// +optional
+	// +nullable
+	cephConfig?: {[string]: [string]: string} @go(CephConfig,map[string]map[string]string)
+}
+
+// CSIDriverSpec defines CSI Driver settings applied per cluster.
+#CSIDriverSpec: {
+	// ReadAffinity defines the read affinity settings for CSI driver.
+	// +optional
+	readAffinity?: #ReadAffinitySpec @go(ReadAffinity)
+
+	// CephFS defines CSI Driver settings for CephFS driver.
+	// +optional
+	cephfs?: #CSICephFSSpec @go(CephFS)
+}
+
+// CSICephFSSpec defines the settings for CephFS CSI driver.
+#CSICephFSSpec: {
+	// KernelMountOptions defines the mount options for kernel mounter.
+	// +optional
+	kernelMountOptions?: string @go(KernelMountOptions)
+
+	// FuseMountOptions defines the mount options for ceph fuse mounter.
+	// +optional
+	fuseMountOptions?: string @go(FuseMountOptions)
+}
+
+// ReadAffinitySpec defines the read affinity settings for CSI driver.
+#ReadAffinitySpec: {
+	// Enables read affinity for CSI driver.
+	// +optional
+	enabled?: bool @go(Enabled)
+
+	// CrushLocationLabels defines which node labels to use
+	// as CRUSH location. This should correspond to the values set in
+	// the CRUSH map.
+	// +optional
+	crushLocationLabels?: [...string] @go(CrushLocationLabels,[]string)
 }
 
 // LogCollectorSpec is the logging spec
@@ -236,7 +281,7 @@ import (
 #ObjectStoreSecuritySpec: {
 	// +optional
 	// +nullable
-	SecuritySpec: #SecuritySpec
+	SecuritySpec?: #SecuritySpec
 
 	// The settings for supporting AWS-SSE:S3 with RGW
 	// +optional
@@ -306,6 +351,14 @@ import (
 	// SSL determines whether SSL should be used
 	// +optional
 	ssl?: bool @go(SSL)
+
+	// Endpoint for the Prometheus host
+	// +optional
+	prometheusEndpoint?: string @go(PrometheusEndpoint)
+
+	// Whether to verify the ssl endpoint for prometheus. Set to false for a self-signed cert.
+	// +optional
+	prometheusEndpointSSLVerify?: bool @go(PrometheusEndpointSSLVerify)
 }
 
 // MonitoringSpec represents the settings for Prometheus based Ceph monitoring
@@ -417,11 +470,18 @@ import (
 // CephStorage represents flavors of Ceph Cluster Storage
 #CephStorage: {
 	deviceClasses?: [...#DeviceClasses] @go(DeviceClasses,[]DeviceClasses)
+	osd?: #OSDStatus @go(OSD)
 }
 
 // DeviceClasses represents device classes of a Ceph Cluster
 #DeviceClasses: {
 	name?: string @go(Name)
+}
+
+// OSDStatus represents OSD status of the ceph Cluster
+#OSDStatus: {
+	// StoreType is a mapping between the OSD backend stores and number of OSDs using these stores
+	storeType?: {[string]: int} @go(StoreType,map[string]int)
 }
 
 // ClusterVersion represents the version of a Ceph Cluster
@@ -560,6 +620,8 @@ import (
 #ClusterStateError: #ClusterState & "Error"
 
 // MonSpec represents the specification of the monitor
+// +kubebuilder:validation:XValidation:message="zones must be less than or equal to count",rule="!has(self.zones) || (has(self.zones) && (size(self.zones) <= self.count))"
+// +kubebuilder:validation:XValidation:message="stretchCluster zones must be equal to 3",rule="!has(self.stretchCluster) || (has(self.stretchCluster) && (size(self.stretchCluster.zones) > 0) && (size(self.stretchCluster.zones) == 3))"
 #MonSpec: {
 	// Count is the number of Ceph monitors
 	// +kubebuilder:validation:Minimum=0
@@ -570,6 +632,13 @@ import (
 	// AllowMultiplePerNode determines if we can run multiple monitors on the same node (not recommended)
 	// +optional
 	allowMultiplePerNode?: bool @go(AllowMultiplePerNode)
+
+	// +optional
+	failureDomainLabel?: string @go(FailureDomainLabel)
+
+	// Zones are specified when we want to provide zonal awareness to mons
+	// +optional
+	zones?: [...#MonZoneSpec] @go(Zones,[]MonZoneSpec)
 
 	// StretchCluster is the stretch cluster specification
 	// +optional
@@ -594,16 +663,16 @@ import (
 	// Zones is the list of zones
 	// +optional
 	// +nullable
-	zones?: [...#StretchClusterZoneSpec] @go(Zones,[]StretchClusterZoneSpec)
+	zones?: [...#MonZoneSpec] @go(Zones,[]MonZoneSpec)
 }
 
-// StretchClusterZoneSpec represents the specification of a stretched zone in a Ceph Cluster
-#StretchClusterZoneSpec: {
+// MonZoneSpec represents the specification of a zone in a Ceph Cluster
+#MonZoneSpec: {
 	// Name is the name of the zone
 	// +optional
 	name?: string @go(Name)
 
-	// Arbiter determines if the zone contains the arbiter
+	// Arbiter determines if the zone contains the arbiter used for stretch cluster mode
 	// +optional
 	arbiter?: bool @go(Arbiter)
 
@@ -615,9 +684,9 @@ import (
 
 // MgrSpec represents options to configure a ceph mgr
 #MgrSpec: {
-	// Count is the number of manager to run
+	// Count is the number of manager daemons to run
 	// +kubebuilder:validation:Minimum=0
-	// +kubebuilder:validation:Maximum=2
+	// +kubebuilder:validation:Maximum=5
 	// +optional
 	count?: int @go(Count)
 
@@ -1151,7 +1220,7 @@ import (
 #MetadataServerSpec: {
 	// The number of metadata servers that are active. The remaining servers in the cluster will be in standby mode.
 	// +kubebuilder:validation:Minimum=1
-	// +kubebuilder:validation:Maximum=10
+	// +kubebuilder:validation:Maximum=50
 	activeCount: int32 @go(ActiveCount)
 
 	// Whether each active MDS instance will have an active standby with a warm metadata cache for faster failover.
@@ -1457,7 +1526,7 @@ import (
 	// The rgw pod info
 	// +optional
 	// +nullable
-	gateway: #GatewaySpec @go(Gateway)
+	gateway?: #GatewaySpec @go(Gateway)
 
 	// The multisite info
 	// +optional
@@ -1473,6 +1542,15 @@ import (
 	// +optional
 	// +nullable
 	security?: null | #ObjectStoreSecuritySpec @go(Security,*ObjectStoreSecuritySpec)
+
+	// The list of allowed namespaces in addition to the object store namespace
+	// where ceph object store users may be created. Specify "*" to allow all
+	// namespaces, otherwise list individual namespaces that are to be allowed.
+	// This is useful for applications that need object store credentials
+	// to be created in their own namespace, where neither OBCs nor COSI
+	// is being used to create buckets. The default is empty.
+	// +optional
+	allowUsersInNamespaces?: [...string] @go(AllowUsersInNamespaces,[]string)
 }
 
 // ObjectHealthCheckSpec represents the health check of an object store
@@ -1531,6 +1609,14 @@ import (
 	// +optional
 	placement?: #Placement @go(Placement)
 
+	// DisableMultisiteSyncTraffic, when true, prevents this object store's gateways from
+	// transmitting multisite replication data. Note that this value does not affect whether
+	// gateways receive multisite replication traffic: see ObjectZone.spec.customEndpoints for that.
+	// If false or unset, this object store's gateways will be able to transmit multisite
+	// replication data.
+	// +optional
+	disableMultisiteSyncTraffic?: bool @go(DisableMultisiteSyncTraffic)
+
 	// The annotations-related configuration to add/set on each Pod related object.
 	// +kubebuilder:pruning:PreserveUnknownFields
 	// +nullable
@@ -1582,11 +1668,11 @@ import (
 // Kubernetes's v1.EndpointAddress.
 // +structType=atomic
 #EndpointAddress: {
-	// The IP of this endpoint.
+	// The IP of this endpoint. As a legacy behavior, this supports being given a DNS-adressable hostname as well.
 	// +optional
-	ip: string @go(IP) @protobuf(1,bytes,opt)
+	ip?: string @go(IP) @protobuf(1,bytes,opt)
 
-	// The Hostname of this endpoint
+	// The DNS-addressable Hostname of this endpoint. This field will be preferred over IP if both are given.
 	// +optional
 	hostname?: string @go(Hostname) @protobuf(3,bytes,opt)
 }
@@ -1606,7 +1692,7 @@ import (
 	message?: string @go(Message)
 
 	// +optional
-	endpoints: #ObjectEndpoints @go(Endpoints)
+	endpoints?: #ObjectEndpoints @go(Endpoints)
 
 	// +optional
 	// +nullable
@@ -1621,11 +1707,11 @@ import (
 #ObjectEndpoints: {
 	// +optional
 	// +nullable
-	insecure: [...string] @go(Insecure,[]string)
+	insecure?: [...string] @go(Insecure,[]string)
 
 	// +optional
 	// +nullable
-	secure: [...string] @go(Secure,[]string)
+	secure?: [...string] @go(Secure,[]string)
 }
 
 // CephObjectStoreUser represents a Ceph Object Store Gateway User
@@ -1680,6 +1766,10 @@ import (
 	// +optional
 	// +nullable
 	quotas?: null | #ObjectUserQuotaSpec @go(Quotas,*ObjectUserQuotaSpec)
+
+	// The namespace where the parent CephCluster and CephObjectStore are found
+	// +optional
+	clusterNamespace?: string @go(ClusterNamespace)
 }
 
 // Additional admin-level capabilities for the Ceph object store user
@@ -1691,8 +1781,18 @@ import (
 
 	// +optional
 	// +kubebuilder:validation:Enum={"*","read","write","read, write"}
+	// Admin capabilities to read/write Ceph object store users. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+	users?: string @go(Users)
+
+	// +optional
+	// +kubebuilder:validation:Enum={"*","read","write","read, write"}
 	// Admin capabilities to read/write Ceph object store buckets. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
 	bucket?: string @go(Bucket)
+
+	// +optional
+	// +kubebuilder:validation:Enum={"*","read","write","read, write"}
+	// Admin capabilities to read/write Ceph object store buckets. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+	buckets?: string @go(Buckets)
 
 	// +optional
 	// +kubebuilder:validation:Enum={"*","read","write","read, write"}
@@ -1708,6 +1808,51 @@ import (
 	// +kubebuilder:validation:Enum={"*","read","write","read, write"}
 	// Admin capabilities to read/write Ceph object store zones. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
 	zone?: string @go(Zone)
+
+	// +optional
+	// +kubebuilder:validation:Enum={"*","read","write","read, write"}
+	// Admin capabilities to read/write roles for user. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+	roles?: string @go(Roles)
+
+	// +optional
+	// +kubebuilder:validation:Enum={"*","read","write","read, write"}
+	// Admin capabilities to read/write information about the user. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+	info?: string @go(Info)
+
+	// +optional
+	// +kubebuilder:validation:Enum={"*","read","write","read, write"}
+	// Add capabilities for user to send request to RGW Cache API header. Documented in https://docs.ceph.com/en/quincy/radosgw/rgw-cache/#cache-api
+	"amz-cache"?: string @go(AMZCache)
+
+	// +optional
+	// +kubebuilder:validation:Enum={"*","read","write","read, write"}
+	// Add capabilities for user to change bucket index logging. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+	bilog?: string @go(BiLog)
+
+	// +optional
+	// +kubebuilder:validation:Enum={"*","read","write","read, write"}
+	// Add capabilities for user to change metadata logging. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+	mdlog?: string @go(MdLog)
+
+	// +optional
+	// +kubebuilder:validation:Enum={"*","read","write","read, write"}
+	// Add capabilities for user to change data logging. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+	datalog?: string @go(DataLog)
+
+	// +optional
+	// +kubebuilder:validation:Enum={"*","read","write","read, write"}
+	// Add capabilities for user to change user policies. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+	"user-policy"?: string @go(UserPolicy)
+
+	// +optional
+	// +kubebuilder:validation:Enum={"*","read","write","read, write"}
+	// Add capabilities for user to change oidc provider. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+	"oidc-provider"?: string @go(OidcProvider)
+
+	// +optional
+	// +kubebuilder:validation:Enum={"*","read","write","read, write"}
+	// Add capabilities for user to set rate limiter for user and bucket. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+	ratelimit?: string @go(RateLimit)
 }
 
 // ObjectUserQuotaSpec can be used to set quotas for the object store user to limit their usage. See the [Ceph docs](https://docs.ceph.com/en/latest/radosgw/admin/?#quota-management) for more
@@ -1830,6 +1975,10 @@ import (
 	// In many cases, you should set this to the endpoint of the ingress resource that makes the
 	// CephObjectStore associated with this CephObjectStoreZone reachable to peer clusters.
 	// The list can have one or more endpoints pointing to different RGW servers in the zone.
+	//
+	// If a CephObjectStore endpoint is omitted from this list, that object store's gateways will
+	// not receive multisite replication data
+	// (see CephObjectStore.spec.gateway.disableMultisiteSyncTraffic).
 	// +nullable
 	// +optional
 	customEndpoints?: [...string] @go(CustomEndpoints,[]string)
@@ -1837,7 +1986,7 @@ import (
 	// Preserve pools on object zone deletion
 	// +optional
 	// +kubebuilder:default=true
-	preservePoolsOnDelete: bool @go(PreservePoolsOnDelete)
+	preservePoolsOnDelete?: bool @go(PreservePoolsOnDelete)
 }
 
 // CephBucketTopic represents a Ceph Object Topic for Bucket Notifications
@@ -1924,7 +2073,6 @@ import (
 	disableVerifySSL?: bool @go(DisableVerifySSL)
 
 	// Send the notifications with the CloudEvents header: https://github.com/cloudevents/spec/blob/main/cloudevents/adapters/aws-s3.md
-	// Supported for Ceph Quincy (v17) or newer.
 	// +optional
 	sendCloudEvents?: bool @go(SendCloudEvents)
 }
@@ -2093,14 +2241,12 @@ import (
 // GaneshaRADOSSpec represents the specification of a Ganesha RADOS object
 #GaneshaRADOSSpec: {
 	// The Ceph pool used store the shared configuration for NFS-Ganesha daemons.
-	// This setting is required for Ceph v15 and ignored for Ceph v16.
-	// As of Ceph Pacific 16.2.7+, this is internally hardcoded to ".nfs".
+	// This setting is deprecated, as it is internally required to be ".nfs".
 	// +optional
 	pool?: string @go(Pool)
 
 	// The namespace inside the Ceph pool (set by 'pool') where shared NFS-Ganesha config is stored.
-	// This setting is required for Ceph v15 and ignored for Ceph v16.
-	// As of Ceph Pacific v16+, this is internally set to the name of the CephNFS.
+	// This setting is deprecated as it is internally set to the name of the CephNFS.
 	// +optional
 	namespace?: string @go(Namespace)
 }
@@ -2146,6 +2292,11 @@ import (
 	// +nullable
 	// +optional
 	hostNetwork?: null | bool @go(HostNetwork,*bool)
+
+	// A liveness-probe to verify that Ganesha server has valid run-time state.
+	// If LivenessProbe.Disabled is false and LivenessProbe.Probe is nil uses default probe.
+	// +optional
+	livenessProbe?: null | #ProbeSpec @go(LivenessProbe,*ProbeSpec)
 }
 
 // NFSSecuritySpec represents security configurations for an NFS server pod
@@ -2173,7 +2324,11 @@ import (
 	// See https://github.com/nfs-ganesha/nfs-ganesha/wiki/RPCSEC_GSS for more detail.
 	// +optional
 	// +kubebuilder:default="nfs"
-	principalName: string @go(PrincipalName)
+	principalName?: string @go(PrincipalName)
+
+	// DomainName should be set to the Kerberos Realm.
+	// +optional
+	domainName?: string @go(DomainName)
 
 	// ConfigFiles defines where the Kerberos configuration should be sourced from. Config files
 	// will be placed into the `/etc/krb5.conf.rook/` directory.
@@ -2186,7 +2341,7 @@ import (
 	// Rook configures Kerberos to log to stderr. We suggest removing logging sections from config
 	// files to avoid consuming unnecessary disk space from logging to files.
 	// +optional
-	configFiles: #KerberosConfigFiles @go(ConfigFiles)
+	configFiles?: #KerberosConfigFiles @go(ConfigFiles)
 
 	// KeytabFile defines where the Kerberos keytab should be sourced from. The keytab file will be
 	// placed into `/etc/krb5.keytab`. If this is left empty, Rook will not add the file.
@@ -2194,7 +2349,7 @@ import (
 	// may build it into your custom Ceph container image or use the Vault agent injector to
 	// securely add the file via annotations on the CephNFS spec (passed to the NFS server pods).
 	// +optional
-	keytabFile: #KerberosKeytabFile @go(KeytabFile)
+	keytabFile?: #KerberosKeytabFile @go(KeytabFile)
 }
 
 // KerberosConfigFiles represents the source(s) from which Kerberos configuration should come.
@@ -2240,7 +2395,7 @@ import (
 	// may build it into your custom Ceph container image or use the Vault agent injector to
 	// securely add the file via annotations on the CephNFS spec (passed to the NFS server pods).
 	// +optional
-	sssdConfigFile: #SSSDSidecarConfigFile @go(SSSDConfigFile)
+	sssdConfigFile?: #SSSDSidecarConfigFile @go(SSSDConfigFile)
 
 	// AdditionalFiles defines any number of additional files that should be mounted into the SSSD
 	// sidecar. These files may be referenced by the sssd.conf config file.
@@ -2293,18 +2448,48 @@ import (
 }
 
 // NetworkSpec for Ceph includes backward compatibility code
+// +kubebuilder:validation:XValidation:message="at least one network selector must be specified when using multus",rule="!has(self.provider) || (self.provider != 'multus' || (self.provider == 'multus' && size(self.selectors) > 0))"
 #NetworkSpec: {
-	// Provider is what provides network connectivity to the cluster e.g. "host" or "multus"
+	// Provider is what provides network connectivity to the cluster e.g. "host" or "multus".
+	// If the Provider is updated from being empty to "host" on a running cluster, then the operator will automatically fail over all the mons to apply the "host" network settings.
+	// +kubebuilder:validation:XValidation:message="network provider must be disabled (reverted to empty string) before a new provider is enabled",rule="self == '' || self == oldSelf"
 	// +nullable
 	// +optional
-	provider?: string @go(Provider)
+	provider?: #NetworkProviderType @go(Provider)
 
-	// Selectors string values describe what networks will be used to connect the cluster.
-	// Meanwhile the keys describe each network respective responsibilities or any metadata
-	// storage provider decide.
+	// Selectors define NetworkAttachmentDefinitions to be used for Ceph public and/or cluster
+	// networks when the "multus" network provider is used. This config section is not used for
+	// other network providers.
+	//
+	// Valid keys are "public" and "cluster". Refer to Ceph networking documentation for more:
+	// https://docs.ceph.com/en/reef/rados/configuration/network-config-ref/
+	//
+	// Refer to Multus network annotation documentation for help selecting values:
+	// https://github.com/k8snetworkplumbingwg/multus-cni/blob/master/docs/how-to-use.md#run-pod-with-network-annotation
+	//
+	// Rook will make a best-effort attempt to automatically detect CIDR address ranges for given
+	// network attachment definitions. Rook's methods are robust but may be imprecise for
+	// sufficiently complicated networks. Rook's auto-detection process obtains a new IP address
+	// lease for each CephCluster reconcile. If Rook fails to detect, incorrectly detects, only
+	// partially detects, or if underlying networks do not support reusing old IP addresses, it is
+	// best to use the 'addressRanges' config section to specify CIDR ranges for the Ceph cluster.
+	//
+	// As a contrived example, one can use a theoretical Kubernetes-wide network for Ceph client
+	// traffic and a theoretical Rook-only network for Ceph replication traffic as shown:
+	//   selectors:
+	//     public: "default/cluster-fast-net"
+	//     cluster: "rook-ceph/ceph-backend-net"
+	//
 	// +nullable
 	// +optional
-	selectors?: {[string]: string} @go(Selectors,map[string]string)
+	selectors?: {[string]: string} @go(Selectors,map[CephNetworkType]string)
+
+	// AddressRanges specify a list of CIDRs that Rook will apply to Ceph's 'public_network' and/or
+	// 'cluster_network' configurations. This config section may be used for the "host" or "multus"
+	// network providers.
+	// +nullable
+	// +optional
+	addressRanges?: null | #AddressRangesSpec @go(AddressRanges,*AddressRangesSpec)
 
 	// Settings for network connections such as compression and encryption across the
 	// wire.
@@ -2312,7 +2497,9 @@ import (
 	// +optional
 	connections?: null | #ConnectionsSpec @go(Connections,*ConnectionsSpec)
 
-	// HostNetwork to enable host network
+	// HostNetwork to enable host network.
+	// If host networking is enabled or disabled on a running cluster, then the operator will automatically fail over all the mons to
+	// apply the new network settings.
 	// +optional
 	hostNetwork?: bool @go(HostNetwork)
 
@@ -2330,6 +2517,50 @@ import (
 	// +optional
 	multiClusterService?: #MultiClusterServiceSpec @go(MultiClusterService)
 }
+
+// NetworkProviderType defines valid network providers for Rook.
+// +kubebuilder:validation:Enum="";host;multus
+#NetworkProviderType: string // #enumNetworkProviderType
+
+#enumNetworkProviderType:
+	#NetworkProviderDefault |
+	#NetworkProviderHost |
+	#NetworkProviderMultus
+
+#NetworkProviderDefault: #NetworkProviderType & ""
+#NetworkProviderHost:    #NetworkProviderType & "host"
+#NetworkProviderMultus:  #NetworkProviderType & "multus"
+
+// CephNetworkType should be "public" or "cluster".
+// Allow any string so that over-specified legacy clusters do not break on CRD update.
+#CephNetworkType: string // #enumCephNetworkType
+
+#enumCephNetworkType:
+	#CephNetworkPublic |
+	#CephNetworkCluster
+
+#CephNetworkPublic:  #CephNetworkType & "public"
+#CephNetworkCluster: #CephNetworkType & "cluster"
+
+#AddressRangesSpec: {
+	// Public defines a list of CIDRs to use for Ceph public network communication.
+	// +optional
+	public?: #CIDRList @go(Public)
+
+	// Cluster defines a list of CIDRs to use for Ceph cluster network communication.
+	// +optional
+	cluster?: #CIDRList @go(Cluster)
+}
+
+// An IPv4 or IPv6 network CIDR.
+//
+// This naive kubebuilder regex provides immediate feedback for some typos and for a common problem
+// case where the range spec is forgotten (e.g., /24). Rook does in-depth validation in code.
+// +kubebuilder:validation:Pattern=`^[0-9a-fA-F:.]{2,}\/[0-9]{1,3}$`
+#CIDR: string
+
+// A list of CIDRs.
+#CIDRList: [...#CIDR]
 
 #MultiClusterServiceSpec: {
 	// Enable multiClusterService to export the mon and OSD services to peer cluster.
@@ -2374,7 +2605,7 @@ import (
 
 #CompressionSpec: {
 	// Whether to compress the data in transit across the wire.
-	// The default is not set. Requires Ceph Quincy (v17) or newer.
+	// The default is not set.
 	// +optional
 	enabled?: bool @go(Enabled)
 }
@@ -2397,6 +2628,11 @@ import (
 	// No values or 0 means that the operator will wait until the placement groups are healthy before unblocking the next drain.
 	// +optional
 	pgHealthCheckTimeout?: time.#Duration @go(PGHealthCheckTimeout)
+
+	// PgHealthyRegex is the regular expression that is used to determine which PG states should be considered healthy.
+	// The default is `^(active\+clean|active\+clean\+scrubbing|active\+clean\+scrubbing\+deep)$`
+	// +optional
+	pgHealthyRegex?: string @go(PGHealthyRegex)
 
 	// Deprecated. This enables management of machinedisruptionbudgets.
 	// +optional
@@ -2656,6 +2892,32 @@ import (
 	// +nullable
 	// +optional
 	storageClassDeviceSets?: [...#StorageClassDeviceSet] @go(StorageClassDeviceSets,[]StorageClassDeviceSet)
+
+	// +optional
+	store?: #OSDStore @go(Store)
+
+	// +optional
+	// FlappingRestartIntervalHours defines the time for which the OSD pods, that failed with zero exit code, will sleep before restarting.
+	// This is needed for OSD flapping where OSD daemons are marked down more than 5 times in 600 seconds by Ceph.
+	// Preventing the OSD pods to restart immediately in such scenarios will prevent Rook from marking OSD as `up` and thus
+	// peering of the PGs mapped to the OSD.
+	// User needs to manually restart the OSD pod if they manage to fix the underlying OSD flapping issue before the restart interval.
+	// The sleep will be disabled if this interval is set to 0.
+	flappingRestartIntervalHours?: int @go(FlappingRestartIntervalHours)
+}
+
+// OSDStore is the backend storage type used for creating the OSDs
+#OSDStore: {
+	// Type of backend storage to be used while creating OSDs. If empty, then bluestore will be used
+	// +optional
+	// +kubebuilder:validation:Enum=bluestore;bluestore-rdr;
+	type?: string @go(Type)
+
+	// UpdateStore updates the backend store for existing OSDs. It destroys each OSD one at a time, cleans up the backing disk
+	// and prepares same OSD on that disk
+	// +optional
+	// +kubebuilder:validation:Pattern=`^$|^yes-really-update-store$`
+	updateStore?: string @go(UpdateStore)
 }
 
 // Node is a storage nodes
@@ -2840,11 +3102,45 @@ import (
 
 // CephFilesystemSubVolumeGroupSpec represents the specification of a Ceph Filesystem SubVolumeGroup
 #CephFilesystemSubVolumeGroupSpec: {
+	// The name of the subvolume group. If not set, the default is the name of the subvolumeGroup CR.
+	// +kubebuilder:validation:XValidation:message="name is immutable",rule="self == oldSelf"
+	// +optional
+	name?: string @go(Name)
+
 	// FilesystemName is the name of Ceph Filesystem SubVolumeGroup volume name. Typically it's the name of
 	// the CephFilesystem CR. If not coming from the CephFilesystem CR, it can be retrieved from the
 	// list of Ceph Filesystem volumes with `ceph fs volume ls`. To learn more about Ceph Filesystem
 	// abstractions see https://docs.ceph.com/en/latest/cephfs/fs-volumes/#fs-volumes-and-subvolumes
+	// +kubebuilder:validation:XValidation:message="filesystemName is immutable",rule="self == oldSelf"
 	filesystemName: string @go(FilesystemName)
+
+	// Pinning configuration of CephFilesystemSubVolumeGroup,
+	// reference https://docs.ceph.com/en/latest/cephfs/fs-volumes/#pinning-subvolumes-and-subvolume-groups
+	// only one out of (export, distributed, random) can be set at a time
+	// +optional
+	pinning?: #CephFilesystemSubVolumeGroupSpecPinning @go(Pinning)
+}
+
+// CephFilesystemSubVolumeGroupSpecPinning represents the pinning configuration of SubVolumeGroup
+// +kubebuilder:validation:XValidation:message="only one pinning type should be set",rule="(has(self.export) && !has(self.distributed) && !has(self.random)) || (!has(self.export) && has(self.distributed) && !has(self.random)) || (!has(self.export) && !has(self.distributed) && has(self.random)) || (!has(self.export) && !has(self.distributed) && !has(self.random))"
+#CephFilesystemSubVolumeGroupSpecPinning: {
+	// +kubebuilder:validation:Minimum=-1
+	// +kubebuilder:validation:Maximum=256
+	// +optional
+	// +nullable
+	export?: null | int @go(Export,*int)
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1
+	// +optional
+	// +nullable
+	distributed?: null | int @go(Distributed,*int)
+
+	// +kubebuilder:validation:Minimum=0.0
+	// +kubebuilder:validation:Maximum=1.0
+	// +optional
+	// +nullable
+	random?: null | float64 @go(Random,*float64)
 }
 
 // CephFilesystemSubVolumeGroupStatus represents the Status of Ceph Filesystem SubVolumeGroup
@@ -2885,8 +3181,14 @@ import (
 
 // CephBlockPoolRadosNamespaceSpec represents the specification of a CephBlockPool Rados Namespace
 #CephBlockPoolRadosNamespaceSpec: {
+	// The name of the CephBlockPoolRadosNamespaceSpec namespace. If not set, the default is the name of the CR.
+	// +kubebuilder:validation:XValidation:message="name is immutable",rule="self == oldSelf"
+	// +optional
+	name?: string @go(Name)
+
 	// BlockPoolName is the name of Ceph BlockPool. Typically it's the name of
 	// the CephBlockPool CR.
+	// +kubebuilder:validation:XValidation:message="blockPoolName is immutable",rule="self == oldSelf"
 	blockPoolName: string @go(BlockPoolName)
 }
 
@@ -2938,3 +3240,62 @@ import (
 	// projected items for all in one resources secrets, configmaps, and downward API
 	projected?: null | v1.#ProjectedVolumeSource @go(Projected,*v1.ProjectedVolumeSource) @protobuf(26,bytes,opt)
 }
+
+// CephCOSIDriver represents the CRD for the Ceph COSI Driver Deployment
+// +kubebuilder:resource:shortName=cephcosi
+#CephCOSIDriver: {
+	metav1.#TypeMeta
+	metadata: metav1.#ObjectMeta @go(ObjectMeta)
+
+	// Spec represents the specification of a Ceph COSI Driver
+	spec: #CephCOSIDriverSpec @go(Spec)
+}
+
+// CephCOSIDriverList represents a list of Ceph COSI Driver
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+#CephCOSIDriverList: {
+	metav1.#TypeMeta
+	metadata: metav1.#ListMeta @go(ListMeta)
+	items: [...#CephCOSIDriver] @go(Items,[]CephCOSIDriver)
+}
+
+// CephCOSIDriverSpec represents the specification of a Ceph COSI Driver
+#CephCOSIDriverSpec: {
+	// Image is the container image to run the Ceph COSI driver
+	// +optional
+	image?: string @go(Image)
+
+	// ObjectProvisionerImage is the container image to run the COSI driver sidecar
+	// +optional
+	objectProvisionerImage?: string @go(ObjectProvisionerImage)
+
+	// DeploymentStrategy is the strategy to use to deploy the COSI driver.
+	// +optional
+	// +kubebuilder:validation:Enum=Never;Auto;Always
+	deploymentStrategy?: #COSIDeploymentStrategy @go(DeploymentStrategy)
+
+	// Placement is the placement strategy to use for the COSI driver
+	// +optional
+	placement?: #Placement @go(Placement)
+
+	// Resources is the resource requirements for the COSI driver
+	// +optional
+	resources?: v1.#ResourceRequirements @go(Resources)
+}
+
+// COSIDeploymentStrategy represents the strategy to use to deploy the Ceph COSI driver
+#COSIDeploymentStrategy: string // #enumCOSIDeploymentStrategy
+
+#enumCOSIDeploymentStrategy:
+	#COSIDeploymentStrategyNever |
+	#COSIDeploymentStrategyAuto |
+	#COSIDeploymentStrategyAlways
+
+// Never means the Ceph COSI driver will never deployed
+#COSIDeploymentStrategyNever: #COSIDeploymentStrategy & "Never"
+
+// Auto means the Ceph COSI driver will be deployed automatically if object store is present
+#COSIDeploymentStrategyAuto: #COSIDeploymentStrategy & "Auto"
+
+// Always means the Ceph COSI driver will be deployed even if the object store is not present
+#COSIDeploymentStrategyAlways: #COSIDeploymentStrategy & "Always"

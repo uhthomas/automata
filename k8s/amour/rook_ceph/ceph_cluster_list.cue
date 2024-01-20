@@ -17,7 +17,7 @@ import (
 #CephClusterList: items: [{
 	spec: {
 		cephVersion: {
-			image:            "quay.io/ceph/ceph:v18.2.1"
+			image:            "docker.io/rkachach/ceph:v18.2.1_patched_v1"
 			allowUnsupported: false
 		}
 		dataDirHostPath:                            "/var/lib/rook"
@@ -46,14 +46,16 @@ import (
 			}]
 		}
 		dashboard: {
-			enabled: true
-			ssl:     true
+			enabled:            true
+			ssl:                true
+			prometheusEndpoint: "http://vmsingle-vm.vm.svc.cluster.local:8429"
 		}
 		// Metrics are still collected, but directly from the pods
 		// rather than with service monitors.
 		//
 		// See: https://github.com/rook/rook/issues/12422
 		// monitoring: enabled: true
+		monitoring: metricsDisabled: false
 		network: connections: {
 			encryption: enabled:  true
 			compression: enabled: true

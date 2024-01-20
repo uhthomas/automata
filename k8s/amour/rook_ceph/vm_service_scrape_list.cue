@@ -19,4 +19,13 @@ import victoriametricsv1beta1 "github.com/VictoriaMetrics/operator/api/victoriam
 			rook_cluster: #Namespace
 		}
 	}
+}, {
+	metadata: name: "rook-ceph-mgr"
+	spec: {
+		endpoints: [{port: "http-metrics"}]
+		selector: matchLabels: {
+			app:          "rook-ceph-mgr"
+			rook_cluster: #Namespace
+		}
+	}
 }]

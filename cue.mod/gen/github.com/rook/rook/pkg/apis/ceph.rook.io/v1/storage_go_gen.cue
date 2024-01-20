@@ -18,5 +18,17 @@
 //
 package v1
 
+#StoreType: string // #enumStoreType
+
+#enumStoreType:
+	#StoreTypeBlueStore |
+	#StoreTypeBlueStoreRDR
+
+// StoreTypeBlueStore is the bluestore backend storage for OSDs
+#StoreTypeBlueStore: #StoreType & "bluestore"
+
+// StoreTypeBlueStoreRDR is the bluestore-rdr backed storage for OSDs
+#StoreTypeBlueStoreRDR: #StoreType & "bluestore-rdr"
+
 // NodesByName implements an interface to sort nodes by name
 #NodesByName: [...#Node]

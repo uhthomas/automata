@@ -12,7 +12,7 @@ require (
 	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
 	github.com/external-secrets/external-secrets v0.9.11
 	github.com/prometheus/prometheus v0.48.1
-	github.com/rook/rook/pkg/apis v0.0.0-20231202102720-3097455d780d
+	github.com/rook/rook/pkg/apis v0.0.0-20240118185538-f46c0845eea7
 	k8s.io/api v0.29.1
 	k8s.io/apiextensions-apiserver v0.29.1
 	k8s.io/client-go v12.0.0+incompatible
@@ -62,7 +62,7 @@ require (
 	github.com/edsrzf/mmap-go v1.1.0 // indirect
 	github.com/emicklei/go-restful/v3 v3.11.0 // indirect
 	github.com/emicklei/proto v1.11.2 // indirect
-	github.com/evanphx/json-patch v5.6.0+incompatible // indirect
+	github.com/evanphx/json-patch v5.7.0+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.7.0 // indirect
 	github.com/exponent-io/jsonpath v0.0.0-20210407135951-1de76d718b3f // indirect
 	github.com/fatih/camelcase v1.0.0 // indirect
@@ -158,7 +158,7 @@ require (
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc4 // indirect
-	github.com/openshift/api v0.0.0-20230816181854-a7ca92db022a // indirect
+	github.com/openshift/api v0.0.0-20231204192004-bfea29e5e6c4 // indirect
 	github.com/openshift/client-go v0.0.0-20230607134213-3cd0021bbee3 // indirect
 	github.com/opentracing/opentracing-go v1.2.1-0.20220228012449-10b1cf09e00b // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
