@@ -120,6 +120,10 @@ import (
 			nodes: [{
 				name: "rhode"
 				devices: [{
+					// KIOXIA KCD61LUL3T84
+					name: "/dev/disk/by-id/nvme-eui.00000000000000008ce38ee206d20501"
+					config: deviceClass: "nvme"
+				}, {
 					// Samsung 970 EVO Plus 2TB
 					name: "/dev/disk/by-id/nvme-eui.002538543190f788"
 					config: deviceClass: "nvme"
