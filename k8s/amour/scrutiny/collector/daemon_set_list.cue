@@ -31,6 +31,9 @@ import (
 						name:  "COLLECTOR_API_ENDPOINT"
 						value: "http://scrutiny-web"
 					}, {
+						name: "COLLECTOR_HOST_ID"
+						valueFrom: fieldRef: fieldPath: "spec.nodeName"
+					}, {
 						name:  "COLLECTOR_RUN_STARTUP"
 						value: "true"
 					}]
