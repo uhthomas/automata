@@ -20,6 +20,7 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/nvidia_device_plugin"
 	"github.com/uhthomas/automata/k8s/amour/onepassword_connect"
 	"github.com/uhthomas/automata/k8s/amour/rook_ceph"
+	"github.com/uhthomas/automata/k8s/amour/scrutiny"
 	"github.com/uhthomas/automata/k8s/amour/smartctl_exporter"
 	"github.com/uhthomas/automata/k8s/amour/snapshot_controller"
 	"github.com/uhthomas/automata/k8s/amour/tailscale"
@@ -71,6 +72,7 @@ _items: [
 	nvidia_device_plugin.#List.items,
 	onepassword_connect.#List.items,
 	rook_ceph.#List.items,
+	scrutiny.#List.items,
 	smartctl_exporter.#List.items,
 	snapshot_controller.#List.items,
 	tailscale.#List.items,

@@ -1,0 +1,13 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_time_library",
+    srcs = [
+        "format_go_gen.cue",
+        "time_go_gen.cue",
+        "zoneinfo_go_gen.cue",
+        "zoneinfo_read_go_gen.cue",
+    ],
+    importpath = "github.com/uhthomas/automata/cue.mod/gen/time",
+    visibility = ["//visibility:public"],
+)
