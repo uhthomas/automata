@@ -23,7 +23,7 @@ import (
 				name:  #Name
 				image: "homeassistant/home-assistant:\(#Version)"
 				ports: [{
-					name:          "http"
+					name:          "http-metrics"
 					containerPort: 8123
 				}, {
 					name:          "https"
@@ -41,7 +41,7 @@ import (
 				let probe = {
 					httpGet: {
 						path: "/"
-						port: "http"
+						port: "http-metrics"
 					}
 				}
 

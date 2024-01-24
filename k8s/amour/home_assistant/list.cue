@@ -34,4 +34,5 @@ _items: [
 	#NamespaceList.items,
 	#ServiceList.items,
 	#StatefulSetList.items,
+	#VMServiceScrapeList.items,
 ]

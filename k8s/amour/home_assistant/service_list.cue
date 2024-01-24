@@ -14,9 +14,9 @@ import "k8s.io/api/core/v1"
 #ServiceList: items: [{
 	spec: {
 		ports: [{
-			name:       "http"
+			name:       "http-metrics"
 			port:       80
-			targetPort: "http"
+			targetPort: "http-metrics"
 		}, {
 			name:       "https"
 			port:       443
