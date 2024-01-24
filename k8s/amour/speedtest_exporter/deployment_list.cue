@@ -22,7 +22,7 @@ import (
 			spec: {
 				containers: [{
 					name:  "speedtest-exporter"
-					image: "miguelndecarvalho/speedtest-exporter:v\(#Version)"
+					image: "ghcr.io/miguelndecarvalho/speedtest-exporter:v\(#Version)"
 					ports: [{
 						name:          "http-metrics"
 						containerPort: 9798
