@@ -19,6 +19,7 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/node_problem_detector"
 	"github.com/uhthomas/automata/k8s/amour/nvidia_device_plugin"
 	"github.com/uhthomas/automata/k8s/amour/onepassword_connect"
+	"github.com/uhthomas/automata/k8s/amour/ping_exporter"
 	"github.com/uhthomas/automata/k8s/amour/rook_ceph"
 	"github.com/uhthomas/automata/k8s/amour/scrutiny"
 	"github.com/uhthomas/automata/k8s/amour/smartctl_exporter"
@@ -71,6 +72,7 @@ _items: [
 	node_problem_detector.#List.items,
 	nvidia_device_plugin.#List.items,
 	onepassword_connect.#List.items,
+	ping_exporter.#List.items,
 	rook_ceph.#List.items,
 	scrutiny.#List.items,
 	smartctl_exporter.#List.items,
