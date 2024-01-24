@@ -24,6 +24,7 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/scrutiny"
 	"github.com/uhthomas/automata/k8s/amour/smartctl_exporter"
 	"github.com/uhthomas/automata/k8s/amour/snapshot_controller"
+	"github.com/uhthomas/automata/k8s/amour/speedtest_exporter"
 	"github.com/uhthomas/automata/k8s/amour/tailscale"
 	"github.com/uhthomas/automata/k8s/amour/thomas"
 	"github.com/uhthomas/automata/k8s/amour/vm_operator"
@@ -77,6 +78,7 @@ _items: [
 	scrutiny.#List.items,
 	smartctl_exporter.#List.items,
 	snapshot_controller.#List.items,
+	speedtest_exporter.#List.items,
 	tailscale.#List.items,
 	thomas.#List.items,
 	vm_operator.#List.items,
