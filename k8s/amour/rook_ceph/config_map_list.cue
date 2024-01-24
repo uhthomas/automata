@@ -483,4 +483,13 @@ import "k8s.io/api/core/v1"
 		// Enable topology based provisioning.
 		CSI_ENABLE_TOPOLOGY: "false"
 	}
+}, {
+	metadata: name: "rook-config-override"
+	data: config: """
+
+		[global]
+		bdev_enable_discard = true
+		bdev_async_discard = true
+
+		"""
 }]
