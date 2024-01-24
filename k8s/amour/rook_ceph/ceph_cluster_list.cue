@@ -101,9 +101,9 @@ import (
 				(v1.#ResourceCPU):    "100m"
 				(v1.#ResourceMemory): "768Mi"
 			}
-			osd: limits: {
-				(v1.#ResourceCPU):    "300m"
-				(v1.#ResourceMemory): "2Gi"
+			osd: {
+				limits: (v1.#ResourceMemory): "2Gi"
+				requests: (v1.#ResourceCPU):  "300m"
 			}
 			exporter: limits: {
 				(v1.#ResourceCPU):    "150m"
@@ -124,12 +124,12 @@ import (
 					name: "/dev/disk/by-id/nvme-eui.00000000000000008ce38ee206d20501"
 					config: deviceClass: "nvme"
 				}, {
-					// Samsung 970 EVO Plus 2TB
-					name: "/dev/disk/by-id/nvme-eui.002538543190f788"
+					// SAMSUNG MZWLL3T2HMJP-00003
+					name: "/dev/disk/by-id/nvme-eui.334841304b4002370025385800000004"
 					config: deviceClass: "nvme"
 				}, {
-					// Samsung 970 EVO Plus 2TB
-					name: "/dev/disk/by-id/nvme-eui.0025385531b39d87"
+					// SAMSUNG MZWLL3T2HMJP-00003
+					name: "/dev/disk/by-id/nvme-eui.334841304b4015940025385800000003"
 					config: deviceClass: "nvme"
 				}, {
 					// HGST H7280A520SUN8.0T
