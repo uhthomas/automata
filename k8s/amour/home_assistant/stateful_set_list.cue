@@ -30,7 +30,7 @@ import (
 					containerPort: 8443
 				}]
 				resources: limits: {
-					(v1.#ResourceCPU):    "200m"
+					(v1.#ResourceCPU):    "300m"
 					(v1.#ResourceMemory): "256Mi"
 				}
 				volumeMounts: [{
