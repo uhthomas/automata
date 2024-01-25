@@ -64,7 +64,7 @@ import (
 					}
 				}, {
 					name:  "tailscale"
-					image: "tailscale/tailscale:v1.38.2@sha256:176f2bca0906d605f411f189bd6a9747a1cf8418ca5fa55908879497774cb73b"
+					image: "tailscale/tailscale:v1.38.2@sha256:079c2329416389297b6ba26341ea04796792513d0f29d54d2f5e3629355f0ee9"
 					env: [{
 						name:  "TS_KUBE_SECRET"
 						value: "\(#Name)-tailscale-state"
