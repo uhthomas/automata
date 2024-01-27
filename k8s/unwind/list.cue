@@ -18,7 +18,6 @@ import (
 	"github.com/uhthomas/automata/k8s/unwind/kube_system"
 	"github.com/uhthomas/automata/k8s/unwind/kubernetes_dashboard"
 	"github.com/uhthomas/automata/k8s/unwind/loki"
-	"github.com/uhthomas/automata/k8s/unwind/media"
 	"github.com/uhthomas/automata/k8s/unwind/minecraft"
 	"github.com/uhthomas/automata/k8s/unwind/node_exporter"
 	"github.com/uhthomas/automata/k8s/unwind/node_feature_discovery"
@@ -74,7 +73,6 @@ _items: [
 	kube_system.#List.items,
 	kubernetes_dashboard.#List.items,
 	loki.#List.items,
-	media.#List.items,
 	minecraft.#List.items,
 	node_exporter.#List.items,
 	node_feature_discovery.#List.items,
