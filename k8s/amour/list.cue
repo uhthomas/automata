@@ -2,6 +2,7 @@ import (
 	"list"
 
 	"github.com/uhthomas/automata/k8s/amour"
+	"github.com/uhthomas/automata/k8s/amour/backup"
 	"github.com/uhthomas/automata/k8s/amour/cert_manager_csi_driver"
 	"github.com/uhthomas/automata/k8s/amour/cert_manager"
 	"github.com/uhthomas/automata/k8s/amour/cilium"
@@ -57,6 +58,7 @@ _items: [
 	amour.#ApplySetList.items,
 	amour.#ClusterSecretStoreList.items,
 	amour.#CustomResourceDefinitionList.items,
+	backup.#List.items,
 	cert_manager_csi_driver.#List.items,
 	cert_manager.#List.items,
 	cilium.#List.items,
