@@ -16,6 +16,7 @@ import (
 
 #VMAlertmanagerList: items: [{
 	spec: {
+		configSecret: "vmalertmanager-vm-config"
 		storage: volumeClaimTemplate: spec: {
 			storageClassName: "rook-ceph-nvme"
 			resources: requests: (v1.#ResourceStorage): "512Mi"

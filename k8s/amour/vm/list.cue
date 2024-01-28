@@ -24,6 +24,7 @@ import (
 #List: items: list.Concat(_items)
 
 _items: [
+	#ExternalSecretList.items,
 	#NamespaceList.items,
 	#VMAgentList.items,
 	#VMAlertList.items,
