@@ -29,6 +29,7 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/thomas"
 	"github.com/uhthomas/automata/k8s/amour/vm_operator"
 	"github.com/uhthomas/automata/k8s/amour/vm"
+	"github.com/uhthomas/automata/k8s/amour/volsync_system"
 	"k8s.io/api/core/v1"
 )
 
@@ -83,6 +84,7 @@ _items: [
 	thomas.#List.items,
 	vm_operator.#List.items,
 	vm.#List.items,
+	volsync_system.#List.items,
 ]
 
 #List
