@@ -15,8 +15,8 @@ import victoriametricsv1beta1 "github.com/VictoriaMetrics/operator/api/victoriam
 	spec: {
 		endpoints: [{
 			port:          "http-metrics"
-			interval:      "1h"
-			scrapeTimeout: "1m"
+			interval:      "30m"
+			scrapeTimeout: "2m"
 		}]
 		selector: matchLabels: "app.kubernetes.io/name": #Name
 	}
