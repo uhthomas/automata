@@ -28,6 +28,9 @@ package strfmt
 // ISO8601TimeUniversalSortableDateTimePattern represents a ISO8601 universal sortable date time pattern.
 #ISO8601TimeUniversalSortableDateTimePattern: "2006-01-02 15:04:05"
 
+// short form of ISO8601TimeUniversalSortableDateTimePattern
+#ISO8601TimeUniversalSortableDateTimePatternShortForm: "2006-01-02"
+
 // DateTimePattern pattern to match for the date-time format from http://tools.ietf.org/html/rfc3339#section-5.6
 #DateTimePattern: "^([0-9]{2}):([0-9]{2}):([0-9]{2})(.[0-9]+)?(z|([+-][0-9]{2}:[0-9]{2}))$" // `^([0-9]{2}):([0-9]{2}):([0-9]{2})(.[0-9]+)?(z|([+-][0-9]{2}:[0-9]{2}))$`
 
@@ -37,4 +40,4 @@ package strfmt
 // This just tries to make it worry-free.
 //
 // swagger:strfmt date-time
-#DateTime: string
+#DateTime: _

@@ -1,0 +1,25 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_v2alpha1_library",
+    srcs = [
+        "bgpp_types_go_gen.cue",
+        "cidrgroups_types_go_gen.cue",
+        "cnc_types_go_gen.cue",
+        "doc_go_gen.cue",
+        "ippool_types_go_gen.cue",
+        "l2announcement_types_go_gen.cue",
+        "lbipam_types_go_gen.cue",
+        "register_go_gen.cue",
+        "types_go_gen.cue",
+    ],
+    importpath = "github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2alpha1",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//cue.mod/gen/github.com/cilium/cilium/api/v1/models:cue_models_library",
+        "//cue.mod/gen/github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2:cue_v2_library",
+        "//cue.mod/gen/github.com/cilium/cilium/pkg/k8s/slim/k8s/apis/meta/v1:cue_v1_library",
+        "//cue.mod/gen/github.com/cilium/cilium/pkg/policy/api:cue_api_library",
+        "//cue.mod/gen/k8s.io/apimachinery/pkg/apis/meta/v1:cue_v1_library",
+    ],
+)

@@ -4,12 +4,8 @@
 
 package api
 
-import slim_metav1 "github.com/cilium/cilium/pkg/k8s/slim/k8s/apis/meta/v1"
-
 // EndpointSelector is a wrapper for k8s LabelSelector.
-#EndpointSelector: {
-	slim_metav1.#LabelSelector
-}
+#EndpointSelector: _
 
 // EndpointSelectorSlice is a slice of EndpointSelectors that can be sorted.
 #EndpointSelectorSlice: [...#EndpointSelector]

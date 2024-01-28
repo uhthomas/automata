@@ -22,6 +22,8 @@ import (
 
 _items: [
 	#CertificateList.items,
+	#CiliumL2AnnouncementPolicyList.items,
+	#CiliumLoadBalancerIPPoolList.items,
 	#ClusterRoleBindingList.items,
 	#ClusterRoleList.items,
 	#ConfigMapList.items,

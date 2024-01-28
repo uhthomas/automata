@@ -11,6 +11,7 @@ import (
 	_ "github.com/backube/volsync/api/v1alpha1"
 	_ "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 	_ "github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2"
+	_ "github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2alpha1"
 	_ "github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
 	_ "github.com/external-secrets/external-secrets/apis/externalsecrets/v1beta1"
 	_ "github.com/prometheus/prometheus/model/rulefmt"

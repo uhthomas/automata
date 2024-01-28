@@ -5,7 +5,7 @@
 package api
 
 // Decision is a reachability policy decision
-#Decision: uint8 // #enumDecision
+#Decision: _ // #enumDecision
 
 #enumDecision:
 	#Undecided |

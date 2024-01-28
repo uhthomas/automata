@@ -51,100 +51,100 @@ _#jsonNull: "null"
 // Base64 represents a base64 encoded string, using URLEncoding alphabet
 //
 // swagger:strfmt byte
-#Base64: string
+#Base64: _
 
 // URI represents the uri string format as specified by the json schema spec
 //
 // swagger:strfmt uri
-#URI: string
+#URI: _
 
 // Email represents the email string format as specified by the json schema spec
 //
 // swagger:strfmt email
-#Email: string
+#Email: _
 
 // Hostname represents the hostname string format as specified by the json schema spec
 //
 // swagger:strfmt hostname
-#Hostname: string
+#Hostname: _
 
 // IPv4 represents an IP v4 address
 //
 // swagger:strfmt ipv4
-#IPv4: string
+#IPv4: _
 
 // IPv6 represents an IP v6 address
 //
 // swagger:strfmt ipv6
-#IPv6: string
+#IPv6: _
 
 // CIDR represents a Classless Inter-Domain Routing notation
 //
 // swagger:strfmt cidr
-#CIDR: string
+#CIDR: _
 
 // MAC represents a 48 bit MAC address
 //
 // swagger:strfmt mac
-#MAC: string
+#MAC: _
 
 // UUID represents a uuid string format
 //
 // swagger:strfmt uuid
-#UUID: string
+#UUID: _
 
 // UUID3 represents a uuid3 string format
 //
 // swagger:strfmt uuid3
-#UUID3: string
+#UUID3: _
 
 // UUID4 represents a uuid4 string format
 //
 // swagger:strfmt uuid4
-#UUID4: string
+#UUID4: _
 
 // UUID5 represents a uuid5 string format
 //
 // swagger:strfmt uuid5
-#UUID5: string
+#UUID5: _
 
 // ISBN represents an isbn string format
 //
 // swagger:strfmt isbn
-#ISBN: string
+#ISBN: _
 
 // ISBN10 represents an isbn 10 string format
 //
 // swagger:strfmt isbn10
-#ISBN10: string
+#ISBN10: _
 
 // ISBN13 represents an isbn 13 string format
 //
 // swagger:strfmt isbn13
-#ISBN13: string
+#ISBN13: _
 
 // CreditCard represents a credit card string format
 //
 // swagger:strfmt creditcard
-#CreditCard: string
+#CreditCard: _
 
 // SSN represents a social security string format
 //
 // swagger:strfmt ssn
-#SSN: string
+#SSN: _
 
 // HexColor represents a hex color string format
 //
 // swagger:strfmt hexcolor
-#HexColor: string
+#HexColor: _
 
 // RGBColor represents a RGB color string format
 //
 // swagger:strfmt rgbcolor
-#RGBColor: string
+#RGBColor: _
 
 // Password represents a password.
 // This has no validations and is mainly used as a marker for UI components.
 //
 // swagger:strfmt password
-#Password: string
+#Password: _

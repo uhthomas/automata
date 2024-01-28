@@ -11,4 +11,4 @@ package strfmt
 // Date represents a date from the API
 //
 // swagger:strfmt date
-#Date: string
+#Date: _

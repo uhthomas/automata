@@ -4,8 +4,6 @@
 
 package api
 
-import "github.com/cilium/cilium/pkg/labels"
-
 // AuthenticationMode is a string identifying a supported authentication type
 #AuthenticationMode: string // #enumAuthenticationMode
 
@@ -41,61 +39,4 @@ import "github.com/cilium/cilium/pkg/labels"
 // are omitted, the rule has no effect.
 //
 // +deepequal-gen:private-method=true
-#Rule: {
-	// EndpointSelector selects all endpoints which should be subject to
-	// this rule. EndpointSelector and NodeSelector cannot be both empty and
-	// are mutually exclusive.
-	//
-	// +kubebuilder:validation:OneOf
-	endpointSelector?: #EndpointSelector @go(EndpointSelector)
-
-	// NodeSelector selects all nodes which should be subject to this rule.
-	// EndpointSelector and NodeSelector cannot be both empty and are mutually
-	// exclusive. Can only be used in CiliumClusterwideNetworkPolicies.
-	//
-	// +kubebuilder:validation:OneOf
-	nodeSelector?: #EndpointSelector @go(NodeSelector)
-
-	// Ingress is a list of IngressRule which are enforced at ingress.
-	// If omitted or empty, this rule does not apply at ingress.
-	//
-	// +kubebuilder:validation:Optional
-	ingress?: [...#IngressRule] @go(Ingress,[]IngressRule)
-
-	// IngressDeny is a list of IngressDenyRule which are enforced at ingress.
-	// Any rule inserted here will be denied regardless of the allowed ingress
-	// rules in the 'ingress' field.
-	// If omitted or empty, this rule does not apply at ingress.
-	//
-	// +kubebuilder:validation:Optional
-	ingressDeny?: [...#IngressDenyRule] @go(IngressDeny,[]IngressDenyRule)
-
-	// Egress is a list of EgressRule which are enforced at egress.
-	// If omitted or empty, this rule does not apply at egress.
-	//
-	// +kubebuilder:validation:Optional
-	egress?: [...#EgressRule] @go(Egress,[]EgressRule)
-
-	// EgressDeny is a list of EgressDenyRule which are enforced at egress.
-	// Any rule inserted here will be denied regardless of the allowed egress
-	// rules in the 'egress' field.
-	// If omitted or empty, this rule does not apply at egress.
-	//
-	// +kubebuilder:validation:Optional
-	egressDeny?: [...#EgressDenyRule] @go(EgressDeny,[]EgressDenyRule)
-
-	// Labels is a list of optional strings which can be used to
-	// re-identify the rule or to store metadata. It is possible to lookup
-	// or delete strings based on labels. Labels are not required to be
-	// unique, multiple rules can have overlapping or identical labels.
-	//
-	// +kubebuilder:validation:Optional
-	"labels"?: labels.#LabelArray @go(Labels)
-
-	// Description is a free form string, it can be used by the creator of
-	// the rule to store human readable explanation of the purpose of this
-	// rule. Rules cannot be identified by comment.
-	//
-	// +kubebuilder:validation:Optional
-	description?: string @go(Description)
-}
+#Rule: _

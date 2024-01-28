@@ -24,9 +24,5 @@ cue_library(
     ],
     importpath = "github.com/cilium/cilium/pkg/policy/api",
     visibility = ["//visibility:public"],
-    deps = [
-        "//cue.mod/gen/github.com/cilium/cilium/pkg/k8s/slim/k8s/apis/meta/v1:cue_v1_library",
-        "//cue.mod/gen/github.com/cilium/cilium/pkg/labels:cue_labels_library",
-        "//cue.mod/gen/github.com/cilium/proxy/pkg/policy/api/kafka:cue_kafka_library",
-    ],
+    deps = ["//cue.mod/gen/github.com/cilium/proxy/pkg/policy/api/kafka:cue_kafka_library"],
 )

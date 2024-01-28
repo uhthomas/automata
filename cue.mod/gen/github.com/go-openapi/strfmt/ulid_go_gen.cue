@@ -14,4 +14,4 @@ package strfmt
 //	https://github.com/oklog/ulid
 //
 // swagger:strfmt ulid
-#ULID: string
+#ULID: _

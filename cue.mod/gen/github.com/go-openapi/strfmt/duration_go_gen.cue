@@ -10,4 +10,4 @@ package strfmt
 // repesentable duration being approximately 290 years.
 //
 // swagger:strfmt duration
-#Duration: string
+#Duration: _

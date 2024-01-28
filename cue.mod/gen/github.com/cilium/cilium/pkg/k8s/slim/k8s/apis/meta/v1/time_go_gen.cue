@@ -14,4 +14,4 @@ package v1
 //
 // +kubebuilder:validation:Format=date-time
 // +kubebuilder:validation:Type=string
-#Time: string
+#Time: _

@@ -200,5 +200,9 @@ import "k8s.io/api/core/v1"
 		"proxy-max-connection-duration-seconds": "0"
 
 		"external-envoy-proxy": "false"
+
+		// https://docs.cilium.io/en/latest/network/l2-announcements/
+		"enable-l2-announcements": "true"
+		"enable-external-ips":     "true"
 	}
 }]
