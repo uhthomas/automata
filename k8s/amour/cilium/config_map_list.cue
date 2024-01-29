@@ -176,8 +176,6 @@ import "k8s.io/api/core/v1"
 		"cgroup-root":                                    "/sys/fs/cgroup"
 		"enable-k8s-terminating-endpoint":                "true"
 		"enable-sctp":                                    "false"
-		"k8s-client-qps":                                 "5"
-		"k8s-client-burst":                               "10"
 		"remove-cilium-node-taints":                      "true"
 		"set-cilium-node-taints":                         "true"
 		"set-cilium-is-up-condition":                     "true"
@@ -202,7 +200,12 @@ import "k8s.io/api/core/v1"
 		"external-envoy-proxy": "false"
 
 		// https://docs.cilium.io/en/latest/network/l2-announcements/
-		"enable-l2-announcements": "true"
-		"enable-external-ips":     "true"
+		"enable-l2-announcements":         "true"
+		"enable-external-ips":             "true"
+		"l2-announcements-lease-duration": "30s"
+		"l2-announcements-renew-deadline": "10s"
+		"l2-announcements-retry-period":   "1s"
+		"k8s-client-qps":                  "50"
+		"k8s-client-burst":                "150"
 	}
 }]

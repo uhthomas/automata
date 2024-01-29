@@ -32,6 +32,14 @@ import (
 		resources: ["namespaces", "services", "pods", "endpoints", "nodes"]
 		verbs: ["get", "list", "watch"]
 	}, {
+		apiGroups: [v1.#GroupName]
+		resources: ["nodes/status"]
+		verbs: ["patch"]
+	}, {
+		apiGroups: ["coordination.k8s.io"]
+		resources: ["leases"]
+		verbs: ["create", "get", "update", "list", "delete"]
+	}, {
 		apiGroups: ["apiextensions.k8s.io"]
 		resources: ["customresourcedefinitions"]
 		verbs: ["list", "watch", "get"]
@@ -57,7 +65,7 @@ import (
 		verbs: ["get", "update"]
 	}, {
 		apiGroups: ["cilium.io"]
-		resources: ["ciliumnetworkpolicies/status", "ciliumclusterwidenetworkpolicies/status", "ciliumendpoints/status", "ciliumendpoints", "ciliuml2announcementpolicies/status"]
+		resources: ["ciliumnetworkpolicies/status", "ciliumclusterwidenetworkpolicies/status", "ciliumendpoints/status", "ciliumendpoints", "ciliuml2announcementpolicies/status", "ciliumbgpnodeconfigs/status"]
 		verbs: ["patch"]
 	}]
 }, {
@@ -134,7 +142,7 @@ import (
 		resourceNames: ["ciliumloadbalancerippools.cilium.io", "ciliumbgppeeringpolicies.cilium.io", "ciliumclusterwideenvoyconfigs.cilium.io", "ciliumclusterwidenetworkpolicies.cilium.io", "ciliumegressgatewaypolicies.cilium.io", "ciliumendpoints.cilium.io", "ciliumendpointslices.cilium.io", "ciliumenvoyconfigs.cilium.io", "ciliumexternalworkloads.cilium.io", "ciliumidentities.cilium.io", "ciliumlocalredirectpolicies.cilium.io", "ciliumnetworkpolicies.cilium.io", "ciliumnodes.cilium.io", "ciliumnodeconfigs.cilium.io", "ciliumcidrgroups.cilium.io", "ciliuml2announcementpolicies.cilium.io", "ciliumpodippools.cilium.io"]
 	}, {
 		apiGroups: ["cilium.io"]
-		resources: ["ciliumloadbalancerippools", "ciliumpodippools"]
+		resources: ["ciliumloadbalancerippools", "ciliumpodippools", "ciliumbgppeeringpolicies", "ciliumbgpclusterconfigs", "ciliumbgpnodeconfigoverrides"]
 		verbs: ["get", "list", "watch"]
 	}, {
 		apiGroups: ["cilium.io"]
