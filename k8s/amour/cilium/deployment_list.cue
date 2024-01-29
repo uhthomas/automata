@@ -43,7 +43,7 @@ import (
 				}]
 				containers: [{
 					name:  "cilium-operator"
-					image: "quay.io/cilium/operator-generic:v1.14.2@sha256:52f70250dea22e506959439a7c4ea31b10fe8375db62f5c27ab746e3a2af866d"
+					image: "quay.io/cilium/operator-generic:v\(#Version)"
 					command: ["cilium-operator-generic"]
 					args: ["--config-dir=/tmp/cilium/config-map", "--debug=$(CILIUM_DEBUG)"]
 					env: [{
