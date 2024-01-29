@@ -8,7 +8,7 @@ import (
 
 #Name:      "hubble-relay"
 #Namespace: "cilium"
-#Version:   "1.14.6"
+#Version:   "1.15.0-rc.0"
 
 #List: v1.#List & {
 	apiVersion: "v1"
