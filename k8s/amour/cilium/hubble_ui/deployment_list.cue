@@ -64,7 +64,7 @@ import (
 				}]
 				containers: [{
 					name:  "frontend"
-					image: "quay.io/cilium/hubble-ui:v0.12.0@sha256:1c876cfa1d5e35bc91e1025c9314f922041592a88b03313c22c1f97a5d2ba88f"
+					image: "quay.io/cilium/hubble-ui:v\(#Version)"
 					ports: [{
 						name:          "http"
 						containerPort: 8081

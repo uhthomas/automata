@@ -8,7 +8,9 @@ import (
 
 #Name:      "hubble-ui"
 #Namespace: "cilium"
-#Version:   "1.15.0-rc.0"
+
+// renovate: datasource=github-releases depName=cilium/hubble extractVersion=^v(?<version>.*)$
+#Version: "0.13.0"
 
 #List: v1.#List & {
 	apiVersion: "v1"
