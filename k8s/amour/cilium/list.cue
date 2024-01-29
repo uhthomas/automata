@@ -10,7 +10,7 @@ import (
 
 #Name:      "cilium"
 #Namespace: #Name
-#Version:   "1.14.2"
+#Version:   "1.14.6"
 
 #List: v1.#List & {
 	apiVersion: "v1"
