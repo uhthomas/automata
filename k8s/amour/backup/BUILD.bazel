@@ -11,5 +11,6 @@ cue_library(
     deps = [
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
         "//k8s/amour/backup/breakfast:cue_breakfast_library",
+        "//k8s/amour/backup/melonade:cue_melonade_library",
     ],
 )
