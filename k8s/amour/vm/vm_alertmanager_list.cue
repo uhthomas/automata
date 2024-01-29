@@ -16,6 +16,7 @@ import (
 
 #VMAlertmanagerList: items: [{
 	spec: {
+		image: tag: "main@sha256:889198464d4f78f7b0781d5ab76fa7c97a054dc3ba0f00395b1a4efdb9f7edd4"
 		configSecret: "vmalertmanager-vm-config"
 		storage: volumeClaimTemplate: spec: {
 			storageClassName: "rook-ceph-nvme"
