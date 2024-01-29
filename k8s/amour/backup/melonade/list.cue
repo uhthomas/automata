@@ -12,6 +12,7 @@ import (
 #List: v1.#List & {
 	apiVersion: "v1"
 	kind:       "List"
+	items: [...{metadata: name: string | *#Name}]
 }
 
 #List: items: list.Concat(_items)
