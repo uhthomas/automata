@@ -28,6 +28,9 @@ import (
 						containerPort: 8080
 					}]
 					env: [{
+						name:  "ALERTMANAGER_PROXY"
+						value: "true"
+					}, {
 						name:  "ALERTMANAGER_URI"
 						value: "http://vmalertmanager-vm.vm:9093"
 					}]
