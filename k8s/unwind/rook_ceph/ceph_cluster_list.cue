@@ -144,9 +144,6 @@ import (
 			nodes: [{
 				name: "talos-avz-rb5"
 				devices: [{
-					// HGST H7280A520SUN8.0T
-					name: "/dev/disk/by-id/wwn-0x5000cca23b366958"
-				}, {
 					// IBM-ESXS HUH728080AL420
 					name: "/dev/disk/by-id/wwn-0x5000cca26105b87c"
 				}, {
@@ -159,12 +156,6 @@ import (
 			}, {
 				name: "talos-god-636"
 				devices: [{
-					// IBM-ESXS HUH728080AL420
-					name: "/dev/disk/by-id/wwn-0x5000cca261057c98"
-				}, {
-					// HGST HUH721010AL5200
-					name: "/dev/disk/by-id/wwn-0x5000cca2669799a0"
-				}, {
 					// WDC WD120EMAZ-11
 					name: "/dev/disk/by-id/wwn-0x5000cca291cccc74"
 				}, {
@@ -179,9 +170,6 @@ import (
 				}, {
 					// HGST H7280A520SUN8.0T
 					name: "/dev/disk/by-id/wwn-0x5000cca23b356ba0"
-				}, {
-					// Samsung SSD 970 EVO Plus 2TB
-					name: "/dev/disk/by-id/nvme-eui.0025385531b39d87"
 				}]
 			}, {
 				name: "talos-e5f-w4m"
@@ -191,9 +179,6 @@ import (
 				}, {
 					// HGST H7280A520SUN8.0T
 					name: "/dev/disk/by-id/wwn-0x5000cca23b184d70"
-				}, {
-					// HGST H7280A520SUN8.0T
-					name: "/dev/disk/by-id/wwn-0x5000cca23b3573bc"
 				}, {
 					// Samsung SSD 970 EVO Plus 2TB
 					name: "/dev/disk/by-id/nvme-eui.0025385421414eaf"
