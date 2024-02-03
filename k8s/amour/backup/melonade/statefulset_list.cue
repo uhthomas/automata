@@ -75,7 +75,7 @@ import (
 			spec: {
 				accessModes: [v1.#ReadWriteOnce]
 				storageClassName: "rook-ceph-nvme"
-				resources: requests: (v1.#ResourceStorage): "2Gi"
+				resources: requests: (v1.#ResourceStorage): "4Gi"
 			}
 		}]
 		serviceName: metadata.name
