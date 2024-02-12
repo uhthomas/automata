@@ -86,7 +86,7 @@ import (
 					}
 				}, {
 					name:  "backend"
-					image: "quay.io/cilium/hubble-ui-backend:v0.12.0@sha256:8a79a1aad4fc9c2aa2b3e4379af0af872a89fcec9d99e117188190671c66fc2e"
+					image: "quay.io/cilium/hubble-ui-backend:v0.13.0@sha256:1e7657d997c5a48253bb8dc91ecee75b63018d16ff5e5797e5af367336bc8803"
 					env: [{
 						name:  "EVENTS_SERVER_PORT"
 						value: "8090"
