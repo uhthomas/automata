@@ -1,4 +1,4 @@
-package melonade
+package legacy
 
 import (
 	appsv1 "k8s.io/api/apps/v1"
@@ -17,7 +17,6 @@ import (
 #StatefulSetList: items: [{
 	metadata: name: "\(#Name)-syncthing"
 	spec: {
-		replicas: 0
 		selector: matchLabels: "app.kubernetes.io/name": "\(#Name)-syncthing"
 		template: {
 			metadata: labels: "app.kubernetes.io/name": "\(#Name)-syncthing"
