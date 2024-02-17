@@ -38,8 +38,8 @@ import (
 						value: "true"
 					}]
 					resources: limits: {
-						(v1.#ResourceCPU):    "100m"
-						(v1.#ResourceMemory): "32Mi"
+						(v1.#ResourceCPU):    "150m"
+						(v1.#ResourceMemory): "64Mi"
 					}
 					volumeMounts: [{
 						name:      "udev"
