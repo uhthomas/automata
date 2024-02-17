@@ -16,7 +16,7 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/media"
 	"github.com/uhthomas/automata/k8s/amour/metrics_server"
 	"github.com/uhthomas/automata/k8s/amour/node_exporter"
-	"github.com/uhthomas/automata/k8s/amour/node_feature_discovery"
+	// "github.com/uhthomas/automata/k8s/amour/node_feature_discovery"
 	"github.com/uhthomas/automata/k8s/amour/node_problem_detector"
 	"github.com/uhthomas/automata/k8s/amour/nvidia_device_plugin"
 	"github.com/uhthomas/automata/k8s/amour/onepassword_connect"
@@ -72,7 +72,7 @@ _items: [
 	media.#List.items,
 	metrics_server.#List.items,
 	node_exporter.#List.items,
-	node_feature_discovery.#List.items,
+	// node_feature_discovery.#List.items,
 	node_problem_detector.#List.items,
 	nvidia_device_plugin.#List.items,
 	onepassword_connect.#List.items,
