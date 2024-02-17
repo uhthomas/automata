@@ -5,6 +5,7 @@ import (
 
 	"github.com/uhthomas/automata/k8s/amour/backup/breakfast"
 	"github.com/uhthomas/automata/k8s/amour/backup/legacy"
+	"github.com/uhthomas/automata/k8s/amour/backup/lola"
 	"github.com/uhthomas/automata/k8s/amour/backup/melonade"
 	"k8s.io/api/core/v1"
 )
@@ -24,5 +25,6 @@ _items: [
 	#NamespaceList.items,
 	breakfast.#List.items,
 	legacy.#List.items,
+	lola.#List.items,
 	melonade.#List.items,
 ]
