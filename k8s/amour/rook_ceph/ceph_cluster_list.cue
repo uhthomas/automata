@@ -132,6 +132,18 @@ import (
 					name: "/dev/disk/by-id/nvme-eui.334841304b4015940025385800000003"
 					config: deviceClass: "nvme"
 				}, {
+					// SAMSUNG MZWLL3T2HMJP-00003
+					name: "/dev/disk/by-id/nvme-eui.334841304bb000770025385800000004"
+					config: deviceClass: "nvme"
+				}, {
+					// SAMSUNG MZWLL3T2HMJP-00003
+					name: "/dev/disk/by-id/nvme-eui.334841304bb000790025385800000004"
+					config: deviceClass: "nvme"
+				}, {
+					// SAMSUNG MZWLL3T2HMJP-00003
+					name: "/dev/disk/by-id/nvme-eui.334841304bb001020025385800000004"
+					config: deviceClass: "nvme"
+				}, {
 					// HGST H7280A520SUN8.0T
 					name: "/dev/disk/by-id/wwn-0x5000cca23b3573bc"
 					config: deviceClass: "hdd"
