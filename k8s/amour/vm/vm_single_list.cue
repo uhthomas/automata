@@ -22,8 +22,8 @@ import (
 			accessModes: [v1.#ReadWriteOnce]
 		}
 		resources: limits: {
-			(v1.#ResourceCPU):    "800m"
-			(v1.#ResourceMemory): "768Mi"
+			(v1.#ResourceCPU):    "2"
+			(v1.#ResourceMemory): "1.5Gi"
 		}
 		securityContext: {
 			runAsUser:    1000

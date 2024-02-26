@@ -43,7 +43,7 @@ import (
 						valueFrom: fieldRef: fieldPath: "spec.nodeName"
 					}]
 					resources: limits: {
-						(v1.#ResourceCPU):    "100m"
+						(v1.#ResourceCPU):    "200m"
 						(v1.#ResourceMemory): "378Mi"
 					}
 					volumeMounts: [{

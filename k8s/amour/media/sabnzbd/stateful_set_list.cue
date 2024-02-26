@@ -35,7 +35,7 @@ import (
 						containerPort: 8080
 					}]
 					resources: limits: {
-						(v1.#ResourceCPU):    "400m"
+						(v1.#ResourceCPU):    "2"
 						(v1.#ResourceMemory): "4Gi"
 					}
 					volumeMounts: [{

@@ -42,7 +42,7 @@ import (
 						value: "Europe/London"
 					}]
 					resources: limits: {
-						(v1.#ResourceCPU):    "500m"
+						(v1.#ResourceCPU):    "1"
 						(v1.#ResourceMemory): "1Gi"
 					}
 					volumeMounts: [{

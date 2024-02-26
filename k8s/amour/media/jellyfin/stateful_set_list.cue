@@ -64,7 +64,7 @@ import (
 						value: "/data"
 					}]
 					resources: limits: {
-						(v1.#ResourceCPU):    "1200m"
+						(v1.#ResourceCPU):    "4"
 						(v1.#ResourceMemory): "4Gi"
 						"nvidia.com/gpu":     "1"
 					}

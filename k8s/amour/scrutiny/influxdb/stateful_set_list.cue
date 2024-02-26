@@ -69,8 +69,8 @@ import (
 						value: "/var/lib/influxdb2"
 					}]
 					resources: limits: {
-						(v1.#ResourceCPU):    "150m"
-						(v1.#ResourceMemory): "128Mi"
+						(v1.#ResourceCPU):    "500m"
+						(v1.#ResourceMemory): "256Mi"
 					}
 					volumeMounts: [{
 						name:      "tmp"

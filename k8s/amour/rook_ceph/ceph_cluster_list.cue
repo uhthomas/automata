@@ -98,15 +98,15 @@ import (
 				(v1.#ResourceMemory): "768Mi"
 			}
 			mon: limits: {
-				(v1.#ResourceCPU):    "300m"
+				(v1.#ResourceCPU):    "500m"
 				(v1.#ResourceMemory): "768Mi"
 			}
 			osd: {
-				limits: (v1.#ResourceMemory): "2Gi"
+				limits: (v1.#ResourceMemory): "3Gi"
 				requests: (v1.#ResourceCPU):  "300m"
 			}
 			exporter: limits: {
-				(v1.#ResourceCPU):    "500m"
+				(v1.#ResourceCPU):    "1"
 				(v1.#ResourceMemory): "50Mi"
 			}
 			logcollector: limits: {
