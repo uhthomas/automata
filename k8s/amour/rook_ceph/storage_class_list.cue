@@ -43,8 +43,7 @@ let defaultCephFSParameters = defaultParameters & {
 #StorageClassList: items: [{
 	metadata: name: "rook-ceph-nvme"
 	provisioner: "\(#Namespace).rbd.csi.ceph.com"
-	parameters:  defaultRBDParameters & {
-		// dataPool:      "ecpool-nvme"
+	parameters: defaultRBDParameters & {
 		pool: "replicapool-nvme"
 	}
 	allowVolumeExpansion: true
@@ -52,7 +51,7 @@ let defaultCephFSParameters = defaultParameters & {
 }, {
 	metadata: name: "rook-ceph-hdd"
 	provisioner: "\(#Namespace).rbd.csi.ceph.com"
-	parameters:  defaultRBDParameters & {
+	parameters: defaultRBDParameters & {
 		dataPool: "ecpool-hdd"
 		pool:     "replicapool-nvme"
 	}
@@ -61,9 +60,18 @@ let defaultCephFSParameters = defaultParameters & {
 }, {
 	metadata: name: "rook-cephfs-hdd"
 	provisioner: "\(#Namespace).cephfs.csi.ceph.com"
-	parameters:  defaultCephFSParameters & {
+	parameters: defaultCephFSParameters & {
 		fsName: "cephfs-hdd"
 		pool:   "cephfs-hdd-erasurecoded"
+	}
+	allowVolumeExpansion: true
+	reclaimPolicy:        v1.#PersistentVolumeReclaimRetain
+}, {
+	metadata: name: "rook-ceph-nvme-ec"
+	provisioner: "\(#Namespace).rbd.csi.ceph.com"
+	parameters: defaultRBDParameters & {
+		dataPool: "ecpool-nvme"
+		pool:     "replicapool-nvme"
 	}
 	allowVolumeExpansion: true
 	reclaimPolicy:        v1.#PersistentVolumeReclaimRetain
