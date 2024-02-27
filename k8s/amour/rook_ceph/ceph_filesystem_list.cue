@@ -16,15 +16,13 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	spec: {
 		metadataPool: {
 			failureDomain: "osd"
-			// TODO: 3
-			replicated: size: 2
+			replicated: size: 3
 			deviceClass: "nvme"
 		}
 		dataPools: [{
 			name:          "default"
 			failureDomain: "osd"
-			// TODO: 3
-			replicated: size: 2
+			replicated: size: 3
 			deviceClass: "nvme"
 		}, {
 			name:          "erasurecoded"

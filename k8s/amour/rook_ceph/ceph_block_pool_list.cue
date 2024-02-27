@@ -17,8 +17,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 		name:          ".mgr"
 		failureDomain: "osd"
 		replicated: {
-			// TODO: size: 3
-			size:                   2
+			size:                   3
 			requireSafeReplicaSize: true
 		}
 		deviceClass: "nvme"
@@ -43,8 +42,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	metadata: name: "replicapool-nvme"
 	spec: {
 		failureDomain: "osd"
-		// TODO: size: 3
-		replicated: size: 2
+		replicated: size: 3
 		deviceClass: "nvme"
 		parameters: {
 			compression_algorithm: "zstd"
