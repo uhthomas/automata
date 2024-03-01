@@ -31,5 +31,6 @@ import "k8s.io/api/core/v1"
 			targetPort: "discovery"
 		}]
 		selector: "app.kubernetes.io/name": #Name
+		type: v1.#ServiceTypeLoadBalancer
 	}
 }]
