@@ -23,7 +23,7 @@ import (
 			resources: requests: (v1.#ResourceStorage): "512Mi"
 		}
 		resources: limits: {
-			(v1.#ResourceCPU):    "50m"
+			(v1.#ResourceCPU):    "100m"
 			(v1.#ResourceMemory): "64Mi"
 		}
 		securityContext: {
