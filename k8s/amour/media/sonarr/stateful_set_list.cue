@@ -21,6 +21,9 @@ import (
 			metadata: labels: "app.kubernetes.io/name": #Name
 			spec: {
 				volumes: [{
+					name: "tmp"
+					emptyDir: {}
+				}, {
 					name: "media"
 					persistentVolumeClaim: claimName: "media"
 				}]
@@ -48,6 +51,9 @@ import (
 					volumeMounts: [{
 						name:      "config"
 						mountPath: "/config"
+					}, {
+						name:      "tmp"
+						mountPath: "/tmp"
 					}, {
 						name:      "media"
 						mountPath: "/media"
