@@ -15,7 +15,7 @@ import "k8s.io/api/core/v1"
 	metadata: name: #Name
 	spec: {
 		accessModes: [v1.#ReadWriteMany]
-		storageClassName: "rook-cephfs-hdd"
+		storageClassName: "rook-cephfs-nvme"
 		resources: requests: (v1.#ResourceStorage): "4Ti"
 	}
 }]

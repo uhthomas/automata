@@ -21,6 +21,5 @@ cue_library(
         "//k8s/amour/media/recyclarr:cue_recyclarr_library",
         "//k8s/amour/media/sabnzbd:cue_sabnzbd_library",
         "//k8s/amour/media/sonarr:cue_sonarr_library",
-        "//k8s/amour/media/transmission:cue_transmission_library",
     ],
 )

@@ -40,7 +40,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 		}
 	}
 }, {
-	metadata: name: "cephfs-nvme"
+	metadata: name: "main"
 	spec: {
 		metadataPool: {
 			failureDomain: "osd"
@@ -53,7 +53,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 			replicated: size: 3
 			deviceClass: "nvme"
 		}, {
-			name:          "erasurecoded"
+			name:          "nvme-ec"
 			failureDomain: "osd"
 			erasureCoded: {
 				dataChunks:   4

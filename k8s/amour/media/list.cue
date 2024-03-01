@@ -14,7 +14,7 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/media/sabnzbd"
 	"github.com/uhthomas/automata/k8s/amour/media/sonarr"
 	// "github.com/uhthomas/automata/k8s/amour/media/tdarr"
-	"github.com/uhthomas/automata/k8s/amour/media/transmission"
+	// "github.com/uhthomas/automata/k8s/amour/media/transmission"
 	"k8s.io/api/core/v1"
 )
 
@@ -43,5 +43,5 @@ _items: [
 	sabnzbd.#List.items,
 	sonarr.#List.items,
 	// tdarr.#List.items,
-	transmission.#List.items,
+	// transmission.#List.items,
 ]
