@@ -10,7 +10,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=github-releases depName=VictoriaMetrics/operator extractVersion=^v(?<version>.*)$
-#Version: "0.40.0"
+#Version: "0.42.3"
 
 #List: v1.#List & {
 	apiVersion: "v1"
