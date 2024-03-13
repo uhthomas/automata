@@ -35,6 +35,7 @@ cue_export(
         "//k8s/amour/kube_system:cue_kube_system_library",
         "//k8s/amour/media:cue_media_library",
         "//k8s/amour/metrics_server:cue_metrics_server_library",
+        "//k8s/amour/minecraft:cue_minecraft_library",
         "//k8s/amour/node_exporter:cue_node_exporter_library",
         "//k8s/amour/node_problem_detector:cue_node_problem_detector_library",
         "//k8s/amour/nvidia_device_plugin:cue_nvidia_device_plugin_library",
