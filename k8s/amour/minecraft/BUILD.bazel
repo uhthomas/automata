@@ -1,0 +1,16 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_minecraft_library",
+    srcs = [
+        "list.cue",
+        "namespace_list.cue",
+    ],
+    importpath = "github.com/uhthomas/automata/k8s/amour/minecraft",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
+        "//k8s/amour/minecraft/cf_atm9:cue_cf_atm9_library",
+        "//k8s/amour/minecraft/vanilla:cue_vanilla_library",
+    ],
+)
