@@ -171,6 +171,10 @@ import (
 					// HGST HUH721010AL5200
 					name: "/dev/disk/by-id/wwn-0x5000cca2669799a0"
 					config: deviceClass: "hdd"
+				}, {
+					// HGST HUH721010AL5200
+					name: "/dev/disk/by-id/wwn-0x5000cca26c015ed8"
+					config: deviceClass: "hdd"
 				}]
 			}]
 			onlyApplyOSDPlacement: false
