@@ -1,6 +1,8 @@
 module github.com/uhthomas/automata
 
-go 1.21
+go 1.21.0
+
+toolchain go1.22.1
 
 require (
 	cuelang.org/go v0.7.0
@@ -9,7 +11,7 @@ require (
 	github.com/VictoriaMetrics/operator/api v0.0.0-20231128174956-7965dba77210
 	github.com/backube/volsync v0.8.0
 	github.com/cert-manager/cert-manager v1.13.3
-	github.com/cilium/cilium v1.14.6
+	github.com/cilium/cilium v1.14.8
 	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
 	github.com/external-secrets/external-secrets v0.9.11
 	github.com/prometheus/prometheus v0.49.1
@@ -232,7 +234,7 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20231212172506-995d672761c0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231212172506-995d672761c0 // indirect
 	google.golang.org/grpc v1.60.1 // indirect
-	google.golang.org/protobuf v1.32.0 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
