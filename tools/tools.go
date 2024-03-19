@@ -21,4 +21,5 @@ import (
 	_ "k8s.io/client-go/tools/clientcmd/api/v1"
 	_ "k8s.io/kube-aggregator"
 	_ "k8s.io/kubernetes/cmd/kubectl"
+	_ "sigs.k8s.io/descheduler/pkg/api/v1alpha2"
 )

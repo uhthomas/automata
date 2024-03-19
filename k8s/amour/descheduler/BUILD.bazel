@@ -1,0 +1,22 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_descheduler_library",
+    srcs = [
+        "cluster_role_binding_list.cue",
+        "cluster_role_list.cue",
+        "config_map_list.cue",
+        "cron_job_list.cue",
+        "list.cue",
+        "namespace_list.cue",
+        "service_account_list.cue",
+    ],
+    importpath = "github.com/uhthomas/automata/k8s/amour/descheduler",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//cue.mod/gen/k8s.io/api/batch/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/api/rbac/v1:cue_v1_library",
+        "//cue.mod/gen/sigs.k8s.io/descheduler/pkg/api/v1alpha2:cue_v1alpha2_library",
+    ],
+)
