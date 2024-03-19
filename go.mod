@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	cuelang.org/go v0.7.0
-	github.com/1Password/onepassword-operator v1.8.0
+	github.com/1Password/onepassword-operator v1.8.1
 	github.com/NVIDIA/gpu-operator v1.11.1
 	github.com/VictoriaMetrics/operator/api v0.0.0-20231128174956-7965dba77210
 	github.com/backube/volsync v0.8.0
@@ -246,7 +246,7 @@ require (
 	k8s.io/klog/v2 v2.110.1 // indirect
 	k8s.io/kms v0.29.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20231214164306-ab13479f8bf8 // indirect
-	k8s.io/kubectl v0.28.2 // indirect
+	k8s.io/kubectl v0.29.0 // indirect
 	k8s.io/metrics v0.29.1 // indirect
 	k8s.io/utils v0.0.0-20231127182322-b307cd553661 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.28.0 // indirect
