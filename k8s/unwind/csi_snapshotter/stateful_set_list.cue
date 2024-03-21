@@ -28,7 +28,7 @@ import (
 				}]
 				containers: [{
 					name:  "csi-provisioner"
-					image: "registry.k8s.io/sig-storage/csi-provisioner:v3.4.0"
+					image: "registry.k8s.io/sig-storage/csi-provisioner:v4.0.1"
 					args: [
 						"--v=5",
 						"--csi-address=$(ADDRESS)",
