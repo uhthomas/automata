@@ -44,7 +44,7 @@ import (
 					}]
 				}, {
 					name:  "csi-snapshotter"
-					image: "registry.k8s.io/sig-storage/csi-snapshotter:v6.2.1"
+					image: "registry.k8s.io/sig-storage/csi-snapshotter:v6.3.4"
 					args: [
 						"--v=5",
 						"--csi-address=$(ADDRESS)",
