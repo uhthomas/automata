@@ -8,6 +8,7 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/backup/legacy"
 	"github.com/uhthomas/automata/k8s/amour/backup/lola"
 	"github.com/uhthomas/automata/k8s/amour/backup/melonade"
+	"github.com/uhthomas/automata/k8s/amour/backup/synology"
 	"k8s.io/api/core/v1"
 )
 
@@ -29,4 +30,5 @@ _items: [
 	legacy.#List.items,
 	lola.#List.items,
 	melonade.#List.items,
+	synology.#List.items,
 ]
