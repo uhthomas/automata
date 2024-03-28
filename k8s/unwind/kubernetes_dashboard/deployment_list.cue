@@ -86,7 +86,7 @@ import (
 				}]
 				containers: [{
 					name:  "dashboard-metrics-scraper"
-					image: "kubernetesui/metrics-scraper:v1.0.9@sha256:9b599f50dc7bfdfe71f021a4859fe19f74baf2135a8538ba1c1013832b7a66b4"
+					image: "kubernetesui/metrics-scraper:v1.0.9@sha256:92a7659b554e32faaf357e7db712407c4e1f1d710e2070d1461946a8607d551a"
 					ports: [{
 						name:          "http"
 						containerPort: 8000
