@@ -20,7 +20,7 @@ import "k8s.io/api/core/v1"
 	}
 	spec: {
 		sentinel: {
-			image: "redis:7.0.11-alpine@sha256:e20345b7ec692815860c07f0209eb0465687b0c28cd85df412811ae1ac7b653e"
+			image: "redis:7.2.4-alpine@sha256:7635b0bfdd7dd8552b4b31d6541fef07b734614045b45a52fd5cc27c9dada9e2"
 			exporter: enabled: true
 			resources: {
 				requests: {
@@ -46,7 +46,7 @@ import "k8s.io/api/core/v1"
 			}
 		}
 		redis: {
-			image: "redis:7.0.11-alpine@sha256:e20345b7ec692815860c07f0209eb0465687b0c28cd85df412811ae1ac7b653e"
+			image: "redis:7.2.4-alpine@sha256:7635b0bfdd7dd8552b4b31d6541fef07b734614045b45a52fd5cc27c9dada9e2"
 			exporter: enabled: true
 			resources: {
 				requests: {
