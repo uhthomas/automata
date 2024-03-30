@@ -46,5 +46,6 @@ _items: [
 	#ServiceAccountList.items,
 	#ServiceList.items,
 	#StorageClassList.items,
+	#VMRuleList.items,
 	#VMServiceScrapeList.items,
 ]
