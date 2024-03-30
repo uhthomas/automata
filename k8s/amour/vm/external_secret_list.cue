@@ -12,23 +12,20 @@ import externalsecretsv1beta1 "github.com/external-secrets/external-secrets/apis
 }
 
 #ExternalSecretList: items: [{
-	metadata: name: "vmalertmanager-vm-config"
+	metadata: name: "\(#Name)-discord-webhook-url"
 	spec: {
 		secretStoreRef: {
 			name: "onepassword"
 			kind: "ClusterSecretStore"
 		}
-		target: {
-			creationPolicy: externalsecretsv1beta1.#CreatePolicyMerge
-			template: metadata: {
-				annotations: {}
-				labels: {}
-			}
+		target: template: metadata: {
+			annotations: {}
+			labels: {}
 		}
 		dataFrom: [{
 			extract: {
-				key:      "vmalertmanager-vm-config"
-				property: "alertmanager.yaml"
+				key:      "vm-discord-webhook-url"
+				property: "webhook-url"
 			}
 		}]
 	}

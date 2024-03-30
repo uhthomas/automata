@@ -28,6 +28,7 @@ _items: [
 	#NamespaceList.items,
 	#VMAgentList.items,
 	#VMAlertList.items,
+	#VMAlertmanagerConfigList.items,
 	#VMAlertmanagerList.items,
 	#VMNodeScrapeList.items,
 	#VMRuleList.items,
