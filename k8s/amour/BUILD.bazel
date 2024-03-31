@@ -29,6 +29,7 @@ cue_export(
         "//k8s/amour/dcgm_exporter:cue_dcgm_exporter_library",
         "//k8s/amour/external_secrets:cue_external_secrets_library",
         "//k8s/amour/grafana:cue_grafana_library",
+        "//k8s/amour/grafana_operator:cue_grafana_operator_library",
         "//k8s/amour/home_assistant:cue_home_assistant_library",
         "//k8s/amour/karma:cue_karma_library",
         "//k8s/amour/kube_state_metrics:cue_kube_state_metrics_library",

@@ -9,6 +9,7 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/dcgm_exporter"
 	"github.com/uhthomas/automata/k8s/amour/external_secrets"
 	"github.com/uhthomas/automata/k8s/amour/grafana"
+	"github.com/uhthomas/automata/k8s/amour/grafana_operator"
 	"github.com/uhthomas/automata/k8s/amour/home_assistant"
 	"github.com/uhthomas/automata/k8s/amour/karma"
 	"github.com/uhthomas/automata/k8s/amour/kube_state_metrics"
@@ -67,6 +68,7 @@ _items: [
 	dcgm_exporter.#List.items,
 	external_secrets.#List.items,
 	grafana.#List.items,
+	grafana_operator.#List.items,
 	home_assistant.#List.items,
 	karma.#List.items,
 	kube_state_metrics.#List.items,
