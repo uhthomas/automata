@@ -8,3 +8,5 @@ package abi
 #MapBucketCount:     8
 #MapMaxKeyBytes:     128
 #MapMaxElemBytes:    128
+
+#ZeroValSize: 1024

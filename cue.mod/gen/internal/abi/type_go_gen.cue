@@ -6,13 +6,13 @@ package abi
 
 // Type is the runtime representation of a Go type.
 //
-// Type is also referenced implicitly
-// (in the form of expressions involving constants and arch.PtrSize)
-// in cmd/compile/internal/reflectdata/reflect.go
-// and cmd/link/internal/ld/decodesym.go
-// (e.g. data[2*arch.PtrSize+4] references the TFlag field)
-// unsafe.OffsetOf(Type{}.TFlag) cannot be used directly in those
-// places because it varies with cross compilation and experiments.
+// Be careful about accessing this type at build time, as the version
+// of this type in the compiler/linker may not have the same layout
+// as the version in the target binary, due to pointer width
+// differences and any experiments. Use cmd/compile/internal/rttype
+// or the functions in compiletype.go to access this type instead.
+// (TODO: this admonition applies to every type in this package.
+// Put it in some shared location?)
 #Type: {
 	Size_:       uint64 @go(,uintptr)
 	PtrBytes:    uint64 @go(,uintptr)
@@ -134,13 +134,15 @@ package abi
 	#TFlagUncommon |
 	#TFlagExtraStar |
 	#TFlagNamed |
-	#TFlagRegularMemory
+	#TFlagRegularMemory |
+	#TFlagUnrolledBitmap
 
 #values_TFlag: {
-	TFlagUncommon:      #TFlagUncommon
-	TFlagExtraStar:     #TFlagExtraStar
-	TFlagNamed:         #TFlagNamed
-	TFlagRegularMemory: #TFlagRegularMemory
+	TFlagUncommon:       #TFlagUncommon
+	TFlagExtraStar:      #TFlagExtraStar
+	TFlagNamed:          #TFlagNamed
+	TFlagRegularMemory:  #TFlagRegularMemory
+	TFlagUnrolledBitmap: #TFlagUnrolledBitmap
 }
 
 // TFlagUncommon means that there is a data with a type, UncommonType,
@@ -172,6 +174,12 @@ package abi
 // TFlagRegularMemory means that equal and hash functions can treat
 // this type as a single region of t.size bytes.
 #TFlagRegularMemory: #TFlag & 8
+
+// TFlagUnrolledBitmap marks special types that are unrolled-bitmap
+// versions of types with GC programs.
+// These types need to be deallocated when the underlying object
+// is freed.
+#TFlagUnrolledBitmap: #TFlag & 16
 
 // NameOff is the offset to a name from moduledata.types.  See resolveNameOff in runtime.
 #NameOff: int32

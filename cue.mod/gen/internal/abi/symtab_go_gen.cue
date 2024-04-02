@@ -50,6 +50,7 @@ package abi
 	#FuncID_asmcgocall |
 	#FuncID_asyncPreempt |
 	#FuncID_cgocallback |
+	#FuncID_corostart |
 	#FuncID_debugCallV2 |
 	#FuncID_gcBgMarkWorker |
 	#FuncID_goexit |
@@ -74,6 +75,7 @@ package abi
 	FuncID_asmcgocall:         #FuncID_asmcgocall
 	FuncID_asyncPreempt:       #FuncID_asyncPreempt
 	FuncID_cgocallback:        #FuncID_cgocallback
+	FuncID_corostart:          #FuncID_corostart
 	FuncID_debugCallV2:        #FuncID_debugCallV2
 	FuncID_gcBgMarkWorker:     #FuncID_gcBgMarkWorker
 	FuncID_goexit:             #FuncID_goexit
@@ -98,23 +100,24 @@ package abi
 #FuncID_asmcgocall:         #FuncID & 2
 #FuncID_asyncPreempt:       #FuncID & 3
 #FuncID_cgocallback:        #FuncID & 4
-#FuncID_debugCallV2:        #FuncID & 5
-#FuncID_gcBgMarkWorker:     #FuncID & 6
-#FuncID_goexit:             #FuncID & 7
-#FuncID_gogo:               #FuncID & 8
-#FuncID_gopanic:            #FuncID & 9
-#FuncID_handleAsyncEvent:   #FuncID & 10
-#FuncID_mcall:              #FuncID & 11
-#FuncID_morestack:          #FuncID & 12
-#FuncID_mstart:             #FuncID & 13
-#FuncID_panicwrap:          #FuncID & 14
-#FuncID_rt0_go:             #FuncID & 15
-#FuncID_runfinq:            #FuncID & 16
-#FuncID_runtime_main:       #FuncID & 17
-#FuncID_sigpanic:           #FuncID & 18
-#FuncID_systemstack:        #FuncID & 19
-#FuncID_systemstack_switch: #FuncID & 20
-#FuncIDWrapper:             #FuncID & 21
+#FuncID_corostart:          #FuncID & 5
+#FuncID_debugCallV2:        #FuncID & 6
+#FuncID_gcBgMarkWorker:     #FuncID & 7
+#FuncID_goexit:             #FuncID & 8
+#FuncID_gogo:               #FuncID & 9
+#FuncID_gopanic:            #FuncID & 10
+#FuncID_handleAsyncEvent:   #FuncID & 11
+#FuncID_mcall:              #FuncID & 12
+#FuncID_morestack:          #FuncID & 13
+#FuncID_mstart:             #FuncID & 14
+#FuncID_panicwrap:          #FuncID & 15
+#FuncID_rt0_go:             #FuncID & 16
+#FuncID_runfinq:            #FuncID & 17
+#FuncID_runtime_main:       #FuncID & 18
+#FuncID_sigpanic:           #FuncID & 19
+#FuncID_systemstack:        #FuncID & 20
+#FuncID_systemstack_switch: #FuncID & 21
+#FuncIDWrapper:             #FuncID & 22
 
 #ArgsSizeUnknown: -2147483648
 

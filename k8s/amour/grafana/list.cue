@@ -17,7 +17,7 @@ import (
 	kind:       "List"
 	items: [...{
 		metadata: {
-			name:      #Name
+			name:      string | *#Name
 			namespace: #Namespace
 			labels: {
 				"app.kubernetes.io/name":    #Name
@@ -32,6 +32,8 @@ import (
 _items: [
 	#ConfigMapList.items,
 	#ExternalSecretList.items,
+	#GrafanaDashboardList.items,
+	#GrafanaList.items,
 	#IngressList.items,
 	#NamespaceList.items,
 	#ServiceList.items,

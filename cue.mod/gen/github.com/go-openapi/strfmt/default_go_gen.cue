@@ -33,20 +33,28 @@ package strfmt
 //   - symbol unicode points are permitted (e.g. emoji) (not for top-level domain)
 #HostnamePattern: "^([a-zA-Z0-9\\p{S}\\p{L}]((-?[a-zA-Z0-9\\p{S}\\p{L}]{0,62})?)|([a-zA-Z0-9\\p{S}\\p{L}](([a-zA-Z0-9-\\p{S}\\p{L}]{0,61}[a-zA-Z0-9\\p{S}\\p{L}])?)(\\.)){1,}([a-zA-Z\\p{L}]){2,63})$" // `^([a-zA-Z0-9\p{S}\p{L}]((-?[a-zA-Z0-9\p{S}\p{L}]{0,62})?)|([a-zA-Z0-9\p{S}\p{L}](([a-zA-Z0-9-\p{S}\p{L}]{0,61}[a-zA-Z0-9\p{S}\p{L}])?)(\.)){1,}([a-zA-Z\p{L}]){2,63})$`
 
-// UUIDPattern Regex for UUID that allows uppercase
-#UUIDPattern: "(?i)^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$" // `(?i)^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$`
-
-// UUID3Pattern Regex for UUID3 that allows uppercase
-#UUID3Pattern: "(?i)^[0-9a-f]{8}-?[0-9a-f]{4}-?3[0-9a-f]{3}-?[0-9a-f]{4}-?[0-9a-f]{12}$" // `(?i)^[0-9a-f]{8}-?[0-9a-f]{4}-?3[0-9a-f]{3}-?[0-9a-f]{4}-?[0-9a-f]{12}$`
-
-// UUID4Pattern Regex for UUID4 that allows uppercase
-#UUID4Pattern: "(?i)^[0-9a-f]{8}-?[0-9a-f]{4}-?4[0-9a-f]{3}-?[89ab][0-9a-f]{3}-?[0-9a-f]{12}$" // `(?i)^[0-9a-f]{8}-?[0-9a-f]{4}-?4[0-9a-f]{3}-?[89ab][0-9a-f]{3}-?[0-9a-f]{12}$`
-
-// UUID5Pattern Regex for UUID5 that allows uppercase
-#UUID5Pattern: "(?i)^[0-9a-f]{8}-?[0-9a-f]{4}-?5[0-9a-f]{3}-?[89ab][0-9a-f]{3}-?[0-9a-f]{12}$" // `(?i)^[0-9a-f]{8}-?[0-9a-f]{4}-?5[0-9a-f]{3}-?[89ab][0-9a-f]{3}-?[0-9a-f]{12}$`
-
 // json null type
 _#jsonNull: "null"
+
+// UUIDPattern Regex for UUID that allows uppercase
+//
+// Deprecated: strfmt no longer uses regular expressions to validate UUIDs.
+#UUIDPattern: "(?i)(^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$)|(^[0-9a-f]{32}$)" // `(?i)(^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$)|(^[0-9a-f]{32}$)`
+
+// UUID3Pattern Regex for UUID3 that allows uppercase
+//
+// Deprecated: strfmt no longer uses regular expressions to validate UUIDs.
+#UUID3Pattern: "(?i)(^[0-9a-f]{8}-[0-9a-f]{4}-3[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$)|(^[0-9a-f]{12}3[0-9a-f]{3}?[0-9a-f]{16}$)" // `(?i)(^[0-9a-f]{8}-[0-9a-f]{4}-3[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$)|(^[0-9a-f]{12}3[0-9a-f]{3}?[0-9a-f]{16}$)`
+
+// UUID4Pattern Regex for UUID4 that allows uppercase
+//
+// Deprecated: strfmt no longer uses regular expressions to validate UUIDs.
+#UUID4Pattern: "(?i)(^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$)|(^[0-9a-f]{12}4[0-9a-f]{3}[89ab][0-9a-f]{15}$)" // `(?i)(^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$)|(^[0-9a-f]{12}4[0-9a-f]{3}[89ab][0-9a-f]{15}$)`
+
+// UUID5Pattern Regex for UUID5 that allows uppercase
+//
+// Deprecated: strfmt no longer uses regular expressions to validate UUIDs.
+#UUID5Pattern: "(?i)(^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$)|(^[0-9a-f]{12}5[0-9a-f]{3}[89ab][0-9a-f]{15}$)" // `(?i)(^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$)|(^[0-9a-f]{12}5[0-9a-f]{3}[89ab][0-9a-f]{15}$)`
 
 // Base64 represents a base64 encoded string, using URLEncoding alphabet
 //

@@ -7,6 +7,7 @@ cue_library(
         "abi_go_gen.cue",
         "map_go_gen.cue",
         "stack_go_gen.cue",
+        "switch_go_gen.cue",
         "symtab_go_gen.cue",
         "type_go_gen.cue",
     ],
