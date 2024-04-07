@@ -3,6 +3,7 @@ load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
 cue_library(
     name = "cue_nvidia_device_plugin_library",
     srcs = [
+        "config_map_list.cue",
         "daemon_set_list.cue",
         "list.cue",
         "namespace_list.cue",

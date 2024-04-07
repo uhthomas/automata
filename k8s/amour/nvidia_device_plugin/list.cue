@@ -30,6 +30,7 @@ import (
 #List: items: list.Concat(_items)
 
 _items: [
+	#ConfigMapList.items,
 	#DaemonSetList.items,
 	#NamespaceList.items,
 	#RuntimeClassList.items,

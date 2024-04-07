@@ -21,6 +21,9 @@ import (
 			metadata: labels: "app.kubernetes.io/name": "nvidia-device-plugin"
 			spec: {
 				volumes: [{
+					name: "config"
+					configMap: name: #Name
+				}, {
 					name: "device-plugin"
 					hostPath: path: "/var/lib/kubelet/device-plugins"
 				}]
@@ -28,10 +31,16 @@ import (
 					image: "nvcr.io/nvidia/k8s-device-plugin:v\(#Version)"
 					name:  "nvidia-device-plugin-ctr"
 					env: [{
+						name:  "CONFIG_FILE"
+						value: "/var/nvidia-device-plugin/config/config.yaml"
+					}, {
 						name:  "NVIDIA_MIG_MONITOR_DEVICES"
 						value: "all"
 					}]
 					volumeMounts: [{
+						name:      "config"
+						mountPath: "/var/nvidia-device-plugin/config"
+					}, {
 						name:      "device-plugin"
 						mountPath: "/var/lib/kubelet/device-plugins"
 					}]
