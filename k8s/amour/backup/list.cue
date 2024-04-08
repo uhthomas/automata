@@ -25,7 +25,6 @@ import (
 
 _items: [
 	#NamespaceList.items,
-	#JobList.items,
 	breakfast.#List.items,
 	immich_unwind.#List.items,
 	legacy.#List.items,
