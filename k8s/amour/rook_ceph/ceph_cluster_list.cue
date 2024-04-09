@@ -164,10 +164,6 @@ import (
 					name: "/dev/disk/by-id/wwn-0x50014ee20a0d98d1"
 					config: deviceClass: "hdd"
 				}, {
-					// WD 4TB (TEMP - DELETE SOON)
-					name: "/dev/disk/by-id/wwn-0x50014ee20a85be27"
-					config: deviceClass: "hdd"
-				}, {
 					// HGST HUH721010AL5200
 					name: "/dev/disk/by-id/wwn-0x5000cca2669799a0"
 					config: deviceClass: "hdd"
