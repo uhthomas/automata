@@ -38,17 +38,23 @@ import (
 						containerPort: 8554
 					}]
 					env: [{
+						name:  "PUID"
+						value: "1000"
+					}, {
+						name:  "PGID"
+						value: "3000"
+					}, {
 						name:  "NVIDIA_DRIVER_CAPABILITIES"
 						value: "all"
 					}, {
 						name:  "NVIDIA_VISIBLE_DEVICES"
 						value: "all"
 					}, {
-						name:  "PUID"
-						value: "1000"
-					}, {
-						name:  "PGID"
-						value: "3000"
+						name: "FRIGATE_MQTT_PASSWORD"
+						valueFrom: secretKeyRef: {
+							name: #Name
+							key:  "mqtt-password"
+						}
 					}]
 					resources: limits: {
 						(v1.#ResourceCPU):    "1"

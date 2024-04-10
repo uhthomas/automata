@@ -18,32 +18,29 @@ import (
 #ConfigMapList: items: [{
 	data: "config.yaml": yaml.Marshal({
 		mqtt: {
-			// Required: host name
-			host: "mqtt.server.com"
-			// Optional: port (default: shown below)
-			port: 1883
-			// Optional: topic prefix (default: shown below)
-			// WARNING: must be unique if you are running multiple instances
-			topic_prefix: "frigate"
-			// Optional: client id (default: shown below)
-			// WARNING: must be unique if you are running multiple instances
-			client_id: "frigate"
-			// Optional: user
-			user: "mqtt_user"
-			// Optional: password
-			// NOTE: Environment variables that begin with 'FRIGATE_' may be referenced in {}.
-			//       eg. password: '{FRIGATE_MQTT_PASSWORD}'
-			password: "password"
-			// Optional: interval in seconds for publishing stats (default: shown below)
-			stats_interval: 60
+			host:     "emqx.emqx"
+			user:     "frigate"
+			password: "{FRIGATE_MQTT_PASSWORD}"
 		}
-		detectors: {
-			// coral:
-			//   type: edgetpu
-			//   device: usb
-			cpu1: {
-				type: "cpu"
-			}
+		ffmpeg: hwaccel_args: "preset-nvidia-h264"
+		detectors: tensorrt: {
+			type:   "tensorrt"
+			device: 0
+		}
+		model: {
+			path:               "/config/model_cache/tensorrt/yolov7-320.trt"
+			input_tensor:       "nchw"
+			input_pixel_format: "rgb"
+			width:              320
+			height:             320
+		}
+		cameras: dummy_camera: {
+			enabled: false
+			ffmpeg: inputs: [{
+				path: "rtsp://127.0.0.1:554/rtsp"
+				roles: ["detect"]
+			}]
+
 		}
 	})
 }]

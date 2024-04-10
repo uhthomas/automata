@@ -31,7 +31,7 @@ import (
 
 _items: [
 	#ConfigMapList.items,
-	// #ExternalSecretList.items,
+	#ExternalSecretList.items,
 	#IngressList.items,
 	#NamespaceList.items,
 	#ServiceList.items,
