@@ -8,6 +8,7 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/cilium"
 	"github.com/uhthomas/automata/k8s/amour/dcgm_exporter"
 	"github.com/uhthomas/automata/k8s/amour/emqx"
+	"github.com/uhthomas/automata/k8s/amour/emqx_exporter"
 	"github.com/uhthomas/automata/k8s/amour/external_secrets"
 	"github.com/uhthomas/automata/k8s/amour/frigate"
 	"github.com/uhthomas/automata/k8s/amour/grafana"
@@ -69,6 +70,7 @@ _items: [
 	cilium.#List.items,
 	dcgm_exporter.#List.items,
 	emqx.#List.items,
+	emqx_exporter.#List.items,
 	external_secrets.#List.items,
 	frigate.#List.items,
 	grafana.#List.items,
