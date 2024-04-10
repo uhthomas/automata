@@ -40,6 +40,20 @@ let dashboards = {
 		"https://github.com/ceph/ceph/blob/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/rbd-overview.json",
 		"https://github.com/ceph/ceph/blob/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/rgw-s3-analytics.json",
 	]
+	// Should really just be named 'EMQX' but Grafana isn't happy if the
+	// folder and dashboard names are the same.
+	"EMQX MQTT": [
+		// EMQX
+		// https://grafana.com/grafana/dashboards/17446-emqx/
+		17446,
+		"https://github.com/emqx/emqx-exporter/blob/0.2.7/grafana-dashboard/template/emqx-5/authentication.json",
+		"https://github.com/emqx/emqx-exporter/blob/0.2.7/grafana-dashboard/template/emqx-5/authorization.json",
+		"https://github.com/emqx/emqx-exporter/blob/0.2.7/grafana-dashboard/template/emqx-5/client-events.json",
+		"https://github.com/emqx/emqx-exporter/blob/0.2.7/grafana-dashboard/template/emqx-5/messages.json",
+		"https://github.com/emqx/emqx-exporter/blob/0.2.7/grafana-dashboard/template/emqx-5/overview.json",
+		"https://github.com/emqx/emqx-exporter/blob/0.2.7/grafana-dashboard/template/emqx-5/rule-engine-count.json",
+		"https://github.com/emqx/emqx-exporter/blob/0.2.7/grafana-dashboard/template/emqx-5/rule-engine-rate.json",
+	]
 	"Kubernetes": [
 		// Kubernetes / System / API Server
 		// https://grafana.com/grafana/dashboards/15761
