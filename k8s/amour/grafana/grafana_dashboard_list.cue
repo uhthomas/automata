@@ -23,22 +23,22 @@ let dashboards = {
 		1860,
 	]
 	"Ceph": [
-		"https://github.com/ceph/ceph/blob/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/ceph-cluster-advanced.json",
-		"https://github.com/ceph/ceph/blob/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/ceph-cluster.json",
-		"https://github.com/ceph/ceph/blob/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/cephfs-overview.json",
-		"https://github.com/ceph/ceph/blob/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/host-details.json",
-		"https://github.com/ceph/ceph/blob/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/hosts-overview.json",
-		"https://github.com/ceph/ceph/blob/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/multi-cluster-overview.json",
-		"https://github.com/ceph/ceph/blob/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/osd-device-details.json",
-		"https://github.com/ceph/ceph/blob/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/osds-overview.json",
-		"https://github.com/ceph/ceph/blob/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/pool-detail.json",
-		"https://github.com/ceph/ceph/blob/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/pool-overview.json",
-		"https://github.com/ceph/ceph/blob/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/radosgw-detail.json",
-		"https://github.com/ceph/ceph/blob/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/radosgw-overview.json",
-		"https://github.com/ceph/ceph/blob/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/radosgw-sync-overview.json",
-		"https://github.com/ceph/ceph/blob/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/rbd-details.json",
-		"https://github.com/ceph/ceph/blob/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/rbd-overview.json",
-		"https://github.com/ceph/ceph/blob/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/rgw-s3-analytics.json",
+		"https://raw.githubusercontent.com/ceph/ceph/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/ceph-cluster-advanced.json",
+		"https://raw.githubusercontent.com/ceph/ceph/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/ceph-cluster.json",
+		"https://raw.githubusercontent.com/ceph/ceph/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/cephfs-overview.json",
+		"https://raw.githubusercontent.com/ceph/ceph/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/host-details.json",
+		"https://raw.githubusercontent.com/ceph/ceph/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/hosts-overview.json",
+		"https://raw.githubusercontent.com/ceph/ceph/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/multi-cluster-overview.json",
+		"https://raw.githubusercontent.com/ceph/ceph/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/osd-device-details.json",
+		"https://raw.githubusercontent.com/ceph/ceph/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/osds-overview.json",
+		"https://raw.githubusercontent.com/ceph/ceph/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/pool-detail.json",
+		"https://raw.githubusercontent.com/ceph/ceph/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/pool-overview.json",
+		"https://raw.githubusercontent.com/ceph/ceph/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/radosgw-detail.json",
+		"https://raw.githubusercontent.com/ceph/ceph/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/radosgw-overview.json",
+		"https://raw.githubusercontent.com/ceph/ceph/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/radosgw-sync-overview.json",
+		"https://raw.githubusercontent.com/ceph/ceph/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/rbd-details.json",
+		"https://raw.githubusercontent.com/ceph/ceph/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/rbd-overview.json",
+		"https://raw.githubusercontent.com/ceph/ceph/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/rgw-s3-analytics.json",
 	]
 	// Should really just be named 'EMQX' but Grafana isn't happy if the
 	// folder and dashboard names are the same.
@@ -46,13 +46,13 @@ let dashboards = {
 		// EMQX
 		// https://grafana.com/grafana/dashboards/17446-emqx/
 		17446,
-		"https://github.com/emqx/emqx-exporter/blob/0.2.7/grafana-dashboard/template/emqx-5/authentication.json",
-		"https://github.com/emqx/emqx-exporter/blob/0.2.7/grafana-dashboard/template/emqx-5/authorization.json",
-		"https://github.com/emqx/emqx-exporter/blob/0.2.7/grafana-dashboard/template/emqx-5/client-events.json",
-		"https://github.com/emqx/emqx-exporter/blob/0.2.7/grafana-dashboard/template/emqx-5/messages.json",
-		"https://github.com/emqx/emqx-exporter/blob/0.2.7/grafana-dashboard/template/emqx-5/overview.json",
-		"https://github.com/emqx/emqx-exporter/blob/0.2.7/grafana-dashboard/template/emqx-5/rule-engine-count.json",
-		"https://github.com/emqx/emqx-exporter/blob/0.2.7/grafana-dashboard/template/emqx-5/rule-engine-rate.json",
+		"https://raw.githubusercontent.com/emqx/emqx-exporter/5b8a4169266f215e4ffc70d95a915d8bcf8d860e/grafana-dashboard/template/emqx-5/authentication.json",
+		"https://raw.githubusercontent.com/emqx/emqx-exporter/5b8a4169266f215e4ffc70d95a915d8bcf8d860e/grafana-dashboard/template/emqx-5/authorization.json",
+		"https://raw.githubusercontent.com/emqx/emqx-exporter/5b8a4169266f215e4ffc70d95a915d8bcf8d860e/grafana-dashboard/template/emqx-5/client-events.json",
+		"https://raw.githubusercontent.com/emqx/emqx-exporter/5b8a4169266f215e4ffc70d95a915d8bcf8d860e/grafana-dashboard/template/emqx-5/messages.json",
+		"https://raw.githubusercontent.com/emqx/emqx-exporter/5b8a4169266f215e4ffc70d95a915d8bcf8d860e/grafana-dashboard/template/emqx-5/overview.json",
+		"https://raw.githubusercontent.com/emqx/emqx-exporter/5b8a4169266f215e4ffc70d95a915d8bcf8d860e/grafana-dashboard/template/emqx-5/rule-engine-count.json",
+		"https://raw.githubusercontent.com/emqx/emqx-exporter/5b8a4169266f215e4ffc70d95a915d8bcf8d860e/grafana-dashboard/template/emqx-5/rule-engine-rate.json",
 	]
 	"Kubernetes": [
 		// Kubernetes / System / API Server
