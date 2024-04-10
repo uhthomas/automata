@@ -107,5 +107,12 @@ let dashboards = {
 		}
 		instanceSelector: matchLabels: "app.kubernetes.io/name": #Name
 		folder: folderName
+		datasources: [if folder == "EMQX MQTT" {
+			inputName:      "prometheus"
+			datasourceName: "default"
+		}, if "\(dashboardRef)" == "17446" {
+			inputName:      "DS_EMQX_PROMETHEUS"
+			datasourceName: "default"
+		}]
 	}
 }]
