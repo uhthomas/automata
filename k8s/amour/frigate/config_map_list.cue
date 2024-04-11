@@ -22,10 +22,21 @@ import (
 			user:     "frigate"
 			password: "{FRIGATE_MQTT_PASSWORD}"
 		}
-		ffmpeg: hwaccel_args: "preset-nvidia-h264"
 		detectors: tensorrt: {
 			type:   "tensorrt"
 			device: 0
+		}
+		ffmpeg: hwaccel_args: "preset-nvidia-h264"
+		record: {
+			enabled: true
+			retain: {
+				days: 7
+				mode: "all"
+			}
+		}
+		snapshots: {
+			enabled: true
+			retain: default: 7
 		}
 		model: {
 			path:               "/config/model_cache/tensorrt/yolov7-320.trt"
@@ -34,13 +45,17 @@ import (
 			width:              320
 			height:             320
 		}
-		cameras: dummy_camera: {
-			enabled: false
+		cameras: maple: {
+			let hostname = "192.168.1.72"
 			ffmpeg: inputs: [{
-				path: "rtsp://127.0.0.1:554/rtsp"
-				roles: ["detect"]
+				path: "rtsp://frigate:{FRIGATE_WJBC516A003968_PASSWORD}@\(hostname)/Preview_01_main"
+				roles: ["record"]
 			}]
-
+			onvif: {
+				host:     hostname
+				user:     "frigate"
+				password: "{FRIGATE_WJBC516A003968_PASSWORD}"
+			}
 		}
 	})
 }]

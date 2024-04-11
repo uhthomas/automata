@@ -55,6 +55,12 @@ import (
 							name: #Name
 							key:  "mqtt-password"
 						}
+					}, {
+						name: "FRIGATE_WJBC516A003968_PASSWORD"
+						valueFrom: secretKeyRef: {
+							name: #Name
+							key:  "wjbc516a003968-password"
+						}
 					}]
 					resources: limits: {
 						(v1.#ResourceCPU):    "1"
@@ -115,7 +121,7 @@ import (
 			spec: {
 				accessModes: [v1.#ReadWriteOnce]
 				storageClassName: "rook-ceph-nvme"
-				resources: requests: (v1.#ResourceStorage): "1Gi"
+				resources: requests: (v1.#ResourceStorage): "1Ti"
 			}
 		}]
 		serviceName: #Name

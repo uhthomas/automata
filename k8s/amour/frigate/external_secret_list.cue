@@ -27,6 +27,12 @@ import externalsecretsv1beta1 "github.com/external-secrets/external-secrets/apis
 				key:      "frigate-emqx"
 				property: "password"
 			}
+		}, {
+			secretKey: "wjbc516a003968-password"
+			remoteRef: {
+				key:      "frigate-wjbc516a003968"
+				property: "password"
+			}
 		}]
 	}
 }]
