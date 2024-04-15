@@ -40,8 +40,9 @@ let sharedRelabelConfigs = [{
 			port:           "http-metrics"
 			relabelConfigs: sharedRelabelConfigs
 		}, {
-			port:           "http-metrics"
-			path:           "/probe"
+			port: "http-metrics"
+			path: "/probe"
+			params: target: ["emqx.emqx:1883"]
 			relabelConfigs: sharedRelabelConfigs
 		}]
 		selector: matchLabels: "app.kubernetes.io/name": #Name

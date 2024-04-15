@@ -33,7 +33,11 @@ import (
 					api_key:    "{{ .key }}"
 					api_secret: "{{ .secret }}"
 				}
-				probes: [{target: "emqx.emqx:1883"}]
+				probes: [{
+					target:   "emqx.emqx:1883"
+					username: "emqx-exporter"
+					password: "{{ .mqttPassword }}"
+				}]
 			})
 		}
 		data: [{
@@ -47,6 +51,12 @@ import (
 			remoteRef: {
 				key:      "emqx-exporter"
 				property: "api secret key"
+			}
+		}, {
+			secretKey: "mqttPassword"
+			remoteRef: {
+				key:      "emqx-exporter"
+				property: "mqtt password"
 			}
 		}]
 	}
