@@ -28,6 +28,12 @@ import externalsecretsv1beta1 "github.com/external-secrets/external-secrets/apis
 				property: "password"
 			}
 		}, {
+			secretKey: "doorbell-secret"
+			remoteRef: {
+				key:      "frigate-doorbell"
+				property: "secret"
+			}
+		}, {
 			secretKey: "wjbc516a003968-password"
 			remoteRef: {
 				key:      "frigate-wjbc516a003968"

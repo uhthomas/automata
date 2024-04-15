@@ -45,16 +45,22 @@ import (
 			width:              320
 			height:             320
 		}
-		cameras: maple: {
-			let hostname = "192.168.1.72"
-			ffmpeg: inputs: [{
-				path: "rtsp://frigate:{FRIGATE_WJBC516A003968_PASSWORD}@\(hostname)/Preview_01_main"
+		cameras: {
+			doorbell: ffmpeg: inputs: [{
+				path: "rtsps://192.168.1.1:7441/{FRIGATE_DOORBELL_SECRET}?enableSrtp"
 				roles: ["record"]
 			}]
-			onvif: {
-				host:     hostname
-				user:     "frigate"
-				password: "{FRIGATE_WJBC516A003968_PASSWORD}"
+			maple: {
+				let hostname = "192.168.1.72"
+				ffmpeg: inputs: [{
+					path: "rtsp://frigate:{FRIGATE_WJBC516A003968_PASSWORD}@\(hostname)/Preview_01_main"
+					roles: ["record"]
+				}]
+				onvif: {
+					host:     hostname
+					user:     "frigate"
+					password: "{FRIGATE_WJBC516A003968_PASSWORD}"
+				}
 			}
 		}
 	})

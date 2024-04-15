@@ -56,6 +56,12 @@ import (
 							key:  "mqtt-password"
 						}
 					}, {
+						name: "FRIGATE_DOORBELL_SECRET"
+						valueFrom: secretKeyRef: {
+							name: #Name
+							key:  "doorbell-secret"
+						}
+					}, {
 						name: "FRIGATE_WJBC516A003968_PASSWORD"
 						valueFrom: secretKeyRef: {
 							name: #Name
