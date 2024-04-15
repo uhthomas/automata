@@ -23,20 +23,20 @@ import (
 				name:      "VictoriaMetrics"
 				type:      "prometheus"
 				access:    "proxy"
-				url:       "http://vmsingle-vm.vm.svc.cluster.local:8429"
+				url:       "http://vmsingle-vm.vm:8429"
 				isDefault: true
 			}, {
 				name:                       "Alertmanager"
 				type:                       "alertmanager"
 				access:                     "proxy"
-				url:                        "http://vmalertmanager-vm.vm.svc.cluster.local:9093"
+				url:                        "http://vmalertmanager-vm.vm:9093"
 				implementation:             "prometheus"
 				handleGrafanaManagedAlerts: true
 			}, {
-				name:   "Loki"
-				type:   "loki"
+				name:   "VictoriaLogs"
+				type:   "victorialogs-datasource"
 				access: "proxy"
-				url:    "http://loki-gateway.loki.svc.cluster.local"
+				url:    "http://victoria-logs.victoria-logs"
 			}]
 		})
 		"grafana.ini": """
@@ -64,6 +64,10 @@ import (
 
 			[log]
 			mode = console
+
+			# https://github.com/VictoriaMetrics/victorialogs-datasource/blob/058bd8d81a8119511abdc35398459a1094381b5c/README.md
+			[plugins]
+			allow_loading_unsigned_plugins = victorialogs-datasource
 			"""
 	}
 }]
