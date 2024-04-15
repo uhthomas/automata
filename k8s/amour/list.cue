@@ -10,6 +10,7 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/emqx"
 	"github.com/uhthomas/automata/k8s/amour/emqx_exporter"
 	"github.com/uhthomas/automata/k8s/amour/external_secrets"
+	"github.com/uhthomas/automata/k8s/amour/fluent_bit"
 	"github.com/uhthomas/automata/k8s/amour/frigate"
 	"github.com/uhthomas/automata/k8s/amour/grafana"
 	"github.com/uhthomas/automata/k8s/amour/grafana_operator"
@@ -73,6 +74,7 @@ _items: [
 	emqx.#List.items,
 	emqx_exporter.#List.items,
 	external_secrets.#List.items,
+	fluent_bit.#List.items,
 	frigate.#List.items,
 	grafana.#List.items,
 	grafana_operator.#List.items,

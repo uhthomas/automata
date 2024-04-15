@@ -1,0 +1,30 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_export", "cue_library")
+
+cue_library(
+    name = "cue_fluent_bit_library",
+    srcs = [
+        "cluster_role_binding_list.cue",
+        "cluster_role_list.cue",
+        "config_map_list.cue",
+        "daemon_set_list.cue",
+        "list.cue",
+        "namespace_list.cue",
+        "service_account_list.cue",
+        "service_list.cue",
+        "vm_service_scrape_list.cue",
+    ],
+    importpath = "github.com/uhthomas/automata/k8s/amour/fluent_bit",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//cue.mod/gen/github.com/VictoriaMetrics/operator/api/victoriametrics/v1beta1:cue_v1beta1_library",
+        "//cue.mod/gen/k8s.io/api/apps/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/api/rbac/v1:cue_v1_library",
+    ],
+)
+
+cue_export(
+    name = "fluent_bit",
+    src = "fluent-bit.cue",
+    visibility = ["//visibility:public"],
+)
