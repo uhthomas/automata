@@ -27,6 +27,7 @@ import (
 			device: 0
 		}
 		ffmpeg: hwaccel_args: "preset-nvidia-h264"
+		detect: enabled:      false
 		record: {
 			enabled: true
 			retain: {
@@ -46,16 +47,20 @@ import (
 			height:             320
 		}
 		cameras: {
-			doorbell: ffmpeg: inputs: [{
-				path: "rtsps://192.168.1.1:7441/{FRIGATE_DOORBELL_SECRET}?enableSrtp"
-				roles: ["record"]
-			}]
+			doorbell: {
+				ffmpeg: inputs: [{
+					path: "rtsps://192.168.1.1:7441/{FRIGATE_DOORBELL_SECRET}?enableSrtp"
+					roles: ["record"]
+				}]
+				detect: fps: 30
+			}
 			maple: {
 				let hostname = "192.168.1.72"
 				ffmpeg: inputs: [{
 					path: "rtsp://frigate:{FRIGATE_WJBC516A003968_PASSWORD}@\(hostname)/Preview_01_main"
 					roles: ["record"]
 				}]
+				detect: fps: 25
 				onvif: {
 					host:     hostname
 					user:     "frigate"

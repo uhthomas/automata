@@ -70,7 +70,7 @@ import (
 					}]
 					resources: limits: {
 						(v1.#ResourceCPU):    "2"
-						(v1.#ResourceMemory): "4Gi"
+						(v1.#ResourceMemory): "2Gi"
 						"nvidia.com/gpu":     "1"
 					}
 					volumeMounts: [{
