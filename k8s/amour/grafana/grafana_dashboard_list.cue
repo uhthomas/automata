@@ -80,6 +80,7 @@ let dashboards = {
 		// https://grafana.com/grafana/dashboards/19105
 		19105,
 	]
+	"VictoriaLogs": ["https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/7b20de4674f9594ef17cbba7aa5c735c11788195/dashboards/victorialogs.json"]
 	"VictoriaMetrics": [
 		// VictoriaMetrics - single-node
 		// https://grafana.com/grafana/dashboards/10229

@@ -34,6 +34,7 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/tailscale"
 	"github.com/uhthomas/automata/k8s/amour/thomas"
 	"github.com/uhthomas/automata/k8s/amour/trivy_system"
+	"github.com/uhthomas/automata/k8s/amour/victoria_logs"
 	"github.com/uhthomas/automata/k8s/amour/vm_operator"
 	"github.com/uhthomas/automata/k8s/amour/vm"
 	"github.com/uhthomas/automata/k8s/amour/volsync_system"
@@ -96,6 +97,7 @@ _items: [
 	tailscale.#List.items,
 	thomas.#List.items,
 	trivy_system.#List.items,
+	victoria_logs.#List.items,
 	vm_operator.#List.items,
 	vm.#List.items,
 	volsync_system.#List.items,
