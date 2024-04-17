@@ -65,10 +65,11 @@ import (
 				//
 				// https://github.com/linuxserver/docker-radarr/issues/203
 				securityContext: {
-					runAsUser:    0
-					runAsGroup:   0
-					runAsNonRoot: false
-					fsGroup:      2000
+					runAsUser:           0
+					runAsGroup:          0
+					runAsNonRoot:        false
+					fsGroup:             2000
+					fsGroupChangePolicy: v1.#FSGroupChangeOnRootMismatch
 					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 				}
 			}
