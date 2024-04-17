@@ -124,6 +124,10 @@ import (
 					name: "/dev/disk/by-id/nvme-eui.00000000000000008ce38ee206d20501"
 					config: deviceClass: "nvme"
 				}, {
+					// INTEL SSDPF2KX038T1
+					name: "/dev/disk/by-id/nvme-eui.01000000000000005cd2e49630575551"
+					config: deviceClass: "nvme"
+				}, {
 					// SAMSUNG MZWLL3T2HMJP-00003
 					name: "/dev/disk/by-id/nvme-eui.334841304b4002370025385800000004"
 					config: deviceClass: "nvme"
