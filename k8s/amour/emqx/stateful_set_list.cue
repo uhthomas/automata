@@ -84,7 +84,8 @@ import (
 					runAsUser:    1000
 					runAsGroup:   3000
 					runAsNonRoot: false
-					fsGroup:      2000
+					fsGroup:             2000
+					fsGroupChangePolicy: v1.#FSGroupChangeOnRootMismatch
 					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 				}
 			}

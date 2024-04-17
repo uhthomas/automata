@@ -21,10 +21,11 @@ import (
 			(v1.#ResourceMemory): "768Mi"
 		}
 		securityContext: {
-			runAsUser:    1000
-			runAsGroup:   3000
-			runAsNonRoot: true
-			fsGroup:      2000
+			runAsUser:           1000
+			runAsGroup:          3000
+			runAsNonRoot:        true
+			fsGroup:             2000
+			fsGroupChangePolicy: v1.#FSGroupChangeOnRootMismatch
 			seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 		}
 		containers: [{
