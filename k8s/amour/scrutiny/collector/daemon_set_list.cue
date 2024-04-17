@@ -36,6 +36,12 @@ import (
 					}, {
 						name:  "COLLECTOR_RUN_STARTUP"
 						value: "true"
+					}, {
+						name: "GOMAXPROCS"
+						valueFrom: resourceFieldRef: {
+							containerName: "collector"
+							resource:      "limits.cpu"
+						}
 					}]
 					resources: limits: {
 						(v1.#ResourceCPU):    "150m"
