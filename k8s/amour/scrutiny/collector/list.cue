@@ -8,7 +8,9 @@ import (
 
 #Name:      "scrutiny-collector"
 #Namespace: "scrutiny"
-#Version:   "0.7.2"
+
+// renovate: datasource=github-releases depName=AnalogJ/scrutiny extractVersion=^v(?<version>.*)$
+#Version: "0.8.1"
 
 #List: v1.#List & {
 	apiVersion: "v1"
