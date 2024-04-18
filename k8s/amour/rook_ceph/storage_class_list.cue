@@ -56,8 +56,7 @@ let defaultCephFSParameters = defaultParameters & {
 		dataPool: "ecpool-nvme"
 		pool:     "replicapool-nvme"
 	}
-	allowVolumeExpansion: true
-	reclaimPolicy:        v1.#PersistentVolumeReclaimRetain
+	reclaimPolicy: v1.#PersistentVolumeReclaimRetain
 	mountOptions: ["discard"]
 	allowVolumeExpansion: true
 }, {
@@ -67,8 +66,7 @@ let defaultCephFSParameters = defaultParameters & {
 		dataPool: "ecpool-hdd"
 		pool:     "replicapool-nvme"
 	}
-	allowVolumeExpansion: true
-	reclaimPolicy:        v1.#PersistentVolumeReclaimRetain
+	reclaimPolicy: v1.#PersistentVolumeReclaimRetain
 	mountOptions: ["discard"]
 	allowVolumeExpansion: true
 }, {
@@ -78,8 +76,7 @@ let defaultCephFSParameters = defaultParameters & {
 		fsName: "cephfs-hdd"
 		pool:   "cephfs-hdd-erasurecoded"
 	}
-	allowVolumeExpansion: true
-	reclaimPolicy:        v1.#PersistentVolumeReclaimRetain
+	reclaimPolicy: v1.#PersistentVolumeReclaimRetain
 	mountOptions: ["discard"]
 	allowVolumeExpansion: true
 }, {
@@ -89,8 +86,7 @@ let defaultCephFSParameters = defaultParameters & {
 		fsName: "main"
 		pool:   "main-nvme-ec"
 	}
-	allowVolumeExpansion: true
-	reclaimPolicy:        v1.#PersistentVolumeReclaimRetain
+	reclaimPolicy: v1.#PersistentVolumeReclaimRetain
 	mountOptions: ["discard"]
 	allowVolumeExpansion: true
 }]

@@ -33,10 +33,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 			codingChunks: 2
 		}
 		deviceClass: "nvme"
-		parameters: {
-			compression_algorithm: "zstd"
-			compression_mode:      "aggressive"
-		}
+		parameters: compression_mode: "none"
 	}
 }, {
 	metadata: name: "replicapool-nvme"
@@ -44,10 +41,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 		failureDomain: "osd"
 		replicated: size: 3
 		deviceClass: "nvme"
-		parameters: {
-			compression_algorithm: "zstd"
-			compression_mode:      "aggressive"
-		}
+		parameters: compression_mode: "none"
 	}
 }, {
 	metadata: name: "ecpool-hdd"
@@ -59,9 +53,8 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 		}
 		deviceClass: "hdd"
 		parameters: {
-			compression_algorithm: "zstd"
-			compression_mode:      "aggressive"
-			min_size:              "5"
+			compression_mode: "none"
+			min_size:         "5"
 		}
 	}
 }, {
@@ -70,9 +63,6 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 		failureDomain: "osd"
 		replicated: size: 3
 		deviceClass: "hdd"
-		parameters: {
-			compression_algorithm: "zstd"
-			compression_mode:      "aggressive"
-		}
+		parameters: compression_mode: "none"
 	}
 }]
