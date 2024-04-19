@@ -14,7 +14,7 @@ require (
 	github.com/external-secrets/external-secrets v0.9.11
 	github.com/grafana/grafana-operator/v5 v5.8.0
 	github.com/prometheus/prometheus v0.49.1
-	github.com/rook/rook/pkg/apis v0.0.0-20240118185538-f46c0845eea7
+	github.com/rook/rook/pkg/apis v1.14.2
 	k8s.io/api v0.29.3
 	k8s.io/apiextensions-apiserver v0.29.3
 	k8s.io/client-go v12.0.0+incompatible
