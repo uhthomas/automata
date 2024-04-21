@@ -12,34 +12,6 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 }
 
 #CephFilesystemList: items: [{
-	metadata: name: "cephfs-hdd"
-	spec: {
-		metadataPool: {
-			failureDomain: "osd"
-			replicated: size: 3
-			deviceClass: "nvme"
-		}
-		dataPools: [{
-			name:          "default"
-			failureDomain: "osd"
-			replicated: size: 3
-			deviceClass: "nvme"
-		}, {
-			name:          "erasurecoded"
-			failureDomain: "osd"
-			erasureCoded: {
-				dataChunks:   4
-				codingChunks: 2
-			}
-			deviceClass: "hdd"
-		}]
-		preserveFilesystemOnDelete: true
-		metadataServer: {
-			activeCount:   1
-			activeStandby: true
-		}
-	}
-}, {
 	metadata: name: "main"
 	spec: {
 		metadataPool: {
