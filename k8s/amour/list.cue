@@ -10,7 +10,7 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/emqx"
 	"github.com/uhthomas/automata/k8s/amour/emqx_exporter"
 	"github.com/uhthomas/automata/k8s/amour/external_secrets"
-	"github.com/uhthomas/automata/k8s/amour/fluent_bit"
+	// "github.com/uhthomas/automata/k8s/amour/fluent_bit"
 	"github.com/uhthomas/automata/k8s/amour/frigate"
 	"github.com/uhthomas/automata/k8s/amour/grafana"
 	"github.com/uhthomas/automata/k8s/amour/grafana_operator"
@@ -35,6 +35,7 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/tailscale"
 	"github.com/uhthomas/automata/k8s/amour/thomas"
 	"github.com/uhthomas/automata/k8s/amour/trivy_system"
+	"github.com/uhthomas/automata/k8s/amour/vector"
 	"github.com/uhthomas/automata/k8s/amour/victoria_logs"
 	"github.com/uhthomas/automata/k8s/amour/vm_operator"
 	"github.com/uhthomas/automata/k8s/amour/vm"
@@ -74,7 +75,7 @@ _items: [
 	emqx.#List.items,
 	emqx_exporter.#List.items,
 	external_secrets.#List.items,
-	fluent_bit.#List.items,
+	// fluent_bit.#List.items,
 	frigate.#List.items,
 	grafana.#List.items,
 	grafana_operator.#List.items,
@@ -99,6 +100,7 @@ _items: [
 	tailscale.#List.items,
 	thomas.#List.items,
 	trivy_system.#List.items,
+	vector.#List.items,
 	victoria_logs.#List.items,
 	vm_operator.#List.items,
 	vm.#List.items,
