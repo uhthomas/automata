@@ -26,8 +26,11 @@ import (
 			type:   "tensorrt"
 			device: 0
 		}
-		ffmpeg: hwaccel_args: "preset-nvidia-h264"
-		detect: enabled:      false
+		ffmpeg: {
+			hwaccel_args: "preset-nvidia-h264"
+			output_args: record: "preset-record-generic-audio-aac"
+		}
+		detect: enabled: false
 		record: {
 			enabled: true
 			retain: {
