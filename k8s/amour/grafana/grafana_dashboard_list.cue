@@ -112,7 +112,7 @@ let dashboards = {
 			inputName:      "prometheus"
 			datasourceName: "default"
 		}, if "\(dashboardRef)" == "17446" {
-			inputName:      "DS_EMQX_PROMETHEUS"
+			inputName:      "DS_PROMETHEUS"
 			datasourceName: "default"
 		}]
 	}
