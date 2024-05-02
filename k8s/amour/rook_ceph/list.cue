@@ -8,7 +8,7 @@ import (
 
 #Name:      "rook-ceph"
 #Namespace: #Name
-#Version:   "1.13.0.166.gbc78b6cad"
+#Version:   "1.14.2"
 
 #List: v1.#List & {
 	apiVersion: "v1"

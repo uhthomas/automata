@@ -64,7 +64,7 @@ import (
 	}, {
 		apiGroups: ["snapshot.storage.k8s.io"]
 		resources: ["volumesnapshots"]
-		verbs: ["get", "list"]
+		verbs: ["get", "list", "watch", "update", "patch", "create"]
 	}, {
 		apiGroups: ["snapshot.storage.k8s.io"]
 		resources: ["volumesnapshotclasses"]
@@ -72,10 +72,22 @@ import (
 	}, {
 		apiGroups: ["snapshot.storage.k8s.io"]
 		resources: ["volumesnapshotcontents"]
-		verbs: ["get", "list", "watch", "patch", "update"]
+		verbs: ["get", "list", "watch", "patch", "update", "create"]
 	}, {
 		apiGroups: ["snapshot.storage.k8s.io"]
 		resources: ["volumesnapshotcontents/status"]
+		verbs: ["update", "patch"]
+	}, {
+		apiGroups: ["groupsnapshot.storage.k8s.io"]
+		resources: ["volumegroupsnapshotclasses"]
+		verbs: ["get", "list", "watch"]
+	}, {
+		apiGroups: ["groupsnapshot.storage.k8s.io"]
+		resources: ["volumegroupsnapshotcontents"]
+		verbs: ["get", "list", "watch", "update", "patch"]
+	}, {
+		apiGroups: ["groupsnapshot.storage.k8s.io"]
+		resources: ["volumegroupsnapshotcontents/status"]
 		verbs: ["update", "patch"]
 	}]
 }, {
@@ -161,7 +173,7 @@ import (
 	}, {
 		apiGroups: ["snapshot.storage.k8s.io"]
 		resources: ["volumesnapshots"]
-		verbs: ["get", "list", "watch"]
+		verbs: ["get", "list", "watch", "update", "patch", "create"]
 	}, {
 		apiGroups: ["snapshot.storage.k8s.io"]
 		resources: ["volumesnapshotclasses"]
@@ -169,10 +181,22 @@ import (
 	}, {
 		apiGroups: ["snapshot.storage.k8s.io"]
 		resources: ["volumesnapshotcontents"]
-		verbs: ["get", "list", "watch", "patch", "update"]
+		verbs: ["get", "list", "watch", "patch", "update", "create"]
 	}, {
 		apiGroups: ["snapshot.storage.k8s.io"]
 		resources: ["volumesnapshotcontents/status"]
+		verbs: ["update", "patch"]
+	}, {
+		apiGroups: ["groupsnapshot.storage.k8s.io"]
+		resources: ["volumegroupsnapshotclasses"]
+		verbs: ["get", "list", "watch"]
+	}, {
+		apiGroups: ["groupsnapshot.storage.k8s.io"]
+		resources: ["volumegroupsnapshotcontents"]
+		verbs: ["get", "list", "watch", "update", "patch"]
+	}, {
+		apiGroups: ["groupsnapshot.storage.k8s.io"]
+		resources: ["volumegroupsnapshotcontents/status"]
 		verbs: ["update", "patch"]
 	}, {
 		apiGroups: [v1.#GroupName]

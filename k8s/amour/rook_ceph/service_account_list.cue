@@ -22,6 +22,14 @@ import "k8s.io/api/core/v1"
 		}
 	}
 }, {
+	metadata: {
+		name: "rook-ceph-default"
+		labels: {
+			operator:          "rook"
+			"storage-backend": "ceph"
+		}
+	}
+}, {
 	// Service account for Ceph mgrs
 	metadata: {
 		name: "rook-ceph-mgr"

@@ -117,18 +117,6 @@ import rbacv1 "k8s.io/api/rbac/v1"
 		name: "rook-ceph-purge-osd"
 	}]
 }, {
-	// Allow the rgw pods in this namespace to work with configmaps
-	metadata: name: "rook-ceph-rgw"
-	roleRef: {
-		apiGroup: rbacv1.#GroupName
-		kind:     "Role"
-		name:     "rook-ceph-rgw"
-	}
-	subjects: [{
-		kind: rbacv1.#ServiceAccountKind
-		name: "rook-ceph-rgw"
-	}]
-}, {
 	// Grant the operator, agent, and discovery agents access to resources in the rook-ceph-system namespace
 	metadata: {
 		name: "rook-ceph-system"

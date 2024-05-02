@@ -111,16 +111,6 @@ import (
 		verbs: ["get", "update", "delete", "list"]
 	}]
 }, {
-	metadata: name: "rook-ceph-rgw"
-	rules: [{
-		// Placeholder role so the rgw service account will
-		// be generated in the csv. Remove this role and role binding
-		// when fixing https://github.com/rook/rook/issues/10141.
-		apiGroups: [v1.#GroupName]
-		resources: ["configmaps"]
-		verbs: ["get"]
-	}]
-}, {
 	// Allow the operator to manage resources in its own namespace
 	metadata: {
 		name: "rook-ceph-system"
