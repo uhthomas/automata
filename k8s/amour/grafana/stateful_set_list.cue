@@ -23,6 +23,15 @@ let downloadVictoriaLogsPluginScript = """
 	rm /var/lib/grafana/plugins/plugin.tar.gz
 	"""
 
+let downloadVictoriaMetricsPluginScript = """
+	set -ex
+	mkdir -p /var/lib/grafana/plugins/
+	ver=$(curl -s https://api.github.com/repos/VictoriaMetrics/grafana-datasource/releases/latest | grep -oE 'v[0-9]+\\.[0-9]+\\.[0-9]+' | head -1)
+	curl -L https://github.com/VictoriaMetrics/grafana-datasource/releases/download/$ver/victoriametrics-datasource-$ver.tar.gz -o /var/lib/grafana/plugins/plugin.tar.gz
+	tar -xf /var/lib/grafana/plugins/plugin.tar.gz -C /var/lib/grafana/plugins/
+	rm /var/lib/grafana/plugins/plugin.tar.gz
+	"""
+
 #StatefulSetList: items: [{
 	spec: {
 		selector: matchLabels: "app.kubernetes.io/name": #Name
@@ -42,6 +51,27 @@ let downloadVictoriaLogsPluginScript = """
 					image: "curlimages/curl:8.7.1"
 					command: ["/bin/sh"]
 					args: ["-c", downloadVictoriaLogsPluginScript]
+					workingDir: "/var/lib/grafana"
+					resources: limits: {
+						(v1.#ResourceCPU):    "1"
+						(v1.#ResourceMemory): "1Gi"
+					}
+					volumeMounts: [{
+						name:      "data"
+						mountPath: "/var/lib/grafana"
+					}]
+					imagePullPolicy: v1.#PullIfNotPresent
+					securityContext: {
+						capabilities: drop: ["ALL"]
+						readOnlyRootFilesystem:   true
+						allowPrivilegeEscalation: false
+					}
+				}, {
+					// https://github.com/VictoriaMetrics/grafana-datasource/blob/5b8a0ba190e116bdebfdb51d11b4e0d03d86d766/README.md
+					name:  "download-victoria-metrics-plugin"
+					image: "curlimages/curl:8.7.1"
+					command: ["/bin/sh"]
+					args: ["-c", downloadVictoriaMetricsPluginScript]
 					workingDir: "/var/lib/grafana"
 					resources: limits: {
 						(v1.#ResourceCPU):    "1"
@@ -115,9 +145,9 @@ let downloadVictoriaLogsPluginScript = """
 					}
 				}]
 				securityContext: {
-					runAsUser:    1000
-					runAsGroup:   3000
-					runAsNonRoot: true
+					runAsUser:           1000
+					runAsGroup:          3000
+					runAsNonRoot:        true
 					fsGroup:             2000
 					fsGroupChangePolicy: v1.#FSGroupChangeOnRootMismatch
 					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
