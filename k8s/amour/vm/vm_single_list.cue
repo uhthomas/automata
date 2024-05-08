@@ -23,7 +23,7 @@ import (
 		}
 		resources: limits: {
 			(v1.#ResourceCPU):    "2"
-			(v1.#ResourceMemory): "1.5Gi"
+			(v1.#ResourceMemory): "2Gi"
 		}
 		securityContext: {
 			runAsUser:           1000
