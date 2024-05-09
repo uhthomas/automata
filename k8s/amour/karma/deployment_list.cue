@@ -33,6 +33,9 @@ import (
 					}, {
 						name:  "ALERTMANAGER_URI"
 						value: "http://vmalertmanager-vm.vm:9093"
+					}, {
+						name:  "FILTERS_DEFAULT"
+						value: "@state=active"
 					}]
 					resources: limits: {
 						(v1.#ResourceCPU):    "50m"
@@ -57,9 +60,9 @@ import (
 					}
 				}]
 				securityContext: {
-					runAsUser:    1000
-					runAsGroup:   3000
-					runAsNonRoot: true
+					runAsUser:           1000
+					runAsGroup:          3000
+					runAsNonRoot:        true
 					fsGroup:             2000
 					fsGroupChangePolicy: v1.#FSGroupChangeOnRootMismatch
 					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
