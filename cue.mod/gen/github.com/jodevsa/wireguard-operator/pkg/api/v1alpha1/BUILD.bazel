@@ -1,0 +1,16 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_v1alpha1_library",
+    srcs = [
+        "groupversion_info_go_gen.cue",
+        "wireguard_types_go_gen.cue",
+        "wireguardpeer_types_go_gen.cue",
+    ],
+    importpath = "github.com/jodevsa/wireguard-operator/pkg/api/v1alpha1",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/apimachinery/pkg/apis/meta/v1:cue_v1_library",
+    ],
+)

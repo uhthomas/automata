@@ -83,6 +83,12 @@ import "k8s.io/apimachinery/pkg/runtime"
 	// +optional
 	"proxy-url"?: string @go(ProxyURL)
 
+	// DisableCompression allows client to opt-out of response compression for all requests to the server. This is useful
+	// to speed up requests (specifically lists) when client-server network bandwidth is ample, by saving time on
+	// compression (server-side) and decompression (client-side): https://github.com/kubernetes/kubernetes/issues/112296.
+	// +optional
+	"disable-compression"?: bool @go(DisableCompression)
+
 	// Extensions holds additional information. This is useful for extenders so that reads and writes don't clobber unknown fields
 	// +optional
 	extensions?: [...#NamedExtension] @go(Extensions,[]NamedExtension)
@@ -114,11 +120,15 @@ import "k8s.io/apimachinery/pkg/runtime"
 	// +optional
 	tokenFile?: string @go(TokenFile)
 
-	// Impersonate is the username to imperonate.  The name matches the flag.
+	// Impersonate is the username to impersonate.  The name matches the flag.
 	// +optional
 	as?: string @go(Impersonate)
 
-	// ImpersonateGroups is the groups to imperonate.
+	// ImpersonateUID is the uid to impersonate.
+	// +optional
+	"as-uid"?: string @go(ImpersonateUID)
+
+	// ImpersonateGroups is the groups to impersonate.
 	// +optional
 	"as-groups"?: [...string] @go(ImpersonateGroups,[]string)
 
@@ -217,13 +227,13 @@ import "k8s.io/apimachinery/pkg/runtime"
 
 	// Arguments to pass to the command when executing it.
 	// +optional
-	args: [...string] @go(Args,[]string)
+	args?: [...string] @go(Args,[]string)
 
 	// Env defines additional environment variables to expose to the process. These
 	// are unioned with the host's environment, as well as variables client-go uses
 	// to pass argument to the plugin.
 	// +optional
-	env: [...#ExecEnvVar] @go(Env,[]ExecEnvVar)
+	env?: [...#ExecEnvVar] @go(Env,[]ExecEnvVar)
 
 	// Preferred input version of the ExecInfo. The returned ExecCredentials MUST use
 	// the same encoding version as the input.
@@ -240,6 +250,18 @@ import "k8s.io/apimachinery/pkg/runtime"
 	// to false. Package k8s.io/client-go/tools/auth/exec provides helper methods for
 	// reading this environment variable.
 	provideClusterInfo: bool @go(ProvideClusterInfo)
+
+	// InteractiveMode determines this plugin's relationship with standard input. Valid
+	// values are "Never" (this exec plugin never uses standard input), "IfAvailable" (this
+	// exec plugin wants to use standard input if it is available), or "Always" (this exec
+	// plugin requires standard input to function). See ExecInteractiveMode values for more
+	// details.
+	//
+	// If APIVersion is client.authentication.k8s.io/v1alpha1 or
+	// client.authentication.k8s.io/v1beta1, then this field is optional and defaults
+	// to "IfAvailable" when unset. Otherwise, this field is required.
+	//+optional
+	interactiveMode?: #ExecInteractiveMode @go(InteractiveMode)
 }
 
 // ExecEnvVar is used for setting environment variables when executing an exec-based
@@ -248,3 +270,28 @@ import "k8s.io/apimachinery/pkg/runtime"
 	name:  string @go(Name)
 	value: string @go(Value)
 }
+
+// ExecInteractiveMode is a string that describes an exec plugin's relationship with standard input.
+#ExecInteractiveMode: string // #enumExecInteractiveMode
+
+#enumExecInteractiveMode:
+	#NeverExecInteractiveMode |
+	#IfAvailableExecInteractiveMode |
+	#AlwaysExecInteractiveMode
+
+// NeverExecInteractiveMode declares that this exec plugin never needs to use standard
+// input, and therefore the exec plugin will be run regardless of whether standard input is
+// available for user input.
+#NeverExecInteractiveMode: #ExecInteractiveMode & "Never"
+
+// IfAvailableExecInteractiveMode declares that this exec plugin would like to use standard input
+// if it is available, but can still operate if standard input is not available. Therefore, the
+// exec plugin will be run regardless of whether stdin is available for user input. If standard
+// input is available for user input, then it will be provided to this exec plugin.
+#IfAvailableExecInteractiveMode: #ExecInteractiveMode & "IfAvailable"
+
+// AlwaysExecInteractiveMode declares that this exec plugin requires standard input in order to
+// run, and therefore the exec plugin will only be run if standard input is available for user
+// input. If standard input is not available for user input, then the exec plugin will not be run
+// and an error will be returned by the exec plugin runner.
+#AlwaysExecInteractiveMode: #ExecInteractiveMode & "Always"

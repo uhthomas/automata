@@ -40,6 +40,8 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/vm_operator"
 	"github.com/uhthomas/automata/k8s/amour/vm"
 	"github.com/uhthomas/automata/k8s/amour/volsync_system"
+	"github.com/uhthomas/automata/k8s/amour/wireguard"
+	"github.com/uhthomas/automata/k8s/amour/wireguard_operator"
 	"k8s.io/api/core/v1"
 )
 
@@ -105,6 +107,8 @@ _items: [
 	vm_operator.#List.items,
 	vm.#List.items,
 	volsync_system.#List.items,
+	wireguard.#List.items,
+	wireguard_operator.#List.items,
 ]
 
 #List

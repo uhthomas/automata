@@ -80,6 +80,9 @@ import "k8s.io/api/core/v1"
 		"bpf-lb-map-max":            "65536"
 		"bpf-lb-external-clusterip": "false"
 
+		// https://github.com/cilium/cilium/issues/27758
+		"bpf-lb-sock-hostns-only": "true"
+
 		// Pre-allocation of map entries allows per-packet latency to be reduced, at
 		// the expense of up-front memory allocation for the entries in the maps. The
 		// default value below will minimize memory usage in the default installation;

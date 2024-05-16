@@ -57,6 +57,8 @@ cue_export(
         "//k8s/amour/vm:cue_vm_library",
         "//k8s/amour/vm_operator:cue_vm_operator_library",
         "//k8s/amour/volsync_system:cue_volsync_system_library",
+        "//k8s/amour/wireguard:cue_wireguard_library",
+        "//k8s/amour/wireguard_operator:cue_wireguard_operator_library",
     ],
 )
 
