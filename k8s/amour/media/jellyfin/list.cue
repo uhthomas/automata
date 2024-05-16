@@ -6,8 +6,10 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-#Name:    "jellyfin"
-#Version: "20240108.5-unstable"
+#Name: "jellyfin"
+
+// renovate: datasource=github-releases depName=jellyfin/jellyfin extractVersion=^v(?<version>.*)$
+#Version: "10.9.1"
 
 #List: v1.#List & {
 	apiVersion: "v1"
