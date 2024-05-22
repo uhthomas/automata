@@ -9,6 +9,7 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/dcgm_exporter"
 	"github.com/uhthomas/automata/k8s/amour/emqx"
 	"github.com/uhthomas/automata/k8s/amour/emqx_exporter"
+	"github.com/uhthomas/automata/k8s/amour/external_dns"
 	"github.com/uhthomas/automata/k8s/amour/external_secrets"
 	// "github.com/uhthomas/automata/k8s/amour/fluent_bit"
 	"github.com/uhthomas/automata/k8s/amour/frigate"
@@ -76,6 +77,7 @@ _items: [
 	dcgm_exporter.#List.items,
 	emqx.#List.items,
 	emqx_exporter.#List.items,
+	external_dns.#List.items,
 	external_secrets.#List.items,
 	// fluent_bit.#List.items,
 	frigate.#List.items,
