@@ -48,7 +48,7 @@ let downloadVictoriaMetricsPluginScript = """
 				initContainers: [{
 					// https://github.com/VictoriaMetrics/victorialogs-datasource/blob/058bd8d81a8119511abdc35398459a1094381b5c/README.md
 					name:  "download-victoria-logs-plugin"
-					image: "curlimages/curl:8.7.1"
+					image: "curlimages/curl:8.8.0"
 					command: ["/bin/sh"]
 					args: ["-c", downloadVictoriaLogsPluginScript]
 					workingDir: "/var/lib/grafana"
@@ -69,7 +69,7 @@ let downloadVictoriaMetricsPluginScript = """
 				}, {
 					// https://github.com/VictoriaMetrics/grafana-datasource/blob/5b8a0ba190e116bdebfdb51d11b4e0d03d86d766/README.md
 					name:  "download-victoria-metrics-plugin"
-					image: "curlimages/curl:8.7.1"
+					image: "curlimages/curl:8.8.0"
 					command: ["/bin/sh"]
 					args: ["-c", downloadVictoriaMetricsPluginScript]
 					workingDir: "/var/lib/grafana"
