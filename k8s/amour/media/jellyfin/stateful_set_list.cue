@@ -81,9 +81,14 @@ import (
 						name:      "media"
 						mountPath: "/media"
 					}]
-					livenessProbe: httpGet: {
-						path: "/health"
-						port: "http"
+					livenessProbe: {
+						httpGet: {
+							path: "/health"
+							port: "http"
+						}
+						timeoutSeconds:   5
+						periodSeconds:    30
+						failureThreshold: 6
 					}
 					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: {
