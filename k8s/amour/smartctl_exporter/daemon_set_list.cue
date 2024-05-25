@@ -26,7 +26,7 @@ import (
 				}]
 				containers: [{
 					name:  "smartctl-exporter"
-					image: "quay.io/prometheuscommunity/smartctl-exporter:v\(#Version)"
+					image: "quay.io/prometheuscommunity/smartctl-exporter:master@sha256:fc03c601d8f098c72804e424482802f951e5c1b748138d5a33340ef3ea18586e"
 					args: ["--smartctl.interval=2m"]
 					ports: [{
 						name:          "http-metrics"
