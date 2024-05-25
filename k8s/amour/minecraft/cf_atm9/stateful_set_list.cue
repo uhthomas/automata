@@ -41,10 +41,10 @@ import (
 					// but syntax highlighting for vscode is
 					// broken.
 					let urls = strings.Join([
-						"https://mediafilez.forgecdn.net/files/4802/113/totw_modded-1.0.2-1.20.1.jar",
-						"https://mediafilez.forgecdn.net/files/4937/872/Structory_1.20.2_v1.3.4.jar",
+						"https://mediafilez.forgecdn.net/files/5239/660/totw_modded-forge-1.20.1-1.0.5.jar",
+						"https://mediafilez.forgecdn.net/files/5351/581/Structory_1.20.x_v1.3.5.jar",
 						"https://mediafilez.forgecdn.net/files/5101/975/PacketFixer-forge-1.20.1-1.2.7.jar",
-						"https://mediafilez.forgecdn.net/files/5074/926/allthewizardgear-1.20.1-1.0.11.jar",
+						"https://mediafilez.forgecdn.net/files/5352/30/allthewizardgear-1.20.1-1.1.3.jar",
 					], ",")
 					args: ["-C", "-", "-LOf", "{\(urls)}"]
 					workingDir: "/downloads"
@@ -93,7 +93,7 @@ import (
 						value: "all-the-mods-9"
 					}, {
 						name:  "CF_FILE_ID"
-						value: "5125809"
+						value: "5354808"
 					}, {
 						name:  "MEMORY"
 						value: ""
