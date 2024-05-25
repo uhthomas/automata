@@ -77,6 +77,9 @@ import (
 						name:  "EULA"
 						value: "TRUE"
 					}, {
+						name:  "ALLOW_FLIGHT"
+						value: "true"
+					}, {
 						name:  "PVP"
 						value: "false"
 					}, {
