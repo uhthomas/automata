@@ -74,15 +74,6 @@ import (
 						containerPort: 25575
 					}]
 					env: [{
-						name:  "EULA"
-						value: "TRUE"
-					}, {
-						name:  "ALLOW_FLIGHT"
-						value: "true"
-					}, {
-						name:  "PVP"
-						value: "false"
-					}, {
 						name:  "TYPE"
 						value: "AUTO_CURSEFORGE"
 					}, {
@@ -98,12 +89,33 @@ import (
 						name:  "CF_FILE_ID"
 						value: "5354808"
 					}, {
+						name:  "EULA"
+						value: "TRUE"
+					}, {
+						name:  "ALLOW_FLIGHT"
+						value: "true"
+					}, {
+						name:  "PVP"
+						value: "false"
+						// }, {
+						// 	name:  "VIEW_DISTANCE"
+						// 	value: "12"
+					}, {
+						name:  "USE_SIMD_FLAGS"
+						value: "true"
+					}, {
 						name:  "MEMORY"
 						value: ""
+						// TODO:: Maybe calculate based
+						// on resourceFieldRef?
+						// value: "12G"
 					}, {
 						name: "JVM_XX_OPTS"
 						// https://www.reddit.com/r/feedthebeast/comments/5jhuk9/modded_mc_and_memory_usage_a_history_with_a/
 						value: "-XX:InitialRAMPercentage=75 -XX:MaxRAMPercentage=75 -XX:+UseG1GC -Dsun.rmi.dgc.server.gcInterval=2147483646 -XX:+UnlockExperimentalVMOptions -XX:G1NewSizePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M"
+						// }, {
+						// 	name:  "USE_AIKAR_FLAGS"
+						// 	value: "true"
 					}]
 					resources: limits: {
 						(v1.#ResourceCPU):    "4"
