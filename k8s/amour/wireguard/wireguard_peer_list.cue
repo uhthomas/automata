@@ -50,4 +50,29 @@ import (
 			protocol: wirguardv1alpha1.#EgressNetworkPolicyProtocolTCP
 		}]
 	}
+}, {
+	let wireguardPublicKey = "GKwcHDNEzMpqG3nMCmbMt9f17X9wo0N8AqDCVsgMZQE="
+
+	metadata: name: hex.Encode(md5.Sum(wireguardPublicKey))
+	spec: {
+		publicKey:    wireguardPublicKey
+		wireguardRef: "main"
+		egressNetworkPolicies: [{
+			action: wirguardv1alpha1.#EgressNetworkPolicyActionAccept
+			to: {
+				// Jellyfin
+				ip:   "192.168.135.5"
+				port: 80
+			}
+			protocol: wirguardv1alpha1.#EgressNetworkPolicyProtocolTCP
+		}, {
+			action: wirguardv1alpha1.#EgressNetworkPolicyActionAccept
+			to: {
+				// Jellyseerr
+				ip:   "192.168.135.13"
+				port: 80
+			}
+			protocol: wirguardv1alpha1.#EgressNetworkPolicyProtocolTCP
+		}]
+	}
 }]
