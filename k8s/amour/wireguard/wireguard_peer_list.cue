@@ -48,6 +48,14 @@ import (
 				port: 80
 			}
 			protocol: wirguardv1alpha1.#EgressNetworkPolicyProtocolTCP
+		}, {
+			action: wirguardv1alpha1.#EgressNetworkPolicyActionAccept
+			to: {
+				// Jellyseerr
+				ip:   "192.168.135.13"
+				port: 80
+			}
+			protocol: wirguardv1alpha1.#EgressNetworkPolicyProtocolTCP
 		}]
 	}
 }, {
