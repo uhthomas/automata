@@ -28,9 +28,9 @@ import victoriametricsv1beta1 "github.com/VictoriaMetrics/operator/api/victoriam
 			for: "1m"
 			labels: severity: "warning"
 		}, {
-			alert: "SmartCTLDeviceAvailableSpareUnderThreadhold"
+			alert: "SmartCTLDeviceAvailableSpareUnderThreshold"
 			expr:  "smartctl_device_available_spare_threshold > smartctl_device_available_spare"
-			annotations: message: "Device {{ $labels.device }} on instance {{ $labels.instance }} is under available spare threashold."
+			annotations: message: "Device {{ $labels.device }} on instance {{ $labels.instance }} is under available spare threshold."
 			for: "1m"
 			labels: severity: "warning"
 		}, {
@@ -45,7 +45,12 @@ import victoriametricsv1beta1 "github.com/VictoriaMetrics/operator/api/victoriam
 			annotations: message: "Device {{ $labels.device }} on instance {{ $labels.instance }} interface is slower then it should be"
 			for: "1m"
 			labels: severity: "warning"
+		}, {
+			alert: "SmartCTLDeviceTemperature"
+			expr:  "smartctl_device_temperature{temperature_type=\"current\"} > 60"
+			annotations: message: "Device {{ $labels.device }} on instance {{ $labels.instance }} has temperature higher than 60°C"
+			for: "1m"
+			labels: severity: "warning"
 		}]
-
 	}]
 }]
