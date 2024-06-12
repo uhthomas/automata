@@ -82,4 +82,62 @@ import (
 		}]
 		serviceName: metadata.name
 	}
+}, {
+	metadata: name: "\(#Name)-ssh"
+	spec: {
+		// replicas: 0
+		selector: matchLabels: "app.kubernetes.io/name": "\(#Name)-ssh"
+		template: {
+			metadata: labels: "app.kubernetes.io/name": "\(#Name)-ssh"
+			spec: {
+				volumes: [{
+					name: "data"
+					persistentVolumeClaim: {
+						claimName: #Name
+						readOnly:  true
+					}
+				}, {
+					name: "ssh"
+					configMap: name: "ssh"
+				}]
+				containers: [{
+					name:  "ssh"
+					image: "ghcr.io/uhthomas/uhthomas/dropbear@sha256:e5a81546704ca3cf6c2ffcad46153adc3e827c3ac143a9e588c838acf7221708"
+					command: ["dropbear"]
+					args: ["-RFE", "-p2222"]
+					ports: [{
+						name:          "ssh"
+						containerPort: 2222
+					}]
+					resources: limits: {
+						(v1.#ResourceCPU):    "1"
+						(v1.#ResourceMemory): "2Gi"
+					}
+					volumeMounts: [{
+						name:      "data"
+						mountPath: "/data"
+					}, {
+						name:      "ssh"
+						mountPath: "/root/.ssh/authorized_keys"
+						subPath:   "authorized_keys"
+					}]
+					imagePullPolicy: v1.#PullIfNotPresent
+					securityContext: {
+						capabilities: drop: ["ALL"]
+						readOnlyRootFilesystem:   true
+						allowPrivilegeEscalation: false
+					}
+				}]
+				securityContext: {
+					runAsUser:           1000
+					runAsGroup:          3000
+					runAsNonRoot:        true
+					fsGroup:             2000
+					fsGroupChangePolicy: v1.#FSGroupChangeOnRootMismatch
+					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
+				}
+			}
+		}
+		serviceName: metadata.name
+	}
 }]

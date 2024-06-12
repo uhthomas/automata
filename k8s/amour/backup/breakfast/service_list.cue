@@ -60,4 +60,15 @@ import "k8s.io/api/core/v1"
 		selector: "app.kubernetes.io/name": "\(#Name)-syncthing"
 		type: v1.#ServiceTypeLoadBalancer
 	}
+}, {
+	metadata: name: "\(#Name)-ssh"
+	spec: {
+		ports: [{
+			name:       "ssh"
+			port:       22
+			targetPort: "ssh"
+		}]
+		selector: "app.kubernetes.io/name": "\(#Name)-ssh"
+		type: v1.#ServiceTypeLoadBalancer
+	}
 }]
