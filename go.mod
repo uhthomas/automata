@@ -15,7 +15,7 @@ require (
 	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
 	github.com/external-secrets/external-secrets v0.9.11
 	github.com/grafana/grafana-operator/v5 v5.8.0
-	github.com/jodevsa/wireguard-operator v1.2.21-0.20240509203524-1d1bef4d0d82
+	github.com/jodevsa/wireguard-operator v1.2.21-0.20240511060437-a11b890395a3
 	github.com/prometheus/prometheus v0.49.1
 	github.com/rook/rook/pkg/apis v0.0.0-20240118185538-f46c0845eea7
 	k8s.io/api v0.30.1
