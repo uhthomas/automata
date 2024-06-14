@@ -2,7 +2,7 @@ module github.com/uhthomas/automata
 
 go 1.22.2
 
-toolchain go1.22.3
+toolchain go1.22.4
 
 require (
 	cuelang.org/go v0.7.0
