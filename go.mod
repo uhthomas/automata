@@ -18,7 +18,7 @@ require (
 	github.com/jodevsa/wireguard-operator v1.2.21-0.20240509203524-1d1bef4d0d82
 	github.com/prometheus/prometheus v0.49.1
 	github.com/rook/rook/pkg/apis v0.0.0-20240118185538-f46c0845eea7
-	k8s.io/api v0.30.1
+	k8s.io/api v0.30.2
 	k8s.io/apiextensions-apiserver v0.30.0
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/kube-aggregator v0.29.1
@@ -248,7 +248,7 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apimachinery v0.30.1 // indirect
+	k8s.io/apimachinery v0.30.2 // indirect
 	k8s.io/apiserver v0.30.0 // indirect
 	k8s.io/cli-runtime v0.29.1 // indirect
 	k8s.io/component-base v0.30.0 // indirect
@@ -281,7 +281,7 @@ replace (
 	k8s.io/cluster-bootstrap => k8s.io/cluster-bootstrap v0.29.1
 	k8s.io/code-generator => k8s.io/code-generator v0.29.1
 	k8s.io/component-base => k8s.io/component-base v0.29.1
-	k8s.io/component-helpers => k8s.io/component-helpers v0.29.1
+	k8s.io/component-helpers => k8s.io/component-helpers v0.30.2
 	k8s.io/controller-manager => k8s.io/controller-manager v0.29.1
 	k8s.io/cri-api => k8s.io/cri-api v0.29.1
 	k8s.io/csi-translation-lib => k8s.io/csi-translation-lib v0.29.1
