@@ -6,7 +6,7 @@ toolchain go1.22.3
 
 require (
 	cuelang.org/go v0.7.0
-	github.com/1Password/onepassword-operator v1.8.0
+	github.com/1Password/onepassword-operator v1.8.1
 	github.com/NVIDIA/gpu-operator v1.11.1
 	github.com/VictoriaMetrics/operator/api v0.0.0-20231128174956-7965dba77210
 	github.com/backube/volsync v0.8.0
@@ -256,7 +256,7 @@ require (
 	k8s.io/klog/v2 v2.120.1 // indirect
 	k8s.io/kms v0.29.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20240423202451-8948a665c108 // indirect
-	k8s.io/kubectl v0.28.2 // indirect
+	k8s.io/kubectl v0.29.0 // indirect
 	k8s.io/metrics v0.29.1 // indirect
 	k8s.io/utils v0.0.0-20240423183400-0849a56e8f22 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.29.0 // indirect

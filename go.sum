@@ -764,6 +764,8 @@ gioui.org v0.0.0-20210308172011-57750fc8a0a6/go.mod h1:RSH6KIUZ0p2xy5zHDxgAM4zum
 git.sr.ht/~sbinet/gg v0.3.1/go.mod h1:KGYtlADtqsqANL9ueOFkWymvzUvLMQllU5Ixo+8v3pc=
 github.com/1Password/onepassword-operator v1.8.0 h1:ve04TAod75BSjB5aHTaPJsWsczywZ4PrW7jjvwkJoJs=
 github.com/1Password/onepassword-operator v1.8.0/go.mod h1:vfsVn78YM2axgNvpfr9KOQuRyqGTB0Q/Yh9aytSqzHI=
+github.com/1Password/onepassword-operator v1.8.1 h1:+CG2IGHVnz7Px4VIV9p7UxwDnAtD4ufFv5yaaldlTME=
+github.com/1Password/onepassword-operator v1.8.1/go.mod h1:7Cr1O7BaJS9iiAJlS8avq4IavMZS5yd+yGAHgsg7L5c=
 github.com/AdaLogics/go-fuzz-headers v0.0.0-20230106234847-43070de90fa1 h1:EKPd1INOIyr5hWOWhvpmQpY6tKjeG0hT1s3AMC/9fic=
 github.com/AdaLogics/go-fuzz-headers v0.0.0-20230106234847-43070de90fa1/go.mod h1:VzwV+t+dZ9j/H867F1M2ziD+yLHtB46oM35FxxMJ4d0=
 github.com/Azure/azure-sdk-for-go v62.0.0+incompatible/go.mod h1:9XXNKU+eRnpl9moKnB4QOLf1HestfXbmab5FXxiDBjc=
