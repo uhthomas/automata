@@ -5,7 +5,7 @@ load("@io_bazel_rules_docker//docker/package_managers:install_pkgs.bzl", "instal
 download_pkgs(
     name = "pkgs",
     image_tar = "@io_docker_index_library_debian_bookworm_slim//image",
-    packages = ["dropbear"],
+    packages = ["smartmontools"],
 )
 
 install_pkgs(
@@ -19,6 +19,6 @@ install_pkgs(
 container_image(
     name = "image",
     base = ":pkgs_image.tar",
-    entrypoint = ["dropbear"],
+    entrypoint = ["smartctl"],
     visibility = ["//visibility:public"],
 )
