@@ -19,9 +19,11 @@ import (
 let plugins = [{
 	name:   "victoriametrics-datasource"
 	source: "https://github.com/VictoriaMetrics/victoriametrics-datasource/releases/download/v0.8.2/victoriametrics-datasource-v0.8.2.zip"
+	signed: false
 }, {
 	name:   "victorialogs-datasource"
 	source: "https://github.com/VictoriaMetrics/victorialogs-datasource/releases/download/v0.2.1/victorialogs-datasource-v0.2.1.zip;victorialogs-datasource"
+	signed: false
 }]
 
 #StatefulSetList: items: [{
@@ -66,7 +68,7 @@ let plugins = [{
 						}], ",")
 					}, {
 						name: "GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS"
-						value: strings.Join([for plugin in plugins {plugin.name}], ",")
+						value: strings.Join([for plugin in plugins if !plugin.signed != _|_ {plugin.name}], ",")
 					}]
 					volumeMounts: [{
 						name:      "config"
