@@ -129,9 +129,9 @@ import (
 				nodeSelector: (v1.#LabelOSStable): v1.#Linux
 				serviceAccountName: "hubble-ui"
 				securityContext: {
-					runAsUser:    1000
-					runAsGroup:   3000
-					runAsNonRoot: true
+					runAsUser:           1000
+					runAsGroup:          3000
+					runAsNonRoot:        true
 					fsGroup:             2000
 					fsGroupChangePolicy: v1.#FSGroupChangeOnRootMismatch
 					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault

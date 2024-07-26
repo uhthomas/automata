@@ -30,7 +30,7 @@ import (
 		parameters: {
 			roleName:     "\(#Name)-read"
 			vaultAddress: "http://vault.vault:8200"
-			objects:      yaml.Marshal([{
+			objects: yaml.Marshal([{
 				secretPath: "secret/data/kubernetes/unwind/\(#Namespace)/cf-api-key"
 				objectName: "cf-api-key"
 				secretKey:  "value"

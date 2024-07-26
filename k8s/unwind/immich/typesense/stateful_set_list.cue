@@ -56,7 +56,7 @@ import (
 
 					livenessProbe:  probe
 					readinessProbe: probe
-					startupProbe:   probe & {
+					startupProbe: probe & {
 						initialDelaySeconds: 30
 						periodSeconds:       10
 						failureThreshold:    18

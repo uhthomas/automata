@@ -44,8 +44,8 @@ import (
 		removePvcAfterDelete: true
 		retentionPeriod:      "2y"
 		extraArgs: {
-			"maxLabelsPerTimeseries": "150"
-			"vmalert.proxyURL":       "http://vmalert-\(#Name):8080"
+			maxLabelsPerTimeseries: "150"
+			"vmalert.proxyURL":     "http://vmalert-\(#Name):8080"
 		}
 	}
 }]

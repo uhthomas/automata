@@ -67,9 +67,9 @@ import (
 				}]
 				serviceAccountName: #Name
 				securityContext: {
-					runAsUser:    1000
-					runAsGroup:   3000
-					runAsNonRoot: true
+					runAsUser:           1000
+					runAsGroup:          3000
+					runAsNonRoot:        true
 					fsGroup:             2000
 					fsGroupChangePolicy: v1.#FSGroupChangeOnRootMismatch
 					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault

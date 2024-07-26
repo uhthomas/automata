@@ -75,7 +75,7 @@ import (
 						}
 					}
 
-					livenessProbe:  probe
+					livenessProbe: probe
 					readinessProbe: probe & {
 						initialDelaySeconds: 30
 						failureThreshold:    5

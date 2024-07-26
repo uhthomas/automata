@@ -47,11 +47,11 @@ import (
 					}]
 					resources: {
 						limits: {
-							(v1.#ResourceCPU):   "4"
+							(v1.#ResourceCPU):    "4"
 							(v1.#ResourceMemory): "16Gi"
 						}
 						requests: {
-							(v1.#ResourceCPU):   "2"
+							(v1.#ResourceCPU):    "2"
 							(v1.#ResourceMemory): "8Gi"
 						}
 					}
@@ -67,7 +67,7 @@ import (
 
 					livenessProbe:  probe
 					readinessProbe: probe
-					startupProbe:   probe & {initialDelaySeconds: 60}
+					startupProbe: probe & {initialDelaySeconds: 60}
 
 					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: {

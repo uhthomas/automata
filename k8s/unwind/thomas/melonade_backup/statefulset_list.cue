@@ -44,7 +44,7 @@ import (
 						protocol:      v1.#ProtocolUDP
 					}]
 					resources: limits: {
-						(v1.#ResourceCPU):   "1"
+						(v1.#ResourceCPU):    "1"
 						(v1.#ResourceMemory): "2Gi"
 					}
 					volumeMounts: [{

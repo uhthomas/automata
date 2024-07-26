@@ -95,7 +95,7 @@ import (
 						value: "debug"
 					}]
 					resources: limits: {
-						(v1.#ResourceCPU):   "2000m"
+						(v1.#ResourceCPU):    "2000m"
 						(v1.#ResourceMemory): "4Gi"
 					}
 					volumeMounts: [{

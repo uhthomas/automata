@@ -78,7 +78,7 @@ import "k8s.io/api/core/v1"
 				name:            "vminsert"
 				securityContext: defaultsecurityContext
 			}]
-			extraArgs: "maxLabelsPerTimeseries": "100"
+			extraArgs: maxLabelsPerTimeseries: "100"
 		}
 		vmstorage: {
 			replicaCount: 2

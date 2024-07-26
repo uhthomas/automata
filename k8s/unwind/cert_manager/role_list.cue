@@ -11,7 +11,7 @@ import rbacv1 "k8s.io/api/rbac/v1"
 	}]
 }
 
-#RoleList: items: [ {
+#RoleList: items: [{
 	metadata: {
 		name:      "cert-manager-cainjector:leaderelection"
 		namespace: "kube-system"

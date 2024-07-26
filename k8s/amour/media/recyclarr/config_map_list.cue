@@ -60,7 +60,7 @@ _#RecylarrConfig: {
 	#Include: {config: string} | {template: string}
 
 	#ReleaseProfile: {
-		trash_ids:               [...#TrashID] & list.UniqueItems()
+		trash_ids: [...#TrashID] & list.UniqueItems()
 		strict_negative_scores?: bool | *false
 		tags?: [...string]
 		filter?: {

@@ -50,12 +50,13 @@ import (
 
 					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: privileged: true
+				},
 					// securityContext: {
 					// 	capabilities: drop: ["ALL"]
 					// 	readOnlyRootFilesystem:   true
 					// 	allowPrivilegeEscalation: false
 					// }
-				}]
+				]
 				// securityContext: {
 				// 	runAsUser:    1000
 				// 	runAsGroup:   3000

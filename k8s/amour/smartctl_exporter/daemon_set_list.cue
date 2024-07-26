@@ -57,12 +57,13 @@ import (
 						privileged: true
 						runAsUser:  0
 					}
+				},
 					// securityContext: {
 					// 	capabilities: drop: ["ALL"]
 					// 	readOnlyRootFilesystem:   true
 					// 	allowPrivilegeEscalation: false
 					// }
-				}]
+				]
 				// securityContext: {
 				// 	runAsUser:    1000
 				// 	runAsGroup:   3000

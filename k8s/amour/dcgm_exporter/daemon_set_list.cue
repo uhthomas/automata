@@ -65,6 +65,7 @@ import (
 
 					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: capabilities: add: ["SYS_ADMIN"]
+				},
 					// securityContext: {
 					// 	capabilities: {
 					// 		add: ["SYS_ADMIN"]
@@ -73,7 +74,7 @@ import (
 					// 	readOnlyRootFilesystem:   true
 					// 	allowPrivilegeEscalation: false
 					// }
-				}]
+				]
 				// securityContext: {
 				// 	runAsUser:    1000
 				// 	runAsGroup:   3000

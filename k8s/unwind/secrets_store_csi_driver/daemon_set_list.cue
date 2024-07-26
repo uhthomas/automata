@@ -63,11 +63,11 @@ import (
 					}]
 					resources: {
 						limits: {
-							(v1.#ResourceCPU):   "100m"
+							(v1.#ResourceCPU):    "100m"
 							(v1.#ResourceMemory): "100Mi"
 						}
 						requests: {
-							(v1.#ResourceCPU):   "10m"
+							(v1.#ResourceCPU):    "10m"
 							(v1.#ResourceMemory): "20Mi"
 						}
 					}
@@ -129,11 +129,11 @@ import (
 					}]
 					resources: {
 						limits: {
-							(v1.#ResourceCPU):   "200m"
+							(v1.#ResourceCPU):    "200m"
 							(v1.#ResourceMemory): "200Mi"
 						}
 						requests: {
-							(v1.#ResourceCPU):   "50m"
+							(v1.#ResourceCPU):    "50m"
 							(v1.#ResourceMemory): "100Mi"
 						}
 					}
@@ -153,11 +153,11 @@ import (
 					}]
 					resources: {
 						limits: {
-							(v1.#ResourceCPU):   "100m"
+							(v1.#ResourceCPU):    "100m"
 							(v1.#ResourceMemory): "100Mi"
 						}
 						requests: {
-							(v1.#ResourceCPU):   "10m"
+							(v1.#ResourceCPU):    "10m"
 							(v1.#ResourceMemory): "20Mi"
 						}
 					}

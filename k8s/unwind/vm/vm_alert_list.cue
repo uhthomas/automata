@@ -19,7 +19,7 @@ import "k8s.io/api/core/v1"
 		image: tag: "v1.91.3"
 		replicaCount: 2
 		resources: limits: {
-			(v1.#ResourceCPU):   "50m"
+			(v1.#ResourceCPU):    "50m"
 			(v1.#ResourceMemory): "128Mi"
 		}
 		securityContext: {

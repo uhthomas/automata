@@ -15,6 +15,6 @@ import victoriametricsv1beta1 "github.com/VictoriaMetrics/operator/api/victoriam
 	metadata: name: "wireguard"
 	spec: {
 		endpoints: [{port: "metrics"}]
-		selector: matchLabels: "app": "wireguard"
+		selector: matchLabels: app: "wireguard"
 	}
 }]

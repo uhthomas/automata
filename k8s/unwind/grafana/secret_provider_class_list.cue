@@ -32,7 +32,7 @@ import (
 		parameters: {
 			roleName:     "grafana-admin-read"
 			vaultAddress: "http://vault.vault:8200"
-			objects:      yaml.Marshal([{
+			objects: yaml.Marshal([{
 				secretPath: "secret/data/grafana-admin"
 				objectName: "admin-user"
 				secretKey:  "username"

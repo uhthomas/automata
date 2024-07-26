@@ -70,12 +70,13 @@ import (
 						port: "http-metrics"
 					}
 					imagePullPolicy: v1.#PullIfNotPresent
+				},
 					// securityContext: {
 					// 	capabilities: drop: ["ALL"]
 					// 	readOnlyRootFilesystem:   true
 					// 	allowPrivilegeEscalation: false
 					// }
-				}]
+				]
 				serviceAccountName: #Name
 				// securityContext: {
 				// 	runAsUser:    1000

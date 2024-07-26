@@ -24,11 +24,11 @@ import "k8s.io/api/core/v1"
 			exporter: enabled: true
 			resources: {
 				requests: {
-					(v1.#ResourceCPU):   "100m"
+					(v1.#ResourceCPU):    "100m"
 					(v1.#ResourceMemory): "100Mi"
 				}
 				limits: {
-					(v1.#ResourceCPU):   "400m"
+					(v1.#ResourceCPU):    "400m"
 					(v1.#ResourceMemory): "500Mi"
 				}
 			}
@@ -50,11 +50,11 @@ import "k8s.io/api/core/v1"
 			exporter: enabled: true
 			resources: {
 				requests: {
-					(v1.#ResourceCPU):   "100m"
+					(v1.#ResourceCPU):    "100m"
 					(v1.#ResourceMemory): "100Mi"
 				}
 				limits: {
-					(v1.#ResourceCPU):   "400m"
+					(v1.#ResourceCPU):    "400m"
 					(v1.#ResourceMemory): "500Mi"
 				}
 			}

@@ -48,11 +48,11 @@ import (
 					}]
 					resources: {
 						limits: {
-							(v1.#ResourceCPU):   "500m"
+							(v1.#ResourceCPU):    "500m"
 							(v1.#ResourceMemory): "128Mi"
 						}
 						requests: {
-							(v1.#ResourceCPU):   "5m"
+							(v1.#ResourceCPU):    "5m"
 							(v1.#ResourceMemory): "64Mi"
 						}
 					}
@@ -88,11 +88,11 @@ import (
 					}
 					resources: {
 						limits: {
-							(v1.#ResourceCPU):   "500m"
+							(v1.#ResourceCPU):    "500m"
 							(v1.#ResourceMemory): "128Mi"
 						}
 						requests: {
-							(v1.#ResourceCPU):   "10m"
+							(v1.#ResourceCPU):    "10m"
 							(v1.#ResourceMemory): "64Mi"
 						}
 					}

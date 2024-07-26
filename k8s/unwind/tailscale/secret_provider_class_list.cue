@@ -32,7 +32,7 @@ import (
 		parameters: {
 			roleName:     "tailscale-operator"
 			vaultAddress: "http://vault.vault:8200"
-			objects:      yaml.Marshal([{
+			objects: yaml.Marshal([{
 				secretPath: "secret/data/kubernetes/unwind/\(#Namespace)/operator-oauth"
 				objectName: "client_id"
 				secretKey:  objectName

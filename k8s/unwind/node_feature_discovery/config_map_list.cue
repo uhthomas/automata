@@ -16,7 +16,7 @@ import (
 }
 
 #ConfigMapList: items: [{
-	metadata: name:          "nfd-worker-conf"
+	metadata: name: "nfd-worker-conf"
 	data: "nfd-worker.conf": yaml.Marshal({
 		// core: {
 		//   labelWhiteList: null

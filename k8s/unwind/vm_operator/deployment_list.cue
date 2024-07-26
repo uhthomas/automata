@@ -51,11 +51,11 @@ import (
 					}]
 					resources: {
 						limits: {
-							(v1.#ResourceCPU):   "120m"
+							(v1.#ResourceCPU):    "120m"
 							(v1.#ResourceMemory): "520Mi"
 						}
 						requests: {
-							(v1.#ResourceCPU):   "80m"
+							(v1.#ResourceCPU):    "80m"
 							(v1.#ResourceMemory): "120Mi"
 						}
 					}

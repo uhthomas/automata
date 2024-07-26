@@ -36,9 +36,10 @@ import (
 		resources: ["dnsendpoints/status"]
 		verbs: ["*"]
 	}]
+},
 	// }, {
 	// 	apiGroups: ["gateway.networking.k8s.io"]
 	// 	resources: ["httproutes", "grpcroutes", "tlsroutes", "tcproutes", "udproutes"]
 	// 	verbs: ["get", "watch", "list"]
 	// }]
-}]
+]

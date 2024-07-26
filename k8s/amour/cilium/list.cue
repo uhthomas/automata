@@ -12,7 +12,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=github-releases depName=cilium/cilium extractVersion=^v(?<version>.*)$
-#Version:   "1.15.0-rc.0"
+#Version: "1.15.0-rc.0"
 
 #List: v1.#List & {
 	apiVersion: "v1"

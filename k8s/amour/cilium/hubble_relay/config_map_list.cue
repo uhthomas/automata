@@ -16,7 +16,7 @@ import (
 }
 
 #ConfigMapList: items: [{
-	metadata: name:      "hubble-relay-config"
+	metadata: name: "hubble-relay-config"
 	data: "config.yaml": yaml.Marshal({
 		"cluster-name":                "default"
 		"peer-service":                "hubble-peer.cilium.svc.cluster.local:443"

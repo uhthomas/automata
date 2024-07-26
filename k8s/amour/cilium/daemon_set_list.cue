@@ -264,8 +264,7 @@ import (
 						valueFrom: fieldRef: fieldPath: "spec.nodeName"
 					}, {
 						name: "CILIUM_K8S_NAMESPACE"
-						valueFrom: fieldRef:
-							fieldPath: "metadata.namespace"
+						valueFrom: fieldRef: fieldPath: "metadata.namespace"
 					}, {
 						name:  "KUBERNETES_SERVICE_HOST"
 						value: "localhost"

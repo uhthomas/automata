@@ -45,7 +45,7 @@ import (
 						value: "http://immich-server"
 					}]
 					resources: limits: {
-						(v1.#ResourceCPU):   "600m"
+						(v1.#ResourceCPU):    "600m"
 						(v1.#ResourceMemory): "128Mi"
 					}
 					volumeMounts: [{

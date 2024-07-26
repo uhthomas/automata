@@ -46,6 +46,7 @@ import (
 					}]
 					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: capabilities: add: ["SYS_ADMIN"]
+				},
 					// securityContext: {
 					// 	capabilities: {
 					// 		add: ["SYS_ADMIN"]
@@ -54,7 +55,7 @@ import (
 					// 	readOnlyRootFilesystem:   true
 					// 	allowPrivilegeEscalation: false
 					// }
-				}]
+				]
 				tolerations: [{
 					key:      "CriticalAddonsOnly"
 					operator: v1.#TolerationOpExists

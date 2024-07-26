@@ -40,7 +40,7 @@ import (
 						value: "http://immich-server"
 					}]
 					resources: limits: {
-						(v1.#ResourceCPU):   "200m"
+						(v1.#ResourceCPU):    "200m"
 						(v1.#ResourceMemory): "256Mi"
 					}
 

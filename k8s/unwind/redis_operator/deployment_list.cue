@@ -29,11 +29,11 @@ import (
 					}]
 					resources: {
 						limits: {
-							(v1.#ResourceCPU):   "100m"
+							(v1.#ResourceCPU):    "100m"
 							(v1.#ResourceMemory): "50Mi"
 						}
 						requests: {
-							(v1.#ResourceCPU):   "10m"
+							(v1.#ResourceCPU):    "10m"
 							(v1.#ResourceMemory): "50Mi"
 						}
 					}

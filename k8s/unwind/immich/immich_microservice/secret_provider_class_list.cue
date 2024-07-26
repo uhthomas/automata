@@ -29,7 +29,7 @@ import (
 		parameters: {
 			roleName:     "\(#Name)-read"
 			vaultAddress: "http://vault.vault:8200"
-			objects:      yaml.Marshal([{
+			objects: yaml.Marshal([{
 				secretPath: "secret/data/kubernetes/unwind/immich/typesense-api-key"
 				objectName: "typesense-api-key"
 				secretKey:  "value"

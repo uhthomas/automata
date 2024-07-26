@@ -28,7 +28,7 @@ _baseConfigPatches: jsonpatch.#PatchList & [jsonpatch.#Add & {
 	value: "ghcr.io/uhthomas/talos-installer:v1.4.0-alpha.4@sha256:81dc40e8e462c583caff5eddce14fa86158f2ca18f46b41404caeedb5052b19b"
 }, jsonpatch.#Add & {
 	path: "/machine/install/extensions"
-	value: [ for x in [
+	value: [for x in [
 		"ghcr.io/siderolabs/gvisor:20221107.0-v1.3.6",
 		"ghcr.io/siderolabs/i915-ucode:20230310",
 		"ghcr.io/siderolabs/intel-ucode:20220809",
@@ -77,7 +77,7 @@ _baseConfigPatches: jsonpatch.#PatchList & [jsonpatch.#Add & {
 // Servers are ordered by their physical location.
 serverList: items: [{
 	// PowerEdge R430 (GT0VBB2)
-	metadata: name:      "4c4c4544-0054-3010-8056-c7c04f424232"
+	metadata: name: "4c4c4544-0054-3010-8056-c7c04f424232"
 	spec: configPatches: list.Concat([_baseConfigPatches, [#InstallDiskSelectorConfigPatch & {
 		value: wwid: "naa.50026b7381885d08"
 	}, #NetworkConfigPatch & {
@@ -88,7 +88,7 @@ serverList: items: [{
 	}]])
 }, {
 	// PowerEdge R430 (GT5WBB2)
-	metadata: name:      "4c4c4544-0054-3510-8057-c7c04f424232"
+	metadata: name: "4c4c4544-0054-3510-8057-c7c04f424232"
 	spec: configPatches: list.Concat([_baseConfigPatches, [#InstallDiskSelectorConfigPatch & {
 		value: wwid: "naa.50026b7381886726"
 	}, #NetworkConfigPatch & {
@@ -99,7 +99,7 @@ serverList: items: [{
 	}]])
 }, {
 	// PowerEdge R720 (JSBJ132)
-	metadata: name:      "4c4c4544-0053-4210-804a-cac04f313332"
+	metadata: name: "4c4c4544-0053-4210-804a-cac04f313332"
 	spec: configPatches: list.Concat([_baseConfigPatches + [#InstallDiskSelectorConfigPatch & {
 		value: wwid: "naa.50025388a035cb0e"
 	}, #NetworkConfigPatch & {
@@ -110,19 +110,20 @@ serverList: items: [{
 	}]])
 }, {
 	// PowerEdge R720 (8BVKDX1)
-	metadata: name:      "4c4c4544-0042-5610-804b-b8c04f445831"
+	metadata: name: "4c4c4544-0042-5610-804b-b8c04f445831"
 	spec: configPatches: list.Concat([_baseConfigPatches + [#InstallDiskSelectorConfigPatch & {
 		value: wwid: "naa.5002538550025450"
 	}, #NetworkConfigPatch & {
 		value: interfaces: [{
 			addresses: ["10.0.0.104"]
 			bond: interfaces: ["eth0", "eth1"]
+		},
 			// bond: deviceSelectors: [{hardwareAddr: "e4:11:5b:62:f2:f8"}]
-		}]
+		]
 	}]])
 }, {
 	// PowerEdge R720 (9GD4WV1)
-	metadata: name:      "4c4c4544-0047-4410-8034-b9c04f575631"
+	metadata: name: "4c4c4544-0047-4410-8034-b9c04f575631"
 	spec: configPatches: list.Concat([_baseConfigPatches + [#InstallDiskSelectorConfigPatch & {
 		value: wwid: "naa.50025388a015a68d"
 	}, #NetworkConfigPatch & {

@@ -44,7 +44,7 @@ import (
 				resources: requests: (v1.#ResourceStorage): "8Gi"
 			}
 			resources: limits: {
-				(v1.#ResourceCPU):   "1"
+				(v1.#ResourceCPU):    "1"
 				(v1.#ResourceMemory): "1Gi"
 			}
 		}]

@@ -17,12 +17,12 @@ import (
 }
 
 let dashboards = {
-	"General": [
+	General: [
 		// Node Exporter Full
 		// https://grafana.com/grafana/dashboards/1860
 		1860,
 	]
-	"Ceph": [
+	Ceph: [
 		"https://raw.githubusercontent.com/ceph/ceph/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/ceph-cluster-advanced.json",
 		"https://raw.githubusercontent.com/ceph/ceph/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/ceph-cluster.json",
 		"https://raw.githubusercontent.com/ceph/ceph/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/cephfs-overview.json",
@@ -54,7 +54,7 @@ let dashboards = {
 		"https://raw.githubusercontent.com/emqx/emqx-exporter/5b8a4169266f215e4ffc70d95a915d8bcf8d860e/grafana-dashboard/template/emqx-5/rule-engine-count.json",
 		"https://raw.githubusercontent.com/emqx/emqx-exporter/5b8a4169266f215e4ffc70d95a915d8bcf8d860e/grafana-dashboard/template/emqx-5/rule-engine-rate.json",
 	]
-	"Kubernetes": [
+	Kubernetes: [
 		// Kubernetes / System / API Server
 		// https://grafana.com/grafana/dashboards/15761
 		15761,
@@ -80,8 +80,8 @@ let dashboards = {
 		// https://grafana.com/grafana/dashboards/19105
 		19105,
 	]
-	"VictoriaLogs": ["https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/7b20de4674f9594ef17cbba7aa5c735c11788195/dashboards/victorialogs.json"]
-	"VictoriaMetrics": [
+	VictoriaLogs: ["https://raw.githubusercontent.com/VictoriaMetrics/VictoriaMetrics/7b20de4674f9594ef17cbba7aa5c735c11788195/dashboards/victorialogs.json"]
+	VictoriaMetrics: [
 		// VictoriaMetrics - single-node
 		// https://grafana.com/grafana/dashboards/10229
 		10229,

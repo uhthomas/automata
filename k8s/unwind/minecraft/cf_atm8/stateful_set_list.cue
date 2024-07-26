@@ -48,7 +48,7 @@ import (
 					args: ["-C", "-", "-LOf", "{\(urls)}"]
 					workingDir: "/downloads"
 					resources: limits: {
-						(v1.#ResourceCPU):   "1"
+						(v1.#ResourceCPU):    "1"
 						(v1.#ResourceMemory): "1Gi"
 					}
 					volumeMounts: [{
@@ -102,7 +102,7 @@ import (
 						value: "-XX:InitialRAMPercentage=75 -XX:MaxRAMPercentage=75 -XX:+UseG1GC -Dsun.rmi.dgc.server.gcInterval=2147483646 -XX:+UnlockExperimentalVMOptions -XX:G1NewSizePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M"
 					}]
 					resources: limits: {
-						(v1.#ResourceCPU):   "6"
+						(v1.#ResourceCPU):    "6"
 						(v1.#ResourceMemory): "24Gi"
 					}
 					volumeMounts: [{
@@ -124,7 +124,7 @@ import (
 
 					livenessProbe:  probe
 					readinessProbe: probe
-					startupProbe:   probe & {
+					startupProbe: probe & {
 						initialDelaySeconds: 240
 						failureThreshold:    30
 					}

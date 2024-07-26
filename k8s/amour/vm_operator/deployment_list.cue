@@ -51,11 +51,11 @@ import (
 					}]
 					resources: {
 						limits: {
-							(v1.#ResourceCPU):   "120m"
+							(v1.#ResourceCPU):    "120m"
 							(v1.#ResourceMemory): "520Mi"
 						}
 						requests: {
-							(v1.#ResourceCPU):   "80m"
+							(v1.#ResourceCPU):    "80m"
 							(v1.#ResourceMemory): "120Mi"
 						}
 					}
@@ -73,9 +73,9 @@ import (
 				}]
 				serviceAccountName: #Name
 				securityContext: {
-					runAsUser:    1000
-					runAsGroup:   3000
-					runAsNonRoot: true
+					runAsUser:           1000
+					runAsGroup:          3000
+					runAsNonRoot:        true
 					fsGroup:             2000
 					fsGroupChangePolicy: v1.#FSGroupChangeOnRootMismatch
 					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault

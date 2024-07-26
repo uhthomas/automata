@@ -66,7 +66,7 @@ import (
 						value: "true"
 					}]
 					resources: requests: {
-						(v1.#ResourceCPU):   "500m"
+						(v1.#ResourceCPU):    "500m"
 						(v1.#ResourceMemory): "100Mi"
 					}
 					volumeMounts: [{

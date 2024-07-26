@@ -17,7 +17,7 @@ import (
 }
 
 #ConfigMapList: items: [{
-	metadata: name:      #Name
+	metadata: name: #Name
 	data: "config.yaml": yaml.Marshal({
 		auth_enabled: false
 		common: {
@@ -647,8 +647,8 @@ import (
 						show:    false
 					}]}, {
 					aliasColors: {"1xx": "#EAB839", "2xx": "#7EB26D", "3xx": "#6ED0E0", "4xx": "#EF843C", "5xx": "#E24D42"
-								error:            "#E24D42"
-								success:          "#7EB26D"
+						error:   "#E24D42"
+						success: "#7EB26D"
 					}
 					bars:       false
 					dashLength: 10
@@ -9475,8 +9475,8 @@ import (
 				height:   "250px"
 				panels: [{
 					aliasColors: {"1xx": "#EAB839", "2xx": "#7EB26D", "3xx": "#6ED0E0", "4xx": "#EF843C", "5xx": "#E24D42"
-								error:            "#E24D42"
-								success:          "#7EB26D"
+						error:   "#E24D42"
+						success: "#7EB26D"
 					}
 					bars:       false
 					dashLength: 10
@@ -9638,8 +9638,8 @@ import (
 				height:   "250px"
 				panels: [{
 					aliasColors: {"1xx": "#EAB839", "2xx": "#7EB26D", "3xx": "#6ED0E0", "4xx": "#EF843C", "5xx": "#E24D42"
-								error:            "#E24D42"
-								success:          "#7EB26D"
+						error:   "#E24D42"
+						success: "#7EB26D"
 					}
 					bars:       false
 					dashLength: 10
@@ -11814,8 +11814,8 @@ import (
 				height:   "250px"
 				panels: [{
 					aliasColors: {"1xx": "#EAB839", "2xx": "#7EB26D", "3xx": "#6ED0E0", "4xx": "#EF843C", "5xx": "#E24D42"
-								error:            "#E24D42"
-								success:          "#7EB26D"
+						error:   "#E24D42"
+						success: "#7EB26D"
 					}
 					bars:       false
 					dashLength: 10
@@ -11977,8 +11977,8 @@ import (
 				height:   "250px"
 				panels: [{
 					aliasColors: {"1xx": "#EAB839", "2xx": "#7EB26D", "3xx": "#6ED0E0", "4xx": "#EF843C", "5xx": "#E24D42"
-								error:            "#E24D42"
-								success:          "#7EB26D"
+						error:   "#E24D42"
+						success: "#7EB26D"
 					}
 					bars:       false
 					dashLength: 10
@@ -12211,6 +12211,6 @@ import (
 		})
 	}
 }, {
-	metadata: name:              "\(#Name)-runtime"
+	metadata: name: "\(#Name)-runtime"
 	data: "runtime-config.yaml": json.Marshal({})
 }]

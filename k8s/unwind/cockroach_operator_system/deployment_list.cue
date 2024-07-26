@@ -283,7 +283,7 @@ import (
 					}]
 					imagePullPolicy: v1.#PullIfNotPresent
 					resources: requests: {
-						(v1.#ResourceCPU):   "10m"
+						(v1.#ResourceCPU):    "10m"
 						(v1.#ResourceMemory): "32Mi"
 					}
 				}]
