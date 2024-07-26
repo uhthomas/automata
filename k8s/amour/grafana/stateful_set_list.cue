@@ -1,6 +1,8 @@
 package grafana
 
 import (
+	"strings"
+
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/api/core/v1"
 )
@@ -14,23 +16,13 @@ import (
 	}]
 }
 
-let downloadVictoriaLogsPluginScript = """
-	set -ex
-	mkdir -p /var/lib/grafana/plugins/
-	ver=$(curl -s https://api.github.com/repos/VictoriaMetrics/victorialogs-datasource/releases/latest | grep -oE 'v[0-9]+\\.[0-9]+\\.[0-9]+' | head -1)
-	curl -L https://github.com/VictoriaMetrics/victorialogs-datasource/releases/download/$ver/victorialogs-datasource-$ver.tar.gz -o /var/lib/grafana/plugins/plugin.tar.gz
-	tar -xf /var/lib/grafana/plugins/plugin.tar.gz -C /var/lib/grafana/plugins/
-	rm /var/lib/grafana/plugins/plugin.tar.gz
-	"""
-
-let downloadVictoriaMetricsPluginScript = """
-	set -ex
-	mkdir -p /var/lib/grafana/plugins/
-	ver=$(curl -s https://api.github.com/repos/VictoriaMetrics/grafana-datasource/releases/latest | grep -oE 'v[0-9]+\\.[0-9]+\\.[0-9]+' | head -1)
-	curl -L https://github.com/VictoriaMetrics/grafana-datasource/releases/download/$ver/victoriametrics-datasource-$ver.tar.gz -o /var/lib/grafana/plugins/plugin.tar.gz
-	tar -xf /var/lib/grafana/plugins/plugin.tar.gz -C /var/lib/grafana/plugins/
-	rm /var/lib/grafana/plugins/plugin.tar.gz
-	"""
+let plugins = [{
+	name:   "victoriametrics-datasource"
+	source: "https://github.com/VictoriaMetrics/victoriametrics-datasource/releases/download/v0.8.2/victoriametrics-datasource-v0.8.2.zip"
+}, {
+	name:   "victorialogs-datasource"
+	source: "https://github.com/VictoriaMetrics/victorialogs-datasource/releases/download/v0.2.1/victorialogs-datasource-v0.2.1.zip;victorialogs-datasource"
+}]
 
 #StatefulSetList: items: [{
 	spec: {
@@ -44,49 +36,6 @@ let downloadVictoriaMetricsPluginScript = """
 				}, {
 					name: "tmp"
 					emptyDir: {}
-				}]
-				initContainers: [{
-					// https://github.com/VictoriaMetrics/victorialogs-datasource/blob/058bd8d81a8119511abdc35398459a1094381b5c/README.md
-					name:  "download-victoria-logs-plugin"
-					image: "curlimages/curl:8.7.1"
-					command: ["/bin/sh"]
-					args: ["-c", downloadVictoriaLogsPluginScript]
-					workingDir: "/var/lib/grafana"
-					resources: limits: {
-						(v1.#ResourceCPU):    "1"
-						(v1.#ResourceMemory): "1Gi"
-					}
-					volumeMounts: [{
-						name:      "data"
-						mountPath: "/var/lib/grafana"
-					}]
-					imagePullPolicy: v1.#PullIfNotPresent
-					securityContext: {
-						capabilities: drop: ["ALL"]
-						readOnlyRootFilesystem:   true
-						allowPrivilegeEscalation: false
-					}
-				}, {
-					// https://github.com/VictoriaMetrics/grafana-datasource/blob/5b8a0ba190e116bdebfdb51d11b4e0d03d86d766/README.md
-					name:  "download-victoria-metrics-plugin"
-					image: "curlimages/curl:8.7.1"
-					command: ["/bin/sh"]
-					args: ["-c", downloadVictoriaMetricsPluginScript]
-					workingDir: "/var/lib/grafana"
-					resources: limits: {
-						(v1.#ResourceCPU):    "1"
-						(v1.#ResourceMemory): "1Gi"
-					}
-					volumeMounts: [{
-						name:      "data"
-						mountPath: "/var/lib/grafana"
-					}]
-					imagePullPolicy: v1.#PullIfNotPresent
-					securityContext: {
-						capabilities: drop: ["ALL"]
-						readOnlyRootFilesystem:   true
-						allowPrivilegeEscalation: false
-					}
 				}]
 				containers: [{
 					name:  "grafana"
@@ -107,6 +56,17 @@ let downloadVictoriaMetricsPluginScript = """
 							name: "grafana"
 							key:  "password"
 						}
+					}, {
+						name: "GF_INSTALL_PLUGINS"
+						value: strings.Join([for plugin in plugins {
+							strings.Join([
+								if plugin.source != _|_ {plugin.source},
+								plugin.name,
+							], ";")
+						}], ",")
+					}, {
+						name: "GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS"
+						value: strings.Join([for plugin in plugins {plugin.name}], ",")
 					}]
 					volumeMounts: [{
 						name:      "config"
