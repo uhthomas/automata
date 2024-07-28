@@ -38,7 +38,7 @@ import (
 					mountPath: "/config"
 				}]
 
-				let probe = {
+				let probe = v1.#Probe & {
 					httpGet: {
 						path: "/"
 						port: "http-metrics"

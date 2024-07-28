@@ -45,7 +45,7 @@ import (
 						mountPath: "/tmp/dashboards"
 					}]
 
-					let probe = {httpGet: port: 8081}
+					let probe = v1.#Probe & {httpGet: port: 8081}
 
 					livenessProbe: probe & {
 						httpGet: path: "/healthz"

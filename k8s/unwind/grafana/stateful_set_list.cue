@@ -68,7 +68,7 @@ import (
 						mountPath: "/mnt/secrets-store"
 					}]
 
-					let probe = {
+					let probe = v1.#Probe & {
 						httpGet: {
 							path: "/api/health"
 							port: "http"

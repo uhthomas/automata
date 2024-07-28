@@ -52,7 +52,7 @@ import (
 						mountPath: "/var/lib/kubelet/pod-resources"
 					}]
 
-					let probe = {
+					let probe = v1.#Probe & {
 						httpGet: {
 							path: "/health"
 							port: "http-metrics"

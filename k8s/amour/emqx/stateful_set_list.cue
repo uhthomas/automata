@@ -55,7 +55,7 @@ import (
 						mountPath: "/opt/emqx/data"
 					}]
 
-					let probe = {
+					let probe = v1.#Probe & {
 						httpGet: {
 							path: "/status"
 							port: "http"

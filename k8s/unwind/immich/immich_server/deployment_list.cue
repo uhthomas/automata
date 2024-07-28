@@ -113,7 +113,7 @@ import (
 						mountPath: "/mnt/secrets-store"
 					}]
 
-					let probe = {
+					let probe = v1.#Probe & {
 						httpGet: {
 							path: "/server-info/ping"
 							port: "http"

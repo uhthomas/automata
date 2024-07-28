@@ -85,7 +85,7 @@ import (
 						mountPath: "/media"
 					}]
 
-					let probe = {
+					let probe = v1.#Probe & {
 						httpGet: {
 							path: "/health"
 							port: "http"

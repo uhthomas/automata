@@ -46,7 +46,7 @@ import (
 						(v1.#ResourceMemory): "128Mi"
 					}
 
-					let probe = {
+					let probe = v1.#Probe & {
 						httpGet: {
 							path: "/healthz"
 							port: "http-metrics"

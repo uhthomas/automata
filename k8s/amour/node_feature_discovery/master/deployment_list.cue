@@ -52,7 +52,7 @@ import (
 						readOnly:  true
 					}]
 
-					let probe = {
+					let probe = v1.#Probe & {
 						grpc: port: 8080
 						periodSeconds: 10
 					}

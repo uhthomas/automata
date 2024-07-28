@@ -213,7 +213,7 @@ import (
 						mountPath: "/tmp"
 					}]
 
-					let probe = {
+					let probe = v1.#Probe & {
 						httpGet: {
 							host: "127.0.0.1"
 							path: "/healthz"

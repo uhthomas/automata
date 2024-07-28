@@ -42,7 +42,7 @@ import (
 						subPath:   "config.yaml"
 					}]
 
-					let probe = {httpGet: port: "http-metrics"}
+					let probe = v1.#Probe & {httpGet: port: "http-metrics"}
 
 					livenessProbe:  probe
 					readinessProbe: probe

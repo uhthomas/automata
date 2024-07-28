@@ -40,7 +40,7 @@ import (
 						mountPath: "/var/lib/victoria-logs"
 					}]
 
-					let probe = {
+					let probe = v1.#Probe & {
 						httpGet: {
 							path: "/"
 							port: "http"

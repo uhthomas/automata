@@ -58,7 +58,7 @@ import (
 						mountPath: "/home/opuser/.op/data"
 					}]
 
-					let probe = {
+					let probe = v1.#Probe & {
 						httpGet: port: "api-http"
 						initialDelaySeconds: 15
 					}
@@ -109,7 +109,7 @@ import (
 						mountPath: "/home/opuser/.op/data"
 					}]
 
-					let probe = {
+					let probe = v1.#Probe & {
 						httpGet: port: "sync-http"
 						initialDelaySeconds: 15
 					}

@@ -74,7 +74,7 @@ import (
 						mountPath: "/usr/src/app/.transformers_cache"
 					}]
 
-					let probe = {
+					let probe = v1.#Probe & {
 						httpGet: {
 							path: "/ping"
 							port: "http"
