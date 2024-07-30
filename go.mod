@@ -22,7 +22,7 @@ require (
 	k8s.io/apiextensions-apiserver v0.30.0
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/kube-aggregator v0.29.1
-	k8s.io/kubernetes v1.29.1
+	k8s.io/kubernetes v1.29.7
 	sigs.k8s.io/external-dns v0.14.2
 )
 
