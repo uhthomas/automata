@@ -23,4 +23,34 @@ import "k8s.io/api/core/v1"
 		}]
 		selector: matchLabels: "kubernetes.io/name": "CoreDNS"
 	}
+}, {
+	metadata: name: "kube-controller-manager"
+	spec: {
+		jobLabel: "app.kubernetes.io/name"
+		endpoints: [{
+			port:   "metrics"
+			scheme: "https"
+			tlsConfig: {
+				caFile:             "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+				insecureSkipVerify: true
+			}
+			bearerTokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+		}]
+		selector: matchLabels: "app.kubernetes.io/name": metadata.name
+	}
+}, {
+	metadata: name: "kube-scheduler"
+	spec: {
+		jobLabel: "app.kubernetes.io/name"
+		endpoints: [{
+			port:   "metrics"
+			scheme: "https"
+			tlsConfig: {
+				caFile:             "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+				insecureSkipVerify: true
+			}
+			bearerTokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+		}]
+		selector: matchLabels: "app.kubernetes.io/name": metadata.name
+	}
 }]

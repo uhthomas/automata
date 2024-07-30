@@ -18,5 +18,6 @@ import (
 
 _items: [
 	#NamespaceList.items,
+	#ServiceList.items,
 	#VMServiceScrapeList.items,
 ]

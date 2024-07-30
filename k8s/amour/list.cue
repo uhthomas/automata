@@ -67,9 +67,9 @@ _#KindWeight: {
 })
 
 _items: [
-	// amour.#ApplySetList.items,
-	// amour.#ClusterSecretStoreList.items,
-	// amour.#CustomResourceDefinitionList.items,
+	amour.#ApplySetList.items,
+	amour.#ClusterSecretStoreList.items,
+	amour.#CustomResourceDefinitionList.items,
 	backup.#List.items,
 	cert_manager_csi_driver.#List.items,
 	cert_manager.#List.items,
