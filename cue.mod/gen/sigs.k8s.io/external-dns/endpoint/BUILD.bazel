@@ -1,0 +1,15 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_endpoint_library",
+    srcs = [
+        "crypto_go_gen.cue",
+        "domain_filter_go_gen.cue",
+        "endpoint_go_gen.cue",
+        "labels_go_gen.cue",
+        "target_filter_go_gen.cue",
+    ],
+    importpath = "sigs.k8s.io/external-dns/endpoint",
+    visibility = ["//visibility:public"],
+    deps = ["//cue.mod/gen/k8s.io/apimachinery/pkg/apis/meta/v1:cue_v1_library"],
+)

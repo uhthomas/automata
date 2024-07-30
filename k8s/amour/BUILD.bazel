@@ -27,6 +27,7 @@ cue_export(
         "//k8s/amour/cert_manager_csi_driver:cue_cert_manager_csi_driver_library",
         "//k8s/amour/cilium:cue_cilium_library",
         "//k8s/amour/dcgm_exporter:cue_dcgm_exporter_library",
+        "//k8s/amour/default:cue_default_library",
         "//k8s/amour/emqx:cue_emqx_library",
         "//k8s/amour/emqx_exporter:cue_emqx_exporter_library",
         "//k8s/amour/external_dns:cue_external_dns_library",
