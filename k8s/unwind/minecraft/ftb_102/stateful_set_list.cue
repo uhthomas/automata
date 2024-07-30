@@ -72,7 +72,7 @@ import (
 						mountPath: "/data"
 					}]
 
-					let probe = v1.#Probe & {exec: command: ["mc-health"]}
+					let probe = {exec: command: ["mc-health"]}
 
 					livenessProbe:  probe
 					readinessProbe: probe

@@ -49,7 +49,7 @@ import (
 						mountPath: "/tmp"
 					}]
 
-					let probe = v1.#Probe & {
+					let probe = {
 						httpGet: {
 							port:   "https"
 							scheme: v1.#URISchemeHTTPS

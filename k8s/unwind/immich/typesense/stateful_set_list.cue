@@ -46,7 +46,7 @@ import (
 						}
 					}]
 
-					let probe = v1.#Probe & {
+					let probe = {
 						httpGet: {
 							path: "/health"
 							port: "http"

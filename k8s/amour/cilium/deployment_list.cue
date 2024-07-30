@@ -72,7 +72,7 @@ import (
 						readOnly:  true
 					}]
 
-					let probe = v1.#Probe & {
+					let probe = {
 						httpGet: {
 							host:   "127.0.0.1"
 							path:   "/healthz"

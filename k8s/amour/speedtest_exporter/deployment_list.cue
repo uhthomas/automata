@@ -32,7 +32,7 @@ import (
 						(v1.#ResourceMemory): "200Mi"
 					}
 
-					let probe = v1.#Probe & {httpGet: port: "http-metrics"}
+					let probe = {httpGet: port: "http-metrics"}
 
 					livenessProbe:  probe
 					readinessProbe: probe

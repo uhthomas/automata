@@ -86,7 +86,7 @@ let plugins = [{
 						mountPath: "/tmp"
 					}]
 
-					let probe = v1.#Probe & {
+					let probe = {
 						httpGet: {
 							path: "/api/health"
 							port: "http"

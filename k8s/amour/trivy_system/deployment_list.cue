@@ -61,7 +61,7 @@ import (
 						mountPath: "/tmp"
 					}]
 
-					let probe = v1.#Probe & {
+					let probe = {
 						httpGet: port: "probes"
 						initialDelaySeconds: 5
 						periodSeconds:       10

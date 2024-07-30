@@ -63,7 +63,7 @@ import (
 						mountPropagation: v1.#MountPropagationHostToContainer
 					}]
 
-					let probe = v1.#Probe & {
+					let probe = {
 						httpGet: {
 							path: "/"
 							port: "http-metrics"

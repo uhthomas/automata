@@ -52,7 +52,7 @@ import (
 						mountPath: "/opt/scrutiny/config"
 					}]
 
-					let probe = v1.#Probe & {
+					let probe = {
 						httpGet: {
 							path: "/health"
 							port: "http"
