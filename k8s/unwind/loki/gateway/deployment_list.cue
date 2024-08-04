@@ -38,7 +38,7 @@ import (
 				}]
 				containers: [{
 					name:  "nginx"
-					image: "nginxinc/nginx-unprivileged:1.23.4-alpine3.17-slim@sha256:7c85fc22f25023a120c45fac6616f2b6fd8e37429259a9d2c333681994d1e9e1"
+					image: "nginxinc/nginx-unprivileged:1.23.4-alpine3.17-slim@sha256:d517dd550cadf9b38bab37ee1a2beb85b91c74b0a92e921bbc90cb3bd8e14f7c"
 					ports: [{
 						name:          "http"
 						containerPort: 8080
