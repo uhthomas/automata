@@ -312,4 +312,4 @@ exclude github.com/kubernetes-incubator/external-storage v0.20.4-openstorage-rc2
 
 replace github.com/crunchydata/postgres-operator => github.com/crunchydata/postgres-operator v1.3.3-0.20230629151007-94ebcf2df74d
 
-replace github.com/openshift/api => github.com/openshift/api v0.0.0-20240401200911-ab1b479a063f
+replace github.com/openshift/api => github.com/openshift/api v0.0.0-20240809151009-b3007039397c
