@@ -139,7 +139,7 @@ import (
 					}
 				}, {
 					name:            "liveness-probe"
-					image:           "registry.k8s.io/sig-storage/livenessprobe:v2.9.0"
+					image:           "registry.k8s.io/sig-storage/livenessprobe:v2.14.0"
 					imagePullPolicy: v1.#PullIfNotPresent
 					args: [
 						"--csi-address=/csi/csi.sock",
