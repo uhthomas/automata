@@ -38,7 +38,7 @@ import (
 				}]
 				containers: [{
 					name:            "node-driver-registrar"
-					image:           "registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.7.0"
+					image:           "registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.12.0"
 					imagePullPolicy: v1.#PullIfNotPresent
 					args: [
 						"--v=5",
