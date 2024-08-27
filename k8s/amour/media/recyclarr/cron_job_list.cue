@@ -76,7 +76,7 @@ import (
 			}]
 			containers: [{
 				name:  #Name
-				image: "recyclarr/recyclarr:\(#Version)"
+				image: "ghcr.io/recyclarr/recyclarr:\(#Version)"
 				command: ["recyclarr"]
 				args: ["sync", "-c", configPath]
 				env: [{
