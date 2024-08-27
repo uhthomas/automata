@@ -3,6 +3,7 @@ load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
 cue_library(
     name = "cue_synology_library",
     srcs = [
+        "deployment_list.cue",
         "ingress_list.cue",
         "list.cue",
         "persistent_volume_claim_list.cue",

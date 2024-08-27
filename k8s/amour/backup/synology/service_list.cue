@@ -36,4 +36,15 @@ import "k8s.io/api/core/v1"
 		selector: "app.kubernetes.io/name": "\(#Name)-syncthing"
 		type: v1.#ServiceTypeLoadBalancer
 	}
+}, {
+	metadata: name: "\(#Name)-smb"
+	spec: {
+		ports: [{
+			name:       "smb"
+			port:       445
+			targetPort: "smb"
+		}]
+		selector: "app.kubernetes.io/name": "\(#Name)-smb"
+		type: v1.#ServiceTypeLoadBalancer
+	}
 }]

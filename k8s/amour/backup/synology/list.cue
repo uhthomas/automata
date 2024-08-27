@@ -19,6 +19,7 @@ import (
 
 _items: [
 	#IngressList.items,
+	#DeploymentList.items,
 	#PersistentVolumeClaimList.items,
 	#ServiceList.items,
 	#StatefulSetList.items,
