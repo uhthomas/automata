@@ -29,7 +29,7 @@ import (
 				}]
 				containers: [{
 					name:  "connect-api"
-					image: "1password/connect-api:1.7.2@sha256:6aa94cf713f99c0fa58c12ffdd1b160404b4c13a7f501a73a791aa84b608c5a1"
+					image: "1password/connect-api:1.7.3@sha256:0601c7614e102eada268dbda6ba4b5886ce77713be2c332ec6a2fd0f028484ba"
 					env: [{
 						name: "OP_SESSION"
 						valueFrom: secretKeyRef: {
