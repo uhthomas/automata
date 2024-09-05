@@ -61,7 +61,7 @@ import (
 					}]
 				}, {
 					name:  "hostpath"
-					image: "registry.k8s.io/sig-storage/hostpathplugin:v1.11.0"
+					image: "registry.k8s.io/sig-storage/hostpathplugin:v1.15.0"
 					args: [
 						"--v=5",
 						"--endpoint=$(CSI_ENDPOINT)",
