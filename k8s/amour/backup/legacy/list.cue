@@ -18,6 +18,7 @@ import (
 #List: items: list.Concat(_items)
 
 _items: [
+	#DeploymentList.items,
 	#IngressList.items,
 	#PersistentVolumeClaimList.items,
 	#ServiceList.items,
