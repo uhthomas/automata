@@ -14,6 +14,7 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/external_secrets"
 	// "github.com/uhthomas/automata/k8s/amour/fluent_bit"
 	"github.com/uhthomas/automata/k8s/amour/frigate"
+	"github.com/uhthomas/automata/k8s/amour/gateway_api"
 	"github.com/uhthomas/automata/k8s/amour/grafana"
 	"github.com/uhthomas/automata/k8s/amour/grafana_operator"
 	"github.com/uhthomas/automata/k8s/amour/home_assistant"
@@ -83,6 +84,7 @@ _items: [
 	external_secrets.#List.items,
 	// fluent_bit.#List.items,
 	frigate.#List.items,
+	gateway_api.#List.items,
 	grafana.#List.items,
 	grafana_operator.#List.items,
 	home_assistant.#List.items,
