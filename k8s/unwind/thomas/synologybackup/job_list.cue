@@ -28,7 +28,7 @@ import (
 			}]
 			containers: [{
 				name:  "rclone"
-				image: "rclone/rclone:1.62.2@sha256:f6322df9af20b551049c2746f15facc9be1154aed3ab79e0d2529edbc8433935"
+				image: "rclone/rclone:1.68.1@sha256:e78b765d51301e1934c376e9b5d0b42a156352099502a812b5e3b3bd37ccb33b"
 				args: ["copy", "-P", "--checkers=8", "--transfers=200", "smb:/E", "/data"]
 				volumeMounts: [{
 					name:      "data"
