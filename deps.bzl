@@ -29,8 +29,8 @@ def dependencies():
     )
     http_archive(
         name = "rules_python",
-        sha256 = "cd6730ed53a002c56ce4e2f396ba3b3be262fd7cb68339f0377a45e8227fe332",
-        urls = ["https://github.com/bazelbuild/rules_python/releases/download/0.5.0/rules_python-0.5.0.tar.gz"],
+        sha256 = "ca77768989a7f311186a29747e3e95c936a41dffac779aff6b443db22290d913",
+        urls = ["https://github.com/bazelbuild/rules_python/releases/download/0.36.0/rules_python-0.36.0.tar.gz"],
     )
     http_archive(
         name = "io_bazel_rules_docker",
