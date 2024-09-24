@@ -8,7 +8,7 @@ import (
 
 #Name:      "cert-manager"
 #Namespace: #Name
-#Version:   "1.11.0"
+#Version:   "1.15.3"
 
 #List: v1.#List & {
 	apiVersion: "v1"
@@ -19,7 +19,7 @@ import (
 			namespace: string | *#Namespace
 			labels: {
 				"app.kubernetes.io/name":    string | *#Name
-				"app.kubernetes.io/version": string | *#Version
+				"app.kubernetes.io/version": "v\(#Version)"
 			}
 		}
 	}]

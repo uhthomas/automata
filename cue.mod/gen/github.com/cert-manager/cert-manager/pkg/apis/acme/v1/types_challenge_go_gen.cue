@@ -23,7 +23,7 @@ import (
 	spec:     #ChallengeSpec     @go(Spec)
 
 	// +optional
-	status: #ChallengeStatus @go(Status)
+	status?: #ChallengeStatus @go(Status)
 }
 
 // ChallengeList is a list of Challenges
@@ -50,7 +50,7 @@ import (
 	// wildcard will be true if this challenge is for a wildcard identifier,
 	// for example '*.example.com'.
 	// +optional
-	wildcard: bool @go(Wildcard)
+	wildcard?: bool @go(Wildcard)
 
 	// The type of ACME challenge this resource represents.
 	// One of "HTTP-01" or "DNS-01".
@@ -105,7 +105,7 @@ import (
 	// If this field is set to false, the challenge controller will not take
 	// any more action.
 	// +optional
-	processing: bool @go(Processing)
+	processing?: bool @go(Processing)
 
 	// presented will be set to true if the challenge values for this challenge
 	// are currently 'presented'.
@@ -114,7 +114,7 @@ import (
 	// DNS01 TXT record has been presented, or the HTTP01 configuration has been
 	// configured).
 	// +optional
-	presented: bool @go(Presented)
+	presented?: bool @go(Presented)
 
 	// Contains human readable information on why the Challenge is in the
 	// current state.

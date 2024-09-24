@@ -19,7 +19,6 @@ import "k8s.io/api/core/v1"
 		"app.kubernetes.io/component": "controller"
 	}
 	spec: {
-		type: "ClusterIP"
 		ports: [{
 			name: "tcp-prometheus-servicemonitor"
 			port: 9402
@@ -41,7 +40,6 @@ import "k8s.io/api/core/v1"
 		}
 	}
 	spec: {
-		type: "ClusterIP"
 		ports: [{
 			name:       "https"
 			port:       443

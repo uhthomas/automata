@@ -12,6 +12,7 @@ package v1
 // might want to set this (with a value of 'true') to any other Secrets
 // that cert-manager controller needs to read, such as issuer
 // credentials Secrets.
+// fao = 'for attention of'
 // See https://github.com/cert-manager/cert-manager/blob/master/design/20221205-memory-management.md#risks-and-mitigations
 #PartOfCertManagerControllerLabelKey: "controller.cert-manager.io/fao"
 
@@ -128,6 +129,10 @@ package v1
 // controller only processes Ingresses with this annotation either unset, or
 // set to either the configured value or the empty string.
 #IngressClassAnnotationKey: "kubernetes.io/ingress.class"
+
+// IngressSecretTemplate can be used to set the secretTemplate field in the generated Certificate.
+// The value is a JSON representation of secretTemplate and must not have any unknown fields.
+#IngressSecretTemplate: "cert-manager.io/secret-template"
 
 // Annotation added to CertificateRequest resources to denote the name of
 // a Secret resource containing the private key used to sign the CSR stored

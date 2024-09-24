@@ -39,15 +39,15 @@ import (
 	}, {
 		apiGroups: ["admissionregistration.k8s.io"]
 		resources: ["validatingwebhookconfigurations", "mutatingwebhookconfigurations"]
-		verbs: ["get", "list", "watch", "update"]
+		verbs: ["get", "list", "watch", "update", "patch"]
 	}, {
 		apiGroups: ["apiregistration.k8s.io"]
 		resources: ["apiservices"]
-		verbs: ["get", "list", "watch", "update"]
+		verbs: ["get", "list", "watch", "update", "patch"]
 	}, {
 		apiGroups: ["apiextensions.k8s.io"]
 		resources: ["customresourcedefinitions"]
-		verbs: ["get", "list", "watch", "update"]
+		verbs: ["get", "list", "watch", "update", "patch"]
 	}]
 }, {
 	metadata: {
@@ -295,16 +295,32 @@ import (
 	}]
 }, {
 	metadata: {
+		name: "cert-manager-cluster-view"
+		labels: {
+			app:                                                     "cert-manager"
+			"app.kubernetes.io/name":                                "cert-manager"
+			"app.kubernetes.io/instance":                            "cert-manager"
+			"app.kubernetes.io/component":                           "controller"
+			"rbac.authorization.k8s.io/aggregate-to-cluster-reader": "true"
+		}
+	}
+	rules: [{
+		apiGroups: ["cert-manager.io"]
+		resources: ["clusterissuers"]
+		verbs: ["get", "list", "watch"]
+	}]
+}, {
+	metadata: {
 		name: "cert-manager-view"
 		labels: {
-			app:                                            "cert-manager"
-			"app.kubernetes.io/name":                       "cert-manager"
-			"app.kubernetes.io/instance":                   "cert-manager"
-			"app.kubernetes.io/component":                  "controller"
-			"app.kubernetes.io/version":                    "v1.11.0"
-			"rbac.authorization.k8s.io/aggregate-to-view":  "true"
-			"rbac.authorization.k8s.io/aggregate-to-edit":  "true"
-			"rbac.authorization.k8s.io/aggregate-to-admin": "true"
+			app:                                                     "cert-manager"
+			"app.kubernetes.io/name":                                "cert-manager"
+			"app.kubernetes.io/instance":                            "cert-manager"
+			"app.kubernetes.io/component":                           "controller"
+			"rbac.authorization.k8s.io/aggregate-to-view":           "true"
+			"rbac.authorization.k8s.io/aggregate-to-edit":           "true"
+			"rbac.authorization.k8s.io/aggregate-to-admin":          "true"
+			"rbac.authorization.k8s.io/aggregate-to-cluster-reader": "true"
 		}
 	}
 	rules: [{
@@ -324,7 +340,6 @@ import (
 			"app.kubernetes.io/name":                       "cert-manager"
 			"app.kubernetes.io/instance":                   "cert-manager"
 			"app.kubernetes.io/component":                  "controller"
-			"app.kubernetes.io/version":                    "v1.11.0"
 			"rbac.authorization.k8s.io/aggregate-to-edit":  "true"
 			"rbac.authorization.k8s.io/aggregate-to-admin": "true"
 		}

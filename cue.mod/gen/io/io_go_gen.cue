@@ -70,9 +70,9 @@ package io
 //
 // Seek sets the offset for the next Read or Write to offset,
 // interpreted according to whence:
-// SeekStart means relative to the start of the file,
-// SeekCurrent means relative to the current offset, and
-// SeekEnd means relative to the end
+// [SeekStart] means relative to the start of the file,
+// [SeekCurrent] means relative to the current offset, and
+// [SeekEnd] means relative to the end
 // (for example, offset = -2 specifies the penultimate byte of the file).
 // Seek returns the new offset relative to the start of the
 // file or an error, if any.
@@ -114,7 +114,7 @@ package io
 // The return value n is the number of bytes read.
 // Any error except EOF encountered during the read is also returned.
 //
-// The Copy function uses ReaderFrom if available.
+// The [Copy] function uses [ReaderFrom] if available.
 #ReaderFrom: _
 
 // WriterTo is the interface that wraps the WriteTo method.
@@ -178,7 +178,7 @@ package io
 // byte was consumed, and the returned byte value is undefined.
 //
 // ReadByte provides an efficient interface for byte-at-time
-// processing. A Reader that does not implement  ByteReader
+// processing. A [Reader] that does not implement  ByteReader
 // can be wrapped using bufio.NewReader to add this method.
 #ByteReader: _
 
@@ -188,7 +188,7 @@ package io
 // UnreadByte causes the next call to ReadByte to return the last byte read.
 // If the last operation was not a successful call to ReadByte, UnreadByte may
 // return an error, unread the last byte read (or the byte prior to the
-// last-unread byte), or (in implementations that support the Seeker interface)
+// last-unread byte), or (in implementations that support the [Seeker] interface)
 // seek to one byte before the current offset.
 #ByteScanner: _
 
@@ -208,7 +208,7 @@ package io
 // UnreadRune causes the next call to ReadRune to return the last rune read.
 // If the last operation was not a successful call to ReadRune, UnreadRune may
 // return an error, unread the last rune read (or the rune prior to the
-// last-unread rune), or (in implementations that support the Seeker interface)
+// last-unread rune), or (in implementations that support the [Seeker] interface)
 // seek to the start of the rune before the current offset.
 #RuneScanner: _
 
@@ -224,8 +224,7 @@ package io
 	N: int64
 }
 
-_#discard: {
-}
+_#discard: {}
 
 _#nopCloser: Reader: #Reader
 

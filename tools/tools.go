@@ -24,4 +24,5 @@ import (
 	_ "k8s.io/kube-aggregator"
 	_ "k8s.io/kubernetes/cmd/kubectl"
 	_ "sigs.k8s.io/external-dns/endpoint"
+	_ "sigs.k8s.io/gateway-api/apis/v1"
 )

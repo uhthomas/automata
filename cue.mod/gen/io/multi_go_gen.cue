@@ -4,5 +4,4 @@
 
 package io
 
-_#eofReader: {
-}
+_#eofReader: {}

@@ -17,7 +17,7 @@ import (
 	spec:     #OrderSpec         @go(Spec)
 
 	// +optional
-	status: #OrderStatus @go(Status)
+	status?: #OrderStatus @go(Status)
 }
 
 // OrderList is a list of Orders

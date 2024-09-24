@@ -10,26 +10,40 @@ import (
 )
 
 // A Certificate resource should be created to ensure an up to date and signed
-// x509 certificate is stored in the Kubernetes Secret resource named in `spec.secretName`.
+// X.509 certificate is stored in the Kubernetes Secret resource named in `spec.secretName`.
 //
 // The stored certificate will be renewed before it expires (as configured by `spec.renewBefore`).
-// +k8s:openapi-gen=true
 #Certificate: {
 	metav1.#TypeMeta
+
+	// Standard object's metadata.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	// +optional
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta)
 
-	// Desired state of the Certificate resource.
-	spec: #CertificateSpec @go(Spec)
-
-	// Status of the Certificate. This is set and managed automatically.
+	// Specification of the desired state of the Certificate resource.
+	// https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 	// +optional
-	status: #CertificateStatus @go(Status)
+	spec?: #CertificateSpec @go(Spec)
+
+	// Status of the Certificate.
+	// This is set and managed automatically.
+	// Read-only.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+	// +optional
+	status?: #CertificateStatus @go(Status)
 }
 
-// CertificateList is a list of Certificates
+// CertificateList is a list of Certificates.
 #CertificateList: {
 	metav1.#TypeMeta
-	metadata: metav1.#ListMeta @go(ListMeta)
+
+	// Standard list metadata.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+	// +optional
+	metadata?: metav1.#ListMeta @go(ListMeta)
+
+	// List of Certificates
 	items: [...#Certificate] @go(Items,[]Certificate)
 }
 
@@ -41,13 +55,13 @@ import (
 	#ECDSAKeyAlgorithm |
 	#Ed25519KeyAlgorithm
 
-// Denotes the RSA private key type.
+// RSA private key algorithm.
 #RSAKeyAlgorithm: #PrivateKeyAlgorithm & "RSA"
 
-// Denotes the ECDSA private key type.
+// ECDSA private key algorithm.
 #ECDSAKeyAlgorithm: #PrivateKeyAlgorithm & "ECDSA"
 
-// Denotes the Ed25519 private key type.
+// Ed25519 private key algorithm.
 #Ed25519KeyAlgorithm: #PrivateKeyAlgorithm & "Ed25519"
 
 // +kubebuilder:validation:Enum=PKCS1;PKCS8
@@ -57,157 +71,231 @@ import (
 	#PKCS1 |
 	#PKCS8
 
-// PKCS1 key encoding will produce PEM files that include the type of
-// private key as part of the PEM header, e.g. `BEGIN RSA PRIVATE KEY`.
-// If the keyAlgorithm is set to 'ECDSA', this will produce private keys
-// that use the `BEGIN EC PRIVATE KEY` header.
+// PKCS1 private key encoding.
+// PKCS1 produces a PEM block that contains the private key algorithm
+// in the header and the private key in the body. A key that uses this
+// can be recognised by its `BEGIN RSA PRIVATE KEY` or `BEGIN EC PRIVATE KEY` header.
+// NOTE: This encoding is not supported for Ed25519 keys. Attempting to use
+// this encoding with an Ed25519 key will be ignored and default to PKCS8.
 #PKCS1: #PrivateKeyEncoding & "PKCS1"
 
-// PKCS8 key encoding will produce PEM files with the `BEGIN PRIVATE KEY`
-// header. It encodes the keyAlgorithm of the private key as part of the
-// DER encoded PEM block.
+// PKCS8 private key encoding.
+// PKCS8 produces a PEM block with a static header and both the private
+// key algorithm and the private key in the body. A key that uses this
+// encoding can be recognised by its `BEGIN PRIVATE KEY` header.
 #PKCS8: #PrivateKeyEncoding & "PKCS8"
 
 // CertificateSpec defines the desired state of Certificate.
-// A valid Certificate requires at least one of a CommonName, DNSName, or
-// URISAN to be valid.
+//
+// NOTE: The specification contains a lot of "requested" certificate attributes, it is
+// important to note that the issuer can choose to ignore or change any of
+// these requested attributes. How the issuer maps a certificate request to a
+// signed certificate is the full responsibility of the issuer itself. For example,
+// as an edge case, an issuer that inverts the isCA value is free to do so.
+//
+// A valid Certificate requires at least one of a CommonName, LiteralSubject, DNSName, or
+// URI to be valid.
 #CertificateSpec: {
-	// Full X509 name specification (https://golang.org/pkg/crypto/x509/pkix/#Name).
+	// Requested set of X509 certificate subject attributes.
+	// More info: https://datatracker.ietf.org/doc/html/rfc5280#section-4.1.2.6
+	//
+	// The common name attribute is specified separately in the `commonName` field.
+	// Cannot be set if the `literalSubject` field is set.
 	// +optional
 	subject?: null | #X509Subject @go(Subject,*X509Subject)
 
-	// LiteralSubject is an LDAP formatted string that represents the [X.509 Subject field](https://datatracker.ietf.org/doc/html/rfc5280#section-4.1.2.6).
-	// Use this *instead* of the Subject field if you need to ensure the correct ordering of the RDN sequence, such as when issuing certs for LDAP authentication. See https://github.com/cert-manager/cert-manager/issues/3203, https://github.com/cert-manager/cert-manager/issues/4424.
-	// This field is alpha level and is only supported by cert-manager installations where LiteralCertificateSubject feature gate is enabled on both cert-manager controller and webhook.
+	// Requested X.509 certificate subject, represented using the LDAP "String
+	// Representation of a Distinguished Name" [1].
+	// Important: the LDAP string format also specifies the order of the attributes
+	// in the subject, this is important when issuing certs for LDAP authentication.
+	// Example: `CN=foo,DC=corp,DC=example,DC=com`
+	// More info [1]: https://datatracker.ietf.org/doc/html/rfc4514
+	// More info: https://github.com/cert-manager/cert-manager/issues/3203
+	// More info: https://github.com/cert-manager/cert-manager/issues/4424
+	//
+	// Cannot be set if the `subject` or `commonName` field is set.
 	// +optional
 	literalSubject?: string @go(LiteralSubject)
 
-	// CommonName is a common name to be used on the Certificate.
-	// The CommonName should have a length of 64 characters or fewer to avoid
-	// generating invalid CSRs.
-	// This value is ignored by TLS clients when any subject alt name is set.
-	// This is x509 behaviour: https://tools.ietf.org/html/rfc6125#section-6.4.4
+	// Requested common name X509 certificate subject attribute.
+	// More info: https://datatracker.ietf.org/doc/html/rfc5280#section-4.1.2.6
+	// NOTE: TLS clients will ignore this value when any subject alternative name is
+	// set (see https://tools.ietf.org/html/rfc6125#section-6.4.4).
+	//
+	// Should have a length of 64 characters or fewer to avoid generating invalid CSRs.
+	// Cannot be set if the `literalSubject` field is set.
 	// +optional
 	commonName?: string @go(CommonName)
 
-	// The requested 'duration' (i.e. lifetime) of the Certificate. This option
-	// may be ignored/overridden by some issuer types. If unset this defaults to
-	// 90 days. Certificate will be renewed either 2/3 through its duration or
-	// `renewBefore` period before its expiry, whichever is later. Minimum
-	// accepted duration is 1 hour. Value must be in units accepted by Go
-	// time.ParseDuration https://golang.org/pkg/time/#ParseDuration
+	// Requested 'duration' (i.e. lifetime) of the Certificate. Note that the
+	// issuer may choose to ignore the requested duration, just like any other
+	// requested attribute.
+	//
+	// If unset, this defaults to 90 days.
+	// Minimum accepted duration is 1 hour.
+	// Value must be in units accepted by Go time.ParseDuration https://golang.org/pkg/time/#ParseDuration.
 	// +optional
 	duration?: null | metav1.#Duration @go(Duration,*metav1.Duration)
 
-	// How long before the currently issued certificate's expiry
-	// cert-manager should renew the certificate. The default is 2/3 of the
-	// issued certificate's duration. Minimum accepted value is 5 minutes.
-	// Value must be in units accepted by Go time.ParseDuration
-	// https://golang.org/pkg/time/#ParseDuration
+	// How long before the currently issued certificate's expiry cert-manager should
+	// renew the certificate. For example, if a certificate is valid for 60 minutes,
+	// and `renewBefore=10m`, cert-manager will begin to attempt to renew the certificate
+	// 50 minutes after it was issued (i.e. when there are 10 minutes remaining until
+	// the certificate is no longer valid).
+	//
+	// NOTE: The actual lifetime of the issued certificate is used to determine the
+	// renewal time. If an issuer returns a certificate with a different lifetime than
+	// the one requested, cert-manager will use the lifetime of the issued certificate.
+	//
+	// If unset, this defaults to 1/3 of the issued certificate's lifetime.
+	// Minimum accepted value is 5 minutes.
+	// Value must be in units accepted by Go time.ParseDuration https://golang.org/pkg/time/#ParseDuration.
 	// +optional
 	renewBefore?: null | metav1.#Duration @go(RenewBefore,*metav1.Duration)
 
-	// DNSNames is a list of DNS subjectAltNames to be set on the Certificate.
+	// Requested DNS subject alternative names.
 	// +optional
 	dnsNames?: [...string] @go(DNSNames,[]string)
 
-	// IPAddresses is a list of IP address subjectAltNames to be set on the Certificate.
+	// Requested IP address subject alternative names.
 	// +optional
 	ipAddresses?: [...string] @go(IPAddresses,[]string)
 
-	// URIs is a list of URI subjectAltNames to be set on the Certificate.
+	// Requested URI subject alternative names.
 	// +optional
 	uris?: [...string] @go(URIs,[]string)
 
-	// EmailAddresses is a list of email subjectAltNames to be set on the Certificate.
+	// `otherNames` is an escape hatch for SAN that allows any type. We currently restrict the support to string like otherNames, cf RFC 5280 p 37
+	// Any UTF8 String valued otherName can be passed with by setting the keys oid: x.x.x.x and UTF8Value: somevalue for `otherName`.
+	// Most commonly this would be UPN set with oid: 1.3.6.1.4.1.311.20.2.3
+	// You should ensure that any OID passed is valid for the UTF8String type as we do not explicitly validate this.
+	// +optional
+	otherNames?: [...#OtherName] @go(OtherNames,[]OtherName)
+
+	// Requested email subject alternative names.
 	// +optional
 	emailAddresses?: [...string] @go(EmailAddresses,[]string)
 
-	// SecretName is the name of the secret resource that will be automatically
-	// created and managed by this Certificate resource.
-	// It will be populated with a private key and certificate, signed by the
-	// denoted issuer.
+	// Name of the Secret resource that will be automatically created and
+	// managed by this Certificate resource. It will be populated with a
+	// private key and certificate, signed by the denoted issuer. The Secret
+	// resource lives in the same namespace as the Certificate resource.
 	secretName: string @go(SecretName)
 
-	// SecretTemplate defines annotations and labels to be copied to the
-	// Certificate's Secret. Labels and annotations on the Secret will be changed
-	// as they appear on the SecretTemplate when added or removed. SecretTemplate
-	// annotations are added in conjunction with, and cannot overwrite, the base
-	// set of annotations cert-manager sets on the Certificate's Secret.
+	// Defines annotations and labels to be copied to the Certificate's Secret.
+	// Labels and annotations on the Secret will be changed as they appear on the
+	// SecretTemplate when added or removed. SecretTemplate annotations are added
+	// in conjunction with, and cannot overwrite, the base set of annotations
+	// cert-manager sets on the Certificate's Secret.
 	// +optional
 	secretTemplate?: null | #CertificateSecretTemplate @go(SecretTemplate,*CertificateSecretTemplate)
 
-	// Keystores configures additional keystore output formats stored in the
-	// `secretName` Secret resource.
+	// Additional keystore output formats to be stored in the Certificate's Secret.
 	// +optional
 	keystores?: null | #CertificateKeystores @go(Keystores,*CertificateKeystores)
 
-	// IssuerRef is a reference to the issuer for this certificate.
-	// If the `kind` field is not set, or set to `Issuer`, an Issuer resource
-	// with the given name in the same namespace as the Certificate will be used.
-	// If the `kind` field is set to `ClusterIssuer`, a ClusterIssuer with the
-	// provided name will be used.
-	// The `name` field in this stanza is required at all times.
+	// Reference to the issuer responsible for issuing the certificate.
+	// If the issuer is namespace-scoped, it must be in the same namespace
+	// as the Certificate. If the issuer is cluster-scoped, it can be used
+	// from any namespace.
+	//
+	// The `name` field of the reference must always be specified.
 	issuerRef: cmmeta.#ObjectReference @go(IssuerRef)
 
-	// IsCA will mark this Certificate as valid for certificate signing.
-	// This will automatically add the `cert sign` usage to the list of `usages`.
+	// Requested basic constraints isCA value.
+	// The isCA value is used to set the `isCA` field on the created CertificateRequest
+	// resources. Note that the issuer may choose to ignore the requested isCA value, just
+	// like any other requested attribute.
+	//
+	// If true, this will automatically add the `cert sign` usage to the list
+	// of requested `usages`.
 	// +optional
 	isCA?: bool @go(IsCA)
 
-	// Usages is the set of x509 usages that are requested for the certificate.
-	// Defaults to `digital signature` and `key encipherment` if not specified.
+	// Requested key usages and extended key usages.
+	// These usages are used to set the `usages` field on the created CertificateRequest
+	// resources. If `encodeUsagesInRequest` is unset or set to `true`, the usages
+	// will additionally be encoded in the `request` field which contains the CSR blob.
+	//
+	// If unset, defaults to `digital signature` and `key encipherment`.
 	// +optional
 	usages?: [...#KeyUsage] @go(Usages,[]KeyUsage)
 
-	// Options to control private keys used for the Certificate.
+	// Private key options. These include the key algorithm and size, the used
+	// encoding and the rotation policy.
 	// +optional
 	privateKey?: null | #CertificatePrivateKey @go(PrivateKey,*CertificatePrivateKey)
 
-	// EncodeUsagesInRequest controls whether key usages should be present
-	// in the CertificateRequest
+	// Whether the KeyUsage and ExtKeyUsage extensions should be set in the encoded CSR.
+	//
+	// This option defaults to true, and should only be disabled if the target
+	// issuer does not support CSRs with these X509 KeyUsage/ ExtKeyUsage extensions.
 	// +optional
 	encodeUsagesInRequest?: null | bool @go(EncodeUsagesInRequest,*bool)
 
-	// revisionHistoryLimit is the maximum number of CertificateRequest revisions
-	// that are maintained in the Certificate's history. Each revision represents
-	// a single `CertificateRequest` created by this Certificate, either when it
-	// was created, renewed, or Spec was changed. Revisions will be removed by
-	// oldest first if the number of revisions exceeds this number. If set,
-	// revisionHistoryLimit must be a value of `1` or greater. If unset (`nil`),
-	// revisions will not be garbage collected. Default value is `nil`.
-	// +kubebuilder:validation:ExclusiveMaximum=false
+	// The maximum number of CertificateRequest revisions that are maintained in
+	// the Certificate's history. Each revision represents a single `CertificateRequest`
+	// created by this Certificate, either when it was created, renewed, or Spec
+	// was changed. Revisions will be removed by oldest first if the number of
+	// revisions exceeds this number.
+	//
+	// If set, revisionHistoryLimit must be a value of `1` or greater.
+	// If unset (`nil`), revisions will not be garbage collected.
+	// Default value is `nil`.
 	// +optional
 	revisionHistoryLimit?: null | int32 @go(RevisionHistoryLimit,*int32)
 
-	// AdditionalOutputFormats defines extra output formats of the private key
-	// and signed certificate chain to be written to this Certificate's target
-	// Secret. This is an Alpha Feature and is only enabled with the
-	// `--feature-gates=AdditionalCertificateOutputFormats=true` option on both
+	// Defines extra output formats of the private key and signed certificate chain
+	// to be written to this Certificate's target Secret.
+	//
+	// This is a Beta Feature enabled by default. It can be disabled with the
+	// `--feature-gates=AdditionalCertificateOutputFormats=false` option set on both
 	// the controller and webhook components.
 	// +optional
 	additionalOutputFormats?: [...#CertificateAdditionalOutputFormat] @go(AdditionalOutputFormats,[]CertificateAdditionalOutputFormat)
+
+	// x.509 certificate NameConstraint extension which MUST NOT be used in a non-CA certificate.
+	// More Info: https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.10
+	//
+	// This is an Alpha Feature and is only enabled with the
+	// `--feature-gates=NameConstraints=true` option set on both
+	// the controller and webhook components.
+	// +optional
+	nameConstraints?: null | #NameConstraints @go(NameConstraints,*NameConstraints)
+}
+
+#OtherName: {
+	// OID is the object identifier for the otherName SAN.
+	// The object identifier must be expressed as a dotted string, for
+	// example, "1.2.840.113556.1.4.221".
+	oid?: string @go(OID)
+
+	// utf8Value is the string value of the otherName SAN.
+	// The utf8Value accepts any valid UTF8 string to set as value for the otherName SAN.
+	utf8Value?: string @go(UTF8Value)
 }
 
 // CertificatePrivateKey contains configuration options for private keys
 // used by the Certificate controller.
-// This allows control of how private keys are rotated.
+// These include the key algorithm and size, the used encoding and the
+// rotation policy.
 #CertificatePrivateKey: {
 	// RotationPolicy controls how private keys should be regenerated when a
 	// re-issuance is being processed.
-	// If set to Never, a private key will only be generated if one does not
+	//
+	// If set to `Never`, a private key will only be generated if one does not
 	// already exist in the target `spec.secretName`. If one does exists but it
 	// does not have the correct algorithm or size, a warning will be raised
 	// to await user intervention.
-	// If set to Always, a private key matching the specified requirements
+	// If set to `Always`, a private key matching the specified requirements
 	// will be generated whenever a re-issuance occurs.
-	// Default is 'Never' for backward compatibility.
+	// Default is `Never` for backward compatibility.
 	// +optional
-	// +kubebuilder:validation:Enum=Never;Always
 	rotationPolicy?: #PrivateKeyRotationPolicy @go(RotationPolicy)
 
 	// The private key cryptography standards (PKCS) encoding for this
 	// certificate's private key to be encoded in.
+	//
 	// If provided, allowed values are `PKCS1` and `PKCS8` standing for PKCS#1
 	// and PKCS#8, respectively.
 	// Defaults to `PKCS1` if not specified.
@@ -215,15 +303,18 @@ import (
 	encoding?: #PrivateKeyEncoding @go(Encoding)
 
 	// Algorithm is the private key algorithm of the corresponding private key
-	// for this certificate. If provided, allowed values are either `RSA`,`Ed25519` or `ECDSA`
+	// for this certificate.
+	//
+	// If provided, allowed values are either `RSA`, `ECDSA` or `Ed25519`.
 	// If `algorithm` is specified and `size` is not provided,
-	// key size of 256 will be used for `ECDSA` key algorithm and
-	// key size of 2048 will be used for `RSA` key algorithm.
+	// key size of 2048 will be used for `RSA` key algorithm and
+	// key size of 256 will be used for `ECDSA` key algorithm.
 	// key size is ignored when using the `Ed25519` key algorithm.
 	// +optional
 	algorithm?: #PrivateKeyAlgorithm @go(Algorithm)
 
 	// Size is the key bit size of the corresponding private key for this certificate.
+	//
 	// If `algorithm` is set to `RSA`, valid values are `2048`, `4096` or `8192`,
 	// and will default to `2048` if not specified.
 	// If `algorithm` is set to `ECDSA`, valid values are `256`, `384` or `521`,
@@ -236,6 +327,7 @@ import (
 
 // Denotes how private keys should be generated or sourced when a Certificate
 // is being issued.
+// +kubebuilder:validation:Enum=Never;Always
 #PrivateKeyRotationPolicy: string
 
 // CertificateOutputFormatType specifies which additional output formats should
@@ -348,6 +440,11 @@ import (
 	// PasswordSecretRef is a reference to a key in a Secret resource
 	// containing the password used to encrypt the JKS keystore.
 	passwordSecretRef: cmmeta.#SecretKeySelector @go(PasswordSecretRef)
+
+	// Alias specifies the alias of the key in the keystore, required by the JKS format.
+	// If not provided, the default alias `certificate` will be used.
+	// +optional
+	alias?: null | string @go(Alias,*string)
 }
 
 // PKCS12 configures options for storing a PKCS12 keystore in the
@@ -367,7 +464,36 @@ import (
 	// PasswordSecretRef is a reference to a key in a Secret resource
 	// containing the password used to encrypt the PKCS12 keystore.
 	passwordSecretRef: cmmeta.#SecretKeySelector @go(PasswordSecretRef)
+
+	// Profile specifies the key and certificate encryption algorithms and the HMAC algorithm
+	// used to create the PKCS12 keystore. Default value is `LegacyRC2` for backward compatibility.
+	//
+	// If provided, allowed values are:
+	// `LegacyRC2`: Deprecated. Not supported by default in OpenSSL 3 or Java 20.
+	// `LegacyDES`: Less secure algorithm. Use this option for maximal compatibility.
+	// `Modern2023`: Secure algorithm. Use this option in case you have to always use secure algorithms
+	// (eg. because of company policy). Please note that the security of the algorithm is not that important
+	// in reality, because the unencrypted certificate and private key are also stored in the Secret.
+	// +optional
+	profile?: #PKCS12Profile @go(Profile)
 }
+
+// +kubebuilder:validation:Enum=LegacyRC2;LegacyDES;Modern2023
+#PKCS12Profile: string // #enumPKCS12Profile
+
+#enumPKCS12Profile:
+	#LegacyRC2PKCS12Profile |
+	#LegacyDESPKCS12Profile |
+	#Modern2023PKCS12Profile
+
+// see: https://pkg.go.dev/software.sslmate.com/src/go-pkcs12#LegacyRC2
+#LegacyRC2PKCS12Profile: #PKCS12Profile & "LegacyRC2"
+
+// see: https://pkg.go.dev/software.sslmate.com/src/go-pkcs12#LegacyDES
+#LegacyDESPKCS12Profile: #PKCS12Profile & "LegacyDES"
+
+// see: https://pkg.go.dev/software.sslmate.com/src/go-pkcs12#Modern2023
+#Modern2023PKCS12Profile: #PKCS12Profile & "Modern2023"
 
 // CertificateStatus defines the observed state of Certificate
 #CertificateStatus: {
@@ -387,7 +513,7 @@ import (
 	lastFailureTime?: null | metav1.#Time @go(LastFailureTime,*metav1.Time)
 
 	// The time after which the certificate stored in the secret named
-	// by this resource in spec.secretName is valid.
+	// by this resource in `spec.secretName` is valid.
 	// +optional
 	notBefore?: null | metav1.#Time @go(NotBefore,*metav1.Time)
 
@@ -494,7 +620,7 @@ import (
 //    `status.certificate` on the CertificateRequest.
 //   * If no CertificateRequest resource exists for the current revision,
 //     the options on the Certificate resource are compared against the
-//     x509 data in the Secret, similar to what's done in earlier versions.
+//     X.509 data in the Secret, similar to what's done in earlier versions.
 //     If there is a mismatch, an issuance is triggered.
 // This condition may also be added by external API consumers to trigger
 // a re-issuance manually for any other reason.
@@ -512,4 +638,47 @@ import (
 	// Labels is a key value map to be copied to the target Kubernetes Secret.
 	// +optional
 	labels?: {[string]: string} @go(Labels,map[string]string)
+}
+
+// NameConstraints is a type to represent x509 NameConstraints
+#NameConstraints: {
+	// if true then the name constraints are marked critical.
+	//
+	// +optional
+	critical?: bool @go(Critical)
+
+	// Permitted contains the constraints in which the names must be located.
+	//
+	// +optional
+	permitted?: null | #NameConstraintItem @go(Permitted,*NameConstraintItem)
+
+	// Excluded contains the constraints which must be disallowed. Any name matching a
+	// restriction in the excluded field is invalid regardless
+	// of information appearing in the permitted
+	//
+	// +optional
+	excluded?: null | #NameConstraintItem @go(Excluded,*NameConstraintItem)
+}
+
+#NameConstraintItem: {
+	// DNSDomains is a list of DNS domains that are permitted or excluded.
+	//
+	// +optional
+	dnsDomains?: [...string] @go(DNSDomains,[]string)
+
+	// IPRanges is a list of IP Ranges that are permitted or excluded.
+	// This should be a valid CIDR notation.
+	//
+	// +optional
+	ipRanges?: [...string] @go(IPRanges,[]string)
+
+	// EmailAddresses is a list of Email Addresses that are permitted or excluded.
+	//
+	// +optional
+	emailAddresses?: [...string] @go(EmailAddresses,[]string)
+
+	// URIDomains is a list of URI domains that are permitted or excluded.
+	//
+	// +optional
+	uriDomains?: [...string] @go(URIDomains,[]string)
 }

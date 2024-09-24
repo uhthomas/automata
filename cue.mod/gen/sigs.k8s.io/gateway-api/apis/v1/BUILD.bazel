@@ -1,0 +1,18 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_v1_library",
+    srcs = [
+        "doc_go_gen.cue",
+        "gateway_types_go_gen.cue",
+        "gatewayclass_types_go_gen.cue",
+        "grpcroute_types_go_gen.cue",
+        "httproute_types_go_gen.cue",
+        "object_reference_types_go_gen.cue",
+        "shared_types_go_gen.cue",
+        "zz_generated.register_go_gen.cue",
+    ],
+    importpath = "sigs.k8s.io/gateway-api/apis/v1",
+    visibility = ["//visibility:public"],
+    deps = ["//cue.mod/gen/k8s.io/apimachinery/pkg/apis/meta/v1:cue_v1_library"],
+)

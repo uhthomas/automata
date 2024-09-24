@@ -7,7 +7,7 @@ package v1
 import (
 	cmmeta "github.com/cert-manager/cert-manager/pkg/apis/meta/v1"
 	corev1 "k8s.io/api/core/v1"
-	gwapi "sigs.k8s.io/gateway-api/apis/v1beta1"
+	gwapi "sigs.k8s.io/gateway-api/apis/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 )
 
@@ -35,11 +35,12 @@ import (
 	// endpoint.
 	// For example, for Let's Encrypt's DST crosssign you would use:
 	// "DST Root CA X3" or "ISRG Root X1" for the newer Let's Encrypt root CA.
-	// This value picks the first certificate bundle in the ACME alternative
-	// chains that has a certificate with this value as its issuer's CN
+	// This value picks the first certificate bundle in the combined set of
+	// ACME default and alternative chains that has a root-most certificate with
+	// this value as its issuer's commonname.
 	// +optional
 	// +kubebuilder:validation:MaxLength=64
-	preferredChain: string @go(PreferredChain)
+	preferredChain?: string @go(PreferredChain)
 
 	// Base64-encoded bundle of PEM CAs which can be used to validate the certificate
 	// chain presented by the ACME server.
@@ -96,7 +97,7 @@ import (
 	// Enables requesting a Not After date on certificates that matches the
 	// duration of the certificate. This is not supported by all ACME servers
 	// like Let's Encrypt. If set to true when the ACME server does not support
-	// it it will create an error on the Order.
+	// it, it will create an error on the Order.
 	// Defaults to false.
 	// +optional
 	enableDurationFeature?: bool @go(EnableDurationFeature)
@@ -283,13 +284,13 @@ import (
 	// If labels or annotations overlap with in-built values, the values here
 	// will override the in-built values.
 	// +optional
-	metadata: #ACMEChallengeSolverHTTP01IngressPodObjectMeta @go(ACMEChallengeSolverHTTP01IngressPodObjectMeta)
+	metadata?: #ACMEChallengeSolverHTTP01IngressPodObjectMeta @go(ACMEChallengeSolverHTTP01IngressPodObjectMeta)
 
 	// PodSpec defines overrides for the HTTP01 challenge solver pod.
 	// Check ACMEChallengeSolverHTTP01IngressPodSpec to find out currently supported fields.
 	// All other fields will be ignored.
 	// +optional
-	spec: #ACMEChallengeSolverHTTP01IngressPodSpec @go(Spec)
+	spec?: #ACMEChallengeSolverHTTP01IngressPodSpec @go(Spec)
 }
 
 #ACMEChallengeSolverHTTP01IngressPodObjectMeta: {
@@ -336,7 +337,7 @@ import (
 	// If labels or annotations overlap with in-built values, the values here
 	// will override the in-built values.
 	// +optional
-	metadata: #ACMEChallengeSolverHTTP01IngressObjectMeta @go(ACMEChallengeSolverHTTP01IngressObjectMeta)
+	metadata?: #ACMEChallengeSolverHTTP01IngressObjectMeta @go(ACMEChallengeSolverHTTP01IngressObjectMeta)
 }
 
 #ACMEChallengeSolverHTTP01IngressObjectMeta: {
@@ -466,6 +467,10 @@ import (
 // ACMEIssuerDNS01ProviderRoute53 is a structure containing the Route 53
 // configuration for AWS
 #ACMEIssuerDNS01ProviderRoute53: {
+	// Auth configures how cert-manager authenticates.
+	// +optional
+	auth?: null | #Route53Auth @go(Auth,*Route53Auth)
+
 	// The AccessKeyID is used for authentication.
 	// Cannot be set when SecretAccessKeyID is set.
 	// If neither the Access Key nor Key ID are set, we fall-back to using env
@@ -488,7 +493,7 @@ import (
 	// vars, shared credentials file or AWS Instance metadata,
 	// see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
 	// +optional
-	secretAccessKeySecretRef: cmmeta.#SecretKeySelector @go(SecretAccessKey)
+	secretAccessKeySecretRef?: cmmeta.#SecretKeySelector @go(SecretAccessKey)
 
 	// Role is a Role ARN which the Route53 provider will assume using either the explicit credentials AccessKeyID/SecretAccessKey
 	// or the inferred credentials from environment variables, shared credentials file or AWS Instance metadata
@@ -503,21 +508,57 @@ import (
 	region: string @go(Region)
 }
 
+// Route53Auth is configuration used to authenticate with a Route53.
+#Route53Auth: {
+	// Kubernetes authenticates with Route53 using AssumeRoleWithWebIdentity
+	// by passing a bound ServiceAccount token.
+	kubernetes?: null | #Route53KubernetesAuth @go(Kubernetes,*Route53KubernetesAuth)
+}
+
+// Route53KubernetesAuth is a configuration to authenticate against Route53
+// using a bound Kubernetes ServiceAccount token.
+#Route53KubernetesAuth: {
+	// A reference to a service account that will be used to request a bound
+	// token (also known as "projected token"). To use this field, you must
+	// configure an RBAC rule to let cert-manager request a token.
+	serviceAccountRef?: null | #ServiceAccountRef @go(ServiceAccountRef,*ServiceAccountRef)
+}
+
+// ServiceAccountRef is a service account used by cert-manager to request a
+// token. The expiration of the token is also set by cert-manager to 10 minutes.
+#ServiceAccountRef: {
+	// Name of the ServiceAccount used to request a token.
+	name: string @go(Name)
+
+	// TokenAudiences is an optional list of audiences to include in the
+	// token passed to AWS. The default token consisting of the issuer's namespace
+	// and name is always included.
+	// If unset the audience defaults to `sts.amazonaws.com`.
+	// +optional
+	audiences?: [...string] @go(TokenAudiences,[]string)
+}
+
 // ACMEIssuerDNS01ProviderAzureDNS is a structure containing the
 // configuration for Azure DNS
 #ACMEIssuerDNS01ProviderAzureDNS: {
-	// if both this and ClientSecret are left unset MSI will be used
+	// Auth: Azure Service Principal:
+	// The ClientID of the Azure Service Principal used to authenticate with Azure DNS.
+	// If set, ClientSecret and TenantID must also be set.
 	// +optional
 	clientID?: string @go(ClientID)
 
-	// if both this and ClientID are left unset MSI will be used
+	// Auth: Azure Service Principal:
+	// A reference to a Secret containing the password associated with the Service Principal.
+	// If set, ClientID and TenantID must also be set.
 	// +optional
 	clientSecretSecretRef?: null | cmmeta.#SecretKeySelector @go(ClientSecret,*cmmeta.SecretKeySelector)
 
 	// ID of the Azure subscription
 	subscriptionID: string @go(SubscriptionID)
 
-	// when specifying ClientID and ClientSecret then this field is also needed
+	// Auth: Azure Service Principal:
+	// The TenantID of the Azure Service Principal used to authenticate with Azure DNS.
+	// If set, ClientID and ClientSecret must also be set.
 	// +optional
 	tenantID?: string @go(TenantID)
 
@@ -532,17 +573,23 @@ import (
 	// +optional
 	environment?: #AzureDNSEnvironment @go(Environment)
 
-	// managed identity configuration, can not be used at the same time as clientID, clientSecretSecretRef or tenantID
+	// Auth: Azure Workload Identity or Azure Managed Service Identity:
+	// Settings to enable Azure Workload Identity or Azure Managed Service Identity
+	// If set, ClientID, ClientSecret and TenantID must not be set.
 	// +optional
 	managedIdentity?: null | #AzureManagedIdentity @go(ManagedIdentity,*AzureManagedIdentity)
 }
 
+// AzureManagedIdentity contains the configuration for Azure Workload Identity or Azure Managed Service Identity
+// If the AZURE_FEDERATED_TOKEN_FILE environment variable is set, the Azure Workload Identity will be used.
+// Otherwise, we fall-back to using Azure Managed Service Identity.
 #AzureManagedIdentity: {
 	// client ID of the managed identity, can not be used at the same time as resourceID
 	// +optional
 	clientID?: string @go(ClientID)
 
 	// resource ID of the managed identity, can not be used at the same time as clientID
+	// Cannot be used for Azure Managed Service Identity
 	// +optional
 	resourceID?: string @go(ResourceID)
 }

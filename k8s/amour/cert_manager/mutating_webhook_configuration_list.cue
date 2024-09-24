@@ -25,29 +25,22 @@ import admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
 	webhooks: [{
 		name: "webhook.cert-manager.io"
 		rules: [{
-			apiGroups: [
-				"cert-manager.io",
-				"acme.cert-manager.io",
-			]
+			apiGroups: ["cert-manager.io"]
 			apiVersions: ["v1"]
-			operations: [
-				"CREATE",
-				"UPDATE",
-			]
-			resources: ["*/*"]
+			operations: ["CREATE"]
+			resources: ["certificaterequests"]
 		}]
 		admissionReviewVersions: ["v1"]
 		// This webhook only accepts v1 cert-manager resources.
 		// Equivalent matchPolicy ensures that non-v1 resource requests are sent to
 		// this webhook (after the resources have been converted to v1).
-		matchPolicy:    "Equivalent"
-		timeoutSeconds: 10
-		failurePolicy:  "Fail"
-		// Only include 'sideEffects' field in Kubernetes 1.12+
-		sideEffects: "None"
+		matchPolicy:    admissionregistrationv1.#Equivalent
+		timeoutSeconds: 30
+		failurePolicy:  admissionregistrationv1.#Fail
+		sideEffects:    admissionregistrationv1.#SideEffectClassNone
 		clientConfig: service: {
 			name:      "cert-manager-webhook"
-			namespace: "cert-manager"
+			namespace: #Namespace
 			path:      "/mutate"
 		}
 	}]
