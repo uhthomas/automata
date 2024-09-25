@@ -72,6 +72,7 @@ cue_library(
         "apply_set_list.cue",
         "cluster_secret_store_list.cue",
         "custom_resource_definition_list.cue",
+        "gateway_class_list.cue",
     ],
     importpath = "github.com/uhthomas/automata/k8s/amour",
     visibility = ["//visibility:public"],
@@ -79,5 +80,6 @@ cue_library(
         "//cue.mod/gen/github.com/external-secrets/external-secrets/apis/externalsecrets/v1beta1:cue_v1beta1_library",
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
         "//cue.mod/gen/k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1:cue_v1_library",
+        "//cue.mod/gen/sigs.k8s.io/gateway-api/apis/v1:cue_v1_library",
     ],
 )

@@ -32,8 +32,10 @@ import (
 _items: [
 	#ConfigMapList.items,
 	#ExternalSecretList.items,
+	#GatewayList.items,
 	#GrafanaDashboardList.items,
 	#GrafanaList.items,
+	#HTTPRouteList.items,
 	#IngressList.items,
 	#NamespaceList.items,
 	#ServiceList.items,

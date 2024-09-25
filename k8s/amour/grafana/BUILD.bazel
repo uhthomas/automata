@@ -5,8 +5,10 @@ cue_library(
     srcs = [
         "config_map_list.cue",
         "external_secret_list.cue",
+        "gateway_list.cue",
         "grafana_dashboard_list.cue",
         "grafana_list.cue",
+        "http_route_list.cue",
         "ingress_list.cue",
         "list.cue",
         "namespace_list.cue",
@@ -24,5 +26,6 @@ cue_library(
         "//cue.mod/gen/k8s.io/api/apps/v1:cue_v1_library",
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
         "//cue.mod/gen/k8s.io/api/networking/v1:cue_v1_library",
+        "//cue.mod/gen/sigs.k8s.io/gateway-api/apis/v1:cue_v1_library",
     ],
 )

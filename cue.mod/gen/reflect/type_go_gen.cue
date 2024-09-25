@@ -15,8 +15,6 @@
 // https://golang.org/doc/articles/laws_of_reflection.html
 package reflect
 
-import "internal/abi"
-
 // Type is the representation of a Go type.
 //
 // Not all methods apply to all kinds of types. Restrictions,
@@ -129,18 +127,18 @@ import "internal/abi"
 // (if T is a defined type, the uncommonTypes for T and *T have methods).
 // Using a pointer to this struct reduces the overall size required
 // to describe a non-defined type with no methods.
-_#uncommonType: abi.#UncommonType
+_#uncommonType: _
 
 // Embed this type to get common/uncommon
 _#common: {
-	Type: abi.#Type
+	Type: _
 }
 
-_#aNameOff: abi.#NameOff
+_#aNameOff: _
 
-_#aTypeOff: abi.#TypeOff
+_#aTypeOff: _
 
-_#aTextOff: abi.#TextOff
+_#aTextOff: _
 
 // ChanDir represents a channel type's direction.
 #ChanDir: int // #enumChanDir
@@ -161,10 +159,10 @@ _#aTextOff: abi.#TextOff
 #BothDir: #ChanDir & 3
 
 // arrayType represents a fixed array type.
-_#arrayType: abi.#ArrayType
+_#arrayType: _
 
 // chanType represents a channel type.
-_#chanType: abi.#ChanType
+_#chanType: _
 
 // funcType represents a function type.
 //
@@ -177,34 +175,34 @@ _#chanType: abi.#ChanType
 //		uncommonType
 //		[2]*rtype    // [0] is in, [1] is out
 //	}
-_#funcType: abi.#FuncType
+_#funcType: _
 
 // interfaceType represents an interface type.
 _#interfaceType: {
-	InterfaceType: abi.#InterfaceType
+	InterfaceType: _
 }
 
 // mapType represents a map type.
 _#mapType: {
-	MapType: abi.#MapType
+	MapType: _
 }
 
 // ptrType represents a pointer type.
 _#ptrType: {
-	PtrType: abi.#PtrType
+	PtrType: _
 }
 
 // sliceType represents a slice type.
 _#sliceType: {
-	SliceType: abi.#SliceType
+	SliceType: _
 }
 
 // Struct field
-_#structField: abi.#StructField
+_#structField: _
 
 // structType represents a struct type.
 _#structType: {
-	StructType: abi.#StructType
+	StructType: _
 }
 
 // Method represents a single method.
