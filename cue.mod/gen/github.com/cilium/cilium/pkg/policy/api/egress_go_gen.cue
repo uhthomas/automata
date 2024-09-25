@@ -7,6 +7,8 @@ package api
 // EgressCommonRule is a rule that shares some of its fields across the
 // EgressRule and EgressDenyRule. It's publicly exported so the code generators
 // can generate code for this structure.
+//
+// +deepequal-gen:private-method=true
 #EgressCommonRule: {
 	// ToEndpoints is a list of endpoints identified by an EndpointSelector to
 	// which the endpoints subject to the rule are allowed to communicate.
@@ -93,7 +95,13 @@ package api
 	//     - 'sg-XXXXXXXXXXXXX'
 	//
 	// +kubebuilder:validation:Optional
-	toGroups?: [...#ToGroups] @go(ToGroups,[]ToGroups)
+	toGroups?: [...#Groups] @go(ToGroups,[]Groups)
+
+	// ToNodes is a list of nodes identified by an
+	// EndpointSelector to which endpoints subject to the rule is allowed to communicate.
+	//
+	// +kubebuilder:validation:Optional
+	toNodes?: [...#EndpointSelector] @go(ToNodes,[]EndpointSelector)
 }
 
 // EgressRule contains all rule types which can be applied at egress, i.e.

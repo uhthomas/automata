@@ -26,4 +26,7 @@ package models
 
 	// Alternative addresses assigned to the node
 	"secondary-addresses": [...null | #NodeAddressingElement] @go(SecondaryAddresses,[]*NodeAddressingElement)
+
+	// Source of the node configuration
+	source?: string @go(Source)
 }

@@ -97,8 +97,22 @@ import (
 						name:      "config-tmp-dir"
 						mountPath: "/.config"
 					}]
-					livenessProbe: tcpSocket: port:  "grpc"
-					readinessProbe: tcpSocket: port: "grpc"
+
+					let probe = {grpc: port: 4222}
+
+					readinessProbe: probe & {timeoutSeconds: 3}
+					livenessProbe: probe & {
+						timeoutSeconds:      10
+						initialDelaySeconds: 10
+						periodSeconds:       10
+						failureThreshold:    12
+					}
+					startupProbe: probe & {
+						initialDelaySeconds: 10
+						failureThreshold:    20
+						periodSeconds:       3
+					}
+
 					terminationMessagePolicy: v1.#TerminationMessageFallbackToLogsOnError
 					imagePullPolicy:          v1.#PullIfNotPresent
 					securityContext: {

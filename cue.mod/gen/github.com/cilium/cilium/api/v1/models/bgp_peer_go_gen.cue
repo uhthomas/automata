@@ -63,6 +63,9 @@ package models
 	//
 	"session-state"?: string @go(SessionState)
 
+	// Set when a TCP password is configured for communications with this peer
+	"tcp-password-enabled"?: bool @go(TCPPasswordEnabled)
+
 	// BGP peer connection uptime in nano seconds.
 	"uptime-nanoseconds"?: int64 @go(UptimeNanoseconds)
 }

@@ -26,6 +26,7 @@ cue_export(
         "//k8s/amour/cert_manager:cue_cert_manager_library",
         "//k8s/amour/cert_manager_csi_driver:cue_cert_manager_csi_driver_library",
         "//k8s/amour/cilium:cue_cilium_library",
+        "//k8s/amour/cilium_secrets:cue_cilium_secrets_library",
         "//k8s/amour/dcgm_exporter:cue_dcgm_exporter_library",
         "//k8s/amour/default:cue_default_library",
         "//k8s/amour/emqx:cue_emqx_library",

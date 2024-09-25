@@ -72,6 +72,11 @@ import "k8s.io/apimachinery/pkg/types"
 	remainingItemCount?: null | int64 @go(RemainingItemCount,*int64) @protobuf(4,bytes,opt)
 }
 
+#ObjectNameField: "metadata.name"
+
+#FinalizerOrphanDependents: "orphan"
+#FinalizerDeleteDependents: "foregroundDeletion"
+
 // ObjectMeta is metadata that all persisted resources must have, which includes all objects
 // users must create.
 #ObjectMeta: {
@@ -181,6 +186,8 @@ import "k8s.io/apimachinery/pkg/types"
 	// +optional
 	// +patchMergeKey=uid
 	// +patchStrategy=merge
+	// +listType=map
+	// +listMapKey=uid
 	ownerReferences?: [...#OwnerReference] @go(OwnerReferences,[]OwnerReference) @protobuf(13,bytes,rep)
 }
 
@@ -204,6 +211,9 @@ import "k8s.io/apimachinery/pkg/types"
 // be cluster-scoped, so there is no namespace field.
 // +structType=atomic
 #OwnerReference: {
+	// API version of the referent.
+	apiVersion: string @go(APIVersion) @protobuf(5,bytes,opt)
+
 	// Kind of the referent.
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
 	kind: string @go(Kind) @protobuf(1,bytes,opt)
@@ -212,10 +222,23 @@ import "k8s.io/apimachinery/pkg/types"
 	// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#names
 	name: string @go(Name) @protobuf(3,bytes,opt)
 
+	// UID of the referent.
+	// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
+	uid: types.#UID @go(UID) @protobuf(4,bytes,opt,casttype=k8s.io/apimachinery/pkg/types.UID)
+
 	// If true, this reference points to the managing controller.
 	// +optional
 	controller?: null | bool @go(Controller,*bool) @protobuf(6,varint,opt)
 }
+
+// FieldValidationIgnore ignores unknown/duplicate fields
+#FieldValidationIgnore: "Ignore"
+
+// FieldValidationWarn responds with a warning, but successfully serve the request
+#FieldValidationWarn: "Warn"
+
+// FieldValidationStrict fails the request on unknown/duplicate fields
+#FieldValidationStrict: "Strict"
 
 // A label selector is a label query over a set of resources. The result of matchLabels and
 // matchExpressions are ANDed. An empty label selector matches all objects. A null
@@ -231,6 +254,7 @@ import "k8s.io/apimachinery/pkg/types"
 
 	// matchExpressions is a list of label selector requirements. The requirements are ANDed.
 	// +kubebuilder:validation:Optional
+	// +listType=atomic
 	matchExpressions?: [...#LabelSelectorRequirement] @go(MatchExpressions,[]LabelSelectorRequirement) @protobuf(2,bytes,rep)
 }
 
@@ -244,8 +268,6 @@ import "k8s.io/apimachinery/pkg/types"
 // relates the key and values.
 #LabelSelectorRequirement: {
 	// key is the label key that the selector applies to.
-	// +patchMergeKey=key
-	// +patchStrategy=merge
 	key: string @go(Key) @protobuf(1,bytes,opt)
 
 	// operator represents a key's relationship to a set of values.
@@ -258,8 +280,8 @@ import "k8s.io/apimachinery/pkg/types"
 	// the values array must be non-empty. If the operator is Exists or DoesNotExist,
 	// the values array must be empty. This array is replaced during a strategic
 	// merge patch.
-	//
 	// +kubebuilder:validation:Optional
+	// +listType=atomic
 	values?: [...string] @go(Values,[]string) @protobuf(3,bytes,rep)
 }
 

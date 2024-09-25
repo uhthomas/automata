@@ -10,6 +10,9 @@ package models
 //
 // swagger:model StatusResponse
 #StatusResponse: {
+	// Status of core datapath attachment mode
+	"attach-mode"?: #AttachMode @go(AttachMode)
+
 	// Status of Mutual Authentication certificate provider
 	"auth-certificate-provider"?: null | #Status @go(AuthCertificateProvider,*Status)
 
@@ -49,14 +52,14 @@ package models
 	// Status of all endpoint controllers
 	controllers?: #ControllerStatuses @go(Controllers)
 
+	// Status of datapath mode
+	"datapath-mode"?: #DatapathMode @go(DatapathMode)
+
 	// Status of transparent encryption
 	encryption?: null | #EncryptionStatus @go(Encryption,*EncryptionStatus)
 
 	// Status of the host firewall
 	"host-firewall"?: null | #HostFirewall @go(HostFirewall,*HostFirewall)
-
-	// Status of host routing
-	"host-routing"?: null | #HostRouting @go(HostRouting,*HostRouting)
 
 	// Status of Hubble server
 	hubble?: null | #HubbleStatus @go(Hubble,*HubbleStatus)
@@ -90,4 +93,10 @@ package models
 
 	// Status of proxy
 	proxy?: null | #ProxyStatus @go(Proxy,*ProxyStatus)
+
+	// Status of routing
+	routing?: null | #Routing @go(Routing,*Routing)
+
+	// Status of SRv6
+	srv6?: null | #Srv6 @go(Srv6,*Srv6)
 }

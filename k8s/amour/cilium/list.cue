@@ -3,6 +3,7 @@ package cilium
 import (
 	"list"
 
+	"github.com/uhthomas/automata/k8s/amour/cilium/envoy"
 	"github.com/uhthomas/automata/k8s/amour/cilium/hubble_relay"
 	"github.com/uhthomas/automata/k8s/amour/cilium/hubble_ui"
 	"k8s.io/api/core/v1"
@@ -12,7 +13,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=github-releases depName=cilium/cilium extractVersion=^v(?<version>.*)$
-#Version: "1.15.0-rc.0"
+#Version: "1.16.1"
 
 #List: v1.#List & {
 	apiVersion: "v1"
@@ -37,6 +38,8 @@ _items: [
 	#RoleList.items,
 	#ServiceAccountList.items,
 	#ServiceList.items,
+	#VMPodScrapeList.items,
+	envoy.#List.items,
 	hubble_relay.#List.items,
 	hubble_ui.#List.items,
 ]

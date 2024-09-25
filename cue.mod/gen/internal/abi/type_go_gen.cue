@@ -20,7 +20,7 @@ package abi
 	TFlag:       #TFlag
 	Align_:      uint8
 	FieldAlign_: uint8
-	Kind_:       uint8
+	Kind_:       #Kind
 
 	// GCData stores the GC type data for the garbage collector.
 	// If the KindGCProg bit is set in kind, GCData is a GC program.
@@ -32,7 +32,7 @@ package abi
 
 // A Kind represents the specific kind of type that a Type represents.
 // The zero Kind is not a valid kind.
-#Kind: uint // #enumKind
+#Kind: uint8 // #enumKind
 
 #enumKind:
 	#Invalid |
@@ -61,36 +61,42 @@ package abi
 	#Slice |
 	#String |
 	#Struct |
-	#UnsafePointer
+	#UnsafePointer |
+	#KindDirectIface |
+	#KindGCProg |
+	#KindMask
 
 #values_Kind: {
-	Invalid:       #Invalid
-	Bool:          #Bool
-	Int:           #Int
-	Int8:          #Int8
-	Int16:         #Int16
-	Int32:         #Int32
-	Int64:         #Int64
-	Uint:          #Uint
-	Uint8:         #Uint8
-	Uint16:        #Uint16
-	Uint32:        #Uint32
-	Uint64:        #Uint64
-	Uintptr:       #Uintptr
-	Float32:       #Float32
-	Float64:       #Float64
-	Complex64:     #Complex64
-	Complex128:    #Complex128
-	Array:         #Array
-	Chan:          #Chan
-	Func:          #Func
-	Interface:     #Interface
-	Map:           #Map
-	Pointer:       #Pointer
-	Slice:         #Slice
-	String:        #String
-	Struct:        #Struct
-	UnsafePointer: #UnsafePointer
+	Invalid:         #Invalid
+	Bool:            #Bool
+	Int:             #Int
+	Int8:            #Int8
+	Int16:           #Int16
+	Int32:           #Int32
+	Int64:           #Int64
+	Uint:            #Uint
+	Uint8:           #Uint8
+	Uint16:          #Uint16
+	Uint32:          #Uint32
+	Uint64:          #Uint64
+	Uintptr:         #Uintptr
+	Float32:         #Float32
+	Float64:         #Float64
+	Complex64:       #Complex64
+	Complex128:      #Complex128
+	Array:           #Array
+	Chan:            #Chan
+	Func:            #Func
+	Interface:       #Interface
+	Map:             #Map
+	Pointer:         #Pointer
+	Slice:           #Slice
+	String:          #String
+	Struct:          #Struct
+	UnsafePointer:   #UnsafePointer
+	KindDirectIface: #KindDirectIface
+	KindGCProg:      #KindGCProg
+	KindMask:        #KindMask
 }
 
 #Invalid:       #Kind & 0
@@ -122,9 +128,9 @@ package abi
 #UnsafePointer: #Kind & 26
 
 // TODO (khr, drchase) why aren't these in TFlag?  Investigate, fix if possible.
-#KindDirectIface: 32
-#KindGCProg:      64
-#KindMask:        31
+#KindDirectIface: #Kind & 32
+#KindGCProg:      #Kind & 64
+#KindMask:        #Kind & 31
 
 // TFlag is used by a Type to signal what extra type information is
 // available in the memory directly following the Type value.
@@ -311,3 +317,22 @@ _#structTypeUncommon: StructType: #StructType
 #Name: {
 	Bytes?: null | uint8 @go(,*byte)
 }
+
+#TraceArgsLimit:    10
+#TraceArgsMaxDepth: 5
+
+// maxLen is a (conservative) upper bound of the byte stream length. For
+// each arg/component, it has no more than 2 bytes of data (size, offset),
+// and no more than one {, }, ... at each level (it cannot have both the
+// data and ... unless it is the last one, just be conservative). Plus 1
+// for _endSeq.
+#TraceArgsMaxLen: 171
+
+#TraceArgsEndSeq:         0xff
+#TraceArgsStartAgg:       0xfe
+#TraceArgsEndAgg:         0xfd
+#TraceArgsDotdotdot:      0xfc
+#TraceArgsOffsetTooLarge: 0xfb
+#TraceArgsSpecial:        0xf0
+
+#MaxPtrmaskBytes: 2048

@@ -6,6 +6,8 @@ package api
 
 // CIDR specifies a block of IP addresses.
 // Example: 192.0.2.1/32
+//
+// +kubebuilder:validation:Format=cidr
 #CIDR: string
 
 // CIDRRule is a rule that specifies a CIDR prefix to/from which outside
@@ -19,7 +21,8 @@ package api
 
 	// CIDRGroupRef is a reference to a CiliumCIDRGroup object.
 	// A CiliumCIDRGroup contains a list of CIDRs that the endpoint, subject to
-	// the rule, can (Ingress) or cannot (IngressDeny) receive connections from.
+	// the rule, can (Ingress/Egress) or cannot (IngressDeny/EgressDeny) receive
+	// connections from.
 	//
 	// +kubebuilder:validation:OneOf
 	cidrGroupRef?: #CIDRGroupRef @go(CIDRGroupRef)

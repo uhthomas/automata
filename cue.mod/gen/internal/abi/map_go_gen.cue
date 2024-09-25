@@ -4,9 +4,12 @@
 
 package abi
 
+// Maximum number of key/elem pairs a bucket can hold.
 #MapBucketCountBits: 3
 #MapBucketCount:     8
-#MapMaxKeyBytes:     128
-#MapMaxElemBytes:    128
 
-#ZeroValSize: 1024
+// Maximum key or elem size to keep inline (instead of mallocing per element).
+// Must fit in a uint8.
+// Note: fast map functions cannot handle big elems (bigger than MapMaxElemBytes).
+#MapMaxKeyBytes:  128
+#MapMaxElemBytes: 128

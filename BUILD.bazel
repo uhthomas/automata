@@ -1,3 +1,4 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_export")
 load("@bazel_gazelle//:def.bzl", "DEFAULT_LANGUAGES", "gazelle", "gazelle_binary")
 load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
 
@@ -25,3 +26,15 @@ gazelle(
 )
 
 buildifier(name = "buildifier")
+
+cue_export(
+    name = "cilium_1_14_0",
+    src = "cilium-1.14.0.cue",
+    visibility = ["//visibility:public"],
+)
+
+cue_export(
+    name = "cilium_1_16_1",
+    src = "cilium-1.16.1.cue",
+    visibility = ["//visibility:public"],
+)

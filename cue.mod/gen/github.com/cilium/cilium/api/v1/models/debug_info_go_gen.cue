@@ -46,6 +46,6 @@ package models
 //
 // swagger:model DebugInfoEncryption
 #DebugInfoEncryption: {
-	// Status of the Wireguard agent
+	// Status of the WireGuard agent
 	wireguard?: null | #WireguardStatus @go(Wireguard,*WireguardStatus)
 }

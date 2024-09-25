@@ -68,8 +68,6 @@ import (
 	"named-ports"?: models.#NamedPorts @go(NamedPorts)
 }
 
-#EndpointStatusLogEntries: 5
-
 // ControllerList is a list of ControllerStatus.
 #ControllerList: [...#ControllerStatus]
 
@@ -244,6 +242,11 @@ import (
 	// typically refers to the identifier used by the cloud provider or
 	// some other means of identification.
 	"instance-id"?: string @go(InstanceID)
+
+	// BootID is a unique node identifier generated on boot
+	//
+	// +kubebuilder:validation:Optional
+	bootid?: string @go(BootID)
 
 	// Addresses is the list of all node addresses.
 	//

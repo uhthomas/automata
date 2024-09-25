@@ -35,6 +35,8 @@ package api
 	mismatch?: #MismatchAction @go(Mismatch)
 
 	// Name identifies the header.
+	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:MinLength=1
 	name: string @go(Name)
 
 	// Secret refers to a secret that contains the value to be matched against.

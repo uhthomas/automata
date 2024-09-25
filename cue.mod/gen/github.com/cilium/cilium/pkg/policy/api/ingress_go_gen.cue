@@ -7,6 +7,8 @@ package api
 // IngressCommonRule is a rule that shares some of its fields across the
 // IngressRule and IngressDenyRule. It's publicly exported so the code
 // generators can generate code for this structure.
+//
+// +deepequal-gen:private-method=true
 #IngressCommonRule: {
 	// FromEndpoints is a list of endpoints identified by an
 	// EndpointSelector which are allowed to communicate with the endpoint
@@ -68,6 +70,26 @@ package api
 	//
 	// +kubebuilder:validation:Optional
 	fromEntities?: #EntitySlice @go(FromEntities)
+
+	// FromGroups is a directive that allows the integration with multiple outside
+	// providers. Currently, only AWS is supported, and the rule can select by
+	// multiple sub directives:
+	//
+	// Example:
+	// FromGroups:
+	// - aws:
+	//     securityGroupsIds:
+	//     - 'sg-XXXXXXXXXXXXX'
+	//
+	// +kubebuilder:validation:Optional
+	fromGroups?: [...#Groups] @go(FromGroups,[]Groups)
+
+	// FromNodes is a list of nodes identified by an
+	// EndpointSelector which are allowed to communicate with the endpoint
+	// subject to the rule.
+	//
+	// +kubebuilder:validation:Optional
+	fromNodes?: [...#EndpointSelector] @go(FromNodes,[]EndpointSelector)
 }
 
 // IngressRule contains all rule types which can be applied at ingress,
@@ -128,7 +150,7 @@ package api
 //     the effects of any Requires field in any rule will apply to all other
 //     rules as well.
 //
-//   - FromEndpoints, FromCIDR, FromCIDRSet and FromEntities are mutually
+//   - FromEndpoints, FromCIDR, FromCIDRSet, FromGroups and FromEntities are mutually
 //     exclusive. Only one of these members may be present within an individual
 //     rule.
 #IngressDenyRule: {

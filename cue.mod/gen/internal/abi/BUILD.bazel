@@ -5,7 +5,10 @@ cue_library(
     srcs = [
         "abi_amd64_go_gen.cue",
         "abi_go_gen.cue",
+        "iface_go_gen.cue",
         "map_go_gen.cue",
+        "rangefuncconsts_go_gen.cue",
+        "runtime_go_gen.cue",
         "stack_go_gen.cue",
         "switch_go_gen.cue",
         "symtab_go_gen.cue",

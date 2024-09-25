@@ -11,6 +11,9 @@ package models
 	// identities mapping to this selector
 	identities: [...int64] @go(Identities,[]int64)
 
+	// Labels are the metadata labels associated with the selector
+	labels?: #LabelArray @go(Labels)
+
 	// string form of selector
 	selector?: string @go(Selector)
 

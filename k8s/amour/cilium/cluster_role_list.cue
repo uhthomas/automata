@@ -45,7 +45,7 @@ import (
 		verbs: ["list", "watch", "get"]
 	}, {
 		apiGroups: ["cilium.io"]
-		resources: ["ciliumloadbalancerippools", "ciliumbgppeeringpolicies", "ciliumbgpnodeconfigs", "ciliumbgpadvertisements", "ciliumbgppeerconfigs", "ciliumclusterwideenvoyconfigs", "ciliumclusterwidenetworkpolicies", "ciliumegressgatewaypolicies", "ciliumendpoints", "ciliumendpointslices", "ciliumenvoyconfigs", "ciliumidentities", "ciliumlocalredirectpolicies", "ciliumnetworkpolicies", "ciliumnodes", "ciliumnodeconfigs", "ciliumcidrgroups", "ciliuml2announcementpolicies", "ciliumpodippools"]
+		resources: ["ciliumloadbalancerippools", "ciliumbgppeeringpolicies", "ciliumbgpnodeconfigs", "ciliumbgpadvertisements", "ciliumbgppeerconfigs", "ciliumbgpnodeconfigs", "ciliumbgpadvertisements", "ciliumbgppeerconfigs", "ciliumclusterwideenvoyconfigs", "ciliumclusterwidenetworkpolicies", "ciliumegressgatewaypolicies", "ciliumendpoints", "ciliumendpointslices", "ciliumenvoyconfigs", "ciliumidentities", "ciliumlocalredirectpolicies", "ciliumnetworkpolicies", "ciliumnodes", "ciliumnodeconfigs", "ciliumcidrgroups", "ciliuml2announcementpolicies", "ciliumpodippools"]
 		verbs: ["list", "watch"]
 	}, {
 		apiGroups: ["cilium.io"]
@@ -65,7 +65,7 @@ import (
 		verbs: ["get", "update"]
 	}, {
 		apiGroups: ["cilium.io"]
-		resources: ["ciliumnetworkpolicies/status", "ciliumclusterwidenetworkpolicies/status", "ciliumendpoints/status", "ciliumendpoints", "ciliuml2announcementpolicies/status", "ciliumbgpnodeconfigs/status"]
+		resources: ["ciliumendpoints/status", "ciliumendpoints", "ciliuml2announcementpolicies/status", "ciliumbgpnodeconfigs/status", "ciliumbgpnodeconfigs/status"]
 		verbs: ["patch"]
 	}]
 }, {
@@ -95,18 +95,17 @@ import (
 		verbs: ["update", "patch"]
 	}, {
 		apiGroups: [""]
-		resources: ["namespaces"]
+		resources: ["namespaces", "secrets"]
 		verbs: ["get", "list", "watch"]
 	}, {
 		apiGroups: [""]
 		resources: ["services", "endpoints"]
-		verbs: ["get", "list", "watch"]
+		verbs: ["get", "list", "watch", "create", "update", "delete", "patch"]
 	}, {
 		apiGroups: ["cilium.io"]
 		resources: ["ciliumnetworkpolicies", "ciliumclusterwidenetworkpolicies"]
 		verbs: ["create", "update", "deletecollection", "patch", "get", "list", "watch"]
 	}, {
-
 		apiGroups: ["cilium.io"]
 		resources: ["ciliumnetworkpolicies/status", "ciliumclusterwidenetworkpolicies/status"]
 		verbs: ["patch", "update"]
@@ -123,13 +122,12 @@ import (
 		resources: ["ciliumnodes"]
 		verbs: ["create", "update", "get", "list", "watch", "delete"]
 	}, {
-
 		apiGroups: ["cilium.io"]
 		resources: ["ciliumnodes/status"]
 		verbs: ["update"]
 	}, {
 		apiGroups: ["cilium.io"]
-		resources: ["ciliumendpointslices", "ciliumenvoyconfigs"]
+		resources: ["ciliumendpointslices", "ciliumenvoyconfigs", "ciliumbgppeerconfigs", "ciliumbgpadvertisements", "ciliumbgpnodeconfigs"]
 		verbs: ["create", "update", "get", "list", "watch", "delete", "patch"]
 	}, {
 		apiGroups: ["apiextensions.k8s.io"]
@@ -156,5 +154,17 @@ import (
 		apiGroups: ["coordination.k8s.io"]
 		resources: ["leases"]
 		verbs: ["create", "get", "update"]
+	}, {
+		apiGroups: ["gateway.networking.k8s.io"]
+		resources: ["gatewayclasses", "gateways", "tlsroutes", "httproutes", "grpcroutes", "referencegrants", "referencepolicies"]
+		verbs: ["get", "list", "watch"]
+	}, {
+		apiGroups: ["gateway.networking.k8s.io"]
+		resources: ["gatewayclasses/status", "gateways/status", "httproutes/status", "grpcroutes/status", "tlsroutes/status"]
+		verbs: ["update", "patch"]
+	}, {
+		apiGroups: ["multicluster.x-k8s.io"]
+		resources: ["serviceimports"]
+		verbs: ["get", "list", "watch"]
 	}]
 }]

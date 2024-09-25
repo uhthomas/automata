@@ -37,8 +37,14 @@ package models
 	// Configured compatibility mode for --egress-multi-home-ip-rule-compat
 	"egress-multi-home-ip-rule-compat"?: bool @go(EgressMultiHomeIPRuleCompat)
 
+	// Enable route MTU for pod netns when CNI chaining is used
+	enableRouteMTUForCNIChaining?: bool @go(EnableRouteMTUForCNIChaining)
+
 	// Immutable configuration (read-only)
 	immutable?: #ConfigurationMap @go(Immutable)
+
+	// Comma-separated list of IP ports should be reserved in the workload network namespace
+	ipLocalReservedPorts?: string @go(IPLocalReservedPorts)
 
 	// Configured IPAM mode
 	"ipam-mode"?: string @go(IpamMode)

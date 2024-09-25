@@ -9,6 +9,7 @@ cue_library(
         "cegp_types_go_gen.cue",
         "cew_types_go_gen.cue",
         "clrp_types_go_gen.cue",
+        "cnc_types_go_gen.cue",
         "cnp_types_go_gen.cue",
         "doc_go_gen.cue",
         "register_go_gen.cue",
@@ -25,6 +26,7 @@ cue_library(
         "//cue.mod/gen/github.com/cilium/cilium/pkg/k8s/slim/k8s/apis/meta/v1:cue_v1_library",
         "//cue.mod/gen/github.com/cilium/cilium/pkg/node/addressing:cue_addressing_library",
         "//cue.mod/gen/github.com/cilium/cilium/pkg/policy/api:cue_api_library",
+        "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
         "//cue.mod/gen/k8s.io/apimachinery/pkg/apis/meta/v1:cue_v1_library",
     ],
 )

@@ -10,7 +10,15 @@ package models
 #DatapathMode: string // #enumDatapathMode
 
 #enumDatapathMode:
-	#DatapathModeVeth
+	#DatapathModeVeth |
+	#DatapathModeNetkit |
+	#DatapathModeNetkitDashL2
 
 // DatapathModeVeth captures enum value "veth"
 #DatapathModeVeth: #DatapathMode & "veth"
+
+// DatapathModeNetkit captures enum value "netkit"
+#DatapathModeNetkit: #DatapathMode & "netkit"
+
+// DatapathModeNetkitDashL2 captures enum value "netkit-l2"
+#DatapathModeNetkitDashL2: #DatapathMode & "netkit-l2"

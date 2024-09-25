@@ -4,6 +4,4 @@
 
 package net
 
-import "time"
-
-_#cacheMaxAge: time.#Duration & 5000000000
+_#cacheMaxAge: int & 5000000000

@@ -14,7 +14,6 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	metadata: metav1.#ObjectMeta @go(ObjectMeta)
 
 	// +k8s:openapi-gen=false
-	// +kubebuilder:validation:Type=object
 	spec?: #CiliumEnvoyConfigSpec @go(Spec)
 }
 

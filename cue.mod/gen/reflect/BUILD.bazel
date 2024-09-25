@@ -1,0 +1,12 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_reflect_library",
+    srcs = [
+        "abi_go_gen.cue",
+        "type_go_gen.cue",
+        "value_go_gen.cue",
+    ],
+    importpath = "github.com/uhthomas/automata/cue.mod/gen/reflect",
+    visibility = ["//visibility:public"],
+)

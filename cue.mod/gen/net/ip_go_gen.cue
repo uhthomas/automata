@@ -21,7 +21,7 @@ package net
 // An IPMask is a bitmask that can be used to manipulate
 // IP addresses for IP addressing and routing.
 //
-// See type IPNet and func ParseCIDR for details.
+// See type [IPNet] and func [ParseCIDR] for details.
 #IPMask: bytes
 
 // An IPNet represents an IP network.

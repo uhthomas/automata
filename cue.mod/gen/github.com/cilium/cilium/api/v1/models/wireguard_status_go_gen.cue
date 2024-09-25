@@ -4,13 +4,13 @@
 
 package models
 
-// WireguardStatus Status of the Wireguard agent
+// WireguardStatus Status of the WireGuard agent
 //
 // +k8s:deepcopy-gen=true
 //
 // swagger:model WireguardStatus
 #WireguardStatus: {
-	// Wireguard interfaces managed by this Cilium instance
+	// WireGuard interfaces managed by this Cilium instance
 	interfaces: [...null | #WireguardInterface] @go(Interfaces,[]*WireguardInterface)
 
 	// Node Encryption status

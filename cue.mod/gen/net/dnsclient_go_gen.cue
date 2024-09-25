@@ -21,7 +21,7 @@ _#byPriorityWeight: [...null | #SRV]
 	Pref: uint16
 }
 
-// byPref implements sort.Interface to sort MX records by preference
+// byPref sorts MX records by preference
 _#byPref: [...null | #MX]
 
 // An NS represents a single DNS NS record.

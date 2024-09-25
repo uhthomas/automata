@@ -47,6 +47,13 @@ import "k8s.io/api/core/v1"
 		            # double `/index.html` is required here
 		            try_files $uri $uri/ /index.html /index.html;
 		        }
+
+			# Liveness probe
+		        location /healthz {
+		            access_log off;
+		            add_header Content-Type text/plain;
+		            return 200 'ok';
+		        }
 		    }
 		}
 		"""

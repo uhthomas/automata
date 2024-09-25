@@ -46,6 +46,11 @@ import (
 					image: "quay.io/cilium/operator-generic:v\(#Version)"
 					command: ["cilium-operator-generic"]
 					args: ["--config-dir=/tmp/cilium/config-map", "--debug=$(CILIUM_DEBUG)"]
+					ports: [{
+						name:          "prometheus"
+						hostPort:      9963
+						containerPort: 9963
+					}]
 					env: [{
 						name: "K8S_NODE_NAME"
 						valueFrom: fieldRef: fieldPath: "spec.nodeName"

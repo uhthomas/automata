@@ -151,6 +151,11 @@ package types
 	//
 	// +optional
 	"ipv6-cidr"?: string @go(IPv6CIDRBlock)
+
+	// SecondaryCIDRs is the list of Secondary CIDRs associated with the VPC
+	//
+	// +optional
+	"secondary-cidrs"?: [...string] @go(SecondaryCIDRs,[]string)
 }
 
 #VSwitch: {

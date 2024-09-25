@@ -14,7 +14,7 @@ import ciliumv2alpha1 "github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2alpha1"
 #CiliumLoadBalancerIPPoolList: items: [{
 	metadata: name: "cilium-lb-ipam-default"
 	spec: {
-		cidrs: [{cidr: "192.168.135.0/24"}]
+		blocks: [{cidr: "192.168.135.0/24"}]
 		disabled: false
 	}
 }]

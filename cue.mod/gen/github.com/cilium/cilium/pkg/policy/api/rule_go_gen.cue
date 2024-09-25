@@ -26,6 +26,22 @@ package api
 	mode: #AuthenticationMode @go(Mode)
 }
 
+// DefaultDenyConfig expresses a policy's desired default mode for the subject
+// endpoints.
+#DefaultDenyConfig: {
+	// Whether or not the endpoint should have a default-deny rule applied
+	// to ingress traffic.
+	//
+	// +kubebuilder:validation:Optional
+	ingress?: null | bool @go(Ingress,*bool)
+
+	// Whether or not the endpoint should have a default-deny rule applied
+	// to egress traffic.
+	//
+	// +kubebuilder:validation:Optional
+	egress?: null | bool @go(Egress,*bool)
+}
+
 // Rule is a policy rule which must be applied to all endpoints which match the
 // labels contained in the endpointSelector
 //

@@ -28,6 +28,9 @@ package models
 
 	// Backend weight
 	weight?: null | uint16 @go(Weight,*uint16)
+
+	// Optional name of the zone in which this backend runs
+	zone?: string @go(Zone)
 }
 
 // BackendAddressStateActive captures enum value "active"

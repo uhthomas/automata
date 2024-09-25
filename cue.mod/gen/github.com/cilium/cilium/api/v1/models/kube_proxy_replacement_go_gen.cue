@@ -25,21 +25,9 @@ package models
 	features?: null | #KubeProxyReplacementFeatures @go(Features,*KubeProxyReplacementFeatures)
 
 	// mode
-	// Enum: [Disabled Strict Probe Partial True False]
+	// Enum: [True False]
 	mode?: string @go(Mode)
 }
-
-// KubeProxyReplacementModeDisabled captures enum value "Disabled"
-#KubeProxyReplacementModeDisabled: "Disabled"
-
-// KubeProxyReplacementModeStrict captures enum value "Strict"
-#KubeProxyReplacementModeStrict: "Strict"
-
-// KubeProxyReplacementModeProbe captures enum value "Probe"
-#KubeProxyReplacementModeProbe: "Probe"
-
-// KubeProxyReplacementModePartial captures enum value "Partial"
-#KubeProxyReplacementModePartial: "Partial"
 
 // KubeProxyReplacementModeTrue captures enum value "True"
 #KubeProxyReplacementModeTrue: "True"
@@ -188,12 +176,16 @@ package models
 // swagger:model KubeProxyReplacementFeaturesNodePort
 #KubeProxyReplacementFeaturesNodePort: {
 	// acceleration
-	// Enum: [None Native Generic]
+	// Enum: [None Native Generic Best-Effort]
 	acceleration?: string @go(Acceleration)
 
 	// algorithm
 	// Enum: [Random Maglev]
 	algorithm?: string @go(Algorithm)
+
+	// dsr mode
+	// Enum: [IP Option/Extension IPIP Geneve]
+	dsrMode?: string @go(DsrMode)
 
 	// enabled
 	enabled?: bool @go(Enabled)
@@ -221,11 +213,23 @@ package models
 // KubeProxyReplacementFeaturesNodePortAccelerationGeneric captures enum value "Generic"
 #KubeProxyReplacementFeaturesNodePortAccelerationGeneric: "Generic"
 
+// KubeProxyReplacementFeaturesNodePortAccelerationBestDashEffort captures enum value "Best-Effort"
+#KubeProxyReplacementFeaturesNodePortAccelerationBestDashEffort: "Best-Effort"
+
 // KubeProxyReplacementFeaturesNodePortAlgorithmRandom captures enum value "Random"
 #KubeProxyReplacementFeaturesNodePortAlgorithmRandom: "Random"
 
 // KubeProxyReplacementFeaturesNodePortAlgorithmMaglev captures enum value "Maglev"
 #KubeProxyReplacementFeaturesNodePortAlgorithmMaglev: "Maglev"
+
+// KubeProxyReplacementFeaturesNodePortDsrModeIPOptionExtension captures enum value "IP Option/Extension"
+#KubeProxyReplacementFeaturesNodePortDsrModeIPOptionExtension: "IP Option/Extension"
+
+// KubeProxyReplacementFeaturesNodePortDsrModeIPIP captures enum value "IPIP"
+#KubeProxyReplacementFeaturesNodePortDsrModeIPIP: "IPIP"
+
+// KubeProxyReplacementFeaturesNodePortDsrModeGeneve captures enum value "Geneve"
+#KubeProxyReplacementFeaturesNodePortDsrModeGeneve: "Geneve"
 
 // KubeProxyReplacementFeaturesNodePortModeSNAT captures enum value "SNAT"
 #KubeProxyReplacementFeaturesNodePortModeSNAT: "SNAT"

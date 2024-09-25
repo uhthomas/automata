@@ -59,13 +59,11 @@ package context
 // Context's methods may be called by multiple goroutines simultaneously.
 #Context: _
 
-_#deadlineExceededError: {
-}
+_#deadlineExceededError: {}
 
 // An emptyCtx is never canceled, has no values, and has no deadline.
 // It is the common base of backgroundCtx and todoCtx.
-_#emptyCtx: {
-}
+_#emptyCtx: {}
 
 _#afterFuncer: _
 

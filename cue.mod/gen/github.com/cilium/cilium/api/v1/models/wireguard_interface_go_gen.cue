@@ -4,13 +4,13 @@
 
 package models
 
-// WireguardInterface Status of a Wireguard interface
+// WireguardInterface Status of a WireGuard interface
 //
 // +k8s:deepcopy-gen=true
 //
 // swagger:model WireguardInterface
 #WireguardInterface: {
-	// Port on which the Wireguard endpoint is exposed
+	// Port on which the WireGuard endpoint is exposed
 	"listen-port"?: int64 @go(ListenPort)
 
 	// Name of the interface
@@ -19,7 +19,7 @@ package models
 	// Number of peers configured on this interface
 	"peer-count"?: int64 @go(PeerCount)
 
-	// Optional list of wireguard peers
+	// Optional list of WireGuard peers
 	peers: [...null | #WireguardPeer] @go(Peers,[]*WireguardPeer)
 
 	// Public key of this interface

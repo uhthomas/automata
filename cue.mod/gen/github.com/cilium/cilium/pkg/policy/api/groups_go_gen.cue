@@ -6,9 +6,9 @@ package api
 
 #AWSProvider: "AWS"
 
-// ToGroups structure to store all kinds of new integrations that needs a new
+// Groups structure to store all kinds of new integrations that needs a new
 // derivative policy.
-#ToGroups: {
+#Groups: {
 	aws?: null | #AWSGroup @go(AWS,*AWSGroup)
 }
 

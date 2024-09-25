@@ -4,5 +4,4 @@
 
 package net
 
-_#pipeAddr: {
-}
+_#pipeAddr: {}

@@ -3,6 +3,11 @@ load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
 cue_library(
     name = "cue_v2alpha1_library",
     srcs = [
+        "bgp_advert_types_go_gen.cue",
+        "bgp_cluster_types_go_gen.cue",
+        "bgp_node_override_types_go_gen.cue",
+        "bgp_node_types_go_gen.cue",
+        "bgp_peer_types_go_gen.cue",
         "bgpp_types_go_gen.cue",
         "cidrgroups_types_go_gen.cue",
         "cnc_types_go_gen.cue",

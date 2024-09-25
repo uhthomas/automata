@@ -57,6 +57,13 @@ import (
 						type: v1.#HostPathDirectoryOrCreate
 					}
 				}, {
+					// To mount cgroup2 filesystem on the host or apply sysctlfix
+					name: "hostproc"
+					hostPath: {
+						path: "/proc"
+						type: v1.#HostPathDirectory
+					}
+				}, {
 					// To keep state between restarts / upgrades for cgroup2 filesystem
 					name: "cilium-cgroup"
 					hostPath: {
@@ -89,6 +96,14 @@ import (
 						type: v1.#HostPathFileOrCreate
 					}
 				}, {
+					// Sharing socket with Cilium Envoy on the same node by using a host path
+					name: "envoy-sockets"
+					hostPath: {
+						path: "/var/run/cilium/envoy/sockets"
+						// To read the clustermesh configuration
+						type: v1.#HostPathDirectoryOrCreate
+					}
+				}, {
 					// To read the clustermesh configuration
 					name: "clustermesh-secrets"
 					projected: {
@@ -113,6 +128,25 @@ import (
 								}, {
 									key:  "ca.crt"
 									path: "common-etcd-client-ca.crt"
+								}]
+								optional: true
+							}
+						}, {
+							// note: we configure the volume for the kvstoremesh-specific certificate
+							// regardless of whether KVStoreMesh is enabled or not, so that it can be
+							// automatically mounted in case KVStoreMesh gets subsequently enabled,
+							// without requiring an agent restart.
+							secret: {
+								name: "clustermesh-apiserver-local-cert"
+								items: [{
+									key:  "tls.key"
+									path: "local-etcd-client.key"
+								}, {
+									key:  "tls.crt"
+									path: "local-etcd-client.crt"
+								}, {
+									key:  "ca.crt"
+									path: "local-etcd-client-ca.crt"
 								}]
 								optional: true
 							}
@@ -168,6 +202,9 @@ import (
 						name:  "CILIUM_CLUSTERMESH_CONFIG"
 						value: "/var/lib/cilium/clustermesh/"
 					}, {
+						name: "GOMEMLIMIT"
+						valueFrom: resourceFieldRef: resource: "limits.memory"
+					}, {
 						name:  "KUBERNETES_SERVICE_HOST"
 						value: "localhost"
 					}, {
@@ -175,8 +212,11 @@ import (
 						value: "7445"
 					}]
 					volumeMounts: [{
-						mountPath: "/host/proc/sys/net"
+						name:      "envoy-sockets"
+						mountPath: "/var/run/cilium/envoy/sockets"
+					}, {
 						name:      "host-proc-sys-net"
+						mountPath: "/host/proc/sys/net"
 					}, {
 						mountPath: "/host/proc/sys/kernel"
 						name:      "host-proc-sys-kernel"
@@ -232,16 +272,45 @@ import (
 						timeoutSeconds:   5
 					}
 					readinessProbe: probe & {
-						periodSeconds:    30
-						failureThreshold: 3
-						timeoutSeconds:   5
+						periodSeconds:       30
+						failureThreshold:    3
+						timeoutSeconds:      5
+						initialDelaySeconds: 5
 					}
 					startupProbe: probe & {
 						failureThreshold: 105
 						periodSeconds:    2
 					}
 
-					lifecycle: preStop: exec: command: ["/cni-uninstall.sh"]
+					lifecycle: {
+						postStart: exec: command: [
+							"bash",
+							"-c",
+							"""
+							set -o errexit
+							set -o pipefail
+							set -o nounset
+
+							# When running in AWS ENI mode, it's likely that 'aws-node' has
+							# had a chance to install SNAT iptables rules. These can result
+							# in dropped traffic, so we should attempt to remove them.
+							# We do it using a 'postStart' hook since this may need to run
+							# for nodes which might have already been init'ed but may still
+							# have dangling rules. This is safe because there are no
+							# dependencies on anything that is part of the startup script
+							# itself, and can be safely run multiple times per node (e.g. in
+							# case of a restart).
+							if [[ "$(iptables-save | grep -E -c 'AWS-SNAT-CHAIN|AWS-CONNMARK-CHAIN')" != "0" ]];
+							then
+							echo 'Deleting iptables rules created by the AWS CNI VPC plugin'
+							iptables-save | grep -E -v 'AWS-SNAT-CHAIN|AWS-CONNMARK-CHAIN' | iptables-restore
+							fi
+							echo 'Done!'
+
+							""",
+						]
+						preStop: exec: command: ["/cni-uninstall.sh"]
+					}
 					terminationMessagePolicy: v1.#TerminationMessageFallbackToLogsOnError
 					imagePullPolicy:          v1.#PullIfNotPresent
 					securityContext: {
@@ -258,7 +327,7 @@ import (
 				initContainers: [{
 					name:  "config"
 					image: "quay.io/cilium/cilium:v\(#Version)"
-					command: ["cilium", "build-config"]
+					command: ["cilium-dbg", "build-config"]
 					env: [{
 						name: "K8S_NODE_NAME"
 						valueFrom: fieldRef: fieldPath: "spec.nodeName"
@@ -278,6 +347,47 @@ import (
 					}]
 					terminationMessagePolicy: v1.#TerminationMessageFallbackToLogsOnError
 					imagePullPolicy:          v1.#PullIfNotPresent
+				}, {
+					name:  "apply-sysctl-overwrites"
+					image: "quay.io/cilium/cilium:v\(#Version)"
+					command: [
+						"sh",
+						"-ec",
+						// The statically linked Go program binary is invoked to avoid any
+						// dependency on utilities like sh that can be missing on certain
+						// distros installed on the underlying host. Copy the binary to the
+						// same directory where we install cilium cni plugin so that exec permissions
+						// are available.
+						"""
+						cp /usr/bin/cilium-sysctlfix /hostbin/cilium-sysctlfix;
+						nsenter --mount=/hostproc/1/ns/mnt "${BIN_PATH}/cilium-sysctlfix";
+						rm /hostbin/cilium-sysctlfix
+
+						""",
+					]
+					env: [{
+						name:  "BIN_PATH"
+						value: "/opt/cni/bin"
+					}]
+					volumeMounts: [{
+						name:      "hostproc"
+						mountPath: "/hostproc"
+					}, {
+						name:      "cni-path"
+						mountPath: "/hostbin"
+					}]
+					terminationMessagePolicy: v1.#TerminationMessageFallbackToLogsOnError
+					imagePullPolicy:          v1.#PullIfNotPresent
+					securityContext: {
+						capabilities: {
+							add: ["SYS_ADMIN", "SYS_CHROOT", "SYS_PTRACE"]
+							drop: ["ALL"]
+						}
+						seLinuxOptions: {
+							type:  "spc_t"
+							level: "s0"
+						}
+					}
 				}, {
 					name:  "mount-bpf-fs"
 					image: "quay.io/cilium/cilium:v\(#Version)"
@@ -310,16 +420,19 @@ import (
 							optional: true
 						}
 					}, {
+						name: "WRITE_CNI_CONF_WHEN_READY"
+						valueFrom: configMapKeyRef: {
+							name:     "cilium-config"
+							key:      "write-cni-conf-when-ready"
+							optional: true
+						}
+					}, {
 						name:  "KUBERNETES_SERVICE_HOST"
 						value: "localhost"
 					}, {
 						name:  "KUBERNETES_SERVICE_PORT"
 						value: "7445"
 					}]
-					resources: requests: {
-						(v1.#ResourceCPU):    "100m"
-						(v1.#ResourceMemory): "100Mi"
-					}
 					volumeMounts: [{
 						name:      "bpf-maps"
 						mountPath: "/sys/fs/bpf"

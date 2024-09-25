@@ -14,6 +14,9 @@ package models
 	// ID assigned by container runtime
 	"container-id"?: string @go(ContainerID)
 
+	// Name of network device in container netns
+	"container-interface-name"?: string @go(ContainerInterfaceName)
+
 	// Name assigned to container
 	"container-name"?: string @go(ContainerName)
 
@@ -22,6 +25,9 @@ package models
 
 	// ID of datapath tail call map
 	"datapath-map-id"?: int64 @go(DatapathMapID)
+
+	// Disables lookup using legacy endpoint identifiers (container name, container id, pod name) for this endpoint
+	"disable-legacy-identifiers"?: bool @go(DisableLegacyIdentifiers)
 
 	// Docker endpoint ID
 	"docker-endpoint-id"?: string @go(DockerEndpointID)
@@ -35,10 +41,10 @@ package models
 	// Local endpoint ID
 	id?: int64 @go(ID)
 
-	// Index of network device
+	// Index of network device in host netns
 	"interface-index"?: int64 @go(InterfaceIndex)
 
-	// Name of network device
+	// Name of network device in host netns
 	"interface-name"?: string @go(InterfaceName)
 
 	// Kubernetes namespace name
@@ -47,17 +53,26 @@ package models
 	// Kubernetes pod name
 	"k8s-pod-name"?: string @go(K8sPodName)
 
+	// Kubernetes pod UID
+	"k8s-uid"?: string @go(K8sUID)
+
 	// Labels describing the identity
 	labels?: #Labels @go(Labels)
 
 	// MAC address
 	mac?: string @go(Mac)
 
+	// Network namespace cookie
+	"netns-cookie"?: string @go(NetnsCookie)
+
 	// Process ID of the workload belonging to this endpoint
 	pid?: int64 @go(Pid)
 
 	// Whether policy enforcement is enabled or not
 	"policy-enabled"?: bool @go(PolicyEnabled)
+
+	// Properties is used to store information about the endpoint at creation. Useful for tests.
+	properties?: {...} @go(Properties,map[string]interface{})
 
 	// Current state of endpoint
 	// Required: true

@@ -24,23 +24,40 @@ import "k8s.io/api/core/v1"
 		//   backend. Upgrades from these older cilium versions should continue using
 		//   the kvstore by commenting out the identity-allocation-mode below, or
 		//   setting it to "kvstore".
-		"identity-allocation-mode":      "crd"
-		"identity-heartbeat-timeout":    "30m0s"
-		"identity-gc-interval":          "15m0s"
-		"cilium-endpoint-gc-interval":   "5m0s"
-		"nodes-gc-interval":             "5m0s"
-		"skip-cnp-status-startup-clean": "false"
+		"identity-allocation-mode":    "crd"
+		"identity-heartbeat-timeout":  "30m0s"
+		"identity-gc-interval":        "15m0s"
+		"cilium-endpoint-gc-interval": "5m0s"
+		"nodes-gc-interval":           "5m0s"
 
 		// If you want to run cilium in debug mode change this value to true
 		debug:           "false"
 		"debug-verbose": ""
+
 		// The agent can be put into the following three policy enforcement modes
 		// default, always and never.
 		// https://docs.cilium.io/en/latest/security/policy/intro/#policy-enforcement-modes
-		"enable-policy": "default"
-		// Port to expose Envoy metrics (e.g. "9964"). Envoy metrics listener will be disabled if this
-		// field is not set.
-		"proxy-prometheus-port": "9964"
+		"enable-policy":          "default"
+		"policy-cidr-match-mode": ""
+
+		// If you want metrics enabled in cilium-operator, set the port for
+		// which the Cilium Operator will have their metrics exposed.
+		// NOTE that this will open the port on the nodes where Cilium operator pod
+		// is scheduled.
+		"operator-prometheus-serve-addr":            ":9963"
+		"enable-metrics":                            "true"
+		"enable-envoy-config":                       "true"
+		"envoy-config-retry-interval":               "15s"
+		"enable-gateway-api":                        "true"
+		"enable-gateway-api-secrets-sync":           "true"
+		"enable-gateway-api-proxy-protocol":         "false"
+		"enable-gateway-api-app-protocol":           "false"
+		"enable-gateway-api-alpn":                   "false"
+		"gateway-api-xff-num-trusted-hops":          "0"
+		"gateway-api-service-externaltrafficpolicy": "Cluster"
+		"gateway-api-secrets-namespace":             "cilium-secrets"
+		"gateway-api-hostnetwork-enabled":           "false"
+		"gateway-api-hostnetwork-nodelabelselector": ""
 
 		// Enable IPv4 addressing. If enabled, all endpoints are allocated an IPv4
 		// address.
@@ -77,8 +94,11 @@ import "k8s.io/api/core/v1"
 		"bpf-policy-map-max": "16384"
 		// bpf-lb-map-max specifies the maximum number of entries in bpf lb service,
 		// backend and affinity maps.
-		"bpf-lb-map-max":            "65536"
-		"bpf-lb-external-clusterip": "false"
+		"bpf-lb-map-max":                    "65536"
+		"bpf-lb-external-clusterip":         "false"
+		"bpf-events-drop-enabled":           "true"
+		"bpf-events-policy-verdict-enabled": "true"
+		"bpf-events-trace-enabled":          "true"
 
 		// https://github.com/cilium/cilium/issues/27758
 		"bpf-lb-sock-hostns-only": "true"
@@ -100,10 +120,6 @@ import "k8s.io/api/core/v1"
 		// 1.4 or later, then it may cause one-time disruptions during the upgrade.
 		"preallocate-bpf-maps": "false"
 
-		// Regular expression matching compatible Istio sidecar istio-proxy
-		// container image names
-		"sidecar-istio-proxy-image": "cilium/istio_proxy"
-
 		// Name of the cluster. Only relevant when building a mesh of clusters.
 		"cluster-name": "default"
 		// Unique ID of the cluster. Must be unique across all conneted clusters and
@@ -116,33 +132,42 @@ import "k8s.io/api/core/v1"
 		//   - vxlan (default)
 		//   - geneve
 		// Default case
-		"routing-mode":    "tunnel"
-		"tunnel-protocol": "vxlan"
+		"routing-mode":                "tunnel"
+		"tunnel-protocol":             "vxlan"
+		"service-no-backend-response": "reject"
 
 		// Enables L7 proxy for L7 policy enforcement and visibility
-		"enable-l7-proxy": "true"
-
-		"enable-ipv4-masquerade": "true"
-		"enable-ipv4-big-tcp":    "false"
-		"enable-ipv6-big-tcp":    "false"
-		"enable-ipv6-masquerade": "true"
-
-		"enable-xt-socket-fallback":           "true"
-		"install-no-conntrack-iptables-rules": "false"
-
-		"auto-direct-node-routes":      "false"
-		"enable-local-redirect-policy": "false"
-
+		"enable-l7-proxy":                             "true"
+		"enable-ipv4-masquerade":                      "true"
+		"enable-ipv4-big-tcp":                         "false"
+		"enable-ipv6-big-tcp":                         "false"
+		"enable-ipv6-masquerade":                      "true"
+		"enable-tcx":                                  "true"
+		"datapath-mode":                               "veth"
+		"enable-masquerade-to-route-source":           "false"
+		"enable-xt-socket-fallback":                   "true"
+		"install-no-conntrack-iptables-rules":         "false"
+		"auto-direct-node-routes":                     "false"
+		"direct-routing-skip-unreachable":             "false"
+		"enable-local-redirect-policy":                "false"
+		"enable-runtime-device-detection":             "true"
 		"kube-proxy-replacement":                      "true"
 		"kube-proxy-replacement-healthz-bind-address": ""
 		"bpf-lb-sock":                                 "false"
+		"bpf-lb-sock-terminate-pod-connections":       "false"
+		"nodeport-addresses":                          ""
 		"enable-health-check-nodeport":                "true"
+		"enable-health-check-loadbalancer-ip":         "false"
 		"node-port-bind-protection":                   "true"
 		"enable-auto-protect-node-port-range":         "true"
+		"bpf-lb-acceleration":                         "disabled"
 		"enable-svc-source-range-check":               "true"
 		"enable-l2-neigh-discovery":                   "true"
 		"arping-refresh-period":                       "30s"
+		"k8s-require-ipv4-pod-cidr":                   "false"
+		"k8s-require-ipv6-pod-cidr":                   "false"
 		"enable-k8s-networkpolicy":                    "true"
+
 		// Tell the agent to generate and write a CNI configuration file
 		"write-cni-conf-when-ready":       "/host/etc/cni/net.d/05-cilium.conflist"
 		"cni-exclusive":                   "true"
@@ -150,13 +175,15 @@ import "k8s.io/api/core/v1"
 		"enable-endpoint-health-checking": "true"
 		"enable-health-checking":          "true"
 		"enable-well-known-identities":    "false"
-		"enable-remote-node-identity":     "true"
+		"enable-node-selector-labels":     "false"
 		"synchronize-k8s-nodes":           "true"
 		"operator-api-serve-addr":         "127.0.0.1:9234"
 		// Enable Hubble gRPC service.
 		"enable-hubble": "true"
 		// UNIX domain socket for Hubble server to listen to.
-		"hubble-socket-path": "/var/run/cilium/hubble.sock"
+		"hubble-socket-path":             "/var/run/cilium/hubble.sock"
+		"hubble-export-file-max-size-mb": "10"
+		"hubble-export-file-max-backups": "5"
 		// An additional address for Hubble server to listen to (e.g. ":4244").
 		"hubble-listen-address":                          ":4244"
 		"hubble-disable-tls":                             "false"
@@ -165,15 +192,12 @@ import "k8s.io/api/core/v1"
 		"hubble-tls-client-ca-files":                     "/var/lib/cilium/tls/hubble/client-ca.crt"
 		ipam:                                             "kubernetes"
 		"ipam-cilium-node-update-rate":                   "15s"
-		"disable-cnp-status-updates":                     "true"
-		"cnp-node-status-gc-interval":                    "0s"
 		"egress-gateway-reconciliation-trigger-interval": "1s"
 		"enable-vtep":                                    "false"
 		"vtep-endpoint":                                  ""
 		"vtep-cidr":                                      ""
 		"vtep-mask":                                      ""
 		"vtep-mac":                                       ""
-		"enable-bgp-control-plane":                       "false"
 		procfs:                                           "/host/proc"
 		"bpf-root":                                       "/sys/fs/bpf"
 		"cgroup-root":                                    "/sys/fs/cgroup"
@@ -183,13 +207,35 @@ import "k8s.io/api/core/v1"
 		"set-cilium-node-taints":                         "true"
 		"set-cilium-is-up-condition":                     "true"
 		"unmanaged-pod-watcher-interval":                 "15"
-		"tofqdns-dns-reject-response-code":               "refused"
-		"tofqdns-enable-dns-compression":                 "true"
-		"tofqdns-endpoint-max-ip-per-hostname":           "50"
-		"tofqdns-idle-connection-grace-period":           "0s"
-		"tofqdns-max-deferred-connection-deletes":        "10000"
-		"tofqdns-proxy-response-max-delay":               "100ms"
-		"agent-not-ready-taint-key":                      "node.cilium.io/agent-not-ready"
+
+		// default DNS proxy to transparent mode in non-chaining modes
+		"dnsproxy-enable-transparent-mode":        "true"
+		"dnsproxy-socket-linger-timeout":          "10"
+		"tofqdns-dns-reject-response-code":        "refused"
+		"tofqdns-enable-dns-compression":          "true"
+		"tofqdns-endpoint-max-ip-per-hostname":    "50"
+		"tofqdns-idle-connection-grace-period":    "0s"
+		"tofqdns-max-deferred-connection-deletes": "10000"
+		"tofqdns-proxy-response-max-delay":        "100ms"
+		"agent-not-ready-taint-key":               "node.cilium.io/agent-not-ready"
+		"mesh-auth-enabled":                       "true"
+		"mesh-auth-queue-size":                    "1024"
+		"mesh-auth-rotated-identities-queue-size": "1024"
+		"mesh-auth-gc-interval":                   "5m0s"
+		"proxy-xff-num-trusted-hops-ingress":      "0"
+		"proxy-xff-num-trusted-hops-egress":       "0"
+		"proxy-connect-timeout":                   "2"
+		"proxy-max-requests-per-connection":       "0"
+		"proxy-max-connection-duration-seconds":   "0"
+		"proxy-idle-timeout-seconds":              "60"
+		"external-envoy-proxy":                    "true"
+		"envoy-base-id":                           "0"
+		"envoy-keep-cap-netbindservice":           "false"
+		"max-connected-clusters":                  "255"
+		"clustermesh-enable-endpoint-sync":        "false"
+		"clustermesh-enable-mcs-api":              "false"
+		"nat-map-stats-entries":                   "32"
+		"nat-map-stats-interval":                  "30s"
 
 		"mesh-auth-enabled":                       "true"
 		"mesh-auth-queue-size":                    "1024"
@@ -199,8 +245,6 @@ import "k8s.io/api/core/v1"
 		"proxy-connect-timeout":                 "2"
 		"proxy-max-requests-per-connection":     "0"
 		"proxy-max-connection-duration-seconds": "0"
-
-		"external-envoy-proxy": "false"
 
 		// https://docs.cilium.io/en/latest/network/l2-announcements/
 		"enable-l2-announcements":         "true"

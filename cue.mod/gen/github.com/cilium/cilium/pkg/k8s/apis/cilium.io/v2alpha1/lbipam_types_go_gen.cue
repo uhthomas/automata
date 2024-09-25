@@ -53,11 +53,17 @@ import (
 	// +kubebuilder:validation:Optional
 	serviceSelector?: null | slimv1.#LabelSelector @go(ServiceSelector,*slimv1.LabelSelector)
 
-	// CiliumLoadBalancerIPPoolCIDRBlock is a list of CIDRs comprising this IP Pool
+	// AllowFirstLastIPs, if set to `yes` means that the first and last IPs of each CIDR will be allocatable.
+	// If `no` or undefined, these IPs will be reserved. This field is ignored for /{31,32} and /{127,128} CIDRs since
+	// reserving the first and last IPs would make the CIDRs unusable.
 	//
-	// +kubebuilder:validation:Required
-	// +kubebuilder:validation:MinItems=1
-	cidrs: [...#CiliumLoadBalancerIPPoolCIDRBlock] @go(Cidrs,[]CiliumLoadBalancerIPPoolCIDRBlock)
+	// +kubebuilder:validation:Optional
+	allowFirstLastIPs?: #AllowFirstLastIPType @go(AllowFirstLastIPs)
+
+	// Blocks is a list of CIDRs comprising this IP Pool
+	//
+	// +kubebuilder:validation:Optional
+	blocks?: [...#CiliumLoadBalancerIPPoolIPBlock] @go(Blocks,[]CiliumLoadBalancerIPPoolIPBlock)
 
 	// Disabled, if set to true means that no new IPs will be allocated from this pool.
 	// Existing allocations will not be removed from services.
@@ -67,11 +73,27 @@ import (
 	disabled: bool @go(Disabled)
 }
 
-// CiliumLoadBalancerIPPoolCIDRBlock describes a single CIDR block.
-#CiliumLoadBalancerIPPoolCIDRBlock: {
+// +kubebuilder:validation:Enum=Yes;No
+#AllowFirstLastIPType: string // #enumAllowFirstLastIPType
+
+#enumAllowFirstLastIPType:
+	#AllowFirstLastIPNo |
+	#AllowFirstLastIPYes
+
+#AllowFirstLastIPNo:  #AllowFirstLastIPType & "No"
+#AllowFirstLastIPYes: #AllowFirstLastIPType & "Yes"
+
+// CiliumLoadBalancerIPPoolIPBlock describes a single IP block.
+#CiliumLoadBalancerIPPoolIPBlock: {
 	// +kubebuilder:validation:Format=cidr
-	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:Optional
 	cidr: #IPv4orIPv6CIDR @go(Cidr)
+
+	// +kubebuilder:validation:Optional
+	start?: string @go(Start)
+
+	// +kubebuilder:validation:Optional
+	stop?: string @go(Stop)
 }
 
 // CiliumLoadBalancerIPPoolStatus contains the status of a CiliumLoadBalancerIPPool.

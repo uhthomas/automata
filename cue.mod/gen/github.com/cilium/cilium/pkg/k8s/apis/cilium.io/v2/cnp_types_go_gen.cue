@@ -8,6 +8,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"github.com/cilium/cilium/pkg/policy/api"
 	slimv1 "github.com/cilium/cilium/pkg/k8s/slim/k8s/apis/meta/v1"
+	"k8s.io/api/core/v1"
 )
 
 // CiliumNetworkPolicy is a Kubernetes third-party resource with an extended
@@ -33,12 +34,16 @@ import (
 
 // CiliumNetworkPolicyStatus is the status of a Cilium policy rule.
 #CiliumNetworkPolicyStatus: {
-	// Nodes is the Cilium policy status for each node
-	nodes?: {[string]: #CiliumNetworkPolicyNodeStatus} @go(Nodes,map[string]CiliumNetworkPolicyNodeStatus)
-
 	// DerivativePolicies is the status of all policies derived from the Cilium
 	// policy
 	derivativePolicies?: {[string]: #CiliumNetworkPolicyNodeStatus} @go(DerivativePolicies,map[string]CiliumNetworkPolicyNodeStatus)
+
+	// +optional
+	// +patchMergeKey=type
+	// +patchStrategy=merge
+	// +listType=map
+	// +listMapKey=type
+	conditions?: [...#NetworkPolicyCondition] @go(Conditions,[]NetworkPolicyCondition)
 }
 
 // CiliumNetworkPolicyNodeStatus is the status of a Cilium policy rule for a
@@ -80,4 +85,31 @@ import (
 
 	// Items is a list of CiliumNetworkPolicy
 	items: [...#CiliumNetworkPolicy] @go(Items,[]CiliumNetworkPolicy)
+}
+
+#PolicyConditionType: string // #enumPolicyConditionType
+
+#enumPolicyConditionType:
+	#PolicyConditionValid
+
+#PolicyConditionValid: #PolicyConditionType & "Valid"
+
+#NetworkPolicyCondition: {
+	// The type of the policy condition
+	type: #PolicyConditionType @go(Type)
+
+	// The status of the condition, one of True, False, or Unknown
+	status: v1.#ConditionStatus @go(Status)
+
+	// The last time the condition transitioned from one status to another.
+	// +optional
+	lastTransitionTime?: slimv1.#Time @go(LastTransitionTime)
+
+	// The reason for the condition's last transition.
+	// +optional
+	reason?: string @go(Reason)
+
+	// A human readable message indicating details about the transition.
+	// +optional
+	message?: string @go(Message)
 }

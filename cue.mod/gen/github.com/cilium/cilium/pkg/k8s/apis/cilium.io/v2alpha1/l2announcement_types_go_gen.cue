@@ -9,6 +9,8 @@ import (
 	slimv1 "github.com/cilium/cilium/pkg/k8s/slim/k8s/apis/meta/v1"
 )
 
+#L2AnnounceLoadBalancerClass: "io.cilium/l2-announcer"
+
 // CiliumL2AnnouncementPolicy is a Kubernetes third-party resource which
 // is used to defined which nodes should announce what services on the
 // L2 network.
@@ -51,7 +53,12 @@ import (
 	// +kubebuilder:validation:Optional
 	nodeSelector?: null | slimv1.#LabelSelector @go(NodeSelector,*slimv1.LabelSelector)
 
-	// ServiceSelector selects a set of services which will be announced over L2 networks
+	// ServiceSelector selects a set of services which will be announced over L2 networks.
+	// The loadBalancerClass for a service must be nil or specify a supported class, e.g.
+	// "io.cilium/l2-announcer". Refer to the following document for additional details
+	// regarding load balancer classes:
+	//
+	//   https://kubernetes.io/docs/concepts/services-networking/service/#load-balancer-class
 	//
 	// If nil this policy applies to all services.
 	//

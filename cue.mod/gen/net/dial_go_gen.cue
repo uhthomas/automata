@@ -6,9 +6,16 @@ package net
 
 import "time"
 
-// defaultTCPKeepAlive is a default constant value for TCPKeepAlive times
-// See go.dev/issue/31510
-_#defaultTCPKeepAlive: time.#Duration & 15000000000
+// defaultTCPKeepAliveIdle is a default constant value for TCP_KEEPIDLE.
+// See go.dev/issue/31510 for details.
+_#defaultTCPKeepAliveIdle: int & 15000000000
+
+// defaultTCPKeepAliveInterval is a default constant value for TCP_KEEPINTVL.
+// It is the same as defaultTCPKeepAliveIdle, see go.dev/issue/31510 for details.
+_#defaultTCPKeepAliveInterval: int & 15000000000
+
+// defaultTCPKeepAliveCount is a default constant value for TCP_KEEPCNT.
+_#defaultTCPKeepAliveCount: 9
 
 // For the moment, MultiPath TCP is not used by default
 // See go.dev/issue/56539
@@ -26,7 +33,7 @@ _#mptcpDisabled:   _#mptcpStatus & 2
 //
 // The zero value for each field is equivalent to dialing
 // without that option. Dialing with the zero value of Dialer
-// is therefore equivalent to just calling the Dial function.
+// is therefore equivalent to just calling the [Dial] function.
 //
 // It is safe to call Dialer's methods concurrently.
 #Dialer: {
@@ -42,7 +49,7 @@ _#mptcpDisabled:   _#mptcpStatus & 2
 	// With or without a timeout, the operating system may impose
 	// its own earlier timeout. For instance, TCP timeouts are
 	// often around 3 minutes.
-	Timeout: time.#Duration
+	Timeout: int @go(,time.Duration)
 
 	// Deadline is the absolute point in time after which dials
 	// will fail. If Timeout is set, it may fail earlier.
@@ -73,16 +80,28 @@ _#mptcpDisabled:   _#mptcpStatus & 2
 	//
 	// If zero, a default delay of 300ms is used.
 	// A negative value disables Fast Fallback support.
-	FallbackDelay: time.#Duration
+	FallbackDelay: int @go(,time.Duration)
 
 	// KeepAlive specifies the interval between keep-alive
 	// probes for an active network connection.
+	//
+	// KeepAlive is ignored if KeepAliveConfig.Enable is true.
+	//
 	// If zero, keep-alive probes are sent with a default value
 	// (currently 15 seconds), if supported by the protocol and operating
 	// system. Network protocols or operating systems that do
-	// not support keep-alives ignore this field.
+	// not support keep-alive ignore this field.
 	// If negative, keep-alive probes are disabled.
-	KeepAlive: time.#Duration
+	KeepAlive: int @go(,time.Duration)
+
+	// KeepAliveConfig specifies the keep-alive probe configuration
+	// for an active network connection, when supported by the
+	// protocol and operating system.
+	//
+	// If KeepAliveConfig.Enable is true, keep-alive probes are enabled.
+	// If KeepAliveConfig.Enable is false and KeepAlive is negative,
+	// keep-alive probes are disabled.
+	KeepAliveConfig: #KeepAliveConfig
 
 	// Resolver optionally specifies an alternate resolver to use.
 	Resolver?: null | #Resolver @go(,*Resolver)
@@ -97,11 +116,23 @@ _#sysDialer: {
 #ListenConfig: {
 	// KeepAlive specifies the keep-alive period for network
 	// connections accepted by this listener.
-	// If zero, keep-alives are enabled if supported by the protocol
+	//
+	// KeepAlive is ignored if KeepAliveConfig.Enable is true.
+	//
+	// If zero, keep-alive are enabled if supported by the protocol
 	// and operating system. Network protocols or operating systems
-	// that do not support keep-alives ignore this field.
-	// If negative, keep-alives are disabled.
-	KeepAlive: time.#Duration
+	// that do not support keep-alive ignore this field.
+	// If negative, keep-alive are disabled.
+	KeepAlive: int @go(,time.Duration)
+
+	// KeepAliveConfig specifies the keep-alive probe configuration
+	// for an active network connection, when supported by the
+	// protocol and operating system.
+	//
+	// If KeepAliveConfig.Enable is true, keep-alive probes are enabled.
+	// If KeepAliveConfig.Enable is false and KeepAlive is negative,
+	// keep-alive probes are disabled.
+	KeepAliveConfig: #KeepAliveConfig
 }
 
 // sysListener contains a Listen's parameters and configuration.

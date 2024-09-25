@@ -4,7 +4,10 @@
 
 package v2
 
-import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	slim_metav1 "github.com/cilium/cilium/pkg/k8s/slim/k8s/apis/meta/v1"
+)
 
 #CiliumEnvoyConfig: {
 	metav1.#TypeMeta
@@ -14,7 +17,6 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	metadata: metav1.#ObjectMeta @go(ObjectMeta)
 
 	// +k8s:openapi-gen=false
-	// +kubebuilder:validation:Type=object
 	spec?: #CiliumEnvoyConfigSpec @go(Spec)
 }
 
@@ -54,6 +56,13 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +kubebuilder:validation:Required
 	resources?: [...#XDSResource] @go(Resources,[]XDSResource)
+
+	// NodeSelector is a label selector that determines to which nodes
+	// this configuration applies.
+	// If nil, then this config applies to all nodes.
+	//
+	// +kubebuilder:validation:Optional
+	nodeSelector?: null | slim_metav1.#LabelSelector @go(NodeSelector,*slim_metav1.LabelSelector)
 }
 
 #Service: {
@@ -69,7 +78,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// +kubebuilder:validation:Optional
 	namespace: string @go(Namespace)
 
-	// Port is the port number, which can be used for filtering in case of underlying
+	// Ports is a set of port numbers, which can be used for filtering in case of underlying
 	// is exposing multiple port numbers.
 	//
 	// +kubebuilder:validation:Optional
@@ -88,6 +97,12 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// In CiliumClusterwideEnvoyConfig namespace defaults to "default".
 	// +kubebuilder:validation:Optional
 	namespace: string @go(Namespace)
+
+	// Ports is a set of service's frontend ports that should be redirected to the Envoy
+	// listener. By default all frontend ports of the service are redirected.
+	//
+	// +kubebuilder:validation:Optional
+	ports?: [...uint16] @go(Ports,[]uint16)
 
 	// Listener specifies the name of the Envoy listener the
 	// service traffic is redirected to. The listener must be

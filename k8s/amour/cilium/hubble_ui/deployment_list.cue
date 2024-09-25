@@ -77,6 +77,11 @@ import (
 						name:      "tmp-dir"
 						mountPath: "/tmp"
 					}]
+					livenessProbe: httpGet: {
+						port: "http"
+						path: "/healthz"
+					}
+					readinessProbe: httpGet: port: "http"
 					terminationMessagePolicy: v1.#TerminationMessageFallbackToLogsOnError
 					imagePullPolicy:          v1.#PullIfNotPresent
 					securityContext: {

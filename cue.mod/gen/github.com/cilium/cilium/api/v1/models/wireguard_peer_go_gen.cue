@@ -4,7 +4,7 @@
 
 package models
 
-// WireguardPeer Status of a Wireguard peer
+// WireguardPeer Status of a WireGuard peer
 //
 // +k8s:deepcopy-gen=true
 //

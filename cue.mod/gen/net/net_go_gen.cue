@@ -7,8 +7,8 @@
 //
 // Although the package provides access to low-level networking
 // primitives, most clients will need only the basic interface provided
-// by the Dial, Listen, and Accept functions and the associated
-// Conn and Listener interfaces. The crypto/tls package uses
+// by the [Dial], [Listen], and Accept functions and the associated
+// [Conn] and [Listener] interfaces. The crypto/tls package uses
 // the same interfaces and similar Dial and Listen functions.
 //
 // The Dial function connects to a server:
@@ -38,23 +38,26 @@
 // # Name Resolution
 //
 // The method for resolving domain names, whether indirectly with functions like Dial
-// or directly with functions like LookupHost and LookupAddr, varies by operating system.
+// or directly with functions like [LookupHost] and [LookupAddr], varies by operating system.
 //
 // On Unix systems, the resolver has two options for resolving names.
 // It can use a pure Go resolver that sends DNS requests directly to the servers
 // listed in /etc/resolv.conf, or it can use a cgo-based resolver that calls C
 // library routines such as getaddrinfo and getnameinfo.
 //
-// By default the pure Go resolver is used, because a blocked DNS request consumes
-// only a goroutine, while a blocked C call consumes an operating system thread.
+// On Unix the pure Go resolver is preferred over the cgo resolver, because a blocked DNS
+// request consumes only a goroutine, while a blocked C call consumes an operating system thread.
 // When cgo is available, the cgo-based resolver is used instead under a variety of
 // conditions: on systems that do not let programs make direct DNS requests (OS X),
 // when the LOCALDOMAIN environment variable is present (even if empty),
 // when the RES_OPTIONS or HOSTALIASES environment variable is non-empty,
 // when the ASR_CONFIG environment variable is non-empty (OpenBSD only),
 // when /etc/resolv.conf or /etc/nsswitch.conf specify the use of features that the
-// Go resolver does not implement, and when the name being looked up ends in .local
-// or is an mDNS name.
+// Go resolver does not implement.
+//
+// On all systems (except Plan 9), when the cgo resolver is being used
+// this package applies a concurrent cgo lookup limit to prevent the system
+// from running out of system threads. Currently, it is limited to 500 concurrent lookups.
 //
 // The resolver decision can be overridden by setting the netdns value of the
 // GODEBUG environment variable (see package runtime) to go or cgo, as in:
@@ -70,6 +73,12 @@
 // To force a particular resolver while also printing debugging information,
 // join the two settings by a plus sign, as in GODEBUG=netdns=go+1.
 //
+// The Go resolver will send an EDNS0 additional header with a DNS request,
+// to signal a willingness to accept a larger DNS packet size.
+// This can reportedly cause sporadic failures with the DNS server run
+// by some modems and routers. Setting GODEBUG=netedns0=0 will disable
+// sending the additional header.
+//
 // On macOS, if Go code that uses the net package is built with
 // -buildmode=c-archive, linking the resulting archive into a C program
 // requires passing -lresolv when linking the C code.
@@ -83,8 +92,8 @@ package net
 
 // Addr represents a network end point address.
 //
-// The two methods Network and String conventionally return strings
-// that can be passed as the arguments to Dial, but the exact form
+// The two methods [Addr.Network] and [Addr.String] conventionally return strings
+// that can be passed as the arguments to [Dial], but the exact form
 // and meaning of the strings is up to the implementation.
 #Addr: _
 
@@ -108,8 +117,7 @@ package net
 
 // canceledError lets us return the same error string we have always
 // returned, while still being Is context.Canceled.
-_#canceledError: {
-}
+_#canceledError: {}
 
 // OpError is the error type usually returned by functions in the net
 // package. It describes the operation, network type, and address of
@@ -164,8 +172,7 @@ _#temporary: _
 
 #InvalidAddrError: string
 
-_#timeoutError: {
-}
+_#timeoutError: {}
 
 // DNSConfigError represents an error reading the machine's DNS configuration.
 // (No longer used; kept for compatibility.)
@@ -175,15 +182,26 @@ _#timeoutError: {
 
 // DNSError represents a DNS lookup error.
 #DNSError: {
+	UnwrapErr:   _ @go(,error)
 	Err:         string
 	Name:        string
 	Server:      string
 	IsTimeout:   bool
 	IsTemporary: bool
-	IsNotFound:  bool
+
+	// IsNotFound is set to true when the requested name does not
+	// contain any records of the requested type (data not found),
+	// or the name itself was not found (NXDOMAIN).
+	IsNotFound: bool
 }
 
-_#writerOnly: Writer: _
+// noReadFrom can be embedded alongside another type to
+// hide the ReadFrom method of that other type.
+_#noReadFrom: {}
+
+// noWriteTo can be embedded alongside another type to
+// hide the WriteTo method of that other type.
+_#noWriteTo: {}
 
 // buffersWriter is the interface implemented by Conns that support a
 // "writev"-like batch write optimization.

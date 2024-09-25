@@ -99,3 +99,12 @@ package v2
 
 // CECName is the full name of Cilium Envoy Config
 #CECName: "ciliumenvoyconfigs.cilium.io"
+
+// CNCPluralName is the plural name of Cilium Node Config
+#CNCPluralName: "ciliumnodeconfigs"
+
+// CNCKindDefinition is the kind name of Cilium Node Config
+#CNCKindDefinition: "CiliumNodeConfig"
+
+// CNCName is the full name of Cilium Node Config
+#CNCName: "ciliumnodeconfigs.cilium.io"

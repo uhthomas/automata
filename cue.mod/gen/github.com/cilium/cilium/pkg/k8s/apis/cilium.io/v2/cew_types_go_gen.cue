@@ -37,8 +37,6 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 // CiliumExternalWorkloadSpec specifies the configurations for redirecting traffic
 // within a workload.
-//
-// +kubebuilder:validation:Type=object
 #CiliumExternalWorkloadSpec: {
 	// IPv4AllocCIDR is the range of IPv4 addresses in the CIDR format that the external workload can
 	// use to allocate IP addresses for the tunnel device and the health endpoint.

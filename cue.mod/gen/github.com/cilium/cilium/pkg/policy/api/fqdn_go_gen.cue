@@ -9,6 +9,7 @@ package api
 	// when missing.
 	//
 	// +kubebuilder:validation:Pattern=`^([-a-zA-Z0-9_]+[.]?)+$`
+	// +kubebuilder:validation:OneOf
 	matchName?: string @go(MatchName)
 
 	// MatchPattern allows using wildcards to match DNS names. All wildcards are
@@ -30,6 +31,7 @@ package api
 	//   blog.cilium.io, cilium.io and google.com do not
 	//
 	// +kubebuilder:validation:Pattern=`^([-a-zA-Z0-9_*]+[.]?)+$`
+	// +kubebuilder:validation:OneOf
 	matchPattern?: string @go(MatchPattern)
 }
 

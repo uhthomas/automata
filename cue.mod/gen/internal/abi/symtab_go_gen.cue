@@ -147,3 +147,7 @@ package abi
 
 // Like UnsafePointRestart1, but back to function entry if async preempted.
 #UnsafePointRestartAtEntry: -5
+
+#MINFUNC: 16
+
+#FuncTabBucketSize: 4096

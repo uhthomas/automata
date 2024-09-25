@@ -11,16 +11,19 @@ package models
 	// IP4/6 addresses assigned to this Endpoint
 	addressing: [...null | #AddressPair] @go(Addressing,[]*AddressPair)
 
+	// Name of network device in container netns
+	"container-interface-name"?: string @go(ContainerInterfaceName)
+
 	// host addressing
 	"host-addressing"?: null | #NodeAddressing @go(HostAddressing,*NodeAddressing)
 
 	// MAC address
 	"host-mac"?: string @go(HostMac)
 
-	// Index of network device
+	// Index of network device in host netns
 	"interface-index"?: int64 @go(InterfaceIndex)
 
-	// Name of network device
+	// Name of network device in host netns
 	"interface-name"?: string @go(InterfaceName)
 
 	// MAC address

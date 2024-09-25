@@ -6,6 +6,7 @@ import (
 	"github.com/uhthomas/automata/k8s/amour/cert_manager_csi_driver"
 	"github.com/uhthomas/automata/k8s/amour/cert_manager"
 	"github.com/uhthomas/automata/k8s/amour/cilium"
+	"github.com/uhthomas/automata/k8s/amour/cilium_secrets"
 	"github.com/uhthomas/automata/k8s/amour/dcgm_exporter"
 	"github.com/uhthomas/automata/k8s/amour/default"
 	"github.com/uhthomas/automata/k8s/amour/emqx"
@@ -76,6 +77,7 @@ _items: [
 	cert_manager_csi_driver.#List.items,
 	cert_manager.#List.items,
 	cilium.#List.items,
+	cilium_secrets.#List.items,
 	dcgm_exporter.#List.items,
 	default.#List.items,
 	emqx.#List.items,

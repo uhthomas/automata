@@ -27,15 +27,18 @@ import "github.com/cilium/proxy/pkg/policy/api/kafka"
 
 // PortProtocol specifies an L4 port with an optional transport protocol
 #PortProtocol: {
-	// Port is an L4 port number. For now the string will be strictly
-	// parsed as a single uint16. In the future, this field may support
-	// ranges in the form "1024-2048
-	// Port can also be a port name, which must contain at least one [a-z],
-	// and may also contain [0-9] and '-' anywhere except adjacent to another
-	// '-' or in the beginning or the end.
+	// Port can be an L4 port number, or a name in the form of "http"
+	// or "http-8080".
 	//
 	// +kubebuilder:validation:Pattern=`^(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[0-9]{1,4})|([a-zA-Z0-9]-?)*[a-zA-Z](-?[a-zA-Z0-9])*$`
 	port: string @go(Port)
+
+	// EndPort can only be an L4 port number.
+	//
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=65535
+	// +kubebuilder:validation:Optional
+	endPort?: int32 @go(EndPort)
 
 	// Protocol is the L4 protocol. If omitted or empty, any protocol
 	// matches. Accepted values: "TCP", "UDP", "SCTP", "ANY"
@@ -123,7 +126,7 @@ import "github.com/cilium/proxy/pkg/policy/api/kafka"
 
 // Listener defines a reference to an Envoy listener specified in a CEC or CCEC resource.
 #Listener: {
-	// EnvoyConfig is a reference to the CEC or CCNP resource in which
+	// EnvoyConfig is a reference to the CEC or CCEC resource in which
 	// the listener is defined.
 	//
 	// +kubebuilder:validation:Required
@@ -134,6 +137,14 @@ import "github.com/cilium/proxy/pkg/policy/api/kafka"
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:Required
 	name: string @go(Name)
+
+	// Priority for this Listener that is used when multiple rules would apply different
+	// listeners to a policy map entry. Behavior of this is implementation dependent.
+	//
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=100
+	// +kubebuilder:validation:Optional
+	priority: uint16 @go(Priority)
 }
 
 // PortRule is a list of ports/protocol combinations with optional Layer 7
@@ -142,6 +153,7 @@ import "github.com/cilium/proxy/pkg/policy/api/kafka"
 	// Ports is a list of L4 port/protocol
 	//
 	// +kubebuilder:validation:Optional
+	// +kubebuilder:validation:MaxItems=40
 	ports?: [...#PortProtocol] @go(Ports,[]PortProtocol)
 
 	// TerminatingTLS is the TLS context for the connection terminated by
@@ -202,21 +214,25 @@ import "github.com/cilium/proxy/pkg/policy/api/kafka"
 	// HTTP specific rules.
 	//
 	// +kubebuilder:validation:Optional
+	// +kubebuilder:validation:OneOf
 	http?: [...#PortRuleHTTP] @go(HTTP,[]PortRuleHTTP)
 
 	// Kafka-specific rules.
 	//
 	// +kubebuilder:validation:Optional
+	// +kubebuilder:validation:OneOf
 	"kafka"?: [...kafka.#PortRule] @go(Kafka,[]kafka.PortRule)
 
 	// DNS-specific rules.
 	//
 	// +kubebuilder:validation:Optional
+	// +kubebuilder:validation:OneOf
 	dns?: [...#PortRuleDNS] @go(DNS,[]PortRuleDNS)
 
 	// Name of the L7 protocol for which the Key-value pair rules apply.
 	//
 	// +kubebuilder:validation:Optional
+	// +kubebuilder:validation:OneOf
 	l7proto?: string @go(L7Proto)
 
 	// Key-value pair rules.

@@ -14,6 +14,8 @@ package api
 #enumEntity:
 	#EntityAll |
 	#EntityWorld |
+	#EntityWorldIPv4 |
+	#EntityWorldIPv6 |
 	#EntityCluster |
 	#EntityHost |
 	#EntityInit |
@@ -30,6 +32,16 @@ package api
 // EntityWorld is an entity that represents traffic external to
 // endpoint's cluster
 #EntityWorld: #Entity & "world"
+
+// EntityWorldIPv4 is an entity that represents traffic external to
+// endpoint's cluster, specifically an IPv4 endpoint, to distinguish
+// it from IPv6 in dual-stack mode.
+#EntityWorldIPv4: #Entity & "world-ipv4"
+
+// EntityWorldIPv6 is an entity that represents traffic external to
+// endpoint's cluster, specifically an IPv6 endpoint, to distinguish
+// it from IPv4 in dual-stack mode.
+#EntityWorldIPv6: #Entity & "world-ipv6"
 
 // EntityCluster is an entity that represents traffic within the
 // endpoint's cluster, to endpoints not managed by cilium

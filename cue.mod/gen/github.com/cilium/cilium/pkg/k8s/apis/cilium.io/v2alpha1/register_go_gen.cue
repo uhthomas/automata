@@ -28,6 +28,31 @@ package v2alpha1
 // BGPPName is the full name of Cilium BGP Peering Policy
 #BGPPName: "ciliumbgppeeringpolicies.cilium.io"
 
+// BGPClusterConfig (BGPCC)
+#BGPCCPluralName:     "ciliumbgpclusterconfigs"
+#BGPCCKindDefinition: "CiliumBGPClusterConfig"
+#BGPCCName:           "ciliumbgpclusterconfigs.cilium.io"
+
+// BGPPeerConfig (BGPPC)
+#BGPPCPluralName:     "ciliumbgppeerconfigs"
+#BGPPCKindDefinition: "CiliumBGPPeerConfig"
+#BGPPCName:           "ciliumbgppeerconfigs.cilium.io"
+
+// BGPAdvertisement (BGPA)
+#BGPAPluralName:     "ciliumbgpadvertisements"
+#BGPAKindDefinition: "CiliumBGPAdvertisement"
+#BGPAName:           "ciliumbgpadvertisements.cilium.io"
+
+// BGPNodeConfig (BGPNC)
+#BGPNCPluralName:     "ciliumbgpnodeconfigs"
+#BGPNCKindDefinition: "CiliumBGPNodeConfig"
+#BGPNCName:           "ciliumbgpnodeconfigs.cilium.io"
+
+// BGPNodeConfigOverride (BGPNCO)
+#BGPNCOPluralName:     "ciliumbgpnodeconfigoverrides"
+#BGPNCOKindDefinition: "CiliumBGPNodeConfigOverride"
+#BGPNCOName:           "ciliumbgpnodeconfigoverrides.cilium.io"
+
 // PoolPluralName is the plural name of Cilium Load Balancer IP Pool
 #PoolPluralName: "ciliumloadbalancerippools"
 
@@ -37,10 +62,14 @@ package v2alpha1
 // LBIPPoolName is the full name of Cilium Load Balancer IP Pool
 #LBIPPoolName: "ciliumloadbalancerippools.cilium.io"
 
-// CiliumNodeConfig (CNC)
-#CNCPluralName:     "ciliumnodeconfigs"
+// CNCPluralName is the plural name of Cilium Node Config
+#CNCPluralName: "ciliumnodeconfigs"
+
+// CNCKindDefinition is the kind name of Cilium Node Config
 #CNCKindDefinition: "CiliumNodeConfig"
-#CNCName:           "ciliumnodeconfigs.cilium.io"
+
+// CNCName is the full name of Cilium Node Config
+#CNCName: "ciliumnodeconfigs.cilium.io"
 
 // CiliumCIDRGroup (CCG)
 #CCGPluralName:     "ciliumcidrgroups"

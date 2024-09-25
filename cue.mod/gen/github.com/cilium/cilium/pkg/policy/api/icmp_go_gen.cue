@@ -14,24 +14,12 @@ package api
 	// Fields is a list of ICMP fields.
 	//
 	// +kubebuilder:validation:Optional
+	// +kubebuilder:validation:MaxItems=40
 	fields?: [...#ICMPField] @go(Fields,[]ICMPField)
 }
 
 // ICMPField is a ICMP field.
-#ICMPField: {
-	// Family is a IP address version.
-	// Currently, we support `IPv4` and `IPv6`.
-	// `IPv4` is set as default.
-	//
-	// +kubebuilder:default=IPv4
-	// +kubebuilder:validation:Optional
-	// +kubebuilder:validation:Enum=IPv4;IPv6
-	family?: string @go(Family)
-
-	// Type is a ICMP-type.
-	// It should be 0-255 (8bit).
-	//
-	// +kubebuilder:validation:Maximum=255
-	// +kubebuilder:validation:Minimum=0
-	type: uint8 @go(Type)
-}
+//
+// +deepequal-gen=true
+// +deepequal-gen:private-method=true
+#ICMPField: _

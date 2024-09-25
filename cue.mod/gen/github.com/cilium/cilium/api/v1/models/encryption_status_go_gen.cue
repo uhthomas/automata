@@ -10,14 +10,17 @@ package models
 //
 // swagger:model EncryptionStatus
 #EncryptionStatus: {
+	// Status of the IPsec agent
+	ipsec?: null | #IPsecStatus @go(Ipsec,*IPsecStatus)
+
 	// mode
 	// Enum: [Disabled IPsec Wireguard]
 	mode?: string @go(Mode)
 
-	// Human readable status/error/warning message
+	// Human readable error/warning message
 	msg?: string @go(Msg)
 
-	// Status of the Wireguard agent
+	// Status of the WireGuard agent
 	wireguard?: null | #WireguardStatus @go(Wireguard,*WireguardStatus)
 }
 

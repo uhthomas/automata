@@ -4,6 +4,8 @@
 
 package net
 
+import "context"
+
 _#maxProtoLength: int & 25
 
 _#maxPortBufSize: int & 25
@@ -31,5 +33,5 @@ _#maxPortBufSize: int & 25
 // onlyValuesCtx is a context that uses an underlying context
 // for value lookup if the underlying context hasn't yet expired.
 _#onlyValuesCtx: {
-	Context: _
+	Context: context.#Context
 }
