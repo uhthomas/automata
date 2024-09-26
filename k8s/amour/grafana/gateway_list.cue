@@ -12,7 +12,10 @@ import gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 }
 
 #GatewayList: items: [{
-	metadata: annotations: "cert-manager.io/cluster-issuer": "self-signed-ca"
+	metadata: annotations: {
+		"cert-manager.io/cluster-issuer":            "self-signed-ca"
+		"external-dns.alpha.kubernetes.io/hostname": "grafana-amour.hipparcos.net"
+	}
 	spec: {
 		gatewayClassName: "cilium"
 		listeners: [{
