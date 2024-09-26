@@ -71,6 +71,7 @@ _#KindWeight: {
 
 _items: [
 	amour.#ApplySetList.items,
+	amour.#ClusterIssuerList.items,
 	amour.#ClusterSecretStoreList.items,
 	amour.#CustomResourceDefinitionList.items,
 	amour.#GatewayClassList.items,

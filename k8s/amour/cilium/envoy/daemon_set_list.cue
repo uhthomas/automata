@@ -74,6 +74,7 @@ import (
 					image: "quay.io/cilium/cilium-envoy:v\(#Version)"
 					command: ["/usr/bin/cilium-envoy-starter"]
 					args: [
+						"--keep-cap-net-bind-service",
 						"--",
 						"-c /var/run/cilium/envoy/bootstrap-config.json",
 						"--base-id 0",
@@ -154,7 +155,7 @@ import (
 							level: "s0"
 						}
 						capabilities: {
-							add: ["NET_ADMIN", "SYS_ADMIN"]
+							add: ["NET_ADMIN", "NET_BIND_SERVICE", "SYS_ADMIN"]
 							drop: ["ALL"]
 						}
 					}

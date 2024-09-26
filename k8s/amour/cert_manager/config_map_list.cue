@@ -1,6 +1,11 @@
 package cert_manager
 
-import "k8s.io/api/core/v1"
+import (
+	"encoding/yaml"
+
+	certmanagercontrollerv1alpha1 "github.com/cert-manager/cert-manager/pkg/apis/config/controller/v1alpha1"
+	"k8s.io/api/core/v1"
+)
 
 #ConfigMapList: v1.#ConfigMapList & {
 	apiVersion: "v1"
@@ -12,6 +17,16 @@ import "k8s.io/api/core/v1"
 }
 
 #ConfigMapList: items: [{
+	data: "config.yaml": yaml.Marshal(certmanagercontrollerv1alpha1.#ControllerConfiguration & {
+		apiVersion:       "controller.config.cert-manager.io/v1alpha1"
+		kind:             "ControllerConfiguration"
+		enableGatewayAPI: true
+		logging: {
+			flushFrequency: "5s"
+			verbosity:      2
+		}
+	})
+}, {
 	metadata: {
 		name: "cert-manager-webhook"
 		labels: {

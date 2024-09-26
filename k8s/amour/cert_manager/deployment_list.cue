@@ -107,6 +107,10 @@ _#FeatureGates: {
 				}
 			}
 			spec: {
+				volumes: [{
+					name: "config"
+					configMap: name: #Name
+				}]
 				containers: [{
 					name:  "cert-manager-controller"
 					image: "quay.io/jetstack/cert-manager-controller:v\(#Version)"
@@ -124,6 +128,7 @@ _#FeatureGates: {
 							]}
 							"--feature-gates=\(featureGates.value)"
 						},
+						"--config=/var/cert-manager/config/config.yaml",
 					]
 					ports: [{
 						name:          "http-metrics"
@@ -135,6 +140,10 @@ _#FeatureGates: {
 					env: [{
 						name: "POD_NAMESPACE"
 						valueFrom: fieldRef: fieldPath: "metadata.namespace"
+					}]
+					volumeMounts: [{
+						name:      "config"
+						mountPath: "/var/cert-manager/config"
 					}]
 					// LivenessProbe settings are based on those used for the Kubernetes
 					// controller-manager. See:
