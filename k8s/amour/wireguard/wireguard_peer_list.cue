@@ -27,7 +27,7 @@ import (
 			action: wirguardv1alpha1.#EgressNetworkPolicyActionAccept
 			to: {
 				// Jellyfin
-				ip:   "192.168.135.5"
+				ip:   "192.168.135.7"
 				port: 80
 			}
 			protocol: wirguardv1alpha1.#EgressNetworkPolicyProtocolTCP
@@ -44,7 +44,7 @@ import (
 			action: wirguardv1alpha1.#EgressNetworkPolicyActionAccept
 			to: {
 				// Jellyfin
-				ip:   "192.168.135.5"
+				ip:   "192.168.135.7"
 				port: 80
 			}
 			protocol: wirguardv1alpha1.#EgressNetworkPolicyProtocolTCP
@@ -69,7 +69,7 @@ import (
 			action: wirguardv1alpha1.#EgressNetworkPolicyActionAccept
 			to: {
 				// Jellyfin
-				ip:   "192.168.135.5"
+				ip:   "192.168.135.7"
 				port: 80
 			}
 			protocol: wirguardv1alpha1.#EgressNetworkPolicyProtocolTCP
