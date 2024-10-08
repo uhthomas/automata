@@ -22,7 +22,7 @@ import (
 			spec: {
 				containers: [{
 					name:  "external-secrets"
-					image: "ghcr.io/external-secrets/external-secrets:v0.9.5"
+					image: "ghcr.io/external-secrets/external-secrets:v0.10.4"
 					args: ["--concurrent=1"]
 					ports: [{
 						name:          "http-metrics"
