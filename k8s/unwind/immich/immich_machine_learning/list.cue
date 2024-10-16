@@ -10,7 +10,7 @@ import (
 #Component: "machine-learning"
 
 // renovate: datasource=github-releases depName=immich-app/immich extractVersion=^v(?<version>.*)$
-#Version: "1.66.1"
+#Version: "1.118.2"
 
 #List: v1.#List & {
 	apiVersion: "v1"
