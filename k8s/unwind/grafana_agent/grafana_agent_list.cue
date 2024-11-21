@@ -13,7 +13,7 @@ import "k8s.io/api/core/v1"
 
 #GrafanaAgentList: items: [{
 	spec: {
-		image: "grafana/agent:v0.32.1"
+		image: "grafana/agent:v0.43.4"
 		integrations: selector: matchLabels: "app.kubernetes.io/name": #Name
 		logs: instanceSelector: matchLabels: "app.kubernetes.io/name": #Name
 		metrics: {
