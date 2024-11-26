@@ -228,7 +228,7 @@ import (
 				}]
 				containers: [{
 					name:  "rook-ceph-tools"
-					image: "quay.io/ceph/ceph:v17.2.6"
+					image: "quay.io/ceph/ceph:v17.2.8"
 					command: [
 						"/bin/bash",
 						"-c",
