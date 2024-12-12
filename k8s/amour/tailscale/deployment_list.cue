@@ -15,7 +15,7 @@ import (
 }
 
 // renovate: datasource=docker depName=tailscale/tailscale versioning=docker
-let _tailscaleVersion = "v1.56.0"
+let _tailscaleVersion = "v1.78.3"
 
 #DeploymentList: items: [{
 	metadata: name: "operator"
