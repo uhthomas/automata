@@ -41,7 +41,7 @@ import (
 				}]
 				containers: [{
 					name:  "loki"
-					image: "grafana/loki:2.8.2@sha256:dc4328febf349d9198ef0f1c893160483fc7b2180d7e31485325f6e702ee73c4"
+					image: "grafana/loki:2.9.11@sha256:bf0d6c94bc4b0cdfe60b982573e7e045a1f69bc8c17804e25380dde1f8b3f92f"
 					args: [
 						"-config.expand-env=true",
 						"-config.file=/etc/loki/config/config.yaml",
