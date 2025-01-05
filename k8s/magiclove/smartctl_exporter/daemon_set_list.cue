@@ -31,7 +31,7 @@ import (
 					// https://github.com/prometheus-community/smartctl_exporter/pull/211
 					//
 					// TODO: Use stable release when available.
-					image: "quay.io/prometheuscommunity/smartctl-exporter:master@sha256:64b3a7880a9d20d8c8835fd852dcadec31bade17085b72afcb351d6c881fa9a1"
+					image: "quay.io/prometheuscommunity/smartctl-exporter:master@sha256:cd0f4b58f37544f6e8949b341a6a72b58bc259807521c9fa8e29b9395ef64f21"
 					args: ["--smartctl.interval=2m"]
 					ports: [{
 						name:          "http-metrics"
