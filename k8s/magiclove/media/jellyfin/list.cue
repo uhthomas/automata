@@ -9,7 +9,7 @@ import (
 #Name: "jellyfin"
 
 // renovate: datasource=github-releases depName=jellyfin/jellyfin extractVersion=^v(?<version>.*)$
-#Version: "10.10.0"
+#Version: "10.10.3"
 
 #List: v1.#List & {
 	apiVersion: "v1"
