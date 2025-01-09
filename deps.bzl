@@ -11,9 +11,9 @@ def dependencies():
     )
     http_archive(
         name = "com_github_bazelbuild_buildtools",
-        sha256 = "05c3c3602d25aeda1e9dbc91d3b66e624c1f9fdadf273e5480b489e744ca7269",
-        strip_prefix = "buildtools-6.4.0",
-        urls = ["https://github.com/bazelbuild/buildtools/archive/v6.4.0.tar.gz"],
+        sha256 = "1a9eaa51b2507eac7fe396811bc15dad4d15533acc61cc5b0d71004e1d0488cb",
+        strip_prefix = "buildtools-8.0.0",
+        urls = ["https://github.com/bazelbuild/buildtools/archive/v8.0.0.tar.gz"],
     )
     http_archive(
         name = "com_github_tnarg_rules_cue",
