@@ -3,6 +3,8 @@ package home_assistant
 import (
 	"list"
 
+	"github.com/uhthomas/automata/k8s/magiclove/home_assistant/piper"
+	"github.com/uhthomas/automata/k8s/magiclove/home_assistant/whisper"
 	"k8s.io/api/core/v1"
 )
 
@@ -20,8 +22,8 @@ import (
 			name:      string | *#Name
 			namespace: #Namespace
 			labels: {
-				"app.kubernetes.io/name":    #Name
-				"app.kubernetes.io/version": #Version
+				"app.kubernetes.io/name":    string | *#Name
+				"app.kubernetes.io/version": string | *#Version
 			}
 		}
 	}]
@@ -39,4 +41,6 @@ _items: [
 	#ServiceList.items,
 	#StatefulSetList.items,
 	#VMServiceScrapeList.items,
+	piper.#List.items,
+	whisper.#List.items,
 ]
