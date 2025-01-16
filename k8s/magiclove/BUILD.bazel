@@ -56,6 +56,7 @@ cue_export(
         "//k8s/magiclove/smartctl_exporter:cue_smartctl_exporter_library",
         "//k8s/magiclove/snapshot_controller:cue_snapshot_controller_library",
         "//k8s/magiclove/speedtest_exporter:cue_speedtest_exporter_library",
+        "//k8s/magiclove/spire:cue_spire_library",
         "//k8s/magiclove/thomas:cue_thomas_library",
         "//k8s/magiclove/vector:cue_vector_library",
         "//k8s/magiclove/victoria_logs:cue_victoria_logs_library",

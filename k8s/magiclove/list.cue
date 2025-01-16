@@ -38,6 +38,7 @@ import (
 	"github.com/uhthomas/automata/k8s/magiclove/smartctl_exporter"
 	"github.com/uhthomas/automata/k8s/magiclove/snapshot_controller"
 	"github.com/uhthomas/automata/k8s/magiclove/speedtest_exporter"
+	"github.com/uhthomas/automata/k8s/magiclove/spire"
 	"github.com/uhthomas/automata/k8s/magiclove/thomas"
 	// "github.com/uhthomas/automata/k8s/magiclove/trivy_system"
 	"github.com/uhthomas/automata/k8s/magiclove/vector"
@@ -113,6 +114,7 @@ _items: [
 	smartctl_exporter.#List.items,
 	snapshot_controller.#List.items,
 	speedtest_exporter.#List.items,
+	spire.#List.items,
 	thomas.#List.items,
 	// trivy_system.#List.items,
 	// vector.#List.items,
@@ -123,57 +125,5 @@ _items: [
 	wireguard.#List.items,
 	wireguard_operator.#List.items,
 ]
-
-// _items: [
-// 	magiclove.#ApplySetList.items,
-// 	magiclove.#ClusterIssuerList.items,
-// 	magiclove.#ClusterSecretStoreList.items,
-// 	magiclove.#CustomResourceDefinitionList.items,
-// 	magiclove.#GatewayClassList.items,
-// 	backup.#List.items,
-// 	cert_manager_csi_driver.#List.items,
-// 	cert_manager.#List.items,
-// 	cilium.#List.items,
-// 	cilium_secrets.#List.items,
-// 	dcgm_exporter.#List.items,
-// 	default.#List.items,
-// 	emqx.#List.items,
-// 	emqx_exporter.#List.items,
-// 	external_dns.#List.items,
-// 	external_secrets.#List.items,
-// 	// fluent_bit.#List.items,
-// 	frigate.#List.items,
-// 	gateway_api.#List.items,
-// 	grafana.#List.items,
-// 	grafana_operator.#List.items,
-// 	home_assistant.#List.items,
-// 	karma.#List.items,
-// 	kube_state_metrics.#List.items,
-// 	kube_system.#List.items,
-// 	media.#List.items,
-// 	metrics_server.#List.items,
-// 	minecraft.#List.items,
-// 	node_exporter.#List.items,
-// 	// node_feature_discovery.#List.items,
-// 	node_problem_detector.#List.items,
-// 	nvidia_device_plugin.#List.items,
-// 	onepassword_connect.#List.items,
-// 	ping_exporter.#List.items,
-// 	rook_ceph.#List.items,
-// 	scrutiny.#List.items,
-// 	smartctl_exporter.#List.items,
-// 	snapshot_controller.#List.items,
-// 	speedtest_exporter.#List.items,
-// 	tailscale.#List.items,
-// 	thomas.#List.items,
-// 	// trivy_system.#List.items,
-// 	vector.#List.items,
-// 	victoria_logs.#List.items,
-// 	vm_operator.#List.items,
-// 	vm.#List.items,
-// 	volsync_system.#List.items,
-// 	wireguard.#List.items,
-// 	wireguard_operator.#List.items,
-// ]
 
 #List
