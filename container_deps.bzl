@@ -3,7 +3,7 @@ load("@io_bazel_rules_docker//container:container.bzl", "container_pull")
 def container_dependencies():
     container_pull(
         name = "io_docker_index_library_debian_bookworm_slim",
-        digest = "sha256:d6a343a9b7faf367bd975cadb5c9af51874a8ecf1a2b2baa96877d578ac96722",
+        digest = "sha256:88615a98ed57334c7adcf5de988ee406b686c263bb7d324cd7b75db01f980503",
         registry = "index.docker.io",
         repository = "library/debian",
         tag = "bookworm-slim",
