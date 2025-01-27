@@ -16,8 +16,8 @@ import (
 
 _image: tools.#Image & {
 	name:   "sissbruecker/linkding"
-	tag:    "1.36.0-plus"
-	digest: "sha256:d61ab1f293ddbc4a3d640b7801a9e6d175d07e1e065ed88ddac50fd54d40ad3c"
+	tag:    "1.37.0-plus"
+	digest: "sha256:09ee74495d0305ddaf1bcb7c1884ed51e85e8e590638d4b0a0b4054d64fc25e7"
 }
 
 _image: tag: "\(#Version)-plus"
