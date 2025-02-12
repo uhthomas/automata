@@ -38,7 +38,6 @@ import (
 	"github.com/uhthomas/automata/k8s/magiclove/smartctl_exporter"
 	"github.com/uhthomas/automata/k8s/magiclove/snapshot_controller"
 	"github.com/uhthomas/automata/k8s/magiclove/speedtest_exporter"
-	"github.com/uhthomas/automata/k8s/magiclove/spire"
 	"github.com/uhthomas/automata/k8s/magiclove/thomas"
 	// "github.com/uhthomas/automata/k8s/magiclove/trivy_system"
 	"github.com/uhthomas/automata/k8s/magiclove/vector"
@@ -57,7 +56,7 @@ import (
 }
 
 _#KindWeight: {
-	kind:   string | *"?"
+	kind: string | *"?"
 	weight: [
 		if kind == "CustomResourceDefinition" {2},
 		if kind == "Namespace" {1},
@@ -67,8 +66,8 @@ _#KindWeight: {
 }
 
 #List: items: list.Sort(list.Concat(_items), {
-	x:    _
-	y:    _
+	x: _
+	y: _
 	less: (_#KindWeight & {kind: x.kind}).weight > (_#KindWeight & {kind: y.kind}).weight
 })
 
@@ -114,7 +113,6 @@ _items: [
 	smartctl_exporter.#List.items,
 	snapshot_controller.#List.items,
 	speedtest_exporter.#List.items,
-	spire.#List.items,
 	thomas.#List.items,
 	// trivy_system.#List.items,
 	// vector.#List.items,
