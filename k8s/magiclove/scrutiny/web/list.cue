@@ -29,7 +29,6 @@ import (
 #List: items: list.Concat(_items)
 
 _items: [
-	#CertificateList.items,
 	#ExternalSecretList.items,
 	#GatewayList.items,
 	#HTTPRouteList.items,

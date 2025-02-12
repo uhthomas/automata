@@ -34,7 +34,6 @@ _items: [
 	#CephClusterList.items,
 	#CephFilesystemList.items,
 	#CephObjectStoreList.items,
-	#CertificateList.items,
 	#ClusterRoleBindingList.items,
 	#ClusterRoleList.items,
 	#ConfigMapList.items,

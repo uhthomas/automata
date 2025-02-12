@@ -30,7 +30,6 @@ import (
 #List: items: list.Concat(_items)
 
 _items: [
-	#CertificateList.items,
 	#GatewayList.items,
 	#HTTPRouteList.items,
 	#NamespaceList.items,

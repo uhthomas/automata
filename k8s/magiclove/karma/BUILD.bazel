@@ -3,7 +3,6 @@ load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
 cue_library(
     name = "cue_karma_library",
     srcs = [
-        "certificate_list.cue",
         "cilium_network_policy_list.cue",
         "deployment_list.cue",
         "gateway_list.cue",
@@ -15,7 +14,6 @@ cue_library(
     importpath = "github.com/uhthomas/automata/k8s/magiclove/karma",
     visibility = ["//visibility:public"],
     deps = [
-        "//cue.mod/gen/github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1:cue_v1_library",
         "//cue.mod/gen/github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2:cue_v2_library",
         "//cue.mod/gen/github.com/cilium/cilium/pkg/policy/api:cue_api_library",
         "//cue.mod/gen/k8s.io/api/apps/v1:cue_v1_library",
