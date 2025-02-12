@@ -18,8 +18,6 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			app:                          "cert-manager"
 			"app.kubernetes.io/name":     "cert-manager"
 			"app.kubernetes.io/instance": "cert-manager"
-			// Generated labels
-			"app.kubernetes.io/version": "v1.16.1"
 		}
 	}
 	spec: {
@@ -395,8 +393,6 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			app:                          "cert-manager"
 			"app.kubernetes.io/name":     "cert-manager"
 			"app.kubernetes.io/instance": "cert-manager"
-			// Generated labels
-			"app.kubernetes.io/version": "v1.16.1"
 		}
 	}
 	spec: {
@@ -1308,8 +1304,6 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			app:                          "cert-manager"
 			"app.kubernetes.io/name":     "cert-manager"
 			"app.kubernetes.io/instance": "cert-manager"
-			// Generated labels
-			"app.kubernetes.io/version": "v1.16.1"
 		}
 	}
 	spec: {
@@ -5276,8 +5270,6 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			app:                          "cert-manager"
 			"app.kubernetes.io/name":     "cert-manager"
 			"app.kubernetes.io/instance": "cert-manager"
-			// Generated labels
-			"app.kubernetes.io/version": "v1.16.1"
 		}
 	}
 	spec: {
@@ -9910,8 +9902,6 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			"app.kubernetes.io/name":      "cert-manager"
 			"app.kubernetes.io/instance":  "cert-manager"
 			"app.kubernetes.io/component": "crds"
-			// Generated labels
-			"app.kubernetes.io/version": "v1.16.1"
 		}
 	}
 	spec: {
@@ -14541,8 +14531,6 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			"app.kubernetes.io/name":      "cert-manager"
 			"app.kubernetes.io/instance":  "cert-manager"
 			"app.kubernetes.io/component": "crds"
-			// Generated labels
-			"app.kubernetes.io/version": "v1.16.1"
 		}
 	}
 	spec: {
