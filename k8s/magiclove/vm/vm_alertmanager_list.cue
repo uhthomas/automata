@@ -33,6 +33,7 @@ import (
 			fsGroupChangePolicy: v1.#FSGroupChangeOnRootMismatch
 			seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 		}
+		configSelector: {}
 		containers: [{
 			name: "alertmanager"
 			securityContext: {
@@ -41,11 +42,11 @@ import (
 				allowPrivilegeEscalation: false
 			}
 		}]
+		disableNamespaceMatcher: true
 		serviceSpec: spec: ports: [{
 			name:       "http"
 			port:       80
 			targetPort: "web"
 		}]
-		selectAllByDefault: true
 	}
 }]

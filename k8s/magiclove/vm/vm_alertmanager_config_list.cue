@@ -17,7 +17,7 @@ import victoriametricsv1beta1 "github.com/VictoriaMetrics/operator/api/victoriam
 			receiver: "discord"
 			routes: [{
 				receiver: "discard"
-				match: alertname: "Watchdog"
+				matchers: ["alertname=Watchdog"]
 			}, {
 				receiver: "discord"
 			}]
