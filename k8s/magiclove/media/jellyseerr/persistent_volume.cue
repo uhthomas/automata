@@ -14,7 +14,7 @@ import "k8s.io/api/core/v1"
 #PersistentVolumeList: items: [{
 	metadata: name: "media-config-jellyseerr-0"
 	spec: {
-		capacity: storage: "1Gi"
+		capacity: storage: "2Gi"
 		csi: {
 			driver:       "rook-ceph.rbd.csi.ceph.com"
 			volumeHandle: "csi-vol-2e902bf2-7b99-4b2f-a269-d28f7eb8d377"
