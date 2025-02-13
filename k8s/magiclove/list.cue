@@ -46,6 +46,7 @@ import (
 	"github.com/uhthomas/automata/k8s/magiclove/volsync_system"
 	"github.com/uhthomas/automata/k8s/magiclove/wireguard"
 	"github.com/uhthomas/automata/k8s/magiclove/wireguard_operator"
+	"github.com/uhthomas/automata/k8s/magiclove/zigbee2mqtt"
 	"k8s.io/api/core/v1"
 )
 
@@ -120,6 +121,7 @@ _items: [
 	// volsync_system.#List.items,
 	wireguard.#List.items,
 	wireguard_operator.#List.items,
+	zigbee2mqtt.#List.items,
 ]
 
 #List

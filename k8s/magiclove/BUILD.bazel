@@ -63,6 +63,7 @@ cue_export(
         "//k8s/magiclove/volsync_system:cue_volsync_system_library",
         "//k8s/magiclove/wireguard:cue_wireguard_library",
         "//k8s/magiclove/wireguard_operator:cue_wireguard_operator_library",
+        "//k8s/magiclove/zigbee2mqtt:cue_zigbee2mqtt_library",
     ],
 )
 
