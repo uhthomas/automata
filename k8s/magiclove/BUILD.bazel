@@ -29,8 +29,6 @@ cue_export(
         "//k8s/magiclove/cilium_secrets:cue_cilium_secrets_library",
         "//k8s/magiclove/dcgm_exporter:cue_dcgm_exporter_library",
         "//k8s/magiclove/default:cue_default_library",
-        "//k8s/magiclove/emqx:cue_emqx_library",
-        "//k8s/magiclove/emqx_exporter:cue_emqx_exporter_library",
         "//k8s/magiclove/external_dns:cue_external_dns_library",
         "//k8s/magiclove/external_secrets:cue_external_secrets_library",
         "//k8s/magiclove/frigate:cue_frigate_library",

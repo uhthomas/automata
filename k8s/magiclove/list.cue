@@ -9,8 +9,6 @@ import (
 	"github.com/uhthomas/automata/k8s/magiclove/cilium_secrets"
 	"github.com/uhthomas/automata/k8s/magiclove/dcgm_exporter"
 	"github.com/uhthomas/automata/k8s/magiclove/default"
-	"github.com/uhthomas/automata/k8s/magiclove/emqx"
-	"github.com/uhthomas/automata/k8s/magiclove/emqx_exporter"
 	"github.com/uhthomas/automata/k8s/magiclove/external_dns"
 	"github.com/uhthomas/automata/k8s/magiclove/external_secrets"
 	// "github.com/uhthomas/automata/k8s/magiclove/fluent_bit"
@@ -85,8 +83,6 @@ _items: [
 	cilium_secrets.#List.items,
 	dcgm_exporter.#List.items,
 	default.#List.items,
-	emqx.#List.items,
-	emqx_exporter.#List.items,
 	external_dns.#List.items,
 	external_secrets.#List.items,
 	// fluent_bit.#List.items,
