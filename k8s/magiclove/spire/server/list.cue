@@ -10,7 +10,7 @@ import (
 #Namespace: "spire"
 
 // renovate: datasource=github-releases depName=spiffe/spire extractVersion=^v(?<version>.*)$
-#Version: "1.5.1"
+#Version: "1.11.2"
 
 #List: v1.#List & {
 	apiVersion: "v1"
