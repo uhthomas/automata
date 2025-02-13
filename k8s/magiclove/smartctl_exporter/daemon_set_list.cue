@@ -37,9 +37,12 @@ import (
 						name:          "http-metrics"
 						containerPort: 9633
 					}]
-					resources: limits: {
-						(v1.#ResourceCPU):    "500m"
-						(v1.#ResourceMemory): "64Mi"
+					resources: {
+						requests: (v1.#ResourceCPU): "200m"
+						limits: {
+							(v1.#ResourceCPU):    "1"
+							(v1.#ResourceMemory): "64Mi"
+						}
 					}
 					volumeMounts: [{
 						name:      "dev"
