@@ -8,7 +8,7 @@ import (
 
 #Name:      "cert-manager"
 #Namespace: #Name
-#Version:   "1.17.0"
+#Version:   "1.17.1"
 
 #List: v1.#List & {
 	apiVersion: "v1"
