@@ -35,7 +35,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Implementations MUST populate status on all GatewayClass resources which
 	// specify their controller name.
 	//
-	// +kubebuilder:default={conditions: {{type: "Accepted", status: "Unknown", message: "Waiting for controller", reason: "Waiting", lastTransitionTime: "1970-01-01T00:00:00Z"}}}
+	// +kubebuilder:default={conditions: {{type: "Accepted", status: "Unknown", message: "Waiting for controller", reason: "Pending", lastTransitionTime: "1970-01-01T00:00:00Z"}}}
 	status?: #GatewayClassStatus @go(Status)
 }
 
@@ -66,8 +66,10 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// or an implementation-specific custom resource. The resource can be
 	// cluster-scoped or namespace-scoped.
 	//
-	// If the referent cannot be found, the GatewayClass's "InvalidParameters"
-	// status condition will be true.
+	// If the referent cannot be found, refers to an unsupported kind, or when
+	// the data within that resource is malformed, the GatewayClass SHOULD be
+	// rejected with the "Accepted" status condition set to "False" and an
+	// "InvalidParameters" reason.
 	//
 	// A Gateway for this GatewayClass may provide its own `parametersRef`. When both are specified,
 	// the merging behavior is implementation specific.
@@ -125,6 +127,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	#GatewayClassReasonAccepted |
 	#GatewayClassReasonInvalidParameters |
 	#GatewayClassReasonPending |
+	#GatewayClassReasonUnsupported |
 	#GatewayClassReasonWaiting |
 	#GatewayClassReasonSupportedVersion |
 	#GatewayClassReasonUnsupportedVersion
@@ -146,6 +149,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // Possible reasons for this condition to be False are:
 //
 // * "InvalidParameters"
+// * "Unsupported"
 // * "UnsupportedVersion"
 //
 // Possible reasons for this condition to be Unknown are:
@@ -160,9 +164,10 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // true.
 #GatewayClassReasonAccepted: #GatewayClassConditionReason & "Accepted"
 
-// This reason is used with the "Accepted" condition when the
-// GatewayClass was not accepted because the parametersRef field
-// was invalid, with more detail in the message.
+// This reason is used with the "Accepted" condition when the GatewayClass
+// was not accepted because the parametersRef field refers to a nonexistent
+// or unsupported resource or kind, or when the data within that resource is
+// malformed.
 #GatewayClassReasonInvalidParameters: #GatewayClassConditionReason & "InvalidParameters"
 
 // This reason is used with the "Accepted" condition when the
@@ -170,6 +175,11 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // to admit the GatewayClass. It is the default Reason on a new
 // GatewayClass.
 #GatewayClassReasonPending: #GatewayClassConditionReason & "Pending"
+
+// This reason is used with the "Accepted" condition when the GatewayClass
+// was not accepted because the implementation does not support a
+// user-defined GatewayClass.
+#GatewayClassReasonUnsupported: #GatewayClassConditionReason & "Unsupported"
 
 // Deprecated: Use "Pending" instead.
 #GatewayClassReasonWaiting: #GatewayClassConditionReason & "Waiting"
@@ -233,9 +243,10 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	conditions?: [...metav1.#Condition] @go(Conditions,[]metav1.Condition)
 
 	// SupportedFeatures is the set of features the GatewayClass support.
-	// It MUST be sorted in ascending alphabetical order.
+	// It MUST be sorted in ascending alphabetical order by the Name key.
 	// +optional
-	// +listType=set
+	// +listType=map
+	// +listMapKey=name
 	// <gateway:experimental>
 	// +kubebuilder:validation:MaxItems=64
 	supportedFeatures?: [...#SupportedFeature] @go(SupportedFeatures,[]SupportedFeature)
@@ -248,6 +259,8 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	items: [...#GatewayClass] @go(Items,[]GatewayClass)
 }
 
-// SupportedFeature is used to describe distinct features that are covered by
+// FeatureName is used to describe distinct features that are covered by
 // conformance tests.
-#SupportedFeature: string
+#FeatureName: string
+
+#SupportedFeature: _

@@ -198,11 +198,19 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	// Infrastructure defines infrastructure level attributes about this Gateway instance.
 	//
-	// Support: Core
+	// Support: Extended
 	//
-	// <gateway:experimental>
 	// +optional
 	infrastructure?: null | #GatewayInfrastructure @go(Infrastructure,*GatewayInfrastructure)
+
+	// BackendTLS configures TLS settings for when this Gateway is connecting to
+	// backends with TLS.
+	//
+	// Support: Core
+	//
+	// +optional
+	// <gateway:experimental>
+	backendTLS?: null | #GatewayBackendTLS @go(BackendTLS,*GatewayBackendTLS)
 }
 
 // Listener embodies the concept of a logical endpoint where a Gateway accepts
@@ -325,7 +333,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 //
 // +kubebuilder:validation:MinLength=1
 // +kubebuilder:validation:MaxLength=255
-// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9]([-a-zSA-Z0-9]*[a-zA-Z0-9])?$|[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*\/[A-Za-z0-9]+$`
+// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9]([-a-zA-Z0-9]*[a-zA-Z0-9])?$|[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*\/[A-Za-z0-9]+$`
 #ProtocolType: string // #enumProtocolType
 
 #enumProtocolType:
@@ -352,6 +360,29 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 // Accepts UDP packets.
 #UDPProtocolType: #ProtocolType & "UDP"
+
+// GatewayBackendTLS describes backend TLS configuration for gateway.
+#GatewayBackendTLS: {
+	// ClientCertificateRef is a reference to an object that contains a Client
+	// Certificate and the associated private key.
+	//
+	// References to a resource in different namespace are invalid UNLESS there
+	// is a ReferenceGrant in the target namespace that allows the certificate
+	// to be attached. If a ReferenceGrant does not allow this reference, the
+	// "ResolvedRefs" condition MUST be set to False for this listener with the
+	// "RefNotPermitted" reason.
+	//
+	// ClientCertificateRef can reference to standard Kubernetes resources, i.e.
+	// Secret, or implementation-specific custom resources.
+	//
+	// This setting can be overridden on the service level by use of BackendTLSPolicy.
+	//
+	// Support: Core
+	//
+	// +optional
+	// <gateway:experimental>
+	clientCertificateRef?: null | #SecretObjectReference @go(ClientCertificateRef,*SecretObjectReference)
+}
 
 // GatewayTLSConfig describes a TLS configuration.
 //
@@ -665,11 +696,16 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// An implementation may chose to add additional implementation-specific labels as they see fit.
 	//
+	// If an implementation maps these labels to Pods, or any other resource that would need to be recreated when labels
+	// change, it SHOULD clearly warn about this behavior in documentation.
+	//
 	// Support: Extended
 	//
 	// +optional
 	// +kubebuilder:validation:MaxProperties=8
-	labels?: {[string]: #AnnotationValue} @go(Labels,map[AnnotationKey]AnnotationValue)
+	// +kubebuilder:validation:XValidation:message="Label keys must be in the form of an optional DNS subdomain prefix followed by a required name segment of up to 63 characters.",rule="self.all(key, key.matches(r\"\"\"^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?([A-Za-z0-9][-A-Za-z0-9_.]{0,61})?[A-Za-z0-9]$\"\"\"))"
+	// +kubebuilder:validation:XValidation:message="If specified, the label key's prefix must be a DNS subdomain not longer than 253 characters in total.",rule="self.all(key, key.split(\"/\")[0].size() < 253)"
+	labels?: {[string]: #LabelValue} @go(Labels,map[LabelKey]LabelValue)
 
 	// Annotations that SHOULD be applied to any resources created in response to this Gateway.
 	//
@@ -682,6 +718,8 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +optional
 	// +kubebuilder:validation:MaxProperties=8
+	// +kubebuilder:validation:XValidation:message="Annotation keys must be in the form of an optional DNS subdomain prefix followed by a required name segment of up to 63 characters.",rule="self.all(key, key.matches(r\"\"\"^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?([A-Za-z0-9][-A-Za-z0-9_.]{0,61})?[A-Za-z0-9]$\"\"\"))"
+	// +kubebuilder:validation:XValidation:message="If specified, the annotation key's prefix must be a DNS subdomain not longer than 253 characters in total.",rule="self.all(key, key.split(\"/\")[0].size() < 253)"
 	annotations?: {[string]: #AnnotationValue} @go(Annotations,map[AnnotationKey]AnnotationValue)
 
 	// ParametersRef is a reference to a resource that contains the configuration

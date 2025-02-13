@@ -6,6 +6,7 @@ cue_library(
         "doc_go_gen.cue",
         "gateway_types_go_gen.cue",
         "gatewayclass_types_go_gen.cue",
+        "gatewayclass_types_overrides_go_gen.cue",
         "grpcroute_types_go_gen.cue",
         "httproute_types_go_gen.cue",
         "object_reference_types_go_gen.cue",

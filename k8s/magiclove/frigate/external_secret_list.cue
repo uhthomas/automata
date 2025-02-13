@@ -24,7 +24,7 @@ import externalsecretsv1beta1 "github.com/external-secrets/external-secrets/apis
 		data: [{
 			secretKey: "mqtt-password"
 			remoteRef: {
-				key:      "frigate-emqx"
+				key:      "mosquitto-frigate"
 				property: "password"
 			}
 		}, {

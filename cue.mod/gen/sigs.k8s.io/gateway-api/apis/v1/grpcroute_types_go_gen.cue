@@ -119,6 +119,8 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +optional
 	// +kubebuilder:validation:MaxItems=16
+	// +kubebuilder:validation:XValidation:message="While 16 rules and 64 matches per rule are allowed, the total number of matches across all rules in a route must be less than 128",rule="(self.size() > 0 ? (has(self[0].matches) ? self[0].matches.size() : 0) : 0) + (self.size() > 1 ? (has(self[1].matches) ? self[1].matches.size() : 0) : 0) + (self.size() > 2 ? (has(self[2].matches) ? self[2].matches.size() : 0) : 0) + (self.size() > 3 ? (has(self[3].matches) ? self[3].matches.size() : 0) : 0) + (self.size() > 4 ? (has(self[4].matches) ? self[4].matches.size() : 0) : 0) + (self.size() > 5 ? (has(self[5].matches) ? self[5].matches.size() : 0) : 0) + (self.size() > 6 ? (has(self[6].matches) ? self[6].matches.size() : 0) : 0) + (self.size() > 7 ? (has(self[7].matches) ? self[7].matches.size() : 0) : 0) + (self.size() > 8 ? (has(self[8].matches) ? self[8].matches.size() : 0) : 0) + (self.size() > 9 ? (has(self[9].matches) ? self[9].matches.size() : 0) : 0) + (self.size() > 10 ? (has(self[10].matches) ? self[10].matches.size() : 0) : 0) + (self.size() > 11 ? (has(self[11].matches) ? self[11].matches.size() : 0) : 0) + (self.size() > 12 ? (has(self[12].matches) ? self[12].matches.size() : 0) : 0) + (self.size() > 13 ? (has(self[13].matches) ? self[13].matches.size() : 0) : 0) + (self.size() > 14 ? (has(self[14].matches) ? self[14].matches.size() : 0) : 0) + (self.size() > 15 ? (has(self[15].matches) ? self[15].matches.size() : 0) : 0) <= 128"
+	// <gateway:experimental:validation:XValidation:message="Rule name must be unique within the route",rule="self.all(l1, !has(l1.name) || self.exists_one(l2, has(l2.name) && l1.name == l2.name))">
 	rules?: [...#GRPCRouteRule] @go(Rules,[]GRPCRouteRule)
 }
 
@@ -126,6 +128,13 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // conditions (matches), processing it (filters), and forwarding the request to
 // an API object (backendRefs).
 #GRPCRouteRule: {
+	// Name is the name of the route rule. This name MUST be unique within a Route if it is set.
+	//
+	// Support: Extended
+	// +optional
+	// <gateway:experimental>
+	name?: null | #SectionName @go(Name,*SectionName)
+
 	// Matches define conditions used for matching the rule against incoming
 	// gRPC requests. Each match is independent, i.e. this rule will be matched
 	// if **any** one of the matches is satisfied.
@@ -365,7 +374,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +optional
 	// +kubebuilder:default=Exact
-	type?: null | #HeaderMatchType @go(Type,*HeaderMatchType)
+	type?: null | #GRPCHeaderMatchType @go(Type,*GRPCHeaderMatchType)
 
 	// Name is the name of the gRPC Header to be matched.
 	//
@@ -524,6 +533,8 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended
 	//
 	// +optional
+	//
+	// <gateway:experimental:validation:XValidation:message="Only one of percent or fraction may be specified in HTTPRequestMirrorFilter",rule="!(has(self.percent) && has(self.fraction))">
 	requestMirror?: null | #HTTPRequestMirrorFilter @go(RequestMirror,*HTTPRequestMirrorFilter)
 
 	// ExtensionRef is an optional, implementation-specific extension to the

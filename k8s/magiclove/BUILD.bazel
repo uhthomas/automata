@@ -46,6 +46,7 @@ cue_export(
         "//k8s/magiclove/media:cue_media_library",
         "//k8s/magiclove/metrics_server:cue_metrics_server_library",
         "//k8s/magiclove/minecraft:cue_minecraft_library",
+        "//k8s/magiclove/mosquitto:cue_mosquitto_library",
         "//k8s/magiclove/node_exporter:cue_node_exporter_library",
         "//k8s/magiclove/node_problem_detector:cue_node_problem_detector_library",
         "//k8s/magiclove/nvidia_device_plugin:cue_nvidia_device_plugin_library",

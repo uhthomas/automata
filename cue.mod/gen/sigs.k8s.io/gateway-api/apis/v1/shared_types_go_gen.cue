@@ -533,6 +533,11 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // +kubebuilder:validation:Pattern=`^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$`
 #PreciseHostname: string
 
+// +kubebuilder:validation:MinLength=1
+// +kubebuilder:validation:MaxLength=253
+// +kubebuilder:validation:Pattern=`^(([^:/?#]+):)(//([^/?#]*))([^?#]*)(\?([^#]*))?(#(.*))?`
+#AbsoluteURI: string
+
 // Group refers to a Kubernetes Group. It must either be an empty string or a
 // RFC 1123 subdomain.
 //
@@ -664,7 +669,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 //
 // +kubebuilder:validation:MinLength=1
 // +kubebuilder:validation:MaxLength=253
-// +kubebuilder:validation:Pattern=`^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]/?)*$`
+// +kubebuilder:validation:Pattern=`^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?([A-Za-z0-9][-A-Za-z0-9_.]{0,61})?[A-Za-z0-9]$`
 #AnnotationKey: string
 
 // AnnotationValue is the value of an annotation in Gateway API. This is used
@@ -675,6 +680,45 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // +kubebuilder:validation:MinLength=0
 // +kubebuilder:validation:MaxLength=4096
 #AnnotationValue: string
+
+// LabelKey is the key of a label in the Gateway API. This is used for validation
+// of maps such as Gateway infrastructure labels. This matches the Kubernetes
+// "qualified name" validation that is used for labels.
+//
+// Valid values include:
+//
+// * example
+// * example.com
+// * example.com/path
+// * example.com/path.html
+//
+// Invalid values include:
+//
+// * example~ - "~" is an invalid character
+// * example.com. - can not start or end with "."
+//
+// +kubebuilder:validation:MinLength=1
+// +kubebuilder:validation:MaxLength=253
+// +kubebuilder:validation:Pattern=`^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?([A-Za-z0-9][-A-Za-z0-9_.]{0,61})?[A-Za-z0-9]$`
+#LabelKey: string
+
+// LabelValue is the value of a label in the Gateway API. This is used for validation
+// of maps such as Gateway infrastructure labels. This matches the Kubernetes
+// label validation rules:
+// * must be 63 characters or less (can be empty),
+// * unless empty, must begin and end with an alphanumeric character ([a-z0-9A-Z]),
+// * could contain dashes (-), underscores (_), dots (.), and alphanumerics between.
+//
+// Valid values include:
+//
+// * MyValue
+// * my.name
+// * 123-my-value
+//
+// +kubebuilder:validation:MinLength=0
+// +kubebuilder:validation:MaxLength=63
+// +kubebuilder:validation:Pattern=`^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$`
+#LabelValue: string
 
 // AddressType defines how a network address is represented as a text string.
 // This may take two possible forms:
@@ -746,7 +790,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 #NamedAddressType: #AddressType & "NamedAddress"
 
 // SessionPersistence defines the desired state of SessionPersistence.
-// +kubebuilder:validation:XValidation:message="AbsoluteTimeout must be specified when cookie lifetimeType is Permanent",rule="!has(self.cookieConfig.lifetimeType) || self.cookieConfig.lifetimeType != 'Permanent' || has(self.absoluteTimeout)"
+// +kubebuilder:validation:XValidation:message="AbsoluteTimeout must be specified when cookie lifetimeType is Permanent",rule="!has(self.cookieConfig) || !has(self.cookieConfig.lifetimeType) || self.cookieConfig.lifetimeType != 'Permanent' || has(self.absoluteTimeout)"
 #SessionPersistence: {
 	// SessionName defines the name of the persistent session token
 	// which may be reflected in the cookie or the header. Users
@@ -860,3 +904,14 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 //
 // Support: Extended
 #PermanentCookieLifetimeType: #CookieLifetimeType & "Permanent"
+
+// +kubebuilder:validation:XValidation:message="numerator must be less than or equal to denominator",rule="self.numerator <= self.denominator"
+#Fraction: {
+	// +kubebuilder:validation:Minimum=0
+	numerator: int32 @go(Numerator)
+
+	// +optional
+	// +kubebuilder:default=100
+	// +kubebuilder:validation:Minimum=1
+	denominator?: null | int32 @go(Denominator,*int32)
+}

@@ -4,7 +4,10 @@
 
 package v1beta1
 
-import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/gateway-api/apis/v1"
+)
 
 // ReferenceGrant identifies kinds of resources in other namespaces that are
 // trusted to reference the specified kinds of resources in the same namespace
@@ -22,8 +25,6 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // support ReferenceGrant MUST NOT permit cross-namespace references which have
 // no grant, and MUST respond to the removal of a grant by revoking the access
 // that the grant allowed.
-//
-// Support: Core
 #ReferenceGrant: {
 	metav1.#TypeMeta
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta)
@@ -72,7 +73,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// When empty, the Kubernetes core API group is inferred.
 	//
 	// Support: Core
-	group: #Group @go(Group)
+	group: v1.#Group @go(Group,sigs.k8s.io/gateway-api/apis/v1.Group)
 
 	// Kind is the kind of the referent. Although implementations may support
 	// additional resources, the following types are part of the "Core"
@@ -89,12 +90,12 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// * TCPRoute
 	// * TLSRoute
 	// * UDPRoute
-	kind: #Kind @go(Kind)
+	kind: v1.#Kind @go(Kind,sigs.k8s.io/gateway-api/apis/v1.Kind)
 
 	// Namespace is the namespace of the referent.
 	//
 	// Support: Core
-	namespace: #Namespace @go(Namespace)
+	namespace: v1.#Namespace @go(Namespace,sigs.k8s.io/gateway-api/apis/v1.Namespace)
 }
 
 // ReferenceGrantTo describes what Kinds are allowed as targets of the
@@ -104,7 +105,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// When empty, the Kubernetes core API group is inferred.
 	//
 	// Support: Core
-	group: #Group @go(Group)
+	group: v1.#Group @go(Group,sigs.k8s.io/gateway-api/apis/v1.Group)
 
 	// Kind is the kind of the referent. Although implementations may support
 	// additional resources, the following types are part of the "Core"
@@ -112,12 +113,12 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// * Secret when used to permit a SecretObjectReference
 	// * Service when used to permit a BackendObjectReference
-	kind: #Kind @go(Kind)
+	kind: v1.#Kind @go(Kind,sigs.k8s.io/gateway-api/apis/v1.Kind)
 
 	// Name is the name of the referent. When unspecified, this policy
 	// refers to all resources of the specified Group and Kind in the local
 	// namespace.
 	//
 	// +optional
-	name?: null | #ObjectName @go(Name,*ObjectName)
+	name?: null | v1.#ObjectName @go(Name,*sigs.k8s.io/gateway-api/apis/v1.ObjectName)
 }

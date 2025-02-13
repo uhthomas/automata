@@ -18,7 +18,7 @@ import (
 #ConfigMapList: items: [{
 	data: "config.yaml": yaml.Marshal({
 		mqtt: {
-			host:     "emqx.emqx"
+			host:     "mosquitto-magiclove.hipparcos.net"
 			user:     "frigate"
 			password: "{FRIGATE_MQTT_PASSWORD}"
 		}

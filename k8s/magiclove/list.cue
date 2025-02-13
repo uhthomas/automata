@@ -27,6 +27,7 @@ import (
 	"github.com/uhthomas/automata/k8s/magiclove/media"
 	"github.com/uhthomas/automata/k8s/magiclove/metrics_server"
 	"github.com/uhthomas/automata/k8s/magiclove/minecraft"
+	"github.com/uhthomas/automata/k8s/magiclove/mosquitto"
 	"github.com/uhthomas/automata/k8s/magiclove/node_exporter"
 	// "github.com/uhthomas/automata/k8s/magiclove/node_feature_discovery"
 	"github.com/uhthomas/automata/k8s/magiclove/node_problem_detector"
@@ -102,6 +103,7 @@ _items: [
 	media.#List.items,
 	metrics_server.#List.items,
 	// minecraft.#List.items,
+	mosquitto.#List.items,
 	node_exporter.#List.items,
 	// node_feature_discovery.#List.items,
 	// node_problem_detector.#List.items,
