@@ -37,7 +37,7 @@ import (
 			initContainers: [{
 				let initConfigPath = "/tmp/init/config.yaml"
 				name:  "copy-config"
-				image: "alpine:3.17.2@sha256:e2e16842c9b54d985bf1ef9242a313f36b856181f188de21313820e177002501"
+				image: "alpine:3.21.3@sha256:a8560b36e8b8210634f77d9f7f9efd7ffa463e380b75e2e74aff4511df3ef88c"
 				command: ["cp"]
 				args: [initConfigPath, configPath]
 				volumeMounts: [{
