@@ -10762,7 +10762,7 @@ deployment: [{
 						runAsUser:              1000
 						seccompProfile: type: "RuntimeDefault"
 					}
-					image:           "ghcr.io/external-secrets/external-secrets:v0.9.5"
+					image:           "ghcr.io/external-secrets/external-secrets:v0.14.3"
 					imagePullPolicy: "IfNotPresent"
 					args: ["--concurrent=1"]
 					ports: [{
@@ -10819,7 +10819,7 @@ deployment: [{
 						runAsUser:              1000
 						seccompProfile: type: "RuntimeDefault"
 					}
-					image:           "ghcr.io/external-secrets/external-secrets:v0.9.5"
+					image:           "ghcr.io/external-secrets/external-secrets:v0.14.3"
 					imagePullPolicy: "IfNotPresent"
 					args: [
 						"webhook",
