@@ -455,7 +455,7 @@ import "k8s.io/api/core/v1"
 		//        cpu: 500m
 		// Configure CSI Ceph FS grpc and liveness metrics port
 		// Set to true to enable Ceph CSI liveness container.
-		CSI_ENABLE_LIVENESS: "false"
+		CSI_ENABLE_LIVENESS: "true"
 		// CSI_CEPHFS_GRPC_METRICS_PORT: "9091"
 		// CSI_CEPHFS_LIVENESS_METRICS_PORT: "9081"
 		// Configure CSI RBD grpc and liveness metrics port

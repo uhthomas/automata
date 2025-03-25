@@ -28,4 +28,13 @@ import victoriametricsv1beta1 "github.com/VictoriaMetrics/operator/api/victoriam
 			rook_cluster: #Namespace
 		}
 	}
+}, {
+	metadata: name: "csi-metrics"
+	spec: {
+		endpoints: [{
+			port:     "csi-http-metrics"
+			interval: "5s"
+		}]
+		selector: matchLabels: app: "csi-metrics"
+	}
 }]

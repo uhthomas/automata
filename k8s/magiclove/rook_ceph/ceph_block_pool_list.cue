@@ -22,7 +22,8 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 		}
 		deviceClass: "nvme"
 		parameters: compression_mode: "none"
-		mirroring: enabled:           false
+		enableRBDStats: true
+		mirroring: enabled: false
 	}
 }, {
 	metadata: name: "ecpool-nvme"
@@ -34,6 +35,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 		}
 		deviceClass: "nvme"
 		parameters: compression_mode: "none"
+		enableRBDStats: true
 	}
 }, {
 	metadata: name: "replicapool-nvme"
@@ -42,6 +44,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 		replicated: size: 3
 		deviceClass: "nvme"
 		parameters: compression_mode: "none"
+		enableRBDStats: true
 	}
 }, {
 	metadata: name: "ecpool-hdd"
@@ -56,6 +59,7 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 			compression_mode: "none"
 			min_size:         "5"
 		}
+		enableRBDStats: true
 	}
 }, {
 	metadata: name: "replicapool-hdd"
@@ -64,5 +68,6 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 		replicated: size: 3
 		deviceClass: "hdd"
 		parameters: compression_mode: "none"
+		enableRBDStats: true
 	}
 }]
