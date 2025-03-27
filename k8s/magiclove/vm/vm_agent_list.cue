@@ -1,11 +1,11 @@
 package vm
 
 import (
-	victoriametricsv1beta1 "github.com/VictoriaMetrics/operator/api/victoriametrics/v1beta1"
+	operatorv1beta1 "github.com/VictoriaMetrics/operator/api/operator/v1beta1"
 	"k8s.io/api/core/v1"
 )
 
-#VMAgentList: victoriametricsv1beta1.#VMAgentList & {
+#VMAgentList: operatorv1beta1.#VMAgentList & {
 	apiVersion: "operator.victoriametrics.com/v1beta1"
 	kind:       "VMAgentList"
 	items: [...{
@@ -50,5 +50,6 @@ import (
 			storageClassName: "rook-ceph-nvme"
 			resources: requests: (v1.#ResourceStorage): "4Gi"
 		}
+		configReloaderResources: limits: (v1.#ResourceCPU): "200m"
 	}
 }]

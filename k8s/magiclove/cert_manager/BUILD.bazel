@@ -24,7 +24,7 @@ cue_library(
     importpath = "github.com/uhthomas/automata/k8s/magiclove/cert_manager",
     visibility = ["//visibility:public"],
     deps = [
-        "//cue.mod/gen/github.com/VictoriaMetrics/operator/api/victoriametrics/v1beta1:cue_v1beta1_library",
+        "//cue.mod/gen/github.com/VictoriaMetrics/operator/api/operator/v1beta1:cue_v1beta1_library",
         "//cue.mod/gen/github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1:cue_v1_library",
         "//cue.mod/gen/github.com/cert-manager/cert-manager/pkg/apis/config/controller/v1alpha1:cue_v1alpha1_library",
         "//cue.mod/gen/github.com/external-secrets/external-secrets/apis/externalsecrets/v1beta1:cue_v1beta1_library",

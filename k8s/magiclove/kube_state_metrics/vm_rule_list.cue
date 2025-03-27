@@ -1,8 +1,8 @@
 package kube_state_metrics
 
-import victoriametricsv1beta1 "github.com/VictoriaMetrics/operator/api/victoriametrics/v1beta1"
+import operatorv1beta1 "github.com/VictoriaMetrics/operator/api/operator/v1beta1"
 
-#VMRuleList: victoriametricsv1beta1.#VMRuleList & {
+#VMRuleList: operatorv1beta1.#VMRuleList & {
 	apiVersion: "operator.victoriametrics.com/v1beta1"
 	kind:       "VMRuleList"
 	items: [...{

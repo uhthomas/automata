@@ -1,8 +1,8 @@
 package vm
 
-import victoriametricsv1beta1 "github.com/VictoriaMetrics/operator/api/victoriametrics/v1beta1"
+import operatorv1beta1 "github.com/VictoriaMetrics/operator/api/operator/v1beta1"
 
-#VMAlertmanagerConfigList: victoriametricsv1beta1.#VMAlertmanagerConfigList & {
+#VMAlertmanagerConfigList: operatorv1beta1.#VMAlertmanagerConfigList & {
 	apiVersion: "operator.victoriametrics.com/v1beta1"
 	kind:       "VMAlertmanagerConfigList"
 	items: [...{

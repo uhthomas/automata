@@ -21,7 +21,7 @@ cue_library(
     importpath = "github.com/uhthomas/automata/k8s/magiclove/grafana",
     visibility = ["//visibility:public"],
     deps = [
-        "//cue.mod/gen/github.com/VictoriaMetrics/operator/api/victoriametrics/v1beta1:cue_v1beta1_library",
+        "//cue.mod/gen/github.com/VictoriaMetrics/operator/api/operator/v1beta1:cue_v1beta1_library",
         "//cue.mod/gen/github.com/external-secrets/external-secrets/apis/externalsecrets/v1beta1:cue_v1beta1_library",
         "//cue.mod/gen/github.com/grafana/grafana-operator/v5/api/v1beta1:cue_v1beta1_library",
         "//cue.mod/gen/k8s.io/api/apps/v1:cue_v1_library",

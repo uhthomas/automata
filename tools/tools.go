@@ -7,7 +7,7 @@ import (
 	_ "cuelang.org/go/cmd/cue"
 	_ "github.com/1Password/onepassword-operator/api/v1"
 	_ "github.com/NVIDIA/gpu-operator"
-	_ "github.com/VictoriaMetrics/operator/api/victoriametrics/v1beta1"
+	_ "github.com/VictoriaMetrics/operator/api/operator/v1beta1"
 	_ "github.com/backube/volsync/api/v1alpha1"
 	_ "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 	_ "github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2"

@@ -1,11 +1,11 @@
 package cert_manager
 
 import (
-	victoriametricsv1beta1 "github.com/VictoriaMetrics/operator/api/victoriametrics/v1beta1"
+	operatorv1beta1 "github.com/VictoriaMetrics/operator/api/operator/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-#VMServiceScrapeList: victoriametricsv1beta1.#VMServiceScrapeList & {
+#VMServiceScrapeList: operatorv1beta1.#VMServiceScrapeList & {
 	apiVersion: "operator.victoriametrics.com/v1beta1"
 	kind:       "VMServiceScrapeList"
 	items: [...{

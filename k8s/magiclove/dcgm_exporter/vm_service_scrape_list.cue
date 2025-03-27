@@ -1,8 +1,8 @@
 package dcgm_exporter
 
-import victoriametricsv1beta1 "github.com/VictoriaMetrics/operator/api/victoriametrics/v1beta1"
+import operatorv1beta1 "github.com/VictoriaMetrics/operator/api/operator/v1beta1"
 
-#VMServiceScrapeList: victoriametricsv1beta1.#VMServiceScrapeList & {
+#VMServiceScrapeList: operatorv1beta1.#VMServiceScrapeList & {
 	apiVersion: "operator.victoriametrics.com/v1beta1"
 	kind:       "VMServiceScrapeList"
 	items: [...{
