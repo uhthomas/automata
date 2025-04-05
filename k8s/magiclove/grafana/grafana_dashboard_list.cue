@@ -43,20 +43,6 @@ let dashboards = {
 	"Cert Manager": [
 		"https://gitlab.com/uneeq-oss/cert-manager-mixin/-/raw/master/dashboards/cert-manager.json",
 	]
-	// Should really just be named 'EMQX' but Grafana isn't happy if the
-	// folder and dashboard names are the same.
-	"EMQX MQTT": [
-		// EMQX
-		// https://grafana.com/grafana/dashboards/17446-emqx/
-		17446,
-		"https://raw.githubusercontent.com/emqx/emqx-exporter/5b8a4169266f215e4ffc70d95a915d8bcf8d860e/grafana-dashboard/template/emqx-5/authentication.json",
-		"https://raw.githubusercontent.com/emqx/emqx-exporter/5b8a4169266f215e4ffc70d95a915d8bcf8d860e/grafana-dashboard/template/emqx-5/authorization.json",
-		"https://raw.githubusercontent.com/emqx/emqx-exporter/5b8a4169266f215e4ffc70d95a915d8bcf8d860e/grafana-dashboard/template/emqx-5/client-events.json",
-		"https://raw.githubusercontent.com/emqx/emqx-exporter/5b8a4169266f215e4ffc70d95a915d8bcf8d860e/grafana-dashboard/template/emqx-5/messages.json",
-		"https://raw.githubusercontent.com/emqx/emqx-exporter/5b8a4169266f215e4ffc70d95a915d8bcf8d860e/grafana-dashboard/template/emqx-5/overview.json",
-		"https://raw.githubusercontent.com/emqx/emqx-exporter/5b8a4169266f215e4ffc70d95a915d8bcf8d860e/grafana-dashboard/template/emqx-5/rule-engine-count.json",
-		"https://raw.githubusercontent.com/emqx/emqx-exporter/5b8a4169266f215e4ffc70d95a915d8bcf8d860e/grafana-dashboard/template/emqx-5/rule-engine-rate.json",
-	]
 	Kubernetes: [
 		// Kubernetes / System / API Server
 		// https://grafana.com/grafana/dashboards/15761
