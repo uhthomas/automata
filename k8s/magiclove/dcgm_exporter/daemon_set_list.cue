@@ -26,7 +26,7 @@ import (
 				}]
 				containers: [{
 					name:  "exporter"
-					image: "nvcr.io/nvidia/k8s/dcgm-exporter:3.3.0-3.2.0-ubuntu22.04"
+					image: "nvcr.io/nvidia/k8s/dcgm-exporter:4.1.1-4.0.4-ubuntu22.04"
 					args: ["-f", "/etc/dcgm-exporter/dcp-metrics-included.csv"]
 					ports: [{
 						name:          "http-metrics"
