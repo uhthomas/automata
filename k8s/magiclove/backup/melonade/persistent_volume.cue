@@ -26,7 +26,7 @@ import "k8s.io/api/core/v1"
 			volumeAttributes: {
 				clusterID:     "rook-ceph"
 				imageFeatures: "layering,fast-diff,object-map,deep-flatten,exclusive-lock"
-				pool:          "ecpool-hdd"
+				pool:          "replicapool-nvme"
 				staticVolume:  "true"
 			}
 			nodeStageSecretRef: {

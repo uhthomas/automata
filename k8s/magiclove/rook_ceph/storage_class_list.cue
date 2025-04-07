@@ -46,7 +46,8 @@ let defaultCephFSParameters = defaultParameters & {
 	parameters: defaultRBDParameters & {
 		pool: "replicapool-nvme"
 	}
-	reclaimPolicy:        v1.#PersistentVolumeReclaimRetain
+	reclaimPolicy: v1.#PersistentVolumeReclaimRetain
+	mountOptions: ["discard"]
 	allowVolumeExpansion: true
 }, {
 	metadata: name: "rook-ceph-nvme-ec"
@@ -55,7 +56,8 @@ let defaultCephFSParameters = defaultParameters & {
 		dataPool: "ecpool-nvme"
 		pool:     "replicapool-nvme"
 	}
-	reclaimPolicy:        v1.#PersistentVolumeReclaimRetain
+	reclaimPolicy: v1.#PersistentVolumeReclaimRetain
+	mountOptions: ["discard"]
 	allowVolumeExpansion: true
 }, {
 	metadata: name: "rook-ceph-hdd"
@@ -64,7 +66,8 @@ let defaultCephFSParameters = defaultParameters & {
 		dataPool: "ecpool-hdd"
 		pool:     "replicapool-nvme"
 	}
-	reclaimPolicy:        v1.#PersistentVolumeReclaimRetain
+	reclaimPolicy: v1.#PersistentVolumeReclaimRetain
+	mountOptions: ["discard"]
 	allowVolumeExpansion: true
 }, {
 	metadata: name: "rook-cephfs-nvme"
@@ -73,6 +76,7 @@ let defaultCephFSParameters = defaultParameters & {
 		fsName: "main"
 		pool:   "main-nvme-ec"
 	}
-	reclaimPolicy:        v1.#PersistentVolumeReclaimRetain
+	reclaimPolicy: v1.#PersistentVolumeReclaimRetain
+	mountOptions: ["discard"]
 	allowVolumeExpansion: true
 }]

@@ -93,9 +93,12 @@ import (
 				(v1.#ResourceCPU):    "100m"
 				(v1.#ResourceMemory): "512Mi"
 			}
-			mgr: limits: {
-				(v1.#ResourceCPU):    "1"
-				(v1.#ResourceMemory): "1Gi"
+			mgr: {
+				limits: {
+					(v1.#ResourceCPU):    "4"
+					(v1.#ResourceMemory): "1Gi"
+				}
+				requests: (v1.#ResourceCPU): "1"
 			}
 			mon: limits: {
 				(v1.#ResourceCPU):    "500m"
