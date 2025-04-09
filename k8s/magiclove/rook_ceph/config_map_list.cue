@@ -483,4 +483,11 @@ import "k8s.io/api/core/v1"
 		// Enable topology based provisioning.
 		CSI_ENABLE_TOPOLOGY: "false"
 	}
+}, {
+	metadata: name: "rook-config-override"
+	data: config: """
+		[osd]
+		osd_scrub_auto_repair = true
+
+		"""
 }]
