@@ -10,7 +10,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=github-releases depName=emqx/emqx-exporter
-#Version: "0.2.7"
+#Version: "0.2.11"
 
 #List: v1.#List & {
 	apiVersion: "v1"
