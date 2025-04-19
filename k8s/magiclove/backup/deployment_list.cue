@@ -17,6 +17,7 @@ import (
 #DeploymentList: items: [{
 	metadata: name: "smb"
 	spec: {
+		replicas: 0
 		selector: matchLabels: "app.kubernetes.io/name": "smb"
 		template: {
 			metadata: labels: "app.kubernetes.io/name": "smb"
@@ -28,31 +29,31 @@ import (
 					name: "data-breakfast"
 					persistentVolumeClaim: {
 						claimName: "breakfast"
-						readOnly:  false
+						readOnly:  true
 					}
 				}, {
 					name: "data-immich-unwind"
 					persistentVolumeClaim: {
 						claimName: "immich-unwind"
-						readOnly:  false
+						readOnly:  true
 					}
 				}, {
 					name: "data-legacy"
 					persistentVolumeClaim: {
 						claimName: "legacy"
-						readOnly:  false
+						readOnly:  true
 					}
 				}, {
 					name: "data-lola"
 					persistentVolumeClaim: {
 						claimName: "lola"
-						readOnly:  true
+						readOnly:  false
 					}
 				}, {
 					name: "data-melonade"
 					persistentVolumeClaim: {
 						claimName: "melonade"
-						readOnly:  true
+						readOnly:  false
 					}
 				}, {
 					name: "data-sana"
@@ -64,7 +65,7 @@ import (
 					name: "data-synology"
 					persistentVolumeClaim: {
 						claimName: "synology"
-						readOnly:  false
+						readOnly:  true
 					}
 				}]
 				containers: [{
