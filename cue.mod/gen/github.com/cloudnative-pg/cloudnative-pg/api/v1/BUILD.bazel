@@ -1,0 +1,34 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_v1_library",
+    srcs = [
+        "backup_types_go_gen.cue",
+        "base_types_go_gen.cue",
+        "cluster_defaults_go_gen.cue",
+        "cluster_types_go_gen.cue",
+        "clusterimagecatalog_types_go_gen.cue",
+        "common_types_go_gen.cue",
+        "database_types_go_gen.cue",
+        "doc_go_gen.cue",
+        "generic_funcs_go_gen.cue",
+        "genericimagecatalog_iface_go_gen.cue",
+        "groupversion_info_go_gen.cue",
+        "imagecatalog_types_go_gen.cue",
+        "pooler_types_go_gen.cue",
+        "publication_types_go_gen.cue",
+        "scheduledbackup_types_go_gen.cue",
+        "subscription_types_go_gen.cue",
+    ],
+    importpath = "github.com/cloudnative-pg/cloudnative-pg/api/v1",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//cue.mod/gen/github.com/cloudnative-pg/barman-cloud/pkg/api:cue_api_library",
+        "//cue.mod/gen/github.com/cloudnative-pg/machinery/pkg/api:cue_api_library",
+        "//cue.mod/gen/github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/api/apps/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/apimachinery/pkg/api/resource:cue_resource_library",
+        "//cue.mod/gen/k8s.io/apimachinery/pkg/apis/meta/v1:cue_v1_library",
+    ],
+)

@@ -27,6 +27,7 @@ cue_export(
         "//k8s/magiclove/cert_manager_csi_driver:cue_cert_manager_csi_driver_library",
         "//k8s/magiclove/cilium:cue_cilium_library",
         "//k8s/magiclove/cilium_secrets:cue_cilium_secrets_library",
+        "//k8s/magiclove/cnpg_system:cue_cnpg_system_library",
         "//k8s/magiclove/dcgm_exporter:cue_dcgm_exporter_library",
         "//k8s/magiclove/default:cue_default_library",
         "//k8s/magiclove/external_dns:cue_external_dns_library",

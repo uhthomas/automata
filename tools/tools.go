@@ -12,6 +12,7 @@ import (
 	_ "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 	_ "github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2"
 	_ "github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2alpha1"
+	_ "github.com/cloudnative-pg/cloudnative-pg/api/v1"
 	_ "github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
 	_ "github.com/external-secrets/external-secrets/apis/externalsecrets/v1beta1"
 	_ "github.com/grafana/grafana-operator/v5"

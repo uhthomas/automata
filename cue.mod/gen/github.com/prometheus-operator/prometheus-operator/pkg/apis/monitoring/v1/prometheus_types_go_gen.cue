@@ -5,8 +5,10 @@
 package v1
 
 import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	appsv1 "k8s.io/api/apps/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
@@ -14,90 +16,187 @@ import (
 #PrometheusName:    "prometheuses"
 #PrometheusKindKey: "prometheus"
 
+// ScrapeProtocol represents a protocol used by Prometheus for scraping metrics.
+// Supported values are:
+// * `OpenMetricsText0.0.1`
+// * `OpenMetricsText1.0.0`
+// * `PrometheusProto`
+// * `PrometheusText0.0.4`
+// * `PrometheusText1.0.0`
+// +kubebuilder:validation:Enum=PrometheusProto;OpenMetricsText0.0.1;OpenMetricsText1.0.0;PrometheusText0.0.4;PrometheusText1.0.0
+#ScrapeProtocol: string // #enumScrapeProtocol
+
+#enumScrapeProtocol:
+	#PrometheusProto |
+	#PrometheusText0_0_4 |
+	#PrometheusText1_0_0 |
+	#OpenMetricsText0_0_1 |
+	#OpenMetricsText1_0_0
+
+#PrometheusProto:      #ScrapeProtocol & "PrometheusProto"
+#PrometheusText0_0_4:  #ScrapeProtocol & "PrometheusText0.0.4"
+#PrometheusText1_0_0:  #ScrapeProtocol & "PrometheusText1.0.0"
+#OpenMetricsText0_0_1: #ScrapeProtocol & "OpenMetricsText0.0.1"
+#OpenMetricsText1_0_0: #ScrapeProtocol & "OpenMetricsText1.0.0"
+
+// RuntimeConfig configures the values for the process behavior.
+#RuntimeConfig: {
+	// The Go garbage collection target percentage. Lowering this number may increase the CPU usage.
+	// See: https://tip.golang.org/doc/gc-guide#GOGC
+	// +optional
+	// +kubebuilder:validation:Minimum=-1
+	goGC?: null | int32 @go(GoGC,*int32)
+}
+
 // PrometheusInterface is used by Prometheus and PrometheusAgent to share common methods, e.g. config generation.
 // +k8s:deepcopy-gen=false
 #PrometheusInterface: _
 
+// +kubebuilder:validation:Enum=OnResource;OnShard
+#AdditionalLabelSelectors: string // #enumAdditionalLabelSelectors
+
+#enumAdditionalLabelSelectors:
+	#ResourceNameLabelSelector |
+	#ShardAndResourceNameLabelSelector
+
+// Automatically add a label selector that will select all pods matching the same Prometheus/PrometheusAgent resource (irrespective of their shards).
+#ResourceNameLabelSelector: #AdditionalLabelSelectors & "OnResource"
+
+// Automatically add a label selector that will select all pods matching the same shard.
+#ShardAndResourceNameLabelSelector: #AdditionalLabelSelectors & "OnShard"
+
+#CoreV1TopologySpreadConstraint: v1.#TopologySpreadConstraint
+
+#TopologySpreadConstraint: {
+	#CoreV1TopologySpreadConstraint
+
+	//+optional
+	// Defines what Prometheus Operator managed labels should be added to labelSelector on the topologySpreadConstraint.
+	additionalLabelSelectors?: null | #AdditionalLabelSelectors @go(AdditionalLabelSelectors,*AdditionalLabelSelectors)
+}
+
+// +kubebuilder:validation:MinLength:=1
+#EnableFeature: string
+
 // CommonPrometheusFields are the options available to both the Prometheus server and agent.
 // +k8s:deepcopy-gen=true
 #CommonPrometheusFields: {
-	// PodMetadata configures Labels and Annotations which are propagated to the prometheus pods.
+	// PodMetadata configures labels and annotations which are propagated to the Prometheus pods.
+	//
+	// The following items are reserved and cannot be overridden:
+	// * "prometheus" label, set to the name of the Prometheus object.
+	// * "app.kubernetes.io/instance" label, set to the name of the Prometheus object.
+	// * "app.kubernetes.io/managed-by" label, set to "prometheus-operator".
+	// * "app.kubernetes.io/name" label, set to "prometheus".
+	// * "app.kubernetes.io/version" label, set to the Prometheus version.
+	// * "operator.prometheus.io/name" label, set to the name of the Prometheus object.
+	// * "operator.prometheus.io/shard" label, set to the shard number of the Prometheus object.
+	// * "kubectl.kubernetes.io/default-container" annotation, set to "prometheus".
 	podMetadata?: null | #EmbeddedObjectMetadata @go(PodMetadata,*EmbeddedObjectMetadata)
 
-	// ServiceMonitors to be selected for target discovery.
+	// ServiceMonitors to be selected for target discovery. An empty label
+	// selector matches all objects. A null label selector matches no objects.
 	//
 	// If `spec.serviceMonitorSelector`, `spec.podMonitorSelector`, `spec.probeSelector`
 	// and `spec.scrapeConfigSelector` are null, the Prometheus configuration is unmanaged.
 	// The Prometheus operator will ensure that the Prometheus configuration's
 	// Secret exists, but it is the responsibility of the user to provide the raw
 	// gzipped Prometheus configuration under the `prometheus.yaml.gz` key.
-	// This behavior is deprecated and will be removed in the next major version
+	// This behavior is *deprecated* and will be removed in the next major version
 	// of the custom resource definition. It is recommended to use
 	// `spec.additionalScrapeConfigs` instead.
 	serviceMonitorSelector?: null | metav1.#LabelSelector @go(ServiceMonitorSelector,*metav1.LabelSelector)
 
-	// Namespace's labels to match for ServiceMonitor discovery. If nil, only
-	// check own namespace.
+	// Namespaces to match for ServicedMonitors discovery. An empty label selector
+	// matches all namespaces. A null label selector (default value) matches the current
+	// namespace only.
 	serviceMonitorNamespaceSelector?: null | metav1.#LabelSelector @go(ServiceMonitorNamespaceSelector,*metav1.LabelSelector)
 
-	// *Experimental* PodMonitors to be selected for target discovery.
+	// PodMonitors to be selected for target discovery. An empty label selector
+	// matches all objects. A null label selector matches no objects.
 	//
 	// If `spec.serviceMonitorSelector`, `spec.podMonitorSelector`, `spec.probeSelector`
 	// and `spec.scrapeConfigSelector` are null, the Prometheus configuration is unmanaged.
 	// The Prometheus operator will ensure that the Prometheus configuration's
 	// Secret exists, but it is the responsibility of the user to provide the raw
 	// gzipped Prometheus configuration under the `prometheus.yaml.gz` key.
-	// This behavior is deprecated and will be removed in the next major version
+	// This behavior is *deprecated* and will be removed in the next major version
 	// of the custom resource definition. It is recommended to use
 	// `spec.additionalScrapeConfigs` instead.
 	podMonitorSelector?: null | metav1.#LabelSelector @go(PodMonitorSelector,*metav1.LabelSelector)
 
-	// Namespace's labels to match for PodMonitor discovery. If nil, only
-	// check own namespace.
+	// Namespaces to match for PodMonitors discovery. An empty label selector
+	// matches all namespaces. A null label selector (default value) matches the current
+	// namespace only.
 	podMonitorNamespaceSelector?: null | metav1.#LabelSelector @go(PodMonitorNamespaceSelector,*metav1.LabelSelector)
 
-	// *Experimental* Probes to be selected for target discovery.
+	// Probes to be selected for target discovery. An empty label selector
+	// matches all objects. A null label selector matches no objects.
 	//
 	// If `spec.serviceMonitorSelector`, `spec.podMonitorSelector`, `spec.probeSelector`
 	// and `spec.scrapeConfigSelector` are null, the Prometheus configuration is unmanaged.
 	// The Prometheus operator will ensure that the Prometheus configuration's
 	// Secret exists, but it is the responsibility of the user to provide the raw
 	// gzipped Prometheus configuration under the `prometheus.yaml.gz` key.
-	// This behavior is deprecated and will be removed in the next major version
+	// This behavior is *deprecated* and will be removed in the next major version
 	// of the custom resource definition. It is recommended to use
 	// `spec.additionalScrapeConfigs` instead.
 	probeSelector?: null | metav1.#LabelSelector @go(ProbeSelector,*metav1.LabelSelector)
 
-	// *Experimental* Namespaces to be selected for Probe discovery. If nil, only check own namespace.
+	// Namespaces to match for Probe discovery. An empty label
+	// selector matches all namespaces. A null label selector matches the
+	// current namespace only.
 	probeNamespaceSelector?: null | metav1.#LabelSelector @go(ProbeNamespaceSelector,*metav1.LabelSelector)
 
-	// *Experimental* ScrapeConfigs to be selected for target discovery.
+	// ScrapeConfigs to be selected for target discovery. An empty label
+	// selector matches all objects. A null label selector matches no objects.
 	//
 	// If `spec.serviceMonitorSelector`, `spec.podMonitorSelector`, `spec.probeSelector`
 	// and `spec.scrapeConfigSelector` are null, the Prometheus configuration is unmanaged.
 	// The Prometheus operator will ensure that the Prometheus configuration's
 	// Secret exists, but it is the responsibility of the user to provide the raw
 	// gzipped Prometheus configuration under the `prometheus.yaml.gz` key.
-	// This behavior is deprecated and will be removed in the next major version
+	// This behavior is *deprecated* and will be removed in the next major version
 	// of the custom resource definition. It is recommended to use
 	// `spec.additionalScrapeConfigs` instead.
+	//
+	// Note that the ScrapeConfig custom resource definition is currently at Alpha level.
+	//
+	// +optional
 	scrapeConfigSelector?: null | metav1.#LabelSelector @go(ScrapeConfigSelector,*metav1.LabelSelector)
 
-	// Namespace's labels to match for ScrapeConfig discovery. If nil, only
-	// check own namespace.
+	// Namespaces to match for ScrapeConfig discovery. An empty label selector
+	// matches all namespaces. A null label selector matches the current
+	// namespace only.
+	//
+	// Note that the ScrapeConfig custom resource definition is currently at Alpha level.
+	//
+	// +optional
 	scrapeConfigNamespaceSelector?: null | metav1.#LabelSelector @go(ScrapeConfigNamespaceSelector,*metav1.LabelSelector)
 
-	// Version of Prometheus to be deployed.
+	// Version of Prometheus being deployed. The operator uses this information
+	// to generate the Prometheus StatefulSet + configuration files.
+	//
+	// If not specified, the operator assumes the latest upstream version of
+	// Prometheus available at the time when the version of the operator was
+	// released.
 	version?: string @go(Version)
 
 	// When a Prometheus deployment is paused, no actions except for deletion
 	// will be performed on the underlying objects.
 	paused?: bool @go(Paused)
 
-	// Image if specified has precedence over baseImage, tag and sha
-	// combinations. Specifying the version is still necessary to ensure the
-	// Prometheus Operator knows what version of Prometheus is being
-	// configured.
+	// Container image name for Prometheus. If specified, it takes precedence
+	// over the `spec.baseImage`, `spec.tag` and `spec.sha` fields.
+	//
+	// Specifying `spec.version` is still necessary to ensure the Prometheus
+	// Operator knows which version of Prometheus is being configured.
+	//
+	// If neither `spec.image` nor `spec.baseImage` are defined, the operator
+	// will use the latest upstream version of Prometheus available at the time
+	// when the operator was released.
+	//
+	// +optional
 	image?: null | string @go(Image,*string)
 
 	// Image pull policy for the 'prometheus', 'init-config-reloader' and 'config-reloader' containers.
@@ -105,111 +204,201 @@ import (
 	// +kubebuilder:validation:Enum="";Always;Never;IfNotPresent
 	imagePullPolicy?: v1.#PullPolicy @go(ImagePullPolicy)
 
-	// An optional list of references to secrets in the same namespace
-	// to use for pulling prometheus and alertmanager images from registries
-	// see http://kubernetes.io/docs/user-guide/images#specifying-imagepullsecrets-on-a-pod
+	// An optional list of references to Secrets in the same namespace
+	// to use for pulling images from registries.
+	// See http://kubernetes.io/docs/user-guide/images#specifying-imagepullsecrets-on-a-pod
 	imagePullSecrets?: [...v1.#LocalObjectReference] @go(ImagePullSecrets,[]v1.LocalObjectReference)
 
 	// Number of replicas of each shard to deploy for a Prometheus deployment.
-	// Number of replicas multiplied by shards is the total number of Pods
+	// `spec.replicas` multiplied by `spec.shards` is the total number of Pods
 	// created.
+	//
+	// Default: 1
+	// +optional
 	replicas?: null | int32 @go(Replicas,*int32)
 
-	// EXPERIMENTAL: Number of shards to distribute targets onto. Number of
-	// replicas multiplied by shards is the total number of Pods created. Note
-	// that scaling down shards will not reshard data onto remaining instances,
-	// it must be manually moved. Increasing shards will not reshard data
-	// either but it will continue to be available from the same instances. To
-	// query globally use Thanos sidecar and Thanos querier or remote write
-	// data to a central location. Sharding is done on the content of the
-	// `__address__` target meta-label.
+	// Number of shards to distribute scraped targets onto.
+	//
+	// `spec.replicas` multiplied by `spec.shards` is the total number of Pods
+	// being created.
+	//
+	// When not defined, the operator assumes only one shard.
+	//
+	// Note that scaling down shards will not reshard data onto the remaining
+	// instances, it must be manually moved. Increasing shards will not reshard
+	// data either but it will continue to be available from the same
+	// instances. To query globally, use Thanos sidecar and Thanos querier or
+	// remote write data to a central location.
+	// Alerting and recording rules
+	//
+	// By default, the sharding is performed on:
+	// * The `__address__` target's metadata label for PodMonitor,
+	// ServiceMonitor and ScrapeConfig resources.
+	// * The `__param_target__` label for Probe resources.
+	//
+	// Users can define their own sharding implementation by setting the
+	// `__tmp_hash` label during the target discovery with relabeling
+	// configuration (either in the monitoring resources or via scrape class).
+	//
+	// +optional
 	shards?: null | int32 @go(Shards,*int32)
 
-	// Name of Prometheus external label used to denote replica name.
-	// Defaults to the value of `prometheus_replica`. External label will
-	// _not_ be added when value is set to empty string (`""`).
+	// Name of Prometheus external label used to denote the replica name.
+	// The external label will _not_ be added when the field is set to the
+	// empty string (`""`).
+	//
+	// Default: "prometheus_replica"
+	// +optional
 	replicaExternalLabelName?: null | string @go(ReplicaExternalLabelName,*string)
 
-	// Name of Prometheus external label used to denote Prometheus instance
-	// name. Defaults to the value of `prometheus`. External label will
-	// _not_ be added when value is set to empty string (`""`).
+	// Name of Prometheus external label used to denote the Prometheus instance
+	// name. The external label will _not_ be added when the field is set to
+	// the empty string (`""`).
+	//
+	// Default: "prometheus"
+	// +optional
 	prometheusExternalLabelName?: null | string @go(PrometheusExternalLabelName,*string)
 
-	// Log level for Prometheus to be configured with.
-	//+kubebuilder:validation:Enum="";debug;info;warn;error
+	// Log level for Prometheus and the config-reloader sidecar.
+	// +kubebuilder:validation:Enum="";debug;info;warn;error
 	logLevel?: string @go(LogLevel)
 
-	// Log format for Prometheus to be configured with.
-	//+kubebuilder:validation:Enum="";logfmt;json
+	// Log format for Log level for Prometheus and the config-reloader sidecar.
+	// +kubebuilder:validation:Enum="";logfmt;json
 	logFormat?: string @go(LogFormat)
 
-	// Interval between consecutive scrapes. Default: `30s`
+	// Interval between consecutive scrapes.
+	//
+	// Default: "30s"
 	// +kubebuilder:default:="30s"
 	scrapeInterval?: #Duration @go(ScrapeInterval)
 
-	// Number of seconds to wait for target to respond before erroring.
+	// Number of seconds to wait until a scrape request times out.
+	// The value cannot be greater than the scrape interval otherwise the operator will reject the resource.
 	scrapeTimeout?: #Duration @go(ScrapeTimeout)
+
+	// The protocols to negotiate during a scrape. It tells clients the
+	// protocols supported by Prometheus in order of preference (from most to least preferred).
+	//
+	// If unset, Prometheus uses its default value.
+	//
+	// It requires Prometheus >= v2.49.0.
+	//
+	// `PrometheusText1.0.0` requires Prometheus >= v3.0.0.
+	//
+	// +listType=set
+	// +optional
+	scrapeProtocols?: [...#ScrapeProtocol] @go(ScrapeProtocols,[]ScrapeProtocol)
 
 	// The labels to add to any time series or alerts when communicating with
 	// external systems (federation, remote storage, Alertmanager).
+	// Labels defined by `spec.replicaExternalLabelName` and
+	// `spec.prometheusExternalLabelName` take precedence over this list.
 	externalLabels?: {[string]: string} @go(ExternalLabels,map[string]string)
 
-	// Enable Prometheus to be used as a receiver for the Prometheus remote write protocol. Defaults to the value of `false`.
+	// Enable Prometheus to be used as a receiver for the Prometheus remote
+	// write protocol.
+	//
 	// WARNING: This is not considered an efficient way of ingesting samples.
 	// Use it with caution for specific low-volume use cases.
 	// It is not suitable for replacing the ingestion via scraping and turning
 	// Prometheus into a push-based metrics collection system.
 	// For more information see https://prometheus.io/docs/prometheus/latest/querying/api/#remote-write-receiver
-	// Only valid in Prometheus versions 2.33.0 and newer.
+	//
+	// It requires Prometheus >= v2.33.0.
 	enableRemoteWriteReceiver?: bool @go(EnableRemoteWriteReceiver)
 
-	// Enable access to Prometheus disabled features. By default, no features are enabled.
-	// Enabling disabled features is entirely outside the scope of what the maintainers will
-	// support and by doing so, you accept that this behaviour may break at any
-	// time without notice.
-	// For more information see https://prometheus.io/docs/prometheus/latest/disabled_features/
-	enableFeatures?: [...string] @go(EnableFeatures,[]string)
+	// Enable Prometheus to be used as a receiver for the OTLP Metrics protocol.
+	//
+	// Note that the OTLP receiver endpoint is automatically enabled if `.spec.otlpConfig` is defined.
+	//
+	// It requires Prometheus >= v2.47.0.
+	// +optional
+	enableOTLPReceiver?: null | bool @go(EnableOTLPReceiver,*bool)
 
-	// The external URL the Prometheus instances will be available under. This is
-	// necessary to generate correct URLs. This is necessary if Prometheus is not
-	// served from root of a DNS name.
+	// List of the protobuf message versions to accept when receiving the
+	// remote writes.
+	//
+	// It requires Prometheus >= v2.54.0.
+	//
+	// +kubebuilder:validation:MinItems=1
+	// +listType:=set
+	// +optional
+	remoteWriteReceiverMessageVersions?: [...#RemoteWriteMessageVersion] @go(RemoteWriteReceiverMessageVersions,[]RemoteWriteMessageVersion)
+
+	// Enable access to Prometheus feature flags. By default, no features are enabled.
+	//
+	// Enabling features which are disabled by default is entirely outside the
+	// scope of what the maintainers will support and by doing so, you accept
+	// that this behaviour may break at any time without notice.
+	//
+	// For more information see https://prometheus.io/docs/prometheus/latest/feature_flags/
+	//
+	// +listType:=set
+	// +optional
+	enableFeatures?: [...#EnableFeature] @go(EnableFeatures,[]EnableFeature)
+
+	// The external URL under which the Prometheus service is externally
+	// available. This is necessary to generate correct URLs (for instance if
+	// Prometheus is accessible behind an Ingress resource).
 	externalUrl?: string @go(ExternalURL)
 
-	// The route prefix Prometheus registers HTTP handlers for. This is useful,
-	// if using ExternalURL and a proxy is rewriting HTTP routes of a request,
-	// and the actual ExternalURL is still true, but the server serves requests
-	// under a different route prefix. For example for use with `kubectl proxy`.
+	// The route prefix Prometheus registers HTTP handlers for.
+	//
+	// This is useful when using `spec.externalURL`, and a proxy is rewriting
+	// HTTP routes of a request, and the actual ExternalURL is still true, but
+	// the server serves requests under a different route prefix. For example
+	// for use with `kubectl proxy`.
 	routePrefix?: string @go(RoutePrefix)
 
-	// Storage spec to specify how storage shall be used.
+	// Storage defines the storage used by Prometheus.
 	storage?: null | #StorageSpec @go(Storage,*StorageSpec)
 
-	// Volumes allows configuration of additional volumes on the output StatefulSet definition. Volumes specified will
-	// be appended to other volumes that are generated as a result of StorageSpec objects.
+	// Volumes allows the configuration of additional volumes on the output
+	// StatefulSet definition. Volumes specified will be appended to other
+	// volumes that are generated as a result of StorageSpec objects.
 	volumes?: [...v1.#Volume] @go(Volumes,[]v1.Volume)
 
-	// VolumeMounts allows configuration of additional VolumeMounts on the output StatefulSet definition.
-	// VolumeMounts specified will be appended to other VolumeMounts in the prometheus container,
-	// that are generated as a result of StorageSpec objects.
+	// VolumeMounts allows the configuration of additional VolumeMounts.
+	//
+	// VolumeMounts will be appended to other VolumeMounts in the 'prometheus'
+	// container, that are generated as a result of StorageSpec objects.
 	volumeMounts?: [...v1.#VolumeMount] @go(VolumeMounts,[]v1.VolumeMount)
 
-	// Defines the web command line flags when starting Prometheus.
+	// The field controls if and how PVCs are deleted during the lifecycle of a StatefulSet.
+	// The default behavior is all PVCs are retained.
+	// This is an alpha field from kubernetes 1.23 until 1.26 and a beta field from 1.26.
+	// It requires enabling the StatefulSetAutoDeletePVC feature gate.
+	//
+	// +optional
+	persistentVolumeClaimRetentionPolicy?: null | appsv1.#StatefulSetPersistentVolumeClaimRetentionPolicy @go(PersistentVolumeClaimRetentionPolicy,*appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy)
+
+	// Defines the configuration of the Prometheus web server.
 	web?: null | #PrometheusWebSpec @go(Web,*PrometheusWebSpec)
 
-	// Define resources requests and limits for single Pods.
+	// Defines the resources requests and limits of the 'prometheus' container.
 	resources?: v1.#ResourceRequirements @go(Resources)
 
-	// Define which Nodes the Pods are scheduled on.
+	// Defines on which Nodes the Pods are scheduled.
 	nodeSelector?: {[string]: string} @go(NodeSelector,map[string]string)
 
 	// ServiceAccountName is the name of the ServiceAccount to use to run the
 	// Prometheus Pods.
 	serviceAccountName?: string @go(ServiceAccountName)
 
+	// AutomountServiceAccountToken indicates whether a service account token should be automatically mounted in the pod.
+	// If the field isn't set, the operator mounts the service account token by default.
+	//
+	// **Warning:** be aware that by default, Prometheus requires the service account token for Kubernetes service discovery.
+	// It is possible to use strategic merge patch to project the service account token into the 'prometheus' container.
+	// +optional
+	automountServiceAccountToken?: null | bool @go(AutomountServiceAccountToken,*bool)
+
 	// Secrets is a list of Secrets in the same namespace as the Prometheus
 	// object, which shall be mounted into the Prometheus Pods.
 	// Each Secret is added to the StatefulSet definition as a volume named `secret-<secret-name>`.
 	// The Secrets are mounted into /etc/prometheus/secrets/<secret-name> in the 'prometheus' container.
+	// +listType:=set
 	secrets?: [...string] @go(Secrets,[]string)
 
 	// ConfigMaps is a list of ConfigMaps in the same namespace as the Prometheus
@@ -218,47 +407,81 @@ import (
 	// The ConfigMaps are mounted into /etc/prometheus/configmaps/<configmap-name> in the 'prometheus' container.
 	configMaps?: [...string] @go(ConfigMaps,[]string)
 
-	// If specified, the pod's scheduling constraints.
+	// Defines the Pods' affinity scheduling rules if specified.
+	// +optional
 	affinity?: null | v1.#Affinity @go(Affinity,*v1.Affinity)
 
-	// If specified, the pod's tolerations.
+	// Defines the Pods' tolerations if specified.
+	// +optional
 	tolerations?: [...v1.#Toleration] @go(Tolerations,[]v1.Toleration)
 
-	// If specified, the pod's topology spread constraints.
-	topologySpreadConstraints?: [...v1.#TopologySpreadConstraint] @go(TopologySpreadConstraints,[]v1.TopologySpreadConstraint)
+	// Defines the pod's topology spread constraints if specified.
+	//+optional
+	topologySpreadConstraints?: [...#TopologySpreadConstraint] @go(TopologySpreadConstraints,[]TopologySpreadConstraint)
 
-	// remoteWrite is the list of remote write configurations.
+	// Defines the list of remote write configurations.
+	// +optional
 	remoteWrite?: [...#RemoteWriteSpec] @go(RemoteWrite,[]RemoteWriteSpec)
+
+	// Settings related to the OTLP receiver feature.
+	// It requires Prometheus >= v2.55.0.
+	//
+	// +optional
+	otlp?: null | #OTLPConfig @go(OTLP,*OTLPConfig)
 
 	// SecurityContext holds pod-level security attributes and common container settings.
 	// This defaults to the default PodSecurityContext.
+	// +optional
 	securityContext?: null | v1.#PodSecurityContext @go(SecurityContext,*v1.PodSecurityContext)
 
-	// ListenLocal makes the Prometheus server listen on loopback, so that it
-	// does not bind against the Pod IP.
+	// Defines the DNS policy for the pods.
+	//
+	// +optional
+	dnsPolicy?: null | #DNSPolicy @go(DNSPolicy,*DNSPolicy)
+
+	// Defines the DNS configuration for the pods.
+	//
+	// +optional
+	dnsConfig?: null | #PodDNSConfig @go(DNSConfig,*PodDNSConfig)
+
+	// When true, the Prometheus server listens on the loopback address
+	// instead of the Pod IP's address.
 	listenLocal?: bool @go(ListenLocal)
 
 	// Containers allows injecting additional containers or modifying operator
 	// generated containers. This can be used to allow adding an authentication
-	// proxy to a Prometheus pod or to change the behavior of an operator
-	// generated container. Containers described here modify an operator
-	// generated container if they share the same name and modifications are
-	// done via a strategic merge patch. The current container names are:
-	// `prometheus`, `config-reloader`, and `thanos-sidecar`. Overriding
-	// containers is entirely outside the scope of what the maintainers will
-	// support and by doing so, you accept that this behaviour may break at any
-	// time without notice.
+	// proxy to the Pods or to change the behavior of an operator generated
+	// container. Containers described here modify an operator generated
+	// container if they share the same name and modifications are done via a
+	// strategic merge patch.
+	//
+	// The names of containers managed by the operator are:
+	// * `prometheus`
+	// * `config-reloader`
+	// * `thanos-sidecar`
+	//
+	// Overriding containers is entirely outside the scope of what the
+	// maintainers will support and by doing so, you accept that this behaviour
+	// may break at any time without notice.
+	// +optional
 	containers?: [...v1.#Container] @go(Containers,[]v1.Container)
 
-	// InitContainers allows adding initContainers to the pod definition. Those can be used to e.g.
-	// fetch secrets for injection into the Prometheus configuration from external sources. Any errors
-	// during the execution of an initContainer will lead to a restart of the Pod. More info: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
-	// InitContainers described here modify an operator
-	// generated init containers if they share the same name and modifications are
-	// done via a strategic merge patch. The current init container name is:
-	// `init-config-reloader`. Overriding init containers is entirely outside the
-	// scope of what the maintainers will support and by doing so, you accept that
-	// this behaviour may break at any time without notice.
+	// InitContainers allows injecting initContainers to the Pod definition. Those
+	// can be used to e.g.  fetch secrets for injection into the Prometheus
+	// configuration from external sources. Any errors during the execution of
+	// an initContainer will lead to a restart of the Pod. More info:
+	// https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+	// InitContainers described here modify an operator generated init
+	// containers if they share the same name and modifications are done via a
+	// strategic merge patch.
+	//
+	// The names of init container name managed by the operator are:
+	// * `init-config-reloader`.
+	//
+	// Overriding init containers is entirely outside the scope of what the
+	// maintainers will support and by doing so, you accept that this behaviour
+	// may break at any time without notice.
+	// +optional
 	initContainers?: [...v1.#Container] @go(InitContainers,[]v1.Container)
 
 	// AdditionalScrapeConfigs allows specifying a key of a Secret containing
@@ -272,31 +495,42 @@ import (
 	// break upgrades of Prometheus. It is advised to review Prometheus release
 	// notes to ensure that no incompatible scrape configs are going to break
 	// Prometheus after the upgrade.
+	// +optional
 	additionalScrapeConfigs?: null | v1.#SecretKeySelector @go(AdditionalScrapeConfigs,*v1.SecretKeySelector)
 
-	// APIServerConfig allows specifying a host and auth methods to access apiserver.
-	// If left empty, Prometheus is assumed to run inside of the cluster
-	// and will discover API servers automatically and use the pod's CA certificate
+	// APIServerConfig allows specifying a host and auth methods to access the
+	// Kuberntees API server.
+	// If null, Prometheus is assumed to run inside of the cluster: it will
+	// discover the API servers automatically and use the Pod's CA certificate
 	// and bearer token file at /var/run/secrets/kubernetes.io/serviceaccount/.
+	// +optional
 	apiserverConfig?: null | #APIServerConfig @go(APIServerConfig,*APIServerConfig)
 
-	// Priority class assigned to the Pods
+	// Priority class assigned to the Pods.
 	priorityClassName?: string @go(PriorityClassName)
 
 	// Port name used for the pods and governing service.
-	// Defaults to `web`.
+	// Default: "web"
 	// +kubebuilder:default:="web"
 	portName?: string @go(PortName)
 
-	// ArbitraryFSAccessThroughSMs configures whether configuration
-	// based on a service monitor can access arbitrary files on the file system
-	// of the Prometheus container e.g. bearer token files.
+	// When true, ServiceMonitor, PodMonitor and Probe object are forbidden to
+	// reference arbitrary files on the file system of the 'prometheus'
+	// container.
+	// When a ServiceMonitor's endpoint specifies a `bearerTokenFile` value
+	// (e.g.  '/var/run/secrets/kubernetes.io/serviceaccount/token'), a
+	// malicious target can get access to the Prometheus service account's
+	// token in the Prometheus' scrape request. Setting
+	// `spec.arbitraryFSAccessThroughSM` to 'true' would prevent the attack.
+	// Users should instead provide the credentials using the
+	// `spec.bearerTokenSecret` field.
 	arbitraryFSAccessThroughSMs?: #ArbitraryFSAccessThroughSMsConfig @go(ArbitraryFSAccessThroughSMs)
 
-	// When true, Prometheus resolves label conflicts by renaming the labels in
-	// the scraped data to "exported_<label value>" for all targets created
-	// from service and pod monitors.
-	// Otherwise the HonorLabels field of the service or pod monitor applies.
+	// When true, Prometheus resolves label conflicts by renaming the labels in the scraped data
+	//  to “exported_” for all targets created from ServiceMonitor, PodMonitor and
+	// ScrapeConfig objects. Otherwise the HonorLabels field of the service or pod monitor applies.
+	// In practice,`overrideHonorLaels:true` enforces `honorLabels:false`
+	// for all ServiceMonitor, PodMonitor and ScrapeConfig objects.
 	overrideHonorLabels?: bool @go(OverrideHonorLabels)
 
 	// When true, Prometheus ignores the timestamps for all the targets created
@@ -304,109 +538,399 @@ import (
 	// Otherwise the HonorTimestamps field of the service or pod monitor applies.
 	overrideHonorTimestamps?: bool @go(OverrideHonorTimestamps)
 
-	// IgnoreNamespaceSelectors if set to true will ignore NamespaceSelector
-	// settings from all PodMonitor, ServiceMonitor and Probe objects. They will
-	// only discover endpoints within the namespace of the PodMonitor,
-	// ServiceMonitor and Probe objects.
-	// Defaults to false.
+	// When true, `spec.namespaceSelector` from all PodMonitor, ServiceMonitor
+	// and Probe objects will be ignored. They will only discover targets
+	// within the namespace of the PodMonitor, ServiceMonitor and Probe
+	// object.
 	ignoreNamespaceSelectors?: bool @go(IgnoreNamespaceSelectors)
 
-	// EnforcedNamespaceLabel If set, a label will be added to
+	// When not empty, a label will be added to:
 	//
-	// 1. all user-metrics (created by `ServiceMonitor`, `PodMonitor` and `Probe` objects) and
-	// 2. in all `PrometheusRule` objects (except the ones excluded in `prometheusRulesExcludedFromEnforce`) to
-	//    * alerting & recording rules and
-	//    * the metrics used in their expressions (`expr`).
+	// 1. All metrics scraped from `ServiceMonitor`, `PodMonitor`, `Probe` and `ScrapeConfig` objects.
+	// 2. All metrics generated from recording rules defined in `PrometheusRule` objects.
+	// 3. All alerts generated from alerting rules defined in `PrometheusRule` objects.
+	// 4. All vector selectors of PromQL expressions defined in `PrometheusRule` objects.
 	//
-	// Label name is this field's value.
-	// Label value is the namespace of the created object (mentioned above).
+	// The label will not added for objects referenced in `spec.excludedFromEnforcement`.
+	//
+	// The label's name is this field's value.
+	// The label's value is the namespace of the `ServiceMonitor`,
+	// `PodMonitor`, `Probe`, `PrometheusRule` or `ScrapeConfig` object.
 	enforcedNamespaceLabel?: string @go(EnforcedNamespaceLabel)
 
-	// EnforcedSampleLimit defines global limit on number of scraped samples
-	// that will be accepted. This overrides any SampleLimit set per
-	// ServiceMonitor or/and PodMonitor. It is meant to be used by admins to
-	// enforce the SampleLimit to keep overall number of samples/series under
-	// the desired limit.
-	// Note that if SampleLimit is lower that value will be taken instead.
+	// When defined, enforcedSampleLimit specifies a global limit on the number
+	// of scraped samples that will be accepted. This overrides any
+	// `spec.sampleLimit` set by ServiceMonitor, PodMonitor, Probe objects
+	// unless `spec.sampleLimit` is greater than zero and less than
+	// `spec.enforcedSampleLimit`.
+	//
+	// It is meant to be used by admins to keep the overall number of
+	// samples/series under a desired limit.
+	//
+	// When both `enforcedSampleLimit` and `sampleLimit` are defined and greater than zero, the following rules apply:
+	// * Scrape objects without a defined sampleLimit value will inherit the global sampleLimit value (Prometheus >= 2.45.0) or the enforcedSampleLimit value (Prometheus < v2.45.0).
+	//   If Prometheus version is >= 2.45.0 and the `enforcedSampleLimit` is greater than the `sampleLimit`, the `sampleLimit` will be set to `enforcedSampleLimit`.
+	// * Scrape objects with a sampleLimit value less than or equal to enforcedSampleLimit keep their specific value.
+	// * Scrape objects with a sampleLimit value greater than enforcedSampleLimit are set to enforcedSampleLimit.
+	//
+	//
+	// +optional
 	enforcedSampleLimit?: null | uint64 @go(EnforcedSampleLimit,*uint64)
 
-	// EnforcedTargetLimit defines a global limit on the number of scraped
-	// targets.  This overrides any TargetLimit set per ServiceMonitor or/and
-	// PodMonitor.  It is meant to be used by admins to enforce the TargetLimit
-	// to keep the overall number of targets under the desired limit.
-	// Note that if TargetLimit is lower, that value will be taken instead,
-	// except if either value is zero, in which case the non-zero value will be
-	// used.  If both values are zero, no limit is enforced.
+	// When defined, enforcedTargetLimit specifies a global limit on the number
+	// of scraped targets. The value overrides any `spec.targetLimit` set by
+	// ServiceMonitor, PodMonitor, Probe objects unless `spec.targetLimit` is
+	// greater than zero and less than `spec.enforcedTargetLimit`.
+	//
+	// It is meant to be used by admins to to keep the overall number of
+	// targets under a desired limit.
+	//
+	// When both `enforcedTargetLimit` and `targetLimit` are defined and greater than zero, the following rules apply:
+	// * Scrape objects without a defined targetLimit value will inherit the global targetLimit value (Prometheus >= 2.45.0) or the enforcedTargetLimit value (Prometheus < v2.45.0).
+	//   If Prometheus version is >= 2.45.0 and the `enforcedTargetLimit` is greater than the `targetLimit`, the `targetLimit` will be set to `enforcedTargetLimit`.
+	// * Scrape objects with a targetLimit value less than or equal to enforcedTargetLimit keep their specific value.
+	// * Scrape objects with a targetLimit value greater than enforcedTargetLimit are set to enforcedTargetLimit.
+	//
+	//
+	// +optional
 	enforcedTargetLimit?: null | uint64 @go(EnforcedTargetLimit,*uint64)
 
-	// Per-scrape limit on number of labels that will be accepted for a sample. If
-	// more than this number of labels are present post metric-relabeling, the
-	// entire scrape will be treated as failed. 0 means no limit.
-	// Only valid in Prometheus versions 2.27.0 and newer.
+	// When defined, enforcedLabelLimit specifies a global limit on the number
+	// of labels per sample. The value overrides any `spec.labelLimit` set by
+	// ServiceMonitor, PodMonitor, Probe objects unless `spec.labelLimit` is
+	// greater than zero and less than `spec.enforcedLabelLimit`.
+	//
+	// It requires Prometheus >= v2.27.0.
+	//
+	// When both `enforcedLabelLimit` and `labelLimit` are defined and greater than zero, the following rules apply:
+	// * Scrape objects without a defined labelLimit value will inherit the global labelLimit value (Prometheus >= 2.45.0) or the enforcedLabelLimit value (Prometheus < v2.45.0).
+	//   If Prometheus version is >= 2.45.0 and the `enforcedLabelLimit` is greater than the `labelLimit`, the `labelLimit` will be set to `enforcedLabelLimit`.
+	// * Scrape objects with a labelLimit value less than or equal to enforcedLabelLimit keep their specific value.
+	// * Scrape objects with a labelLimit value greater than enforcedLabelLimit are set to enforcedLabelLimit.
+	//
+	//
+	// +optional
 	enforcedLabelLimit?: null | uint64 @go(EnforcedLabelLimit,*uint64)
 
-	// Per-scrape limit on length of labels name that will be accepted for a sample.
-	// If a label name is longer than this number post metric-relabeling, the entire
-	// scrape will be treated as failed. 0 means no limit.
-	// Only valid in Prometheus versions 2.27.0 and newer.
+	// When defined, enforcedLabelNameLengthLimit specifies a global limit on the length
+	// of labels name per sample. The value overrides any `spec.labelNameLengthLimit` set by
+	// ServiceMonitor, PodMonitor, Probe objects unless `spec.labelNameLengthLimit` is
+	// greater than zero and less than `spec.enforcedLabelNameLengthLimit`.
+	//
+	// It requires Prometheus >= v2.27.0.
+	//
+	// When both `enforcedLabelNameLengthLimit` and `labelNameLengthLimit` are defined and greater than zero, the following rules apply:
+	// * Scrape objects without a defined labelNameLengthLimit value will inherit the global labelNameLengthLimit value (Prometheus >= 2.45.0) or the enforcedLabelNameLengthLimit value (Prometheus < v2.45.0).
+	//   If Prometheus version is >= 2.45.0 and the `enforcedLabelNameLengthLimit` is greater than the `labelNameLengthLimit`, the `labelNameLengthLimit` will be set to `enforcedLabelNameLengthLimit`.
+	// * Scrape objects with a labelNameLengthLimit value less than or equal to enforcedLabelNameLengthLimit keep their specific value.
+	// * Scrape objects with a labelNameLengthLimit value greater than enforcedLabelNameLengthLimit are set to enforcedLabelNameLengthLimit.
+	//
+	//
+	// +optional
 	enforcedLabelNameLengthLimit?: null | uint64 @go(EnforcedLabelNameLengthLimit,*uint64)
 
-	// Per-scrape limit on length of labels value that will be accepted for a sample.
-	// If a label value is longer than this number post metric-relabeling, the
-	// entire scrape will be treated as failed. 0 means no limit.
-	// Only valid in Prometheus versions 2.27.0 and newer.
+	// When not null, enforcedLabelValueLengthLimit defines a global limit on the length
+	// of labels value per sample. The value overrides any `spec.labelValueLengthLimit` set by
+	// ServiceMonitor, PodMonitor, Probe objects unless `spec.labelValueLengthLimit` is
+	// greater than zero and less than `spec.enforcedLabelValueLengthLimit`.
+	//
+	// It requires Prometheus >= v2.27.0.
+	//
+	// When both `enforcedLabelValueLengthLimit` and `labelValueLengthLimit` are defined and greater than zero, the following rules apply:
+	// * Scrape objects without a defined labelValueLengthLimit value will inherit the global labelValueLengthLimit value (Prometheus >= 2.45.0) or the enforcedLabelValueLengthLimit value (Prometheus < v2.45.0).
+	//   If Prometheus version is >= 2.45.0 and the `enforcedLabelValueLengthLimit` is greater than the `labelValueLengthLimit`, the `labelValueLengthLimit` will be set to `enforcedLabelValueLengthLimit`.
+	// * Scrape objects with a labelValueLengthLimit value less than or equal to enforcedLabelValueLengthLimit keep their specific value.
+	// * Scrape objects with a labelValueLengthLimit value greater than enforcedLabelValueLengthLimit are set to enforcedLabelValueLengthLimit.
+	//
+	//
+	// +optional
 	enforcedLabelValueLengthLimit?: null | uint64 @go(EnforcedLabelValueLengthLimit,*uint64)
 
-	// EnforcedBodySizeLimit defines the maximum size of uncompressed response body
-	// that will be accepted by Prometheus. Targets responding with a body larger than this many bytes
-	// will cause the scrape to fail. Example: 100MB.
-	// If defined, the limit will apply to all service/pod monitors and probes.
-	// This is an experimental feature, this behaviour could
-	// change or be removed in the future.
-	// Only valid in Prometheus versions 2.28.0 and newer.
+	// When defined, enforcedKeepDroppedTargets specifies a global limit on the number of targets
+	// dropped by relabeling that will be kept in memory. The value overrides
+	// any `spec.keepDroppedTargets` set by
+	// ServiceMonitor, PodMonitor, Probe objects unless `spec.keepDroppedTargets` is
+	// greater than zero and less than `spec.enforcedKeepDroppedTargets`.
+	//
+	// It requires Prometheus >= v2.47.0.
+	//
+	// When both `enforcedKeepDroppedTargets` and `keepDroppedTargets` are defined and greater than zero, the following rules apply:
+	// * Scrape objects without a defined keepDroppedTargets value will inherit the global keepDroppedTargets value (Prometheus >= 2.45.0) or the enforcedKeepDroppedTargets value (Prometheus < v2.45.0).
+	//   If Prometheus version is >= 2.45.0 and the `enforcedKeepDroppedTargets` is greater than the `keepDroppedTargets`, the `keepDroppedTargets` will be set to `enforcedKeepDroppedTargets`.
+	// * Scrape objects with a keepDroppedTargets value less than or equal to enforcedKeepDroppedTargets keep their specific value.
+	// * Scrape objects with a keepDroppedTargets value greater than enforcedKeepDroppedTargets are set to enforcedKeepDroppedTargets.
+	//
+	//
+	// +optional
+	enforcedKeepDroppedTargets?: null | uint64 @go(EnforcedKeepDroppedTargets,*uint64)
+
+	// When defined, enforcedBodySizeLimit specifies a global limit on the size
+	// of uncompressed response body that will be accepted by Prometheus.
+	// Targets responding with a body larger than this many bytes will cause
+	// the scrape to fail.
+	//
+	// It requires Prometheus >= v2.28.0.
+	//
+	// When both `enforcedBodySizeLimit` and `bodySizeLimit` are defined and greater than zero, the following rules apply:
+	// * Scrape objects without a defined bodySizeLimit value will inherit the global bodySizeLimit value (Prometheus >= 2.45.0) or the enforcedBodySizeLimit value (Prometheus < v2.45.0).
+	//   If Prometheus version is >= 2.45.0 and the `enforcedBodySizeLimit` is greater than the `bodySizeLimit`, the `bodySizeLimit` will be set to `enforcedBodySizeLimit`.
+	// * Scrape objects with a bodySizeLimit value less than or equal to enforcedBodySizeLimit keep their specific value.
+	// * Scrape objects with a bodySizeLimit value greater than enforcedBodySizeLimit are set to enforcedBodySizeLimit.
+	//
 	enforcedBodySizeLimit?: #ByteSize @go(EnforcedBodySizeLimit)
 
-	// Minimum number of seconds for which a newly created pod should be ready
+	// Specifies the validation scheme for metric and label names.
+	// +optional
+	nameValidationScheme?: null | #NameValidationSchemeOptions @go(NameValidationScheme,*NameValidationSchemeOptions)
+
+	// Minimum number of seconds for which a newly created Pod should be ready
 	// without any of its container crashing for it to be considered available.
 	// Defaults to 0 (pod will be considered available as soon as it is ready)
-	// This is an alpha field from kubernetes 1.22 until 1.24 which requires enabling the StatefulSetMinReadySeconds feature gate.
+	//
+	// This is an alpha field from kubernetes 1.22 until 1.24 which requires
+	// enabling the StatefulSetMinReadySeconds feature gate.
+	//
 	// +optional
 	minReadySeconds?: null | uint32 @go(MinReadySeconds,*uint32)
 
-	// Pods' hostAliases configuration
+	// Optional list of hosts and IPs that will be injected into the Pod's
+	// hosts file if specified.
+	//
 	// +listType=map
 	// +listMapKey=ip
+	// +optional
 	hostAliases?: [...#HostAlias] @go(HostAliases,[]HostAlias)
 
-	// AdditionalArgs allows setting additional arguments for the Prometheus container.
+	// AdditionalArgs allows setting additional arguments for the 'prometheus' container.
+	//
 	// It is intended for e.g. activating hidden flags which are not supported by
 	// the dedicated configuration options yet. The arguments are passed as-is to the
 	// Prometheus container which may cause issues if they are invalid or not supported
 	// by the given Prometheus version.
+	//
 	// In case of an argument conflict (e.g. an argument which is already set by the
-	// operator itself) or when providing an invalid argument the reconciliation will
+	// operator itself) or when providing an invalid argument, the reconciliation will
 	// fail and an error will be logged.
+	//
+	// +optional
 	additionalArgs?: [...#Argument] @go(AdditionalArgs,[]Argument)
 
-	// Enable compression of the write-ahead log using Snappy. This flag is
-	// only available in versions of Prometheus >= 2.11.0.
+	// Configures compression of the write-ahead log (WAL) using Snappy.
+	//
+	// WAL compression is enabled by default for Prometheus >= 2.20.0
+	//
+	// Requires Prometheus v2.11.0 and above.
+	//
+	// +optional
 	walCompression?: null | bool @go(WALCompression,*bool)
 
 	// List of references to PodMonitor, ServiceMonitor, Probe and PrometheusRule objects
 	// to be excluded from enforcing a namespace label of origin.
-	// Applies only if enforcedNamespaceLabel set to true.
+	//
+	// It is only applicable if `spec.enforcedNamespaceLabel` set to true.
+	//
+	// +optional
 	excludedFromEnforcement?: [...#ObjectReference] @go(ExcludedFromEnforcement,[]ObjectReference)
 
 	// Use the host's network namespace if true.
-	// Make sure to understand the security implications if you want to enable it.
-	// When hostNetwork is enabled, this will set dnsPolicy to ClusterFirstWithHostNet automatically.
+	//
+	// Make sure to understand the security implications if you want to enable
+	// it (https://kubernetes.io/docs/concepts/configuration/overview/).
+	//
+	// When hostNetwork is enabled, this will set the DNS policy to
+	// `ClusterFirstWithHostNet` automatically (unless `.spec.DNSPolicy` is set
+	// to a different value).
 	hostNetwork?: bool @go(HostNetwork)
 
-	// PodTargetLabels are added to all Pod/ServiceMonitors' podTargetLabels
+	// PodTargetLabels are appended to the `spec.podTargetLabels` field of all
+	// PodMonitor and ServiceMonitor objects.
+	//
+	// +optional
 	podTargetLabels?: [...string] @go(PodTargetLabels,[]string)
+
+	// TracingConfig configures tracing in Prometheus.
+	//
+	// This is an *experimental feature*, it may change in any upcoming release
+	// in a breaking way.
+	//
+	// +optional
+	tracingConfig?: null | #PrometheusTracingConfig @go(TracingConfig,*PrometheusTracingConfig)
+
+	// BodySizeLimit defines per-scrape on response body size.
+	// Only valid in Prometheus versions 2.45.0 and newer.
+	//
+	// Note that the global limit only applies to scrape objects that don't specify an explicit limit value.
+	// If you want to enforce a maximum limit for all scrape objects, refer to enforcedBodySizeLimit.
+	//
+	// +optional
+	bodySizeLimit?: null | #ByteSize @go(BodySizeLimit,*ByteSize)
+
+	// SampleLimit defines per-scrape limit on number of scraped samples that will be accepted.
+	// Only valid in Prometheus versions 2.45.0 and newer.
+	//
+	// Note that the global limit only applies to scrape objects that don't specify an explicit limit value.
+	// If you want to enforce a maximum limit for all scrape objects, refer to enforcedSampleLimit.
+	//
+	// +optional
+	sampleLimit?: null | uint64 @go(SampleLimit,*uint64)
+
+	// TargetLimit defines a limit on the number of scraped targets that will be accepted.
+	// Only valid in Prometheus versions 2.45.0 and newer.
+	//
+	// Note that the global limit only applies to scrape objects that don't specify an explicit limit value.
+	// If you want to enforce a maximum limit for all scrape objects, refer to enforcedTargetLimit.
+	//
+	// +optional
+	targetLimit?: null | uint64 @go(TargetLimit,*uint64)
+
+	// Per-scrape limit on number of labels that will be accepted for a sample.
+	// Only valid in Prometheus versions 2.45.0 and newer.
+	//
+	// Note that the global limit only applies to scrape objects that don't specify an explicit limit value.
+	// If you want to enforce a maximum limit for all scrape objects, refer to enforcedLabelLimit.
+	//
+	// +optional
+	labelLimit?: null | uint64 @go(LabelLimit,*uint64)
+
+	// Per-scrape limit on length of labels name that will be accepted for a sample.
+	// Only valid in Prometheus versions 2.45.0 and newer.
+	//
+	// Note that the global limit only applies to scrape objects that don't specify an explicit limit value.
+	// If you want to enforce a maximum limit for all scrape objects, refer to enforcedLabelNameLengthLimit.
+	//
+	// +optional
+	labelNameLengthLimit?: null | uint64 @go(LabelNameLengthLimit,*uint64)
+
+	// Per-scrape limit on length of labels value that will be accepted for a sample.
+	// Only valid in Prometheus versions 2.45.0 and newer.
+	//
+	// Note that the global limit only applies to scrape objects that don't specify an explicit limit value.
+	// If you want to enforce a maximum limit for all scrape objects, refer to enforcedLabelValueLengthLimit.
+	//
+	// +optional
+	labelValueLengthLimit?: null | uint64 @go(LabelValueLengthLimit,*uint64)
+
+	// Per-scrape limit on the number of targets dropped by relabeling
+	// that will be kept in memory. 0 means no limit.
+	//
+	// It requires Prometheus >= v2.47.0.
+	//
+	// Note that the global limit only applies to scrape objects that don't specify an explicit limit value.
+	// If you want to enforce a maximum limit for all scrape objects, refer to enforcedKeepDroppedTargets.
+	//
+	// +optional
+	keepDroppedTargets?: null | uint64 @go(KeepDroppedTargets,*uint64)
+
+	// Defines the strategy used to reload the Prometheus configuration.
+	// If not specified, the configuration is reloaded using the /-/reload HTTP endpoint.
+	// +optional
+	reloadStrategy?: null | #ReloadStrategyType @go(ReloadStrategy,*ReloadStrategyType)
+
+	// Defines the maximum time that the `prometheus` container's startup probe will wait before being considered failed. The startup probe will return success after the WAL replay is complete.
+	// If set, the value should be greater than 60 (seconds). Otherwise it will be equal to 600 seconds (15 minutes).
+	// +optional
+	// +kubebuilder:validation:Minimum=60
+	maximumStartupDurationSeconds?: null | int32 @go(MaximumStartupDurationSeconds,*int32)
+
+	// List of scrape classes to expose to scraping objects such as
+	// PodMonitors, ServiceMonitors, Probes and ScrapeConfigs.
+	//
+	// This is an *experimental feature*, it may change in any upcoming release
+	// in a breaking way.
+	//
+	// +listType=map
+	// +listMapKey=name
+	scrapeClasses?: [...#ScrapeClass] @go(ScrapeClasses,[]ScrapeClass)
+
+	// Defines the service discovery role used to discover targets from
+	// `ServiceMonitor` objects and Alertmanager endpoints.
+	//
+	// If set, the value should be either "Endpoints" or "EndpointSlice".
+	// If unset, the operator assumes the "Endpoints" role.
+	//
+	// +optional
+	serviceDiscoveryRole?: null | #ServiceDiscoveryRole @go(ServiceDiscoveryRole,*ServiceDiscoveryRole)
+
+	// Defines the runtime reloadable configuration of the timeseries database(TSDB).
+	// It requires Prometheus >= v2.39.0 or PrometheusAgent >= v2.54.0.
+	//
+	// +optional
+	tsdb?: null | #TSDBSpec @go(TSDB,*TSDBSpec)
+
+	// File to which scrape failures are logged.
+	// Reloading the configuration will reopen the file.
+	//
+	// If the filename has an empty path, e.g. 'file.log', The Prometheus Pods
+	// will mount the file into an emptyDir volume at `/var/log/prometheus`.
+	// If a full path is provided, e.g. '/var/log/prometheus/file.log', you
+	// must mount a volume in the specified directory and it must be writable.
+	// It requires Prometheus >= v2.55.0.
+	//
+	// +kubebuilder:validation:MinLength=1
+	// +optional
+	scrapeFailureLogFile?: null | string @go(ScrapeFailureLogFile,*string)
+
+	// The name of the service name used by the underlying StatefulSet(s) as the governing service.
+	// If defined, the Service  must be created before the Prometheus/PrometheusAgent resource in the same namespace and it must define a selector that matches the pod labels.
+	// If empty, the operator will create and manage a headless service named `prometheus-operated` for Prometheus resources,
+	// or `prometheus-agent-operated` for PrometheusAgent resources.
+	// When deploying multiple Prometheus/PrometheusAgent resources in the same namespace, it is recommended to specify a different value for each.
+	// See https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#stable-network-id for more details.
+	// +optional
+	// +kubebuilder:validation:MinLength=1
+	serviceName?: null | string @go(ServiceName,*string)
+
+	// RuntimeConfig configures the values for the Prometheus process behavior
+	// +optional
+	runtime?: null | #RuntimeConfig @go(Runtime,*RuntimeConfig)
 }
 
-// Prometheus defines a Prometheus deployment.
+// Specifies the validation scheme for metric and label names.
+// Supported values are:
+// * `UTF8NameValidationScheme` for UTF-8 support.
+// * `LegacyNameValidationScheme` for letters, numbers, colons, and underscores.
+//
+// Note that `LegacyNameValidationScheme` cannot be used along with the OpenTelemetry `NoUTF8EscapingWithSuffixes` translation strategy (if enabled).
+// +kubebuilder:validation:Enum=UTF8;Legacy
+#NameValidationSchemeOptions: string // #enumNameValidationSchemeOptions
+
+#enumNameValidationSchemeOptions:
+	#UTF8NameValidationScheme |
+	#LegacyNameValidationScheme
+
+#UTF8NameValidationScheme:   #NameValidationSchemeOptions & "UTF8"
+#LegacyNameValidationScheme: #NameValidationSchemeOptions & "Legacy"
+
+// +kubebuilder:validation:Enum=HTTP;ProcessSignal
+#ReloadStrategyType: string // #enumReloadStrategyType
+
+#enumReloadStrategyType:
+	#HTTPReloadStrategyType |
+	#ProcessSignalReloadStrategyType
+
+// HTTPReloadStrategyType reloads the configuration using the /-/reload HTTP endpoint.
+#HTTPReloadStrategyType: #ReloadStrategyType & "HTTP"
+
+// ProcessSignalReloadStrategyType reloads the configuration by sending a SIGHUP signal to the process.
+#ProcessSignalReloadStrategyType: #ReloadStrategyType & "ProcessSignal"
+
+// +kubebuilder:validation:Enum=Endpoints;EndpointSlice
+#ServiceDiscoveryRole: string // #enumServiceDiscoveryRole
+
+#enumServiceDiscoveryRole:
+	#EndpointsRole |
+	#EndpointSliceRole
+
+#EndpointsRole:     #ServiceDiscoveryRole & "Endpoints"
+#EndpointSliceRole: #ServiceDiscoveryRole & "EndpointSlice"
+
+// The `Prometheus` custom resource definition (CRD) defines a desired [Prometheus](https://prometheus.io/docs/prometheus) setup to run in a Kubernetes cluster. It allows to specify many options such as the number of replicas, persistent storage, and Alertmanagers where firing alerts should be sent and many more.
+//
+// For each `Prometheus` resource, the Operator deploys one or several `StatefulSet` objects in the same namespace. The number of StatefulSets is equal to the number of shards which is 1 by default.
+//
+// The resource defines via label and namespace selectors which `ServiceMonitor`, `PodMonitor`, `Probe` and `PrometheusRule` objects should be associated to the deployed Prometheus instances.
+//
+// The Operator continuously reconciles the scrape and rules configuration and a sidecar container running in the Prometheus pods triggers a reload of the configuration when needed.
 #Prometheus: {
 	metav1.#TypeMeta
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta)
@@ -431,7 +955,7 @@ import (
 	metadata?: metav1.#ListMeta @go(ListMeta)
 
 	// List of Prometheuses
-	items: [...null | #Prometheus] @go(Items,[]*Prometheus)
+	items: [...#Prometheus] @go(Items,[]Prometheus)
 }
 
 // PrometheusSpec is a specification of the desired behavior of the Prometheus cluster. More info:
@@ -440,129 +964,182 @@ import (
 #PrometheusSpec: {
 	#CommonPrometheusFields
 
-	// Base image to use for a Prometheus deployment.
-	// Deprecated: use 'image' instead
+	// Deprecated: use 'spec.image' instead.
 	baseImage?: string @go(BaseImage)
 
-	// Tag of Prometheus container image to be deployed. Defaults to the value of `version`.
-	// Version is ignored if Tag is set.
-	// Deprecated: use 'image' instead.  The image tag can be specified
-	// as part of the image URL.
+	// Deprecated: use 'spec.image' instead. The image's tag can be specified as part of the image name.
 	tag?: string @go(Tag)
 
-	// SHA of Prometheus container image to be deployed. Defaults to the value of `version`.
-	// Similar to a tag, but the SHA explicitly deploys an immutable container image.
-	// Version and Tag are ignored if SHA is set.
-	// Deprecated: use 'image' instead.  The image digest can be specified
-	// as part of the image URL.
+	// Deprecated: use 'spec.image' instead. The image's digest can be specified as part of the image name.
 	sha?: string @go(SHA)
 
-	// Time duration Prometheus shall retain data for. Default is '24h' if
-	// retentionSize is not set, and must match the regular expression `[0-9]+(ms|s|m|h|d|w|y)`
-	// (milliseconds seconds minutes hours days weeks years).
+	// How long to retain the Prometheus data.
+	//
+	// Default: "24h" if `spec.retention` and `spec.retentionSize` are empty.
 	retention?: #Duration @go(Retention)
 
-	// Maximum amount of disk space used by blocks.
+	// Maximum number of bytes used by the Prometheus data.
 	retentionSize?: #ByteSize @go(RetentionSize)
 
-	// Disable prometheus compaction.
+	// When true, the Prometheus compaction is disabled.
+	// When `spec.thanos.objectStorageConfig` or `spec.objectStorageConfigFile` are defined, the operator automatically
+	// disables block compaction to avoid race conditions during block uploads (as the Thanos documentation recommends).
 	disableCompaction?: bool @go(DisableCompaction)
 
-	// /--rules.*/ command-line arguments.
+	// Defines the configuration of the Prometheus rules' engine.
 	rules?: #Rules @go(Rules)
 
-	// PrometheusRulesExcludedFromEnforce - list of prometheus rules to be excluded from enforcing
-	// of adding namespace labels. Works only if enforcedNamespaceLabel set to true.
-	// Make sure both ruleNamespace and ruleName are set for each pair.
-	// Deprecated: use excludedFromEnforcement instead.
+	// Defines the list of PrometheusRule objects to which the namespace label
+	// enforcement doesn't apply.
+	// This is only relevant when `spec.enforcedNamespaceLabel` is set to true.
+	// +optional
+	// Deprecated: use `spec.excludedFromEnforcement` instead.
 	prometheusRulesExcludedFromEnforce?: [...#PrometheusRuleExcludeConfig] @go(PrometheusRulesExcludedFromEnforce,[]PrometheusRuleExcludeConfig)
 
-	// QuerySpec defines the query command line flags when starting Prometheus.
-	query?: null | #QuerySpec @go(Query,*QuerySpec)
-
-	// A selector to select which PrometheusRules to mount for loading alerting/recording
-	// rules from. Until (excluding) Prometheus Operator v0.24.0 Prometheus
-	// Operator will migrate any legacy rule ConfigMaps to PrometheusRule custom
-	// resources selected by RuleSelector. Make sure it does not match any config
-	// maps that you do not want to be migrated.
+	// PrometheusRule objects to be selected for rule evaluation. An empty
+	// label selector matches all objects. A null label selector matches no
+	// objects.
+	// +optional
 	ruleSelector?: null | metav1.#LabelSelector @go(RuleSelector,*metav1.LabelSelector)
 
-	// Namespaces to be selected for PrometheusRules discovery. If unspecified, only
-	// the same namespace as the Prometheus object is in is used.
+	// Namespaces to match for PrometheusRule discovery. An empty label selector
+	// matches all namespaces. A null label selector matches the current
+	// namespace only.
+	// +optional
 	ruleNamespaceSelector?: null | metav1.#LabelSelector @go(RuleNamespaceSelector,*metav1.LabelSelector)
 
-	// Define details regarding alerting.
+	// QuerySpec defines the configuration of the Promethus query service.
+	// +optional
+	query?: null | #QuerySpec @go(Query,*QuerySpec)
+
+	// Defines the settings related to Alertmanager.
+	// +optional
 	alerting?: null | #AlertingSpec @go(Alerting,*AlertingSpec)
 
-	// remoteRead is the list of remote read configurations.
-	remoteRead?: [...#RemoteReadSpec] @go(RemoteRead,[]RemoteReadSpec)
-
-	// AdditionalAlertRelabelConfigs allows specifying a key of a Secret containing
-	// additional Prometheus alert relabel configurations. Alert relabel configurations
-	// specified are appended to the configurations generated by the Prometheus
-	// Operator. Alert relabel configurations specified must have the form as specified
-	// in the official Prometheus documentation:
-	// https://prometheus.io/docs/prometheus/latest/configuration/configuration/#alert_relabel_configs.
-	// As alert relabel configs are appended, the user is responsible to make sure it
-	// is valid. Note that using this feature may expose the possibility to
-	// break upgrades of Prometheus. It is advised to review Prometheus release
-	// notes to ensure that no incompatible alert relabel configs are going to break
+	// AdditionalAlertRelabelConfigs specifies a key of a Secret containing
+	// additional Prometheus alert relabel configurations. The alert relabel
+	// configurations are appended to the configuration generated by the
+	// Prometheus Operator. They must be formatted according to the official
+	// Prometheus documentation:
+	//
+	// https://prometheus.io/docs/prometheus/latest/configuration/configuration/#alert_relabel_configs
+	//
+	// The user is responsible for making sure that the configurations are valid
+	//
+	// Note that using this feature may expose the possibility to break
+	// upgrades of Prometheus. It is advised to review Prometheus release notes
+	// to ensure that no incompatible alert relabel configs are going to break
 	// Prometheus after the upgrade.
+	// +optional
 	additionalAlertRelabelConfigs?: null | v1.#SecretKeySelector @go(AdditionalAlertRelabelConfigs,*v1.SecretKeySelector)
 
-	// AdditionalAlertManagerConfigs allows specifying a key of a Secret containing
-	// additional Prometheus AlertManager configurations. AlertManager configurations
-	// specified are appended to the configurations generated by the Prometheus
-	// Operator. Job configurations specified must have the form as specified
-	// in the official Prometheus documentation:
-	// https://prometheus.io/docs/prometheus/latest/configuration/configuration/#alertmanager_config.
-	// As AlertManager configs are appended, the user is responsible to make sure it
-	// is valid. Note that using this feature may expose the possibility to
-	// break upgrades of Prometheus. It is advised to review Prometheus release
-	// notes to ensure that no incompatible AlertManager configs are going to break
+	// AdditionalAlertManagerConfigs specifies a key of a Secret containing
+	// additional Prometheus Alertmanager configurations. The Alertmanager
+	// configurations are appended to the configuration generated by the
+	// Prometheus Operator. They must be formatted according to the official
+	// Prometheus documentation:
+	//
+	// https://prometheus.io/docs/prometheus/latest/configuration/configuration/#alertmanager_config
+	//
+	// The user is responsible for making sure that the configurations are valid
+	//
+	// Note that using this feature may expose the possibility to break
+	// upgrades of Prometheus. It is advised to review Prometheus release notes
+	// to ensure that no incompatible AlertManager configs are going to break
 	// Prometheus after the upgrade.
+	// +optional
 	additionalAlertManagerConfigs?: null | v1.#SecretKeySelector @go(AdditionalAlertManagerConfigs,*v1.SecretKeySelector)
 
-	// Thanos configuration allows configuring various aspects of a Prometheus
-	// server in a Thanos environment.
+	// Defines the list of remote read configurations.
+	// +optional
+	remoteRead?: [...#RemoteReadSpec] @go(RemoteRead,[]RemoteReadSpec)
+
+	// Defines the configuration of the optional Thanos sidecar.
 	//
-	// This section is experimental, it may change significantly without
-	// deprecation notice in any release.
+	// +optional
 	thanos?: null | #ThanosSpec @go(Thanos,*ThanosSpec)
 
-	// QueryLogFile specifies the file to which PromQL queries are logged.
-	// If the filename has an empty path, e.g. 'query.log', prometheus-operator will mount the file into an
-	// emptyDir volume at `/var/log/prometheus`. If a full path is provided, e.g. /var/log/prometheus/query.log, you must mount a volume
-	// in the specified directory and it must be writable. This is because the prometheus container runs with a read-only root filesystem for security reasons.
-	// Alternatively, the location can be set to a stdout location such as `/dev/stdout` to log
-	// query information to the default Prometheus log stream.
-	// This is only available in versions of Prometheus >= 2.16.0.
-	// For more details, see the Prometheus docs (https://prometheus.io/docs/guides/query-log/)
+	// queryLogFile specifies where the file to which PromQL queries are logged.
+	//
+	// If the filename has an empty path, e.g. 'query.log', The Prometheus Pods
+	// will mount the file into an emptyDir volume at `/var/log/prometheus`.
+	// If a full path is provided, e.g. '/var/log/prometheus/query.log', you
+	// must mount a volume in the specified directory and it must be writable.
+	// This is because the prometheus container runs with a read-only root
+	// filesystem for security reasons.
+	// Alternatively, the location can be set to a standard I/O stream, e.g.
+	// `/dev/stdout`, to log query information to the default Prometheus log
+	// stream.
 	queryLogFile?: string @go(QueryLogFile)
 
-	// AllowOverlappingBlocks enables vertical compaction and vertical query merge in Prometheus.
-	// This is still experimental in Prometheus so it may change in any upcoming release.
+	// AllowOverlappingBlocks enables vertical compaction and vertical query
+	// merge in Prometheus.
+	//
+	// Deprecated: this flag has no effect for Prometheus >= 2.39.0 where overlapping blocks are enabled by default.
 	allowOverlappingBlocks?: bool @go(AllowOverlappingBlocks)
 
 	// Exemplars related settings that are runtime reloadable.
-	// It requires to enable the exemplar storage feature to be effective.
+	// It requires to enable the `exemplar-storage` feature flag to be effective.
+	// +optional
 	exemplars?: null | #Exemplars @go(Exemplars,*Exemplars)
 
-	// Interval between consecutive evaluations. Default: `30s`
+	// Interval between rule evaluations.
+	// Default: "30s"
 	// +kubebuilder:default:="30s"
 	evaluationInterval?: #Duration @go(EvaluationInterval)
 
-	// Enable access to prometheus web admin API. Defaults to the value of `false`.
+	// Defines the offset the rule evaluation timestamp of this particular group by the specified duration into the past.
+	// It requires Prometheus >= v2.53.0.
+	// +optional
+	ruleQueryOffset?: null | #Duration @go(RuleQueryOffset,*Duration)
+
+	// Enables access to the Prometheus web admin API.
+	//
 	// WARNING: Enabling the admin APIs enables mutating endpoints, to delete data,
 	// shutdown Prometheus, and more. Enabling this should be done with care and the
 	// user is advised to add additional authentication authorization via a proxy to
 	// ensure only clients authorized to perform these actions can do so.
-	// For more information see https://prometheus.io/docs/prometheus/latest/querying/api/#tsdb-admin-apis
+	//
+	// For more information:
+	// https://prometheus.io/docs/prometheus/latest/querying/api/#tsdb-admin-apis
 	enableAdminAPI?: bool @go(EnableAdminAPI)
+}
 
-	// Defines the runtime reloadable configuration of the timeseries database
-	// (TSDB).
-	tsdb?: #TSDBSpec @go(TSDB)
+#PrometheusTracingConfig: {
+	// Client used to export the traces. Supported values are `http` or `grpc`.
+	// +kubebuilder:validation:Enum=http;grpc
+	// +optional
+	clientType?: null | string @go(ClientType,*string)
+
+	// Endpoint to send the traces to. Should be provided in format <host>:<port>.
+	// +kubebuilder:validation:MinLength:=1
+	// +required
+	endpoint: string @go(Endpoint)
+
+	// Sets the probability a given trace will be sampled. Must be a float from 0 through 1.
+	// +optional
+	samplingFraction?: null | resource.#Quantity @go(SamplingFraction,*resource.Quantity)
+
+	// If disabled, the client will use a secure connection.
+	// +optional
+	insecure?: null | bool @go(Insecure,*bool)
+
+	// Key-value pairs to be used as headers associated with gRPC or HTTP requests.
+	// +optional
+	headers?: {[string]: string} @go(Headers,map[string]string)
+
+	// Compression key for supported compression types. The only supported value is `gzip`.
+	// +kubebuilder:validation:Enum=gzip
+	// +optional
+	compression?: null | string @go(Compression,*string)
+
+	// Maximum time the exporter will wait for each batch export.
+	// +optional
+	timeout?: null | #Duration @go(Timeout,*Duration)
+
+	// TLS Config to use when sending traces.
+	// +optional
+	tlsConfig?: null | #TLSConfig @go(TLSConfig,*TLSConfig)
 }
 
 // PrometheusStatus is the most recent observed status of the Prometheus cluster.
@@ -600,35 +1177,48 @@ import (
 	// +listMapKey=shardID
 	// +optional
 	shardStatuses?: [...#ShardStatus] @go(ShardStatuses,[]ShardStatus)
+
+	// Shards is the most recently observed number of shards.
+	shards?: int32 @go(Shards)
+
+	// The selector used to match the pods targeted by this Prometheus resource.
+	selector?: string @go(Selector)
 }
 
 // AlertingSpec defines parameters for alerting configuration of Prometheus servers.
 // +k8s:openapi-gen=true
 #AlertingSpec: {
-	// AlertmanagerEndpoints Prometheus should fire alerts against.
+	// Alertmanager endpoints where Prometheus should send alerts to.
 	alertmanagers: [...#AlertmanagerEndpoints] @go(Alertmanagers,[]AlertmanagerEndpoints)
 }
 
 // StorageSpec defines the configured storage for a group Prometheus servers.
 // If no storage option is specified, then by default an [EmptyDir](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir) will be used.
-// If multiple storage options are specified, priority will be given as follows: EmptyDir, Ephemeral, and lastly VolumeClaimTemplate.
+//
+// If multiple storage options are specified, priority will be given as follows:
+//  1. emptyDir
+//  2. ephemeral
+//  3. volumeClaimTemplate
+//
 // +k8s:openapi-gen=true
 #StorageSpec: {
-	// Deprecated: subPath usage will be disabled by default in a future release, this option will become unnecessary.
-	// DisableMountSubPath allows to remove any subPath usage in volume mounts.
+	// Deprecated: subPath usage will be removed in a future release.
 	disableMountSubPath?: bool @go(DisableMountSubPath)
 
-	// EmptyDirVolumeSource to be used by the StatefulSet. If specified, used in place of any volumeClaimTemplate. More
-	// info: https://kubernetes.io/docs/concepts/storage/volumes/#emptydir
+	// EmptyDirVolumeSource to be used by the StatefulSet.
+	// If specified, it takes precedence over `ephemeral` and `volumeClaimTemplate`.
+	// More info: https://kubernetes.io/docs/concepts/storage/volumes/#emptydir
 	emptyDir?: null | v1.#EmptyDirVolumeSource @go(EmptyDir,*v1.EmptyDirVolumeSource)
 
 	// EphemeralVolumeSource to be used by the StatefulSet.
-	// This is a beta field in k8s 1.21, for lower versions, starting with k8s 1.19, it requires enabling the GenericEphemeralVolume feature gate.
+	// This is a beta field in k8s 1.21 and GA in 1.15.
+	// For lower versions, starting with k8s 1.19, it requires enabling the GenericEphemeralVolume feature gate.
 	// More info: https://kubernetes.io/docs/concepts/storage/ephemeral-volumes/#generic-ephemeral-volumes
 	ephemeral?: null | v1.#EphemeralVolumeSource @go(Ephemeral,*v1.EphemeralVolumeSource)
 
-	// A PVC spec to be used by the StatefulSet. The easiest way to use a volume that cannot be automatically provisioned
-	// (for whatever reason) is to use a label selector alongside manually created PersistentVolumes.
+	// Defines the PVC spec to be used by the Prometheus StatefulSets.
+	// The easiest way to use a volume that cannot be automatically provisioned
+	// is to use a label selector alongside manually created PersistentVolumes.
 	volumeClaimTemplate?: #EmbeddedPersistentVolumeClaim @go(VolumeClaimTemplate)
 }
 
@@ -636,120 +1226,171 @@ import (
 // +k8s:openapi-gen=true
 #QuerySpec: {
 	// The delta difference allowed for retrieving metrics during expression evaluations.
+	// +optional
 	lookbackDelta?: null | string @go(LookbackDelta,*string)
 
 	// Number of concurrent queries that can be run at once.
 	// +kubebuilder:validation:Minimum:=1
+	// +optional
 	maxConcurrency?: null | int32 @go(MaxConcurrency,*int32)
 
-	// Maximum number of samples a single query can load into memory. Note that queries will fail if they would load more samples than this into memory, so this also limits the number of samples a query can return.
+	// Maximum number of samples a single query can load into memory. Note that
+	// queries will fail if they would load more samples than this into memory,
+	// so this also limits the number of samples a query can return.
+	// +optional
 	maxSamples?: null | int32 @go(MaxSamples,*int32)
 
 	// Maximum time a query may take before being aborted.
+	// +optional
 	timeout?: null | #Duration @go(Timeout,*Duration)
 }
 
-// PrometheusWebSpec defines the web command line flags when starting Prometheus.
+// PrometheusWebSpec defines the configuration of the Prometheus web server.
 // +k8s:openapi-gen=true
 #PrometheusWebSpec: {
 	#WebConfigFileFields
 
-	// The prometheus web page title
+	// The prometheus web page title.
+	// +optional
 	pageTitle?: null | string @go(PageTitle,*string)
 
 	// Defines the maximum number of simultaneous connections
 	// A zero value means that Prometheus doesn't accept any incoming connection.
 	// +kubebuilder:validation:Minimum:=0
+	// +optional
 	maxConnections?: null | int32 @go(MaxConnections,*int32)
 }
 
-// ThanosSpec defines parameters for a Prometheus server within a Thanos deployment.
+// ThanosSpec defines the configuration of the Thanos sidecar.
 // +k8s:openapi-gen=true
 #ThanosSpec: {
-	// Image if specified has precedence over baseImage, tag and sha
-	// combinations. Specifying the version is still necessary to ensure the
-	// Prometheus Operator knows what version of Thanos is being
-	// configured.
+	// Container image name for Thanos. If specified, it takes precedence over
+	// the `spec.thanos.baseImage`, `spec.thanos.tag` and `spec.thanos.sha`
+	// fields.
+	//
+	// Specifying `spec.thanos.version` is still necessary to ensure the
+	// Prometheus Operator knows which version of Thanos is being configured.
+	//
+	// If neither `spec.thanos.image` nor `spec.thanos.baseImage` are defined,
+	// the operator will use the latest upstream version of Thanos available at
+	// the time when the operator was released.
+	//
+	// +optional
 	image?: null | string @go(Image,*string)
 
-	// Version describes the version of Thanos to use.
+	// Version of Thanos being deployed. The operator uses this information
+	// to generate the Prometheus StatefulSet + configuration files.
+	//
+	// If not specified, the operator assumes the latest upstream release of
+	// Thanos available at the time when the version of the operator was
+	// released.
+	//
+	// +optional
 	version?: null | string @go(Version,*string)
 
-	// Tag of Thanos sidecar container image to be deployed. Defaults to the value of `version`.
-	// Version is ignored if Tag is set.
-	// Deprecated: use 'image' instead.  The image tag can be specified
-	// as part of the image URL.
+	// +optional
+	// Deprecated: use 'image' instead. The image's tag can be specified as as part of the image name.
 	tag?: null | string @go(Tag,*string)
 
-	// SHA of Thanos container image to be deployed. Defaults to the value of `version`.
-	// Similar to a tag, but the SHA explicitly deploys an immutable container image.
-	// Version and Tag are ignored if SHA is set.
-	// Deprecated: use 'image' instead.  The image digest can be specified
-	// as part of the image URL.
+	// +optional
+	// Deprecated: use 'image' instead.  The image digest can be specified as part of the image name.
 	sha?: null | string @go(SHA,*string)
 
-	// Thanos base image if other than default.
-	// Deprecated: use 'image' instead
+	// +optional
+	// Deprecated: use 'image' instead.
 	baseImage?: null | string @go(BaseImage,*string)
 
-	// Resources defines the resource requirements for the Thanos sidecar.
-	// If not provided, no requests/limits will be set
+	// Defines the resources requests and limits of the Thanos sidecar.
 	resources?: v1.#ResourceRequirements @go(Resources)
 
-	// ObjectStorageConfig configures object storage in Thanos.
-	// Alternative to ObjectStorageConfigFile, and lower order priority.
+	// Defines the Thanos sidecar's configuration to upload TSDB blocks to object storage.
+	//
+	// More info: https://thanos.io/tip/thanos/storage.md/
+	//
+	// objectStorageConfigFile takes precedence over this field.
+	// +optional
 	objectStorageConfig?: null | v1.#SecretKeySelector @go(ObjectStorageConfig,*v1.SecretKeySelector)
 
-	// ObjectStorageConfigFile specifies the path of the object storage configuration file.
-	// When used alongside with ObjectStorageConfig, ObjectStorageConfigFile takes precedence.
+	// Defines the Thanos sidecar's configuration file to upload TSDB blocks to object storage.
+	//
+	// More info: https://thanos.io/tip/thanos/storage.md/
+	//
+	// This field takes precedence over objectStorageConfig.
+	// +optional
 	objectStorageConfigFile?: null | string @go(ObjectStorageConfigFile,*string)
 
-	// If true, the Thanos sidecar listens on the loopback interface
-	// for the HTTP and gRPC endpoints.
-	// It takes precedence over `grpcListenLocal` and `httpListenLocal`.
 	// Deprecated: use `grpcListenLocal` and `httpListenLocal` instead.
 	listenLocal?: bool @go(ListenLocal)
 
-	// If true, the Thanos sidecar listens on the loopback interface
-	// for the gRPC endpoints.
+	// When true, the Thanos sidecar listens on the loopback interface instead
+	// of the Pod IP's address for the gRPC endpoints.
+	//
 	// It has no effect if `listenLocal` is true.
 	grpcListenLocal?: bool @go(GRPCListenLocal)
 
-	// If true, the Thanos sidecar listens on the loopback interface
-	// for the HTTP endpoints.
+	// When true, the Thanos sidecar listens on the loopback interface instead
+	// of the Pod IP's address for the HTTP endpoints.
+	//
 	// It has no effect if `listenLocal` is true.
 	httpListenLocal?: bool @go(HTTPListenLocal)
 
-	// TracingConfig configures tracing in Thanos. This is an experimental feature, it may change in any upcoming release in a breaking way.
+	// Defines the tracing configuration for the Thanos sidecar.
+	//
+	// `tracingConfigFile` takes precedence over this field.
+	//
+	// More info: https://thanos.io/tip/thanos/tracing.md/
+	//
+	// This is an *experimental feature*, it may change in any upcoming release
+	// in a breaking way.
+	//
+	// +optional
 	tracingConfig?: null | v1.#SecretKeySelector @go(TracingConfig,*v1.SecretKeySelector)
 
-	// TracingConfig specifies the path of the tracing configuration file.
-	// When used alongside with TracingConfig, TracingConfigFile takes precedence.
+	// Defines the tracing configuration file for the Thanos sidecar.
+	//
+	// This field takes precedence over `tracingConfig`.
+	//
+	// More info: https://thanos.io/tip/thanos/tracing.md/
+	//
+	// This is an *experimental feature*, it may change in any upcoming release
+	// in a breaking way.
 	tracingConfigFile?: string @go(TracingConfigFile)
 
-	// GRPCServerTLSConfig configures the TLS parameters for the gRPC server
-	// providing the StoreAPI.
-	// Note: Currently only the CAFile, CertFile, and KeyFile fields are supported.
-	// Maps to the '--grpc-server-tls-*' CLI args.
+	// Configures the TLS parameters for the gRPC server providing the StoreAPI.
+	//
+	// Note: Currently only the `caFile`, `certFile`, and `keyFile` fields are supported.
+	//
+	// +optional
 	grpcServerTlsConfig?: null | #TLSConfig @go(GRPCServerTLSConfig,*TLSConfig)
 
-	// LogLevel for Thanos sidecar to be configured with.
-	//+kubebuilder:validation:Enum="";debug;info;warn;error
+	// Log level for the Thanos sidecar.
+	// +kubebuilder:validation:Enum="";debug;info;warn;error
 	logLevel?: string @go(LogLevel)
 
-	// LogFormat for Thanos sidecar to be configured with.
-	//+kubebuilder:validation:Enum="";logfmt;json
+	// Log format for the Thanos sidecar.
+	// +kubebuilder:validation:Enum="";logfmt;json
 	logFormat?: string @go(LogFormat)
 
-	// MinTime for Thanos sidecar to be configured with. Option can be a constant time in RFC3339 format or time duration relative to current time, such as -1d or 2h45m. Valid duration units are ms, s, m, h, d, w, y.
+	// Defines the start of time range limit served by the Thanos sidecar's StoreAPI.
+	// The field's value should be a constant time in RFC3339 format or a time
+	// duration relative to current time, such as -1d or 2h45m. Valid duration
+	// units are ms, s, m, h, d, w, y.
 	minTime?: string @go(MinTime)
 
-	// BlockDuration controls the size of TSDB blocks produced by Prometheus. Default is 2h to match the upstream Prometheus defaults.
-	// WARNING: Changing the block duration can impact the performance and efficiency of the entire Prometheus/Thanos stack due to how it interacts with memory and Thanos compactors. It is recommended to keep this value set to a multiple of 120 times your longest scrape or rule interval. For example, 30s * 120 = 1h.
+	// BlockDuration controls the size of TSDB blocks produced by Prometheus.
+	// The default value is 2h to match the upstream Prometheus defaults.
+	//
+	// WARNING: Changing the block duration can impact the performance and
+	// efficiency of the entire Prometheus/Thanos stack due to how it interacts
+	// with memory and Thanos compactors. It is recommended to keep this value
+	// set to a multiple of 120 times your longest scrape or rule interval. For
+	// example, 30s * 120 = 1h.
+	//
 	// +kubebuilder:default:="2h"
 	blockSize?: #Duration @go(BlockDuration)
 
-	// ReadyTimeout is the maximum time Thanos sidecar will wait for Prometheus to start. Eg 10m
+	// ReadyTimeout is the maximum time that the Thanos sidecar will wait for
+	// Prometheus to start.
 	readyTimeout?: #Duration @go(ReadyTimeout)
 
 	// How often to retrieve the Prometheus configuration.
@@ -758,16 +1399,19 @@ import (
 	// Maximum time to wait when retrieving the Prometheus configuration.
 	getConfigTimeout?: #Duration @go(GetConfigTimeout)
 
-	// VolumeMounts allows configuration of additional VolumeMounts on the output StatefulSet definition.
-	// VolumeMounts specified will be appended to other VolumeMounts in the thanos-sidecar container.
+	// VolumeMounts allows configuration of additional VolumeMounts for Thanos.
+	// VolumeMounts specified will be appended to other VolumeMounts in the
+	// 'thanos-sidecar' container.
+	// +optional
 	volumeMounts?: [...v1.#VolumeMount] @go(VolumeMounts,[]v1.VolumeMount)
 
 	// AdditionalArgs allows setting additional arguments for the Thanos container.
 	// The arguments are passed as-is to the Thanos container which may cause issues
 	// if they are invalid or not supported the given Thanos version.
 	// In case of an argument conflict (e.g. an argument which is already set by the
-	// operator itself) or when providing an invalid argument the reconciliation will
+	// operator itself) or when providing an invalid argument, the reconciliation will
 	// fail and an error will be logged.
+	// +optional
 	additionalArgs?: [...#Argument] @go(AdditionalArgs,[]Argument)
 }
 
@@ -776,66 +1420,165 @@ import (
 // +k8s:openapi-gen=true
 #RemoteWriteSpec: {
 	// The URL of the endpoint to send samples to.
+	// +kubebuilder:validation:MinLength=1
+	// +required
 	url: string @go(URL)
 
 	// The name of the remote write queue, it must be unique if specified. The
 	// name is used in metrics and logging in order to differentiate queues.
-	// Only valid in Prometheus versions 2.15.0 and newer.
-	name?: string @go(Name)
+	//
+	// It requires Prometheus >= v2.15.0.
+	//
+	//+optional
+	name?: null | string @go(Name,*string)
+
+	// The Remote Write message's version to use when writing to the endpoint.
+	//
+	// `Version1.0` corresponds to the `prometheus.WriteRequest` protobuf message introduced in Remote Write 1.0.
+	// `Version2.0` corresponds to the `io.prometheus.write.v2.Request` protobuf message introduced in Remote Write 2.0.
+	//
+	// When `Version2.0` is selected, Prometheus will automatically be
+	// configured to append the metadata of scraped metrics to the WAL.
+	//
+	// Before setting this field, consult with your remote storage provider
+	// what message version it supports.
+	//
+	// It requires Prometheus >= v2.54.0.
+	//
+	// +optional
+	messageVersion?: null | #RemoteWriteMessageVersion @go(MessageVersion,*RemoteWriteMessageVersion)
 
 	// Enables sending of exemplars over remote write. Note that
-	// exemplar-storage itself must be enabled using the enableFeature option
-	// for exemplars to be scraped in the first place.  Only valid in
-	// Prometheus versions 2.27.0 and newer.
+	// exemplar-storage itself must be enabled using the `spec.enableFeatures`
+	// option for exemplars to be scraped in the first place.
+	//
+	// It requires Prometheus >= v2.27.0.
+	//
+	// +optional
 	sendExemplars?: null | bool @go(SendExemplars,*bool)
 
+	// Enables sending of native histograms, also known as sparse histograms
+	// over remote write.
+	//
+	// It requires Prometheus >= v2.40.0.
+	//
+	// +optional
+	sendNativeHistograms?: null | bool @go(SendNativeHistograms,*bool)
+
 	// Timeout for requests to the remote write endpoint.
-	remoteTimeout?: #Duration @go(RemoteTimeout)
+	// +optional
+	remoteTimeout?: null | #Duration @go(RemoteTimeout,*Duration)
 
 	// Custom HTTP headers to be sent along with each remote write request.
 	// Be aware that headers that are set by Prometheus itself can't be overwritten.
-	// Only valid in Prometheus versions 2.25.0 and newer.
+	//
+	// It requires Prometheus >= v2.25.0.
+	//
+	// +optional
 	headers?: {[string]: string} @go(Headers,map[string]string)
 
 	// The list of remote write relabel configurations.
+	// +optional
 	writeRelabelConfigs?: [...#RelabelConfig] @go(WriteRelabelConfigs,[]RelabelConfig)
 
-	// OAuth2 for the URL. Only valid in Prometheus versions 2.27.0 and newer.
+	// OAuth2 configuration for the URL.
+	//
+	// It requires Prometheus >= v2.27.0.
+	//
+	// Cannot be set at the same time as `sigv4`, `authorization`, `basicAuth`, or `azureAd`.
+	// +optional
 	oauth2?: null | #OAuth2 @go(OAuth2,*OAuth2)
 
-	// BasicAuth for the URL.
+	// BasicAuth configuration for the URL.
+	//
+	// Cannot be set at the same time as `sigv4`, `authorization`, `oauth2`, or `azureAd`.
+	//
+	// +optional
 	basicAuth?: null | #BasicAuth @go(BasicAuth,*BasicAuth)
 
-	// Bearer token for remote write.
-	bearerToken?: string @go(BearerToken)
-
-	// File to read bearer token for remote write.
+	// File from which to read bearer token for the URL.
+	//
+	// Deprecated: this will be removed in a future release. Prefer using `authorization`.
 	bearerTokenFile?: string @go(BearerTokenFile)
 
-	// Authorization section for remote write
+	// Authorization section for the URL.
+	//
+	// It requires Prometheus >= v2.26.0.
+	//
+	// Cannot be set at the same time as `sigv4`, `basicAuth`, `oauth2`, or `azureAd`.
+	//
+	// +optional
 	authorization?: null | #Authorization @go(Authorization,*Authorization)
 
-	// Sigv4 allows to configures AWS's Signature Verification 4
+	// Sigv4 allows to configures AWS's Signature Verification 4 for the URL.
+	//
+	// It requires Prometheus >= v2.26.0.
+	//
+	// Cannot be set at the same time as `authorization`, `basicAuth`, `oauth2`, or `azureAd`.
+	//
+	// +optional
 	sigv4?: null | #Sigv4 @go(Sigv4,*Sigv4)
 
-	// TLS Config to use for remote write.
+	// AzureAD for the URL.
+	//
+	// It requires Prometheus >= v2.45.0.
+	//
+	// Cannot be set at the same time as `authorization`, `basicAuth`, `oauth2`, or `sigv4`.
+	//
+	// +optional
+	azureAd?: null | #AzureAD @go(AzureAD,*AzureAD)
+
+	// *Warning: this field shouldn't be used because the token value appears
+	// in clear-text. Prefer using `authorization`.*
+	//
+	// Deprecated: this will be removed in a future release.
+	bearerToken?: string @go(BearerToken)
+
+	// TLS Config to use for the URL.
+	// +optional
 	tlsConfig?: null | #TLSConfig @go(TLSConfig,*TLSConfig)
 
-	// Optional ProxyURL.
-	proxyUrl?: string @go(ProxyURL)
+	#ProxyConfig
+
+	// Configure whether HTTP requests follow HTTP 3xx redirects.
+	//
+	// It requires Prometheus >= v2.26.0.
+	//
+	// +optional
+	followRedirects?: null | bool @go(FollowRedirects,*bool)
 
 	// QueueConfig allows tuning of the remote write queue parameters.
+	// +optional
 	queueConfig?: null | #QueueConfig @go(QueueConfig,*QueueConfig)
 
 	// MetadataConfig configures the sending of series metadata to the remote storage.
+	// +optional
 	metadataConfig?: null | #MetadataConfig @go(MetadataConfig,*MetadataConfig)
+
+	// Whether to enable HTTP2.
+	// +optional
+	enableHTTP2?: null | bool @go(EnableHttp2,*bool)
 }
+
+// +kubebuilder:validation:Enum=V1.0;V2.0
+#RemoteWriteMessageVersion: string // #enumRemoteWriteMessageVersion
+
+#enumRemoteWriteMessageVersion:
+	#RemoteWriteMessageVersion1_0 |
+	#RemoteWriteMessageVersion2_0
+
+// Remote Write message's version 1.0.
+#RemoteWriteMessageVersion1_0: #RemoteWriteMessageVersion & "V1.0"
+
+// Remote Write message's version 2.0.
+#RemoteWriteMessageVersion2_0: #RemoteWriteMessageVersion & "V2.0"
 
 // QueueConfig allows the tuning of remote write's queue_config parameters.
 // This object is referenced in the RemoteWriteSpec object.
 // +k8s:openapi-gen=true
 #QueueConfig: {
-	// Capacity is the number of samples to buffer per shard before we start dropping them.
+	// Capacity is the number of samples to buffer per shard before we start
+	// dropping them.
 	capacity?: int @go(Capacity)
 
 	// MinShards is the minimum number of shards, i.e. amount of concurrency.
@@ -848,33 +1591,48 @@ import (
 	maxSamplesPerSend?: int @go(MaxSamplesPerSend)
 
 	// BatchSendDeadline is the maximum time a sample will wait in buffer.
-	batchSendDeadline?: string @go(BatchSendDeadline)
+	// +optional
+	batchSendDeadline?: null | #Duration @go(BatchSendDeadline,*Duration)
 
 	// MaxRetries is the maximum number of times to retry a batch on recoverable errors.
 	maxRetries?: int @go(MaxRetries)
 
 	// MinBackoff is the initial retry delay. Gets doubled for every retry.
-	minBackoff?: string @go(MinBackoff)
+	// +optional
+	minBackoff?: null | #Duration @go(MinBackoff,*Duration)
 
 	// MaxBackoff is the maximum retry delay.
-	maxBackoff?: string @go(MaxBackoff)
+	// +optional
+	maxBackoff?: null | #Duration @go(MaxBackoff,*Duration)
 
 	// Retry upon receiving a 429 status code from the remote-write storage.
-	// This is experimental feature and might change in the future.
+	//
+	// This is an *experimental feature*, it may change in any upcoming release
+	// in a breaking way.
 	retryOnRateLimit?: bool @go(RetryOnRateLimit)
+
+	// SampleAgeLimit drops samples older than the limit.
+	// It requires Prometheus >= v2.50.0.
+	//
+	// +optional
+	sampleAgeLimit?: null | #Duration @go(SampleAgeLimit,*Duration)
 }
 
 // Sigv4 optionally configures AWS's Signature Verification 4 signing process to
-// sign requests. Cannot be set at the same time as basic_auth or authorization.
+// sign requests.
 // +k8s:openapi-gen=true
 #Sigv4: {
 	// Region is the AWS region. If blank, the region from the default credentials chain used.
 	region?: string @go(Region)
 
-	// AccessKey is the AWS API key. If blank, the environment variable `AWS_ACCESS_KEY_ID` is used.
+	// AccessKey is the AWS API key. If not specified, the environment variable
+	// `AWS_ACCESS_KEY_ID` is used.
+	// +optional
 	accessKey?: null | v1.#SecretKeySelector @go(AccessKey,*v1.SecretKeySelector)
 
-	// SecretKey is the AWS API secret. If blank, the environment variable `AWS_SECRET_ACCESS_KEY` is used.
+	// SecretKey is the AWS API secret. If not specified, the environment
+	// variable `AWS_SECRET_ACCESS_KEY` is used.
+	// +optional
 	secretKey?: null | v1.#SecretKeySelector @go(SecretKey,*v1.SecretKeySelector)
 
 	// Profile is the named AWS profile used to authenticate.
@@ -884,6 +1642,71 @@ import (
 	roleArn?: string @go(RoleArn)
 }
 
+// AzureAD defines the configuration for remote write's azuread parameters.
+// +k8s:openapi-gen=true
+#AzureAD: {
+	// The Azure Cloud. Options are 'AzurePublic', 'AzureChina', or 'AzureGovernment'.
+	// +kubebuilder:validation:Enum=AzureChina;AzureGovernment;AzurePublic
+	// +optional
+	cloud?: null | string @go(Cloud,*string)
+
+	// ManagedIdentity defines the Azure User-assigned Managed identity.
+	// Cannot be set at the same time as `oauth` or `sdk`.
+	// +optional
+	managedIdentity?: null | #ManagedIdentity @go(ManagedIdentity,*ManagedIdentity)
+
+	// OAuth defines the oauth config that is being used to authenticate.
+	// Cannot be set at the same time as `managedIdentity` or `sdk`.
+	//
+	// It requires Prometheus >= v2.48.0.
+	//
+	// +optional
+	oauth?: null | #AzureOAuth @go(OAuth,*AzureOAuth)
+
+	// SDK defines the Azure SDK config that is being used to authenticate.
+	// See https://learn.microsoft.com/en-us/azure/developer/go/azure-sdk-authentication
+	// Cannot be set at the same time as `oauth` or `managedIdentity`.
+	//
+	// It requires Prometheus >= 2.52.0.
+	// +optional
+	sdk?: null | #AzureSDK @go(SDK,*AzureSDK)
+}
+
+// AzureOAuth defines the Azure OAuth settings.
+// +k8s:openapi-gen=true
+#AzureOAuth: {
+	// `clientID` is the clientId of the Azure Active Directory application that is being used to authenticate.
+	// +required
+	// +kubebuilder:validation:MinLength=1
+	clientId: string @go(ClientID)
+
+	// `clientSecret` specifies a key of a Secret containing the client secret of the Azure Active Directory application that is being used to authenticate.
+	// +required
+	clientSecret: v1.#SecretKeySelector @go(ClientSecret)
+
+	// `tenantId` is the tenant ID of the Azure Active Directory application that is being used to authenticate.
+	// +required
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:Pattern:=^[0-9a-zA-Z-.]+$
+	tenantId: string @go(TenantID)
+}
+
+// ManagedIdentity defines the Azure User-assigned Managed identity.
+// +k8s:openapi-gen=true
+#ManagedIdentity: {
+	// The client id
+	// +required
+	clientId: string @go(ClientID)
+}
+
+// AzureSDK is used to store azure SDK config values.
+#AzureSDK: {
+	// `tenantId` is the tenant ID of the azure active directory application that is being used to authenticate.
+	// +optional
+	// +kubebuilder:validation:Pattern:=^[0-9a-zA-Z-.]+$
+	tenantId?: null | string @go(TenantID,*string)
+}
+
 // RemoteReadSpec defines the configuration for Prometheus to read back samples
 // from a remote endpoint.
 // +k8s:openapi-gen=true
@@ -891,122 +1714,218 @@ import (
 	// The URL of the endpoint to query from.
 	url: string @go(URL)
 
-	// The name of the remote read queue, it must be unique if specified. The name
-	// is used in metrics and logging in order to differentiate read
-	// configurations.  Only valid in Prometheus versions 2.15.0 and newer.
+	// The name of the remote read queue, it must be unique if specified. The
+	// name is used in metrics and logging in order to differentiate read
+	// configurations.
+	//
+	// It requires Prometheus >= v2.15.0.
+	//
 	name?: string @go(Name)
 
 	// An optional list of equality matchers which have to be present
 	// in a selector to query the remote read endpoint.
+	// +optional
 	requiredMatchers?: {[string]: string} @go(RequiredMatchers,map[string]string)
 
 	// Timeout for requests to the remote read endpoint.
-	remoteTimeout?: #Duration @go(RemoteTimeout)
+	// +optional
+	remoteTimeout?: null | #Duration @go(RemoteTimeout,*Duration)
 
 	// Custom HTTP headers to be sent along with each remote read request.
 	// Be aware that headers that are set by Prometheus itself can't be overwritten.
 	// Only valid in Prometheus versions 2.26.0 and newer.
+	// +optional
 	headers?: {[string]: string} @go(Headers,map[string]string)
 
 	// Whether reads should be made for queries for time ranges that
 	// the local storage should have complete data for.
 	readRecent?: bool @go(ReadRecent)
 
-	// BasicAuth for the URL.
-	basicAuth?: null | #BasicAuth @go(BasicAuth,*BasicAuth)
-
-	// OAuth2 for the URL. Only valid in Prometheus versions 2.27.0 and newer.
+	// OAuth2 configuration for the URL.
+	//
+	// It requires Prometheus >= v2.27.0.
+	//
+	// Cannot be set at the same time as `authorization`, or `basicAuth`.
+	//
+	// +optional
 	oauth2?: null | #OAuth2 @go(OAuth2,*OAuth2)
 
-	// Bearer token for remote read.
-	bearerToken?: string @go(BearerToken)
+	// BasicAuth configuration for the URL.
+	//
+	// Cannot be set at the same time as `authorization`, or `oauth2`.
+	//
+	// +optional
+	basicAuth?: null | #BasicAuth @go(BasicAuth,*BasicAuth)
 
-	// File to read bearer token for remote read.
+	// File from which to read the bearer token for the URL.
+	//
+	// Deprecated: this will be removed in a future release. Prefer using `authorization`.
 	bearerTokenFile?: string @go(BearerTokenFile)
 
-	// Authorization section for remote read
+	// Authorization section for the URL.
+	//
+	// It requires Prometheus >= v2.26.0.
+	//
+	// Cannot be set at the same time as `basicAuth`, or `oauth2`.
+	//
+	// +optional
 	authorization?: null | #Authorization @go(Authorization,*Authorization)
 
-	// TLS Config to use for remote read.
+	// *Warning: this field shouldn't be used because the token value appears
+	// in clear-text. Prefer using `authorization`.*
+	//
+	// Deprecated: this will be removed in a future release.
+	bearerToken?: string @go(BearerToken)
+
+	// TLS Config to use for the URL.
+	// +optional
 	tlsConfig?: null | #TLSConfig @go(TLSConfig,*TLSConfig)
 
-	// Optional ProxyURL.
-	proxyUrl?: string @go(ProxyURL)
+	#ProxyConfig
+
+	// Configure whether HTTP requests follow HTTP 3xx redirects.
+	//
+	// It requires Prometheus >= v2.26.0.
+	//
+	// +optional
+	followRedirects?: null | bool @go(FollowRedirects,*bool)
 
 	// Whether to use the external labels as selectors for the remote read endpoint.
-	// Requires Prometheus v2.34.0 and above.
+	//
+	// It requires Prometheus >= v2.34.0.
+	//
+	// +optional
 	filterExternalLabels?: null | bool @go(FilterExternalLabels,*bool)
 }
 
-// RelabelConfig allows dynamic rewriting of the label set, being applied to samples before ingestion.
-// It defines `<metric_relabel_configs>`-section of Prometheus configuration.
-// More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#metric_relabel_configs
+// RelabelConfig allows dynamic rewriting of the label set for targets, alerts,
+// scraped samples and remote write samples.
+//
+// More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
+//
 // +k8s:openapi-gen=true
 #RelabelConfig: {
-	// The source labels select values from existing labels. Their content is concatenated
-	// using the configured separator and matched against the configured regular expression
-	// for the replace, keep, and drop actions.
+	// The source labels select values from existing labels. Their content is
+	// concatenated using the configured Separator and matched against the
+	// configured regular expression.
+	//
+	// +optional
 	sourceLabels?: [...#LabelName] @go(SourceLabels,[]LabelName)
 
-	// Separator placed between concatenated source label values. default is ';'.
-	separator?: string @go(Separator)
+	// Separator is the string between concatenated SourceLabels.
+	separator?: null | string @go(Separator,*string)
 
-	// Label to which the resulting value is written in a replace action.
-	// It is mandatory for replace actions. Regex capture groups are available.
+	// Label to which the resulting string is written in a replacement.
+	//
+	// It is mandatory for `Replace`, `HashMod`, `Lowercase`, `Uppercase`,
+	// `KeepEqual` and `DropEqual` actions.
+	//
+	// Regex capture groups are available.
 	targetLabel?: string @go(TargetLabel)
 
-	// Regular expression against which the extracted value is matched. Default is '(.*)'
+	// Regular expression against which the extracted value is matched.
 	regex?: string @go(Regex)
 
 	// Modulus to take of the hash of the source label values.
+	//
+	// Only applicable when the action is `HashMod`.
 	modulus?: uint64 @go(Modulus)
 
-	// Replacement value against which a regex replace is performed if the
-	// regular expression matches. Regex capture groups are available. Default is '$1'
-	replacement?: string @go(Replacement)
+	// Replacement value against which a Replace action is performed if the
+	// regular expression matches.
+	//
+	// Regex capture groups are available.
+	//
+	//+optional
+	replacement?: null | string @go(Replacement,*string)
 
-	//Action to perform based on regex matching. Default is 'replace'.
-	//uppercase and lowercase actions require Prometheus >= 2.36.
-	//+kubebuilder:validation:Enum=replace;Replace;keep;Keep;drop;Drop;hashmod;HashMod;labelmap;LabelMap;labeldrop;LabelDrop;labelkeep;LabelKeep;lowercase;Lowercase;uppercase;Uppercase;keepequal;KeepEqual;dropequal;DropEqual
-	//+kubebuilder:default=replace
+	// Action to perform based on the regex matching.
+	//
+	// `Uppercase` and `Lowercase` actions require Prometheus >= v2.36.0.
+	// `DropEqual` and `KeepEqual` actions require Prometheus >= v2.41.0.
+	//
+	// Default: "Replace"
+	//
+	// +kubebuilder:validation:Enum=replace;Replace;keep;Keep;drop;Drop;hashmod;HashMod;labelmap;LabelMap;labeldrop;LabelDrop;labelkeep;LabelKeep;lowercase;Lowercase;uppercase;Uppercase;keepequal;KeepEqual;dropequal;DropEqual
+	// +kubebuilder:default=replace
 	action?: string @go(Action)
 }
 
-// APIServerConfig defines a host and auth methods to access apiserver.
+// APIServerConfig defines how the Prometheus server connects to the Kubernetes API server.
+//
 // More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#kubernetes_sd_config
+//
 // +k8s:openapi-gen=true
 #APIServerConfig: {
-	// Host of apiserver.
-	// A valid string consisting of a hostname or IP followed by an optional port number
+	// Kubernetes API address consisting of a hostname or IP address followed
+	// by an optional port number.
 	host: string @go(Host)
 
-	// BasicAuth allow an endpoint to authenticate over basic authentication
+	// BasicAuth configuration for the API server.
+	//
+	// Cannot be set at the same time as `authorization`, `bearerToken`, or
+	// `bearerTokenFile`.
+	//
+	// +optional
 	basicAuth?: null | #BasicAuth @go(BasicAuth,*BasicAuth)
 
-	// Bearer token for accessing apiserver.
-	bearerToken?: string @go(BearerToken)
-
 	// File to read bearer token for accessing apiserver.
+	//
+	// Cannot be set at the same time as `basicAuth`, `authorization`, or `bearerToken`.
+	//
+	// Deprecated: this will be removed in a future release. Prefer using `authorization`.
 	bearerTokenFile?: string @go(BearerTokenFile)
 
-	// TLS Config to use for accessing apiserver.
+	// TLS Config to use for the API server.
+	//
+	// +optional
 	tlsConfig?: null | #TLSConfig @go(TLSConfig,*TLSConfig)
 
-	// Authorization section for accessing apiserver
+	// Authorization section for the API server.
+	//
+	// Cannot be set at the same time as `basicAuth`, `bearerToken`, or
+	// `bearerTokenFile`.
+	//
+	// +optional
 	authorization?: null | #Authorization @go(Authorization,*Authorization)
+
+	// *Warning: this field shouldn't be used because the token value appears
+	// in clear-text. Prefer using `authorization`.*
+	//
+	// Deprecated: this will be removed in a future release.
+	bearerToken?: string @go(BearerToken)
 }
 
+// +kubebuilder:validation:Enum=v1;V1;v2;V2
+#AlertmanagerAPIVersion: string // #enumAlertmanagerAPIVersion
+
+#enumAlertmanagerAPIVersion:
+	#AlertmanagerAPIVersion1 |
+	#AlertmanagerAPIVersion2
+
+#AlertmanagerAPIVersion1: #AlertmanagerAPIVersion & "V1"
+#AlertmanagerAPIVersion2: #AlertmanagerAPIVersion & "V2"
+
 // AlertmanagerEndpoints defines a selection of a single Endpoints object
-// containing alertmanager IPs to fire alerts against.
+// containing Alertmanager IPs to fire alerts against.
 // +k8s:openapi-gen=true
 #AlertmanagerEndpoints: {
-	// Namespace of Endpoints object.
-	namespace: string @go(Namespace)
+	// Namespace of the Endpoints object.
+	//
+	// If not set, the object will be discovered in the namespace of the
+	// Prometheus object.
+	//
+	// +kubebuilder:validation:MinLength:=1
+	// +optional
+	namespace?: null | string @go(Namespace,*string)
 
-	// Name of Endpoints object in Namespace.
+	// Name of the Endpoints object in the namespace.
+	//
+	// +kubebuilder:validation:MinLength:=1
+	// +required
 	name: string @go(Name)
 
-	// Port the Alertmanager API is exposed on.
+	// Port on which the Alertmanager API is exposed.
 	port: intstr.#IntOrString @go(Port)
 
 	// Scheme to use when firing alerts.
@@ -1015,57 +1934,105 @@ import (
 	// Prefix for the HTTP path alerts are pushed to.
 	pathPrefix?: string @go(PathPrefix)
 
-	// TLS Config to use for alertmanager connection.
+	// TLS Config to use for Alertmanager.
+	//
+	// +optional
 	tlsConfig?: null | #TLSConfig @go(TLSConfig,*TLSConfig)
 
-	// BasicAuth allow an endpoint to authenticate over basic authentication
+	// BasicAuth configuration for Alertmanager.
+	//
+	// Cannot be set at the same time as `bearerTokenFile`, `authorization` or `sigv4`.
+	//
+	// +optional
 	basicAuth?: null | #BasicAuth @go(BasicAuth,*BasicAuth)
 
-	// BearerTokenFile to read from filesystem to use when authenticating to
-	// Alertmanager.
+	// File to read bearer token for Alertmanager.
+	//
+	// Cannot be set at the same time as `basicAuth`, `authorization`, or `sigv4`.
+	//
+	// Deprecated: this will be removed in a future release. Prefer using `authorization`.
 	bearerTokenFile?: string @go(BearerTokenFile)
 
-	// Authorization section for this alertmanager endpoint
+	// Authorization section for Alertmanager.
+	//
+	// Cannot be set at the same time as `basicAuth`, `bearerTokenFile` or `sigv4`.
+	//
+	// +optional
 	authorization?: null | #SafeAuthorization @go(Authorization,*SafeAuthorization)
 
-	// Version of the Alertmanager API that Prometheus uses to send alerts. It
-	// can be "v1" or "v2".
-	apiVersion?: string @go(APIVersion)
+	// Sigv4 allows to configures AWS's Signature Verification 4 for the URL.
+	//
+	// It requires Prometheus >= v2.48.0.
+	//
+	// Cannot be set at the same time as `basicAuth`, `bearerTokenFile` or `authorization`.
+	//
+	// +optional
+	sigv4?: null | #Sigv4 @go(Sigv4,*Sigv4)
+
+	#ProxyConfig
+
+	// Version of the Alertmanager API that Prometheus uses to send alerts.
+	// It can be "V1" or "V2".
+	// The field has no effect for Prometheus >= v3.0.0 because only the v2 API is supported.
+	//
+	// +optional
+	apiVersion?: null | #AlertmanagerAPIVersion @go(APIVersion,*AlertmanagerAPIVersion)
 
 	// Timeout is a per-target Alertmanager timeout when pushing alerts.
+	//
+	// +optional
 	timeout?: null | #Duration @go(Timeout,*Duration)
 
 	// Whether to enable HTTP2.
+	//
+	// +optional
 	enableHttp2?: null | bool @go(EnableHttp2,*bool)
+
+	// Relabel configuration applied to the discovered Alertmanagers.
+	//
+	// +optional
+	relabelings?: [...#RelabelConfig] @go(RelabelConfigs,[]RelabelConfig)
+
+	// Relabeling configs applied before sending alerts to a specific Alertmanager.
+	// It requires Prometheus >= v2.51.0.
+	//
+	// +optional
+	alertRelabelings?: [...#RelabelConfig] @go(AlertRelabelConfigs,[]RelabelConfig)
 }
 
-// /--rules.*/ command-line arguments
 // +k8s:openapi-gen=true
 #Rules: {
+	// Defines the parameters of the Prometheus rules' engine.
+	//
+	// Any update to these parameters trigger a restart of the pods.
 	alert?: #RulesAlert @go(Alert)
 }
 
-// /--rules.alert.*/ command-line arguments
 // +k8s:openapi-gen=true
 #RulesAlert: {
-	// Max time to tolerate prometheus outage for restoring 'for' state of alert.
+	// Max time to tolerate prometheus outage for restoring 'for' state of
+	// alert.
 	forOutageTolerance?: string @go(ForOutageTolerance)
 
 	// Minimum duration between alert and restored 'for' state.
-	// This is maintained only for alerts with configured 'for' time greater than grace period.
+	//
+	// This is maintained only for alerts with a configured 'for' time greater
+	// than the grace period.
 	forGracePeriod?: string @go(ForGracePeriod)
 
-	// Minimum amount of time to wait before resending an alert to Alertmanager.
+	// Minimum amount of time to wait before resending an alert to
+	// Alertmanager.
 	resendDelay?: string @go(ResendDelay)
 }
 
 // MetadataConfig configures the sending of series metadata to the remote storage.
+//
 // +k8s:openapi-gen=true
 #MetadataConfig: {
-	// Whether metric metadata is sent to the remote storage or not.
+	// Defines whether metric metadata is sent to the remote storage or not.
 	send?: bool @go(Send)
 
-	// How frequently metric metadata is sent to the remote storage.
+	// Defines how frequently metric metadata is sent to the remote storage.
 	sendInterval?: #Duration @go(SendInterval)
 }
 
@@ -1090,39 +2057,160 @@ import (
 }
 
 #TSDBSpec: {
-	// Configures how old an out-of-order/out-of-bounds sample can be w.r.t.
-	// the TSDB max time.
+	// Configures how old an out-of-order/out-of-bounds sample can be with
+	// respect to the TSDB max time.
+	//
 	// An out-of-order/out-of-bounds sample is ingested into the TSDB as long as
 	// the timestamp of the sample is >= (TSDB.MaxTime - outOfOrderTimeWindow).
-	// Out of order ingestion is an experimental feature and requires
-	// Prometheus >= v2.39.0.
-	outOfOrderTimeWindow?: #Duration @go(OutOfOrderTimeWindow)
+	//
+	// This is an *experimental feature*, it may change in any upcoming release
+	// in a breaking way.
+	//
+	// It requires Prometheus >= v2.39.0 or PrometheusAgent >= v2.54.0.
+	// +optional
+	outOfOrderTimeWindow?: null | #Duration @go(OutOfOrderTimeWindow,*Duration)
 }
 
 #Exemplars: {
 	// Maximum number of exemplars stored in memory for all series.
-	// If not set, Prometheus uses its default value.
-	// A value of zero or less than zero disables the storage.
+	//
+	// exemplar-storage itself must be enabled using the `spec.enableFeature`
+	// option for exemplars to be scraped in the first place.
+	//
+	// If not set, Prometheus uses its default value. A value of zero or less
+	// than zero disables the storage.
+	//
+	// +optional
 	maxSize?: null | int64 @go(MaxSize,*int64)
 }
 
 // SafeAuthorization specifies a subset of the Authorization struct, that is
-// safe for use in Endpoints (no CredentialsFile field)
+// safe for use because it doesn't provide access to the Prometheus container's
+// filesystem.
+//
 // +k8s:openapi-gen=true
 #SafeAuthorization: {
-	// Set the authentication type. Defaults to Bearer, Basic will cause an
-	// error
+	// Defines the authentication type. The value is case-insensitive.
+	//
+	// "Basic" is not a supported value.
+	//
+	// Default: "Bearer"
 	type?: string @go(Type)
 
-	// The secret's key that contains the credentials of the request
+	// Selects a key of a Secret in the namespace that contains the credentials for authentication.
 	credentials?: null | v1.#SecretKeySelector @go(Credentials,*v1.SecretKeySelector)
 }
 
-// Authorization contains optional `Authorization` header configuration.
-// This section is only understood by versions of Prometheus >= 2.26.0.
 #Authorization: {
 	#SafeAuthorization
 
-	// File to read a secret from, mutually exclusive with Credentials (from SafeAuthorization)
+	// File to read a secret from, mutually exclusive with `credentials`.
 	credentialsFile?: string @go(CredentialsFile)
+}
+
+#ScrapeClass: {
+	// Name of the scrape class.
+	//
+	// +kubebuilder:validation:MinLength=1
+	// +required
+	name: string @go(Name)
+
+	// Default indicates that the scrape applies to all scrape objects that
+	// don't configure an explicit scrape class name.
+	//
+	// Only one scrape class can be set as the default.
+	//
+	// +optional
+	default?: null | bool @go(Default,*bool)
+
+	// The protocol to use if a scrape returns blank, unparseable, or otherwise invalid Content-Type.
+	// It will only apply if the scrape resource doesn't specify any FallbackScrapeProtocol
+	//
+	// It requires Prometheus >= v3.0.0.
+	// +optional
+	fallbackScrapeProtocol?: null | #ScrapeProtocol @go(FallbackScrapeProtocol,*ScrapeProtocol)
+
+	// TLSConfig defines the TLS settings to use for the scrape. When the
+	// scrape objects define their own CA, certificate and/or key, they take
+	// precedence over the corresponding scrape class fields.
+	//
+	// For now only the `caFile`, `certFile` and `keyFile` fields are supported.
+	//
+	// +optional
+	tlsConfig?: null | #TLSConfig @go(TLSConfig,*TLSConfig)
+
+	// Authorization section for the ScrapeClass.
+	// It will only apply if the scrape resource doesn't specify any Authorization.
+	// +optional
+	authorization?: null | #Authorization @go(Authorization,*Authorization)
+
+	// Relabelings configures the relabeling rules to apply to all scrape targets.
+	//
+	// The Operator automatically adds relabelings for a few standard Kubernetes fields
+	// like `__meta_kubernetes_namespace` and `__meta_kubernetes_service_name`.
+	// Then the Operator adds the scrape class relabelings defined here.
+	// Then the Operator adds the target-specific relabelings defined in the scrape object.
+	//
+	// More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
+	//
+	// +optional
+	relabelings?: [...#RelabelConfig] @go(Relabelings,[]RelabelConfig)
+
+	// MetricRelabelings configures the relabeling rules to apply to all samples before ingestion.
+	//
+	// The Operator adds the scrape class metric relabelings defined here.
+	// Then the Operator adds the target-specific metric relabelings defined in ServiceMonitors, PodMonitors, Probes and ScrapeConfigs.
+	// Then the Operator adds namespace enforcement relabeling rule, specified in '.spec.enforcedNamespaceLabel'.
+	//
+	// More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#metric_relabel_configs
+	//
+	// +optional
+	metricRelabelings?: [...#RelabelConfig] @go(MetricRelabelings,[]RelabelConfig)
+
+	// AttachMetadata configures additional metadata to the discovered targets.
+	// When the scrape object defines its own configuration, it takes
+	// precedence over the scrape class configuration.
+	//
+	// +optional
+	attachMetadata?: null | #AttachMetadata @go(AttachMetadata,*AttachMetadata)
+}
+
+// TranslationStrategyOption represents a translation strategy option for the OTLP endpoint.
+// Supported values are:
+// * `NoUTF8EscapingWithSuffixes`
+// * `UnderscoreEscapingWithSuffixes`
+// +kubebuilder:validation:Enum=NoUTF8EscapingWithSuffixes;UnderscoreEscapingWithSuffixes
+#TranslationStrategyOption: string // #enumTranslationStrategyOption
+
+#enumTranslationStrategyOption:
+	#NoUTF8EscapingWithSuffixes |
+	#UnderscoreEscapingWithSuffixes
+
+#NoUTF8EscapingWithSuffixes:     #TranslationStrategyOption & "NoUTF8EscapingWithSuffixes"
+#UnderscoreEscapingWithSuffixes: #TranslationStrategyOption & "UnderscoreEscapingWithSuffixes"
+
+// OTLPConfig is the configuration for writing to the OTLP endpoint.
+//
+// +k8s:openapi-gen=true
+#OTLPConfig: {
+	// List of OpenTelemetry Attributes that should be promoted to metric labels, defaults to none.
+	//
+	// +kubebuilder:validation:MinItems=1
+	// +kubebuilder:validation:items:MinLength=1
+	// +listType=set
+	// +optional
+	promoteResourceAttributes?: [...string] @go(PromoteResourceAttributes,[]string)
+
+	// Configures how the OTLP receiver endpoint translates the incoming metrics.
+	//
+	// It requires Prometheus >= v3.0.0.
+	// +optional
+	translationStrategy?: null | #TranslationStrategyOption @go(TranslationStrategy,*TranslationStrategyOption)
+
+	// Enables adding `service.name`, `service.namespace` and `service.instance.id`
+	// resource attributes to the `target_info` metric, on top of converting them into the `instance` and `job` labels.
+	//
+	// It requires Prometheus >= v3.1.0.
+	// +optional
+	keepIdentifyingResourceAttributes?: null | bool @go(KeepIdentifyingResourceAttributes,*bool)
 }

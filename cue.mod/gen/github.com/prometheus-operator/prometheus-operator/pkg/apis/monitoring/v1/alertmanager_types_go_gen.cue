@@ -7,13 +7,18 @@ package v1
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/api/core/v1"
+	appsv1 "k8s.io/api/apps/v1"
 )
 
 #AlertmanagersKind:   "Alertmanager"
 #AlertmanagerName:    "alertmanagers"
 #AlertManagerKindKey: "alertmanager"
 
-// Alertmanager describes an Alertmanager cluster.
+// The `Alertmanager` custom resource definition (CRD) defines a desired [Alertmanager](https://prometheus.io/docs/alerting) setup to run in a Kubernetes cluster. It allows to specify many options such as the number of replicas, persistent storage and many more.
+//
+// For each `Alertmanager` resource, the Operator deploys a `StatefulSet` in the same namespace. When there are two or more configured replicas, the Operator runs the Alertmanager instances in high-availability mode.
+//
+// The resource defines via label and namespace selectors which `AlertmanagerConfig` objects should be associated to the deployed Alertmanager instances.
 #Alertmanager: {
 	metav1.#TypeMeta
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta)
@@ -32,7 +37,15 @@ import (
 // https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 // +k8s:openapi-gen=true
 #AlertmanagerSpec: {
-	// PodMetadata configures Labels and Annotations which are propagated to the alertmanager pods.
+	// PodMetadata configures labels and annotations which are propagated to the Alertmanager pods.
+	//
+	// The following items are reserved and cannot be overridden:
+	// * "alertmanager" label, set to the name of the Alertmanager instance.
+	// * "app.kubernetes.io/instance" label, set to the name of the Alertmanager instance.
+	// * "app.kubernetes.io/managed-by" label, set to "prometheus-operator".
+	// * "app.kubernetes.io/name" label, set to "alertmanager".
+	// * "app.kubernetes.io/version" label, set to the Alertmanager version.
+	// * "kubectl.kubernetes.io/default-container" annotation, set to "alertmanager".
 	podMetadata?: null | #EmbeddedObjectMetadata @go(PodMetadata,*EmbeddedObjectMetadata)
 
 	// Image if specified has precedence over baseImage, tag and sha
@@ -51,19 +64,17 @@ import (
 
 	// Tag of Alertmanager container image to be deployed. Defaults to the value of `version`.
 	// Version is ignored if Tag is set.
-	// Deprecated: use 'image' instead.  The image tag can be specified
-	// as part of the image URL.
+	// Deprecated: use 'image' instead. The image tag can be specified as part of the image URL.
 	tag?: string @go(Tag)
 
 	// SHA of Alertmanager container image to be deployed. Defaults to the value of `version`.
 	// Similar to a tag, but the SHA explicitly deploys an immutable container image.
 	// Version and Tag are ignored if SHA is set.
-	// Deprecated: use 'image' instead.  The image digest can be specified
-	// as part of the image URL.
+	// Deprecated: use 'image' instead. The image digest can be specified as part of the image URL.
 	sha?: string @go(SHA)
 
 	// Base image that is used to deploy pods, without tag.
-	// Deprecated: use 'image' instead
+	// Deprecated: use 'image' instead.
 	baseImage?: string @go(BaseImage)
 
 	// An optional list of references to secrets in the same namespace
@@ -98,11 +109,11 @@ import (
 	configSecret?: string @go(ConfigSecret)
 
 	// Log level for Alertmanager to be configured with.
-	//+kubebuilder:validation:Enum="";debug;info;warn;error
+	// +kubebuilder:validation:Enum="";debug;info;warn;error
 	logLevel?: string @go(LogLevel)
 
 	// Log format for Alertmanager to be configured with.
-	//+kubebuilder:validation:Enum="";logfmt;json
+	// +kubebuilder:validation:Enum="";logfmt;json
 	logFormat?: string @go(LogFormat)
 
 	// Size is the expected size of the alertmanager cluster. The controller will
@@ -128,6 +139,14 @@ import (
 	// VolumeMounts specified will be appended to other VolumeMounts in the alertmanager container,
 	// that are generated as a result of StorageSpec objects.
 	volumeMounts?: [...v1.#VolumeMount] @go(VolumeMounts,[]v1.VolumeMount)
+
+	// The field controls if and how PVCs are deleted during the lifecycle of a StatefulSet.
+	// The default behavior is all PVCs are retained.
+	// This is an alpha field from kubernetes 1.23 until 1.26 and a beta field from 1.26.
+	// It requires enabling the StatefulSetAutoDeletePVC feature gate.
+	//
+	// +optional
+	persistentVolumeClaimRetentionPolicy?: null | appsv1.#StatefulSetPersistentVolumeClaimRetentionPolicy @go(PersistentVolumeClaimRetentionPolicy,*appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy)
 
 	// The external URL the Alertmanager instances will be available under. This is
 	// necessary to generate correct URLs. This is necessary if Alertmanager is not
@@ -162,6 +181,16 @@ import (
 	// SecurityContext holds pod-level security attributes and common container settings.
 	// This defaults to the default PodSecurityContext.
 	securityContext?: null | v1.#PodSecurityContext @go(SecurityContext,*v1.PodSecurityContext)
+
+	// Defines the DNS policy for the pods.
+	//
+	// +optional
+	dnsPolicy?: null | #DNSPolicy @go(DNSPolicy,*DNSPolicy)
+
+	// Defines the DNS configuration for the pods.
+	//
+	// +optional
+	dnsConfig?: null | #PodDNSConfig @go(DNSConfig,*PodDNSConfig)
 
 	// ServiceAccountName is the name of the ServiceAccount to use to run the
 	// Prometheus Pods.
@@ -207,6 +236,10 @@ import (
 	// Interval between gossip attempts.
 	clusterGossipInterval?: #GoDuration @go(ClusterGossipInterval)
 
+	// Defines the identifier that uniquely identifies the Alertmanager cluster.
+	// You should only set it when the Alertmanager cluster includes Alertmanager instances which are external to this Alertmanager resource. In practice, the addresses of the external instances are provided via the `.spec.additionalPeers` field.
+	clusterLabel?: null | string @go(ClusterLabel,*string)
+
 	// Interval between pushpull attempts.
 	clusterPushpullInterval?: #GoDuration @go(ClusterPushpullInterval)
 
@@ -225,13 +258,13 @@ import (
 	// AlertmanagerConfigs to be selected for to merge and configure Alertmanager with.
 	alertmanagerConfigSelector?: null | metav1.#LabelSelector @go(AlertmanagerConfigSelector,*metav1.LabelSelector)
 
-	// The AlertmanagerConfigMatcherStrategy defines how AlertmanagerConfig objects match the alerts.
-	// In the future more options may be added.
-	alertmanagerConfigMatcherStrategy?: #AlertmanagerConfigMatcherStrategy @go(AlertmanagerConfigMatcherStrategy)
-
 	// Namespaces to be selected for AlertmanagerConfig discovery. If nil, only
 	// check own namespace.
 	alertmanagerConfigNamespaceSelector?: null | metav1.#LabelSelector @go(AlertmanagerConfigNamespaceSelector,*metav1.LabelSelector)
+
+	// AlertmanagerConfigMatcherStrategy defines how AlertmanagerConfig objects
+	// process incoming alerts.
+	alertmanagerConfigMatcherStrategy?: #AlertmanagerConfigMatcherStrategy @go(AlertmanagerConfigMatcherStrategy)
 
 	// Minimum number of seconds for which a newly created pod should be ready
 	// without any of its container crashing for it to be considered available.
@@ -248,21 +281,57 @@ import (
 	// Defines the web command line flags when starting Alertmanager.
 	web?: null | #AlertmanagerWebSpec @go(Web,*AlertmanagerWebSpec)
 
-	// EXPERIMENTAL: alertmanagerConfiguration specifies the configuration of Alertmanager.
+	// alertmanagerConfiguration specifies the configuration of Alertmanager.
+	//
 	// If defined, it takes precedence over the `configSecret` field.
-	// This field may change in future releases.
+	//
+	// This is an *experimental feature*, it may change in any upcoming release
+	// in a breaking way.
+	//
+	//+optional
 	alertmanagerConfiguration?: null | #AlertmanagerConfiguration @go(AlertmanagerConfiguration,*AlertmanagerConfiguration)
+
+	// AutomountServiceAccountToken indicates whether a service account token should be automatically mounted in the pod.
+	// If the service account has `automountServiceAccountToken: true`, set the field to `false` to opt out of automounting API credentials.
+	// +optional
+	automountServiceAccountToken?: null | bool @go(AutomountServiceAccountToken,*bool)
+
+	// Enable access to Alertmanager feature flags. By default, no features are enabled.
+	// Enabling features which are disabled by default is entirely outside the
+	// scope of what the maintainers will support and by doing so, you accept
+	// that this behaviour may break at any time without notice.
+	//
+	// It requires Alertmanager >= 0.27.0.
+	// +optional
+	enableFeatures?: [...string] @go(EnableFeatures,[]string)
 }
 
-// AlertmanagerConfigMatcherStrategy defines the strategy used by AlertmanagerConfig objects to match alerts.
 #AlertmanagerConfigMatcherStrategy: {
-	// If set to `OnNamespace`, the operator injects a label matcher matching the namespace of the AlertmanagerConfig object for all its routes and inhibition rules.
-	// `None` will not add any additional matchers other than the ones specified in the AlertmanagerConfig.
-	// Default is `OnNamespace`.
+	// AlertmanagerConfigMatcherStrategyType defines the strategy used by
+	// AlertmanagerConfig objects to match alerts in the routes and inhibition
+	// rules.
+	//
+	// The default value is `OnNamespace`.
+	//
 	// +kubebuilder:validation:Enum="OnNamespace";"None"
 	// +kubebuilder:default:="OnNamespace"
-	type?: string @go(Type)
+	type?: #AlertmanagerConfigMatcherStrategyType @go(Type)
 }
+
+#AlertmanagerConfigMatcherStrategyType: string // #enumAlertmanagerConfigMatcherStrategyType
+
+#enumAlertmanagerConfigMatcherStrategyType:
+	#OnNamespaceConfigMatcherStrategyType |
+	#NoneConfigMatcherStrategyType
+
+// With `OnNamespace`, the route and inhibition rules of an
+// AlertmanagerConfig object only process alerts that have a `namespace`
+// label equal to the namespace of the object.
+#OnNamespaceConfigMatcherStrategyType: #AlertmanagerConfigMatcherStrategyType & "OnNamespace"
+
+// With `None`, the route and inhbition rules of an AlertmanagerConfig
+// object process all incoming alerts.
+#NoneConfigMatcherStrategyType: #AlertmanagerConfigMatcherStrategyType & "None"
 
 // AlertmanagerConfiguration defines the Alertmanager configuration.
 // +k8s:openapi-gen=true
@@ -285,6 +354,10 @@ import (
 // AlertmanagerGlobalConfig configures parameters that are valid in all other configuration contexts.
 // See https://prometheus.io/docs/alerting/latest/configuration/#configuration-file
 #AlertmanagerGlobalConfig: {
+	// Configures global SMTP parameters.
+	// +optional
+	smtp?: null | #GlobalSMTPConfig @go(SMTPConfig,*GlobalSMTPConfig)
+
 	// ResolveTimeout is the default value used by alertmanager if the alert does
 	// not include EndsAt, after this time passes it can declare the alert as resolved if it has not been updated.
 	// This has no impact on alerts from Prometheus, as they always include EndsAt.
@@ -301,6 +374,9 @@ import (
 
 	// The default OpsGenie API Key.
 	opsGenieApiKey?: null | v1.#SecretKeySelector @go(OpsGenieAPIKey,*v1.SecretKeySelector)
+
+	// The default Pagerduty URL.
+	pagerdutyUrl?: null | string @go(PagerdutyURL,*string)
 }
 
 // AlertmanagerStatus is the most recent observed status of the Alertmanager cluster. Read-only.
@@ -327,6 +403,9 @@ import (
 	// Total number of unavailable pods targeted by this Alertmanager object.
 	unavailableReplicas: int32 @go(UnavailableReplicas)
 
+	// The selector used to match the pods targeted by this Alertmanager object.
+	selector?: string @go(Selector)
+
 	// The current state of the Alertmanager object.
 	// +listType=map
 	// +listMapKey=type
@@ -348,6 +427,54 @@ import (
 	// `--web.timeout` flag.
 	// +optional
 	timeout?: null | uint32 @go(Timeout,*uint32)
+}
+
+// GlobalSMTPConfig configures global SMTP parameters.
+// See https://prometheus.io/docs/alerting/latest/configuration/#configuration-file
+#GlobalSMTPConfig: {
+	// The default SMTP From header field.
+	// +optional
+	from?: null | string @go(From,*string)
+
+	// The default SMTP smarthost used for sending emails.
+	// +optional
+	smartHost?: null | #HostPort @go(SmartHost,*HostPort)
+
+	// The default hostname to identify to the SMTP server.
+	// +optional
+	hello?: null | string @go(Hello,*string)
+
+	// SMTP Auth using CRAM-MD5, LOGIN and PLAIN. If empty, Alertmanager doesn't authenticate to the SMTP server.
+	// +optional
+	authUsername?: null | string @go(AuthUsername,*string)
+
+	// SMTP Auth using LOGIN and PLAIN.
+	// +optional
+	authPassword?: null | v1.#SecretKeySelector @go(AuthPassword,*v1.SecretKeySelector)
+
+	// SMTP Auth using PLAIN
+	// +optional
+	authIdentity?: null | string @go(AuthIdentity,*string)
+
+	// SMTP Auth using CRAM-MD5.
+	// +optional
+	authSecret?: null | v1.#SecretKeySelector @go(AuthSecret,*v1.SecretKeySelector)
+
+	// The default SMTP TLS requirement.
+	// Note that Go does not support unencrypted connections to remote SMTP endpoints.
+	// +optional
+	requireTLS?: null | bool @go(RequireTLS,*bool)
+}
+
+// HostPort represents a "host:port" network address.
+#HostPort: {
+	// Defines the host's address, it can be a DNS name or a literal IP address.
+	// +kubebuilder:validation:MinLength=1
+	host: string @go(Host)
+
+	// Defines the host's port, it can be a literal port number or a port name.
+	// +kubebuilder:validation:MinLength=1
+	port: string @go(Port)
 }
 
 // HTTPConfig defines a client HTTP configuration.
@@ -378,9 +505,7 @@ import (
 	// +optional
 	tlsConfig?: null | #SafeTLSConfig @go(TLSConfig,*SafeTLSConfig)
 
-	// Optional proxy URL.
-	// +optional
-	proxyURL?: string @go(ProxyURL)
+	#ProxyConfig
 
 	// FollowRedirects specifies whether the client should follow HTTP 3xx redirects.
 	// +optional

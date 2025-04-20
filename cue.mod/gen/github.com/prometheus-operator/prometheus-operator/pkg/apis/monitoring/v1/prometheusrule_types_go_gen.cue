@@ -13,7 +13,9 @@ import (
 #PrometheusRuleName:    "prometheusrules"
 #PrometheusRuleKindKey: "prometheusrule"
 
-// PrometheusRule defines recording and alerting rules for a Prometheus instance
+// The `PrometheusRule` custom resource definition (CRD) defines [alerting](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) and [recording](https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/) rules to be evaluated by `Prometheus` or `ThanosRuler` objects.
+//
+// `Prometheus` and `ThanosRuler` objects select `PrometheusRule` objects using label and namespace selectors.
 #PrometheusRule: {
 	metav1.#TypeMeta
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta)
@@ -38,10 +40,27 @@ import (
 	// +kubebuilder:validation:MinLength=1
 	name: string @go(Name)
 
+	// Labels to add or overwrite before storing the result for its rules.
+	// The labels defined at the rule level take precedence.
+	//
+	// It requires Prometheus >= 3.0.0.
+	// The field is ignored for Thanos Ruler.
+	// +optional
+	labels?: {[string]: string} @go(Labels,map[string]string)
+
 	// Interval determines how often rules in the group are evaluated.
-	interval?: #Duration @go(Interval)
+	// +optional
+	interval?: null | #Duration @go(Interval,*Duration)
+
+	// Defines the offset the rule evaluation timestamp of this particular group by the specified duration into the past.
+	//
+	// It requires Prometheus >= v2.53.0.
+	// It is not supported for ThanosRuler.
+	// +optional
+	query_offset?: null | #Duration @go(QueryOffset,*Duration)
 
 	// List of alerting and recording rules.
+	// +optional
 	rules?: [...#Rule] @go(Rules,[]Rule)
 
 	// PartialResponseStrategy is only used by ThanosRuler and will
@@ -73,7 +92,12 @@ import (
 	expr: intstr.#IntOrString @go(Expr)
 
 	// Alerts are considered firing once they have been returned for this long.
-	for?: #Duration @go(For)
+	// +optional
+	for?: null | #Duration @go(For,*Duration)
+
+	// KeepFiringFor defines how long an alert will continue firing after the condition that triggered it has cleared.
+	// +optional
+	keep_firing_for?: null | #NonEmptyDuration @go(KeepFiringFor,*NonEmptyDuration)
 
 	// Labels to add or overwrite.
 	labels?: {[string]: string} @go(Labels,map[string]string)
@@ -93,5 +117,5 @@ import (
 	metadata?: metav1.#ListMeta @go(ListMeta)
 
 	// List of Rules
-	items: [...null | #PrometheusRule] @go(Items,[]*PrometheusRule)
+	items: [...#PrometheusRule] @go(Items,[]PrometheusRule)
 }

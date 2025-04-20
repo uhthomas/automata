@@ -5,8 +5,9 @@ import (
 	"github.com/uhthomas/automata/k8s/magiclove/backup"
 	"github.com/uhthomas/automata/k8s/magiclove/cert_manager_csi_driver"
 	"github.com/uhthomas/automata/k8s/magiclove/cert_manager"
-	"github.com/uhthomas/automata/k8s/magiclove/cilium"
 	"github.com/uhthomas/automata/k8s/magiclove/cilium_secrets"
+	"github.com/uhthomas/automata/k8s/magiclove/cilium"
+	"github.com/uhthomas/automata/k8s/magiclove/cnpg_system"
 	"github.com/uhthomas/automata/k8s/magiclove/dcgm_exporter"
 	"github.com/uhthomas/automata/k8s/magiclove/default"
 	"github.com/uhthomas/automata/k8s/magiclove/external_dns"
@@ -82,6 +83,7 @@ _items: [
 	cert_manager.#List.items,
 	cilium.#List.items,
 	cilium_secrets.#List.items,
+	cnpg_system.#List.items,
 	dcgm_exporter.#List.items,
 	default.#List.items,
 	external_dns.#List.items,

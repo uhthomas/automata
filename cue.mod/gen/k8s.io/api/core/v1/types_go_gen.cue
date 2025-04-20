@@ -5264,7 +5264,11 @@ import (
 
 // for backwards compat
 // +enum
-#ServiceInternalTrafficPolicyType: #ServiceInternalTrafficPolicy
+#ServiceInternalTrafficPolicyType: #ServiceInternalTrafficPolicy // #enumServiceInternalTrafficPolicyType
+
+#enumServiceInternalTrafficPolicyType:
+	#ServiceInternalTrafficPolicyCluster |
+	#ServiceInternalTrafficPolicyLocal
 
 // ServiceExternalTrafficPolicy describes how nodes distribute service traffic they
 // receive on one of the Service's "externally-facing" addresses (NodePorts, ExternalIPs,
@@ -5288,7 +5292,13 @@ import (
 
 // for backwards compat
 // +enum
-#ServiceExternalTrafficPolicyType: #ServiceExternalTrafficPolicy
+#ServiceExternalTrafficPolicyType: #ServiceExternalTrafficPolicy // #enumServiceExternalTrafficPolicyType
+
+#enumServiceExternalTrafficPolicyType:
+	#ServiceExternalTrafficPolicyCluster |
+	#ServiceExternalTrafficPolicyLocal |
+	#ServiceExternalTrafficPolicyTypeLocal |
+	#ServiceExternalTrafficPolicyTypeCluster
 
 #ServiceExternalTrafficPolicyTypeLocal:   #ServiceExternalTrafficPolicy & "Local"
 #ServiceExternalTrafficPolicyTypeCluster: #ServiceExternalTrafficPolicy & "Cluster"
@@ -5404,7 +5414,12 @@ import (
 
 // for backwards compat
 // +enum
-#IPFamilyPolicyType: #IPFamilyPolicy
+#IPFamilyPolicyType: #IPFamilyPolicy // #enumIPFamilyPolicyType
+
+#enumIPFamilyPolicyType:
+	#IPFamilyPolicySingleStack |
+	#IPFamilyPolicyPreferDualStack |
+	#IPFamilyPolicyRequireDualStack
 
 // ServiceSpec describes the attributes that a user creates on a service.
 #ServiceSpec: {

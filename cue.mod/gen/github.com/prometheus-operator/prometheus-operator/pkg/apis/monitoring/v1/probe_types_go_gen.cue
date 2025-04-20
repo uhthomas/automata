@@ -13,7 +13,13 @@ import (
 #ProbeName:    "probes"
 #ProbeKindKey: "probe"
 
-// Probe defines monitoring for a set of static targets or ingresses.
+// The `Probe` custom resource definition (CRD) defines how to scrape metrics from prober exporters such as the [blackbox exporter](https://github.com/prometheus/blackbox_exporter).
+//
+// The `Probe` resource needs 2 pieces of information:
+// * The list of probed addresses which can be defined statically or by discovering Kubernetes Ingress objects.
+// * The prober which exposes the availability of probed endpoints (over various protocols such HTTP, TCP, ICMP, ...) as Prometheus metrics.
+//
+// `Prometheus` and `PrometheusAgent` objects select `Probe` objects using label and namespace selectors.
 #Probe: {
 	metav1.#TypeMeta
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta)
@@ -46,10 +52,11 @@ import (
 
 	// Timeout for scraping metrics from the Prometheus exporter.
 	// If not specified, the Prometheus global scrape timeout is used.
+	// The value cannot be greater than the scrape interval otherwise the operator will reject the resource.
 	scrapeTimeout?: #Duration @go(ScrapeTimeout)
 
 	// TLS configuration to use when scraping the endpoint.
-	tlsConfig?: null | #ProbeTLSConfig @go(TLSConfig,*ProbeTLSConfig)
+	tlsConfig?: null | #SafeTLSConfig @go(TLSConfig,*SafeTLSConfig)
 
 	// Secret to mount to read bearer token for scraping targets. The secret
 	// needs to be in the same namespace as the probe and accessible by
@@ -64,28 +71,65 @@ import (
 	oauth2?: null | #OAuth2 @go(OAuth2,*OAuth2)
 
 	// MetricRelabelConfigs to apply to samples before ingestion.
-	metricRelabelings?: [...null | #RelabelConfig] @go(MetricRelabelConfigs,[]*RelabelConfig)
+	metricRelabelings?: [...#RelabelConfig] @go(MetricRelabelConfigs,[]RelabelConfig)
 
 	// Authorization section for this endpoint
 	authorization?: null | #SafeAuthorization @go(Authorization,*SafeAuthorization)
 
 	// SampleLimit defines per-scrape limit on number of scraped samples that will be accepted.
-	sampleLimit?: uint64 @go(SampleLimit)
+	// +optional
+	sampleLimit?: null | uint64 @go(SampleLimit,*uint64)
 
 	// TargetLimit defines a limit on the number of scraped targets that will be accepted.
-	targetLimit?: uint64 @go(TargetLimit)
+	// +optional
+	targetLimit?: null | uint64 @go(TargetLimit,*uint64)
+
+	// `scrapeProtocols` defines the protocols to negotiate during a scrape. It tells clients the
+	// protocols supported by Prometheus in order of preference (from most to least preferred).
+	//
+	// If unset, Prometheus uses its default value.
+	//
+	// It requires Prometheus >= v2.49.0.
+	//
+	// +listType=set
+	// +optional
+	scrapeProtocols?: [...#ScrapeProtocol] @go(ScrapeProtocols,[]ScrapeProtocol)
+
+	// The protocol to use if a scrape returns blank, unparseable, or otherwise invalid Content-Type.
+	//
+	// It requires Prometheus >= v3.0.0.
+	// +optional
+	fallbackScrapeProtocol?: null | #ScrapeProtocol @go(FallbackScrapeProtocol,*ScrapeProtocol)
 
 	// Per-scrape limit on number of labels that will be accepted for a sample.
 	// Only valid in Prometheus versions 2.27.0 and newer.
-	labelLimit?: uint64 @go(LabelLimit)
+	// +optional
+	labelLimit?: null | uint64 @go(LabelLimit,*uint64)
 
 	// Per-scrape limit on length of labels name that will be accepted for a sample.
 	// Only valid in Prometheus versions 2.27.0 and newer.
-	labelNameLengthLimit?: uint64 @go(LabelNameLengthLimit)
+	// +optional
+	labelNameLengthLimit?: null | uint64 @go(LabelNameLengthLimit,*uint64)
 
 	// Per-scrape limit on length of labels value that will be accepted for a sample.
 	// Only valid in Prometheus versions 2.27.0 and newer.
-	labelValueLengthLimit?: uint64 @go(LabelValueLengthLimit)
+	// +optional
+	labelValueLengthLimit?: null | uint64 @go(LabelValueLengthLimit,*uint64)
+
+	#NativeHistogramConfig
+
+	// Per-scrape limit on the number of targets dropped by relabeling
+	// that will be kept in memory. 0 means no limit.
+	//
+	// It requires Prometheus >= v2.47.0.
+	//
+	// +optional
+	keepDroppedTargets?: null | uint64 @go(KeepDroppedTargets,*uint64)
+
+	// The scrape class to apply.
+	// +optional
+	// +kubebuilder:validation:MinLength=1
+	scrapeClass?: null | string @go(ScrapeClassName,*string)
 }
 
 // ProbeTargets defines how to discover the probed targets.
@@ -117,7 +161,7 @@ import (
 	// RelabelConfigs to apply to the label set of the targets before it gets
 	// scraped.
 	// More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
-	relabelingConfigs?: [...null | #RelabelConfig] @go(RelabelConfigs,[]*RelabelConfig)
+	relabelingConfigs?: [...#RelabelConfig] @go(RelabelConfigs,[]RelabelConfig)
 }
 
 // ProbeTargetIngress defines the set of Ingress objects considered for probing.
@@ -137,7 +181,7 @@ import (
 	// probed URL.
 	// The original scrape job's name is available via the `__tmp_prometheus_job_name` label.
 	// More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
-	relabelingConfigs?: [...null | #RelabelConfig] @go(RelabelConfigs,[]*RelabelConfig)
+	relabelingConfigs?: [...#RelabelConfig] @go(RelabelConfigs,[]RelabelConfig)
 }
 
 // ProberSpec contains specification parameters for the Prober used for probing.
@@ -171,11 +215,5 @@ import (
 	metadata?: metav1.#ListMeta @go(ListMeta)
 
 	// List of Probes
-	items: [...null | #Probe] @go(Items,[]*Probe)
-}
-
-// ProbeTLSConfig specifies TLS configuration parameters for the prober.
-// +k8s:openapi-gen=true
-#ProbeTLSConfig: {
-	#SafeTLSConfig
+	items: [...#Probe] @go(Items,[]Probe)
 }

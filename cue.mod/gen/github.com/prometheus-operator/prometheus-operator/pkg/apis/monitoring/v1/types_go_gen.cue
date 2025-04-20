@@ -5,9 +5,10 @@
 package v1
 
 import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/apimachinery/pkg/api/resource"
 )
 
 #Version: "v1"
@@ -22,6 +23,14 @@ import (
 // Examples: `30s`, `1m`, `1h20m15s`, `15d`
 // +kubebuilder:validation:Pattern:="^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
 #Duration: string
+
+// NonEmptyDuration is a valid time duration that can be parsed by Prometheus model.ParseDuration() function.
+// Compared to Duration,  NonEmptyDuration enforces a minimum length of 1.
+// Supported units: y, w, d, h, m, s, ms
+// Examples: `30s`, `1m`, `1h20m15s`, `15d`
+// +kubebuilder:validation:Pattern:="^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$"
+// +kubebuilder:validation:MinLength=1
+#NonEmptyDuration: string
 
 // GoDuration is a valid time duration that can be parsed by Go's time.ParseDuration() function.
 // Supported units: h, m, s, ms
@@ -41,14 +50,45 @@ import (
 	hostnames: [...string] @go(Hostnames,[]string)
 }
 
-// PrometheusRuleExcludeConfig enables users to configure excluded PrometheusRule names and their namespaces
-// to be ignored while enforcing namespace label for alerts and metrics.
+// PrometheusRuleExcludeConfig enables users to configure excluded
+// PrometheusRule names and their namespaces to be ignored while enforcing
+// namespace label for alerts and metrics.
 #PrometheusRuleExcludeConfig: {
-	// RuleNamespace - namespace of excluded rule
+	// Namespace of the excluded PrometheusRule object.
 	ruleNamespace: string @go(RuleNamespace)
 
-	// RuleNamespace - name of excluded rule
+	// Name of the excluded PrometheusRule object.
 	ruleName: string @go(RuleName)
+}
+
+#ProxyConfig: {
+	// `proxyURL` defines the HTTP proxy server to use.
+	//
+	// +kubebuilder:validation:Pattern:="^http(s)?://.+$"
+	// +optional
+	proxyUrl?: null | string @go(ProxyURL,*string)
+
+	// `noProxy` is a comma-separated string that can contain IPs, CIDR notation, domain names
+	// that should be excluded from proxying. IP and domain names can
+	// contain port numbers.
+	//
+	// It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+	// +optional
+	noProxy?: null | string @go(NoProxy,*string)
+
+	// Whether to use the proxy configuration defined by environment variables (HTTP_PROXY, HTTPS_PROXY, and NO_PROXY).
+	//
+	// It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+	// +optional
+	proxyFromEnvironment?: null | bool @go(ProxyFromEnvironment,*bool)
+
+	// ProxyConnectHeader optionally specifies headers to send to
+	// proxies during CONNECT requests.
+	//
+	// It requires Prometheus >= v2.43.0 or Alertmanager >= 0.25.0.
+	// +optional
+	// +mapType:=atomic
+	proxyConnectHeader?: {[string]: [...v1.#SecretKeySelector]} @go(ProxyConnectHeader,map[string][]v1.SecretKeySelector)
 }
 
 // ObjectReference references a PodMonitor, ServiceMonitor, Probe or PrometheusRule object.
@@ -61,7 +101,7 @@ import (
 
 	// Resource of the referent.
 	// +kubebuilder:validation:Required
-	// +kubebuilder:validation:Enum=prometheusrules;servicemonitors;podmonitors;probes
+	// +kubebuilder:validation:Enum=prometheusrules;servicemonitors;podmonitors;probes;scrapeconfigs
 	resource: string @go(Resource)
 
 	// Namespace of the referent.
@@ -70,7 +110,7 @@ import (
 	// +kubebuilder:validation:MinLength=1
 	namespace: string @go(Namespace)
 
-	// Name of the referent. When not set, all resources are matched.
+	// Name of the referent. When not set, all resources in the namespace are matched.
 	// +optional
 	name?: string @go(Name)
 }
@@ -119,6 +159,7 @@ import (
 	observedGeneration?: int64 @go(ObservedGeneration)
 }
 
+// +kubebuilder:validation:MinLength=1
 #ConditionType: string // #enumConditionType
 
 #enumConditionType:
@@ -142,6 +183,7 @@ import (
 // - Unknown: the operator couldn't determine the condition status.
 #Reconciled: #ConditionType & "Reconciled"
 
+// +kubebuilder:validation:MinLength=1
 #ConditionStatus: string // #enumConditionStatus
 
 #enumConditionStatus:
@@ -163,15 +205,13 @@ import (
 	// EmbeddedMetadata contains metadata relevant to an EmbeddedResource.
 	metadata?: #EmbeddedObjectMetadata @go(EmbeddedObjectMetadata) @protobuf(1,bytes,opt)
 
-	// Spec defines the desired characteristics of a volume requested by a pod author.
+	// Defines the desired characteristics of a volume requested by a pod author.
 	// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
 	// +optional
 	spec?: v1.#PersistentVolumeClaimSpec @go(Spec) @protobuf(2,bytes,opt)
 
-	// Status represents the current information/status of a persistent volume claim.
-	// Read-only.
-	// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
 	// +optional
+	// Deprecated: this field is never set.
 	status?: v1.#PersistentVolumeClaimStatus @go(Status) @protobuf(3,bytes,opt)
 }
 
@@ -260,163 +300,323 @@ import (
 // WebTLSConfig defines the TLS parameters for HTTPS.
 // +k8s:openapi-gen=true
 #WebTLSConfig: {
-	// Secret containing the TLS key for the server.
-	keySecret: v1.#SecretKeySelector @go(KeySecret)
+	// Secret or ConfigMap containing the TLS certificate for the web server.
+	//
+	// Either `keySecret` or `keyFile` must be defined.
+	//
+	// It is mutually exclusive with `certFile`.
+	//
+	// +optional
+	cert?: #SecretOrConfigMap @go(Cert)
 
-	// Contains the TLS certificate for the server.
-	cert: #SecretOrConfigMap @go(Cert)
+	// Path to the TLS certificate file in the container for the web server.
+	//
+	// Either `keySecret` or `keyFile` must be defined.
+	//
+	// It is mutually exclusive with `cert`.
+	//
+	// +optional
+	certFile?: null | string @go(CertFile,*string)
 
-	// Server policy for client authentication. Maps to ClientAuth Policies.
-	// For more detail on clientAuth options:
-	// https://golang.org/pkg/crypto/tls/#ClientAuthType
-	clientAuthType?: string @go(ClientAuthType)
+	// Secret containing the TLS private key for the web server.
+	//
+	// Either `cert` or `certFile` must be defined.
+	//
+	// It is mutually exclusive with `keyFile`.
+	//
+	// +optional
+	keySecret?: v1.#SecretKeySelector @go(KeySecret)
 
-	// Contains the CA certificate for client certificate authentication to the server.
+	// Path to the TLS private key file in the container for the web server.
+	//
+	// If defined, either `cert` or `certFile` must be defined.
+	//
+	// It is mutually exclusive with `keySecret`.
+	//
+	// +optional
+	keyFile?: null | string @go(KeyFile,*string)
+
+	// Secret or ConfigMap containing the CA certificate for client certificate
+	// authentication to the server.
+	//
+	// It is mutually exclusive with `clientCAFile`.
+	//
+	// +optional
 	client_ca?: #SecretOrConfigMap @go(ClientCA)
 
-	// Minimum TLS version that is acceptable. Defaults to TLS12.
-	minVersion?: string @go(MinVersion)
+	// Path to the CA certificate file for client certificate authentication to
+	// the server.
+	//
+	// It is mutually exclusive with `client_ca`.
+	//
+	// +optional
+	clientCAFile?: null | string @go(ClientCAFile,*string)
 
-	// Maximum TLS version that is acceptable. Defaults to TLS13.
-	maxVersion?: string @go(MaxVersion)
+	// The server policy for client TLS authentication.
+	//
+	// For more detail on clientAuth options:
+	// https://golang.org/pkg/crypto/tls/#ClientAuthType
+	//
+	// +optional
+	clientAuthType?: null | string @go(ClientAuthType,*string)
 
-	// List of supported cipher suites for TLS versions up to TLS 1.2. If empty,
-	// Go default cipher suites are used. Available cipher suites are documented
-	// in the go documentation: https://golang.org/pkg/crypto/tls/#pkg-constants
+	// Minimum TLS version that is acceptable.
+	//
+	// +optional
+	minVersion?: null | string @go(MinVersion,*string)
+
+	// Maximum TLS version that is acceptable.
+	//
+	// +optional
+	maxVersion?: null | string @go(MaxVersion,*string)
+
+	// List of supported cipher suites for TLS versions up to TLS 1.2.
+	//
+	// If not defined, the Go default cipher suites are used.
+	// Available cipher suites are documented in the Go documentation:
+	// https://golang.org/pkg/crypto/tls/#pkg-constants
+	//
+	// +optional
 	cipherSuites?: [...string] @go(CipherSuites,[]string)
 
-	// Controls whether the server selects the
-	// client's most preferred cipher suite, or the server's most preferred
-	// cipher suite. If true then the server's preference, as expressed in
+	// Controls whether the server selects the client's most preferred cipher
+	// suite, or the server's most preferred cipher suite.
+	//
+	// If true then the server's preference, as expressed in
 	// the order of elements in cipherSuites, is used.
+	//
+	// +optional
 	preferServerCipherSuites?: null | bool @go(PreferServerCipherSuites,*bool)
 
 	// Elliptic curves that will be used in an ECDHE handshake, in preference
-	// order. Available curves are documented in the go documentation:
+	// order.
+	//
+	// Available curves are documented in the Go documentation:
 	// https://golang.org/pkg/crypto/tls/#CurveID
+	//
+	// +optional
 	curvePreferences?: [...string] @go(CurvePreferences,[]string)
 }
 
-// LabelName is a valid Prometheus label name which may only contain ASCII letters, numbers, as well as underscores.
+// LabelName is a valid Prometheus label name which may only contain ASCII
+// letters, numbers, as well as underscores.
+//
 // +kubebuilder:validation:Pattern:="^[a-zA-Z_][a-zA-Z0-9_]*$"
 #LabelName: string
 
-// Endpoint defines a scrapeable endpoint serving Prometheus metrics.
+// Endpoint defines an endpoint serving Prometheus metrics to be scraped by
+// Prometheus.
+//
 // +k8s:openapi-gen=true
 #Endpoint: {
-	// Name of the service port this endpoint refers to. Mutually exclusive with targetPort.
+	// Name of the Service port which this endpoint refers to.
+	//
+	// It takes precedence over `targetPort`.
 	port?: string @go(Port)
 
-	// Name or number of the target port of the Pod behind the Service, the port must be specified with container port property. Mutually exclusive with port.
+	// Name or number of the target port of the `Pod` object behind the
+	// Service. The port must be specified with the container's port property.
+	//
+	// +optional
 	targetPort?: null | intstr.#IntOrString @go(TargetPort,*intstr.IntOrString)
 
-	// HTTP path to scrape for metrics.
+	// HTTP path from which to scrape for metrics.
+	//
 	// If empty, Prometheus uses the default value (e.g. `/metrics`).
 	path?: string @go(Path)
 
 	// HTTP scheme to use for scraping.
-	// `http` and `https` are the expected values unless you rewrite the `__scheme__` label via relabeling.
+	//
+	// `http` and `https` are the expected values unless you rewrite the
+	// `__scheme__` label via relabeling.
+	//
 	// If empty, Prometheus uses the default value `http`.
+	//
 	// +kubebuilder:validation:Enum=http;https
 	scheme?: string @go(Scheme)
 
-	// Optional HTTP URL parameters
+	// params define optional HTTP URL parameters.
 	params?: {[string]: [...string]} @go(Params,map[string][]string)
 
-	// Interval at which metrics should be scraped
-	// If not specified Prometheus' global scrape interval is used.
+	// Interval at which Prometheus scrapes the metrics from the target.
+	//
+	// If empty, Prometheus uses the global scrape interval.
 	interval?: #Duration @go(Interval)
 
-	// Timeout after which the scrape is ended
-	// If not specified, the Prometheus global scrape timeout is used unless it is less than `Interval` in which the latter is used.
+	// Timeout after which Prometheus considers the scrape to be failed.
+	//
+	// If empty, Prometheus uses the global scrape timeout unless it is less
+	// than the target's scrape interval value in which the latter is used.
+	// The value cannot be greater than the scrape interval otherwise the operator will reject the resource.
 	scrapeTimeout?: #Duration @go(ScrapeTimeout)
 
-	// TLS configuration to use when scraping the endpoint
+	// TLS configuration to use when scraping the target.
+	//
+	// +optional
 	tlsConfig?: null | #TLSConfig @go(TLSConfig,*TLSConfig)
 
-	// File to read bearer token for scraping targets.
+	// File to read bearer token for scraping the target.
+	//
+	// Deprecated: use `authorization` instead.
 	bearerTokenFile?: string @go(BearerTokenFile)
 
-	// Secret to mount to read bearer token for scraping targets. The secret
-	// needs to be in the same namespace as the service monitor and accessible by
-	// the Prometheus Operator.
-	bearerTokenSecret?: v1.#SecretKeySelector @go(BearerTokenSecret)
+	// `bearerTokenSecret` specifies a key of a Secret containing the bearer
+	// token for scraping targets. The secret needs to be in the same namespace
+	// as the ServiceMonitor object and readable by the Prometheus Operator.
+	//
+	// +optional
+	//
+	// Deprecated: use `authorization` instead.
+	bearerTokenSecret?: null | v1.#SecretKeySelector @go(BearerTokenSecret,*v1.SecretKeySelector)
 
-	// Authorization section for this endpoint
+	// `authorization` configures the Authorization header credentials to use when
+	// scraping the target.
+	//
+	// Cannot be set at the same time as `basicAuth`, or `oauth2`.
+	//
+	// +optional
 	authorization?: null | #SafeAuthorization @go(Authorization,*SafeAuthorization)
 
-	// HonorLabels chooses the metric's labels on collisions with target labels.
+	// When true, `honorLabels` preserves the metric's labels when they collide
+	// with the target's labels.
 	honorLabels?: bool @go(HonorLabels)
 
-	// HonorTimestamps controls whether Prometheus respects the timestamps present in scraped data.
+	// `honorTimestamps` controls whether Prometheus preserves the timestamps
+	// when exposed by the target.
+	//
+	// +optional
 	honorTimestamps?: null | bool @go(HonorTimestamps,*bool)
 
-	// BasicAuth allow an endpoint to authenticate over basic authentication
-	// More info: https://prometheus.io/docs/operating/configuration/#endpoints
+	// `trackTimestampsStaleness` defines whether Prometheus tracks staleness of
+	// the metrics that have an explicit timestamp present in scraped data.
+	// Has no effect if `honorTimestamps` is false.
+	//
+	// It requires Prometheus >= v2.48.0.
+	//
+	// +optional
+	trackTimestampsStaleness?: null | bool @go(TrackTimestampsStaleness,*bool)
+
+	// `basicAuth` configures the Basic Authentication credentials to use when
+	// scraping the target.
+	//
+	// Cannot be set at the same time as `authorization`, or `oauth2`.
+	//
+	// +optional
 	basicAuth?: null | #BasicAuth @go(BasicAuth,*BasicAuth)
 
-	// OAuth2 for the URL. Only valid in Prometheus versions 2.27.0 and newer.
+	// `oauth2` configures the OAuth2 settings to use when scraping the target.
+	//
+	// It requires Prometheus >= 2.27.0.
+	//
+	// Cannot be set at the same time as `authorization`, or `basicAuth`.
+	//
+	// +optional
 	oauth2?: null | #OAuth2 @go(OAuth2,*OAuth2)
 
-	// MetricRelabelConfigs to apply to samples before ingestion.
-	metricRelabelings?: [...null | #RelabelConfig] @go(MetricRelabelConfigs,[]*RelabelConfig)
+	// `metricRelabelings` configures the relabeling rules to apply to the
+	// samples before ingestion.
+	//
+	// +optional
+	metricRelabelings?: [...#RelabelConfig] @go(MetricRelabelConfigs,[]RelabelConfig)
 
-	// RelabelConfigs to apply to samples before scraping.
-	// Prometheus Operator automatically adds relabelings for a few standard Kubernetes fields.
+	// `relabelings` configures the relabeling rules to apply the target's
+	// metadata labels.
+	//
+	// The Operator automatically adds relabelings for a few standard Kubernetes fields.
+	//
 	// The original scrape job's name is available via the `__tmp_prometheus_job_name` label.
+	//
 	// More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
-	relabelings?: [...null | #RelabelConfig] @go(RelabelConfigs,[]*RelabelConfig)
+	//
+	// +optional
+	relabelings?: [...#RelabelConfig] @go(RelabelConfigs,[]RelabelConfig)
 
-	// ProxyURL eg http://proxyserver:2195 Directs scrapes to proxy through this endpoint.
+	// `proxyURL` configures the HTTP Proxy URL (e.g.
+	// "http://proxyserver:2195") to go through when scraping the target.
+	//
+	// +optional
 	proxyUrl?: null | string @go(ProxyURL,*string)
 
-	// FollowRedirects configures whether scrape requests follow HTTP 3xx redirects.
+	// `followRedirects` defines whether the scrape requests should follow HTTP
+	// 3xx redirects.
+	//
+	// +optional
 	followRedirects?: null | bool @go(FollowRedirects,*bool)
 
-	// Whether to enable HTTP2.
+	// `enableHttp2` can be used to disable HTTP2 when scraping the target.
+	//
+	// +optional
 	enableHttp2?: null | bool @go(EnableHttp2,*bool)
 
-	// Drop pods that are not running. (Failed, Succeeded). Enabled by default.
+	// When true, the pods which are not running (e.g. either in Failed or
+	// Succeeded state) are dropped during the target discovery.
+	//
+	// If unset, the filtering is enabled.
+	//
 	// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-phase
+	//
+	// +optional
 	filterRunning?: null | bool @go(FilterRunning,*bool)
 }
 
 #AttachMetadata: {
-	// When set to true, Prometheus must have permissions to get Nodes.
-	node?: bool @go(Node)
+	// When set to true, Prometheus attaches node metadata to the discovered
+	// targets.
+	//
+	// The Prometheus service account must have the `list` and `watch`
+	// permissions on the `Nodes` objects.
+	//
+	// +optional
+	node?: null | bool @go(Node,*bool)
 }
 
-// OAuth2 allows an endpoint to authenticate with OAuth2.
-// More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#oauth2
+// OAuth2 configures OAuth2 settings.
+//
 // +k8s:openapi-gen=true
 #OAuth2: {
-	// The secret or configmap containing the OAuth2 client id
+	// `clientId` specifies a key of a Secret or ConfigMap containing the
+	// OAuth2 client's ID.
 	clientId: #SecretOrConfigMap @go(ClientID)
 
-	// The secret containing the OAuth2 client secret
+	// `clientSecret` specifies a key of a Secret containing the OAuth2
+	// client's secret.
 	clientSecret: v1.#SecretKeySelector @go(ClientSecret)
 
-	// The URL to fetch the token from
+	// `tokenURL` configures the URL to fetch the token from.
+	//
 	// +kubebuilder:validation:MinLength=1
 	tokenUrl: string @go(TokenURL)
 
-	// OAuth2 scopes used for the token request
+	// `scopes` defines the OAuth2 scopes used for the token request.
+	//
+	// +optional.
 	scopes?: [...string] @go(Scopes,[]string)
 
-	// Parameters to append to the token URL
+	// `endpointParams` configures the HTTP parameters to append to the token
+	// URL.
+	//
+	// +optional
 	endpointParams?: {[string]: string} @go(EndpointParams,map[string]string)
+
+	// TLS configuration to use when connecting to the OAuth2 server.
+	// It requires Prometheus >= v2.43.0.
+	//
+	// +optional
+	tlsConfig?: null | #SafeTLSConfig @go(TLSConfig,*SafeTLSConfig)
+
+	#ProxyConfig
 }
 
-// BasicAuth allow an endpoint to authenticate over basic authentication
-// More info: https://prometheus.io/docs/operating/configuration/#endpoints
+// BasicAuth configures HTTP Basic Authentication settings.
+//
 // +k8s:openapi-gen=true
 #BasicAuth: {
-	// The secret in the service monitor namespace that contains the username
-	// for authentication.
+	// `username` specifies a key of a Secret containing the username for
+	// authentication.
 	username?: v1.#SecretKeySelector @go(Username)
 
-	// The secret in the service monitor namespace that contains the password
-	// for authentication.
+	// `password` specifies a key of a Secret containing the password for
+	// authentication.
 	password?: v1.#SecretKeySelector @go(Password)
 }
 
@@ -428,6 +628,20 @@ import (
 	// ConfigMap containing data to use for the targets.
 	configMap?: null | v1.#ConfigMapKeySelector @go(ConfigMap,*v1.ConfigMapKeySelector)
 }
+
+// +kubebuilder:validation:Enum=TLS10;TLS11;TLS12;TLS13
+#TLSVersion: string // #enumTLSVersion
+
+#enumTLSVersion:
+	#TLSVersion10 |
+	#TLSVersion11 |
+	#TLSVersion12 |
+	#TLSVersion13
+
+#TLSVersion10: #TLSVersion & "TLS10"
+#TLSVersion11: #TLSVersion & "TLS11"
+#TLSVersion12: #TLSVersion & "TLS12"
+#TLSVersion13: #TLSVersion & "TLS13"
 
 // SafeTLSConfig specifies safe TLS configuration parameters.
 // +k8s:openapi-gen=true
@@ -442,10 +656,24 @@ import (
 	keySecret?: null | v1.#SecretKeySelector @go(KeySecret,*v1.SecretKeySelector)
 
 	// Used to verify the hostname for the targets.
-	serverName?: string @go(ServerName)
+	// +optional
+	serverName?: null | string @go(ServerName,*string)
 
 	// Disable target certificate validation.
-	insecureSkipVerify?: bool @go(InsecureSkipVerify)
+	// +optional
+	insecureSkipVerify?: null | bool @go(InsecureSkipVerify,*bool)
+
+	// Minimum acceptable TLS version.
+	//
+	// It requires Prometheus >= v2.35.0.
+	// +optional
+	minVersion?: null | #TLSVersion @go(MinVersion,*TLSVersion)
+
+	// Maximum acceptable TLS version.
+	//
+	// It requires Prometheus >= v2.41.0.
+	// +optional
+	maxVersion?: null | #TLSVersion @go(MaxVersion,*TLSVersion)
 }
 
 // TLSConfig extends the safe TLS configuration with file parameters.
@@ -488,3 +716,44 @@ import (
 	// Argument value, e.g. 30s. Can be empty for name-only arguments (e.g. --storage.tsdb.no-lockfile)
 	value?: string @go(Value)
 }
+
+#RoleNode:          "node"
+#RolePod:           "pod"
+#RoleService:       "service"
+#RoleEndpoint:      "endpoints"
+#RoleEndpointSlice: "endpointslice"
+#RoleIngress:       "ingress"
+
+// NativeHistogramConfig extends the native histogram configuration settings.
+// +k8s:openapi-gen=true
+#NativeHistogramConfig: {
+	// Whether to scrape a classic histogram that is also exposed as a native histogram.
+	// It requires Prometheus >= v2.45.0.
+	//
+	// +optional
+	scrapeClassicHistograms?: null | bool @go(ScrapeClassicHistograms,*bool)
+
+	// If there are more than this many buckets in a native histogram,
+	// buckets will be merged to stay within the limit.
+	// It requires Prometheus >= v2.45.0.
+	//
+	// +optional
+	nativeHistogramBucketLimit?: null | uint64 @go(NativeHistogramBucketLimit,*uint64)
+
+	// If the growth factor of one bucket to the next is smaller than this,
+	// buckets will be merged to increase the factor sufficiently.
+	// It requires Prometheus >= v2.50.0.
+	//
+	// +optional
+	nativeHistogramMinBucketFactor?: null | resource.#Quantity @go(NativeHistogramMinBucketFactor,*resource.Quantity)
+}
+
+// +kubebuilder:validation:Enum=RelabelConfig;RoleSelector
+#SelectorMechanism: string // #enumSelectorMechanism
+
+#enumSelectorMechanism:
+	#SelectorMechanismRelabel |
+	#SelectorMechanismRole
+
+#SelectorMechanismRelabel: #SelectorMechanism & "RelabelConfig"
+#SelectorMechanismRole:    #SelectorMechanism & "RoleSelector"
