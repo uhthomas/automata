@@ -17,7 +17,7 @@ import (
 #DeploymentList: items: [{
 	metadata: name: "smb"
 	spec: {
-		replicas: 0
+		// replicas: 0
 		selector: matchLabels: "app.kubernetes.io/name": "smb"
 		template: {
 			metadata: labels: "app.kubernetes.io/name": "smb"
@@ -148,5 +148,6 @@ import (
 				}
 			}
 		}
+		strategy: type: appsv1.#RecreateDeploymentStrategyType
 	}
 }]

@@ -14,7 +14,8 @@ import "k8s.io/api/core/v1"
 #PersistentVolumeClaimList: items: [{
 	spec: {
 		accessModes: [v1.#ReadWriteOnce]
-		storageClassName: "rook-ceph-hdd"
+		storageClassName: "rook-ceph-nvme-ec"
 		resources: requests: (v1.#ResourceStorage): "2Ti"
+		volumeName: "backup-sana"
 	}
 }]

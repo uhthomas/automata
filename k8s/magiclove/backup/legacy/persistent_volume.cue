@@ -17,7 +17,7 @@ import "k8s.io/api/core/v1"
 		capacity: storage: "11Ti"
 		csi: {
 			driver:       "rook-ceph.rbd.csi.ceph.com"
-			volumeHandle: "csi-vol-8ad117a4-9b27-4ace-88f3-ddc47b84aeb9"
+			volumeHandle: "csi-vol-8ad117a4-9b27-4ace-88f3-ddc47b84aeb9-migrated"
 			fsType:       "ext4"
 			controllerExpandSecretRef: {
 				name:      "rook-csi-rbd-provisioner"
@@ -36,7 +36,7 @@ import "k8s.io/api/core/v1"
 		}
 		accessModes: [v1.#ReadWriteOnce]
 		persistentVolumeReclaimPolicy: v1.#PersistentVolumeReclaimRetain
-		storageClassName:              "rook-ceph-hdd"
+		storageClassName:              "rook-ceph-nvme-ec"
 		volumeMode:                    v1.#PersistentVolumeFilesystem
 	}
 }]
