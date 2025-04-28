@@ -30,12 +30,5 @@ import (
 			(v1.#ResourceCPU):    "1"
 			(v1.#ResourceMemory): "1Gi"
 		}
-		// bootstrap: initdb: postInitSQL: [
-		// 	"ALTER SYSTEM SET search_path TO \"$user\", public, vectors;",
-		// 	"CREATE EXTENSION IF NOT EXISTS \"vectors\";",
-		// ]
-		// postgresql: shared_preload_libraries: [
-		// 	"vectors.so",
-		// ]
 	}
 }]

@@ -48,13 +48,11 @@ import (
 						"--webhook-port=9443",
 					]
 					ports: [{
-						containerPort: 8080
 						name:          "metrics"
-						protocol:      "TCP"
+						containerPort: 8080
 					}, {
-						containerPort: 9443
 						name:          "webhook-server"
-						protocol:      "TCP"
+						containerPort: 9443
 					}]
 					env: [{
 						name:  "OPERATOR_IMAGE_NAME"

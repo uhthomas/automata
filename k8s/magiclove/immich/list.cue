@@ -31,4 +31,5 @@ _items: [
 	#GatewayList.items,
 	#HTTPRouteList.items,
 	#NamespaceList.items,
+	#VMPodScrapeList.items,
 ]
