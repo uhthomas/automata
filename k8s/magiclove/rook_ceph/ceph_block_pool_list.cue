@@ -46,28 +46,4 @@ import cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 		parameters: compression_mode: "none"
 		enableRBDStats: true
 	}
-}, {
-	metadata: name: "ecpool-hdd"
-	spec: {
-		failureDomain: "osd"
-		erasureCoded: {
-			dataChunks:   4
-			codingChunks: 2
-		}
-		deviceClass: "hdd"
-		parameters: {
-			compression_mode: "none"
-			min_size:         "5"
-		}
-		enableRBDStats: true
-	}
-}, {
-	metadata: name: "replicapool-hdd"
-	spec: {
-		failureDomain: "osd"
-		replicated: size: 3
-		deviceClass: "hdd"
-		parameters: compression_mode: "none"
-		enableRBDStats: true
-	}
 }]

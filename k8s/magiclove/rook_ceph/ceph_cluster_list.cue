@@ -158,34 +158,6 @@ import (
 					// SAMSUNG MZWLL3T2HMJP-00003
 					name: "/dev/disk/by-id/nvme-eui.334841304bb001020025385800000004"
 					config: deviceClass: "nvme"
-				}, {
-					// HGST H7280A520SUN8.0T
-					name: "/dev/disk/by-id/wwn-0x5000cca23b3573bc"
-					config: deviceClass: "hdd"
-				}, {
-					// HGST H7280A520SUN8.0T
-					name: "/dev/disk/by-id/wwn-0x5000cca23b435a24"
-					config: deviceClass: "hdd"
-				}, {
-					// IBM-ESXS HUH728080AL420
-					name: "/dev/disk/by-id/wwn-0x5000cca261057c98"
-					config: deviceClass: "hdd"
-				}, {
-					// IBM-ESXS HUH728080AL420
-					name: "/dev/disk/by-id/wwn-0x5000cca26105b87c"
-					config: deviceClass: "hdd"
-				}, {
-					// HGST HUH721010AL5200
-					name: "/dev/disk/by-id/wwn-0x5000cca26697af28"
-					config: deviceClass: "hdd"
-				}, {
-					// HGST HUH721010AL5200
-					name: "/dev/disk/by-id/wwn-0x5000cca2669799a0"
-					config: deviceClass: "hdd"
-				}, {
-					// HGST HUH721010AL5200
-					name: "/dev/disk/by-id/wwn-0x5000cca26c015ed8"
-					config: deviceClass: "hdd"
 				}]
 			}]
 			onlyApplyOSDPlacement: false

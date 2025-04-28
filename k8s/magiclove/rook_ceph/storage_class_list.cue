@@ -60,16 +60,6 @@ let defaultCephFSParameters = defaultParameters & {
 	reclaimPolicy:        v1.#PersistentVolumeReclaimRetain
 	allowVolumeExpansion: true
 }, {
-	metadata: name: "rook-ceph-hdd"
-	provisioner: "\(#Namespace).rbd.csi.ceph.com"
-	parameters: defaultRBDParameters & {
-		dataPool: "ecpool-hdd"
-		pool:     "replicapool-nvme"
-	}
-	mountOptions: ["discard"]
-	reclaimPolicy:        v1.#PersistentVolumeReclaimRetain
-	allowVolumeExpansion: true
-}, {
 	metadata: name: "rook-cephfs-nvme"
 	provisioner: "\(#Namespace).cephfs.csi.ceph.com"
 	parameters: defaultCephFSParameters & {
