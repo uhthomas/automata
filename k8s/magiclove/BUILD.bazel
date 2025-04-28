@@ -38,6 +38,7 @@ cue_export(
         "//k8s/magiclove/grafana:cue_grafana_library",
         "//k8s/magiclove/grafana_operator:cue_grafana_operator_library",
         "//k8s/magiclove/home_assistant:cue_home_assistant_library",
+        "//k8s/magiclove/immich:cue_immich_library",
         "//k8s/magiclove/karma:cue_karma_library",
         "//k8s/magiclove/kube_state_metrics:cue_kube_state_metrics_library",
         "//k8s/magiclove/kube_system:cue_kube_system_library",

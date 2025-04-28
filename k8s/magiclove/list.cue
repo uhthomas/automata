@@ -19,6 +19,7 @@ import (
 	"github.com/uhthomas/automata/k8s/magiclove/grafana"
 	"github.com/uhthomas/automata/k8s/magiclove/grafana_operator"
 	"github.com/uhthomas/automata/k8s/magiclove/home_assistant"
+	"github.com/uhthomas/automata/k8s/magiclove/immich"
 	"github.com/uhthomas/automata/k8s/magiclove/karma"
 	"github.com/uhthomas/automata/k8s/magiclove/kube_state_metrics"
 	"github.com/uhthomas/automata/k8s/magiclove/kube_system"
@@ -95,6 +96,7 @@ _items: [
 	grafana.#List.items,
 	grafana_operator.#List.items,
 	home_assistant.#List.items,
+	immich.#List.items,
 	karma.#List.items,
 	kube_state_metrics.#List.items,
 	kube_system.#List.items,
