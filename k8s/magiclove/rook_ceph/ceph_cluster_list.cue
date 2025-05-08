@@ -17,7 +17,7 @@ import (
 #CephClusterList: items: [{
 	spec: {
 		cephVersion: {
-			image:            "quay.io/ceph/ceph:v18.2.2"
+			image:            "quay.io/ceph/ceph:v18.2.7"
 			allowUnsupported: false
 		}
 		dataDirHostPath:                            "/var/lib/rook"
