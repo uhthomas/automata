@@ -3,6 +3,7 @@ package grafana
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"list"
 
 	grafanav1beta1 "github.com/grafana/grafana-operator/v5/api/v1beta1"
 )
@@ -100,10 +101,10 @@ let dashboards = {
 		}
 		instanceSelector: matchLabels: "app.kubernetes.io/name": #Name
 		folder: folderName
-		datasources: [if folder == "EMQX MQTT" {
-			inputName:      "prometheus"
-			datasourceName: "default"
-		}, if "\(dashboardRef)" == "17446" {
+
+		let datasourceDashboards = [1860, 17446]
+
+		datasources: [if list.Contains(datasourceDashboards, dashboardRef) {
 			inputName:      "DS_PROMETHEUS"
 			datasourceName: "default"
 		}]
