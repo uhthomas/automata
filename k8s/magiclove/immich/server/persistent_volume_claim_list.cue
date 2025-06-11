@@ -16,6 +16,13 @@ import "k8s.io/api/core/v1"
 	spec: {
 		accessModes: [v1.#ReadWriteOnce]
 		storageClassName: "rook-ceph-nvme-ec"
-		resources: requests: (v1.#ResourceStorage): "1Gi"
+		resources: requests: (v1.#ResourceStorage): "1Ti"
+	}
+}, {
+	metadata: name: "\(#Name)-external-library"
+	spec: {
+		accessModes: [v1.#ReadWriteOnce]
+		storageClassName: "rook-ceph-nvme-ec"
+		resources: requests: (v1.#ResourceStorage): "1Ti"
 	}
 }]

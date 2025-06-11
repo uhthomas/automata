@@ -24,7 +24,7 @@ import (
 		enableSuperuserAccess: true
 		storage: {
 			storageClass: "rook-ceph-nvme"
-			size:         "1Gi"
+			size:         "4Gi"
 		}
 		resources: limits: {
 			(v1.#ResourceCPU):    "1"
