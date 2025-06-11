@@ -47,13 +47,13 @@ import (
 					name: "data-lola"
 					persistentVolumeClaim: {
 						claimName: "lola"
-						readOnly:  false
+						readOnly:  true
 					}
 				}, {
 					name: "data-melonade"
 					persistentVolumeClaim: {
 						claimName: "melonade"
-						readOnly:  false
+						readOnly:  true
 					}
 				}, {
 					name: "data-sana"
