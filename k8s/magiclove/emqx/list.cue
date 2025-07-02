@@ -10,7 +10,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=github-releases depName=emqx/emqx extractVersion=^v(?<version>.*)$
-#Version: "5.6.0"
+#Version: "5.8.7"
 
 #List: v1.#List & {
 	apiVersion: "v1"
