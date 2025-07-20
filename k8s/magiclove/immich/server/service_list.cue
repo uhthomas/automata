@@ -21,7 +21,12 @@ import "k8s.io/api/core/v1"
 			name:       "http-metrics"
 			port:       8081
 			targetPort: "http-metrics"
+		}, {
+			name:       "smb"
+			port:       445
+			targetPort: "smb"
 		}]
 		selector: "app.kubernetes.io/name": #Name
+		type: v1.#ServiceTypeLoadBalancer
 	}
 }]
