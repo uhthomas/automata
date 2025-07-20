@@ -26,7 +26,7 @@ import (
 				}]
 				initContainers: [{
 					name:  "copy-config"
-					image: "alpine:3.17.2@sha256:e2e16842c9b54d985bf1ef9242a313f36b856181f188de21313820e177002501"
+					image: "alpine:3.22.1@sha256:4bcff63911fcb4448bd4fdacec207030997caf25e9bea4045fa6c8c44de311d1"
 					command: ["cp"]
 					args: ["/etc/zigbee2mqtt/configuration.yaml", "/app/data/configuration.yaml"]
 					volumeMounts: [{
