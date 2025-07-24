@@ -29,5 +29,6 @@ _items: [
 	#DeploymentList.items,
 	#PersistentVolumeClaimList.items,
 	#ServiceList.items,
+	#SnapshotScheduleList.items,
 	#VMServiceScrapeList.items,
 ]
