@@ -1,4 +1,4 @@
-package external_dns
+package snapscheduler
 
 import (
 	appsv1 "k8s.io/api/apps/v1"
@@ -21,43 +21,30 @@ import (
 			metadata: labels: "app.kubernetes.io/name": #Name
 			spec: {
 				containers: [{
-					name:  "external-dns"
-					image: "registry.k8s.io/external-dns/external-dns:v\(#Version)"
+					name:  "manager"
+					image: "quay.io/backube/snapscheduler:\(#Version)"
+					command: ["/manager"]
 					args: [
-						"--source=service",
-						"--source=ingress",
-						"--source=gateway-httproute",
-						"--source=gateway-tlsroute",
-						"--source=gateway-tcproute",
-						"--source=gateway-udproute",
-						"--registry=txt",
-						"--provider=cloudflare",
+						"--health-probe-bind-address=:8081",
+						"--metrics-bind-address=:8080",
+						"--leader-elect",
 					]
 					ports: [{
 						name:          "http-metrics"
-						containerPort: 7979
-					}]
-					env: [{
-						name: "CF_API_TOKEN"
-						valueFrom: secretKeyRef: {
-							name: #Name
-							key:  "cloudflare-api-token"
-						}
+						containerPort: 8080
+					}, {
+						name:          "http-health"
+						containerPort: 8081
 					}]
 					resources: requests: {
-						(v1.#ResourceCPU):    "50m"
-						(v1.#ResourceMemory): "128Mi"
+						(v1.#ResourceCPU):    "100m"
+						(v1.#ResourceMemory): "96Mi"
 					}
 
-					let probe = {
-						httpGet: {
-							path: "/healthz"
-							port: "http-metrics"
-						}
-					}
+					let probe = {httpGet: port: "http-health"}
 
-					livenessProbe:  probe
-					readinessProbe: probe
+					livenessProbe: probe & {httpGet: path: "/healthz"}
+					readinessProbe: probe & {httpGet: path: "/readyz"}
 
 					imagePullPolicy: v1.#PullIfNotPresent
 					securityContext: {

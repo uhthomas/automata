@@ -37,6 +37,7 @@ import (
 	"github.com/uhthomas/automata/k8s/magiclove/rook_ceph"
 	"github.com/uhthomas/automata/k8s/magiclove/scrutiny"
 	"github.com/uhthomas/automata/k8s/magiclove/smartctl_exporter"
+	"github.com/uhthomas/automata/k8s/magiclove/snapscheduler"
 	"github.com/uhthomas/automata/k8s/magiclove/snapshot_controller"
 	"github.com/uhthomas/automata/k8s/magiclove/speedtest_exporter"
 	"github.com/uhthomas/automata/k8s/magiclove/thomas"
@@ -114,6 +115,7 @@ _items: [
 	rook_ceph.#List.items,
 	scrutiny.#List.items,
 	smartctl_exporter.#List.items,
+	snapscheduler.#List.items,
 	snapshot_controller.#List.items,
 	speedtest_exporter.#List.items,
 	thomas.#List.items,
