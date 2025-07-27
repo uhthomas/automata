@@ -17,7 +17,7 @@ import gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 		"external-dns.alpha.kubernetes.io/hostname": "\(#Name)-magiclove.hipparcos.net"
 	}
 	spec: {
-		gatewayClassName: "cilium"
+		gatewayClassName: "envoy-gateway"
 		listeners: [{
 			name:     "http"
 			hostname: "\(#Name)-magiclove.hipparcos.net"

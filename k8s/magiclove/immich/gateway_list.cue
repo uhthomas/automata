@@ -20,7 +20,7 @@ import gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 		}
 	}
 	spec: {
-		gatewayClassName: "cilium"
+		gatewayClassName: "envoy-gateway"
 		listeners: [{
 			name:     "http"
 			hostname: "\(#Name)-magiclove.hipparcos.net"
