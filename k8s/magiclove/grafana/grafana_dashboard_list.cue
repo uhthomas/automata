@@ -47,6 +47,12 @@ let dashboards = {
 	"Cert Manager": [
 		"https://gitlab.com/uneeq-oss/cert-manager-mixin/-/raw/master/dashboards/cert-manager.json",
 	]
+	"Envoy Gateway": [
+		"https://raw.githubusercontent.com/envoyproxy/gateway/v1.4.2/charts/gateway-addons-helm/dashboards/envoy-clusters.json",
+		"https://raw.githubusercontent.com/envoyproxy/gateway/v1.4.2/charts/gateway-addons-helm/dashboards/envoy-gateway-global.json",
+		"https://raw.githubusercontent.com/envoyproxy/gateway/v1.4.2/charts/gateway-addons-helm/dashboards/envoy-proxy-global.json",
+		"https://raw.githubusercontent.com/envoyproxy/gateway/v1.4.2/charts/gateway-addons-helm/dashboards/global-ratelimit.json",
+	]
 	Kubernetes: [
 		// Kubernetes / System / API Server
 		// https://grafana.com/grafana/dashboards/15761
