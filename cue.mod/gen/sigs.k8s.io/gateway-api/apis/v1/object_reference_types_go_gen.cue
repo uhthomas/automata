@@ -144,7 +144,7 @@ package v1
 // on the containing object.
 #ObjectReference: {
 	// Group is the group of the referent. For example, "gateway.networking.k8s.io".
-	// When unspecified or empty string, core API group is inferred.
+	// When set to the empty string, core API group is inferred.
 	group: #Group @go(Group)
 
 	// Kind is kind of the referent. For example "ConfigMap" or "Service".

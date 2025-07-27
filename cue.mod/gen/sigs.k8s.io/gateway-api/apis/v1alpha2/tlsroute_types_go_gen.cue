@@ -66,7 +66,7 @@ import (
 	//
 	// +optional
 	// +kubebuilder:validation:MaxItems=16
-	hostnames?: [...v1.#Hostname] @go(Hostnames,[]sigs.k8s.io/gateway-api/apis/v1.Hostname)
+	hostnames?: [...v1.#Hostname] @go(Hostnames,[]Hostname)
 
 	// Rules are a list of TLS matchers and actions.
 	//
@@ -87,10 +87,10 @@ import (
 	//
 	// Support: Extended
 	// +optional
-	name?: null | v1.#SectionName @go(Name,*sigs.k8s.io/gateway-api/apis/v1.SectionName)
+	name?: null | v1.#SectionName @go(Name,*SectionName)
 
 	// BackendRefs defines the backend(s) where matching requests should be
-	// sent. If unspecified or invalid (refers to a non-existent resource or
+	// sent. If unspecified or invalid (refers to a nonexistent resource or
 	// a Service with no endpoints), the rule performs no forwarding; if no
 	// filters are specified that would result in a response being sent, the
 	// underlying implementation must actively reject request attempts to this
@@ -109,7 +109,7 @@ import (
 	//
 	// +kubebuilder:validation:MinItems=1
 	// +kubebuilder:validation:MaxItems=16
-	backendRefs?: [...v1.#BackendRef] @go(BackendRefs,[]sigs.k8s.io/gateway-api/apis/v1.BackendRef)
+	backendRefs?: [...v1.#BackendRef] @go(BackendRefs,[]BackendRef)
 }
 
 // TLSRouteList contains a list of TLSRoute

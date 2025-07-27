@@ -165,9 +165,12 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 #GatewayClassReasonAccepted: #GatewayClassConditionReason & "Accepted"
 
 // This reason is used with the "Accepted" condition when the GatewayClass
-// was not accepted because the parametersRef field refers to a nonexistent
-// or unsupported resource or kind, or when the data within that resource is
-// malformed.
+// was not accepted because the parametersRef field refers to
+// * a namespaced resource but the Namespace field is not set, or
+// * a cluster-scoped resource but the Namespace field is set, or
+// * a nonexistent object, or
+// * an unsupported resource or kind, or
+// * an existing resource but the data within that resource is malformed.
 #GatewayClassReasonInvalidParameters: #GatewayClassConditionReason & "InvalidParameters"
 
 // This reason is used with the "Accepted" condition when the

@@ -186,7 +186,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// the above criteria.
 	//
 	// +optional
-	// +kubebuilder:validation:MaxItems=8
+	// +kubebuilder:validation:MaxItems=64
 	matches?: [...#GRPCRouteMatch] @go(Matches,[]GRPCRouteMatch)
 
 	// Filters define the filters that are applied to requests that match
@@ -206,7 +206,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Specifying the same filter multiple times is not supported unless explicitly
 	// indicated in the filter.
 	//
-	// If an implementation can not support a combination of filters, it must clearly
+	// If an implementation cannot support a combination of filters, it must clearly
 	// document that limitation. In cases where incompatible or unsupported
 	// filters are specified and cause the `Accepted` condition to be set to status
 	// `False`, implementations may use the `IncompatibleFilters` reason to specify
@@ -534,7 +534,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +optional
 	//
-	// <gateway:experimental:validation:XValidation:message="Only one of percent or fraction may be specified in HTTPRequestMirrorFilter",rule="!(has(self.percent) && has(self.fraction))">
+	// +kubebuilder:validation:XValidation:message="Only one of percent or fraction may be specified in HTTPRequestMirrorFilter",rule="!(has(self.percent) && has(self.fraction))"
 	requestMirror?: null | #HTTPRequestMirrorFilter @go(RequestMirror,*HTTPRequestMirrorFilter)
 
 	// ExtensionRef is an optional, implementation-specific extension to the

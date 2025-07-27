@@ -73,7 +73,7 @@ import (
 	// When empty, the Kubernetes core API group is inferred.
 	//
 	// Support: Core
-	group: v1.#Group @go(Group,sigs.k8s.io/gateway-api/apis/v1.Group)
+	group: v1.#Group @go(Group,Group)
 
 	// Kind is the kind of the referent. Although implementations may support
 	// additional resources, the following types are part of the "Core"
@@ -90,12 +90,12 @@ import (
 	// * TCPRoute
 	// * TLSRoute
 	// * UDPRoute
-	kind: v1.#Kind @go(Kind,sigs.k8s.io/gateway-api/apis/v1.Kind)
+	kind: v1.#Kind @go(Kind,Kind)
 
 	// Namespace is the namespace of the referent.
 	//
 	// Support: Core
-	namespace: v1.#Namespace @go(Namespace,sigs.k8s.io/gateway-api/apis/v1.Namespace)
+	namespace: v1.#Namespace @go(Namespace,Namespace)
 }
 
 // ReferenceGrantTo describes what Kinds are allowed as targets of the
@@ -105,7 +105,7 @@ import (
 	// When empty, the Kubernetes core API group is inferred.
 	//
 	// Support: Core
-	group: v1.#Group @go(Group,sigs.k8s.io/gateway-api/apis/v1.Group)
+	group: v1.#Group @go(Group,Group)
 
 	// Kind is the kind of the referent. Although implementations may support
 	// additional resources, the following types are part of the "Core"
@@ -113,12 +113,12 @@ import (
 	//
 	// * Secret when used to permit a SecretObjectReference
 	// * Service when used to permit a BackendObjectReference
-	kind: v1.#Kind @go(Kind,sigs.k8s.io/gateway-api/apis/v1.Kind)
+	kind: v1.#Kind @go(Kind,Kind)
 
 	// Name is the name of the referent. When unspecified, this policy
 	// refers to all resources of the specified Group and Kind in the local
 	// namespace.
 	//
 	// +optional
-	name?: null | v1.#ObjectName @go(Name,*sigs.k8s.io/gateway-api/apis/v1.ObjectName)
+	name?: null | v1.#ObjectName @go(Name,*ObjectName)
 }

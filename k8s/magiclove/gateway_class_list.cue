@@ -17,4 +17,15 @@ import gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 		controllerName: "io.cilium/gateway-controller"
 		description:    "The default Cilium GatewayClass"
 	}
+}, {
+	metadata: name: "envoy-gateway"
+	spec: {
+		controllerName: "gateway.envoyproxy.io/gatewayclass-controller"
+		parametersRef: {
+			group:     "gateway.envoyproxy.io"
+			kind:      "EnvoyProxy"
+			name:      "envoy-gateway-default"
+			namespace: "envoy-gateway"
+		}
+	}
 }]

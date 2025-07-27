@@ -27,13 +27,13 @@ import (
 // the policy attachment documentation for Gateway API.
 #LocalPolicyTargetReference: {
 	// Group is the group of the target resource.
-	group: v1.#Group @go(Group,sigs.k8s.io/gateway-api/apis/v1.Group)
+	group: v1.#Group @go(Group,Group)
 
 	// Kind is kind of the target resource.
-	kind: v1.#Kind @go(Kind,sigs.k8s.io/gateway-api/apis/v1.Kind)
+	kind: v1.#Kind @go(Kind,Kind)
 
 	// Name is the name of the target resource.
-	name: v1.#ObjectName @go(Name,sigs.k8s.io/gateway-api/apis/v1.ObjectName)
+	name: v1.#ObjectName @go(Name,ObjectName)
 }
 
 // NamespacedPolicyTargetReference identifies an API object to apply a direct or
@@ -44,13 +44,13 @@ import (
 // documentation for Gateway API.
 #NamespacedPolicyTargetReference: {
 	// Group is the group of the target resource.
-	group: v1.#Group @go(Group,sigs.k8s.io/gateway-api/apis/v1.Group)
+	group: v1.#Group @go(Group,Group)
 
 	// Kind is kind of the target resource.
-	kind: v1.#Kind @go(Kind,sigs.k8s.io/gateway-api/apis/v1.Kind)
+	kind: v1.#Kind @go(Kind,Kind)
 
 	// Name is the name of the target resource.
-	name: v1.#ObjectName @go(Name,sigs.k8s.io/gateway-api/apis/v1.ObjectName)
+	name: v1.#ObjectName @go(Name,ObjectName)
 
 	// Namespace is the namespace of the referent. When unspecified, the local
 	// namespace is inferred. Even when policy targets a resource in a different
@@ -58,7 +58,7 @@ import (
 	// namespace as the policy.
 	//
 	// +optional
-	namespace?: null | v1.#Namespace @go(Namespace,*sigs.k8s.io/gateway-api/apis/v1.Namespace)
+	namespace?: null | v1.#Namespace @go(Namespace,*Namespace)
 }
 
 // LocalPolicyTargetReferenceWithSectionName identifies an API object to apply a
@@ -86,7 +86,7 @@ import (
 	// a `ResolvedRefs` or similar Condition in the Policy's status.
 	//
 	// +optional
-	sectionName?: null | v1.#SectionName @go(SectionName,*sigs.k8s.io/gateway-api/apis/v1.SectionName)
+	sectionName?: null | v1.#SectionName @go(SectionName,*SectionName)
 }
 
 // PolicyConditionType is a type of condition for a policy. This type should be
@@ -170,7 +170,7 @@ import (
 #PolicyAncestorStatus: {
 	// AncestorRef corresponds with a ParentRef in the spec that this
 	// PolicyAncestorStatus struct describes the status of.
-	ancestorRef: v1.#ParentReference @go(AncestorRef,sigs.k8s.io/gateway-api/apis/v1.ParentReference)
+	ancestorRef: v1.#ParentReference @go(AncestorRef,ParentReference)
 
 	// ControllerName is a domain/path string that indicates the name of the
 	// controller that wrote this status. This corresponds with the
@@ -185,7 +185,7 @@ import (
 	// Controllers MUST populate this field when writing status. Controllers should ensure that
 	// entries to status populated with their ControllerName are cleaned up when they are no
 	// longer necessary.
-	controllerName: v1.#GatewayController @go(ControllerName,sigs.k8s.io/gateway-api/apis/v1.GatewayController)
+	controllerName: v1.#GatewayController @go(ControllerName,GatewayController)
 
 	// Conditions describes the status of the Policy with respect to the given Ancestor.
 	//
