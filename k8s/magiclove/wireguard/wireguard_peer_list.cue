@@ -26,8 +26,8 @@ import (
 		egressNetworkPolicies: [{
 			action: wirguardv1alpha1.#EgressNetworkPolicyActionAccept
 			to: {
-				// Jellyfin
-				ip:   "192.168.135.4"
+				// Envoy Gateway LB
+				ip:   "192.168.135.27"
 				port: 443
 			}
 			protocol: wirguardv1alpha1.#EgressNetworkPolicyProtocolTCP
@@ -43,16 +43,8 @@ import (
 		egressNetworkPolicies: [{
 			action: wirguardv1alpha1.#EgressNetworkPolicyActionAccept
 			to: {
-				// Jellyfin
-				ip:   "192.168.135.4"
-				port: 443
-			}
-			protocol: wirguardv1alpha1.#EgressNetworkPolicyProtocolTCP
-		}, {
-			action: wirguardv1alpha1.#EgressNetworkPolicyActionAccept
-			to: {
-				// Jellyseerr
-				ip:   "192.168.135.5"
+				// Envoy Gateway LB
+				ip:   "192.168.135.27"
 				port: 443
 			}
 			protocol: wirguardv1alpha1.#EgressNetworkPolicyProtocolTCP
@@ -68,16 +60,8 @@ import (
 		egressNetworkPolicies: [{
 			action: wirguardv1alpha1.#EgressNetworkPolicyActionAccept
 			to: {
-				// Jellyfin
-				ip:   "192.168.135.4"
-				port: 443
-			}
-			protocol: wirguardv1alpha1.#EgressNetworkPolicyProtocolTCP
-		}, {
-			action: wirguardv1alpha1.#EgressNetworkPolicyActionAccept
-			to: {
-				// Jellyseerr
-				ip:   "192.168.135.5"
+				// Envoy Gateway LB
+				ip:   "192.168.135.27"
 				port: 443
 			}
 			protocol: wirguardv1alpha1.#EgressNetworkPolicyProtocolTCP
@@ -93,16 +77,8 @@ import (
 		egressNetworkPolicies: [{
 			action: wirguardv1alpha1.#EgressNetworkPolicyActionAccept
 			to: {
-				// Jellyfin
-				ip:   "192.168.135.4"
-				port: 443
-			}
-			protocol: wirguardv1alpha1.#EgressNetworkPolicyProtocolTCP
-		}, {
-			action: wirguardv1alpha1.#EgressNetworkPolicyActionAccept
-			to: {
-				// Jellyseerr
-				ip:   "192.168.135.5"
+				// Envoy Gateway LB
+				ip:   "192.168.135.27"
 				port: 443
 			}
 			protocol: wirguardv1alpha1.#EgressNetworkPolicyProtocolTCP
@@ -118,16 +94,8 @@ import (
 		egressNetworkPolicies: [{
 			action: wirguardv1alpha1.#EgressNetworkPolicyActionAccept
 			to: {
-				// Jellyfin
-				ip:   "192.168.135.4"
-				port: 443
-			}
-			protocol: wirguardv1alpha1.#EgressNetworkPolicyProtocolTCP
-		}, {
-			action: wirguardv1alpha1.#EgressNetworkPolicyActionAccept
-			to: {
-				// Jellyseerr
-				ip:   "192.168.135.5"
+				// Envoy Gateway LB
+				ip:   "192.168.135.27"
 				port: 443
 			}
 			protocol: wirguardv1alpha1.#EgressNetworkPolicyProtocolTCP
