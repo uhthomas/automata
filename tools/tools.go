@@ -19,6 +19,7 @@ import (
 	_ "github.com/external-secrets/external-secrets/apis/externalsecrets/v1beta1"
 	_ "github.com/grafana/grafana-operator/v5"
 	_ "github.com/jodevsa/wireguard-operator/pkg/api/v1alpha1"
+	_ "github.com/kubernetes-csi/external-snapshotter/client/v8/apis/volumesnapshot/v1"
 	_ "github.com/prometheus/prometheus/model/rulefmt"
 	_ "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	_ "k8s.io/api"

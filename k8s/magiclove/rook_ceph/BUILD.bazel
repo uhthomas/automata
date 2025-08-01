@@ -22,11 +22,13 @@ cue_library(
         "storage_class_list.cue",
         "vm_rule_list.cue",
         "vm_service_scrape_list.cue",
+        "volume_snapshot_class_list.cue",
     ],
     importpath = "github.com/uhthomas/automata/k8s/magiclove/rook_ceph",
     visibility = ["//visibility:public"],
     deps = [
         "//cue.mod/gen/github.com/VictoriaMetrics/operator/api/operator/v1beta1:cue_v1beta1_library",
+        "//cue.mod/gen/github.com/kubernetes-csi/external-snapshotter/client/v8/apis/volumesnapshot/v1:cue_v1_library",
         "//cue.mod/gen/github.com/rook/rook/pkg/apis/ceph.rook.io/v1:cue_v1_library",
         "//cue.mod/gen/k8s.io/api/admissionregistration/v1:cue_v1_library",
         "//cue.mod/gen/k8s.io/api/apps/v1:cue_v1_library",

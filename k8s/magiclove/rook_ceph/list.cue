@@ -48,4 +48,5 @@ _items: [
 	#StorageClassList.items,
 	#VMRuleList.items,
 	#VMServiceScrapeList.items,
+	#VolumeSnapshotClassList.items,
 ]
