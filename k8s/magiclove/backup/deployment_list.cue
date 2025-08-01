@@ -23,7 +23,19 @@ import (
 			metadata: labels: "app.kubernetes.io/name": "smb"
 			spec: {
 				volumes: [{
-					name: "var-log"
+					name: "smb-var-cache"
+					emptyDir: {}
+				}, {
+					name: "smb-var-lib"
+					emptyDir: {}
+				}, {
+					name: "smb-var-lib-private"
+					emptyDir: {}
+				}, {
+					name: "smb-var-log"
+					emptyDir: {}
+				}, {
+					name: "smb-var-run"
 					emptyDir: {}
 				}, {
 					name: "data-breakfast"
@@ -70,7 +82,7 @@ import (
 				}]
 				containers: [{
 					name:  "samba"
-					image: "ghcr.io/uhthomas/uhthomas/samba:37219169ba8a7248017fecf8fe191933b47d2672"
+					image: "ghcr.io/uhthomas/uhthomas/samba:6f48fe9eef20bc6966f2694e89d351c4727bfcd1"
 					ports: [{
 						name:          "smb"
 						containerPort: 445
@@ -80,8 +92,20 @@ import (
 					// 	(v1.#ResourceMemory): "1Gi"
 					// }
 					volumeMounts: [{
-						name:      "var-log"
+						name:      "smb-var-cache"
+						mountPath: "/var/cache/samba"
+					}, {
+						name:      "smb-var-lib"
+						mountPath: "/var/lib/samba"
+					}, {
+						name:      "smb-var-lib-private"
+						mountPath: "/var/lib/samba/private"
+					}, {
+						name:      "smb-var-log"
 						mountPath: "/var/log/samba"
+					}, {
+						name:      "smb-var-run"
+						mountPath: "/var/run/samba"
 					}, {
 						name:      "data-breakfast"
 						mountPath: "/data/breakfast"
@@ -139,12 +163,12 @@ import (
 					imagePullPolicy: v1.#PullIfNotPresent
 				}]
 				securityContext: {
-					// runAsUser:  1000
-					// runAsGroup: 3000
-					// runAsNonRoot:        true
-					// fsGroup:             2000
+					runAsUser:           1000
+					runAsGroup:          3000
+					runAsNonRoot:        true
+					fsGroup:             2000
 					fsGroupChangePolicy: v1.#FSGroupChangeOnRootMismatch
-					// 	seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
+					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 				}
 			}
 		}
