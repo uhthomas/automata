@@ -5,7 +5,7 @@ jobs:
     name: Base
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           ref: ${{ github.event.pull_request.base.sha }}
       - uses: bazelbuild/setup-bazelisk@v2
@@ -31,7 +31,7 @@ jobs:
     name: Head
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: bazelbuild/setup-bazelisk@v2
       - name: Mount bazel cache
         uses: actions/cache@v3
