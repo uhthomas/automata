@@ -80,7 +80,7 @@ import (
 					}
 				}, {
 					name:  "connect-sync"
-					image: "1password/connect-sync:1.7.2@sha256:fe527ed9d81f193d8dfbba4140d61f9e8c8dceb0966b3009259087504e5ff79c"
+					image: "1password/connect-sync:1.7.4@sha256:27e7ec47e1ad8eaa2f54764fa0736954a5119d0155dea3c923c481c89c5f964c"
 					env: [{
 						name:  "OP_HTTP_PORT"
 						value: "8081"
