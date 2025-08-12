@@ -37,7 +37,7 @@ import (
 				}]
 				containers: [{
 					name:  "manager"
-					image: "ghcr.io/cloudnative-pg/cloudnative-pg:1.25.1"
+					image: "ghcr.io/cloudnative-pg/cloudnative-pg:1.27.0"
 					command: ["/manager"]
 					args: [
 						"controller",
