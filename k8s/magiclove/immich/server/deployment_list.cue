@@ -100,7 +100,7 @@ import (
 					}
 				}, {
 					name:  "samba"
-					image: "ghcr.io/uhthomas/uhthomas/samba:6f48fe9eef20bc6966f2694e89d351c4727bfcd1"
+					image: "ghcr.io/uhthomas/uhthomas/samba:bd3b035dfed35f2749892201f002331525c0af67"
 					ports: [{
 						name:          "smb"
 						containerPort: 445
