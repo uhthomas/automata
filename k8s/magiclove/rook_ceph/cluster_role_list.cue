@@ -34,6 +34,10 @@ import (
 		resources: ["secrets"]
 		verbs: ["get", "list"]
 	}, {
+		apiGroups: [storagev1.#GroupName]
+		resources: ["csinodes"]
+		verbs: ["get", "list", "watch"]
+	}, {
 		apiGroups: [v1.#GroupName]
 		resources: ["persistentvolumes"]
 		verbs: ["get", "list", "watch", "update", "create", "delete", "patch"]
@@ -64,7 +68,7 @@ import (
 	}, {
 		apiGroups: ["snapshot.storage.k8s.io"]
 		resources: ["volumesnapshots"]
-		verbs: ["get", "list", "watch", "update", "patch", "create"]
+		verbs: ["get", "list", "watch"]
 	}, {
 		apiGroups: ["snapshot.storage.k8s.io"]
 		resources: ["volumesnapshotclasses"]
@@ -72,7 +76,7 @@ import (
 	}, {
 		apiGroups: ["snapshot.storage.k8s.io"]
 		resources: ["volumesnapshotcontents"]
-		verbs: ["get", "list", "watch", "patch", "update", "create"]
+		verbs: ["get", "list", "watch", "patch", "update"]
 	}, {
 		apiGroups: ["snapshot.storage.k8s.io"]
 		resources: ["volumesnapshotcontents/status"]
@@ -173,7 +177,7 @@ import (
 	}, {
 		apiGroups: ["snapshot.storage.k8s.io"]
 		resources: ["volumesnapshots"]
-		verbs: ["get", "list", "watch", "update", "patch", "create"]
+		verbs: ["get", "list", "watch"]
 	}, {
 		apiGroups: ["snapshot.storage.k8s.io"]
 		resources: ["volumesnapshotclasses"]
@@ -181,7 +185,7 @@ import (
 	}, {
 		apiGroups: ["snapshot.storage.k8s.io"]
 		resources: ["volumesnapshotcontents"]
-		verbs: ["get", "list", "watch", "patch", "update", "create"]
+		verbs: ["get", "list", "watch", "patch", "update"]
 	}, {
 		apiGroups: ["snapshot.storage.k8s.io"]
 		resources: ["volumesnapshotcontents/status"]
@@ -214,13 +218,8 @@ import (
 		apiGroups: [v1.#GroupName]
 		resources: ["nodes"]
 		verbs: ["get", "list", "watch"]
-	}, {
-		apiGroups: [storagev1.#GroupName]
-		resources: ["csinodes"]
-		verbs: ["get", "list", "watch"]
 	}]
 }, {
-	// The cluster role for managing all the cluster-specific resources in a namespace
 	metadata: {
 		name: "rook-ceph-cluster-mgmt"
 		labels: {
@@ -452,6 +451,22 @@ import (
 		apiGroups: ["apiextensions.k8s.io"]
 		resources: ["customresourcedefinitions"]
 		verbs: ["get"]
+	}, {
+		apiGroups: ["csi.ceph.io"]
+		resources: ["cephconnections"]
+		verbs: ["create", "delete", "get", "list", "update", "watch"]
+	}, {
+		apiGroups: ["csi.ceph.io"]
+		resources: ["clientprofiles"]
+		verbs: ["create", "delete", "get", "list", "update", "watch"]
+	}, {
+		apiGroups: ["csi.ceph.io"]
+		resources: ["operatorconfigs"]
+		verbs: ["create", "delete", "get", "list", "update", "watch"]
+	}, {
+		apiGroups: ["csi.ceph.io"]
+		resources: ["drivers"]
+		verbs: ["create", "delete", "get", "list", "update", "watch"]
 	}]
 }, {
 	metadata: {

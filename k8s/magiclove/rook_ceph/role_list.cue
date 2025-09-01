@@ -23,13 +23,41 @@ import (
 		apiGroups: [coordinationv1.#GroupName]
 		resources: ["leases"]
 		verbs: ["get", "watch", "list", "delete", "update", "create"]
+	}, {
+		apiGroups: ["csiaddons.openshift.io"]
+		resources: ["csiaddonsnodes"]
+		verbs: ["get", "create", "update", "delete"]
+	}, {
+		apiGroups: [""]
+		resources: ["pods"]
+		verbs: ["get"]
+	}, {
+		apiGroups: ["apps"]
+		resources: ["replicasets"]
+		verbs: ["get"]
+	}, {
+		apiGroups: ["apps"]
+		resources: ["deployments/finalizers", "daemonsets/finalizers"]
+		verbs: ["update"]
 	}]
 }, {
 	metadata: name: "rbd-csi-nodeplugin"
 	rules: [{
 		apiGroups: ["csiaddons.openshift.io"]
 		resources: ["csiaddonsnodes"]
-		verbs: ["create"]
+		verbs: ["get", "create", "update", "delete"]
+	}, {
+		apiGroups: [""]
+		resources: ["pods"]
+		verbs: ["get"]
+	}, {
+		apiGroups: ["apps"]
+		resources: ["replicasets"]
+		verbs: ["get"]
+	}, {
+		apiGroups: ["apps"]
+		resources: ["deployments/finalizers", "daemonsets/finalizers"]
+		verbs: ["update"]
 	}]
 }, {
 	metadata: name: "rbd-external-provisioner-cfg"
@@ -40,7 +68,19 @@ import (
 	}, {
 		apiGroups: ["csiaddons.openshift.io"]
 		resources: ["csiaddonsnodes"]
-		verbs: ["get", "watch", "list", "delete", "update", "create"]
+		verbs: ["get", "create", "update", "delete"]
+	}, {
+		apiGroups: [""]
+		resources: ["pods"]
+		verbs: ["get"]
+	}, {
+		apiGroups: ["apps"]
+		resources: ["replicasets"]
+		verbs: ["get"]
+	}, {
+		apiGroups: ["apps"]
+		resources: ["deployments/finalizers", "daemonsets/finalizers"]
+		verbs: ["update"]
 	}]
 }, {
 	metadata: name: "rook-ceph-cmd-reporter"

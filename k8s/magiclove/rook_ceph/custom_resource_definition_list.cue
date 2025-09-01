@@ -75,6 +75,48 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									rule:    "self == oldSelf"
 								}]
 							}
+							mirroring: {
+								description: "Mirroring configuration of CephBlockPoolRadosNamespace"
+								properties: {
+									mode: {
+										description: "Mode is the mirroring mode; either pool or image"
+										enum: [
+											"",
+											"pool",
+											"image",
+										]
+										type: "string"
+									}
+									remoteNamespace: {
+										description: "RemoteNamespace is the name of the CephBlockPoolRadosNamespace on the secondary cluster CephBlockPool"
+										type:        "string"
+									}
+									snapshotSchedules: {
+										description: "SnapshotSchedules is the scheduling of snapshot for mirrored images"
+										items: {
+											description: "SnapshotScheduleSpec represents the snapshot scheduling settings of a mirrored pool"
+											properties: {
+												interval: {
+													description: "Interval represent the periodicity of the snapshot."
+													type:        "string"
+												}
+												path: {
+													description: "Path is the path to snapshot, only valid for CephFS"
+													type:        "string"
+												}
+												startTime: {
+													description: "StartTime indicates when to start the snapshot"
+													type:        "string"
+												}
+											}
+											type: "object"
+										}
+										type: "array"
+									}
+								}
+								required: ["mode"]
+								type: "object"
+							}
 							name: {
 								description: "The name of the CephBlockPoolRadosNamespaceSpec namespace. If not set, the default is the name of the CR."
 								type:        "string"
@@ -95,9 +137,186 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								nullable: true
 								type:     "object"
 							}
+							mirroringInfo: {
+								description: "MirroringInfoSpec is the status of the pool/radosnamespace mirroring"
+								properties: {
+									details: type:     "string"
+									lastChanged: type: "string"
+									lastChecked: type: "string"
+									mode: {
+										description: "Mode is the mirroring mode"
+										type:        "string"
+									}
+									peers: {
+										description: "Peers are the list of peer sites connected to that cluster"
+										items: {
+											description: "PeersSpec contains peer details"
+											properties: {
+												client_name: {
+													description: "ClientName is the CephX user used to connect to the peer"
+													type:        "string"
+												}
+												direction: {
+													description: "Direction is the peer mirroring direction"
+													type:        "string"
+												}
+												mirror_uuid: {
+													description: "MirrorUUID is the mirror UUID"
+													type:        "string"
+												}
+												site_name: {
+													description: "SiteName is the current site name"
+													type:        "string"
+												}
+												uuid: {
+													description: "UUID is the peer UUID"
+													type:        "string"
+												}
+											}
+											type: "object"
+										}
+										type: "array"
+									}
+									site_name: {
+										description: "SiteName is the current site name"
+										type:        "string"
+									}
+								}
+								type: "object"
+							}
+							mirroringStatus: {
+								description: "MirroringStatusSpec is the status of the pool/radosNamespace mirroring"
+								properties: {
+									details: {
+										description: "Details contains potential status errors"
+										type:        "string"
+									}
+									lastChanged: {
+										description: "LastChanged is the last time time the status last changed"
+										type:        "string"
+									}
+									lastChecked: {
+										description: "LastChecked is the last time time the status was checked"
+										type:        "string"
+									}
+									summary: {
+										description: "Summary is the mirroring status summary"
+										properties: {
+											daemon_health: {
+												description: "DaemonHealth is the health of the mirroring daemon"
+												type:        "string"
+											}
+											health: {
+												description: "Health is the mirroring health"
+												type:        "string"
+											}
+											image_health: {
+												description: "ImageHealth is the health of the mirrored image"
+												type:        "string"
+											}
+											states: {
+												description: "States is the various state for all mirrored images"
+												nullable:    true
+												properties: {
+													error: {
+														description: "Error is when the mirroring state is errored"
+														type:        "integer"
+													}
+													replaying: {
+														description: "Replaying is when the replay of the mirroring journal is on-going"
+														type:        "integer"
+													}
+													starting_replay: {
+														description: "StartingReplay is when the replay of the mirroring journal starts"
+														type:        "integer"
+													}
+													stopped: {
+														description: "Stopped is when the mirroring state is stopped"
+														type:        "integer"
+													}
+													stopping_replay: {
+														description: "StopReplaying is when the replay of the mirroring journal stops"
+														type:        "integer"
+													}
+													syncing: {
+														description: "Syncing is when the image is syncing"
+														type:        "integer"
+													}
+													unknown: {
+														description: "Unknown is when the mirroring state is unknown"
+														type:        "integer"
+													}
+												}
+												type: "object"
+											}
+										}
+										type: "object"
+									}
+								}
+								type: "object"
+							}
 							phase: {
 								description: "ConditionType represent a resource's status"
 								type:        "string"
+							}
+							snapshotScheduleStatus: {
+								description: "SnapshotScheduleStatusSpec is the status of the snapshot schedule"
+								properties: {
+									details: {
+										description: "Details contains potential status errors"
+										type:        "string"
+									}
+									lastChanged: {
+										description: "LastChanged is the last time time the status last changed"
+										type:        "string"
+									}
+									lastChecked: {
+										description: "LastChecked is the last time time the status was checked"
+										type:        "string"
+									}
+									snapshotSchedules: {
+										description: "SnapshotSchedules is the list of snapshots scheduled"
+										items: {
+											description: "SnapshotSchedulesSpec is the list of snapshot scheduled for images in a pool"
+											properties: {
+												image: {
+													description: "Image is the mirrored image"
+													type:        "string"
+												}
+												items: {
+													description: "Items is the list schedules times for a given snapshot"
+													items: {
+														description: "SnapshotSchedule is a schedule"
+														properties: {
+															interval: {
+																description: "Interval is the interval in which snapshots will be taken"
+																type:        "string"
+															}
+															start_time: {
+																description: "StartTime is the snapshot starting time"
+																type:        "string"
+															}
+														}
+														type: "object"
+													}
+													type: "array"
+												}
+												namespace: {
+													description: "Namespace is the RADOS namespace the image is part of"
+													type:        "string"
+												}
+												pool: {
+													description: "Pool is the pool name"
+													type:        "string"
+												}
+											}
+											type: "object"
+										}
+										nullable: true
+										type:     "array"
+									}
+								}
+								type: "object"
 							}
 						}
 						type:                                   "object"
@@ -457,7 +676,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type:     "object"
 							}
 							mirroringInfo: {
-								description: "MirroringInfoSpec is the status of the pool mirroring"
+								description: "MirroringInfoSpec is the status of the pool/radosnamespace mirroring"
 								properties: {
 									details: type:     "string"
 									lastChanged: type: "string"
@@ -504,7 +723,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type: "object"
 							}
 							mirroringStatus: {
-								description: "MirroringStatusSpec is the status of the pool mirroring"
+								description: "MirroringStatusSpec is the status of the pool/radosNamespace mirroring"
 								properties: {
 									details: {
 										description: "Details contains potential status errors"
@@ -582,6 +801,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							phase: {
 								description: "ConditionType represent a resource's status"
 								type:        "string"
+							}
+							poolID: {
+								description: "optional"
+								type:        "integer"
 							}
 							snapshotScheduleStatus: {
 								description: "SnapshotScheduleStatusSpec is the status of the snapshot schedule"
@@ -1441,14 +1664,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type:   "integer"
 									}
 									pgHealthCheckTimeout: {
-										description: """
-	PGHealthCheckTimeout is the time (in minutes) that the operator will wait for the placement groups to become
-	healthy (active+clean) after a drain was completed and OSDs came back up. Rook will continue with the next drain
-	if the timeout exceeds. It only works if managePodBudgets is true.
-	No values or 0 means that the operator will wait until the placement groups are healthy before unblocking the next drain.
-	"""
-										format: "int64"
-										type:   "integer"
+										description: "DEPRECATED: PGHealthCheckTimeout is no longer implemented"
+										format:      "int64"
+										type:        "integer"
 									}
 									pgHealthyRegex: {
 										description: """
@@ -1538,7 +1756,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 	"""
 													properties: {
 														exec: {
-															description: "Exec specifies the action to take."
+															description: "Exec specifies a command to execute in the container."
 															properties: command: {
 																description: """
 	Command is the command line to execute inside the container, the working directory for the
@@ -1562,7 +1780,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:   "integer"
 														}
 														grpc: {
-															description: "GRPC specifies an action involving a GRPC port."
+															description: "GRPC specifies a GRPC HealthCheckRequest."
 															properties: {
 																port: {
 																	description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
@@ -1584,7 +1802,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type: "object"
 														}
 														httpGet: {
-															description: "HTTPGet specifies the http request to perform."
+															description: "HTTPGet specifies an HTTP GET request to perform."
 															properties: {
 																host: {
 																	description: """
@@ -1672,7 +1890,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:   "integer"
 														}
 														tcpSocket: {
-															description: "TCPSocket specifies an action involving a TCP port."
+															description: "TCPSocket specifies a connection to a TCP port."
 															properties: {
 																host: {
 																	description: "Optional: Host name to connect to, defaults to the pod IP."
@@ -1732,7 +1950,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 	"""
 													properties: {
 														exec: {
-															description: "Exec specifies the action to take."
+															description: "Exec specifies a command to execute in the container."
 															properties: command: {
 																description: """
 	Command is the command line to execute inside the container, the working directory for the
@@ -1756,7 +1974,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:   "integer"
 														}
 														grpc: {
-															description: "GRPC specifies an action involving a GRPC port."
+															description: "GRPC specifies a GRPC HealthCheckRequest."
 															properties: {
 																port: {
 																	description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
@@ -1778,7 +1996,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type: "object"
 														}
 														httpGet: {
-															description: "HTTPGet specifies the http request to perform."
+															description: "HTTPGet specifies an HTTP GET request to perform."
 															properties: {
 																host: {
 																	description: """
@@ -1866,7 +2084,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:   "integer"
 														}
 														tcpSocket: {
-															description: "TCPSocket specifies an action involving a TCP port."
+															description: "TCPSocket specifies a connection to a TCP port."
 															properties: {
 																host: {
 																	description: "Optional: Host name to connect to, defaults to the pod IP."
@@ -2929,6 +3147,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									exporter: {
 										description: "Ceph exporter configuration"
 										properties: {
+											hostNetwork: {
+												description: "Whether host networking is enabled for CephExporter. If not set, the network settings from CephCluster.spec.networking will be applied."
+												nullable:    true
+												type:        "boolean"
+											}
 											perfCountersPrioLimit: {
 												default:     5
 												description: "Only performance counters greater than or equal to this option are fetched"
@@ -3213,7 +3436,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 	other network providers.
 
 	Valid keys are "public" and "cluster". Refer to Ceph networking documentation for more:
-	https://docs.ceph.com/en/reef/rados/configuration/network-config-ref/
+	https://docs.ceph.com/en/latest/rados/configuration/network-config-ref/
 
 	Refer to Multus network annotation documentation for help selecting values:
 	https://github.com/k8snetworkplumbingwg/multus-cni/blob/master/docs/how-to-use.md#run-pod-with-network-annotation
@@ -4047,6 +4270,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										minimum:     0
 										nullable:    true
 										type:        "number"
+									}
+									migration: {
+										description: "Migration handles the OSD migration"
+										properties: confirmation: {
+											description: """
+	A user confirmation to migrate the OSDs. It destroys each OSD one at a time, cleans up the backing disk
+	and prepares OSD with same ID on that disk
+	"""
+											pattern: "^$|^yes-really-migrate-osds$"
+											type:    "string"
+										}
+										type: "object"
 									}
 									nearFullRatio: {
 										description: "NearFullRatio is the ratio at which the cluster is considered nearly full and will raise a ceph health warning. Default is 0.85."
@@ -6545,10 +6780,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									osd: {
 										description: "OSDStatus represents OSD status of the ceph Cluster"
-										properties: storeType: {
-											additionalProperties: type: "integer"
-											description: "StoreType is a mapping between the OSD backend stores and number of OSDs using these stores"
-											type:        "object"
+										properties: {
+											migrationStatus: {
+												description: "MigrationStatus status represents the current status of any OSD migration."
+												properties: pending: type: "integer"
+												type: "object"
+											}
+											storeType: {
+												additionalProperties: type: "integer"
+												description: "StoreType is a mapping between the OSD backend stores and number of OSDs using these stores"
+												type:        "object"
+											}
 										}
 										type: "object"
 									}
@@ -8654,7 +8896,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 	"""
 												properties: {
 													exec: {
-														description: "Exec specifies the action to take."
+														description: "Exec specifies a command to execute in the container."
 														properties: command: {
 															description: """
 	Command is the command line to execute inside the container, the working directory for the
@@ -8678,7 +8920,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:   "integer"
 													}
 													grpc: {
-														description: "GRPC specifies an action involving a GRPC port."
+														description: "GRPC specifies a GRPC HealthCheckRequest."
 														properties: {
 															port: {
 																description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
@@ -8700,7 +8942,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type: "object"
 													}
 													httpGet: {
-														description: "HTTPGet specifies the http request to perform."
+														description: "HTTPGet specifies an HTTP GET request to perform."
 														properties: {
 															host: {
 																description: """
@@ -8788,7 +9030,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:   "integer"
 													}
 													tcpSocket: {
-														description: "TCPSocket specifies an action involving a TCP port."
+														description: "TCPSocket specifies a connection to a TCP port."
 														properties: {
 															host: {
 																description: "Optional: Host name to connect to, defaults to the pod IP."
@@ -9513,7 +9755,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 	"""
 												properties: {
 													exec: {
-														description: "Exec specifies the action to take."
+														description: "Exec specifies a command to execute in the container."
 														properties: command: {
 															description: """
 	Command is the command line to execute inside the container, the working directory for the
@@ -9537,7 +9779,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:   "integer"
 													}
 													grpc: {
-														description: "GRPC specifies an action involving a GRPC port."
+														description: "GRPC specifies a GRPC HealthCheckRequest."
 														properties: {
 															port: {
 																description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
@@ -9559,7 +9801,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type: "object"
 													}
 													httpGet: {
-														description: "HTTPGet specifies the http request to perform."
+														description: "HTTPGet specifies an HTTP GET request to perform."
 														properties: {
 															host: {
 																description: """
@@ -9647,7 +9889,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:   "integer"
 													}
 													tcpSocket: {
-														description: "TCPSocket specifies an action involving a TCP port."
+														description: "TCPSocket specifies a connection to a TCP port."
 														properties: {
 															host: {
 																description: "Optional: Host name to connect to, defaults to the pod IP."
@@ -11614,7 +11856,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 	"""
 												properties: {
 													exec: {
-														description: "Exec specifies the action to take."
+														description: "Exec specifies a command to execute in the container."
 														properties: command: {
 															description: """
 	Command is the command line to execute inside the container, the working directory for the
@@ -11638,7 +11880,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:   "integer"
 													}
 													grpc: {
-														description: "GRPC specifies an action involving a GRPC port."
+														description: "GRPC specifies a GRPC HealthCheckRequest."
 														properties: {
 															port: {
 																description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
@@ -11660,7 +11902,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type: "object"
 													}
 													httpGet: {
-														description: "HTTPGet specifies the http request to perform."
+														description: "HTTPGet specifies an HTTP GET request to perform."
 														properties: {
 															host: {
 																description: """
@@ -11748,7 +11990,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:   "integer"
 													}
 													tcpSocket: {
-														description: "TCPSocket specifies an action involving a TCP port."
+														description: "TCPSocket specifies a connection to a TCP port."
 														properties: {
 															host: {
 																description: "Optional: Host name to connect to, defaults to the pod IP."
@@ -13344,6 +13586,88 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type:                                   "object"
 										"x-kubernetes-preserve-unknown-fields": true
 									}
+									opsLogSidecar: {
+										description: "Enable enhanced operation Logs for S3 in a sidecar named ops-log"
+										nullable:    true
+										properties: resources: {
+											description: "Resources represents the way to specify resource requirements for the ops-log sidecar"
+											properties: {
+												claims: {
+													description: """
+	Claims lists the names of resources, defined in spec.resourceClaims,
+	that are used by this container.
+
+	This is an alpha field and requires enabling the
+	DynamicResourceAllocation feature gate.
+
+	This field is immutable. It can only be set for containers.
+	"""
+													items: {
+														description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
+														properties: {
+															name: {
+																description: """
+	Name must match the name of one entry in pod.spec.resourceClaims of
+	the Pod where this field is used. It makes that resource available
+	inside a container.
+	"""
+																type: "string"
+															}
+															request: {
+																description: """
+	Request is the name chosen for a request in the referenced claim.
+	If empty, everything from the claim is made available, otherwise
+	only the result of this request.
+	"""
+																type: "string"
+															}
+														}
+														required: ["name"]
+														type: "object"
+													}
+													type: "array"
+													"x-kubernetes-list-map-keys": ["name"]
+													"x-kubernetes-list-type": "map"
+												}
+												limits: {
+													additionalProperties: {
+														anyOf: [{
+															type: "integer"
+														}, {
+															type: "string"
+														}]
+														pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+														"x-kubernetes-int-or-string": true
+													}
+													description: """
+	Limits describes the maximum amount of compute resources allowed.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+													type: "object"
+												}
+												requests: {
+													additionalProperties: {
+														anyOf: [{
+															type: "integer"
+														}, {
+															type: "string"
+														}]
+														pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+														"x-kubernetes-int-or-string": true
+													}
+													description: """
+	Requests describes the minimum amount of compute resources required.
+	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+	otherwise to an implementation-defined value. Requests cannot exceed Limits.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+													type: "object"
+												}
+											}
+											type: "object"
+										}
+										type: "object"
+									}
 									placement: {
 										nullable: true
 										properties: {
@@ -14018,6 +14342,65 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type:                                   "object"
 										"x-kubernetes-preserve-unknown-fields": true
 									}
+									rgwCommandFlags: {
+										additionalProperties: type: "string"
+										description: """
+	RgwCommandFlags sets Ceph RGW config values for the gateway clients that serve this object
+	store. Values are modified at RGW startup, resulting in RGW pod restarts.
+	This feature is intended for advanced users. It allows breaking configurations to be easily
+	applied. Use with caution.
+	"""
+										nullable: true
+										type:     "object"
+									}
+									rgwConfig: {
+										additionalProperties: type: "string"
+										description: """
+	RgwConfig sets Ceph RGW config values for the gateway clients that serve this object store.
+	Values are modified at runtime without RGW restart.
+	This feature is intended for advanced users. It allows breaking configurations to be easily
+	applied. Use with caution.
+	"""
+										nullable: true
+										type:     "object"
+									}
+									rgwConfigFromSecret: {
+										additionalProperties: {
+											description: "SecretKeySelector selects a key of a Secret."
+											properties: {
+												key: {
+													description: "The key of the secret to select from.  Must be a valid secret key."
+													type:        "string"
+												}
+												name: {
+													default: ""
+													description: """
+	Name of the referent.
+	This field is effectively required, but due to backwards compatibility is
+	allowed to be empty. Instances of this type with an empty value here are
+	almost certainly wrong.
+	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+	"""
+													type: "string"
+												}
+												optional: {
+													description: "Specify whether the Secret or its key must be defined"
+													type:        "boolean"
+												}
+											}
+											required: ["key"]
+											type:                    "object"
+											"x-kubernetes-map-type": "atomic"
+										}
+										description: """
+	RgwConfigFromSecret works exactly like RgwConfig but takes config value from Secret Key reference.
+	Values are modified at runtime without RGW restart.
+	This feature is intended for advanced users. It allows breaking configurations to be easily
+	applied. Use with caution.
+	"""
+										nullable: true
+										type:     "object"
+									}
 									securePort: {
 										description: "The port the rgw service will be listening on (https)"
 										format:      "int32"
@@ -14066,7 +14449,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 	"""
 												properties: {
 													exec: {
-														description: "Exec specifies the action to take."
+														description: "Exec specifies a command to execute in the container."
 														properties: command: {
 															description: """
 	Command is the command line to execute inside the container, the working directory for the
@@ -14090,7 +14473,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:   "integer"
 													}
 													grpc: {
-														description: "GRPC specifies an action involving a GRPC port."
+														description: "GRPC specifies a GRPC HealthCheckRequest."
 														properties: {
 															port: {
 																description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
@@ -14112,7 +14495,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type: "object"
 													}
 													httpGet: {
-														description: "HTTPGet specifies the http request to perform."
+														description: "HTTPGet specifies an HTTP GET request to perform."
 														properties: {
 															host: {
 																description: """
@@ -14200,7 +14583,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:   "integer"
 													}
 													tcpSocket: {
-														description: "TCPSocket specifies an action involving a TCP port."
+														description: "TCPSocket specifies a connection to a TCP port."
 														properties: {
 															host: {
 																description: "Optional: Host name to connect to, defaults to the pod IP."
@@ -14257,7 +14640,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 	"""
 												properties: {
 													exec: {
-														description: "Exec specifies the action to take."
+														description: "Exec specifies a command to execute in the container."
 														properties: command: {
 															description: """
 	Command is the command line to execute inside the container, the working directory for the
@@ -14281,7 +14664,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:   "integer"
 													}
 													grpc: {
-														description: "GRPC specifies an action involving a GRPC port."
+														description: "GRPC specifies a GRPC HealthCheckRequest."
 														properties: {
 															port: {
 																description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
@@ -14303,7 +14686,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type: "object"
 													}
 													httpGet: {
-														description: "HTTPGet specifies the http request to perform."
+														description: "HTTPGet specifies an HTTP GET request to perform."
 														properties: {
 															host: {
 																description: """
@@ -14391,7 +14774,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:   "integer"
 													}
 													tcpSocket: {
-														description: "TCPSocket specifies an action involving a TCP port."
+														description: "TCPSocket specifies a connection to a TCP port."
 														properties: {
 															host: {
 																description: "Optional: Host name to connect to, defaults to the pod IP."
@@ -14494,7 +14877,6 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 	If the DNS name corresponds to an endpoint with DNS wildcard support, do not include the
 	wildcard itself in the list of hostnames.
 	E.g., use "mystore.example.com" instead of "*.mystore.example.com".
-	The feature is supported only for Ceph v18 and later versions.
 	"""
 										items: type: "string"
 										type: "array"
@@ -14735,6 +15117,29 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							protocols: {
 								description: "The protocol specification"
 								properties: {
+									enableAPIs: {
+										description: """
+	Represents RGW 'rgw_enable_apis' config option. See: https://docs.ceph.com/en/reef/radosgw/config-ref/#confval-rgw_enable_apis
+	If no value provided then all APIs will be enabled: s3, s3website, swift, swift_auth, admin, sts, iam, notifications
+	If enabled APIs are set, all remaining APIs will be disabled.
+	This option overrides S3.Enabled value.
+	"""
+										items: {
+											enum: [
+												"s3",
+												"s3website",
+												"swift",
+												"swift_auth",
+												"admin",
+												"sts",
+												"iam",
+												"notifications",
+											]
+											type: "string"
+										}
+										nullable: true
+										type:     "array"
+									}
 									s3: {
 										description: "The spec for S3"
 										nullable:    true
@@ -14745,9 +15150,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "boolean"
 											}
 											enabled: {
-												description: "Whether to enable S3. This defaults to true (even if protocols.s3 is not present in the CRD). This maintains backwards compatibility – by default S3 is enabled."
-												nullable:    true
-												type:        "boolean"
+												description: """
+	Deprecated: use protocol.enableAPIs instead.
+	Whether to enable S3. This defaults to true (even if protocols.s3 is not present in the CRD). This maintains backwards compatibility – by default S3 is enabled.
+	"""
+												nullable: true
+												type:     "boolean"
 											}
 										}
 										type: "object"
@@ -15097,7 +15505,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								nullable:    true
 								properties: {
 									"amz-cache": {
-										description: "Add capabilities for user to send request to RGW Cache API header. Documented in https://docs.ceph.com/en/quincy/radosgw/rgw-cache/#cache-api"
+										description: "Add capabilities for user to send request to RGW Cache API header. Documented in https://docs.ceph.com/en/latest/radosgw/rgw-cache/#cache-api"
 										enum: [
 											"*",
 											"read",
