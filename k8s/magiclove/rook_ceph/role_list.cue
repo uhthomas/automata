@@ -40,7 +40,7 @@ import (
 	}, {
 		apiGroups: ["csiaddons.openshift.io"]
 		resources: ["csiaddonsnodes"]
-		verbs: ["create"]
+		verbs: ["get", "watch", "list", "delete", "update", "create"]
 	}]
 }, {
 	metadata: name: "rook-ceph-cmd-reporter"
@@ -62,7 +62,7 @@ import (
 		verbs: ["get", "list", "watch", "create", "update", "delete"]
 	}, {
 		apiGroups: ["ceph.rook.io"]
-		resources: ["cephclients", "cephclusters", "cephblockpools", "cephfilesystems", "cephnfses", "cephobjectstores", "cephobjectstoreusers", "cephobjectrealms", "cephobjectzonegroups", "cephobjectzones", "cephbuckettopics", "cephbucketnotifications", "cephrbdmirrors", "cephfilesystemmirrors", "cephfilesystemsubvolumegroups", "cephblockpoolradosnamespaces"]
+		resources: ["cephclients", "cephclusters", "cephblockpools", "cephfilesystems", "cephnfses", "cephobjectstores", "cephobjectstoreusers", "cephobjectrealms", "cephobjectzonegroups", "cephobjectzones", "cephbuckettopics", "cephbucketnotifications", "cephrbdmirrors", "cephfilesystemmirrors", "cephfilesystemsubvolumegroups", "cephblockpoolradosnamespaces", "cephcosidrivers"]
 		verbs: ["get", "list", "watch", "create", "update", "delete", "patch"]
 	}, {
 		apiGroups: [appsv1.#GroupName]
@@ -80,7 +80,7 @@ import (
 		// validating the connection details
 		apiGroups: [v1.#GroupName]
 		resources: ["secrets"]
-		verbs: ["get"]
+		verbs: ["get", "update"]
 	}, {
 		apiGroups: [v1.#GroupName]
 		resources: ["configmaps"]
@@ -136,6 +136,10 @@ import (
 		apiGroups: ["cert-manager.io"]
 		resources: ["certificates", "issuers"]
 		verbs: ["get", "create", "delete"]
+	}, {
+		apiGroups: ["multicluster.x-k8s.io"]
+		resources: ["serviceexports"]
+		verbs: ["get", "create"]
 	}]
 }, {
 	metadata: name: "rook-ceph-monitor"

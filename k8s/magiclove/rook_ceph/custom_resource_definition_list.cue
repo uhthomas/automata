@@ -23,32 +23,60 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 		}
 		scope: apiextensionsv1.#NamespaceScoped
 		versions: [{
+			additionalPrinterColumns: [{
+				jsonPath: ".status.phase"
+				name:     "Phase"
+				type:     "string"
+			}, {
+				description: "Name of the Ceph BlockPool"
+				jsonPath:    ".spec.blockPoolName"
+				name:        "BlockPool"
+				type:        "string"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
+			}]
 			name: "v1"
 			schema: openAPIV3Schema: {
 				description: "CephBlockPoolRadosNamespace represents a Ceph BlockPool Rados Namespace"
 				properties: {
 					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object."
-						type:        "string"
+						description: """
+	APIVersion defines the versioned schema of this representation of an object.
+	Servers should convert recognized schemas to the latest internal value, and
+	may reject unrecognized values.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+	"""
+						type: "string"
 					}
 					kind: {
-						description: "Kind is a string value representing the REST resource this object represents."
-						type:        "string"
+						description: """
+	Kind is a string value representing the REST resource this object represents.
+	Servers may infer this from the endpoint the client submits requests to.
+	Cannot be updated.
+	In CamelCase.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+	"""
+						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
 						description: "Spec represents the specification of a Ceph BlockPool Rados Namespace"
 						properties: {
 							blockPoolName: {
-								description: "BlockPoolName is the name of Ceph BlockPool. Typically it's the name of the CephBlockPool CR."
-								type:        "string"
+								description: """
+	BlockPoolName is the name of Ceph BlockPool. Typically it's the name of
+	the CephBlockPool CR.
+	"""
+								type: "string"
 								"x-kubernetes-validations": [{
 									message: "blockPoolName is immutable"
 									rule:    "self == oldSelf"
 								}]
 							}
 							name: {
-								description: "The name of the CephBlockPoolRadosNamespaceSpec namespace."
+								description: "The name of the CephBlockPoolRadosNamespaceSpec namespace. If not set, the default is the name of the CR."
 								type:        "string"
 								"x-kubernetes-validations": [{
 									message: "name is immutable"
@@ -103,25 +131,75 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				jsonPath: ".status.phase"
 				name:     "Phase"
 				type:     "string"
+			}, {
+				jsonPath: ".status.info.type"
+				name:     "Type"
+				type:     "string"
+			}, {
+				jsonPath: ".status.info.failureDomain"
+				name:     "FailureDomain"
+				type:     "string"
+			}, {
+				jsonPath: ".spec.replicated.size"
+				name:     "Replication"
+				priority: 1
+				type:     "integer"
+			}, {
+				jsonPath: ".spec.erasureCoded.codingChunks"
+				name:     "EC-CodingChunks"
+				priority: 1
+				type:     "integer"
+			}, {
+				jsonPath: ".spec.erasureCoded.dataChunks"
+				name:     "EC-DataChunks"
+				priority: 1
+				type:     "integer"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
 			}]
 			name: "v1"
 			schema: openAPIV3Schema: {
 				description: "CephBlockPool represents a Ceph Storage Pool"
 				properties: {
 					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object."
-						type:        "string"
+						description: """
+	APIVersion defines the versioned schema of this representation of an object.
+	Servers should convert recognized schemas to the latest internal value, and
+	may reject unrecognized values.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+	"""
+						type: "string"
 					}
 					kind: {
-						description: "Kind is a string value representing the REST resource this object represents."
-						type:        "string"
+						description: """
+	Kind is a string value representing the REST resource this object represents.
+	Servers may infer this from the endpoint the client submits requests to.
+	Cannot be updated.
+	In CamelCase.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+	"""
+						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
-						description: "NamedBlockPoolSpec allows a block pool to be created with a non-default name."
+						description: """
+	NamedBlockPoolSpec allows a block pool to be created with a non-default name.
+	This is more specific than the NamedPoolSpec so we get schema validation on the
+	allowed pool names that can be specified.
+	"""
 						properties: {
+							application: {
+								description: "The application name to set on the pool. Only expected to be set for rgw pools."
+								type:        "string"
+							}
 							compressionMode: {
-								description: "DEPRECATED: use Parameters instead, e.g."
+								description: """
+	DEPRECATED: use Parameters instead, e.g., Parameters["compression_mode"] = "force"
+	The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)
+	Do NOT set a default value for kubebuilder as this will override the Parameters
+	"""
 								enum: [
 									"none",
 									"passive",
@@ -142,6 +220,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								nullable:    true
 								type:        "string"
 							}
+							enableCrushUpdates: {
+								description: "Allow rook operator to change the pool CRUSH tunables once the pool is created"
+								type:        "boolean"
+							}
 							enableRBDStats: {
 								description: "EnableRBDStats is used to enable gathering of statistics for all RBD images in the pool"
 								type:        "boolean"
@@ -154,14 +236,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type:        "string"
 									}
 									codingChunks: {
-										description: "Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool"
-										minimum:     0
-										type:        "integer"
+										description: """
+	Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+	This is the number of OSDs that can be lost simultaneously before data cannot be recovered.
+	"""
+										minimum: 0
+										type:    "integer"
 									}
 									dataChunks: {
-										description: "Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool t"
-										minimum:     0
-										type:        "integer"
+										description: """
+	Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+	The number of chunks required to recover an object when any single OSD is lost is the same
+	as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery.
+	"""
+										minimum: 0
+										type:    "integer"
 									}
 								}
 								required: [
@@ -171,7 +260,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type: "object"
 							}
 							failureDomain: {
-								description: "The failure domain: osd/host/(region or zone if available) - technically also any type in the crush "
+								description: "The failure domain: osd/host/(region or zone if available) - technically also any type in the crush map"
 								type:        "string"
 							}
 							mirroring: {
@@ -223,7 +312,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							name: {
 								description: "The desired name of the pool if different from the CephBlockPool CR name."
 								enum: [
-									"device_health_metrics",
+									".rgw.root",
 									".nfs",
 									".mgr",
 								]
@@ -241,9 +330,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								nullable:    true
 								properties: {
 									maxBytes: {
-										description: "MaxBytes represents the quota in bytes Deprecated in favor of MaxSize"
-										format:      "int64"
-										type:        "integer"
+										description: """
+	MaxBytes represents the quota in bytes
+	Deprecated in favor of MaxSize
+	"""
+										format: "int64"
+										type:   "integer"
 									}
 									maxObjects: {
 										description: "MaxObjects represents the quota in objects"
@@ -292,7 +384,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type:        "boolean"
 									}
 									size: {
-										description: "Size - Number of copies per object in a replicated storage pool, including the object itself (requir"
+										description: "Size - Number of copies per object in a replicated storage pool, including the object itself (required for replicated pool type)"
 										minimum:     0
 										type:        "integer"
 									}
@@ -301,7 +393,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type:        "string"
 									}
 									targetSizeRatio: {
-										description: "TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capac"
+										description: "TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity"
 										type:        "number"
 									}
 								}
@@ -583,12 +675,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				description: "CephBucketNotification represents a Bucket Notifications"
 				properties: {
 					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object."
-						type:        "string"
+						description: """
+	APIVersion defines the versioned schema of this representation of an object.
+	Servers should convert recognized schemas to the latest internal value, and
+	may reject unrecognized values.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+	"""
+						type: "string"
 					}
 					kind: {
-						description: "Kind is a string value representing the REST resource this object represents."
-						type:        "string"
+						description: """
+	Kind is a string value representing the REST resource this object represents.
+	Servers may infer this from the endpoint the client submits requests to.
+	Cannot be updated.
+	In CamelCase.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+	"""
+						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
@@ -768,18 +871,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				jsonPath: ".status.phase"
 				name:     "Phase"
 				type:     "string"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
 			}]
 			name: "v1"
 			schema: openAPIV3Schema: {
 				description: "CephBucketTopic represents a Ceph Object Topic for Bucket Notifications"
 				properties: {
 					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object."
-						type:        "string"
+						description: """
+	APIVersion defines the versioned schema of this representation of an object.
+	Servers should convert recognized schemas to the latest internal value, and
+	may reject unrecognized values.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+	"""
+						type: "string"
 					}
 					kind: {
-						description: "Kind is a string value representing the REST resource this object represents."
-						type:        "string"
+						description: """
+	Kind is a string value representing the REST resource this object represents.
+	Servers may infer this from the endpoint the client submits requests to.
+	Cannot be updated.
+	In CamelCase.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+	"""
+						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
@@ -830,7 +948,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "boolean"
 											}
 											sendCloudEvents: {
-												description: "Send the notifications with the CloudEvents header: https://github."
+												description: "Send the notifications with the CloudEvents header: https://github.com/cloudevents/spec/blob/main/cloudevents/adapters/aws-s3.md"
 												type:        "boolean"
 											}
 											uri: {
@@ -946,18 +1064,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				jsonPath: ".status.phase"
 				name:     "Phase"
 				type:     "string"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
 			}]
 			name: "v1"
 			schema: openAPIV3Schema: {
 				description: "CephClient represents a Ceph Client"
 				properties: {
 					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object."
-						type:        "string"
+						description: """
+	APIVersion defines the versioned schema of this representation of an object.
+	Servers should convert recognized schemas to the latest internal value, and
+	may reject unrecognized values.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+	"""
+						type: "string"
 					}
 					kind: {
-						description: "Kind is a string value representing the REST resource this object represents."
-						type:        "string"
+						description: """
+	Kind is a string value representing the REST resource this object represents.
+	Servers may infer this from the endpoint the client submits requests to.
+	Cannot be updated.
+	In CamelCase.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+	"""
+						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
@@ -1061,12 +1194,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				description: "CephCluster is a Ceph storage cluster"
 				properties: {
 					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object."
-						type:        "string"
+						description: """
+	APIVersion defines the versioned schema of this representation of an object.
+	Servers should convert recognized schemas to the latest internal value, and
+	may reject unrecognized values.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+	"""
+						type: "string"
 					}
 					kind: {
-						description: "Kind is a string value representing the REST resource this object represents."
-						type:        "string"
+						description: """
+	Kind is a string value representing the REST resource this object represents.
+	Servers may infer this from the endpoint the client submits requests to.
+	Cannot be updated.
+	In CamelCase.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+	"""
+						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
@@ -1101,11 +1245,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type:        "boolean"
 									}
 									image: {
-										description: "Image is the container image used to launch the ceph daemons, such as quay."
-										type:        "string"
+										description: """
+	Image is the container image used to launch the ceph daemons, such as quay.io/ceph/ceph:<tag>
+	The full list of images can be found at https://quay.io/repository/ceph/ceph?tab=tags
+	"""
+										type: "string"
 									}
 									imagePullPolicy: {
-										description: "ImagePullPolicy describes a policy for if/when to pull a container image One of Always, Never, IfNot"
+										description: """
+	ImagePullPolicy describes a policy for if/when to pull a container image
+	One of Always, Never, IfNotPresent.
+	"""
 										enum: [
 											"IfNotPresent",
 											"Always",
@@ -1118,11 +1268,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type: "object"
 							}
 							cleanupPolicy: {
-								description: "Indicates user intent when deleting a cluster; blocks orchestration and should not be set if cluster"
-								nullable:    true
+								description: """
+	Indicates user intent when deleting a cluster; blocks orchestration and should not be set if cluster
+	deletion is not imminent.
+	"""
+								nullable: true
 								properties: {
 									allowUninstallWithVolumes: {
-										description: "AllowUninstallWithVolumes defines whether we can proceed with the uninstall if they are RBD images s"
+										description: "AllowUninstallWithVolumes defines whether we can proceed with the uninstall if they are RBD images still present"
 										type:        "boolean"
 									}
 									confirmation: {
@@ -1163,7 +1316,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type: "object"
 							}
 							continueUpgradeAfterChecksEvenIfNotHealthy: {
-								description: "ContinueUpgradeAfterChecksEvenIfNotHealthy defines if an upgrade should continue even if PGs are not"
+								description: "ContinueUpgradeAfterChecksEvenIfNotHealthy defines if an upgrade should continue even if PGs are not clean"
 								type:        "boolean"
 							}
 							crashCollector: {
@@ -1202,7 +1355,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										description: "ReadAffinity defines the read affinity settings for CSI driver."
 										properties: {
 											crushLocationLabels: {
-												description: "CrushLocationLabels defines which node labels to use as CRUSH location."
+												description: """
+	CrushLocationLabels defines which node labels to use
+	as CRUSH location. This should correspond to the values set in
+	the CRUSH map.
+	"""
 												items: type: "string"
 												type: "array"
 											}
@@ -1275,25 +1432,40 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type:        "boolean"
 									}
 									osdMaintenanceTimeout: {
-										description: "OSDMaintenanceTimeout sets how many additional minutes the DOWN/OUT interval is for drained failure "
-										format:      "int64"
-										type:        "integer"
+										description: """
+	OSDMaintenanceTimeout sets how many additional minutes the DOWN/OUT interval is for drained failure domains
+	it only works if managePodBudgets is true.
+	the default is 30 minutes
+	"""
+										format: "int64"
+										type:   "integer"
 									}
 									pgHealthCheckTimeout: {
-										description: "PGHealthCheckTimeout is the time (in minutes) that the operator will wait for the placement groups t"
-										format:      "int64"
-										type:        "integer"
+										description: """
+	PGHealthCheckTimeout is the time (in minutes) that the operator will wait for the placement groups to become
+	healthy (active+clean) after a drain was completed and OSDs came back up. Rook will continue with the next drain
+	if the timeout exceeds. It only works if managePodBudgets is true.
+	No values or 0 means that the operator will wait until the placement groups are healthy before unblocking the next drain.
+	"""
+										format: "int64"
+										type:   "integer"
 									}
 									pgHealthyRegex: {
-										description: "PgHealthyRegex is the regular expression that is used to determine which PG states should be conside"
-										type:        "string"
+										description: """
+	PgHealthyRegex is the regular expression that is used to determine which PG states should be considered healthy.
+	The default is `^(active\\+clean|active\\+clean\\+scrubbing|active\\+clean\\+scrubbing\\+deep)$`
+	"""
+										type: "string"
 									}
 								}
 								type: "object"
 							}
 							external: {
-								description: "Whether the Ceph Cluster is running external to this Kubernetes cluster mon, mgr, osd, mds, and disc"
-								nullable:    true
+								description: """
+	Whether the Ceph Cluster is running external to this Kubernetes cluster
+	mon, mgr, osd, mds, and discover daemons will not be created for external clusters.
+	"""
+								nullable: true
 								properties: enable: {
 									description: "Enable determines whether external mode is enabled or not"
 									type:        "boolean"
@@ -1360,21 +1532,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "boolean"
 												}
 												probe: {
-													description: "Probe describes a health check to be performed against a container to determine whether it is alive "
+													description: """
+	Probe describes a health check to be performed against a container to determine whether it is
+	alive or ready to receive traffic.
+	"""
 													properties: {
 														exec: {
 															description: "Exec specifies the action to take."
 															properties: command: {
-																description: "Command is the command line to execute inside the container, the working directory for the command  "
+																description: """
+	Command is the command line to execute inside the container, the working directory for the
+	command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
+	not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
+	a shell, you need to explicitly call out to that shell.
+	Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+	"""
 																items: type: "string"
-																type: "array"
+																type:                     "array"
+																"x-kubernetes-list-type": "atomic"
 															}
 															type: "object"
 														}
 														failureThreshold: {
-															description: "Minimum consecutive failures for the probe to be considered failed after having succeeded."
-															format:      "int32"
-															type:        "integer"
+															description: """
+	Minimum consecutive failures for the probe to be considered failed after having succeeded.
+	Defaults to 3. Minimum value is 1.
+	"""
+															format: "int32"
+															type:   "integer"
 														}
 														grpc: {
 															description: "GRPC specifies an action involving a GRPC port."
@@ -1385,8 +1570,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type:        "integer"
 																}
 																service: {
-																	description: "Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github."
-																	type:        "string"
+																	default: ""
+																	description: """
+	Service is the name of the service to place in the gRPC HealthCheckRequest
+	(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+
+	If this is not specified, the default behavior is defined by gRPC.
+	"""
+																	type: "string"
 																}
 															}
 															required: ["port"]
@@ -1396,8 +1587,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															description: "HTTPGet specifies the http request to perform."
 															properties: {
 																host: {
-																	description: "Host name to connect to, defaults to the pod IP."
-																	type:        "string"
+																	description: """
+	Host name to connect to, defaults to the pod IP. You probably want to set
+	"Host" in httpHeaders instead.
+	"""
+																	type: "string"
 																}
 																httpHeaders: {
 																	description: "Custom headers to set in the request. HTTP allows repeated headers."
@@ -1405,8 +1599,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		description: "HTTPHeader describes a custom header to be used in HTTP probes"
 																		properties: {
 																			name: {
-																				description: "The header field name."
-																				type:        "string"
+																				description: """
+	The header field name.
+	This will be canonicalized upon output, so case-variant names will be understood as the same header.
+	"""
+																				type: "string"
 																			}
 																			value: {
 																				description: "The header field value"
@@ -1419,7 +1616,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																path: {
 																	description: "Path to access on the HTTP server."
@@ -1431,31 +1629,47 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	}, {
 																		type: "string"
 																	}]
-																	description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535."
+																	description: """
+	Name or number of the port to access on the container.
+	Number must be in the range 1 to 65535.
+	Name must be an IANA_SVC_NAME.
+	"""
 																	"x-kubernetes-int-or-string": true
 																}
 																scheme: {
-																	description: "Scheme to use for connecting to the host. Defaults to HTTP."
-																	type:        "string"
+																	description: """
+	Scheme to use for connecting to the host.
+	Defaults to HTTP.
+	"""
+																	type: "string"
 																}
 															}
 															required: ["port"]
 															type: "object"
 														}
 														initialDelaySeconds: {
-															description: "Number of seconds after the container has started before liveness probes are initiated."
-															format:      "int32"
-															type:        "integer"
+															description: """
+	Number of seconds after the container has started before liveness probes are initiated.
+	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+	"""
+															format: "int32"
+															type:   "integer"
 														}
 														periodSeconds: {
-															description: "How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1."
-															format:      "int32"
-															type:        "integer"
+															description: """
+	How often (in seconds) to perform the probe.
+	Default to 10 seconds. Minimum value is 1.
+	"""
+															format: "int32"
+															type:   "integer"
 														}
 														successThreshold: {
-															description: "Minimum consecutive successes for the probe to be considered successful after having failed."
-															format:      "int32"
-															type:        "integer"
+															description: """
+	Minimum consecutive successes for the probe to be considered successful after having failed.
+	Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+	"""
+															format: "int32"
+															type:   "integer"
 														}
 														tcpSocket: {
 															description: "TCPSocket specifies an action involving a TCP port."
@@ -1470,7 +1684,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	}, {
 																		type: "string"
 																	}]
-																	description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535."
+																	description: """
+	Number or name of the port to access on the container.
+	Number must be in the range 1 to 65535.
+	Name must be an IANA_SVC_NAME.
+	"""
 																	"x-kubernetes-int-or-string": true
 																}
 															}
@@ -1478,14 +1696,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type: "object"
 														}
 														terminationGracePeriodSeconds: {
-															description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure."
-															format:      "int64"
-															type:        "integer"
+															format: "int64"
+															type:   "integer"
 														}
 														timeoutSeconds: {
-															description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1."
-															format:      "int32"
-															type:        "integer"
+															description: """
+	Number of seconds after which the probe times out.
+	Defaults to 1 second. Minimum value is 1.
+	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+	"""
+															format: "int32"
+															type:   "integer"
 														}
 													}
 													type: "object"
@@ -1505,21 +1726,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "boolean"
 												}
 												probe: {
-													description: "Probe describes a health check to be performed against a container to determine whether it is alive "
+													description: """
+	Probe describes a health check to be performed against a container to determine whether it is
+	alive or ready to receive traffic.
+	"""
 													properties: {
 														exec: {
 															description: "Exec specifies the action to take."
 															properties: command: {
-																description: "Command is the command line to execute inside the container, the working directory for the command  "
+																description: """
+	Command is the command line to execute inside the container, the working directory for the
+	command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
+	not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
+	a shell, you need to explicitly call out to that shell.
+	Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+	"""
 																items: type: "string"
-																type: "array"
+																type:                     "array"
+																"x-kubernetes-list-type": "atomic"
 															}
 															type: "object"
 														}
 														failureThreshold: {
-															description: "Minimum consecutive failures for the probe to be considered failed after having succeeded."
-															format:      "int32"
-															type:        "integer"
+															description: """
+	Minimum consecutive failures for the probe to be considered failed after having succeeded.
+	Defaults to 3. Minimum value is 1.
+	"""
+															format: "int32"
+															type:   "integer"
 														}
 														grpc: {
 															description: "GRPC specifies an action involving a GRPC port."
@@ -1530,8 +1764,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type:        "integer"
 																}
 																service: {
-																	description: "Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github."
-																	type:        "string"
+																	default: ""
+																	description: """
+	Service is the name of the service to place in the gRPC HealthCheckRequest
+	(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+
+	If this is not specified, the default behavior is defined by gRPC.
+	"""
+																	type: "string"
 																}
 															}
 															required: ["port"]
@@ -1541,8 +1781,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															description: "HTTPGet specifies the http request to perform."
 															properties: {
 																host: {
-																	description: "Host name to connect to, defaults to the pod IP."
-																	type:        "string"
+																	description: """
+	Host name to connect to, defaults to the pod IP. You probably want to set
+	"Host" in httpHeaders instead.
+	"""
+																	type: "string"
 																}
 																httpHeaders: {
 																	description: "Custom headers to set in the request. HTTP allows repeated headers."
@@ -1550,8 +1793,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		description: "HTTPHeader describes a custom header to be used in HTTP probes"
 																		properties: {
 																			name: {
-																				description: "The header field name."
-																				type:        "string"
+																				description: """
+	The header field name.
+	This will be canonicalized upon output, so case-variant names will be understood as the same header.
+	"""
+																				type: "string"
 																			}
 																			value: {
 																				description: "The header field value"
@@ -1564,7 +1810,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																path: {
 																	description: "Path to access on the HTTP server."
@@ -1576,31 +1823,47 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	}, {
 																		type: "string"
 																	}]
-																	description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535."
+																	description: """
+	Name or number of the port to access on the container.
+	Number must be in the range 1 to 65535.
+	Name must be an IANA_SVC_NAME.
+	"""
 																	"x-kubernetes-int-or-string": true
 																}
 																scheme: {
-																	description: "Scheme to use for connecting to the host. Defaults to HTTP."
-																	type:        "string"
+																	description: """
+	Scheme to use for connecting to the host.
+	Defaults to HTTP.
+	"""
+																	type: "string"
 																}
 															}
 															required: ["port"]
 															type: "object"
 														}
 														initialDelaySeconds: {
-															description: "Number of seconds after the container has started before liveness probes are initiated."
-															format:      "int32"
-															type:        "integer"
+															description: """
+	Number of seconds after the container has started before liveness probes are initiated.
+	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+	"""
+															format: "int32"
+															type:   "integer"
 														}
 														periodSeconds: {
-															description: "How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1."
-															format:      "int32"
-															type:        "integer"
+															description: """
+	How often (in seconds) to perform the probe.
+	Default to 10 seconds. Minimum value is 1.
+	"""
+															format: "int32"
+															type:   "integer"
 														}
 														successThreshold: {
-															description: "Minimum consecutive successes for the probe to be considered successful after having failed."
-															format:      "int32"
-															type:        "integer"
+															description: """
+	Minimum consecutive successes for the probe to be considered successful after having failed.
+	Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+	"""
+															format: "int32"
+															type:   "integer"
 														}
 														tcpSocket: {
 															description: "TCPSocket specifies an action involving a TCP port."
@@ -1615,7 +1878,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	}, {
 																		type: "string"
 																	}]
-																	description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535."
+																	description: """
+	Number or name of the port to access on the container.
+	Number must be in the range 1 to 65535.
+	Name must be an IANA_SVC_NAME.
+	"""
 																	"x-kubernetes-int-or-string": true
 																}
 															}
@@ -1623,14 +1890,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type: "object"
 														}
 														terminationGracePeriodSeconds: {
-															description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure."
-															format:      "int64"
-															type:        "integer"
+															format: "int64"
+															type:   "integer"
 														}
 														timeoutSeconds: {
-															description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1."
-															format:      "int32"
-															type:        "integer"
+															description: """
+	Number of seconds after which the probe times out.
+	Defaults to 1 second. Minimum value is 1.
+	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+	"""
+															format: "int32"
+															type:   "integer"
 														}
 													}
 													type: "object"
@@ -1708,6 +1978,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													description: "Name is the name of the ceph manager module"
 													type:        "string"
 												}
+												settings: {
+													description: "Settings to further configure the module"
+													properties: balancerMode: {
+														description: "BalancerMode sets the `balancer` module with different modes like `upmap`, `crush-compact` etc"
+														enum: [
+															"",
+															"crush-compat",
+															"upmap",
+															"read",
+															"upmap-read",
+														]
+														type: "string"
+													}
+													type: "object"
+												}
 											}
 											type: "object"
 										}
@@ -1759,16 +2044,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														volumeClaimTemplate: {
 															description: "VolumeClaimTemplate is the PVC template"
 															properties: {
-																apiVersion: {
-																	description: "APIVersion defines the versioned schema of this representation of an object."
-																	type:        "string"
-																}
-																kind: {
-																	description: "Kind is a string value representing the REST resource this object represents."
-																	type:        "string"
-																}
 																metadata: {
-																	description: "Standard object's metadata. More info: https://git.k8s."
+																	description: """
+	Standard object's metadata.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	"""
 																	properties: {
 																		annotations: {
 																			additionalProperties: type: "string"
@@ -1788,19 +2068,39 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type: "object"
 																}
 																spec: {
-																	description: "spec defines the desired characteristics of a volume requested by a pod author."
+																	description: """
+	spec defines the desired characteristics of a volume requested by a pod author.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
+	"""
 																	properties: {
 																		accessModes: {
-																			description: "accessModes contains the desired access modes the volume should have. More info: https://kubernetes."
+																			description: """
+	accessModes contains the desired access modes the volume should have.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
+	"""
 																			items: type: "string"
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		dataSource: {
-																			description: "dataSource field can be used to specify either: * An existing VolumeSnapshot object (snapshot."
+																			description: """
+	dataSource field can be used to specify either:
+	* An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot)
+	* An existing PVC (PersistentVolumeClaim)
+	If the provisioner or an external controller can support the specified data source,
+	it will create a new volume based on the contents of the specified data source.
+	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
+	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
+	"""
 																			properties: {
 																				apiGroup: {
-																					description: "APIGroup is the group for the resource being referenced."
-																					type:        "string"
+																					description: """
+	APIGroup is the group for the resource being referenced.
+	If APIGroup is not specified, the specified Kind must be in the core API group.
+	For any other third-party types, APIGroup is required.
+	"""
+																					type: "string"
 																				}
 																				kind: {
 																					description: "Kind is the type of resource being referenced"
@@ -1819,11 +2119,39 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			"x-kubernetes-map-type": "atomic"
 																		}
 																		dataSourceRef: {
-																			description: "dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volum"
+																			description: """
+	dataSourceRef specifies the object from which to populate the volume with data, if a non-empty
+	volume is desired. This may be any object from a non-empty API group (non
+	core object) or a PersistentVolumeClaim object.
+	When this field is specified, volume binding will only succeed if the type of
+	the specified object matches some installed volume populator or dynamic
+	provisioner.
+	This field will replace the functionality of the dataSource field and as such
+	if both fields are non-empty, they must have the same value. For backwards
+	compatibility, when namespace isn't specified in dataSourceRef,
+	both fields (dataSource and dataSourceRef) will be set to the same
+	value automatically if one of them is empty and the other is non-empty.
+	When namespace is specified in dataSourceRef,
+	dataSource isn't set to the same value and must be empty.
+	There are three important differences between dataSource and dataSourceRef:
+	* While dataSource only allows two specific types of objects, dataSourceRef
+	  allows any non-core object, as well as PersistentVolumeClaim objects.
+	* While dataSource ignores disallowed values (dropping them), dataSourceRef
+	  preserves all values, and generates an error if a disallowed value is
+	  specified.
+	* While dataSource only allows local objects, dataSourceRef allows objects
+	  in any namespaces.
+	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
+	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+	"""
 																			properties: {
 																				apiGroup: {
-																					description: "APIGroup is the group for the resource being referenced."
-																					type:        "string"
+																					description: """
+	APIGroup is the group for the resource being referenced.
+	If APIGroup is not specified, the specified Kind must be in the core API group.
+	For any other third-party types, APIGroup is required.
+	"""
+																					type: "string"
 																				}
 																				kind: {
 																					description: "Kind is the type of resource being referenced"
@@ -1834,8 +2162,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:        "string"
 																				}
 																				namespace: {
-																					description: "Namespace is the namespace of resource being referenced Note that when a namespace is specified, a g"
-																					type:        "string"
+																					description: """
+	Namespace is the namespace of resource being referenced
+	Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
+	(Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+	"""
+																					type: "string"
 																				}
 																			}
 																			required: [
@@ -1845,7 +2177,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			type: "object"
 																		}
 																		resources: {
-																			description: "resources represents the minimum resources the volume should have."
+																			description: """
+	resources represents the minimum resources the volume should have.
+	If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+	that are lower than previous value but must still be higher than capacity recorded in the
+	status field of the claim.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
+	"""
 																			properties: {
 																				limits: {
 																					additionalProperties: {
@@ -1857,8 +2195,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																						"x-kubernetes-int-or-string": true
 																					}
-																					description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes."
-																					type:        "object"
+																					description: """
+	Limits describes the maximum amount of compute resources allowed.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+																					type: "object"
 																				}
 																				requests: {
 																					additionalProperties: {
@@ -1870,8 +2211,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																						"x-kubernetes-int-or-string": true
 																					}
-																					description: "Requests describes the minimum amount of compute resources required."
-																					type:        "object"
+																					description: """
+	Requests describes the minimum amount of compute resources required.
+	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+	otherwise to an implementation-defined value. Requests cannot exceed Limits.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+																					type: "object"
 																				}
 																			}
 																			type: "object"
@@ -1882,20 +2228,32 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				matchExpressions: {
 																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																					items: {
-																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
+																						description: """
+	A label selector requirement is a selector that contains values, a key, and an operator that
+	relates the key and values.
+	"""
 																						properties: {
 																							key: {
 																								description: "key is the label key that the selector applies to."
 																								type:        "string"
 																							}
 																							operator: {
-																								description: "operator represents a key's relationship to a set of values."
-																								type:        "string"
+																								description: """
+	operator represents a key's relationship to a set of values.
+	Valid operators are In, NotIn, Exists and DoesNotExist.
+	"""
+																								type: "string"
 																							}
 																							values: {
-																								description: "values is an array of string values."
+																								description: """
+	values is an array of string values. If the operator is In or NotIn,
+	the values array must be non-empty. If the operator is Exists or DoesNotExist,
+	the values array must be empty. This array is replaced during a strategic
+	merge patch.
+	"""
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
 																						required: [
@@ -1904,137 +2262,55 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																				matchLabels: {
 																					additionalProperties: type: "string"
-																					description: "matchLabels is a map of {key,value} pairs."
-																					type:        "object"
+																					description: """
+	matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+	map is equivalent to an element of matchExpressions, whose key field is "key", the
+	operator is "In", and the values array contains only "value". The requirements are ANDed.
+	"""
+																					type: "object"
 																				}
 																			}
 																			type:                    "object"
 																			"x-kubernetes-map-type": "atomic"
 																		}
 																		storageClassName: {
-																			description: "storageClassName is the name of the StorageClass required by the claim."
-																			type:        "string"
+																			description: """
+	storageClassName is the name of the StorageClass required by the claim.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
+	"""
+																			type: "string"
 																		}
 																		volumeAttributesClassName: {
-																			description: "volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim."
-																			type:        "string"
+																			description: """
+	volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
+	If specified, the CSI driver will create or update the volume with the attributes defined
+	in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
+	it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
+	will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
+	If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
+	will be set by the persistentvolume controller if it exists.
+	If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
+	set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
+	exists.
+	More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
+	(Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
+	"""
+																			type: "string"
 																		}
 																		volumeMode: {
-																			description: "volumeMode defines what type of volume is required by the claim."
-																			type:        "string"
+																			description: """
+	volumeMode defines what type of volume is required by the claim.
+	Value of Filesystem is implied when not included in claim spec.
+	"""
+																			type: "string"
 																		}
 																		volumeName: {
 																			description: "volumeName is the binding reference to the PersistentVolume backing this claim."
-																			type:        "string"
-																		}
-																	}
-																	type: "object"
-																}
-																status: {
-																	description: "status represents the current information/status of a persistent volume claim. Read-only."
-																	properties: {
-																		accessModes: {
-																			description: "accessModes contains the actual access modes the volume backing the PVC has."
-																			items: type: "string"
-																			type: "array"
-																		}
-																		allocatedResourceStatuses: {
-																			additionalProperties: {
-																				description: "When a controller receives persistentvolume claim update with ClaimResourceStatus for a resource tha"
-																				type:        "string"
-																			}
-																			description:             "allocatedResourceStatuses stores status of resource being resized for the given PVC."
-																			type:                    "object"
-																			"x-kubernetes-map-type": "granular"
-																		}
-																		allocatedResources: {
-																			additionalProperties: {
-																				anyOf: [{
-																					type: "integer"
-																				}, {
-																					type: "string"
-																				}]
-																				pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																				"x-kubernetes-int-or-string": true
-																			}
-																			description: "allocatedResources tracks the resources allocated to a PVC including its capacity."
-																			type:        "object"
-																		}
-																		capacity: {
-																			additionalProperties: {
-																				anyOf: [{
-																					type: "integer"
-																				}, {
-																					type: "string"
-																				}]
-																				pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																				"x-kubernetes-int-or-string": true
-																			}
-																			description: "capacity represents the actual resources of the underlying volume."
-																			type:        "object"
-																		}
-																		conditions: {
-																			description: "conditions is the current Condition of persistent volume claim."
-																			items: {
-																				description: "PersistentVolumeClaimCondition contains details about state of pvc"
-																				properties: {
-																					lastProbeTime: {
-																						description: "lastProbeTime is the time we probed the condition."
-																						format:      "date-time"
-																						type:        "string"
-																					}
-																					lastTransitionTime: {
-																						description: "lastTransitionTime is the time the condition transitioned from one status to another."
-																						format:      "date-time"
-																						type:        "string"
-																					}
-																					message: {
-																						description: "message is the human-readable message indicating details about last transition."
-																						type:        "string"
-																					}
-																					reason: {
-																						description: "reason is a unique, this should be a short, machine understandable string that gives the reason for "
-																						type:        "string"
-																					}
-																					status: type: "string"
-																					type: {
-																						description: "PersistentVolumeClaimConditionType is a valid value of PersistentVolumeClaimCondition.Type"
-																						type:        "string"
-																					}
-																				}
-																				required: [
-																					"status",
-																					"type",
-																				]
-																				type: "object"
-																			}
-																			type: "array"
-																		}
-																		currentVolumeAttributesClassName: {
-																			description: "currentVolumeAttributesClassName is the current name of the VolumeAttributesClass the PVC is using."
-																			type:        "string"
-																		}
-																		modifyVolumeStatus: {
-																			description: "ModifyVolumeStatus represents the status object of ControllerModifyVolume operation."
-																			properties: {
-																				status: {
-																					description: "status is the status of the ControllerModifyVolume operation."
-																					type:        "string"
-																				}
-																				targetVolumeAttributesClassName: {
-																					description: "targetVolumeAttributesClassName is the name of the VolumeAttributesClass the PVC currently being rec"
-																					type:        "string"
-																				}
-																			}
-																			required: ["status"]
-																			type: "object"
-																		}
-																		phase: {
-																			description: "phase represents the current phase of PersistentVolumeClaim."
 																			type:        "string"
 																		}
 																	}
@@ -2056,16 +2332,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									volumeClaimTemplate: {
 										description: "VolumeClaimTemplate is the PVC definition"
 										properties: {
-											apiVersion: {
-												description: "APIVersion defines the versioned schema of this representation of an object."
-												type:        "string"
-											}
-											kind: {
-												description: "Kind is a string value representing the REST resource this object represents."
-												type:        "string"
-											}
 											metadata: {
-												description: "Standard object's metadata. More info: https://git.k8s."
+												description: """
+	Standard object's metadata.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	"""
 												properties: {
 													annotations: {
 														additionalProperties: type: "string"
@@ -2085,19 +2356,39 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type: "object"
 											}
 											spec: {
-												description: "spec defines the desired characteristics of a volume requested by a pod author."
+												description: """
+	spec defines the desired characteristics of a volume requested by a pod author.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
+	"""
 												properties: {
 													accessModes: {
-														description: "accessModes contains the desired access modes the volume should have. More info: https://kubernetes."
+														description: """
+	accessModes contains the desired access modes the volume should have.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
+	"""
 														items: type: "string"
-														type: "array"
+														type:                     "array"
+														"x-kubernetes-list-type": "atomic"
 													}
 													dataSource: {
-														description: "dataSource field can be used to specify either: * An existing VolumeSnapshot object (snapshot."
+														description: """
+	dataSource field can be used to specify either:
+	* An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot)
+	* An existing PVC (PersistentVolumeClaim)
+	If the provisioner or an external controller can support the specified data source,
+	it will create a new volume based on the contents of the specified data source.
+	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
+	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
+	"""
 														properties: {
 															apiGroup: {
-																description: "APIGroup is the group for the resource being referenced."
-																type:        "string"
+																description: """
+	APIGroup is the group for the resource being referenced.
+	If APIGroup is not specified, the specified Kind must be in the core API group.
+	For any other third-party types, APIGroup is required.
+	"""
+																type: "string"
 															}
 															kind: {
 																description: "Kind is the type of resource being referenced"
@@ -2116,11 +2407,39 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														"x-kubernetes-map-type": "atomic"
 													}
 													dataSourceRef: {
-														description: "dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volum"
+														description: """
+	dataSourceRef specifies the object from which to populate the volume with data, if a non-empty
+	volume is desired. This may be any object from a non-empty API group (non
+	core object) or a PersistentVolumeClaim object.
+	When this field is specified, volume binding will only succeed if the type of
+	the specified object matches some installed volume populator or dynamic
+	provisioner.
+	This field will replace the functionality of the dataSource field and as such
+	if both fields are non-empty, they must have the same value. For backwards
+	compatibility, when namespace isn't specified in dataSourceRef,
+	both fields (dataSource and dataSourceRef) will be set to the same
+	value automatically if one of them is empty and the other is non-empty.
+	When namespace is specified in dataSourceRef,
+	dataSource isn't set to the same value and must be empty.
+	There are three important differences between dataSource and dataSourceRef:
+	* While dataSource only allows two specific types of objects, dataSourceRef
+	  allows any non-core object, as well as PersistentVolumeClaim objects.
+	* While dataSource ignores disallowed values (dropping them), dataSourceRef
+	  preserves all values, and generates an error if a disallowed value is
+	  specified.
+	* While dataSource only allows local objects, dataSourceRef allows objects
+	  in any namespaces.
+	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
+	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+	"""
 														properties: {
 															apiGroup: {
-																description: "APIGroup is the group for the resource being referenced."
-																type:        "string"
+																description: """
+	APIGroup is the group for the resource being referenced.
+	If APIGroup is not specified, the specified Kind must be in the core API group.
+	For any other third-party types, APIGroup is required.
+	"""
+																type: "string"
 															}
 															kind: {
 																description: "Kind is the type of resource being referenced"
@@ -2131,8 +2450,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type:        "string"
 															}
 															namespace: {
-																description: "Namespace is the namespace of resource being referenced Note that when a namespace is specified, a g"
-																type:        "string"
+																description: """
+	Namespace is the namespace of resource being referenced
+	Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
+	(Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+	"""
+																type: "string"
 															}
 														}
 														required: [
@@ -2142,7 +2465,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type: "object"
 													}
 													resources: {
-														description: "resources represents the minimum resources the volume should have."
+														description: """
+	resources represents the minimum resources the volume should have.
+	If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+	that are lower than previous value but must still be higher than capacity recorded in the
+	status field of the claim.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
+	"""
 														properties: {
 															limits: {
 																additionalProperties: {
@@ -2154,8 +2483,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																	"x-kubernetes-int-or-string": true
 																}
-																description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes."
-																type:        "object"
+																description: """
+	Limits describes the maximum amount of compute resources allowed.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+																type: "object"
 															}
 															requests: {
 																additionalProperties: {
@@ -2167,8 +2499,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																	"x-kubernetes-int-or-string": true
 																}
-																description: "Requests describes the minimum amount of compute resources required."
-																type:        "object"
+																description: """
+	Requests describes the minimum amount of compute resources required.
+	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+	otherwise to an implementation-defined value. Requests cannot exceed Limits.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+																type: "object"
 															}
 														}
 														type: "object"
@@ -2179,20 +2516,32 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															matchExpressions: {
 																description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																items: {
-																	description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
+																	description: """
+	A label selector requirement is a selector that contains values, a key, and an operator that
+	relates the key and values.
+	"""
 																	properties: {
 																		key: {
 																			description: "key is the label key that the selector applies to."
 																			type:        "string"
 																		}
 																		operator: {
-																			description: "operator represents a key's relationship to a set of values."
-																			type:        "string"
+																			description: """
+	operator represents a key's relationship to a set of values.
+	Valid operators are In, NotIn, Exists and DoesNotExist.
+	"""
+																			type: "string"
 																		}
 																		values: {
-																			description: "values is an array of string values."
+																			description: """
+	values is an array of string values. If the operator is In or NotIn,
+	the values array must be non-empty. If the operator is Exists or DoesNotExist,
+	the values array must be empty. This array is replaced during a strategic
+	merge patch.
+	"""
 																			items: type: "string"
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																	}
 																	required: [
@@ -2201,137 +2550,55 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	]
 																	type: "object"
 																}
-																type: "array"
+																type:                     "array"
+																"x-kubernetes-list-type": "atomic"
 															}
 															matchLabels: {
 																additionalProperties: type: "string"
-																description: "matchLabels is a map of {key,value} pairs."
-																type:        "object"
+																description: """
+	matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+	map is equivalent to an element of matchExpressions, whose key field is "key", the
+	operator is "In", and the values array contains only "value". The requirements are ANDed.
+	"""
+																type: "object"
 															}
 														}
 														type:                    "object"
 														"x-kubernetes-map-type": "atomic"
 													}
 													storageClassName: {
-														description: "storageClassName is the name of the StorageClass required by the claim."
-														type:        "string"
+														description: """
+	storageClassName is the name of the StorageClass required by the claim.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
+	"""
+														type: "string"
 													}
 													volumeAttributesClassName: {
-														description: "volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim."
-														type:        "string"
+														description: """
+	volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
+	If specified, the CSI driver will create or update the volume with the attributes defined
+	in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
+	it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
+	will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
+	If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
+	will be set by the persistentvolume controller if it exists.
+	If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
+	set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
+	exists.
+	More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
+	(Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
+	"""
+														type: "string"
 													}
 													volumeMode: {
-														description: "volumeMode defines what type of volume is required by the claim."
-														type:        "string"
+														description: """
+	volumeMode defines what type of volume is required by the claim.
+	Value of Filesystem is implied when not included in claim spec.
+	"""
+														type: "string"
 													}
 													volumeName: {
 														description: "volumeName is the binding reference to the PersistentVolume backing this claim."
-														type:        "string"
-													}
-												}
-												type: "object"
-											}
-											status: {
-												description: "status represents the current information/status of a persistent volume claim. Read-only."
-												properties: {
-													accessModes: {
-														description: "accessModes contains the actual access modes the volume backing the PVC has."
-														items: type: "string"
-														type: "array"
-													}
-													allocatedResourceStatuses: {
-														additionalProperties: {
-															description: "When a controller receives persistentvolume claim update with ClaimResourceStatus for a resource tha"
-															type:        "string"
-														}
-														description:             "allocatedResourceStatuses stores status of resource being resized for the given PVC."
-														type:                    "object"
-														"x-kubernetes-map-type": "granular"
-													}
-													allocatedResources: {
-														additionalProperties: {
-															anyOf: [{
-																type: "integer"
-															}, {
-																type: "string"
-															}]
-															pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-															"x-kubernetes-int-or-string": true
-														}
-														description: "allocatedResources tracks the resources allocated to a PVC including its capacity."
-														type:        "object"
-													}
-													capacity: {
-														additionalProperties: {
-															anyOf: [{
-																type: "integer"
-															}, {
-																type: "string"
-															}]
-															pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-															"x-kubernetes-int-or-string": true
-														}
-														description: "capacity represents the actual resources of the underlying volume."
-														type:        "object"
-													}
-													conditions: {
-														description: "conditions is the current Condition of persistent volume claim."
-														items: {
-															description: "PersistentVolumeClaimCondition contains details about state of pvc"
-															properties: {
-																lastProbeTime: {
-																	description: "lastProbeTime is the time we probed the condition."
-																	format:      "date-time"
-																	type:        "string"
-																}
-																lastTransitionTime: {
-																	description: "lastTransitionTime is the time the condition transitioned from one status to another."
-																	format:      "date-time"
-																	type:        "string"
-																}
-																message: {
-																	description: "message is the human-readable message indicating details about last transition."
-																	type:        "string"
-																}
-																reason: {
-																	description: "reason is a unique, this should be a short, machine understandable string that gives the reason for "
-																	type:        "string"
-																}
-																status: type: "string"
-																type: {
-																	description: "PersistentVolumeClaimConditionType is a valid value of PersistentVolumeClaimCondition.Type"
-																	type:        "string"
-																}
-															}
-															required: [
-																"status",
-																"type",
-															]
-															type: "object"
-														}
-														type: "array"
-													}
-													currentVolumeAttributesClassName: {
-														description: "currentVolumeAttributesClassName is the current name of the VolumeAttributesClass the PVC is using."
-														type:        "string"
-													}
-													modifyVolumeStatus: {
-														description: "ModifyVolumeStatus represents the status object of ControllerModifyVolume operation."
-														properties: {
-															status: {
-																description: "status is the status of the ControllerModifyVolume operation."
-																type:        "string"
-															}
-															targetVolumeAttributesClassName: {
-																description: "targetVolumeAttributesClassName is the name of the VolumeAttributesClass the PVC currently being rec"
-																type:        "string"
-															}
-														}
-														required: ["status"]
-														type: "object"
-													}
-													phase: {
-														description: "phase represents the current phase of PersistentVolumeClaim."
 														type:        "string"
 													}
 												}
@@ -2357,16 +2624,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												volumeClaimTemplate: {
 													description: "VolumeClaimTemplate is the PVC template"
 													properties: {
-														apiVersion: {
-															description: "APIVersion defines the versioned schema of this representation of an object."
-															type:        "string"
-														}
-														kind: {
-															description: "Kind is a string value representing the REST resource this object represents."
-															type:        "string"
-														}
 														metadata: {
-															description: "Standard object's metadata. More info: https://git.k8s."
+															description: """
+	Standard object's metadata.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	"""
 															properties: {
 																annotations: {
 																	additionalProperties: type: "string"
@@ -2386,19 +2648,39 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type: "object"
 														}
 														spec: {
-															description: "spec defines the desired characteristics of a volume requested by a pod author."
+															description: """
+	spec defines the desired characteristics of a volume requested by a pod author.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
+	"""
 															properties: {
 																accessModes: {
-																	description: "accessModes contains the desired access modes the volume should have. More info: https://kubernetes."
+																	description: """
+	accessModes contains the desired access modes the volume should have.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
+	"""
 																	items: type: "string"
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																dataSource: {
-																	description: "dataSource field can be used to specify either: * An existing VolumeSnapshot object (snapshot."
+																	description: """
+	dataSource field can be used to specify either:
+	* An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot)
+	* An existing PVC (PersistentVolumeClaim)
+	If the provisioner or an external controller can support the specified data source,
+	it will create a new volume based on the contents of the specified data source.
+	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
+	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
+	"""
 																	properties: {
 																		apiGroup: {
-																			description: "APIGroup is the group for the resource being referenced."
-																			type:        "string"
+																			description: """
+	APIGroup is the group for the resource being referenced.
+	If APIGroup is not specified, the specified Kind must be in the core API group.
+	For any other third-party types, APIGroup is required.
+	"""
+																			type: "string"
 																		}
 																		kind: {
 																			description: "Kind is the type of resource being referenced"
@@ -2417,11 +2699,39 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	"x-kubernetes-map-type": "atomic"
 																}
 																dataSourceRef: {
-																	description: "dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volum"
+																	description: """
+	dataSourceRef specifies the object from which to populate the volume with data, if a non-empty
+	volume is desired. This may be any object from a non-empty API group (non
+	core object) or a PersistentVolumeClaim object.
+	When this field is specified, volume binding will only succeed if the type of
+	the specified object matches some installed volume populator or dynamic
+	provisioner.
+	This field will replace the functionality of the dataSource field and as such
+	if both fields are non-empty, they must have the same value. For backwards
+	compatibility, when namespace isn't specified in dataSourceRef,
+	both fields (dataSource and dataSourceRef) will be set to the same
+	value automatically if one of them is empty and the other is non-empty.
+	When namespace is specified in dataSourceRef,
+	dataSource isn't set to the same value and must be empty.
+	There are three important differences between dataSource and dataSourceRef:
+	* While dataSource only allows two specific types of objects, dataSourceRef
+	  allows any non-core object, as well as PersistentVolumeClaim objects.
+	* While dataSource ignores disallowed values (dropping them), dataSourceRef
+	  preserves all values, and generates an error if a disallowed value is
+	  specified.
+	* While dataSource only allows local objects, dataSourceRef allows objects
+	  in any namespaces.
+	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
+	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+	"""
 																	properties: {
 																		apiGroup: {
-																			description: "APIGroup is the group for the resource being referenced."
-																			type:        "string"
+																			description: """
+	APIGroup is the group for the resource being referenced.
+	If APIGroup is not specified, the specified Kind must be in the core API group.
+	For any other third-party types, APIGroup is required.
+	"""
+																			type: "string"
 																		}
 																		kind: {
 																			description: "Kind is the type of resource being referenced"
@@ -2432,8 +2742,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			type:        "string"
 																		}
 																		namespace: {
-																			description: "Namespace is the namespace of resource being referenced Note that when a namespace is specified, a g"
-																			type:        "string"
+																			description: """
+	Namespace is the namespace of resource being referenced
+	Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
+	(Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+	"""
+																			type: "string"
 																		}
 																	}
 																	required: [
@@ -2443,7 +2757,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type: "object"
 																}
 																resources: {
-																	description: "resources represents the minimum resources the volume should have."
+																	description: """
+	resources represents the minimum resources the volume should have.
+	If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+	that are lower than previous value but must still be higher than capacity recorded in the
+	status field of the claim.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
+	"""
 																	properties: {
 																		limits: {
 																			additionalProperties: {
@@ -2455,8 +2775,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																				"x-kubernetes-int-or-string": true
 																			}
-																			description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes."
-																			type:        "object"
+																			description: """
+	Limits describes the maximum amount of compute resources allowed.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+																			type: "object"
 																		}
 																		requests: {
 																			additionalProperties: {
@@ -2468,8 +2791,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																				"x-kubernetes-int-or-string": true
 																			}
-																			description: "Requests describes the minimum amount of compute resources required."
-																			type:        "object"
+																			description: """
+	Requests describes the minimum amount of compute resources required.
+	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+	otherwise to an implementation-defined value. Requests cannot exceed Limits.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+																			type: "object"
 																		}
 																	}
 																	type: "object"
@@ -2480,20 +2808,32 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		matchExpressions: {
 																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
+																				description: """
+	A label selector requirement is a selector that contains values, a key, and an operator that
+	relates the key and values.
+	"""
 																				properties: {
 																					key: {
 																						description: "key is the label key that the selector applies to."
 																						type:        "string"
 																					}
 																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
+																						description: """
+	operator represents a key's relationship to a set of values.
+	Valid operators are In, NotIn, Exists and DoesNotExist.
+	"""
+																						type: "string"
 																					}
 																					values: {
-																						description: "values is an array of string values."
+																						description: """
+	values is an array of string values. If the operator is In or NotIn,
+	the values array must be non-empty. If the operator is Exists or DoesNotExist,
+	the values array must be empty. This array is replaced during a strategic
+	merge patch.
+	"""
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -2502,137 +2842,55 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			description: """
+	matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+	map is equivalent to an element of matchExpressions, whose key field is "key", the
+	operator is "In", and the values array contains only "value". The requirements are ANDed.
+	"""
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																storageClassName: {
-																	description: "storageClassName is the name of the StorageClass required by the claim."
-																	type:        "string"
+																	description: """
+	storageClassName is the name of the StorageClass required by the claim.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
+	"""
+																	type: "string"
 																}
 																volumeAttributesClassName: {
-																	description: "volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim."
-																	type:        "string"
+																	description: """
+	volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
+	If specified, the CSI driver will create or update the volume with the attributes defined
+	in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
+	it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
+	will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
+	If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
+	will be set by the persistentvolume controller if it exists.
+	If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
+	set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
+	exists.
+	More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
+	(Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
+	"""
+																	type: "string"
 																}
 																volumeMode: {
-																	description: "volumeMode defines what type of volume is required by the claim."
-																	type:        "string"
+																	description: """
+	volumeMode defines what type of volume is required by the claim.
+	Value of Filesystem is implied when not included in claim spec.
+	"""
+																	type: "string"
 																}
 																volumeName: {
 																	description: "volumeName is the binding reference to the PersistentVolume backing this claim."
-																	type:        "string"
-																}
-															}
-															type: "object"
-														}
-														status: {
-															description: "status represents the current information/status of a persistent volume claim. Read-only."
-															properties: {
-																accessModes: {
-																	description: "accessModes contains the actual access modes the volume backing the PVC has."
-																	items: type: "string"
-																	type: "array"
-																}
-																allocatedResourceStatuses: {
-																	additionalProperties: {
-																		description: "When a controller receives persistentvolume claim update with ClaimResourceStatus for a resource tha"
-																		type:        "string"
-																	}
-																	description:             "allocatedResourceStatuses stores status of resource being resized for the given PVC."
-																	type:                    "object"
-																	"x-kubernetes-map-type": "granular"
-																}
-																allocatedResources: {
-																	additionalProperties: {
-																		anyOf: [{
-																			type: "integer"
-																		}, {
-																			type: "string"
-																		}]
-																		pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																		"x-kubernetes-int-or-string": true
-																	}
-																	description: "allocatedResources tracks the resources allocated to a PVC including its capacity."
-																	type:        "object"
-																}
-																capacity: {
-																	additionalProperties: {
-																		anyOf: [{
-																			type: "integer"
-																		}, {
-																			type: "string"
-																		}]
-																		pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																		"x-kubernetes-int-or-string": true
-																	}
-																	description: "capacity represents the actual resources of the underlying volume."
-																	type:        "object"
-																}
-																conditions: {
-																	description: "conditions is the current Condition of persistent volume claim."
-																	items: {
-																		description: "PersistentVolumeClaimCondition contains details about state of pvc"
-																		properties: {
-																			lastProbeTime: {
-																				description: "lastProbeTime is the time we probed the condition."
-																				format:      "date-time"
-																				type:        "string"
-																			}
-																			lastTransitionTime: {
-																				description: "lastTransitionTime is the time the condition transitioned from one status to another."
-																				format:      "date-time"
-																				type:        "string"
-																			}
-																			message: {
-																				description: "message is the human-readable message indicating details about last transition."
-																				type:        "string"
-																			}
-																			reason: {
-																				description: "reason is a unique, this should be a short, machine understandable string that gives the reason for "
-																				type:        "string"
-																			}
-																			status: type: "string"
-																			type: {
-																				description: "PersistentVolumeClaimConditionType is a valid value of PersistentVolumeClaimCondition.Type"
-																				type:        "string"
-																			}
-																		}
-																		required: [
-																			"status",
-																			"type",
-																		]
-																		type: "object"
-																	}
-																	type: "array"
-																}
-																currentVolumeAttributesClassName: {
-																	description: "currentVolumeAttributesClassName is the current name of the VolumeAttributesClass the PVC is using."
-																	type:        "string"
-																}
-																modifyVolumeStatus: {
-																	description: "ModifyVolumeStatus represents the status object of ControllerModifyVolume operation."
-																	properties: {
-																		status: {
-																			description: "status is the status of the ControllerModifyVolume operation."
-																			type:        "string"
-																		}
-																		targetVolumeAttributesClassName: {
-																			description: "targetVolumeAttributesClassName is the name of the VolumeAttributesClass the PVC currently being rec"
-																			type:        "string"
-																		}
-																	}
-																	required: ["status"]
-																	type: "object"
-																}
-																phase: {
-																	description: "phase represents the current phase of PersistentVolumeClaim."
 																	type:        "string"
 																}
 															}
@@ -2662,8 +2920,29 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								nullable:    true
 								properties: {
 									enabled: {
-										description: "Enabled determines whether to create the prometheus rules for the ceph cluster."
-										type:        "boolean"
+										description: """
+	Enabled determines whether to create the prometheus rules for the ceph cluster. If true, the prometheus
+	types must exist or the creation will fail. Default is false.
+	"""
+										type: "boolean"
+									}
+									exporter: {
+										description: "Ceph exporter configuration"
+										properties: {
+											perfCountersPrioLimit: {
+												default:     5
+												description: "Only performance counters greater than or equal to this option are fetched"
+												format:      "int64"
+												type:        "integer"
+											}
+											statsPeriodSeconds: {
+												default:     5
+												description: "Time to wait before sending requests again to exporter server (seconds)"
+												format:      "int64"
+												type:        "integer"
+											}
+										}
+										type: "object"
 									}
 									externalMgrEndpoints: {
 										description: "ExternalMgrEndpoints points to an existing Ceph prometheus exporter endpoint"
@@ -2675,8 +2954,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "string"
 												}
 												ip: {
-													description: "The IP of this endpoint. May not be loopback (127.0.0.0/8 or ::1), link-local (169.254.0."
-													type:        "string"
+													description: """
+	The IP of this endpoint.
+	May not be loopback (127.0.0.0/8 or ::1), link-local (169.254.0.0/16 or fe80::/10),
+	or link-local multicast (224.0.0.0/24 or ff02::/16).
+	"""
+													type: "string"
 												}
 												nodeName: {
 													description: "Optional: Node hosting this endpoint. This can be used to determine endpoints local to a node."
@@ -2690,28 +2973,51 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:        "string"
 														}
 														fieldPath: {
-															description: "If referring to a piece of an object instead of an entire object, this string should contain a valid"
-															type:        "string"
+															description: """
+	If referring to a piece of an object instead of an entire object, this string
+	should contain a valid JSON/Go field access statement, such as desiredState.manifest.containers[2].
+	For example, if the object reference is to a container within a pod, this would take on a value like:
+	"spec.containers{name}" (where "name" refers to the name of the container that triggered
+	the event) or if no container name is specified "spec.containers[2]" (container with
+	index 2 in this pod). This syntax is chosen only to have some well-defined way of
+	referencing a part of an object.
+	"""
+															type: "string"
 														}
 														kind: {
-															description: "Kind of the referent. More info: https://git.k8s."
-															type:        "string"
+															description: """
+	Kind of the referent.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+	"""
+															type: "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes."
-															type:        "string"
+															description: """
+	Name of the referent.
+	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+	"""
+															type: "string"
 														}
 														namespace: {
-															description: "Namespace of the referent. More info: https://kubernetes."
-															type:        "string"
+															description: """
+	Namespace of the referent.
+	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
+	"""
+															type: "string"
 														}
 														resourceVersion: {
-															description: "Specific resourceVersion to which this reference is made, if any. More info: https://git.k8s."
-															type:        "string"
+															description: """
+	Specific resourceVersion to which this reference is made, if any.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+	"""
+															type: "string"
 														}
 														uid: {
-															description: "UID of the referent. More info: https://kubernetes."
-															type:        "string"
+															description: """
+	UID of the referent.
+	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
+	"""
+															type: "string"
 														}
 													}
 													type:                    "object"
@@ -2736,8 +3042,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type:        "string"
 									}
 									metricsDisabled: {
-										description: "Whether to disable the metrics reported by Ceph."
-										type:        "boolean"
+										description: """
+	Whether to disable the metrics reported by Ceph. If false, the prometheus mgr module and Ceph exporter are enabled.
+	If true, the prometheus mgr module and Ceph exporter are both disabled. Default is false.
+	"""
+										type: "boolean"
 									}
 									port: {
 										description: "Port is the prometheus server port"
@@ -2753,24 +3062,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								nullable:    true
 								properties: {
 									addressRanges: {
-										description: "AddressRanges specify a list of CIDRs that Rook will apply to Ceph's 'public_network' and/or 'cluste"
-										nullable:    true
+										description: """
+	AddressRanges specify a list of CIDRs that Rook will apply to Ceph's 'public_network' and/or
+	'cluster_network' configurations. This config section may be used for the "host" or "multus"
+	network providers.
+	"""
+										nullable: true
 										properties: {
 											cluster: {
 												description: "Cluster defines a list of CIDRs to use for Ceph cluster network communication."
 												items: {
-													description: "An IPv4 or IPv6 network CIDR."
-													pattern:     "^[0-9a-fA-F:.]{2,}\\/[0-9]{1,3}$"
-													type:        "string"
+													description: """
+	An IPv4 or IPv6 network CIDR.
+
+	This naive kubebuilder regex provides immediate feedback for some typos and for a common problem
+	case where the range spec is forgotten (e.g., /24). Rook does in-depth validation in code.
+	"""
+													pattern: "^[0-9a-fA-F:.]{2,}\\/[0-9]{1,3}$"
+													type:    "string"
 												}
 												type: "array"
 											}
 											public: {
 												description: "Public defines a list of CIDRs to use for Ceph public network communication."
 												items: {
-													description: "An IPv4 or IPv6 network CIDR."
-													pattern:     "^[0-9a-fA-F:.]{2,}\\/[0-9]{1,3}$"
-													type:        "string"
+													description: """
+	An IPv4 or IPv6 network CIDR.
+
+	This naive kubebuilder regex provides immediate feedback for some typos and for a common problem
+	case where the range spec is forgotten (e.g., /24). Rook does in-depth validation in code.
+	"""
+													pattern: "^[0-9a-fA-F:.]{2,}\\/[0-9]{1,3}$"
+													type:    "string"
 												}
 												type: "array"
 											}
@@ -2778,15 +3101,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "object"
 									}
 									connections: {
-										description: "Settings for network connections such as compression and encryption across the wire."
-										nullable:    true
+										description: """
+	Settings for network connections such as compression and encryption across the
+	wire.
+	"""
+										nullable: true
 										properties: {
 											compression: {
 												description: "Compression settings for the network connections."
 												nullable:    true
 												properties: enabled: {
-													description: "Whether to compress the data in transit across the wire. The default is not set."
-													type:        "boolean"
+													description: """
+	Whether to compress the data in transit across the wire.
+	The default is not set.
+	"""
+													type: "boolean"
 												}
 												type: "object"
 											}
@@ -2794,14 +3123,25 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												description: "Encryption settings for the network connections."
 												nullable:    true
 												properties: enabled: {
-													description: "Whether to encrypt the data in transit across the wire to prevent eavesdropping the data on the netw"
-													type:        "boolean"
+													description: """
+	Whether to encrypt the data in transit across the wire to prevent eavesdropping
+	the data on the network. The default is not set. Even if encryption is not enabled,
+	clients still establish a strong initial authentication for the connection
+	and data integrity is still validated with a crc check. When encryption is enabled,
+	all communication between clients and Ceph daemons, or between Ceph daemons will
+	be encrypted.
+	"""
+													type: "boolean"
 												}
 												type: "object"
 											}
 											requireMsgr2: {
-												description: "Whether to require msgr2 (port 3300) even if compression or encryption are not enabled."
-												type:        "boolean"
+												description: """
+	Whether to require msgr2 (port 3300) even if compression or encryption are not enabled.
+	If true, the msgr1 port (6789) will be disabled.
+	Requires a kernel that supports msgr2 (kernel 5.11 or CentOS 8.4 or newer).
+	"""
+												type: "boolean"
 											}
 										}
 										type: "object"
@@ -2811,8 +3151,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type:        "boolean"
 									}
 									hostNetwork: {
-										description: "HostNetwork to enable host network."
-										type:        "boolean"
+										description: """
+	HostNetwork to enable host network.
+	If host networking is enabled or disabled on a running cluster, then the operator will automatically fail over all the mons to
+	apply the new network settings.
+	"""
+										type: "boolean"
 									}
 									ipFamily: {
 										description: "IPFamily is the single stack IPv6 or IPv4 protocol"
@@ -2827,18 +3171,28 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										description: "Enable multiClusterService to export the Services between peer clusters"
 										properties: {
 											clusterID: {
-												description: "ClusterID uniquely identifies a cluster. It is used as a prefix to nslookup exported services."
-												type:        "string"
+												description: """
+	ClusterID uniquely identifies a cluster. It is used as a prefix to nslookup exported
+	services. For example: <clusterid>.<svc>.<ns>.svc.clusterset.local
+	"""
+												type: "string"
 											}
 											enabled: {
-												description: "Enable multiClusterService to export the mon and OSD services to peer cluster."
-												type:        "boolean"
+												description: """
+	Enable multiClusterService to export the mon and OSD services to peer cluster.
+	Ensure that peer clusters are connected using an MCS API compatible application,
+	like Globalnet Submariner.
+	"""
+												type: "boolean"
 											}
 										}
 										type: "object"
 									}
 									provider: {
-										description: "Provider is what provides network connectivity to the cluster e.g. \"host\" or \"multus\"."
+										description: """
+	Provider is what provides network connectivity to the cluster e.g. "host" or "multus".
+	If the Provider is updated from being empty to "host" on a running cluster, then the operator will automatically fail over all the mons to apply the "host" network settings.
+	"""
 										enum: [
 											"",
 											"host",
@@ -2853,9 +3207,32 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									selectors: {
 										additionalProperties: type: "string"
-										description: "Selectors define NetworkAttachmentDefinitions to be used for Ceph public and/or cluster networks whe"
-										nullable:    true
-										type:        "object"
+										description: """
+	Selectors define NetworkAttachmentDefinitions to be used for Ceph public and/or cluster
+	networks when the "multus" network provider is used. This config section is not used for
+	other network providers.
+
+	Valid keys are "public" and "cluster". Refer to Ceph networking documentation for more:
+	https://docs.ceph.com/en/reef/rados/configuration/network-config-ref/
+
+	Refer to Multus network annotation documentation for help selecting values:
+	https://github.com/k8snetworkplumbingwg/multus-cni/blob/master/docs/how-to-use.md#run-pod-with-network-annotation
+
+	Rook will make a best-effort attempt to automatically detect CIDR address ranges for given
+	network attachment definitions. Rook's methods are robust but may be imprecise for
+	sufficiently complicated networks. Rook's auto-detection process obtains a new IP address
+	lease for each CephCluster reconcile. If Rook fails to detect, incorrectly detects, only
+	partially detects, or if underlying networks do not support reusing old IP addresses, it is
+	best to use the 'addressRanges' config section to specify CIDR ranges for the Ceph cluster.
+
+	As a contrived example, one can use a theoretical Kubernetes-wide network for Ceph client
+	traffic and a theoretical Rook-only network for Ceph replication traffic as shown:
+	  selectors:
+	    public: "default/cluster-fast-net"
+	    cluster: "rook-ceph/ceph-backend-net"
+	"""
+										nullable: true
+										type:     "object"
 									}
 								}
 								type:                                   "object"
@@ -2863,40 +3240,30 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								"x-kubernetes-validations": [{
 									message: "at least one network selector must be specified when using multus"
 									rule:    "!has(self.provider) || (self.provider != 'multus' || (self.provider == 'multus' && size(self.selectors) > 0))"
+								}, {
+									message: "the legacy hostNetwork setting can only be set if the network.provider is set to the empty string"
+									rule:    "!has(self.hostNetwork) || self.hostNetwork == false || !has(self.provider) || self.provider == \"\""
 								}]
 							}
 							placement: {
 								additionalProperties: {
-									description: "Placement is the placement for an object"
 									properties: {
 										nodeAffinity: {
-											description: "NodeAffinity is a group of node affinity scheduling rules"
 											properties: {
 												preferredDuringSchedulingIgnoredDuringExecution: {
-													description: "The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified "
 													items: {
-														description: "An empty preferred scheduling term matches all objects with implicit weight 0 (i.e. it's a no-op)."
 														properties: {
 															preference: {
-																description: "A node selector term, associated with the corresponding weight."
 																properties: {
 																	matchExpressions: {
-																		description: "A list of node selector requirements by node's labels."
 																		items: {
-																			description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																			properties: {
-																				key: {
-																					description: "The label key that the selector applies to."
-																					type:        "string"
-																				}
-																				operator: {
-																					description: "Represents a key's relationship to a set of values."
-																					type:        "string"
-																				}
+																				key: type:      "string"
+																				operator: type: "string"
 																				values: {
-																					description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																					items: type: "string"
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
 																			required: [
@@ -2905,25 +3272,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			]
 																			type: "object"
 																		}
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																	matchFields: {
-																		description: "A list of node selector requirements by node's fields."
 																		items: {
-																			description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																			properties: {
-																				key: {
-																					description: "The label key that the selector applies to."
-																					type:        "string"
-																				}
-																				operator: {
-																					description: "Represents a key's relationship to a set of values."
-																					type:        "string"
-																				}
+																				key: type:      "string"
+																				operator: type: "string"
 																				values: {
-																					description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																					items: type: "string"
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
 																			required: [
@@ -2932,16 +3292,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			]
 																			type: "object"
 																		}
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																}
 																type:                    "object"
 																"x-kubernetes-map-type": "atomic"
 															}
 															weight: {
-																description: "Weight associated with matching the corresponding nodeSelectorTerm, in the range 1-100."
-																format:      "int32"
-																type:        "integer"
+																format: "int32"
+																type:   "integer"
 															}
 														}
 														required: [
@@ -2950,32 +3310,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														]
 														type: "object"
 													}
-													type: "array"
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
 												}
 												requiredDuringSchedulingIgnoredDuringExecution: {
-													description: "If the affinity requirements specified by this field are not met at scheduling time, the pod will no"
 													properties: nodeSelectorTerms: {
-														description: "Required. A list of node selector terms. The terms are ORed."
 														items: {
-															description: "A null or empty node selector term matches no objects. The requirements of them are ANDed."
 															properties: {
 																matchExpressions: {
-																	description: "A list of node selector requirements by node's labels."
 																	items: {
-																		description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																		properties: {
-																			key: {
-																				description: "The label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "Represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -2984,25 +3334,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																matchFields: {
-																	description: "A list of node selector requirements by node's fields."
 																	items: {
-																		description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																		properties: {
-																			key: {
-																				description: "The label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "Represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -3011,13 +3354,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 															}
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
-														type: "array"
+														type:                     "array"
+														"x-kubernetes-list-type": "atomic"
 													}
 													required: ["nodeSelectorTerms"]
 													type:                    "object"
@@ -3027,36 +3372,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											type: "object"
 										}
 										podAffinity: {
-											description: "PodAffinity is a group of inter pod affinity scheduling rules"
 											properties: {
 												preferredDuringSchedulingIgnoredDuringExecution: {
-													description: "The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified "
 													items: {
-														description: "The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most"
 														properties: {
 															podAffinityTerm: {
-																description: "Required. A pod affinity term, associated with the corresponding weight."
 																properties: {
 																	labelSelector: {
-																		description: "A label query over a set of resources, in this case pods."
 																		properties: {
 																			matchExpressions: {
-																				description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																				items: {
-																					description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																					properties: {
-																						key: {
-																							description: "key is the label key that the selector applies to."
-																							type:        "string"
-																						}
-																						operator: {
-																							description: "operator represents a key's relationship to a set of values."
-																							type:        "string"
-																						}
+																						key: type:      "string"
+																						operator: type: "string"
 																						values: {
-																							description: "values is an array of string values."
 																							items: type: "string"
-																							type: "array"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
 																					}
 																					required: [
@@ -3065,49 +3397,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					]
 																					type: "object"
 																				}
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																			matchLabels: {
 																				additionalProperties: type: "string"
-																				description: "matchLabels is a map of {key,value} pairs."
-																				type:        "object"
+																				type: "object"
 																			}
 																		}
 																		type:                    "object"
 																		"x-kubernetes-map-type": "atomic"
 																	}
 																	matchLabelKeys: {
-																		description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																		items: type: "string"
 																		type:                     "array"
 																		"x-kubernetes-list-type": "atomic"
 																	}
 																	mismatchLabelKeys: {
-																		description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																		items: type: "string"
 																		type:                     "array"
 																		"x-kubernetes-list-type": "atomic"
 																	}
 																	namespaceSelector: {
-																		description: "A label query over the set of namespaces that the term applies to."
 																		properties: {
 																			matchExpressions: {
-																				description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																				items: {
-																					description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																					properties: {
-																						key: {
-																							description: "key is the label key that the selector applies to."
-																							type:        "string"
-																						}
-																						operator: {
-																							description: "operator represents a key's relationship to a set of values."
-																							type:        "string"
-																						}
+																						key: type:      "string"
+																						operator: type: "string"
 																						values: {
-																							description: "values is an array of string values."
 																							items: type: "string"
-																							type: "array"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
 																					}
 																					required: [
@@ -3116,34 +3437,30 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					]
 																					type: "object"
 																				}
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																			matchLabels: {
 																				additionalProperties: type: "string"
-																				description: "matchLabels is a map of {key,value} pairs."
-																				type:        "object"
+																				type: "object"
 																			}
 																		}
 																		type:                    "object"
 																		"x-kubernetes-map-type": "atomic"
 																	}
 																	namespaces: {
-																		description: "namespaces specifies a static list of namespace names that the term applies to."
 																		items: type: "string"
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
-																	topologyKey: {
-																		description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																		type:        "string"
-																	}
+																	topologyKey: type: "string"
 																}
 																required: ["topologyKey"]
 																type: "object"
 															}
 															weight: {
-																description: "weight associated with matching the corresponding podAffinityTerm, in the range 1-100."
-																format:      "int32"
-																type:        "integer"
+																format: "int32"
+																type:   "integer"
 															}
 														}
 														required: [
@@ -3152,33 +3469,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														]
 														type: "object"
 													}
-													type: "array"
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
 												}
 												requiredDuringSchedulingIgnoredDuringExecution: {
-													description: "If the affinity requirements specified by this field are not met at scheduling time, the pod will no"
 													items: {
-														description: "Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) t"
 														properties: {
 															labelSelector: {
-																description: "A label query over a set of resources, in this case pods."
 																properties: {
 																	matchExpressions: {
-																		description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																		items: {
-																			description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																			properties: {
-																				key: {
-																					description: "key is the label key that the selector applies to."
-																					type:        "string"
-																				}
-																				operator: {
-																					description: "operator represents a key's relationship to a set of values."
-																					type:        "string"
-																				}
+																				key: type:      "string"
+																				operator: type: "string"
 																				values: {
-																					description: "values is an array of string values."
 																					items: type: "string"
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
 																			required: [
@@ -3187,49 +3494,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			]
 																			type: "object"
 																		}
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																	matchLabels: {
 																		additionalProperties: type: "string"
-																		description: "matchLabels is a map of {key,value} pairs."
-																		type:        "object"
+																		type: "object"
 																	}
 																}
 																type:                    "object"
 																"x-kubernetes-map-type": "atomic"
 															}
 															matchLabelKeys: {
-																description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																items: type: "string"
 																type:                     "array"
 																"x-kubernetes-list-type": "atomic"
 															}
 															mismatchLabelKeys: {
-																description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																items: type: "string"
 																type:                     "array"
 																"x-kubernetes-list-type": "atomic"
 															}
 															namespaceSelector: {
-																description: "A label query over the set of namespaces that the term applies to."
 																properties: {
 																	matchExpressions: {
-																		description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																		items: {
-																			description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																			properties: {
-																				key: {
-																					description: "key is the label key that the selector applies to."
-																					type:        "string"
-																				}
-																				operator: {
-																					description: "operator represents a key's relationship to a set of values."
-																					type:        "string"
-																				}
+																				key: type:      "string"
+																				operator: type: "string"
 																				values: {
-																					description: "values is an array of string values."
 																					items: type: "string"
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
 																			required: [
@@ -3238,66 +3534,51 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			]
 																			type: "object"
 																		}
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																	matchLabels: {
 																		additionalProperties: type: "string"
-																		description: "matchLabels is a map of {key,value} pairs."
-																		type:        "object"
+																		type: "object"
 																	}
 																}
 																type:                    "object"
 																"x-kubernetes-map-type": "atomic"
 															}
 															namespaces: {
-																description: "namespaces specifies a static list of namespace names that the term applies to."
 																items: type: "string"
-																type: "array"
+																type:                     "array"
+																"x-kubernetes-list-type": "atomic"
 															}
-															topologyKey: {
-																description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																type:        "string"
-															}
+															topologyKey: type: "string"
 														}
 														required: ["topologyKey"]
 														type: "object"
 													}
-													type: "array"
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
 												}
 											}
 											type: "object"
 										}
 										podAntiAffinity: {
-											description: "PodAntiAffinity is a group of inter pod anti affinity scheduling rules"
 											properties: {
 												preferredDuringSchedulingIgnoredDuringExecution: {
-													description: "The scheduler will prefer to schedule pods to nodes that satisfy the anti-affinity expressions speci"
 													items: {
-														description: "The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most"
 														properties: {
 															podAffinityTerm: {
-																description: "Required. A pod affinity term, associated with the corresponding weight."
 																properties: {
 																	labelSelector: {
-																		description: "A label query over a set of resources, in this case pods."
 																		properties: {
 																			matchExpressions: {
-																				description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																				items: {
-																					description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																					properties: {
-																						key: {
-																							description: "key is the label key that the selector applies to."
-																							type:        "string"
-																						}
-																						operator: {
-																							description: "operator represents a key's relationship to a set of values."
-																							type:        "string"
-																						}
+																						key: type:      "string"
+																						operator: type: "string"
 																						values: {
-																							description: "values is an array of string values."
 																							items: type: "string"
-																							type: "array"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
 																					}
 																					required: [
@@ -3306,49 +3587,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					]
 																					type: "object"
 																				}
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																			matchLabels: {
 																				additionalProperties: type: "string"
-																				description: "matchLabels is a map of {key,value} pairs."
-																				type:        "object"
+																				type: "object"
 																			}
 																		}
 																		type:                    "object"
 																		"x-kubernetes-map-type": "atomic"
 																	}
 																	matchLabelKeys: {
-																		description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																		items: type: "string"
 																		type:                     "array"
 																		"x-kubernetes-list-type": "atomic"
 																	}
 																	mismatchLabelKeys: {
-																		description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																		items: type: "string"
 																		type:                     "array"
 																		"x-kubernetes-list-type": "atomic"
 																	}
 																	namespaceSelector: {
-																		description: "A label query over the set of namespaces that the term applies to."
 																		properties: {
 																			matchExpressions: {
-																				description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																				items: {
-																					description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																					properties: {
-																						key: {
-																							description: "key is the label key that the selector applies to."
-																							type:        "string"
-																						}
-																						operator: {
-																							description: "operator represents a key's relationship to a set of values."
-																							type:        "string"
-																						}
+																						key: type:      "string"
+																						operator: type: "string"
 																						values: {
-																							description: "values is an array of string values."
 																							items: type: "string"
-																							type: "array"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
 																					}
 																					required: [
@@ -3357,34 +3627,30 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					]
 																					type: "object"
 																				}
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																			matchLabels: {
 																				additionalProperties: type: "string"
-																				description: "matchLabels is a map of {key,value} pairs."
-																				type:        "object"
+																				type: "object"
 																			}
 																		}
 																		type:                    "object"
 																		"x-kubernetes-map-type": "atomic"
 																	}
 																	namespaces: {
-																		description: "namespaces specifies a static list of namespace names that the term applies to."
 																		items: type: "string"
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
-																	topologyKey: {
-																		description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																		type:        "string"
-																	}
+																	topologyKey: type: "string"
 																}
 																required: ["topologyKey"]
 																type: "object"
 															}
 															weight: {
-																description: "weight associated with matching the corresponding podAffinityTerm, in the range 1-100."
-																format:      "int32"
-																type:        "integer"
+																format: "int32"
+																type:   "integer"
 															}
 														}
 														required: [
@@ -3393,33 +3659,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														]
 														type: "object"
 													}
-													type: "array"
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
 												}
 												requiredDuringSchedulingIgnoredDuringExecution: {
-													description: "If the anti-affinity requirements specified by this field are not met at scheduling time, the pod wi"
 													items: {
-														description: "Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) t"
 														properties: {
 															labelSelector: {
-																description: "A label query over a set of resources, in this case pods."
 																properties: {
 																	matchExpressions: {
-																		description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																		items: {
-																			description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																			properties: {
-																				key: {
-																					description: "key is the label key that the selector applies to."
-																					type:        "string"
-																				}
-																				operator: {
-																					description: "operator represents a key's relationship to a set of values."
-																					type:        "string"
-																				}
+																				key: type:      "string"
+																				operator: type: "string"
 																				values: {
-																					description: "values is an array of string values."
 																					items: type: "string"
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
 																			required: [
@@ -3428,49 +3684,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			]
 																			type: "object"
 																		}
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																	matchLabels: {
 																		additionalProperties: type: "string"
-																		description: "matchLabels is a map of {key,value} pairs."
-																		type:        "object"
+																		type: "object"
 																	}
 																}
 																type:                    "object"
 																"x-kubernetes-map-type": "atomic"
 															}
 															matchLabelKeys: {
-																description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																items: type: "string"
 																type:                     "array"
 																"x-kubernetes-list-type": "atomic"
 															}
 															mismatchLabelKeys: {
-																description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																items: type: "string"
 																type:                     "array"
 																"x-kubernetes-list-type": "atomic"
 															}
 															namespaceSelector: {
-																description: "A label query over the set of namespaces that the term applies to."
 																properties: {
 																	matchExpressions: {
-																		description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																		items: {
-																			description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																			properties: {
-																				key: {
-																					description: "key is the label key that the selector applies to."
-																					type:        "string"
-																				}
-																				operator: {
-																					description: "operator represents a key's relationship to a set of values."
-																					type:        "string"
-																				}
+																				key: type:      "string"
+																				operator: type: "string"
 																				values: {
-																					description: "values is an array of string values."
 																					items: type: "string"
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
 																			required: [
@@ -3479,91 +3724,63 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			]
 																			type: "object"
 																		}
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																	matchLabels: {
 																		additionalProperties: type: "string"
-																		description: "matchLabels is a map of {key,value} pairs."
-																		type:        "object"
+																		type: "object"
 																	}
 																}
 																type:                    "object"
 																"x-kubernetes-map-type": "atomic"
 															}
 															namespaces: {
-																description: "namespaces specifies a static list of namespace names that the term applies to."
 																items: type: "string"
-																type: "array"
+																type:                     "array"
+																"x-kubernetes-list-type": "atomic"
 															}
-															topologyKey: {
-																description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																type:        "string"
-															}
+															topologyKey: type: "string"
 														}
 														required: ["topologyKey"]
 														type: "object"
 													}
-													type: "array"
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
 												}
 											}
 											type: "object"
 										}
 										tolerations: {
-											description: "The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect"
 											items: {
-												description: "The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect"
 												properties: {
-													effect: {
-														description: "Effect indicates the taint effect to match. Empty means match all taint effects."
-														type:        "string"
-													}
-													key: {
-														description: "Key is the taint key that the toleration applies to. Empty means match all taint keys."
-														type:        "string"
-													}
-													operator: {
-														description: "Operator represents a key's relationship to the value. Valid operators are Exists and Equal."
-														type:        "string"
-													}
+													effect: type:   "string"
+													key: type:      "string"
+													operator: type: "string"
 													tolerationSeconds: {
-														description: "TolerationSeconds represents the period of time the toleration (which must be of effect NoExecute, o"
-														format:      "int64"
-														type:        "integer"
+														format: "int64"
+														type:   "integer"
 													}
-													value: {
-														description: "Value is the taint value the toleration matches to."
-														type:        "string"
-													}
+													value: type: "string"
 												}
 												type: "object"
 											}
 											type: "array"
 										}
 										topologySpreadConstraints: {
-											description: "TopologySpreadConstraint specifies how to spread matching pods among the given topology"
 											items: {
-												description: "TopologySpreadConstraint specifies how to spread matching pods among the given topology."
 												properties: {
 													labelSelector: {
-														description: "LabelSelector is used to find matching pods."
 														properties: {
 															matchExpressions: {
-																description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																items: {
-																	description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																	properties: {
-																		key: {
-																			description: "key is the label key that the selector applies to."
-																			type:        "string"
-																		}
-																		operator: {
-																			description: "operator represents a key's relationship to a set of values."
-																			type:        "string"
-																		}
+																		key: type:      "string"
+																		operator: type: "string"
 																		values: {
-																			description: "values is an array of string values."
 																			items: type: "string"
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																	}
 																	required: [
@@ -3572,49 +3789,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	]
 																	type: "object"
 																}
-																type: "array"
+																type:                     "array"
+																"x-kubernetes-list-type": "atomic"
 															}
 															matchLabels: {
 																additionalProperties: type: "string"
-																description: "matchLabels is a map of {key,value} pairs."
-																type:        "object"
+																type: "object"
 															}
 														}
 														type:                    "object"
 														"x-kubernetes-map-type": "atomic"
 													}
 													matchLabelKeys: {
-														description: "MatchLabelKeys is a set of pod label keys to select the pods over which spreading will be calculated"
 														items: type: "string"
 														type:                     "array"
 														"x-kubernetes-list-type": "atomic"
 													}
 													maxSkew: {
-														description: "MaxSkew describes the degree to which pods may be unevenly distributed."
-														format:      "int32"
-														type:        "integer"
+														format: "int32"
+														type:   "integer"
 													}
 													minDomains: {
-														description: "MinDomains indicates a minimum number of eligible domains."
-														format:      "int32"
-														type:        "integer"
+														format: "int32"
+														type:   "integer"
 													}
-													nodeAffinityPolicy: {
-														description: "NodeAffinityPolicy indicates how we will treat Pod's nodeAffinity/nodeSelector when calculating pod "
-														type:        "string"
-													}
-													nodeTaintsPolicy: {
-														description: "NodeTaintsPolicy indicates how we will treat node taints when calculating pod topology spread skew."
-														type:        "string"
-													}
-													topologyKey: {
-														description: "TopologyKey is the key of node labels."
-														type:        "string"
-													}
-													whenUnsatisfiable: {
-														description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint."
-														type:        "string"
-													}
+													nodeAffinityPolicy: type: "string"
+													nodeTaintsPolicy: type:   "string"
+													topologyKey: type:        "string"
+													whenUnsatisfiable: type:  "string"
 												}
 												required: [
 													"maxSkew",
@@ -3628,7 +3830,6 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									type: "object"
 								}
-								description:                            "The placement-related configuration to pass to kubernetes (affinity, node selector, tolerations)."
 								nullable:                               true
 								type:                                   "object"
 								"x-kubernetes-preserve-unknown-fields": true
@@ -3649,12 +3850,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									description: "ResourceRequirements describes the compute resource requirements."
 									properties: {
 										claims: {
-											description: "Claims lists the names of resources, defined in spec."
+											description: """
+	Claims lists the names of resources, defined in spec.resourceClaims,
+	that are used by this container.
+
+	This is an alpha field and requires enabling the
+	DynamicResourceAllocation feature gate.
+
+	This field is immutable. It can only be set for containers.
+	"""
 											items: {
 												description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
-												properties: name: {
-													description: "Name must match the name of one entry in pod.spec."
-													type:        "string"
+												properties: {
+													name: {
+														description: """
+	Name must match the name of one entry in pod.spec.resourceClaims of
+	the Pod where this field is used. It makes that resource available
+	inside a container.
+	"""
+														type: "string"
+													}
+													request: {
+														description: """
+	Request is the name chosen for a request in the referenced claim.
+	If empty, everything from the claim is made available, otherwise
+	only the result of this request.
+	"""
+														type: "string"
+													}
 												}
 												required: ["name"]
 												type: "object"
@@ -3673,8 +3896,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 												"x-kubernetes-int-or-string": true
 											}
-											description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes."
-											type:        "object"
+											description: """
+	Limits describes the maximum amount of compute resources allowed.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+											type: "object"
 										}
 										requests: {
 											additionalProperties: {
@@ -3686,8 +3912,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 												"x-kubernetes-int-or-string": true
 											}
-											description: "Requests describes the minimum amount of compute resources required."
-											type:        "object"
+											description: """
+	Requests describes the minimum amount of compute resources required.
+	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+	otherwise to an implementation-defined value. Requests cannot exceed Limits.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+											type: "object"
 										}
 									}
 									type: "object"
@@ -3746,6 +3977,25 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								description: "A spec for available storage in the cluster and how it should be used"
 								nullable:    true
 								properties: {
+									allowDeviceClassUpdate: {
+										description: "Whether to allow updating the device class after the OSD is initially provisioned"
+										type:        "boolean"
+									}
+									allowOsdCrushWeightUpdate: {
+										description: """
+	Whether Rook will resize the OSD CRUSH weight when the OSD PVC size is increased.
+	This allows cluster data to be rebalanced to make most effective use of new OSD space.
+	The default is false since data rebalancing can cause temporary cluster slowdown.
+	"""
+										type: "boolean"
+									}
+									backfillFullRatio: {
+										description: "BackfillFullRatio is the ratio at which the cluster is too full for backfill. Backfill will be disabled if above this threshold. Default is 0.90."
+										maximum:     1
+										minimum:     0
+										nullable:    true
+										type:        "number"
+									}
 									config: {
 										additionalProperties: type: "string"
 										nullable:                               true
@@ -3781,8 +4031,29 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										"x-kubernetes-preserve-unknown-fields": true
 									}
 									flappingRestartIntervalHours: {
-										description: "FlappingRestartIntervalHours defines the time for which the OSD pods, that failed with zero exit cod"
-										type:        "integer"
+										description: """
+	FlappingRestartIntervalHours defines the time for which the OSD pods, that failed with zero exit code, will sleep before restarting.
+	This is needed for OSD flapping where OSD daemons are marked down more than 5 times in 600 seconds by Ceph.
+	Preventing the OSD pods to restart immediately in such scenarios will prevent Rook from marking OSD as `up` and thus
+	peering of the PGs mapped to the OSD.
+	User needs to manually restart the OSD pod if they manage to fix the underlying OSD flapping issue before the restart interval.
+	The sleep will be disabled if this interval is set to 0.
+	"""
+										type: "integer"
+									}
+									fullRatio: {
+										description: "FullRatio is the ratio at which the cluster is considered full and ceph will stop accepting writes. Default is 0.95."
+										maximum:     1
+										minimum:     0
+										nullable:    true
+										type:        "number"
+									}
+									nearFullRatio: {
+										description: "NearFullRatio is the ratio at which the cluster is considered nearly full and will raise a ceph health warning. Default is 0.85."
+										maximum:     1
+										minimum:     0
+										nullable:    true
+										type:        "number"
 									}
 									nodes: {
 										items: {
@@ -3828,12 +4099,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													nullable:    true
 													properties: {
 														claims: {
-															description: "Claims lists the names of resources, defined in spec."
+															description: """
+	Claims lists the names of resources, defined in spec.resourceClaims,
+	that are used by this container.
+
+	This is an alpha field and requires enabling the
+	DynamicResourceAllocation feature gate.
+
+	This field is immutable. It can only be set for containers.
+	"""
 															items: {
 																description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
-																properties: name: {
-																	description: "Name must match the name of one entry in pod.spec."
-																	type:        "string"
+																properties: {
+																	name: {
+																		description: """
+	Name must match the name of one entry in pod.spec.resourceClaims of
+	the Pod where this field is used. It makes that resource available
+	inside a container.
+	"""
+																		type: "string"
+																	}
+																	request: {
+																		description: """
+	Request is the name chosen for a request in the referenced claim.
+	If empty, everything from the claim is made available, otherwise
+	only the result of this request.
+	"""
+																		type: "string"
+																	}
 																}
 																required: ["name"]
 																type: "object"
@@ -3852,8 +4145,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																"x-kubernetes-int-or-string": true
 															}
-															description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes."
-															type:        "object"
+															description: """
+	Limits describes the maximum amount of compute resources allowed.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+															type: "object"
 														}
 														requests: {
 															additionalProperties: {
@@ -3865,8 +4161,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																"x-kubernetes-int-or-string": true
 															}
-															description: "Requests describes the minimum amount of compute resources required."
-															type:        "object"
+															description: """
+	Requests describes the minimum amount of compute resources required.
+	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+	otherwise to an implementation-defined value. Requests cannot exceed Limits.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+															type: "object"
 														}
 													}
 													type:                                   "object"
@@ -3879,18 +4180,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												volumeClaimTemplates: {
 													description: "PersistentVolumeClaims to use as storage"
 													items: {
-														description: "PersistentVolumeClaim is a user's request for and claim to a persistent volume"
+														description: "VolumeClaimTemplate is a simplified version of K8s corev1's PVC. It has no type meta or status."
 														properties: {
-															apiVersion: {
-																description: "APIVersion defines the versioned schema of this representation of an object."
-																type:        "string"
-															}
-															kind: {
-																description: "Kind is a string value representing the REST resource this object represents."
-																type:        "string"
-															}
 															metadata: {
-																description: "Standard object's metadata. More info: https://git.k8s."
+																description: """
+	Standard object's metadata.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	"""
 																properties: {
 																	annotations: {
 																		additionalProperties: type: "string"
@@ -3910,19 +4206,39 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type: "object"
 															}
 															spec: {
-																description: "spec defines the desired characteristics of a volume requested by a pod author."
+																description: """
+	spec defines the desired characteristics of a volume requested by a pod author.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
+	"""
 																properties: {
 																	accessModes: {
-																		description: "accessModes contains the desired access modes the volume should have. More info: https://kubernetes."
+																		description: """
+	accessModes contains the desired access modes the volume should have.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
+	"""
 																		items: type: "string"
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																	dataSource: {
-																		description: "dataSource field can be used to specify either: * An existing VolumeSnapshot object (snapshot."
+																		description: """
+	dataSource field can be used to specify either:
+	* An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot)
+	* An existing PVC (PersistentVolumeClaim)
+	If the provisioner or an external controller can support the specified data source,
+	it will create a new volume based on the contents of the specified data source.
+	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
+	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
+	"""
 																		properties: {
 																			apiGroup: {
-																				description: "APIGroup is the group for the resource being referenced."
-																				type:        "string"
+																				description: """
+	APIGroup is the group for the resource being referenced.
+	If APIGroup is not specified, the specified Kind must be in the core API group.
+	For any other third-party types, APIGroup is required.
+	"""
+																				type: "string"
 																			}
 																			kind: {
 																				description: "Kind is the type of resource being referenced"
@@ -3941,11 +4257,39 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		"x-kubernetes-map-type": "atomic"
 																	}
 																	dataSourceRef: {
-																		description: "dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volum"
+																		description: """
+	dataSourceRef specifies the object from which to populate the volume with data, if a non-empty
+	volume is desired. This may be any object from a non-empty API group (non
+	core object) or a PersistentVolumeClaim object.
+	When this field is specified, volume binding will only succeed if the type of
+	the specified object matches some installed volume populator or dynamic
+	provisioner.
+	This field will replace the functionality of the dataSource field and as such
+	if both fields are non-empty, they must have the same value. For backwards
+	compatibility, when namespace isn't specified in dataSourceRef,
+	both fields (dataSource and dataSourceRef) will be set to the same
+	value automatically if one of them is empty and the other is non-empty.
+	When namespace is specified in dataSourceRef,
+	dataSource isn't set to the same value and must be empty.
+	There are three important differences between dataSource and dataSourceRef:
+	* While dataSource only allows two specific types of objects, dataSourceRef
+	  allows any non-core object, as well as PersistentVolumeClaim objects.
+	* While dataSource ignores disallowed values (dropping them), dataSourceRef
+	  preserves all values, and generates an error if a disallowed value is
+	  specified.
+	* While dataSource only allows local objects, dataSourceRef allows objects
+	  in any namespaces.
+	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
+	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+	"""
 																		properties: {
 																			apiGroup: {
-																				description: "APIGroup is the group for the resource being referenced."
-																				type:        "string"
+																				description: """
+	APIGroup is the group for the resource being referenced.
+	If APIGroup is not specified, the specified Kind must be in the core API group.
+	For any other third-party types, APIGroup is required.
+	"""
+																				type: "string"
 																			}
 																			kind: {
 																				description: "Kind is the type of resource being referenced"
@@ -3956,8 +4300,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type:        "string"
 																			}
 																			namespace: {
-																				description: "Namespace is the namespace of resource being referenced Note that when a namespace is specified, a g"
-																				type:        "string"
+																				description: """
+	Namespace is the namespace of resource being referenced
+	Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
+	(Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+	"""
+																				type: "string"
 																			}
 																		}
 																		required: [
@@ -3967,7 +4315,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type: "object"
 																	}
 																	resources: {
-																		description: "resources represents the minimum resources the volume should have."
+																		description: """
+	resources represents the minimum resources the volume should have.
+	If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+	that are lower than previous value but must still be higher than capacity recorded in the
+	status field of the claim.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
+	"""
 																		properties: {
 																			limits: {
 																				additionalProperties: {
@@ -3979,8 +4333,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																					"x-kubernetes-int-or-string": true
 																				}
-																				description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes."
-																				type:        "object"
+																				description: """
+	Limits describes the maximum amount of compute resources allowed.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+																				type: "object"
 																			}
 																			requests: {
 																				additionalProperties: {
@@ -3992,8 +4349,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																					"x-kubernetes-int-or-string": true
 																				}
-																				description: "Requests describes the minimum amount of compute resources required."
-																				type:        "object"
+																				description: """
+	Requests describes the minimum amount of compute resources required.
+	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+	otherwise to an implementation-defined value. Requests cannot exceed Limits.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+																				type: "object"
 																			}
 																		}
 																		type: "object"
@@ -4004,20 +4366,32 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			matchExpressions: {
 																				description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																				items: {
-																					description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
+																					description: """
+	A label selector requirement is a selector that contains values, a key, and an operator that
+	relates the key and values.
+	"""
 																					properties: {
 																						key: {
 																							description: "key is the label key that the selector applies to."
 																							type:        "string"
 																						}
 																						operator: {
-																							description: "operator represents a key's relationship to a set of values."
-																							type:        "string"
+																							description: """
+	operator represents a key's relationship to a set of values.
+	Valid operators are In, NotIn, Exists and DoesNotExist.
+	"""
+																							type: "string"
 																						}
 																						values: {
-																							description: "values is an array of string values."
+																							description: """
+	values is an array of string values. If the operator is In or NotIn,
+	the values array must be non-empty. If the operator is Exists or DoesNotExist,
+	the values array must be empty. This array is replaced during a strategic
+	merge patch.
+	"""
 																							items: type: "string"
-																							type: "array"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
 																					}
 																					required: [
@@ -4026,137 +4400,55 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					]
 																					type: "object"
 																				}
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																			matchLabels: {
 																				additionalProperties: type: "string"
-																				description: "matchLabels is a map of {key,value} pairs."
-																				type:        "object"
+																				description: """
+	matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+	map is equivalent to an element of matchExpressions, whose key field is "key", the
+	operator is "In", and the values array contains only "value". The requirements are ANDed.
+	"""
+																				type: "object"
 																			}
 																		}
 																		type:                    "object"
 																		"x-kubernetes-map-type": "atomic"
 																	}
 																	storageClassName: {
-																		description: "storageClassName is the name of the StorageClass required by the claim."
-																		type:        "string"
+																		description: """
+	storageClassName is the name of the StorageClass required by the claim.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
+	"""
+																		type: "string"
 																	}
 																	volumeAttributesClassName: {
-																		description: "volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim."
-																		type:        "string"
+																		description: """
+	volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
+	If specified, the CSI driver will create or update the volume with the attributes defined
+	in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
+	it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
+	will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
+	If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
+	will be set by the persistentvolume controller if it exists.
+	If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
+	set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
+	exists.
+	More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
+	(Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
+	"""
+																		type: "string"
 																	}
 																	volumeMode: {
-																		description: "volumeMode defines what type of volume is required by the claim."
-																		type:        "string"
+																		description: """
+	volumeMode defines what type of volume is required by the claim.
+	Value of Filesystem is implied when not included in claim spec.
+	"""
+																		type: "string"
 																	}
 																	volumeName: {
 																		description: "volumeName is the binding reference to the PersistentVolume backing this claim."
-																		type:        "string"
-																	}
-																}
-																type: "object"
-															}
-															status: {
-																description: "status represents the current information/status of a persistent volume claim. Read-only."
-																properties: {
-																	accessModes: {
-																		description: "accessModes contains the actual access modes the volume backing the PVC has."
-																		items: type: "string"
-																		type: "array"
-																	}
-																	allocatedResourceStatuses: {
-																		additionalProperties: {
-																			description: "When a controller receives persistentvolume claim update with ClaimResourceStatus for a resource tha"
-																			type:        "string"
-																		}
-																		description:             "allocatedResourceStatuses stores status of resource being resized for the given PVC."
-																		type:                    "object"
-																		"x-kubernetes-map-type": "granular"
-																	}
-																	allocatedResources: {
-																		additionalProperties: {
-																			anyOf: [{
-																				type: "integer"
-																			}, {
-																				type: "string"
-																			}]
-																			pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																			"x-kubernetes-int-or-string": true
-																		}
-																		description: "allocatedResources tracks the resources allocated to a PVC including its capacity."
-																		type:        "object"
-																	}
-																	capacity: {
-																		additionalProperties: {
-																			anyOf: [{
-																				type: "integer"
-																			}, {
-																				type: "string"
-																			}]
-																			pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																			"x-kubernetes-int-or-string": true
-																		}
-																		description: "capacity represents the actual resources of the underlying volume."
-																		type:        "object"
-																	}
-																	conditions: {
-																		description: "conditions is the current Condition of persistent volume claim."
-																		items: {
-																			description: "PersistentVolumeClaimCondition contains details about state of pvc"
-																			properties: {
-																				lastProbeTime: {
-																					description: "lastProbeTime is the time we probed the condition."
-																					format:      "date-time"
-																					type:        "string"
-																				}
-																				lastTransitionTime: {
-																					description: "lastTransitionTime is the time the condition transitioned from one status to another."
-																					format:      "date-time"
-																					type:        "string"
-																				}
-																				message: {
-																					description: "message is the human-readable message indicating details about last transition."
-																					type:        "string"
-																				}
-																				reason: {
-																					description: "reason is a unique, this should be a short, machine understandable string that gives the reason for "
-																					type:        "string"
-																				}
-																				status: type: "string"
-																				type: {
-																					description: "PersistentVolumeClaimConditionType is a valid value of PersistentVolumeClaimCondition.Type"
-																					type:        "string"
-																				}
-																			}
-																			required: [
-																				"status",
-																				"type",
-																			]
-																			type: "object"
-																		}
-																		type: "array"
-																	}
-																	currentVolumeAttributesClassName: {
-																		description: "currentVolumeAttributesClassName is the current name of the VolumeAttributesClass the PVC is using."
-																		type:        "string"
-																	}
-																	modifyVolumeStatus: {
-																		description: "ModifyVolumeStatus represents the status object of ControllerModifyVolume operation."
-																		properties: {
-																			status: {
-																				description: "status is the status of the ControllerModifyVolume operation."
-																				type:        "string"
-																			}
-																			targetVolumeAttributesClassName: {
-																				description: "targetVolumeAttributesClassName is the name of the VolumeAttributesClass the PVC currently being rec"
-																				type:        "string"
-																			}
-																		}
-																		required: ["status"]
-																		type: "object"
-																	}
-																	phase: {
-																		description: "phase represents the current phase of PersistentVolumeClaim."
 																		type:        "string"
 																	}
 																}
@@ -4174,6 +4466,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type:     "array"
 									}
 									onlyApplyOSDPlacement: type: "boolean"
+									scheduleAlways: {
+										description: "Whether to always schedule OSDs on a node even if the node is not currently scheduleable or ready"
+										type:        "boolean"
+									}
 									storageClassDeviceSets: {
 										items: {
 											description: "StorageClassDeviceSet is a storage class device set"
@@ -4199,37 +4495,24 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "string"
 												}
 												placement: {
-													description: "Placement is the placement for an object"
-													nullable:    true
+													nullable: true
 													properties: {
 														nodeAffinity: {
-															description: "NodeAffinity is a group of node affinity scheduling rules"
 															properties: {
 																preferredDuringSchedulingIgnoredDuringExecution: {
-																	description: "The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified "
 																	items: {
-																		description: "An empty preferred scheduling term matches all objects with implicit weight 0 (i.e. it's a no-op)."
 																		properties: {
 																			preference: {
-																				description: "A node selector term, associated with the corresponding weight."
 																				properties: {
 																					matchExpressions: {
-																						description: "A list of node selector requirements by node's labels."
 																						items: {
-																							description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																							properties: {
-																								key: {
-																									description: "The label key that the selector applies to."
-																									type:        "string"
-																								}
-																								operator: {
-																									description: "Represents a key's relationship to a set of values."
-																									type:        "string"
-																								}
+																								key: type:      "string"
+																								operator: type: "string"
 																								values: {
-																									description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																									items: type: "string"
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
 																							required: [
@@ -4238,25 +4521,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							]
 																							type: "object"
 																						}
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					matchFields: {
-																						description: "A list of node selector requirements by node's fields."
 																						items: {
-																							description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																							properties: {
-																								key: {
-																									description: "The label key that the selector applies to."
-																									type:        "string"
-																								}
-																								operator: {
-																									description: "Represents a key's relationship to a set of values."
-																									type:        "string"
-																								}
+																								key: type:      "string"
+																								operator: type: "string"
 																								values: {
-																									description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																									items: type: "string"
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
 																							required: [
@@ -4265,16 +4541,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							]
 																							type: "object"
 																						}
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				type:                    "object"
 																				"x-kubernetes-map-type": "atomic"
 																			}
 																			weight: {
-																				description: "Weight associated with matching the corresponding nodeSelectorTerm, in the range 1-100."
-																				format:      "int32"
-																				type:        "integer"
+																				format: "int32"
+																				type:   "integer"
 																			}
 																		}
 																		required: [
@@ -4283,32 +4559,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																requiredDuringSchedulingIgnoredDuringExecution: {
-																	description: "If the affinity requirements specified by this field are not met at scheduling time, the pod will no"
 																	properties: nodeSelectorTerms: {
-																		description: "Required. A list of node selector terms. The terms are ORed."
 																		items: {
-																			description: "A null or empty node selector term matches no objects. The requirements of them are ANDed."
 																			properties: {
 																				matchExpressions: {
-																					description: "A list of node selector requirements by node's labels."
 																					items: {
-																						description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																						properties: {
-																							key: {
-																								description: "The label key that the selector applies to."
-																								type:        "string"
-																							}
-																							operator: {
-																								description: "Represents a key's relationship to a set of values."
-																								type:        "string"
-																							}
+																							key: type:      "string"
+																							operator: type: "string"
 																							values: {
-																								description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
 																						required: [
@@ -4317,25 +4583,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																				matchFields: {
-																					description: "A list of node selector requirements by node's fields."
 																					items: {
-																						description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																						properties: {
-																							key: {
-																								description: "The label key that the selector applies to."
-																								type:        "string"
-																							}
-																							operator: {
-																								description: "Represents a key's relationship to a set of values."
-																								type:        "string"
-																							}
+																							key: type:      "string"
+																							operator: type: "string"
 																							values: {
-																								description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
 																						required: [
@@ -4344,13 +4603,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
 																			type:                    "object"
 																			"x-kubernetes-map-type": "atomic"
 																		}
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																	required: ["nodeSelectorTerms"]
 																	type:                    "object"
@@ -4360,36 +4621,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type: "object"
 														}
 														podAffinity: {
-															description: "PodAffinity is a group of inter pod affinity scheduling rules"
 															properties: {
 																preferredDuringSchedulingIgnoredDuringExecution: {
-																	description: "The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified "
 																	items: {
-																		description: "The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most"
 																		properties: {
 																			podAffinityTerm: {
-																				description: "Required. A pod affinity term, associated with the corresponding weight."
 																				properties: {
 																					labelSelector: {
-																						description: "A label query over a set of resources, in this case pods."
 																						properties: {
 																							matchExpressions: {
-																								description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																								items: {
-																									description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																									properties: {
-																										key: {
-																											description: "key is the label key that the selector applies to."
-																											type:        "string"
-																										}
-																										operator: {
-																											description: "operator represents a key's relationship to a set of values."
-																											type:        "string"
-																										}
+																										key: type:      "string"
+																										operator: type: "string"
 																										values: {
-																											description: "values is an array of string values."
 																											items: type: "string"
-																											type: "array"
+																											type:                     "array"
+																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
 																									required: [
@@ -4398,49 +4646,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									]
 																									type: "object"
 																								}
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																							matchLabels: {
 																								additionalProperties: type: "string"
-																								description: "matchLabels is a map of {key,value} pairs."
-																								type:        "object"
+																								type: "object"
 																							}
 																						}
 																						type:                    "object"
 																						"x-kubernetes-map-type": "atomic"
 																					}
 																					matchLabelKeys: {
-																						description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																						items: type: "string"
 																						type:                     "array"
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																					mismatchLabelKeys: {
-																						description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																						items: type: "string"
 																						type:                     "array"
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																					namespaceSelector: {
-																						description: "A label query over the set of namespaces that the term applies to."
 																						properties: {
 																							matchExpressions: {
-																								description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																								items: {
-																									description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																									properties: {
-																										key: {
-																											description: "key is the label key that the selector applies to."
-																											type:        "string"
-																										}
-																										operator: {
-																											description: "operator represents a key's relationship to a set of values."
-																											type:        "string"
-																										}
+																										key: type:      "string"
+																										operator: type: "string"
 																										values: {
-																											description: "values is an array of string values."
 																											items: type: "string"
-																											type: "array"
+																											type:                     "array"
+																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
 																									required: [
@@ -4449,34 +4686,30 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									]
 																									type: "object"
 																								}
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																							matchLabels: {
 																								additionalProperties: type: "string"
-																								description: "matchLabels is a map of {key,value} pairs."
-																								type:        "object"
+																								type: "object"
 																							}
 																						}
 																						type:                    "object"
 																						"x-kubernetes-map-type": "atomic"
 																					}
 																					namespaces: {
-																						description: "namespaces specifies a static list of namespace names that the term applies to."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
-																					topologyKey: {
-																						description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																						type:        "string"
-																					}
+																					topologyKey: type: "string"
 																				}
 																				required: ["topologyKey"]
 																				type: "object"
 																			}
 																			weight: {
-																				description: "weight associated with matching the corresponding podAffinityTerm, in the range 1-100."
-																				format:      "int32"
-																				type:        "integer"
+																				format: "int32"
+																				type:   "integer"
 																			}
 																		}
 																		required: [
@@ -4485,33 +4718,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																requiredDuringSchedulingIgnoredDuringExecution: {
-																	description: "If the affinity requirements specified by this field are not met at scheduling time, the pod will no"
 																	items: {
-																		description: "Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) t"
 																		properties: {
 																			labelSelector: {
-																				description: "A label query over a set of resources, in this case pods."
 																				properties: {
 																					matchExpressions: {
-																						description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																						items: {
-																							description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																							properties: {
-																								key: {
-																									description: "key is the label key that the selector applies to."
-																									type:        "string"
-																								}
-																								operator: {
-																									description: "operator represents a key's relationship to a set of values."
-																									type:        "string"
-																								}
+																								key: type:      "string"
+																								operator: type: "string"
 																								values: {
-																									description: "values is an array of string values."
 																									items: type: "string"
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
 																							required: [
@@ -4520,49 +4743,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							]
 																							type: "object"
 																						}
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					matchLabels: {
 																						additionalProperties: type: "string"
-																						description: "matchLabels is a map of {key,value} pairs."
-																						type:        "object"
+																						type: "object"
 																					}
 																				}
 																				type:                    "object"
 																				"x-kubernetes-map-type": "atomic"
 																			}
 																			matchLabelKeys: {
-																				description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																				items: type: "string"
 																				type:                     "array"
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																			mismatchLabelKeys: {
-																				description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																				items: type: "string"
 																				type:                     "array"
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																			namespaceSelector: {
-																				description: "A label query over the set of namespaces that the term applies to."
 																				properties: {
 																					matchExpressions: {
-																						description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																						items: {
-																							description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																							properties: {
-																								key: {
-																									description: "key is the label key that the selector applies to."
-																									type:        "string"
-																								}
-																								operator: {
-																									description: "operator represents a key's relationship to a set of values."
-																									type:        "string"
-																								}
+																								key: type:      "string"
+																								operator: type: "string"
 																								values: {
-																									description: "values is an array of string values."
 																									items: type: "string"
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
 																							required: [
@@ -4571,66 +4783,51 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							]
 																							type: "object"
 																						}
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					matchLabels: {
 																						additionalProperties: type: "string"
-																						description: "matchLabels is a map of {key,value} pairs."
-																						type:        "object"
+																						type: "object"
 																					}
 																				}
 																				type:                    "object"
 																				"x-kubernetes-map-type": "atomic"
 																			}
 																			namespaces: {
-																				description: "namespaces specifies a static list of namespace names that the term applies to."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
-																			topologyKey: {
-																				description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																				type:        "string"
-																			}
+																			topologyKey: type: "string"
 																		}
 																		required: ["topologyKey"]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 															}
 															type: "object"
 														}
 														podAntiAffinity: {
-															description: "PodAntiAffinity is a group of inter pod anti affinity scheduling rules"
 															properties: {
 																preferredDuringSchedulingIgnoredDuringExecution: {
-																	description: "The scheduler will prefer to schedule pods to nodes that satisfy the anti-affinity expressions speci"
 																	items: {
-																		description: "The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most"
 																		properties: {
 																			podAffinityTerm: {
-																				description: "Required. A pod affinity term, associated with the corresponding weight."
 																				properties: {
 																					labelSelector: {
-																						description: "A label query over a set of resources, in this case pods."
 																						properties: {
 																							matchExpressions: {
-																								description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																								items: {
-																									description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																									properties: {
-																										key: {
-																											description: "key is the label key that the selector applies to."
-																											type:        "string"
-																										}
-																										operator: {
-																											description: "operator represents a key's relationship to a set of values."
-																											type:        "string"
-																										}
+																										key: type:      "string"
+																										operator: type: "string"
 																										values: {
-																											description: "values is an array of string values."
 																											items: type: "string"
-																											type: "array"
+																											type:                     "array"
+																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
 																									required: [
@@ -4639,49 +4836,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									]
 																									type: "object"
 																								}
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																							matchLabels: {
 																								additionalProperties: type: "string"
-																								description: "matchLabels is a map of {key,value} pairs."
-																								type:        "object"
+																								type: "object"
 																							}
 																						}
 																						type:                    "object"
 																						"x-kubernetes-map-type": "atomic"
 																					}
 																					matchLabelKeys: {
-																						description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																						items: type: "string"
 																						type:                     "array"
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																					mismatchLabelKeys: {
-																						description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																						items: type: "string"
 																						type:                     "array"
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																					namespaceSelector: {
-																						description: "A label query over the set of namespaces that the term applies to."
 																						properties: {
 																							matchExpressions: {
-																								description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																								items: {
-																									description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																									properties: {
-																										key: {
-																											description: "key is the label key that the selector applies to."
-																											type:        "string"
-																										}
-																										operator: {
-																											description: "operator represents a key's relationship to a set of values."
-																											type:        "string"
-																										}
+																										key: type:      "string"
+																										operator: type: "string"
 																										values: {
-																											description: "values is an array of string values."
 																											items: type: "string"
-																											type: "array"
+																											type:                     "array"
+																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
 																									required: [
@@ -4690,34 +4876,30 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									]
 																									type: "object"
 																								}
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																							matchLabels: {
 																								additionalProperties: type: "string"
-																								description: "matchLabels is a map of {key,value} pairs."
-																								type:        "object"
+																								type: "object"
 																							}
 																						}
 																						type:                    "object"
 																						"x-kubernetes-map-type": "atomic"
 																					}
 																					namespaces: {
-																						description: "namespaces specifies a static list of namespace names that the term applies to."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
-																					topologyKey: {
-																						description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																						type:        "string"
-																					}
+																					topologyKey: type: "string"
 																				}
 																				required: ["topologyKey"]
 																				type: "object"
 																			}
 																			weight: {
-																				description: "weight associated with matching the corresponding podAffinityTerm, in the range 1-100."
-																				format:      "int32"
-																				type:        "integer"
+																				format: "int32"
+																				type:   "integer"
 																			}
 																		}
 																		required: [
@@ -4726,33 +4908,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																requiredDuringSchedulingIgnoredDuringExecution: {
-																	description: "If the anti-affinity requirements specified by this field are not met at scheduling time, the pod wi"
 																	items: {
-																		description: "Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) t"
 																		properties: {
 																			labelSelector: {
-																				description: "A label query over a set of resources, in this case pods."
 																				properties: {
 																					matchExpressions: {
-																						description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																						items: {
-																							description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																							properties: {
-																								key: {
-																									description: "key is the label key that the selector applies to."
-																									type:        "string"
-																								}
-																								operator: {
-																									description: "operator represents a key's relationship to a set of values."
-																									type:        "string"
-																								}
+																								key: type:      "string"
+																								operator: type: "string"
 																								values: {
-																									description: "values is an array of string values."
 																									items: type: "string"
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
 																							required: [
@@ -4761,49 +4933,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							]
 																							type: "object"
 																						}
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					matchLabels: {
 																						additionalProperties: type: "string"
-																						description: "matchLabels is a map of {key,value} pairs."
-																						type:        "object"
+																						type: "object"
 																					}
 																				}
 																				type:                    "object"
 																				"x-kubernetes-map-type": "atomic"
 																			}
 																			matchLabelKeys: {
-																				description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																				items: type: "string"
 																				type:                     "array"
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																			mismatchLabelKeys: {
-																				description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																				items: type: "string"
 																				type:                     "array"
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																			namespaceSelector: {
-																				description: "A label query over the set of namespaces that the term applies to."
 																				properties: {
 																					matchExpressions: {
-																						description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																						items: {
-																							description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																							properties: {
-																								key: {
-																									description: "key is the label key that the selector applies to."
-																									type:        "string"
-																								}
-																								operator: {
-																									description: "operator represents a key's relationship to a set of values."
-																									type:        "string"
-																								}
+																								key: type:      "string"
+																								operator: type: "string"
 																								values: {
-																									description: "values is an array of string values."
 																									items: type: "string"
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
 																							required: [
@@ -4812,91 +4973,63 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							]
 																							type: "object"
 																						}
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					matchLabels: {
 																						additionalProperties: type: "string"
-																						description: "matchLabels is a map of {key,value} pairs."
-																						type:        "object"
+																						type: "object"
 																					}
 																				}
 																				type:                    "object"
 																				"x-kubernetes-map-type": "atomic"
 																			}
 																			namespaces: {
-																				description: "namespaces specifies a static list of namespace names that the term applies to."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
-																			topologyKey: {
-																				description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																				type:        "string"
-																			}
+																			topologyKey: type: "string"
 																		}
 																		required: ["topologyKey"]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 															}
 															type: "object"
 														}
 														tolerations: {
-															description: "The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect"
 															items: {
-																description: "The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect"
 																properties: {
-																	effect: {
-																		description: "Effect indicates the taint effect to match. Empty means match all taint effects."
-																		type:        "string"
-																	}
-																	key: {
-																		description: "Key is the taint key that the toleration applies to. Empty means match all taint keys."
-																		type:        "string"
-																	}
-																	operator: {
-																		description: "Operator represents a key's relationship to the value. Valid operators are Exists and Equal."
-																		type:        "string"
-																	}
+																	effect: type:   "string"
+																	key: type:      "string"
+																	operator: type: "string"
 																	tolerationSeconds: {
-																		description: "TolerationSeconds represents the period of time the toleration (which must be of effect NoExecute, o"
-																		format:      "int64"
-																		type:        "integer"
+																		format: "int64"
+																		type:   "integer"
 																	}
-																	value: {
-																		description: "Value is the taint value the toleration matches to."
-																		type:        "string"
-																	}
+																	value: type: "string"
 																}
 																type: "object"
 															}
 															type: "array"
 														}
 														topologySpreadConstraints: {
-															description: "TopologySpreadConstraint specifies how to spread matching pods among the given topology"
 															items: {
-																description: "TopologySpreadConstraint specifies how to spread matching pods among the given topology."
 																properties: {
 																	labelSelector: {
-																		description: "LabelSelector is used to find matching pods."
 																		properties: {
 																			matchExpressions: {
-																				description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																				items: {
-																					description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																					properties: {
-																						key: {
-																							description: "key is the label key that the selector applies to."
-																							type:        "string"
-																						}
-																						operator: {
-																							description: "operator represents a key's relationship to a set of values."
-																							type:        "string"
-																						}
+																						key: type:      "string"
+																						operator: type: "string"
 																						values: {
-																							description: "values is an array of string values."
 																							items: type: "string"
-																							type: "array"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
 																					}
 																					required: [
@@ -4905,49 +5038,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					]
 																					type: "object"
 																				}
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																			matchLabels: {
 																				additionalProperties: type: "string"
-																				description: "matchLabels is a map of {key,value} pairs."
-																				type:        "object"
+																				type: "object"
 																			}
 																		}
 																		type:                    "object"
 																		"x-kubernetes-map-type": "atomic"
 																	}
 																	matchLabelKeys: {
-																		description: "MatchLabelKeys is a set of pod label keys to select the pods over which spreading will be calculated"
 																		items: type: "string"
 																		type:                     "array"
 																		"x-kubernetes-list-type": "atomic"
 																	}
 																	maxSkew: {
-																		description: "MaxSkew describes the degree to which pods may be unevenly distributed."
-																		format:      "int32"
-																		type:        "integer"
+																		format: "int32"
+																		type:   "integer"
 																	}
 																	minDomains: {
-																		description: "MinDomains indicates a minimum number of eligible domains."
-																		format:      "int32"
-																		type:        "integer"
+																		format: "int32"
+																		type:   "integer"
 																	}
-																	nodeAffinityPolicy: {
-																		description: "NodeAffinityPolicy indicates how we will treat Pod's nodeAffinity/nodeSelector when calculating pod "
-																		type:        "string"
-																	}
-																	nodeTaintsPolicy: {
-																		description: "NodeTaintsPolicy indicates how we will treat node taints when calculating pod topology spread skew."
-																		type:        "string"
-																	}
-																	topologyKey: {
-																		description: "TopologyKey is the key of node labels."
-																		type:        "string"
-																	}
-																	whenUnsatisfiable: {
-																		description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint."
-																		type:        "string"
-																	}
+																	nodeAffinityPolicy: type: "string"
+																	nodeTaintsPolicy: type:   "string"
+																	topologyKey: type:        "string"
+																	whenUnsatisfiable: type:  "string"
 																}
 																required: [
 																	"maxSkew",
@@ -4967,37 +5085,24 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "boolean"
 												}
 												preparePlacement: {
-													description: "Placement is the placement for an object"
-													nullable:    true
+													nullable: true
 													properties: {
 														nodeAffinity: {
-															description: "NodeAffinity is a group of node affinity scheduling rules"
 															properties: {
 																preferredDuringSchedulingIgnoredDuringExecution: {
-																	description: "The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified "
 																	items: {
-																		description: "An empty preferred scheduling term matches all objects with implicit weight 0 (i.e. it's a no-op)."
 																		properties: {
 																			preference: {
-																				description: "A node selector term, associated with the corresponding weight."
 																				properties: {
 																					matchExpressions: {
-																						description: "A list of node selector requirements by node's labels."
 																						items: {
-																							description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																							properties: {
-																								key: {
-																									description: "The label key that the selector applies to."
-																									type:        "string"
-																								}
-																								operator: {
-																									description: "Represents a key's relationship to a set of values."
-																									type:        "string"
-																								}
+																								key: type:      "string"
+																								operator: type: "string"
 																								values: {
-																									description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																									items: type: "string"
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
 																							required: [
@@ -5006,25 +5111,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							]
 																							type: "object"
 																						}
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					matchFields: {
-																						description: "A list of node selector requirements by node's fields."
 																						items: {
-																							description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																							properties: {
-																								key: {
-																									description: "The label key that the selector applies to."
-																									type:        "string"
-																								}
-																								operator: {
-																									description: "Represents a key's relationship to a set of values."
-																									type:        "string"
-																								}
+																								key: type:      "string"
+																								operator: type: "string"
 																								values: {
-																									description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																									items: type: "string"
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
 																							required: [
@@ -5033,16 +5131,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							]
 																							type: "object"
 																						}
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				type:                    "object"
 																				"x-kubernetes-map-type": "atomic"
 																			}
 																			weight: {
-																				description: "Weight associated with matching the corresponding nodeSelectorTerm, in the range 1-100."
-																				format:      "int32"
-																				type:        "integer"
+																				format: "int32"
+																				type:   "integer"
 																			}
 																		}
 																		required: [
@@ -5051,32 +5149,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																requiredDuringSchedulingIgnoredDuringExecution: {
-																	description: "If the affinity requirements specified by this field are not met at scheduling time, the pod will no"
 																	properties: nodeSelectorTerms: {
-																		description: "Required. A list of node selector terms. The terms are ORed."
 																		items: {
-																			description: "A null or empty node selector term matches no objects. The requirements of them are ANDed."
 																			properties: {
 																				matchExpressions: {
-																					description: "A list of node selector requirements by node's labels."
 																					items: {
-																						description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																						properties: {
-																							key: {
-																								description: "The label key that the selector applies to."
-																								type:        "string"
-																							}
-																							operator: {
-																								description: "Represents a key's relationship to a set of values."
-																								type:        "string"
-																							}
+																							key: type:      "string"
+																							operator: type: "string"
 																							values: {
-																								description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
 																						required: [
@@ -5085,25 +5173,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																				matchFields: {
-																					description: "A list of node selector requirements by node's fields."
 																					items: {
-																						description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																						properties: {
-																							key: {
-																								description: "The label key that the selector applies to."
-																								type:        "string"
-																							}
-																							operator: {
-																								description: "Represents a key's relationship to a set of values."
-																								type:        "string"
-																							}
+																							key: type:      "string"
+																							operator: type: "string"
 																							values: {
-																								description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
 																						required: [
@@ -5112,13 +5193,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
 																			type:                    "object"
 																			"x-kubernetes-map-type": "atomic"
 																		}
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																	required: ["nodeSelectorTerms"]
 																	type:                    "object"
@@ -5128,36 +5211,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type: "object"
 														}
 														podAffinity: {
-															description: "PodAffinity is a group of inter pod affinity scheduling rules"
 															properties: {
 																preferredDuringSchedulingIgnoredDuringExecution: {
-																	description: "The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified "
 																	items: {
-																		description: "The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most"
 																		properties: {
 																			podAffinityTerm: {
-																				description: "Required. A pod affinity term, associated with the corresponding weight."
 																				properties: {
 																					labelSelector: {
-																						description: "A label query over a set of resources, in this case pods."
 																						properties: {
 																							matchExpressions: {
-																								description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																								items: {
-																									description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																									properties: {
-																										key: {
-																											description: "key is the label key that the selector applies to."
-																											type:        "string"
-																										}
-																										operator: {
-																											description: "operator represents a key's relationship to a set of values."
-																											type:        "string"
-																										}
+																										key: type:      "string"
+																										operator: type: "string"
 																										values: {
-																											description: "values is an array of string values."
 																											items: type: "string"
-																											type: "array"
+																											type:                     "array"
+																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
 																									required: [
@@ -5166,49 +5236,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									]
 																									type: "object"
 																								}
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																							matchLabels: {
 																								additionalProperties: type: "string"
-																								description: "matchLabels is a map of {key,value} pairs."
-																								type:        "object"
+																								type: "object"
 																							}
 																						}
 																						type:                    "object"
 																						"x-kubernetes-map-type": "atomic"
 																					}
 																					matchLabelKeys: {
-																						description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																						items: type: "string"
 																						type:                     "array"
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																					mismatchLabelKeys: {
-																						description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																						items: type: "string"
 																						type:                     "array"
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																					namespaceSelector: {
-																						description: "A label query over the set of namespaces that the term applies to."
 																						properties: {
 																							matchExpressions: {
-																								description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																								items: {
-																									description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																									properties: {
-																										key: {
-																											description: "key is the label key that the selector applies to."
-																											type:        "string"
-																										}
-																										operator: {
-																											description: "operator represents a key's relationship to a set of values."
-																											type:        "string"
-																										}
+																										key: type:      "string"
+																										operator: type: "string"
 																										values: {
-																											description: "values is an array of string values."
 																											items: type: "string"
-																											type: "array"
+																											type:                     "array"
+																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
 																									required: [
@@ -5217,34 +5276,30 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									]
 																									type: "object"
 																								}
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																							matchLabels: {
 																								additionalProperties: type: "string"
-																								description: "matchLabels is a map of {key,value} pairs."
-																								type:        "object"
+																								type: "object"
 																							}
 																						}
 																						type:                    "object"
 																						"x-kubernetes-map-type": "atomic"
 																					}
 																					namespaces: {
-																						description: "namespaces specifies a static list of namespace names that the term applies to."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
-																					topologyKey: {
-																						description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																						type:        "string"
-																					}
+																					topologyKey: type: "string"
 																				}
 																				required: ["topologyKey"]
 																				type: "object"
 																			}
 																			weight: {
-																				description: "weight associated with matching the corresponding podAffinityTerm, in the range 1-100."
-																				format:      "int32"
-																				type:        "integer"
+																				format: "int32"
+																				type:   "integer"
 																			}
 																		}
 																		required: [
@@ -5253,33 +5308,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																requiredDuringSchedulingIgnoredDuringExecution: {
-																	description: "If the affinity requirements specified by this field are not met at scheduling time, the pod will no"
 																	items: {
-																		description: "Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) t"
 																		properties: {
 																			labelSelector: {
-																				description: "A label query over a set of resources, in this case pods."
 																				properties: {
 																					matchExpressions: {
-																						description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																						items: {
-																							description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																							properties: {
-																								key: {
-																									description: "key is the label key that the selector applies to."
-																									type:        "string"
-																								}
-																								operator: {
-																									description: "operator represents a key's relationship to a set of values."
-																									type:        "string"
-																								}
+																								key: type:      "string"
+																								operator: type: "string"
 																								values: {
-																									description: "values is an array of string values."
 																									items: type: "string"
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
 																							required: [
@@ -5288,49 +5333,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							]
 																							type: "object"
 																						}
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					matchLabels: {
 																						additionalProperties: type: "string"
-																						description: "matchLabels is a map of {key,value} pairs."
-																						type:        "object"
+																						type: "object"
 																					}
 																				}
 																				type:                    "object"
 																				"x-kubernetes-map-type": "atomic"
 																			}
 																			matchLabelKeys: {
-																				description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																				items: type: "string"
 																				type:                     "array"
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																			mismatchLabelKeys: {
-																				description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																				items: type: "string"
 																				type:                     "array"
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																			namespaceSelector: {
-																				description: "A label query over the set of namespaces that the term applies to."
 																				properties: {
 																					matchExpressions: {
-																						description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																						items: {
-																							description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																							properties: {
-																								key: {
-																									description: "key is the label key that the selector applies to."
-																									type:        "string"
-																								}
-																								operator: {
-																									description: "operator represents a key's relationship to a set of values."
-																									type:        "string"
-																								}
+																								key: type:      "string"
+																								operator: type: "string"
 																								values: {
-																									description: "values is an array of string values."
 																									items: type: "string"
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
 																							required: [
@@ -5339,66 +5373,51 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							]
 																							type: "object"
 																						}
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					matchLabels: {
 																						additionalProperties: type: "string"
-																						description: "matchLabels is a map of {key,value} pairs."
-																						type:        "object"
+																						type: "object"
 																					}
 																				}
 																				type:                    "object"
 																				"x-kubernetes-map-type": "atomic"
 																			}
 																			namespaces: {
-																				description: "namespaces specifies a static list of namespace names that the term applies to."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
-																			topologyKey: {
-																				description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																				type:        "string"
-																			}
+																			topologyKey: type: "string"
 																		}
 																		required: ["topologyKey"]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 															}
 															type: "object"
 														}
 														podAntiAffinity: {
-															description: "PodAntiAffinity is a group of inter pod anti affinity scheduling rules"
 															properties: {
 																preferredDuringSchedulingIgnoredDuringExecution: {
-																	description: "The scheduler will prefer to schedule pods to nodes that satisfy the anti-affinity expressions speci"
 																	items: {
-																		description: "The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most"
 																		properties: {
 																			podAffinityTerm: {
-																				description: "Required. A pod affinity term, associated with the corresponding weight."
 																				properties: {
 																					labelSelector: {
-																						description: "A label query over a set of resources, in this case pods."
 																						properties: {
 																							matchExpressions: {
-																								description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																								items: {
-																									description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																									properties: {
-																										key: {
-																											description: "key is the label key that the selector applies to."
-																											type:        "string"
-																										}
-																										operator: {
-																											description: "operator represents a key's relationship to a set of values."
-																											type:        "string"
-																										}
+																										key: type:      "string"
+																										operator: type: "string"
 																										values: {
-																											description: "values is an array of string values."
 																											items: type: "string"
-																											type: "array"
+																											type:                     "array"
+																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
 																									required: [
@@ -5407,49 +5426,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									]
 																									type: "object"
 																								}
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																							matchLabels: {
 																								additionalProperties: type: "string"
-																								description: "matchLabels is a map of {key,value} pairs."
-																								type:        "object"
+																								type: "object"
 																							}
 																						}
 																						type:                    "object"
 																						"x-kubernetes-map-type": "atomic"
 																					}
 																					matchLabelKeys: {
-																						description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																						items: type: "string"
 																						type:                     "array"
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																					mismatchLabelKeys: {
-																						description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																						items: type: "string"
 																						type:                     "array"
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																					namespaceSelector: {
-																						description: "A label query over the set of namespaces that the term applies to."
 																						properties: {
 																							matchExpressions: {
-																								description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																								items: {
-																									description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																									properties: {
-																										key: {
-																											description: "key is the label key that the selector applies to."
-																											type:        "string"
-																										}
-																										operator: {
-																											description: "operator represents a key's relationship to a set of values."
-																											type:        "string"
-																										}
+																										key: type:      "string"
+																										operator: type: "string"
 																										values: {
-																											description: "values is an array of string values."
 																											items: type: "string"
-																											type: "array"
+																											type:                     "array"
+																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
 																									required: [
@@ -5458,34 +5466,30 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									]
 																									type: "object"
 																								}
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																							matchLabels: {
 																								additionalProperties: type: "string"
-																								description: "matchLabels is a map of {key,value} pairs."
-																								type:        "object"
+																								type: "object"
 																							}
 																						}
 																						type:                    "object"
 																						"x-kubernetes-map-type": "atomic"
 																					}
 																					namespaces: {
-																						description: "namespaces specifies a static list of namespace names that the term applies to."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
-																					topologyKey: {
-																						description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																						type:        "string"
-																					}
+																					topologyKey: type: "string"
 																				}
 																				required: ["topologyKey"]
 																				type: "object"
 																			}
 																			weight: {
-																				description: "weight associated with matching the corresponding podAffinityTerm, in the range 1-100."
-																				format:      "int32"
-																				type:        "integer"
+																				format: "int32"
+																				type:   "integer"
 																			}
 																		}
 																		required: [
@@ -5494,33 +5498,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																requiredDuringSchedulingIgnoredDuringExecution: {
-																	description: "If the anti-affinity requirements specified by this field are not met at scheduling time, the pod wi"
 																	items: {
-																		description: "Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) t"
 																		properties: {
 																			labelSelector: {
-																				description: "A label query over a set of resources, in this case pods."
 																				properties: {
 																					matchExpressions: {
-																						description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																						items: {
-																							description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																							properties: {
-																								key: {
-																									description: "key is the label key that the selector applies to."
-																									type:        "string"
-																								}
-																								operator: {
-																									description: "operator represents a key's relationship to a set of values."
-																									type:        "string"
-																								}
+																								key: type:      "string"
+																								operator: type: "string"
 																								values: {
-																									description: "values is an array of string values."
 																									items: type: "string"
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
 																							required: [
@@ -5529,49 +5523,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							]
 																							type: "object"
 																						}
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					matchLabels: {
 																						additionalProperties: type: "string"
-																						description: "matchLabels is a map of {key,value} pairs."
-																						type:        "object"
+																						type: "object"
 																					}
 																				}
 																				type:                    "object"
 																				"x-kubernetes-map-type": "atomic"
 																			}
 																			matchLabelKeys: {
-																				description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																				items: type: "string"
 																				type:                     "array"
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																			mismatchLabelKeys: {
-																				description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																				items: type: "string"
 																				type:                     "array"
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																			namespaceSelector: {
-																				description: "A label query over the set of namespaces that the term applies to."
 																				properties: {
 																					matchExpressions: {
-																						description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																						items: {
-																							description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																							properties: {
-																								key: {
-																									description: "key is the label key that the selector applies to."
-																									type:        "string"
-																								}
-																								operator: {
-																									description: "operator represents a key's relationship to a set of values."
-																									type:        "string"
-																								}
+																								key: type:      "string"
+																								operator: type: "string"
 																								values: {
-																									description: "values is an array of string values."
 																									items: type: "string"
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
 																							required: [
@@ -5580,91 +5563,63 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							]
 																							type: "object"
 																						}
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					matchLabels: {
 																						additionalProperties: type: "string"
-																						description: "matchLabels is a map of {key,value} pairs."
-																						type:        "object"
+																						type: "object"
 																					}
 																				}
 																				type:                    "object"
 																				"x-kubernetes-map-type": "atomic"
 																			}
 																			namespaces: {
-																				description: "namespaces specifies a static list of namespace names that the term applies to."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
-																			topologyKey: {
-																				description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																				type:        "string"
-																			}
+																			topologyKey: type: "string"
 																		}
 																		required: ["topologyKey"]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 															}
 															type: "object"
 														}
 														tolerations: {
-															description: "The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect"
 															items: {
-																description: "The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect"
 																properties: {
-																	effect: {
-																		description: "Effect indicates the taint effect to match. Empty means match all taint effects."
-																		type:        "string"
-																	}
-																	key: {
-																		description: "Key is the taint key that the toleration applies to. Empty means match all taint keys."
-																		type:        "string"
-																	}
-																	operator: {
-																		description: "Operator represents a key's relationship to the value. Valid operators are Exists and Equal."
-																		type:        "string"
-																	}
+																	effect: type:   "string"
+																	key: type:      "string"
+																	operator: type: "string"
 																	tolerationSeconds: {
-																		description: "TolerationSeconds represents the period of time the toleration (which must be of effect NoExecute, o"
-																		format:      "int64"
-																		type:        "integer"
+																		format: "int64"
+																		type:   "integer"
 																	}
-																	value: {
-																		description: "Value is the taint value the toleration matches to."
-																		type:        "string"
-																	}
+																	value: type: "string"
 																}
 																type: "object"
 															}
 															type: "array"
 														}
 														topologySpreadConstraints: {
-															description: "TopologySpreadConstraint specifies how to spread matching pods among the given topology"
 															items: {
-																description: "TopologySpreadConstraint specifies how to spread matching pods among the given topology."
 																properties: {
 																	labelSelector: {
-																		description: "LabelSelector is used to find matching pods."
 																		properties: {
 																			matchExpressions: {
-																				description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																				items: {
-																					description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																					properties: {
-																						key: {
-																							description: "key is the label key that the selector applies to."
-																							type:        "string"
-																						}
-																						operator: {
-																							description: "operator represents a key's relationship to a set of values."
-																							type:        "string"
-																						}
+																						key: type:      "string"
+																						operator: type: "string"
 																						values: {
-																							description: "values is an array of string values."
 																							items: type: "string"
-																							type: "array"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
 																					}
 																					required: [
@@ -5673,49 +5628,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					]
 																					type: "object"
 																				}
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																			matchLabels: {
 																				additionalProperties: type: "string"
-																				description: "matchLabels is a map of {key,value} pairs."
-																				type:        "object"
+																				type: "object"
 																			}
 																		}
 																		type:                    "object"
 																		"x-kubernetes-map-type": "atomic"
 																	}
 																	matchLabelKeys: {
-																		description: "MatchLabelKeys is a set of pod label keys to select the pods over which spreading will be calculated"
 																		items: type: "string"
 																		type:                     "array"
 																		"x-kubernetes-list-type": "atomic"
 																	}
 																	maxSkew: {
-																		description: "MaxSkew describes the degree to which pods may be unevenly distributed."
-																		format:      "int32"
-																		type:        "integer"
+																		format: "int32"
+																		type:   "integer"
 																	}
 																	minDomains: {
-																		description: "MinDomains indicates a minimum number of eligible domains."
-																		format:      "int32"
-																		type:        "integer"
+																		format: "int32"
+																		type:   "integer"
 																	}
-																	nodeAffinityPolicy: {
-																		description: "NodeAffinityPolicy indicates how we will treat Pod's nodeAffinity/nodeSelector when calculating pod "
-																		type:        "string"
-																	}
-																	nodeTaintsPolicy: {
-																		description: "NodeTaintsPolicy indicates how we will treat node taints when calculating pod topology spread skew."
-																		type:        "string"
-																	}
-																	topologyKey: {
-																		description: "TopologyKey is the key of node labels."
-																		type:        "string"
-																	}
-																	whenUnsatisfiable: {
-																		description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint."
-																		type:        "string"
-																	}
+																	nodeAffinityPolicy: type: "string"
+																	nodeTaintsPolicy: type:   "string"
+																	topologyKey: type:        "string"
+																	whenUnsatisfiable: type:  "string"
 																}
 																required: [
 																	"maxSkew",
@@ -5735,12 +5675,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													nullable:    true
 													properties: {
 														claims: {
-															description: "Claims lists the names of resources, defined in spec."
+															description: """
+	Claims lists the names of resources, defined in spec.resourceClaims,
+	that are used by this container.
+
+	This is an alpha field and requires enabling the
+	DynamicResourceAllocation feature gate.
+
+	This field is immutable. It can only be set for containers.
+	"""
 															items: {
 																description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
-																properties: name: {
-																	description: "Name must match the name of one entry in pod.spec."
-																	type:        "string"
+																properties: {
+																	name: {
+																		description: """
+	Name must match the name of one entry in pod.spec.resourceClaims of
+	the Pod where this field is used. It makes that resource available
+	inside a container.
+	"""
+																		type: "string"
+																	}
+																	request: {
+																		description: """
+	Request is the name chosen for a request in the referenced claim.
+	If empty, everything from the claim is made available, otherwise
+	only the result of this request.
+	"""
+																		type: "string"
+																	}
 																}
 																required: ["name"]
 																type: "object"
@@ -5759,8 +5721,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																"x-kubernetes-int-or-string": true
 															}
-															description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes."
-															type:        "object"
+															description: """
+	Limits describes the maximum amount of compute resources allowed.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+															type: "object"
 														}
 														requests: {
 															additionalProperties: {
@@ -5772,8 +5737,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																"x-kubernetes-int-or-string": true
 															}
-															description: "Requests describes the minimum amount of compute resources required."
-															type:        "object"
+															description: """
+	Requests describes the minimum amount of compute resources required.
+	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+	otherwise to an implementation-defined value. Requests cannot exceed Limits.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+															type: "object"
 														}
 													}
 													type:                                   "object"
@@ -5794,18 +5764,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												volumeClaimTemplates: {
 													description: "VolumeClaimTemplates is a list of PVC templates for the underlying storage devices"
 													items: {
-														description: "PersistentVolumeClaim is a user's request for and claim to a persistent volume"
+														description: "VolumeClaimTemplate is a simplified version of K8s corev1's PVC. It has no type meta or status."
 														properties: {
-															apiVersion: {
-																description: "APIVersion defines the versioned schema of this representation of an object."
-																type:        "string"
-															}
-															kind: {
-																description: "Kind is a string value representing the REST resource this object represents."
-																type:        "string"
-															}
 															metadata: {
-																description: "Standard object's metadata. More info: https://git.k8s."
+																description: """
+	Standard object's metadata.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	"""
 																properties: {
 																	annotations: {
 																		additionalProperties: type: "string"
@@ -5826,19 +5791,39 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type: "object"
 															}
 															spec: {
-																description: "spec defines the desired characteristics of a volume requested by a pod author."
+																description: """
+	spec defines the desired characteristics of a volume requested by a pod author.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
+	"""
 																properties: {
 																	accessModes: {
-																		description: "accessModes contains the desired access modes the volume should have. More info: https://kubernetes."
+																		description: """
+	accessModes contains the desired access modes the volume should have.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
+	"""
 																		items: type: "string"
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																	dataSource: {
-																		description: "dataSource field can be used to specify either: * An existing VolumeSnapshot object (snapshot."
+																		description: """
+	dataSource field can be used to specify either:
+	* An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot)
+	* An existing PVC (PersistentVolumeClaim)
+	If the provisioner or an external controller can support the specified data source,
+	it will create a new volume based on the contents of the specified data source.
+	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
+	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
+	"""
 																		properties: {
 																			apiGroup: {
-																				description: "APIGroup is the group for the resource being referenced."
-																				type:        "string"
+																				description: """
+	APIGroup is the group for the resource being referenced.
+	If APIGroup is not specified, the specified Kind must be in the core API group.
+	For any other third-party types, APIGroup is required.
+	"""
+																				type: "string"
 																			}
 																			kind: {
 																				description: "Kind is the type of resource being referenced"
@@ -5857,11 +5842,39 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		"x-kubernetes-map-type": "atomic"
 																	}
 																	dataSourceRef: {
-																		description: "dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volum"
+																		description: """
+	dataSourceRef specifies the object from which to populate the volume with data, if a non-empty
+	volume is desired. This may be any object from a non-empty API group (non
+	core object) or a PersistentVolumeClaim object.
+	When this field is specified, volume binding will only succeed if the type of
+	the specified object matches some installed volume populator or dynamic
+	provisioner.
+	This field will replace the functionality of the dataSource field and as such
+	if both fields are non-empty, they must have the same value. For backwards
+	compatibility, when namespace isn't specified in dataSourceRef,
+	both fields (dataSource and dataSourceRef) will be set to the same
+	value automatically if one of them is empty and the other is non-empty.
+	When namespace is specified in dataSourceRef,
+	dataSource isn't set to the same value and must be empty.
+	There are three important differences between dataSource and dataSourceRef:
+	* While dataSource only allows two specific types of objects, dataSourceRef
+	  allows any non-core object, as well as PersistentVolumeClaim objects.
+	* While dataSource ignores disallowed values (dropping them), dataSourceRef
+	  preserves all values, and generates an error if a disallowed value is
+	  specified.
+	* While dataSource only allows local objects, dataSourceRef allows objects
+	  in any namespaces.
+	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
+	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+	"""
 																		properties: {
 																			apiGroup: {
-																				description: "APIGroup is the group for the resource being referenced."
-																				type:        "string"
+																				description: """
+	APIGroup is the group for the resource being referenced.
+	If APIGroup is not specified, the specified Kind must be in the core API group.
+	For any other third-party types, APIGroup is required.
+	"""
+																				type: "string"
 																			}
 																			kind: {
 																				description: "Kind is the type of resource being referenced"
@@ -5872,8 +5885,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type:        "string"
 																			}
 																			namespace: {
-																				description: "Namespace is the namespace of resource being referenced Note that when a namespace is specified, a g"
-																				type:        "string"
+																				description: """
+	Namespace is the namespace of resource being referenced
+	Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
+	(Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+	"""
+																				type: "string"
 																			}
 																		}
 																		required: [
@@ -5883,7 +5900,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type: "object"
 																	}
 																	resources: {
-																		description: "resources represents the minimum resources the volume should have."
+																		description: """
+	resources represents the minimum resources the volume should have.
+	If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+	that are lower than previous value but must still be higher than capacity recorded in the
+	status field of the claim.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
+	"""
 																		properties: {
 																			limits: {
 																				additionalProperties: {
@@ -5895,8 +5918,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																					"x-kubernetes-int-or-string": true
 																				}
-																				description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes."
-																				type:        "object"
+																				description: """
+	Limits describes the maximum amount of compute resources allowed.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+																				type: "object"
 																			}
 																			requests: {
 																				additionalProperties: {
@@ -5908,8 +5934,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																					"x-kubernetes-int-or-string": true
 																				}
-																				description: "Requests describes the minimum amount of compute resources required."
-																				type:        "object"
+																				description: """
+	Requests describes the minimum amount of compute resources required.
+	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+	otherwise to an implementation-defined value. Requests cannot exceed Limits.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+																				type: "object"
 																			}
 																		}
 																		type: "object"
@@ -5920,20 +5951,32 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			matchExpressions: {
 																				description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																				items: {
-																					description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
+																					description: """
+	A label selector requirement is a selector that contains values, a key, and an operator that
+	relates the key and values.
+	"""
 																					properties: {
 																						key: {
 																							description: "key is the label key that the selector applies to."
 																							type:        "string"
 																						}
 																						operator: {
-																							description: "operator represents a key's relationship to a set of values."
-																							type:        "string"
+																							description: """
+	operator represents a key's relationship to a set of values.
+	Valid operators are In, NotIn, Exists and DoesNotExist.
+	"""
+																							type: "string"
 																						}
 																						values: {
-																							description: "values is an array of string values."
+																							description: """
+	values is an array of string values. If the operator is In or NotIn,
+	the values array must be non-empty. If the operator is Exists or DoesNotExist,
+	the values array must be empty. This array is replaced during a strategic
+	merge patch.
+	"""
 																							items: type: "string"
-																							type: "array"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
 																					}
 																					required: [
@@ -5942,137 +5985,55 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					]
 																					type: "object"
 																				}
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																			matchLabels: {
 																				additionalProperties: type: "string"
-																				description: "matchLabels is a map of {key,value} pairs."
-																				type:        "object"
+																				description: """
+	matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+	map is equivalent to an element of matchExpressions, whose key field is "key", the
+	operator is "In", and the values array contains only "value". The requirements are ANDed.
+	"""
+																				type: "object"
 																			}
 																		}
 																		type:                    "object"
 																		"x-kubernetes-map-type": "atomic"
 																	}
 																	storageClassName: {
-																		description: "storageClassName is the name of the StorageClass required by the claim."
-																		type:        "string"
+																		description: """
+	storageClassName is the name of the StorageClass required by the claim.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
+	"""
+																		type: "string"
 																	}
 																	volumeAttributesClassName: {
-																		description: "volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim."
-																		type:        "string"
+																		description: """
+	volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
+	If specified, the CSI driver will create or update the volume with the attributes defined
+	in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
+	it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
+	will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
+	If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
+	will be set by the persistentvolume controller if it exists.
+	If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
+	set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
+	exists.
+	More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
+	(Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
+	"""
+																		type: "string"
 																	}
 																	volumeMode: {
-																		description: "volumeMode defines what type of volume is required by the claim."
-																		type:        "string"
+																		description: """
+	volumeMode defines what type of volume is required by the claim.
+	Value of Filesystem is implied when not included in claim spec.
+	"""
+																		type: "string"
 																	}
 																	volumeName: {
 																		description: "volumeName is the binding reference to the PersistentVolume backing this claim."
-																		type:        "string"
-																	}
-																}
-																type: "object"
-															}
-															status: {
-																description: "status represents the current information/status of a persistent volume claim. Read-only."
-																properties: {
-																	accessModes: {
-																		description: "accessModes contains the actual access modes the volume backing the PVC has."
-																		items: type: "string"
-																		type: "array"
-																	}
-																	allocatedResourceStatuses: {
-																		additionalProperties: {
-																			description: "When a controller receives persistentvolume claim update with ClaimResourceStatus for a resource tha"
-																			type:        "string"
-																		}
-																		description:             "allocatedResourceStatuses stores status of resource being resized for the given PVC."
-																		type:                    "object"
-																		"x-kubernetes-map-type": "granular"
-																	}
-																	allocatedResources: {
-																		additionalProperties: {
-																			anyOf: [{
-																				type: "integer"
-																			}, {
-																				type: "string"
-																			}]
-																			pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																			"x-kubernetes-int-or-string": true
-																		}
-																		description: "allocatedResources tracks the resources allocated to a PVC including its capacity."
-																		type:        "object"
-																	}
-																	capacity: {
-																		additionalProperties: {
-																			anyOf: [{
-																				type: "integer"
-																			}, {
-																				type: "string"
-																			}]
-																			pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																			"x-kubernetes-int-or-string": true
-																		}
-																		description: "capacity represents the actual resources of the underlying volume."
-																		type:        "object"
-																	}
-																	conditions: {
-																		description: "conditions is the current Condition of persistent volume claim."
-																		items: {
-																			description: "PersistentVolumeClaimCondition contains details about state of pvc"
-																			properties: {
-																				lastProbeTime: {
-																					description: "lastProbeTime is the time we probed the condition."
-																					format:      "date-time"
-																					type:        "string"
-																				}
-																				lastTransitionTime: {
-																					description: "lastTransitionTime is the time the condition transitioned from one status to another."
-																					format:      "date-time"
-																					type:        "string"
-																				}
-																				message: {
-																					description: "message is the human-readable message indicating details about last transition."
-																					type:        "string"
-																				}
-																				reason: {
-																					description: "reason is a unique, this should be a short, machine understandable string that gives the reason for "
-																					type:        "string"
-																				}
-																				status: type: "string"
-																				type: {
-																					description: "PersistentVolumeClaimConditionType is a valid value of PersistentVolumeClaimCondition.Type"
-																					type:        "string"
-																				}
-																			}
-																			required: [
-																				"status",
-																				"type",
-																			]
-																			type: "object"
-																		}
-																		type: "array"
-																	}
-																	currentVolumeAttributesClassName: {
-																		description: "currentVolumeAttributesClassName is the current name of the VolumeAttributesClass the PVC is using."
-																		type:        "string"
-																	}
-																	modifyVolumeStatus: {
-																		description: "ModifyVolumeStatus represents the status object of ControllerModifyVolume operation."
-																		properties: {
-																			status: {
-																				description: "status is the status of the ControllerModifyVolume operation."
-																				type:        "string"
-																			}
-																			targetVolumeAttributesClassName: {
-																				description: "targetVolumeAttributesClassName is the name of the VolumeAttributesClass the PVC currently being rec"
-																				type:        "string"
-																			}
-																		}
-																		required: ["status"]
-																		type: "object"
-																	}
-																	phase: {
-																		description: "phase represents the current phase of PersistentVolumeClaim."
 																		type:        "string"
 																	}
 																}
@@ -6106,9 +6067,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type: "string"
 											}
 											updateStore: {
-												description: "UpdateStore updates the backend store for existing OSDs."
-												pattern:     "^$|^yes-really-update-store$"
-												type:        "string"
+												description: """
+	UpdateStore updates the backend store for existing OSDs. It destroys each OSD one at a time, cleans up the backing disk
+	and prepares same OSD on that disk
+	"""
+												pattern: "^$|^yes-really-update-store$"
+												type:    "string"
 											}
 										}
 										type: "object"
@@ -6121,18 +6085,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									volumeClaimTemplates: {
 										description: "PersistentVolumeClaims to use as storage"
 										items: {
-											description: "PersistentVolumeClaim is a user's request for and claim to a persistent volume"
+											description: "VolumeClaimTemplate is a simplified version of K8s corev1's PVC. It has no type meta or status."
 											properties: {
-												apiVersion: {
-													description: "APIVersion defines the versioned schema of this representation of an object."
-													type:        "string"
-												}
-												kind: {
-													description: "Kind is a string value representing the REST resource this object represents."
-													type:        "string"
-												}
 												metadata: {
-													description: "Standard object's metadata. More info: https://git.k8s."
+													description: """
+	Standard object's metadata.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	"""
 													properties: {
 														annotations: {
 															additionalProperties: type: "string"
@@ -6152,19 +6111,39 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type: "object"
 												}
 												spec: {
-													description: "spec defines the desired characteristics of a volume requested by a pod author."
+													description: """
+	spec defines the desired characteristics of a volume requested by a pod author.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
+	"""
 													properties: {
 														accessModes: {
-															description: "accessModes contains the desired access modes the volume should have. More info: https://kubernetes."
+															description: """
+	accessModes contains the desired access modes the volume should have.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
+	"""
 															items: type: "string"
-															type: "array"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
 														}
 														dataSource: {
-															description: "dataSource field can be used to specify either: * An existing VolumeSnapshot object (snapshot."
+															description: """
+	dataSource field can be used to specify either:
+	* An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot)
+	* An existing PVC (PersistentVolumeClaim)
+	If the provisioner or an external controller can support the specified data source,
+	it will create a new volume based on the contents of the specified data source.
+	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
+	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
+	"""
 															properties: {
 																apiGroup: {
-																	description: "APIGroup is the group for the resource being referenced."
-																	type:        "string"
+																	description: """
+	APIGroup is the group for the resource being referenced.
+	If APIGroup is not specified, the specified Kind must be in the core API group.
+	For any other third-party types, APIGroup is required.
+	"""
+																	type: "string"
 																}
 																kind: {
 																	description: "Kind is the type of resource being referenced"
@@ -6183,11 +6162,39 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															"x-kubernetes-map-type": "atomic"
 														}
 														dataSourceRef: {
-															description: "dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volum"
+															description: """
+	dataSourceRef specifies the object from which to populate the volume with data, if a non-empty
+	volume is desired. This may be any object from a non-empty API group (non
+	core object) or a PersistentVolumeClaim object.
+	When this field is specified, volume binding will only succeed if the type of
+	the specified object matches some installed volume populator or dynamic
+	provisioner.
+	This field will replace the functionality of the dataSource field and as such
+	if both fields are non-empty, they must have the same value. For backwards
+	compatibility, when namespace isn't specified in dataSourceRef,
+	both fields (dataSource and dataSourceRef) will be set to the same
+	value automatically if one of them is empty and the other is non-empty.
+	When namespace is specified in dataSourceRef,
+	dataSource isn't set to the same value and must be empty.
+	There are three important differences between dataSource and dataSourceRef:
+	* While dataSource only allows two specific types of objects, dataSourceRef
+	  allows any non-core object, as well as PersistentVolumeClaim objects.
+	* While dataSource ignores disallowed values (dropping them), dataSourceRef
+	  preserves all values, and generates an error if a disallowed value is
+	  specified.
+	* While dataSource only allows local objects, dataSourceRef allows objects
+	  in any namespaces.
+	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
+	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+	"""
 															properties: {
 																apiGroup: {
-																	description: "APIGroup is the group for the resource being referenced."
-																	type:        "string"
+																	description: """
+	APIGroup is the group for the resource being referenced.
+	If APIGroup is not specified, the specified Kind must be in the core API group.
+	For any other third-party types, APIGroup is required.
+	"""
+																	type: "string"
 																}
 																kind: {
 																	description: "Kind is the type of resource being referenced"
@@ -6198,8 +6205,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type:        "string"
 																}
 																namespace: {
-																	description: "Namespace is the namespace of resource being referenced Note that when a namespace is specified, a g"
-																	type:        "string"
+																	description: """
+	Namespace is the namespace of resource being referenced
+	Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
+	(Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+	"""
+																	type: "string"
 																}
 															}
 															required: [
@@ -6209,7 +6220,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type: "object"
 														}
 														resources: {
-															description: "resources represents the minimum resources the volume should have."
+															description: """
+	resources represents the minimum resources the volume should have.
+	If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+	that are lower than previous value but must still be higher than capacity recorded in the
+	status field of the claim.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
+	"""
 															properties: {
 																limits: {
 																	additionalProperties: {
@@ -6221,8 +6238,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																		"x-kubernetes-int-or-string": true
 																	}
-																	description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes."
-																	type:        "object"
+																	description: """
+	Limits describes the maximum amount of compute resources allowed.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+																	type: "object"
 																}
 																requests: {
 																	additionalProperties: {
@@ -6234,8 +6254,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																		"x-kubernetes-int-or-string": true
 																	}
-																	description: "Requests describes the minimum amount of compute resources required."
-																	type:        "object"
+																	description: """
+	Requests describes the minimum amount of compute resources required.
+	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+	otherwise to an implementation-defined value. Requests cannot exceed Limits.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+																	type: "object"
 																}
 															}
 															type: "object"
@@ -6246,20 +6271,32 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																matchExpressions: {
 																	description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																	items: {
-																		description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
+																		description: """
+	A label selector requirement is a selector that contains values, a key, and an operator that
+	relates the key and values.
+	"""
 																		properties: {
 																			key: {
 																				description: "key is the label key that the selector applies to."
 																				type:        "string"
 																			}
 																			operator: {
-																				description: "operator represents a key's relationship to a set of values."
-																				type:        "string"
+																				description: """
+	operator represents a key's relationship to a set of values.
+	Valid operators are In, NotIn, Exists and DoesNotExist.
+	"""
+																				type: "string"
 																			}
 																			values: {
-																				description: "values is an array of string values."
+																				description: """
+	values is an array of string values. If the operator is In or NotIn,
+	the values array must be non-empty. If the operator is Exists or DoesNotExist,
+	the values array must be empty. This array is replaced during a strategic
+	merge patch.
+	"""
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -6268,137 +6305,55 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																matchLabels: {
 																	additionalProperties: type: "string"
-																	description: "matchLabels is a map of {key,value} pairs."
-																	type:        "object"
+																	description: """
+	matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+	map is equivalent to an element of matchExpressions, whose key field is "key", the
+	operator is "In", and the values array contains only "value". The requirements are ANDed.
+	"""
+																	type: "object"
 																}
 															}
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
 														storageClassName: {
-															description: "storageClassName is the name of the StorageClass required by the claim."
-															type:        "string"
+															description: """
+	storageClassName is the name of the StorageClass required by the claim.
+	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
+	"""
+															type: "string"
 														}
 														volumeAttributesClassName: {
-															description: "volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim."
-															type:        "string"
+															description: """
+	volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
+	If specified, the CSI driver will create or update the volume with the attributes defined
+	in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
+	it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
+	will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
+	If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
+	will be set by the persistentvolume controller if it exists.
+	If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
+	set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
+	exists.
+	More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
+	(Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
+	"""
+															type: "string"
 														}
 														volumeMode: {
-															description: "volumeMode defines what type of volume is required by the claim."
-															type:        "string"
+															description: """
+	volumeMode defines what type of volume is required by the claim.
+	Value of Filesystem is implied when not included in claim spec.
+	"""
+															type: "string"
 														}
 														volumeName: {
 															description: "volumeName is the binding reference to the PersistentVolume backing this claim."
-															type:        "string"
-														}
-													}
-													type: "object"
-												}
-												status: {
-													description: "status represents the current information/status of a persistent volume claim. Read-only."
-													properties: {
-														accessModes: {
-															description: "accessModes contains the actual access modes the volume backing the PVC has."
-															items: type: "string"
-															type: "array"
-														}
-														allocatedResourceStatuses: {
-															additionalProperties: {
-																description: "When a controller receives persistentvolume claim update with ClaimResourceStatus for a resource tha"
-																type:        "string"
-															}
-															description:             "allocatedResourceStatuses stores status of resource being resized for the given PVC."
-															type:                    "object"
-															"x-kubernetes-map-type": "granular"
-														}
-														allocatedResources: {
-															additionalProperties: {
-																anyOf: [{
-																	type: "integer"
-																}, {
-																	type: "string"
-																}]
-																pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																"x-kubernetes-int-or-string": true
-															}
-															description: "allocatedResources tracks the resources allocated to a PVC including its capacity."
-															type:        "object"
-														}
-														capacity: {
-															additionalProperties: {
-																anyOf: [{
-																	type: "integer"
-																}, {
-																	type: "string"
-																}]
-																pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																"x-kubernetes-int-or-string": true
-															}
-															description: "capacity represents the actual resources of the underlying volume."
-															type:        "object"
-														}
-														conditions: {
-															description: "conditions is the current Condition of persistent volume claim."
-															items: {
-																description: "PersistentVolumeClaimCondition contains details about state of pvc"
-																properties: {
-																	lastProbeTime: {
-																		description: "lastProbeTime is the time we probed the condition."
-																		format:      "date-time"
-																		type:        "string"
-																	}
-																	lastTransitionTime: {
-																		description: "lastTransitionTime is the time the condition transitioned from one status to another."
-																		format:      "date-time"
-																		type:        "string"
-																	}
-																	message: {
-																		description: "message is the human-readable message indicating details about last transition."
-																		type:        "string"
-																	}
-																	reason: {
-																		description: "reason is a unique, this should be a short, machine understandable string that gives the reason for "
-																		type:        "string"
-																	}
-																	status: type: "string"
-																	type: {
-																		description: "PersistentVolumeClaimConditionType is a valid value of PersistentVolumeClaimCondition.Type"
-																		type:        "string"
-																	}
-																}
-																required: [
-																	"status",
-																	"type",
-																]
-																type: "object"
-															}
-															type: "array"
-														}
-														currentVolumeAttributesClassName: {
-															description: "currentVolumeAttributesClassName is the current name of the VolumeAttributesClass the PVC is using."
-															type:        "string"
-														}
-														modifyVolumeStatus: {
-															description: "ModifyVolumeStatus represents the status object of ControllerModifyVolume operation."
-															properties: {
-																status: {
-																	description: "status is the status of the ControllerModifyVolume operation."
-																	type:        "string"
-																}
-																targetVolumeAttributesClassName: {
-																	description: "targetVolumeAttributesClassName is the name of the VolumeAttributesClass the PVC currently being rec"
-																	type:        "string"
-																}
-															}
-															required: ["status"]
-															type: "object"
-														}
-														phase: {
-															description: "phase represents the current phase of PersistentVolumeClaim."
 															type:        "string"
 														}
 													}
@@ -6412,10 +6367,24 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								}
 								type: "object"
 							}
+							upgradeOSDRequiresHealthyPGs: {
+								description: """
+	UpgradeOSDRequiresHealthyPGs defines if OSD upgrade requires PGs are clean. If set to `true` OSD upgrade process won't start until PGs are healthy.
+	This configuration will be ignored if `skipUpgradeChecks` is `true`.
+	Default is false.
+	"""
+								type: "boolean"
+							}
 							waitTimeoutForHealthyOSDInMinutes: {
-								description: "WaitTimeoutForHealthyOSDInMinutes defines the time the operator would wait before an OSD can be stop"
-								format:      "int64"
-								type:        "integer"
+								description: """
+	WaitTimeoutForHealthyOSDInMinutes defines the time the operator would wait before an OSD can be stopped for upgrade or restart.
+	If the timeout exceeds and OSD is not ok to stop, then the operator would skip upgrade for the current OSD and proceed with the next one
+	if `continueUpgradeAfterChecksEvenIfNotHealthy` is `false`. If `continueUpgradeAfterChecksEvenIfNotHealthy` is `true`, then operator would
+	continue with the upgrade of an OSD even if its not ok to stop after the timeout. This timeout won't be applied if `skipUpgradeChecks` is `true`.
+	The default wait timeout is 10 minutes.
+	"""
+								format: "int64"
+								type:   "integer"
 							}
 						}
 						type: "object"
@@ -6559,6 +6528,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							storage: {
 								description: "CephStorage represents flavors of Ceph Cluster Storage"
 								properties: {
+									deprecatedOSDs: {
+										additionalProperties: {
+											items: type: "integer"
+											type: "array"
+										}
+										type: "object"
+									}
 									deviceClasses: {
 										items: {
 											description: "DeviceClasses represents device classes of a Ceph Cluster"
@@ -6621,12 +6597,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				description: "CephCOSIDriver represents the CRD for the Ceph COSI Driver Deployment"
 				properties: {
 					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object."
-						type:        "string"
+						description: """
+	APIVersion defines the versioned schema of this representation of an object.
+	Servers should convert recognized schemas to the latest internal value, and
+	may reject unrecognized values.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+	"""
+						type: "string"
 					}
 					kind: {
-						description: "Kind is a string value representing the REST resource this object represents."
-						type:        "string"
+						description: """
+	Kind is a string value representing the REST resource this object represents.
+	Servers may infer this from the endpoint the client submits requests to.
+	Cannot be updated.
+	In CamelCase.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+	"""
+						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
@@ -6650,36 +6637,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type:        "string"
 							}
 							placement: {
-								description: "Placement is the placement strategy to use for the COSI driver"
 								properties: {
 									nodeAffinity: {
-										description: "NodeAffinity is a group of node affinity scheduling rules"
 										properties: {
 											preferredDuringSchedulingIgnoredDuringExecution: {
-												description: "The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified "
 												items: {
-													description: "An empty preferred scheduling term matches all objects with implicit weight 0 (i.e. it's a no-op)."
 													properties: {
 														preference: {
-															description: "A node selector term, associated with the corresponding weight."
 															properties: {
 																matchExpressions: {
-																	description: "A list of node selector requirements by node's labels."
 																	items: {
-																		description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																		properties: {
-																			key: {
-																				description: "The label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "Represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -6688,25 +6662,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																matchFields: {
-																	description: "A list of node selector requirements by node's fields."
 																	items: {
-																		description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																		properties: {
-																			key: {
-																				description: "The label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "Represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -6715,16 +6682,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 															}
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
 														weight: {
-															description: "Weight associated with matching the corresponding nodeSelectorTerm, in the range 1-100."
-															format:      "int32"
-															type:        "integer"
+															format: "int32"
+															type:   "integer"
 														}
 													}
 													required: [
@@ -6733,32 +6700,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													]
 													type: "object"
 												}
-												type: "array"
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
 											}
 											requiredDuringSchedulingIgnoredDuringExecution: {
-												description: "If the affinity requirements specified by this field are not met at scheduling time, the pod will no"
 												properties: nodeSelectorTerms: {
-													description: "Required. A list of node selector terms. The terms are ORed."
 													items: {
-														description: "A null or empty node selector term matches no objects. The requirements of them are ANDed."
 														properties: {
 															matchExpressions: {
-																description: "A list of node selector requirements by node's labels."
 																items: {
-																	description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																	properties: {
-																		key: {
-																			description: "The label key that the selector applies to."
-																			type:        "string"
-																		}
-																		operator: {
-																			description: "Represents a key's relationship to a set of values."
-																			type:        "string"
-																		}
+																		key: type:      "string"
+																		operator: type: "string"
 																		values: {
-																			description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																			items: type: "string"
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																	}
 																	required: [
@@ -6767,25 +6724,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	]
 																	type: "object"
 																}
-																type: "array"
+																type:                     "array"
+																"x-kubernetes-list-type": "atomic"
 															}
 															matchFields: {
-																description: "A list of node selector requirements by node's fields."
 																items: {
-																	description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																	properties: {
-																		key: {
-																			description: "The label key that the selector applies to."
-																			type:        "string"
-																		}
-																		operator: {
-																			description: "Represents a key's relationship to a set of values."
-																			type:        "string"
-																		}
+																		key: type:      "string"
+																		operator: type: "string"
 																		values: {
-																			description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																			items: type: "string"
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																	}
 																	required: [
@@ -6794,13 +6744,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	]
 																	type: "object"
 																}
-																type: "array"
+																type:                     "array"
+																"x-kubernetes-list-type": "atomic"
 															}
 														}
 														type:                    "object"
 														"x-kubernetes-map-type": "atomic"
 													}
-													type: "array"
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
 												}
 												required: ["nodeSelectorTerms"]
 												type:                    "object"
@@ -6810,36 +6762,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "object"
 									}
 									podAffinity: {
-										description: "PodAffinity is a group of inter pod affinity scheduling rules"
 										properties: {
 											preferredDuringSchedulingIgnoredDuringExecution: {
-												description: "The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified "
 												items: {
-													description: "The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most"
 													properties: {
 														podAffinityTerm: {
-															description: "Required. A pod affinity term, associated with the corresponding weight."
 															properties: {
 																labelSelector: {
-																	description: "A label query over a set of resources, in this case pods."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -6848,49 +6787,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																matchLabelKeys: {
-																	description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																mismatchLabelKeys: {
-																	description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																namespaceSelector: {
-																	description: "A label query over the set of namespaces that the term applies to."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -6899,34 +6827,30 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																namespaces: {
-																	description: "namespaces specifies a static list of namespace names that the term applies to."
 																	items: type: "string"
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
-																topologyKey: {
-																	description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																	type:        "string"
-																}
+																topologyKey: type: "string"
 															}
 															required: ["topologyKey"]
 															type: "object"
 														}
 														weight: {
-															description: "weight associated with matching the corresponding podAffinityTerm, in the range 1-100."
-															format:      "int32"
-															type:        "integer"
+															format: "int32"
+															type:   "integer"
 														}
 													}
 													required: [
@@ -6935,33 +6859,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													]
 													type: "object"
 												}
-												type: "array"
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
 											}
 											requiredDuringSchedulingIgnoredDuringExecution: {
-												description: "If the affinity requirements specified by this field are not met at scheduling time, the pod will no"
 												items: {
-													description: "Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) t"
 													properties: {
 														labelSelector: {
-															description: "A label query over a set of resources, in this case pods."
 															properties: {
 																matchExpressions: {
-																	description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																	items: {
-																		description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																		properties: {
-																			key: {
-																				description: "key is the label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "operator represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "values is an array of string values."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -6970,49 +6884,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																matchLabels: {
 																	additionalProperties: type: "string"
-																	description: "matchLabels is a map of {key,value} pairs."
-																	type:        "object"
+																	type: "object"
 																}
 															}
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
 														matchLabelKeys: {
-															description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
 														}
 														mismatchLabelKeys: {
-															description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
 														}
 														namespaceSelector: {
-															description: "A label query over the set of namespaces that the term applies to."
 															properties: {
 																matchExpressions: {
-																	description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																	items: {
-																		description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																		properties: {
-																			key: {
-																				description: "key is the label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "operator represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "values is an array of string values."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -7021,66 +6924,51 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																matchLabels: {
 																	additionalProperties: type: "string"
-																	description: "matchLabels is a map of {key,value} pairs."
-																	type:        "object"
+																	type: "object"
 																}
 															}
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
 														namespaces: {
-															description: "namespaces specifies a static list of namespace names that the term applies to."
 															items: type: "string"
-															type: "array"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
 														}
-														topologyKey: {
-															description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-															type:        "string"
-														}
+														topologyKey: type: "string"
 													}
 													required: ["topologyKey"]
 													type: "object"
 												}
-												type: "array"
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
 											}
 										}
 										type: "object"
 									}
 									podAntiAffinity: {
-										description: "PodAntiAffinity is a group of inter pod anti affinity scheduling rules"
 										properties: {
 											preferredDuringSchedulingIgnoredDuringExecution: {
-												description: "The scheduler will prefer to schedule pods to nodes that satisfy the anti-affinity expressions speci"
 												items: {
-													description: "The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most"
 													properties: {
 														podAffinityTerm: {
-															description: "Required. A pod affinity term, associated with the corresponding weight."
 															properties: {
 																labelSelector: {
-																	description: "A label query over a set of resources, in this case pods."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -7089,49 +6977,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																matchLabelKeys: {
-																	description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																mismatchLabelKeys: {
-																	description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																namespaceSelector: {
-																	description: "A label query over the set of namespaces that the term applies to."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -7140,34 +7017,30 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																namespaces: {
-																	description: "namespaces specifies a static list of namespace names that the term applies to."
 																	items: type: "string"
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
-																topologyKey: {
-																	description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																	type:        "string"
-																}
+																topologyKey: type: "string"
 															}
 															required: ["topologyKey"]
 															type: "object"
 														}
 														weight: {
-															description: "weight associated with matching the corresponding podAffinityTerm, in the range 1-100."
-															format:      "int32"
-															type:        "integer"
+															format: "int32"
+															type:   "integer"
 														}
 													}
 													required: [
@@ -7176,33 +7049,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													]
 													type: "object"
 												}
-												type: "array"
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
 											}
 											requiredDuringSchedulingIgnoredDuringExecution: {
-												description: "If the anti-affinity requirements specified by this field are not met at scheduling time, the pod wi"
 												items: {
-													description: "Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) t"
 													properties: {
 														labelSelector: {
-															description: "A label query over a set of resources, in this case pods."
 															properties: {
 																matchExpressions: {
-																	description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																	items: {
-																		description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																		properties: {
-																			key: {
-																				description: "key is the label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "operator represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "values is an array of string values."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -7211,49 +7074,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																matchLabels: {
 																	additionalProperties: type: "string"
-																	description: "matchLabels is a map of {key,value} pairs."
-																	type:        "object"
+																	type: "object"
 																}
 															}
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
 														matchLabelKeys: {
-															description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
 														}
 														mismatchLabelKeys: {
-															description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
 														}
 														namespaceSelector: {
-															description: "A label query over the set of namespaces that the term applies to."
 															properties: {
 																matchExpressions: {
-																	description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																	items: {
-																		description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																		properties: {
-																			key: {
-																				description: "key is the label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "operator represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "values is an array of string values."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -7262,91 +7114,63 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																matchLabels: {
 																	additionalProperties: type: "string"
-																	description: "matchLabels is a map of {key,value} pairs."
-																	type:        "object"
+																	type: "object"
 																}
 															}
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
 														namespaces: {
-															description: "namespaces specifies a static list of namespace names that the term applies to."
 															items: type: "string"
-															type: "array"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
 														}
-														topologyKey: {
-															description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-															type:        "string"
-														}
+														topologyKey: type: "string"
 													}
 													required: ["topologyKey"]
 													type: "object"
 												}
-												type: "array"
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
 											}
 										}
 										type: "object"
 									}
 									tolerations: {
-										description: "The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect"
 										items: {
-											description: "The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect"
 											properties: {
-												effect: {
-													description: "Effect indicates the taint effect to match. Empty means match all taint effects."
-													type:        "string"
-												}
-												key: {
-													description: "Key is the taint key that the toleration applies to. Empty means match all taint keys."
-													type:        "string"
-												}
-												operator: {
-													description: "Operator represents a key's relationship to the value. Valid operators are Exists and Equal."
-													type:        "string"
-												}
+												effect: type:   "string"
+												key: type:      "string"
+												operator: type: "string"
 												tolerationSeconds: {
-													description: "TolerationSeconds represents the period of time the toleration (which must be of effect NoExecute, o"
-													format:      "int64"
-													type:        "integer"
+													format: "int64"
+													type:   "integer"
 												}
-												value: {
-													description: "Value is the taint value the toleration matches to."
-													type:        "string"
-												}
+												value: type: "string"
 											}
 											type: "object"
 										}
 										type: "array"
 									}
 									topologySpreadConstraints: {
-										description: "TopologySpreadConstraint specifies how to spread matching pods among the given topology"
 										items: {
-											description: "TopologySpreadConstraint specifies how to spread matching pods among the given topology."
 											properties: {
 												labelSelector: {
-													description: "LabelSelector is used to find matching pods."
 													properties: {
 														matchExpressions: {
-															description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 															items: {
-																description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																properties: {
-																	key: {
-																		description: "key is the label key that the selector applies to."
-																		type:        "string"
-																	}
-																	operator: {
-																		description: "operator represents a key's relationship to a set of values."
-																		type:        "string"
-																	}
+																	key: type:      "string"
+																	operator: type: "string"
 																	values: {
-																		description: "values is an array of string values."
 																		items: type: "string"
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																}
 																required: [
@@ -7355,49 +7179,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																]
 																type: "object"
 															}
-															type: "array"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
 														}
 														matchLabels: {
 															additionalProperties: type: "string"
-															description: "matchLabels is a map of {key,value} pairs."
-															type:        "object"
+															type: "object"
 														}
 													}
 													type:                    "object"
 													"x-kubernetes-map-type": "atomic"
 												}
 												matchLabelKeys: {
-													description: "MatchLabelKeys is a set of pod label keys to select the pods over which spreading will be calculated"
 													items: type: "string"
 													type:                     "array"
 													"x-kubernetes-list-type": "atomic"
 												}
 												maxSkew: {
-													description: "MaxSkew describes the degree to which pods may be unevenly distributed."
-													format:      "int32"
-													type:        "integer"
+													format: "int32"
+													type:   "integer"
 												}
 												minDomains: {
-													description: "MinDomains indicates a minimum number of eligible domains."
-													format:      "int32"
-													type:        "integer"
+													format: "int32"
+													type:   "integer"
 												}
-												nodeAffinityPolicy: {
-													description: "NodeAffinityPolicy indicates how we will treat Pod's nodeAffinity/nodeSelector when calculating pod "
-													type:        "string"
-												}
-												nodeTaintsPolicy: {
-													description: "NodeTaintsPolicy indicates how we will treat node taints when calculating pod topology spread skew."
-													type:        "string"
-												}
-												topologyKey: {
-													description: "TopologyKey is the key of node labels."
-													type:        "string"
-												}
-												whenUnsatisfiable: {
-													description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint."
-													type:        "string"
-												}
+												nodeAffinityPolicy: type: "string"
+												nodeTaintsPolicy: type:   "string"
+												topologyKey: type:        "string"
+												whenUnsatisfiable: type:  "string"
 											}
 											required: [
 												"maxSkew",
@@ -7415,12 +7224,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								description: "Resources is the resource requirements for the COSI driver"
 								properties: {
 									claims: {
-										description: "Claims lists the names of resources, defined in spec."
+										description: """
+	Claims lists the names of resources, defined in spec.resourceClaims,
+	that are used by this container.
+
+	This is an alpha field and requires enabling the
+	DynamicResourceAllocation feature gate.
+
+	This field is immutable. It can only be set for containers.
+	"""
 										items: {
 											description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
-											properties: name: {
-												description: "Name must match the name of one entry in pod.spec."
-												type:        "string"
+											properties: {
+												name: {
+													description: """
+	Name must match the name of one entry in pod.spec.resourceClaims of
+	the Pod where this field is used. It makes that resource available
+	inside a container.
+	"""
+													type: "string"
+												}
+												request: {
+													description: """
+	Request is the name chosen for a request in the referenced claim.
+	If empty, everything from the claim is made available, otherwise
+	only the result of this request.
+	"""
+													type: "string"
+												}
 											}
 											required: ["name"]
 											type: "object"
@@ -7439,8 +7270,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 											"x-kubernetes-int-or-string": true
 										}
-										description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes."
-										type:        "object"
+										description: """
+	Limits describes the maximum amount of compute resources allowed.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+										type: "object"
 									}
 									requests: {
 										additionalProperties: {
@@ -7452,8 +7286,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 											"x-kubernetes-int-or-string": true
 										}
-										description: "Requests describes the minimum amount of compute resources required."
-										type:        "object"
+										description: """
+	Requests describes the minimum amount of compute resources required.
+	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+	otherwise to an implementation-defined value. Requests cannot exceed Limits.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+										type: "object"
 									}
 								}
 								type: "object"
@@ -7488,18 +7327,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				jsonPath: ".status.phase"
 				name:     "Phase"
 				type:     "string"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
 			}]
 			name: "v1"
 			schema: openAPIV3Schema: {
 				description: "CephFilesystemMirror is the Ceph Filesystem Mirror object definition"
 				properties: {
 					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object."
-						type:        "string"
+						description: """
+	APIVersion defines the versioned schema of this representation of an object.
+	Servers should convert recognized schemas to the latest internal value, and
+	may reject unrecognized values.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+	"""
+						type: "string"
 					}
 					kind: {
-						description: "Kind is a string value representing the REST resource this object represents."
-						type:        "string"
+						description: """
+	Kind is a string value representing the REST resource this object represents.
+	Servers may infer this from the endpoint the client submits requests to.
+	Cannot be updated.
+	In CamelCase.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+	"""
+						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
@@ -7518,37 +7372,24 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type:        "object"
 							}
 							placement: {
-								description: "The affinity to place the rgw pods (default is to place on any available node)"
-								nullable:    true
+								nullable: true
 								properties: {
 									nodeAffinity: {
-										description: "NodeAffinity is a group of node affinity scheduling rules"
 										properties: {
 											preferredDuringSchedulingIgnoredDuringExecution: {
-												description: "The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified "
 												items: {
-													description: "An empty preferred scheduling term matches all objects with implicit weight 0 (i.e. it's a no-op)."
 													properties: {
 														preference: {
-															description: "A node selector term, associated with the corresponding weight."
 															properties: {
 																matchExpressions: {
-																	description: "A list of node selector requirements by node's labels."
 																	items: {
-																		description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																		properties: {
-																			key: {
-																				description: "The label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "Represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -7557,25 +7398,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																matchFields: {
-																	description: "A list of node selector requirements by node's fields."
 																	items: {
-																		description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																		properties: {
-																			key: {
-																				description: "The label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "Represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -7584,16 +7418,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 															}
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
 														weight: {
-															description: "Weight associated with matching the corresponding nodeSelectorTerm, in the range 1-100."
-															format:      "int32"
-															type:        "integer"
+															format: "int32"
+															type:   "integer"
 														}
 													}
 													required: [
@@ -7602,32 +7436,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													]
 													type: "object"
 												}
-												type: "array"
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
 											}
 											requiredDuringSchedulingIgnoredDuringExecution: {
-												description: "If the affinity requirements specified by this field are not met at scheduling time, the pod will no"
 												properties: nodeSelectorTerms: {
-													description: "Required. A list of node selector terms. The terms are ORed."
 													items: {
-														description: "A null or empty node selector term matches no objects. The requirements of them are ANDed."
 														properties: {
 															matchExpressions: {
-																description: "A list of node selector requirements by node's labels."
 																items: {
-																	description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																	properties: {
-																		key: {
-																			description: "The label key that the selector applies to."
-																			type:        "string"
-																		}
-																		operator: {
-																			description: "Represents a key's relationship to a set of values."
-																			type:        "string"
-																		}
+																		key: type:      "string"
+																		operator: type: "string"
 																		values: {
-																			description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																			items: type: "string"
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																	}
 																	required: [
@@ -7636,25 +7460,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	]
 																	type: "object"
 																}
-																type: "array"
+																type:                     "array"
+																"x-kubernetes-list-type": "atomic"
 															}
 															matchFields: {
-																description: "A list of node selector requirements by node's fields."
 																items: {
-																	description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																	properties: {
-																		key: {
-																			description: "The label key that the selector applies to."
-																			type:        "string"
-																		}
-																		operator: {
-																			description: "Represents a key's relationship to a set of values."
-																			type:        "string"
-																		}
+																		key: type:      "string"
+																		operator: type: "string"
 																		values: {
-																			description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																			items: type: "string"
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																	}
 																	required: [
@@ -7663,13 +7480,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	]
 																	type: "object"
 																}
-																type: "array"
+																type:                     "array"
+																"x-kubernetes-list-type": "atomic"
 															}
 														}
 														type:                    "object"
 														"x-kubernetes-map-type": "atomic"
 													}
-													type: "array"
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
 												}
 												required: ["nodeSelectorTerms"]
 												type:                    "object"
@@ -7679,36 +7498,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "object"
 									}
 									podAffinity: {
-										description: "PodAffinity is a group of inter pod affinity scheduling rules"
 										properties: {
 											preferredDuringSchedulingIgnoredDuringExecution: {
-												description: "The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified "
 												items: {
-													description: "The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most"
 													properties: {
 														podAffinityTerm: {
-															description: "Required. A pod affinity term, associated with the corresponding weight."
 															properties: {
 																labelSelector: {
-																	description: "A label query over a set of resources, in this case pods."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -7717,49 +7523,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																matchLabelKeys: {
-																	description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																mismatchLabelKeys: {
-																	description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																namespaceSelector: {
-																	description: "A label query over the set of namespaces that the term applies to."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -7768,34 +7563,30 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																namespaces: {
-																	description: "namespaces specifies a static list of namespace names that the term applies to."
 																	items: type: "string"
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
-																topologyKey: {
-																	description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																	type:        "string"
-																}
+																topologyKey: type: "string"
 															}
 															required: ["topologyKey"]
 															type: "object"
 														}
 														weight: {
-															description: "weight associated with matching the corresponding podAffinityTerm, in the range 1-100."
-															format:      "int32"
-															type:        "integer"
+															format: "int32"
+															type:   "integer"
 														}
 													}
 													required: [
@@ -7804,33 +7595,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													]
 													type: "object"
 												}
-												type: "array"
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
 											}
 											requiredDuringSchedulingIgnoredDuringExecution: {
-												description: "If the affinity requirements specified by this field are not met at scheduling time, the pod will no"
 												items: {
-													description: "Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) t"
 													properties: {
 														labelSelector: {
-															description: "A label query over a set of resources, in this case pods."
 															properties: {
 																matchExpressions: {
-																	description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																	items: {
-																		description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																		properties: {
-																			key: {
-																				description: "key is the label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "operator represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "values is an array of string values."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -7839,49 +7620,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																matchLabels: {
 																	additionalProperties: type: "string"
-																	description: "matchLabels is a map of {key,value} pairs."
-																	type:        "object"
+																	type: "object"
 																}
 															}
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
 														matchLabelKeys: {
-															description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
 														}
 														mismatchLabelKeys: {
-															description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
 														}
 														namespaceSelector: {
-															description: "A label query over the set of namespaces that the term applies to."
 															properties: {
 																matchExpressions: {
-																	description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																	items: {
-																		description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																		properties: {
-																			key: {
-																				description: "key is the label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "operator represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "values is an array of string values."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -7890,66 +7660,51 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																matchLabels: {
 																	additionalProperties: type: "string"
-																	description: "matchLabels is a map of {key,value} pairs."
-																	type:        "object"
+																	type: "object"
 																}
 															}
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
 														namespaces: {
-															description: "namespaces specifies a static list of namespace names that the term applies to."
 															items: type: "string"
-															type: "array"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
 														}
-														topologyKey: {
-															description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-															type:        "string"
-														}
+														topologyKey: type: "string"
 													}
 													required: ["topologyKey"]
 													type: "object"
 												}
-												type: "array"
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
 											}
 										}
 										type: "object"
 									}
 									podAntiAffinity: {
-										description: "PodAntiAffinity is a group of inter pod anti affinity scheduling rules"
 										properties: {
 											preferredDuringSchedulingIgnoredDuringExecution: {
-												description: "The scheduler will prefer to schedule pods to nodes that satisfy the anti-affinity expressions speci"
 												items: {
-													description: "The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most"
 													properties: {
 														podAffinityTerm: {
-															description: "Required. A pod affinity term, associated with the corresponding weight."
 															properties: {
 																labelSelector: {
-																	description: "A label query over a set of resources, in this case pods."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -7958,49 +7713,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																matchLabelKeys: {
-																	description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																mismatchLabelKeys: {
-																	description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																namespaceSelector: {
-																	description: "A label query over the set of namespaces that the term applies to."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -8009,34 +7753,30 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																namespaces: {
-																	description: "namespaces specifies a static list of namespace names that the term applies to."
 																	items: type: "string"
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
-																topologyKey: {
-																	description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																	type:        "string"
-																}
+																topologyKey: type: "string"
 															}
 															required: ["topologyKey"]
 															type: "object"
 														}
 														weight: {
-															description: "weight associated with matching the corresponding podAffinityTerm, in the range 1-100."
-															format:      "int32"
-															type:        "integer"
+															format: "int32"
+															type:   "integer"
 														}
 													}
 													required: [
@@ -8045,33 +7785,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													]
 													type: "object"
 												}
-												type: "array"
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
 											}
 											requiredDuringSchedulingIgnoredDuringExecution: {
-												description: "If the anti-affinity requirements specified by this field are not met at scheduling time, the pod wi"
 												items: {
-													description: "Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) t"
 													properties: {
 														labelSelector: {
-															description: "A label query over a set of resources, in this case pods."
 															properties: {
 																matchExpressions: {
-																	description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																	items: {
-																		description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																		properties: {
-																			key: {
-																				description: "key is the label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "operator represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "values is an array of string values."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -8080,49 +7810,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																matchLabels: {
 																	additionalProperties: type: "string"
-																	description: "matchLabels is a map of {key,value} pairs."
-																	type:        "object"
+																	type: "object"
 																}
 															}
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
 														matchLabelKeys: {
-															description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
 														}
 														mismatchLabelKeys: {
-															description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
 														}
 														namespaceSelector: {
-															description: "A label query over the set of namespaces that the term applies to."
 															properties: {
 																matchExpressions: {
-																	description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																	items: {
-																		description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																		properties: {
-																			key: {
-																				description: "key is the label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "operator represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "values is an array of string values."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -8131,91 +7850,63 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																matchLabels: {
 																	additionalProperties: type: "string"
-																	description: "matchLabels is a map of {key,value} pairs."
-																	type:        "object"
+																	type: "object"
 																}
 															}
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
 														namespaces: {
-															description: "namespaces specifies a static list of namespace names that the term applies to."
 															items: type: "string"
-															type: "array"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
 														}
-														topologyKey: {
-															description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-															type:        "string"
-														}
+														topologyKey: type: "string"
 													}
 													required: ["topologyKey"]
 													type: "object"
 												}
-												type: "array"
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
 											}
 										}
 										type: "object"
 									}
 									tolerations: {
-										description: "The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect"
 										items: {
-											description: "The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect"
 											properties: {
-												effect: {
-													description: "Effect indicates the taint effect to match. Empty means match all taint effects."
-													type:        "string"
-												}
-												key: {
-													description: "Key is the taint key that the toleration applies to. Empty means match all taint keys."
-													type:        "string"
-												}
-												operator: {
-													description: "Operator represents a key's relationship to the value. Valid operators are Exists and Equal."
-													type:        "string"
-												}
+												effect: type:   "string"
+												key: type:      "string"
+												operator: type: "string"
 												tolerationSeconds: {
-													description: "TolerationSeconds represents the period of time the toleration (which must be of effect NoExecute, o"
-													format:      "int64"
-													type:        "integer"
+													format: "int64"
+													type:   "integer"
 												}
-												value: {
-													description: "Value is the taint value the toleration matches to."
-													type:        "string"
-												}
+												value: type: "string"
 											}
 											type: "object"
 										}
 										type: "array"
 									}
 									topologySpreadConstraints: {
-										description: "TopologySpreadConstraint specifies how to spread matching pods among the given topology"
 										items: {
-											description: "TopologySpreadConstraint specifies how to spread matching pods among the given topology."
 											properties: {
 												labelSelector: {
-													description: "LabelSelector is used to find matching pods."
 													properties: {
 														matchExpressions: {
-															description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 															items: {
-																description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																properties: {
-																	key: {
-																		description: "key is the label key that the selector applies to."
-																		type:        "string"
-																	}
-																	operator: {
-																		description: "operator represents a key's relationship to a set of values."
-																		type:        "string"
-																	}
+																	key: type:      "string"
+																	operator: type: "string"
 																	values: {
-																		description: "values is an array of string values."
 																		items: type: "string"
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																}
 																required: [
@@ -8224,49 +7915,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																]
 																type: "object"
 															}
-															type: "array"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
 														}
 														matchLabels: {
 															additionalProperties: type: "string"
-															description: "matchLabels is a map of {key,value} pairs."
-															type:        "object"
+															type: "object"
 														}
 													}
 													type:                    "object"
 													"x-kubernetes-map-type": "atomic"
 												}
 												matchLabelKeys: {
-													description: "MatchLabelKeys is a set of pod label keys to select the pods over which spreading will be calculated"
 													items: type: "string"
 													type:                     "array"
 													"x-kubernetes-list-type": "atomic"
 												}
 												maxSkew: {
-													description: "MaxSkew describes the degree to which pods may be unevenly distributed."
-													format:      "int32"
-													type:        "integer"
+													format: "int32"
+													type:   "integer"
 												}
 												minDomains: {
-													description: "MinDomains indicates a minimum number of eligible domains."
-													format:      "int32"
-													type:        "integer"
+													format: "int32"
+													type:   "integer"
 												}
-												nodeAffinityPolicy: {
-													description: "NodeAffinityPolicy indicates how we will treat Pod's nodeAffinity/nodeSelector when calculating pod "
-													type:        "string"
-												}
-												nodeTaintsPolicy: {
-													description: "NodeTaintsPolicy indicates how we will treat node taints when calculating pod topology spread skew."
-													type:        "string"
-												}
-												topologyKey: {
-													description: "TopologyKey is the key of node labels."
-													type:        "string"
-												}
-												whenUnsatisfiable: {
-													description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint."
-													type:        "string"
-												}
+												nodeAffinityPolicy: type: "string"
+												nodeTaintsPolicy: type:   "string"
+												topologyKey: type:        "string"
+												whenUnsatisfiable: type:  "string"
 											}
 											required: [
 												"maxSkew",
@@ -8289,12 +7965,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								nullable:    true
 								properties: {
 									claims: {
-										description: "Claims lists the names of resources, defined in spec."
+										description: """
+	Claims lists the names of resources, defined in spec.resourceClaims,
+	that are used by this container.
+
+	This is an alpha field and requires enabling the
+	DynamicResourceAllocation feature gate.
+
+	This field is immutable. It can only be set for containers.
+	"""
 										items: {
 											description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
-											properties: name: {
-												description: "Name must match the name of one entry in pod.spec."
-												type:        "string"
+											properties: {
+												name: {
+													description: """
+	Name must match the name of one entry in pod.spec.resourceClaims of
+	the Pod where this field is used. It makes that resource available
+	inside a container.
+	"""
+													type: "string"
+												}
+												request: {
+													description: """
+	Request is the name chosen for a request in the referenced claim.
+	If empty, everything from the claim is made available, otherwise
+	only the result of this request.
+	"""
+													type: "string"
+												}
 											}
 											required: ["name"]
 											type: "object"
@@ -8313,8 +8011,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 											"x-kubernetes-int-or-string": true
 										}
-										description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes."
-										type:        "object"
+										description: """
+	Limits describes the maximum amount of compute resources allowed.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+										type: "object"
 									}
 									requests: {
 										additionalProperties: {
@@ -8326,8 +8027,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 											"x-kubernetes-int-or-string": true
 										}
-										description: "Requests describes the minimum amount of compute resources required."
-										type:        "object"
+										description: """
+	Requests describes the minimum amount of compute resources required.
+	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+	otherwise to an implementation-defined value. Requests cannot exceed Limits.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+										type: "object"
 									}
 								}
 								type: "object"
@@ -8417,12 +8123,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				description: "CephFilesystem represents a Ceph Filesystem"
 				properties: {
 					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object."
-						type:        "string"
+						description: """
+	APIVersion defines the versioned schema of this representation of an object.
+	Servers should convert recognized schemas to the latest internal value, and
+	may reject unrecognized values.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+	"""
+						type: "string"
 					}
 					kind: {
-						description: "Kind is a string value representing the REST resource this object represents."
-						type:        "string"
+						description: """
+	Kind is a string value representing the REST resource this object represents.
+	Servers may infer this from the endpoint the client submits requests to.
+	Cannot be updated.
+	In CamelCase.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+	"""
+						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
@@ -8433,8 +8150,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								items: {
 									description: "NamedPoolSpec represents the named ceph pool spec"
 									properties: {
+										application: {
+											description: "The application name to set on the pool. Only expected to be set for rgw pools."
+											type:        "string"
+										}
 										compressionMode: {
-											description: "DEPRECATED: use Parameters instead, e.g."
+											description: """
+	DEPRECATED: use Parameters instead, e.g., Parameters["compression_mode"] = "force"
+	The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)
+	Do NOT set a default value for kubebuilder as this will override the Parameters
+	"""
 											enum: [
 												"none",
 												"passive",
@@ -8455,6 +8180,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											nullable:    true
 											type:        "string"
 										}
+										enableCrushUpdates: {
+											description: "Allow rook operator to change the pool CRUSH tunables once the pool is created"
+											type:        "boolean"
+										}
 										enableRBDStats: {
 											description: "EnableRBDStats is used to enable gathering of statistics for all RBD images in the pool"
 											type:        "boolean"
@@ -8467,14 +8196,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "string"
 												}
 												codingChunks: {
-													description: "Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool"
-													minimum:     0
-													type:        "integer"
+													description: """
+	Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+	This is the number of OSDs that can be lost simultaneously before data cannot be recovered.
+	"""
+													minimum: 0
+													type:    "integer"
 												}
 												dataChunks: {
-													description: "Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool t"
-													minimum:     0
-													type:        "integer"
+													description: """
+	Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+	The number of chunks required to recover an object when any single OSD is lost is the same
+	as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery.
+	"""
+													minimum: 0
+													type:    "integer"
 												}
 											}
 											required: [
@@ -8484,7 +8220,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											type: "object"
 										}
 										failureDomain: {
-											description: "The failure domain: osd/host/(region or zone if available) - technically also any type in the crush "
+											description: "The failure domain: osd/host/(region or zone if available) - technically also any type in the crush map"
 											type:        "string"
 										}
 										mirroring: {
@@ -8549,9 +8285,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											nullable:    true
 											properties: {
 												maxBytes: {
-													description: "MaxBytes represents the quota in bytes Deprecated in favor of MaxSize"
-													format:      "int64"
-													type:        "integer"
+													description: """
+	MaxBytes represents the quota in bytes
+	Deprecated in favor of MaxSize
+	"""
+													format: "int64"
+													type:   "integer"
 												}
 												maxObjects: {
 													description: "MaxObjects represents the quota in objects"
@@ -8600,7 +8339,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "boolean"
 												}
 												size: {
-													description: "Size - Number of copies per object in a replicated storage pool, including the object itself (requir"
+													description: "Size - Number of copies per object in a replicated storage pool, including the object itself (required for replicated pool type)"
 													minimum:     0
 													type:        "integer"
 												}
@@ -8609,7 +8348,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "string"
 												}
 												targetSizeRatio: {
-													description: "TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capac"
+													description: "TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity"
 													type:        "number"
 												}
 											}
@@ -8644,8 +8383,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								description: "The metadata pool settings"
 								nullable:    true
 								properties: {
+									application: {
+										description: "The application name to set on the pool. Only expected to be set for rgw pools."
+										type:        "string"
+									}
 									compressionMode: {
-										description: "DEPRECATED: use Parameters instead, e.g."
+										description: """
+	DEPRECATED: use Parameters instead, e.g., Parameters["compression_mode"] = "force"
+	The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)
+	Do NOT set a default value for kubebuilder as this will override the Parameters
+	"""
 										enum: [
 											"none",
 											"passive",
@@ -8666,6 +8413,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										nullable:    true
 										type:        "string"
 									}
+									enableCrushUpdates: {
+										description: "Allow rook operator to change the pool CRUSH tunables once the pool is created"
+										type:        "boolean"
+									}
 									enableRBDStats: {
 										description: "EnableRBDStats is used to enable gathering of statistics for all RBD images in the pool"
 										type:        "boolean"
@@ -8678,14 +8429,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "string"
 											}
 											codingChunks: {
-												description: "Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool"
-												minimum:     0
-												type:        "integer"
+												description: """
+	Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+	This is the number of OSDs that can be lost simultaneously before data cannot be recovered.
+	"""
+												minimum: 0
+												type:    "integer"
 											}
 											dataChunks: {
-												description: "Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool t"
-												minimum:     0
-												type:        "integer"
+												description: """
+	Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+	The number of chunks required to recover an object when any single OSD is lost is the same
+	as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery.
+	"""
+												minimum: 0
+												type:    "integer"
 											}
 										}
 										required: [
@@ -8695,7 +8453,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "object"
 									}
 									failureDomain: {
-										description: "The failure domain: osd/host/(region or zone if available) - technically also any type in the crush "
+										description: "The failure domain: osd/host/(region or zone if available) - technically also any type in the crush map"
 										type:        "string"
 									}
 									mirroring: {
@@ -8744,6 +8502,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										}
 										type: "object"
 									}
+									name: {
+										description: "Name of the pool"
+										type:        "string"
+									}
 									parameters: {
 										additionalProperties: type: "string"
 										description:                            "Parameters is a list of properties to enable on a given pool"
@@ -8756,9 +8518,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										nullable:    true
 										properties: {
 											maxBytes: {
-												description: "MaxBytes represents the quota in bytes Deprecated in favor of MaxSize"
-												format:      "int64"
-												type:        "integer"
+												description: """
+	MaxBytes represents the quota in bytes
+	Deprecated in favor of MaxSize
+	"""
+												format: "int64"
+												type:   "integer"
 											}
 											maxObjects: {
 												description: "MaxObjects represents the quota in objects"
@@ -8807,7 +8572,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "boolean"
 											}
 											size: {
-												description: "Size - Number of copies per object in a replicated storage pool, including the object itself (requir"
+												description: "Size - Number of copies per object in a replicated storage pool, including the object itself (required for replicated pool type)"
 												minimum:     0
 												type:        "integer"
 											}
@@ -8816,7 +8581,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "string"
 											}
 											targetSizeRatio: {
-												description: "TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capac"
+												description: "TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity"
 												type:        "number"
 											}
 										}
@@ -8848,15 +8613,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								description: "The mds pod info"
 								properties: {
 									activeCount: {
-										description: "The number of metadata servers that are active."
+										description: "The number of metadata servers that are active. The remaining servers in the cluster will be in standby mode."
 										format:      "int32"
 										maximum:     50
 										minimum:     1
 										type:        "integer"
 									}
 									activeStandby: {
-										description: "Whether each active MDS instance will have an active standby with a warm metadata cache for faster f"
-										type:        "boolean"
+										description: """
+	Whether each active MDS instance will have an active standby with a warm metadata cache for faster failover.
+	If false, standbys will still be available, but will not have a warm metadata cache.
+	"""
+										type: "boolean"
 									}
 									annotations: {
 										additionalProperties: type: "string"
@@ -8880,21 +8648,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "boolean"
 											}
 											probe: {
-												description: "Probe describes a health check to be performed against a container to determine whether it is alive "
+												description: """
+	Probe describes a health check to be performed against a container to determine whether it is
+	alive or ready to receive traffic.
+	"""
 												properties: {
 													exec: {
 														description: "Exec specifies the action to take."
 														properties: command: {
-															description: "Command is the command line to execute inside the container, the working directory for the command  "
+															description: """
+	Command is the command line to execute inside the container, the working directory for the
+	command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
+	not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
+	a shell, you need to explicitly call out to that shell.
+	Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+	"""
 															items: type: "string"
-															type: "array"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
 														}
 														type: "object"
 													}
 													failureThreshold: {
-														description: "Minimum consecutive failures for the probe to be considered failed after having succeeded."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	Minimum consecutive failures for the probe to be considered failed after having succeeded.
+	Defaults to 3. Minimum value is 1.
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 													grpc: {
 														description: "GRPC specifies an action involving a GRPC port."
@@ -8905,8 +8686,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type:        "integer"
 															}
 															service: {
-																description: "Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github."
-																type:        "string"
+																default: ""
+																description: """
+	Service is the name of the service to place in the gRPC HealthCheckRequest
+	(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+
+	If this is not specified, the default behavior is defined by gRPC.
+	"""
+																type: "string"
 															}
 														}
 														required: ["port"]
@@ -8916,8 +8703,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														description: "HTTPGet specifies the http request to perform."
 														properties: {
 															host: {
-																description: "Host name to connect to, defaults to the pod IP."
-																type:        "string"
+																description: """
+	Host name to connect to, defaults to the pod IP. You probably want to set
+	"Host" in httpHeaders instead.
+	"""
+																type: "string"
 															}
 															httpHeaders: {
 																description: "Custom headers to set in the request. HTTP allows repeated headers."
@@ -8925,8 +8715,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	description: "HTTPHeader describes a custom header to be used in HTTP probes"
 																	properties: {
 																		name: {
-																			description: "The header field name."
-																			type:        "string"
+																			description: """
+	The header field name.
+	This will be canonicalized upon output, so case-variant names will be understood as the same header.
+	"""
+																			type: "string"
 																		}
 																		value: {
 																			description: "The header field value"
@@ -8939,7 +8732,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	]
 																	type: "object"
 																}
-																type: "array"
+																type:                     "array"
+																"x-kubernetes-list-type": "atomic"
 															}
 															path: {
 																description: "Path to access on the HTTP server."
@@ -8951,31 +8745,47 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																}, {
 																	type: "string"
 																}]
-																description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535."
+																description: """
+	Name or number of the port to access on the container.
+	Number must be in the range 1 to 65535.
+	Name must be an IANA_SVC_NAME.
+	"""
 																"x-kubernetes-int-or-string": true
 															}
 															scheme: {
-																description: "Scheme to use for connecting to the host. Defaults to HTTP."
-																type:        "string"
+																description: """
+	Scheme to use for connecting to the host.
+	Defaults to HTTP.
+	"""
+																type: "string"
 															}
 														}
 														required: ["port"]
 														type: "object"
 													}
 													initialDelaySeconds: {
-														description: "Number of seconds after the container has started before liveness probes are initiated."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	Number of seconds after the container has started before liveness probes are initiated.
+	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 													periodSeconds: {
-														description: "How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	How often (in seconds) to perform the probe.
+	Default to 10 seconds. Minimum value is 1.
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 													successThreshold: {
-														description: "Minimum consecutive successes for the probe to be considered successful after having failed."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	Minimum consecutive successes for the probe to be considered successful after having failed.
+	Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 													tcpSocket: {
 														description: "TCPSocket specifies an action involving a TCP port."
@@ -8990,7 +8800,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																}, {
 																	type: "string"
 																}]
-																description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535."
+																description: """
+	Number or name of the port to access on the container.
+	Number must be in the range 1 to 65535.
+	Name must be an IANA_SVC_NAME.
+	"""
 																"x-kubernetes-int-or-string": true
 															}
 														}
@@ -8998,14 +8812,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type: "object"
 													}
 													terminationGracePeriodSeconds: {
-														description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure."
-														format:      "int64"
-														type:        "integer"
+														format: "int64"
+														type:   "integer"
 													}
 													timeoutSeconds: {
-														description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	Number of seconds after which the probe times out.
+	Defaults to 1 second. Minimum value is 1.
+	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 												}
 												type: "object"
@@ -9014,37 +8831,24 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "object"
 									}
 									placement: {
-										description: "The affinity to place the mds pods (default is to place on all available node) with a daemonset"
-										nullable:    true
+										nullable: true
 										properties: {
 											nodeAffinity: {
-												description: "NodeAffinity is a group of node affinity scheduling rules"
 												properties: {
 													preferredDuringSchedulingIgnoredDuringExecution: {
-														description: "The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified "
 														items: {
-															description: "An empty preferred scheduling term matches all objects with implicit weight 0 (i.e. it's a no-op)."
 															properties: {
 																preference: {
-																	description: "A node selector term, associated with the corresponding weight."
 																	properties: {
 																		matchExpressions: {
-																			description: "A list of node selector requirements by node's labels."
 																			items: {
-																				description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																				properties: {
-																					key: {
-																						description: "The label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "Represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -9053,25 +8857,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchFields: {
-																			description: "A list of node selector requirements by node's fields."
 																			items: {
-																				description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																				properties: {
-																					key: {
-																						description: "The label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "Represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -9080,16 +8877,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																weight: {
-																	description: "Weight associated with matching the corresponding nodeSelectorTerm, in the range 1-100."
-																	format:      "int32"
-																	type:        "integer"
+																	format: "int32"
+																	type:   "integer"
 																}
 															}
 															required: [
@@ -9098,32 +8895,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															]
 															type: "object"
 														}
-														type: "array"
+														type:                     "array"
+														"x-kubernetes-list-type": "atomic"
 													}
 													requiredDuringSchedulingIgnoredDuringExecution: {
-														description: "If the affinity requirements specified by this field are not met at scheduling time, the pod will no"
 														properties: nodeSelectorTerms: {
-															description: "Required. A list of node selector terms. The terms are ORed."
 															items: {
-																description: "A null or empty node selector term matches no objects. The requirements of them are ANDed."
 																properties: {
 																	matchExpressions: {
-																		description: "A list of node selector requirements by node's labels."
 																		items: {
-																			description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																			properties: {
-																				key: {
-																					description: "The label key that the selector applies to."
-																					type:        "string"
-																				}
-																				operator: {
-																					description: "Represents a key's relationship to a set of values."
-																					type:        "string"
-																				}
+																				key: type:      "string"
+																				operator: type: "string"
 																				values: {
-																					description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																					items: type: "string"
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
 																			required: [
@@ -9132,25 +8919,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			]
 																			type: "object"
 																		}
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																	matchFields: {
-																		description: "A list of node selector requirements by node's fields."
 																		items: {
-																			description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																			properties: {
-																				key: {
-																					description: "The label key that the selector applies to."
-																					type:        "string"
-																				}
-																				operator: {
-																					description: "Represents a key's relationship to a set of values."
-																					type:        "string"
-																				}
+																				key: type:      "string"
+																				operator: type: "string"
 																				values: {
-																					description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																					items: type: "string"
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
 																			required: [
@@ -9159,13 +8939,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			]
 																			type: "object"
 																		}
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																}
 																type:                    "object"
 																"x-kubernetes-map-type": "atomic"
 															}
-															type: "array"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
 														}
 														required: ["nodeSelectorTerms"]
 														type:                    "object"
@@ -9175,36 +8957,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type: "object"
 											}
 											podAffinity: {
-												description: "PodAffinity is a group of inter pod affinity scheduling rules"
 												properties: {
 													preferredDuringSchedulingIgnoredDuringExecution: {
-														description: "The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified "
 														items: {
-															description: "The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most"
 															properties: {
 																podAffinityTerm: {
-																	description: "Required. A pod affinity term, associated with the corresponding weight."
 																	properties: {
 																		labelSelector: {
-																			description: "A label query over a set of resources, in this case pods."
 																			properties: {
 																				matchExpressions: {
-																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																					items: {
-																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																						properties: {
-																							key: {
-																								description: "key is the label key that the selector applies to."
-																								type:        "string"
-																							}
-																							operator: {
-																								description: "operator represents a key's relationship to a set of values."
-																								type:        "string"
-																							}
+																							key: type:      "string"
+																							operator: type: "string"
 																							values: {
-																								description: "values is an array of string values."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
 																						required: [
@@ -9213,49 +8982,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																				matchLabels: {
 																					additionalProperties: type: "string"
-																					description: "matchLabels is a map of {key,value} pairs."
-																					type:        "object"
+																					type: "object"
 																				}
 																			}
 																			type:                    "object"
 																			"x-kubernetes-map-type": "atomic"
 																		}
 																		matchLabelKeys: {
-																			description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																			items: type: "string"
 																			type:                     "array"
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																		mismatchLabelKeys: {
-																			description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																			items: type: "string"
 																			type:                     "array"
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																		namespaceSelector: {
-																			description: "A label query over the set of namespaces that the term applies to."
 																			properties: {
 																				matchExpressions: {
-																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																					items: {
-																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																						properties: {
-																							key: {
-																								description: "key is the label key that the selector applies to."
-																								type:        "string"
-																							}
-																							operator: {
-																								description: "operator represents a key's relationship to a set of values."
-																								type:        "string"
-																							}
+																							key: type:      "string"
+																							operator: type: "string"
 																							values: {
-																								description: "values is an array of string values."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
 																						required: [
@@ -9264,34 +9022,30 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																				matchLabels: {
 																					additionalProperties: type: "string"
-																					description: "matchLabels is a map of {key,value} pairs."
-																					type:        "object"
+																					type: "object"
 																				}
 																			}
 																			type:                    "object"
 																			"x-kubernetes-map-type": "atomic"
 																		}
 																		namespaces: {
-																			description: "namespaces specifies a static list of namespace names that the term applies to."
 																			items: type: "string"
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
-																		topologyKey: {
-																			description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																			type:        "string"
-																		}
+																		topologyKey: type: "string"
 																	}
 																	required: ["topologyKey"]
 																	type: "object"
 																}
 																weight: {
-																	description: "weight associated with matching the corresponding podAffinityTerm, in the range 1-100."
-																	format:      "int32"
-																	type:        "integer"
+																	format: "int32"
+																	type:   "integer"
 																}
 															}
 															required: [
@@ -9300,33 +9054,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															]
 															type: "object"
 														}
-														type: "array"
+														type:                     "array"
+														"x-kubernetes-list-type": "atomic"
 													}
 													requiredDuringSchedulingIgnoredDuringExecution: {
-														description: "If the affinity requirements specified by this field are not met at scheduling time, the pod will no"
 														items: {
-															description: "Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) t"
 															properties: {
 																labelSelector: {
-																	description: "A label query over a set of resources, in this case pods."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -9335,49 +9079,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																matchLabelKeys: {
-																	description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																mismatchLabelKeys: {
-																	description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																namespaceSelector: {
-																	description: "A label query over the set of namespaces that the term applies to."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -9386,66 +9119,51 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																namespaces: {
-																	description: "namespaces specifies a static list of namespace names that the term applies to."
 																	items: type: "string"
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
-																topologyKey: {
-																	description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																	type:        "string"
-																}
+																topologyKey: type: "string"
 															}
 															required: ["topologyKey"]
 															type: "object"
 														}
-														type: "array"
+														type:                     "array"
+														"x-kubernetes-list-type": "atomic"
 													}
 												}
 												type: "object"
 											}
 											podAntiAffinity: {
-												description: "PodAntiAffinity is a group of inter pod anti affinity scheduling rules"
 												properties: {
 													preferredDuringSchedulingIgnoredDuringExecution: {
-														description: "The scheduler will prefer to schedule pods to nodes that satisfy the anti-affinity expressions speci"
 														items: {
-															description: "The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most"
 															properties: {
 																podAffinityTerm: {
-																	description: "Required. A pod affinity term, associated with the corresponding weight."
 																	properties: {
 																		labelSelector: {
-																			description: "A label query over a set of resources, in this case pods."
 																			properties: {
 																				matchExpressions: {
-																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																					items: {
-																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																						properties: {
-																							key: {
-																								description: "key is the label key that the selector applies to."
-																								type:        "string"
-																							}
-																							operator: {
-																								description: "operator represents a key's relationship to a set of values."
-																								type:        "string"
-																							}
+																							key: type:      "string"
+																							operator: type: "string"
 																							values: {
-																								description: "values is an array of string values."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
 																						required: [
@@ -9454,49 +9172,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																				matchLabels: {
 																					additionalProperties: type: "string"
-																					description: "matchLabels is a map of {key,value} pairs."
-																					type:        "object"
+																					type: "object"
 																				}
 																			}
 																			type:                    "object"
 																			"x-kubernetes-map-type": "atomic"
 																		}
 																		matchLabelKeys: {
-																			description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																			items: type: "string"
 																			type:                     "array"
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																		mismatchLabelKeys: {
-																			description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																			items: type: "string"
 																			type:                     "array"
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																		namespaceSelector: {
-																			description: "A label query over the set of namespaces that the term applies to."
 																			properties: {
 																				matchExpressions: {
-																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																					items: {
-																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																						properties: {
-																							key: {
-																								description: "key is the label key that the selector applies to."
-																								type:        "string"
-																							}
-																							operator: {
-																								description: "operator represents a key's relationship to a set of values."
-																								type:        "string"
-																							}
+																							key: type:      "string"
+																							operator: type: "string"
 																							values: {
-																								description: "values is an array of string values."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
 																						required: [
@@ -9505,34 +9212,30 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																				matchLabels: {
 																					additionalProperties: type: "string"
-																					description: "matchLabels is a map of {key,value} pairs."
-																					type:        "object"
+																					type: "object"
 																				}
 																			}
 																			type:                    "object"
 																			"x-kubernetes-map-type": "atomic"
 																		}
 																		namespaces: {
-																			description: "namespaces specifies a static list of namespace names that the term applies to."
 																			items: type: "string"
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
-																		topologyKey: {
-																			description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																			type:        "string"
-																		}
+																		topologyKey: type: "string"
 																	}
 																	required: ["topologyKey"]
 																	type: "object"
 																}
 																weight: {
-																	description: "weight associated with matching the corresponding podAffinityTerm, in the range 1-100."
-																	format:      "int32"
-																	type:        "integer"
+																	format: "int32"
+																	type:   "integer"
 																}
 															}
 															required: [
@@ -9541,33 +9244,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															]
 															type: "object"
 														}
-														type: "array"
+														type:                     "array"
+														"x-kubernetes-list-type": "atomic"
 													}
 													requiredDuringSchedulingIgnoredDuringExecution: {
-														description: "If the anti-affinity requirements specified by this field are not met at scheduling time, the pod wi"
 														items: {
-															description: "Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) t"
 															properties: {
 																labelSelector: {
-																	description: "A label query over a set of resources, in this case pods."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -9576,49 +9269,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																matchLabelKeys: {
-																	description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																mismatchLabelKeys: {
-																	description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																namespaceSelector: {
-																	description: "A label query over the set of namespaces that the term applies to."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -9627,91 +9309,63 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																namespaces: {
-																	description: "namespaces specifies a static list of namespace names that the term applies to."
 																	items: type: "string"
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
-																topologyKey: {
-																	description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																	type:        "string"
-																}
+																topologyKey: type: "string"
 															}
 															required: ["topologyKey"]
 															type: "object"
 														}
-														type: "array"
+														type:                     "array"
+														"x-kubernetes-list-type": "atomic"
 													}
 												}
 												type: "object"
 											}
 											tolerations: {
-												description: "The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect"
 												items: {
-													description: "The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect"
 													properties: {
-														effect: {
-															description: "Effect indicates the taint effect to match. Empty means match all taint effects."
-															type:        "string"
-														}
-														key: {
-															description: "Key is the taint key that the toleration applies to. Empty means match all taint keys."
-															type:        "string"
-														}
-														operator: {
-															description: "Operator represents a key's relationship to the value. Valid operators are Exists and Equal."
-															type:        "string"
-														}
+														effect: type:   "string"
+														key: type:      "string"
+														operator: type: "string"
 														tolerationSeconds: {
-															description: "TolerationSeconds represents the period of time the toleration (which must be of effect NoExecute, o"
-															format:      "int64"
-															type:        "integer"
+															format: "int64"
+															type:   "integer"
 														}
-														value: {
-															description: "Value is the taint value the toleration matches to."
-															type:        "string"
-														}
+														value: type: "string"
 													}
 													type: "object"
 												}
 												type: "array"
 											}
 											topologySpreadConstraints: {
-												description: "TopologySpreadConstraint specifies how to spread matching pods among the given topology"
 												items: {
-													description: "TopologySpreadConstraint specifies how to spread matching pods among the given topology."
 													properties: {
 														labelSelector: {
-															description: "LabelSelector is used to find matching pods."
 															properties: {
 																matchExpressions: {
-																	description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																	items: {
-																		description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																		properties: {
-																			key: {
-																				description: "key is the label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "operator represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "values is an array of string values."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -9720,49 +9374,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																matchLabels: {
 																	additionalProperties: type: "string"
-																	description: "matchLabels is a map of {key,value} pairs."
-																	type:        "object"
+																	type: "object"
 																}
 															}
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
 														matchLabelKeys: {
-															description: "MatchLabelKeys is a set of pod label keys to select the pods over which spreading will be calculated"
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
 														}
 														maxSkew: {
-															description: "MaxSkew describes the degree to which pods may be unevenly distributed."
-															format:      "int32"
-															type:        "integer"
+															format: "int32"
+															type:   "integer"
 														}
 														minDomains: {
-															description: "MinDomains indicates a minimum number of eligible domains."
-															format:      "int32"
-															type:        "integer"
+															format: "int32"
+															type:   "integer"
 														}
-														nodeAffinityPolicy: {
-															description: "NodeAffinityPolicy indicates how we will treat Pod's nodeAffinity/nodeSelector when calculating pod "
-															type:        "string"
-														}
-														nodeTaintsPolicy: {
-															description: "NodeTaintsPolicy indicates how we will treat node taints when calculating pod topology spread skew."
-															type:        "string"
-														}
-														topologyKey: {
-															description: "TopologyKey is the key of node labels."
-															type:        "string"
-														}
-														whenUnsatisfiable: {
-															description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint."
-															type:        "string"
-														}
+														nodeAffinityPolicy: type: "string"
+														nodeTaintsPolicy: type:   "string"
+														topologyKey: type:        "string"
+														whenUnsatisfiable: type:  "string"
 													}
 													required: [
 														"maxSkew",
@@ -9782,16 +9421,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type:        "string"
 									}
 									resources: {
-										description: "The resource requirements for the rgw pods"
+										description: "The resource requirements for the mds pods"
 										nullable:    true
 										properties: {
 											claims: {
-												description: "Claims lists the names of resources, defined in spec."
+												description: """
+	Claims lists the names of resources, defined in spec.resourceClaims,
+	that are used by this container.
+
+	This is an alpha field and requires enabling the
+	DynamicResourceAllocation feature gate.
+
+	This field is immutable. It can only be set for containers.
+	"""
 												items: {
 													description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
-													properties: name: {
-														description: "Name must match the name of one entry in pod.spec."
-														type:        "string"
+													properties: {
+														name: {
+															description: """
+	Name must match the name of one entry in pod.spec.resourceClaims of
+	the Pod where this field is used. It makes that resource available
+	inside a container.
+	"""
+															type: "string"
+														}
+														request: {
+															description: """
+	Request is the name chosen for a request in the referenced claim.
+	If empty, everything from the claim is made available, otherwise
+	only the result of this request.
+	"""
+															type: "string"
+														}
 													}
 													required: ["name"]
 													type: "object"
@@ -9810,8 +9471,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 													"x-kubernetes-int-or-string": true
 												}
-												description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes."
-												type:        "object"
+												description: """
+	Limits describes the maximum amount of compute resources allowed.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+												type: "object"
 											}
 											requests: {
 												additionalProperties: {
@@ -9823,8 +9487,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 													"x-kubernetes-int-or-string": true
 												}
-												description: "Requests describes the minimum amount of compute resources required."
-												type:        "object"
+												description: """
+	Requests describes the minimum amount of compute resources required.
+	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+	otherwise to an implementation-defined value. Requests cannot exceed Limits.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+												type: "object"
 											}
 										}
 										type:                                   "object"
@@ -9838,21 +9507,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "boolean"
 											}
 											probe: {
-												description: "Probe describes a health check to be performed against a container to determine whether it is alive "
+												description: """
+	Probe describes a health check to be performed against a container to determine whether it is
+	alive or ready to receive traffic.
+	"""
 												properties: {
 													exec: {
 														description: "Exec specifies the action to take."
 														properties: command: {
-															description: "Command is the command line to execute inside the container, the working directory for the command  "
+															description: """
+	Command is the command line to execute inside the container, the working directory for the
+	command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
+	not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
+	a shell, you need to explicitly call out to that shell.
+	Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+	"""
 															items: type: "string"
-															type: "array"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
 														}
 														type: "object"
 													}
 													failureThreshold: {
-														description: "Minimum consecutive failures for the probe to be considered failed after having succeeded."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	Minimum consecutive failures for the probe to be considered failed after having succeeded.
+	Defaults to 3. Minimum value is 1.
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 													grpc: {
 														description: "GRPC specifies an action involving a GRPC port."
@@ -9863,8 +9545,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type:        "integer"
 															}
 															service: {
-																description: "Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github."
-																type:        "string"
+																default: ""
+																description: """
+	Service is the name of the service to place in the gRPC HealthCheckRequest
+	(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+
+	If this is not specified, the default behavior is defined by gRPC.
+	"""
+																type: "string"
 															}
 														}
 														required: ["port"]
@@ -9874,8 +9562,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														description: "HTTPGet specifies the http request to perform."
 														properties: {
 															host: {
-																description: "Host name to connect to, defaults to the pod IP."
-																type:        "string"
+																description: """
+	Host name to connect to, defaults to the pod IP. You probably want to set
+	"Host" in httpHeaders instead.
+	"""
+																type: "string"
 															}
 															httpHeaders: {
 																description: "Custom headers to set in the request. HTTP allows repeated headers."
@@ -9883,8 +9574,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	description: "HTTPHeader describes a custom header to be used in HTTP probes"
 																	properties: {
 																		name: {
-																			description: "The header field name."
-																			type:        "string"
+																			description: """
+	The header field name.
+	This will be canonicalized upon output, so case-variant names will be understood as the same header.
+	"""
+																			type: "string"
 																		}
 																		value: {
 																			description: "The header field value"
@@ -9897,7 +9591,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	]
 																	type: "object"
 																}
-																type: "array"
+																type:                     "array"
+																"x-kubernetes-list-type": "atomic"
 															}
 															path: {
 																description: "Path to access on the HTTP server."
@@ -9909,31 +9604,47 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																}, {
 																	type: "string"
 																}]
-																description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535."
+																description: """
+	Name or number of the port to access on the container.
+	Number must be in the range 1 to 65535.
+	Name must be an IANA_SVC_NAME.
+	"""
 																"x-kubernetes-int-or-string": true
 															}
 															scheme: {
-																description: "Scheme to use for connecting to the host. Defaults to HTTP."
-																type:        "string"
+																description: """
+	Scheme to use for connecting to the host.
+	Defaults to HTTP.
+	"""
+																type: "string"
 															}
 														}
 														required: ["port"]
 														type: "object"
 													}
 													initialDelaySeconds: {
-														description: "Number of seconds after the container has started before liveness probes are initiated."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	Number of seconds after the container has started before liveness probes are initiated.
+	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 													periodSeconds: {
-														description: "How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	How often (in seconds) to perform the probe.
+	Default to 10 seconds. Minimum value is 1.
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 													successThreshold: {
-														description: "Minimum consecutive successes for the probe to be considered successful after having failed."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	Minimum consecutive successes for the probe to be considered successful after having failed.
+	Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 													tcpSocket: {
 														description: "TCPSocket specifies an action involving a TCP port."
@@ -9948,7 +9659,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																}, {
 																	type: "string"
 																}]
-																description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535."
+																description: """
+	Number or name of the port to access on the container.
+	Number must be in the range 1 to 65535.
+	Name must be an IANA_SVC_NAME.
+	"""
 																"x-kubernetes-int-or-string": true
 															}
 														}
@@ -9956,14 +9671,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type: "object"
 													}
 													terminationGracePeriodSeconds: {
-														description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure."
-														format:      "int64"
-														type:        "integer"
+														format: "int64"
+														type:   "integer"
 													}
 													timeoutSeconds: {
-														description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	Number of seconds after which the probe times out.
+	Defaults to 1 second. Minimum value is 1.
+	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 												}
 												type: "object"
@@ -9994,7 +9712,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "object"
 									}
 									snapshotRetention: {
-										description: "Retention is the retention policy for a snapshot schedule One path has exactly one retention policy."
+										description: """
+	Retention is the retention policy for a snapshot schedule
+	One path has exactly one retention policy.
+	A policy can however contain multiple count-time period pairs in order to specify complex retention policies
+	"""
 										items: {
 											description: "SnapshotScheduleRetentionSpec is a retention policy"
 											properties: {
@@ -10037,7 +9759,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type: "object"
 							}
 							preserveFilesystemOnDelete: {
-								description: "Preserve the fs in the cluster on CephFilesystem CR deletion."
+								description: "Preserve the fs in the cluster on CephFilesystem CR deletion. Setting this to true automatically implies PreservePoolsOnDelete is true."
+								type:        "boolean"
+							}
+							preservePoolNames: {
+								description: "Preserve pool names as specified"
 								type:        "boolean"
 							}
 							preservePoolsOnDelete: {
@@ -10246,7 +9972,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												}
 												rel_path: type: "string"
 												retention: {
-													description: "FilesystemSnapshotScheduleStatusRetention is the retention specification for a filesystem snapshot s"
+													description: "FilesystemSnapshotScheduleStatusRetention is the retention specification for a filesystem snapshot schedule"
 													properties: {
 														active: {
 															description: "Active is whether the scheduled is active or not"
@@ -10329,26 +10055,64 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				jsonPath: ".status.phase"
 				name:     "Phase"
 				type:     "string"
+			}, {
+				description: "Name of the CephFileSystem"
+				jsonPath:    ".spec.filesystemName"
+				name:        "Filesystem"
+				type:        "string"
+			}, {
+				jsonPath: ".spec.quota"
+				name:     "Quota"
+				type:     "string"
+			}, {
+				jsonPath: ".status.info.pinning"
+				name:     "Pinning"
+				priority: 1
+				type:     "string"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
 			}]
 			name: "v1"
 			schema: openAPIV3Schema: {
 				description: "CephFilesystemSubVolumeGroup represents a Ceph Filesystem SubVolumeGroup"
 				properties: {
 					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object."
-						type:        "string"
+						description: """
+	APIVersion defines the versioned schema of this representation of an object.
+	Servers should convert recognized schemas to the latest internal value, and
+	may reject unrecognized values.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+	"""
+						type: "string"
 					}
 					kind: {
-						description: "Kind is a string value representing the REST resource this object represents."
-						type:        "string"
+						description: """
+	Kind is a string value representing the REST resource this object represents.
+	Servers may infer this from the endpoint the client submits requests to.
+	Cannot be updated.
+	In CamelCase.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+	"""
+						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
 						description: "Spec represents the specification of a Ceph Filesystem SubVolumeGroup"
 						properties: {
-							filesystemName: {
-								description: "FilesystemName is the name of Ceph Filesystem SubVolumeGroup volume name."
+							dataPoolName: {
+								description: "The data pool name for the Ceph Filesystem subvolume group layout, if the default CephFS pool is not desired."
 								type:        "string"
+							}
+							filesystemName: {
+								description: """
+	FilesystemName is the name of Ceph Filesystem SubVolumeGroup volume name. Typically it's the name of
+	the CephFilesystem CR. If not coming from the CephFilesystem CR, it can be retrieved from the
+	list of Ceph Filesystem volumes with `ceph fs volume ls`. To learn more about Ceph Filesystem
+	abstractions see https://docs.ceph.com/en/latest/cephfs/fs-volumes/#fs-volumes-and-subvolumes
+	"""
+								type: "string"
 								"x-kubernetes-validations": [{
 									message: "filesystemName is immutable"
 									rule:    "self == oldSelf"
@@ -10363,7 +10127,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								}]
 							}
 							pinning: {
-								description: "Pinning configuration of CephFilesystemSubVolumeGroup, reference https://docs.ceph."
+								description: """
+	Pinning configuration of CephFilesystemSubVolumeGroup,
+	reference https://docs.ceph.com/en/latest/cephfs/fs-volumes/#pinning-subvolumes-and-subvolume-groups
+	only one out of (export, distributed, random) can be set at a time
+	"""
 								properties: {
 									distributed: {
 										maximum:  1
@@ -10389,6 +10157,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									message: "only one pinning type should be set"
 									rule:    "(has(self.export) && !has(self.distributed) && !has(self.random)) || (!has(self.export) && has(self.distributed) && !has(self.random)) || (!has(self.export) && !has(self.distributed) && has(self.random)) || (!has(self.export) && !has(self.distributed) && !has(self.random))"
 								}]
+							}
+							quota: {
+								anyOf: [{
+									type: "integer"
+								}, {
+									type: "string"
+								}]
+								description:                  "Quota size of the Ceph Filesystem subvolume group."
+								pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+								"x-kubernetes-int-or-string": true
 							}
 						}
 						required: ["filesystemName"]
@@ -10445,12 +10223,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				description: "CephNFS represents a Ceph NFS"
 				properties: {
 					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object."
-						type:        "string"
+						description: """
+	APIVersion defines the versioned schema of this representation of an object.
+	Servers should convert recognized schemas to the latest internal value, and
+	may reject unrecognized values.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+	"""
+						type: "string"
 					}
 					kind: {
-						description: "Kind is a string value representing the REST resource this object represents."
-						type:        "string"
+						description: """
+	Kind is a string value representing the REST resource this object represents.
+	Servers may infer this from the endpoint the client submits requests to.
+	Cannot be updated.
+	In CamelCase.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+	"""
+						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
@@ -10461,12 +10250,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								nullable:    true
 								properties: {
 									namespace: {
-										description: "The namespace inside the Ceph pool (set by 'pool') where shared NFS-Ganesha config is stored."
-										type:        "string"
+										description: """
+	The namespace inside the Ceph pool (set by 'pool') where shared NFS-Ganesha config is stored.
+	This setting is deprecated as it is internally set to the name of the CephNFS.
+	"""
+										type: "string"
 									}
 									pool: {
-										description: "The Ceph pool used store the shared configuration for NFS-Ganesha daemons."
-										type:        "string"
+										description: """
+	The Ceph pool used store the shared configuration for NFS-Ganesha daemons.
+	This setting is deprecated, as it is internally required to be ".nfs".
+	"""
+										type: "string"
 									}
 								}
 								type: "object"
@@ -10480,36 +10275,35 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										nullable:    true
 										properties: {
 											configFiles: {
-												description: "ConfigFiles defines where the Kerberos configuration should be sourced from."
+												description: """
+	ConfigFiles defines where the Kerberos configuration should be sourced from. Config files
+	will be placed into the `/etc/krb5.conf.rook/` directory.
+
+	If this is left empty, Rook will not add any files. This allows you to manage the files
+	yourself however you wish. For example, you may build them into your custom Ceph container
+	image or use the Vault agent injector to securely add the files via annotations on the
+	CephNFS spec (passed to the NFS server pods).
+
+	Rook configures Kerberos to log to stderr. We suggest removing logging sections from config
+	files to avoid consuming unnecessary disk space from logging to files.
+	"""
 												properties: volumeSource: {
-													description: "VolumeSource accepts a pared down version of the standard Kubernetes VolumeSource for Kerberos confi"
 													properties: {
 														configMap: {
-															description: "configMap represents a configMap that should populate this volume"
 															properties: {
 																defaultMode: {
-																	description: "defaultMode is optional: mode bits used to set permissions on created files by default."
-																	format:      "int32"
-																	type:        "integer"
+																	format: "int32"
+																	type:   "integer"
 																}
 																items: {
-																	description: "items if unspecified, each key-value pair in the Data field of the referenced ConfigMap will be proj"
 																	items: {
-																		description: "Maps a string key to a path within a volume."
 																		properties: {
-																			key: {
-																				description: "key is the key to project."
-																				type:        "string"
-																			}
+																			key: type: "string"
 																			mode: {
-																				description: "mode is Optional: mode bits used to set permissions on this file."
-																				format:      "int32"
-																				type:        "integer"
+																				format: "int32"
+																				type:   "integer"
 																			}
-																			path: {
-																				description: "path is the relative path of the file to map the key to. May not be an absolute path."
-																				type:        "string"
-																			}
+																			path: type: "string"
 																		}
 																		required: [
 																			"key",
@@ -10517,34 +10311,27 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes."
-																	type:        "string"
+																	default: ""
+																	type:    "string"
 																}
-																optional: {
-																	description: "optional specify whether the ConfigMap or its keys must be defined"
-																	type:        "boolean"
-																}
+																optional: type: "boolean"
 															}
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
 														emptyDir: {
-															description: "emptyDir represents a temporary directory that shares a pod's lifetime."
 															properties: {
-																medium: {
-																	description: "medium represents what type of storage medium should back this directory."
-																	type:        "string"
-																}
+																medium: type: "string"
 																sizeLimit: {
 																	anyOf: [{
 																		type: "integer"
 																	}, {
 																		type: "string"
 																	}]
-																	description:                  "sizeLimit is the total amount of local storage required for this EmptyDir volume."
 																	pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																	"x-kubernetes-int-or-string": true
 																}
@@ -10552,71 +10339,43 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type: "object"
 														}
 														hostPath: {
-															description: "hostPath represents a pre-existing file or directory on the host machine that is directly exposed to"
 															properties: {
-																path: {
-																	description: "path of the directory on the host."
-																	type:        "string"
-																}
-																type: {
-																	description: "type for HostPath Volume Defaults to \"\" More info: https://kubernetes."
-																	type:        "string"
-																}
+																path: type: "string"
+																type: type: "string"
 															}
 															required: ["path"]
 															type: "object"
 														}
 														persistentVolumeClaim: {
-															description: "persistentVolumeClaimVolumeSource represents a reference to a PersistentVolumeClaim in the same name"
 															properties: {
-																claimName: {
-																	description: "claimName is the name of a PersistentVolumeClaim in the same namespace as the pod using this volume."
-																	type:        "string"
-																}
-																readOnly: {
-																	description: "readOnly Will force the ReadOnly setting in VolumeMounts. Default false."
-																	type:        "boolean"
-																}
+																claimName: type: "string"
+																readOnly: type:  "boolean"
 															}
 															required: ["claimName"]
 															type: "object"
 														}
 														projected: {
-															description: "projected items for all in one resources secrets, configmaps, and downward API"
 															properties: {
 																defaultMode: {
-																	description: "defaultMode are the mode bits used to set permissions on created files by default."
-																	format:      "int32"
-																	type:        "integer"
+																	format: "int32"
+																	type:   "integer"
 																}
 																sources: {
-																	description: "sources is the list of volume projections"
 																	items: {
-																		description: "Projection that may be projected along with other supported volume types"
 																		properties: {
 																			clusterTrustBundle: {
-																				description: "ClusterTrustBundle allows a pod to access the `.spec."
 																				properties: {
 																					labelSelector: {
-																						description: "Select all ClusterTrustBundles that match this label selector."
 																						properties: {
 																							matchExpressions: {
-																								description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																								items: {
-																									description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																									properties: {
-																										key: {
-																											description: "key is the label key that the selector applies to."
-																											type:        "string"
-																										}
-																										operator: {
-																											description: "operator represents a key's relationship to a set of values."
-																											type:        "string"
-																										}
+																										key: type:      "string"
+																										operator: type: "string"
 																										values: {
-																											description: "values is an array of string values."
 																											items: type: "string"
-																											type: "array"
+																											type:                     "array"
+																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
 																									required: [
@@ -10625,58 +10384,36 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									]
 																									type: "object"
 																								}
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																							matchLabels: {
 																								additionalProperties: type: "string"
-																								description: "matchLabels is a map of {key,value} pairs."
-																								type:        "object"
+																								type: "object"
 																							}
 																						}
 																						type:                    "object"
 																						"x-kubernetes-map-type": "atomic"
 																					}
-																					name: {
-																						description: "Select a single ClusterTrustBundle by object name."
-																						type:        "string"
-																					}
-																					optional: {
-																						description: "If true, don't block pod startup if the referenced ClusterTrustBundle(s) aren't available."
-																						type:        "boolean"
-																					}
-																					path: {
-																						description: "Relative path from the volume root to write the bundle."
-																						type:        "string"
-																					}
-																					signerName: {
-																						description: "Select all ClusterTrustBundles that match this signer name. Mutually-exclusive with name."
-																						type:        "string"
-																					}
+																					name: type:       "string"
+																					optional: type:   "boolean"
+																					path: type:       "string"
+																					signerName: type: "string"
 																				}
 																				required: ["path"]
 																				type: "object"
 																			}
 																			configMap: {
-																				description: "configMap information about the configMap data to project"
 																				properties: {
 																					items: {
-																						description: "items if unspecified, each key-value pair in the Data field of the referenced ConfigMap will be proj"
 																						items: {
-																							description: "Maps a string key to a path within a volume."
 																							properties: {
-																								key: {
-																									description: "key is the key to project."
-																									type:        "string"
-																								}
+																								key: type: "string"
 																								mode: {
-																									description: "mode is Optional: mode bits used to set permissions on this file."
-																									format:      "int32"
-																									type:        "integer"
+																									format: "int32"
+																									type:   "integer"
 																								}
-																								path: {
-																									description: "path is the relative path of the file to map the key to. May not be an absolute path."
-																									type:        "string"
-																								}
+																								path: type: "string"
 																							}
 																							required: [
 																								"key",
@@ -10684,73 +10421,49 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							]
 																							type: "object"
 																						}
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					name: {
-																						description: "Name of the referent. More info: https://kubernetes."
-																						type:        "string"
+																						default: ""
+																						type:    "string"
 																					}
-																					optional: {
-																						description: "optional specify whether the ConfigMap or its keys must be defined"
-																						type:        "boolean"
-																					}
+																					optional: type: "boolean"
 																				}
 																				type:                    "object"
 																				"x-kubernetes-map-type": "atomic"
 																			}
 																			downwardAPI: {
-																				description: "downwardAPI information about the downwardAPI data to project"
 																				properties: items: {
-																					description: "Items is a list of DownwardAPIVolume file"
 																					items: {
-																						description: "DownwardAPIVolumeFile represents information to create the file containing the pod field"
 																						properties: {
 																							fieldRef: {
-																								description: "Required: Selects a field of the pod: only annotations, labels, name and namespace are supported."
 																								properties: {
-																									apiVersion: {
-																										description: "Version of the schema the FieldPath is written in terms of, defaults to \"v1\"."
-																										type:        "string"
-																									}
-																									fieldPath: {
-																										description: "Path of the field to select in the specified API version."
-																										type:        "string"
-																									}
+																									apiVersion: type: "string"
+																									fieldPath: type:  "string"
 																								}
 																								required: ["fieldPath"]
 																								type:                    "object"
 																								"x-kubernetes-map-type": "atomic"
 																							}
 																							mode: {
-																								description: "Optional: mode bits used to set permissions on this file, must be an octal value between 0000 and 07"
-																								format:      "int32"
-																								type:        "integer"
+																								format: "int32"
+																								type:   "integer"
 																							}
-																							path: {
-																								description: "Required: Path is  the relative path name of the file to be created."
-																								type:        "string"
-																							}
+																							path: type: "string"
 																							resourceFieldRef: {
-																								description: "Selects a resource of the container: only resources limits and requests (limits.cpu, limits."
 																								properties: {
-																									containerName: {
-																										description: "Container name: required for volumes, optional for env vars"
-																										type:        "string"
-																									}
+																									containerName: type: "string"
 																									divisor: {
 																										anyOf: [{
 																											type: "integer"
 																										}, {
 																											type: "string"
 																										}]
-																										description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
 																										pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																										"x-kubernetes-int-or-string": true
 																									}
-																									resource: {
-																										description: "Required: resource to select"
-																										type:        "string"
-																									}
+																									resource: type: "string"
 																								}
 																								required: ["resource"]
 																								type:                    "object"
@@ -10760,31 +10473,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						required: ["path"]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																				type: "object"
 																			}
 																			secret: {
-																				description: "secret information about the secret data to project"
 																				properties: {
 																					items: {
-																						description: "items if unspecified, each key-value pair in the Data field of the referenced Secret will be project"
 																						items: {
-																							description: "Maps a string key to a path within a volume."
 																							properties: {
-																								key: {
-																									description: "key is the key to project."
-																									type:        "string"
-																								}
+																								key: type: "string"
 																								mode: {
-																									description: "mode is Optional: mode bits used to set permissions on this file."
-																									format:      "int32"
-																									type:        "integer"
+																									format: "int32"
+																									type:   "integer"
 																								}
-																								path: {
-																									description: "path is the relative path of the file to map the key to. May not be an absolute path."
-																									type:        "string"
-																								}
+																								path: type: "string"
 																							}
 																							required: [
 																								"key",
@@ -10792,36 +10496,26 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							]
 																							type: "object"
 																						}
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					name: {
-																						description: "Name of the referent. More info: https://kubernetes."
-																						type:        "string"
+																						default: ""
+																						type:    "string"
 																					}
-																					optional: {
-																						description: "optional field specify whether the Secret or its key must be defined"
-																						type:        "boolean"
-																					}
+																					optional: type: "boolean"
 																				}
 																				type:                    "object"
 																				"x-kubernetes-map-type": "atomic"
 																			}
 																			serviceAccountToken: {
-																				description: "serviceAccountToken is information about the serviceAccountToken data to project"
 																				properties: {
-																					audience: {
-																						description: "audience is the intended audience of the token."
-																						type:        "string"
-																					}
+																					audience: type: "string"
 																					expirationSeconds: {
-																						description: "expirationSeconds is the requested duration of validity of the service account token."
-																						format:      "int64"
-																						type:        "integer"
+																						format: "int64"
+																						type:   "integer"
 																					}
-																					path: {
-																						description: "path is the path relative to the mount point of the file to project the token into."
-																						type:        "string"
-																					}
+																					path: type: "string"
 																				}
 																				required: ["path"]
 																				type: "object"
@@ -10829,37 +10523,27 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		}
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 															}
 															type: "object"
 														}
 														secret: {
-															description: "secret represents a secret that should populate this volume. More info: https://kubernetes."
 															properties: {
 																defaultMode: {
-																	description: "defaultMode is Optional: mode bits used to set permissions on created files by default."
-																	format:      "int32"
-																	type:        "integer"
+																	format: "int32"
+																	type:   "integer"
 																}
 																items: {
-																	description: "items If unspecified, each key-value pair in the Data field of the referenced Secret will be project"
 																	items: {
-																		description: "Maps a string key to a path within a volume."
 																		properties: {
-																			key: {
-																				description: "key is the key to project."
-																				type:        "string"
-																			}
+																			key: type: "string"
 																			mode: {
-																				description: "mode is Optional: mode bits used to set permissions on this file."
-																				format:      "int32"
-																				type:        "integer"
+																				format: "int32"
+																				type:   "integer"
 																			}
-																			path: {
-																				description: "path is the relative path of the file to map the key to. May not be an absolute path."
-																				type:        "string"
-																			}
+																			path: type: "string"
 																		}
 																		required: [
 																			"key",
@@ -10867,16 +10551,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
-																optional: {
-																	description: "optional field specify whether the Secret or its keys must be defined"
-																	type:        "boolean"
-																}
-																secretName: {
-																	description: "secretName is the name of the secret in the pod's namespace to use. More info: https://kubernetes."
-																	type:        "string"
-																}
+																optional: type:   "boolean"
+																secretName: type: "string"
 															}
 															type: "object"
 														}
@@ -10890,36 +10569,30 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "string"
 											}
 											keytabFile: {
-												description: "KeytabFile defines where the Kerberos keytab should be sourced from."
+												description: """
+	KeytabFile defines where the Kerberos keytab should be sourced from. The keytab file will be
+	placed into `/etc/krb5.keytab`. If this is left empty, Rook will not add the file.
+	This allows you to manage the `krb5.keytab` file yourself however you wish. For example, you
+	may build it into your custom Ceph container image or use the Vault agent injector to
+	securely add the file via annotations on the CephNFS spec (passed to the NFS server pods).
+	"""
 												properties: volumeSource: {
-													description: "VolumeSource accepts a pared down version of the standard Kubernetes VolumeSource for the Kerberos k"
 													properties: {
 														configMap: {
-															description: "configMap represents a configMap that should populate this volume"
 															properties: {
 																defaultMode: {
-																	description: "defaultMode is optional: mode bits used to set permissions on created files by default."
-																	format:      "int32"
-																	type:        "integer"
+																	format: "int32"
+																	type:   "integer"
 																}
 																items: {
-																	description: "items if unspecified, each key-value pair in the Data field of the referenced ConfigMap will be proj"
 																	items: {
-																		description: "Maps a string key to a path within a volume."
 																		properties: {
-																			key: {
-																				description: "key is the key to project."
-																				type:        "string"
-																			}
+																			key: type: "string"
 																			mode: {
-																				description: "mode is Optional: mode bits used to set permissions on this file."
-																				format:      "int32"
-																				type:        "integer"
+																				format: "int32"
+																				type:   "integer"
 																			}
-																			path: {
-																				description: "path is the relative path of the file to map the key to. May not be an absolute path."
-																				type:        "string"
-																			}
+																			path: type: "string"
 																		}
 																		required: [
 																			"key",
@@ -10927,34 +10600,27 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																name: {
-																	description: "Name of the referent. More info: https://kubernetes."
-																	type:        "string"
+																	default: ""
+																	type:    "string"
 																}
-																optional: {
-																	description: "optional specify whether the ConfigMap or its keys must be defined"
-																	type:        "boolean"
-																}
+																optional: type: "boolean"
 															}
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
 														emptyDir: {
-															description: "emptyDir represents a temporary directory that shares a pod's lifetime."
 															properties: {
-																medium: {
-																	description: "medium represents what type of storage medium should back this directory."
-																	type:        "string"
-																}
+																medium: type: "string"
 																sizeLimit: {
 																	anyOf: [{
 																		type: "integer"
 																	}, {
 																		type: "string"
 																	}]
-																	description:                  "sizeLimit is the total amount of local storage required for this EmptyDir volume."
 																	pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																	"x-kubernetes-int-or-string": true
 																}
@@ -10962,71 +10628,43 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type: "object"
 														}
 														hostPath: {
-															description: "hostPath represents a pre-existing file or directory on the host machine that is directly exposed to"
 															properties: {
-																path: {
-																	description: "path of the directory on the host."
-																	type:        "string"
-																}
-																type: {
-																	description: "type for HostPath Volume Defaults to \"\" More info: https://kubernetes."
-																	type:        "string"
-																}
+																path: type: "string"
+																type: type: "string"
 															}
 															required: ["path"]
 															type: "object"
 														}
 														persistentVolumeClaim: {
-															description: "persistentVolumeClaimVolumeSource represents a reference to a PersistentVolumeClaim in the same name"
 															properties: {
-																claimName: {
-																	description: "claimName is the name of a PersistentVolumeClaim in the same namespace as the pod using this volume."
-																	type:        "string"
-																}
-																readOnly: {
-																	description: "readOnly Will force the ReadOnly setting in VolumeMounts. Default false."
-																	type:        "boolean"
-																}
+																claimName: type: "string"
+																readOnly: type:  "boolean"
 															}
 															required: ["claimName"]
 															type: "object"
 														}
 														projected: {
-															description: "projected items for all in one resources secrets, configmaps, and downward API"
 															properties: {
 																defaultMode: {
-																	description: "defaultMode are the mode bits used to set permissions on created files by default."
-																	format:      "int32"
-																	type:        "integer"
+																	format: "int32"
+																	type:   "integer"
 																}
 																sources: {
-																	description: "sources is the list of volume projections"
 																	items: {
-																		description: "Projection that may be projected along with other supported volume types"
 																		properties: {
 																			clusterTrustBundle: {
-																				description: "ClusterTrustBundle allows a pod to access the `.spec."
 																				properties: {
 																					labelSelector: {
-																						description: "Select all ClusterTrustBundles that match this label selector."
 																						properties: {
 																							matchExpressions: {
-																								description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																								items: {
-																									description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																									properties: {
-																										key: {
-																											description: "key is the label key that the selector applies to."
-																											type:        "string"
-																										}
-																										operator: {
-																											description: "operator represents a key's relationship to a set of values."
-																											type:        "string"
-																										}
+																										key: type:      "string"
+																										operator: type: "string"
 																										values: {
-																											description: "values is an array of string values."
 																											items: type: "string"
-																											type: "array"
+																											type:                     "array"
+																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
 																									required: [
@@ -11035,58 +10673,36 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									]
 																									type: "object"
 																								}
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																							matchLabels: {
 																								additionalProperties: type: "string"
-																								description: "matchLabels is a map of {key,value} pairs."
-																								type:        "object"
+																								type: "object"
 																							}
 																						}
 																						type:                    "object"
 																						"x-kubernetes-map-type": "atomic"
 																					}
-																					name: {
-																						description: "Select a single ClusterTrustBundle by object name."
-																						type:        "string"
-																					}
-																					optional: {
-																						description: "If true, don't block pod startup if the referenced ClusterTrustBundle(s) aren't available."
-																						type:        "boolean"
-																					}
-																					path: {
-																						description: "Relative path from the volume root to write the bundle."
-																						type:        "string"
-																					}
-																					signerName: {
-																						description: "Select all ClusterTrustBundles that match this signer name. Mutually-exclusive with name."
-																						type:        "string"
-																					}
+																					name: type:       "string"
+																					optional: type:   "boolean"
+																					path: type:       "string"
+																					signerName: type: "string"
 																				}
 																				required: ["path"]
 																				type: "object"
 																			}
 																			configMap: {
-																				description: "configMap information about the configMap data to project"
 																				properties: {
 																					items: {
-																						description: "items if unspecified, each key-value pair in the Data field of the referenced ConfigMap will be proj"
 																						items: {
-																							description: "Maps a string key to a path within a volume."
 																							properties: {
-																								key: {
-																									description: "key is the key to project."
-																									type:        "string"
-																								}
+																								key: type: "string"
 																								mode: {
-																									description: "mode is Optional: mode bits used to set permissions on this file."
-																									format:      "int32"
-																									type:        "integer"
+																									format: "int32"
+																									type:   "integer"
 																								}
-																								path: {
-																									description: "path is the relative path of the file to map the key to. May not be an absolute path."
-																									type:        "string"
-																								}
+																								path: type: "string"
 																							}
 																							required: [
 																								"key",
@@ -11094,73 +10710,49 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							]
 																							type: "object"
 																						}
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					name: {
-																						description: "Name of the referent. More info: https://kubernetes."
-																						type:        "string"
+																						default: ""
+																						type:    "string"
 																					}
-																					optional: {
-																						description: "optional specify whether the ConfigMap or its keys must be defined"
-																						type:        "boolean"
-																					}
+																					optional: type: "boolean"
 																				}
 																				type:                    "object"
 																				"x-kubernetes-map-type": "atomic"
 																			}
 																			downwardAPI: {
-																				description: "downwardAPI information about the downwardAPI data to project"
 																				properties: items: {
-																					description: "Items is a list of DownwardAPIVolume file"
 																					items: {
-																						description: "DownwardAPIVolumeFile represents information to create the file containing the pod field"
 																						properties: {
 																							fieldRef: {
-																								description: "Required: Selects a field of the pod: only annotations, labels, name and namespace are supported."
 																								properties: {
-																									apiVersion: {
-																										description: "Version of the schema the FieldPath is written in terms of, defaults to \"v1\"."
-																										type:        "string"
-																									}
-																									fieldPath: {
-																										description: "Path of the field to select in the specified API version."
-																										type:        "string"
-																									}
+																									apiVersion: type: "string"
+																									fieldPath: type:  "string"
 																								}
 																								required: ["fieldPath"]
 																								type:                    "object"
 																								"x-kubernetes-map-type": "atomic"
 																							}
 																							mode: {
-																								description: "Optional: mode bits used to set permissions on this file, must be an octal value between 0000 and 07"
-																								format:      "int32"
-																								type:        "integer"
+																								format: "int32"
+																								type:   "integer"
 																							}
-																							path: {
-																								description: "Required: Path is  the relative path name of the file to be created."
-																								type:        "string"
-																							}
+																							path: type: "string"
 																							resourceFieldRef: {
-																								description: "Selects a resource of the container: only resources limits and requests (limits.cpu, limits."
 																								properties: {
-																									containerName: {
-																										description: "Container name: required for volumes, optional for env vars"
-																										type:        "string"
-																									}
+																									containerName: type: "string"
 																									divisor: {
 																										anyOf: [{
 																											type: "integer"
 																										}, {
 																											type: "string"
 																										}]
-																										description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
 																										pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																										"x-kubernetes-int-or-string": true
 																									}
-																									resource: {
-																										description: "Required: resource to select"
-																										type:        "string"
-																									}
+																									resource: type: "string"
 																								}
 																								required: ["resource"]
 																								type:                    "object"
@@ -11170,31 +10762,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						required: ["path"]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																				type: "object"
 																			}
 																			secret: {
-																				description: "secret information about the secret data to project"
 																				properties: {
 																					items: {
-																						description: "items if unspecified, each key-value pair in the Data field of the referenced Secret will be project"
 																						items: {
-																							description: "Maps a string key to a path within a volume."
 																							properties: {
-																								key: {
-																									description: "key is the key to project."
-																									type:        "string"
-																								}
+																								key: type: "string"
 																								mode: {
-																									description: "mode is Optional: mode bits used to set permissions on this file."
-																									format:      "int32"
-																									type:        "integer"
+																									format: "int32"
+																									type:   "integer"
 																								}
-																								path: {
-																									description: "path is the relative path of the file to map the key to. May not be an absolute path."
-																									type:        "string"
-																								}
+																								path: type: "string"
 																							}
 																							required: [
 																								"key",
@@ -11202,36 +10785,26 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							]
 																							type: "object"
 																						}
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					name: {
-																						description: "Name of the referent. More info: https://kubernetes."
-																						type:        "string"
+																						default: ""
+																						type:    "string"
 																					}
-																					optional: {
-																						description: "optional field specify whether the Secret or its key must be defined"
-																						type:        "boolean"
-																					}
+																					optional: type: "boolean"
 																				}
 																				type:                    "object"
 																				"x-kubernetes-map-type": "atomic"
 																			}
 																			serviceAccountToken: {
-																				description: "serviceAccountToken is information about the serviceAccountToken data to project"
 																				properties: {
-																					audience: {
-																						description: "audience is the intended audience of the token."
-																						type:        "string"
-																					}
+																					audience: type: "string"
 																					expirationSeconds: {
-																						description: "expirationSeconds is the requested duration of validity of the service account token."
-																						format:      "int64"
-																						type:        "integer"
+																						format: "int64"
+																						type:   "integer"
 																					}
-																					path: {
-																						description: "path is the path relative to the mount point of the file to project the token into."
-																						type:        "string"
-																					}
+																					path: type: "string"
 																				}
 																				required: ["path"]
 																				type: "object"
@@ -11239,37 +10812,27 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		}
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 															}
 															type: "object"
 														}
 														secret: {
-															description: "secret represents a secret that should populate this volume. More info: https://kubernetes."
 															properties: {
 																defaultMode: {
-																	description: "defaultMode is Optional: mode bits used to set permissions on created files by default."
-																	format:      "int32"
-																	type:        "integer"
+																	format: "int32"
+																	type:   "integer"
 																}
 																items: {
-																	description: "items If unspecified, each key-value pair in the Data field of the referenced Secret will be project"
 																	items: {
-																		description: "Maps a string key to a path within a volume."
 																		properties: {
-																			key: {
-																				description: "key is the key to project."
-																				type:        "string"
-																			}
+																			key: type: "string"
 																			mode: {
-																				description: "mode is Optional: mode bits used to set permissions on this file."
-																				format:      "int32"
-																				type:        "integer"
+																				format: "int32"
+																				type:   "integer"
 																			}
-																			path: {
-																				description: "path is the relative path of the file to map the key to. May not be an absolute path."
-																				type:        "string"
-																			}
+																			path: type: "string"
 																		}
 																		required: [
 																			"key",
@@ -11277,16 +10840,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
-																optional: {
-																	description: "optional field specify whether the Secret or its keys must be defined"
-																	type:        "boolean"
-																}
-																secretName: {
-																	description: "secretName is the name of the secret in the pod's namespace to use. More info: https://kubernetes."
-																	type:        "string"
-																}
+																optional: type:   "boolean"
+																secretName: type: "string"
 															}
 															type: "object"
 														}
@@ -11296,59 +10854,70 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type: "object"
 											}
 											principalName: {
-												default:     "nfs"
-												description: "PrincipalName corresponds directly to NFS-Ganesha's NFS_KRB5:PrincipalName config."
-												type:        "string"
+												default: "nfs"
+												description: """
+	PrincipalName corresponds directly to NFS-Ganesha's NFS_KRB5:PrincipalName config. In
+	practice, this is the service prefix of the principal name. The default is "nfs".
+	This value is combined with (a) the namespace and name of the CephNFS (with a hyphen between)
+	and (b) the Realm configured in the user-provided krb5.conf to determine the full principal
+	name: <principalName>/<namespace>-<name>@<realm>. e.g., nfs/rook-ceph-my-nfs@example.net.
+	See https://github.com/nfs-ganesha/nfs-ganesha/wiki/RPCSEC_GSS for more detail.
+	"""
+												type: "string"
 											}
 										}
 										type: "object"
 									}
 									sssd: {
-										description: "SSSD enables integration with System Security Services Daemon (SSSD)."
-										nullable:    true
+										description: """
+	SSSD enables integration with System Security Services Daemon (SSSD). SSSD can be used to
+	provide user ID mapping from a number of sources. See https://sssd.io for more information
+	about the SSSD project.
+	"""
+										nullable: true
 										properties: sidecar: {
 											description: "Sidecar tells Rook to run SSSD in a sidecar alongside the NFS-Ganesha server in each NFS pod."
 											properties: {
 												additionalFiles: {
-													description: "AdditionalFiles defines any number of additional files that should be mounted into the SSSD sidecar."
+													description: """
+	AdditionalFiles defines any number of additional files that should be mounted into the SSSD
+	sidecar with a directory root of `/etc/sssd/rook-additional/`.
+	These files may be referenced by the sssd.conf config file.
+	"""
 													items: {
-														description: "SSSDSidecarAdditionalFile represents the source from where additional files for the the SSSD configu"
+														description: """
+	AdditionalVolumeMount represents the source from where additional files in pod containers
+	should come from and what subdirectory they are made available in.
+	"""
 														properties: {
 															subPath: {
-																description: "SubPath defines the sub-path in `/etc/sssd/rook-additional/` where the additional file(s) will be pl"
-																minLength:   1
-																pattern:     "^[^:]+$"
-																type:        "string"
+																description: """
+	SubPath defines the sub-path (subdirectory) of the directory root where the volumeSource will
+	be mounted. All files/keys in the volume source's volume will be mounted to the subdirectory.
+	This is not the same as the Kubernetes `subPath` volume mount option.
+	Each subPath definition must be unique and must not contain ':'.
+	"""
+																minLength: 1
+																pattern:   "^[^:]+$"
+																type:      "string"
 															}
 															volumeSource: {
-																description: "VolumeSource accepts a pared down version of the standard Kubernetes VolumeSource for the additional"
 																properties: {
 																	configMap: {
-																		description: "configMap represents a configMap that should populate this volume"
 																		properties: {
 																			defaultMode: {
-																				description: "defaultMode is optional: mode bits used to set permissions on created files by default."
-																				format:      "int32"
-																				type:        "integer"
+																				format: "int32"
+																				type:   "integer"
 																			}
 																			items: {
-																				description: "items if unspecified, each key-value pair in the Data field of the referenced ConfigMap will be proj"
 																				items: {
-																					description: "Maps a string key to a path within a volume."
 																					properties: {
-																						key: {
-																							description: "key is the key to project."
-																							type:        "string"
-																						}
+																						key: type: "string"
 																						mode: {
-																							description: "mode is Optional: mode bits used to set permissions on this file."
-																							format:      "int32"
-																							type:        "integer"
+																							format: "int32"
+																							type:   "integer"
 																						}
-																						path: {
-																							description: "path is the relative path of the file to map the key to. May not be an absolute path."
-																							type:        "string"
-																						}
+																						path: type: "string"
 																					}
 																					required: [
 																						"key",
@@ -11356,34 +10925,27 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					]
 																					type: "object"
 																				}
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																			name: {
-																				description: "Name of the referent. More info: https://kubernetes."
-																				type:        "string"
+																				default: ""
+																				type:    "string"
 																			}
-																			optional: {
-																				description: "optional specify whether the ConfigMap or its keys must be defined"
-																				type:        "boolean"
-																			}
+																			optional: type: "boolean"
 																		}
 																		type:                    "object"
 																		"x-kubernetes-map-type": "atomic"
 																	}
 																	emptyDir: {
-																		description: "emptyDir represents a temporary directory that shares a pod's lifetime."
 																		properties: {
-																			medium: {
-																				description: "medium represents what type of storage medium should back this directory."
-																				type:        "string"
-																			}
+																			medium: type: "string"
 																			sizeLimit: {
 																				anyOf: [{
 																					type: "integer"
 																				}, {
 																					type: "string"
 																				}]
-																				description:                  "sizeLimit is the total amount of local storage required for this EmptyDir volume."
 																				pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																				"x-kubernetes-int-or-string": true
 																			}
@@ -11391,71 +10953,43 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type: "object"
 																	}
 																	hostPath: {
-																		description: "hostPath represents a pre-existing file or directory on the host machine that is directly exposed to"
 																		properties: {
-																			path: {
-																				description: "path of the directory on the host."
-																				type:        "string"
-																			}
-																			type: {
-																				description: "type for HostPath Volume Defaults to \"\" More info: https://kubernetes."
-																				type:        "string"
-																			}
+																			path: type: "string"
+																			type: type: "string"
 																		}
 																		required: ["path"]
 																		type: "object"
 																	}
 																	persistentVolumeClaim: {
-																		description: "persistentVolumeClaimVolumeSource represents a reference to a PersistentVolumeClaim in the same name"
 																		properties: {
-																			claimName: {
-																				description: "claimName is the name of a PersistentVolumeClaim in the same namespace as the pod using this volume."
-																				type:        "string"
-																			}
-																			readOnly: {
-																				description: "readOnly Will force the ReadOnly setting in VolumeMounts. Default false."
-																				type:        "boolean"
-																			}
+																			claimName: type: "string"
+																			readOnly: type:  "boolean"
 																		}
 																		required: ["claimName"]
 																		type: "object"
 																	}
 																	projected: {
-																		description: "projected items for all in one resources secrets, configmaps, and downward API"
 																		properties: {
 																			defaultMode: {
-																				description: "defaultMode are the mode bits used to set permissions on created files by default."
-																				format:      "int32"
-																				type:        "integer"
+																				format: "int32"
+																				type:   "integer"
 																			}
 																			sources: {
-																				description: "sources is the list of volume projections"
 																				items: {
-																					description: "Projection that may be projected along with other supported volume types"
 																					properties: {
 																						clusterTrustBundle: {
-																							description: "ClusterTrustBundle allows a pod to access the `.spec."
 																							properties: {
 																								labelSelector: {
-																									description: "Select all ClusterTrustBundles that match this label selector."
 																									properties: {
 																										matchExpressions: {
-																											description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																											items: {
-																												description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																												properties: {
-																													key: {
-																														description: "key is the label key that the selector applies to."
-																														type:        "string"
-																													}
-																													operator: {
-																														description: "operator represents a key's relationship to a set of values."
-																														type:        "string"
-																													}
+																													key: type:      "string"
+																													operator: type: "string"
 																													values: {
-																														description: "values is an array of string values."
 																														items: type: "string"
-																														type: "array"
+																														type:                     "array"
+																														"x-kubernetes-list-type": "atomic"
 																													}
 																												}
 																												required: [
@@ -11464,58 +10998,36 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																												]
 																												type: "object"
 																											}
-																											type: "array"
+																											type:                     "array"
+																											"x-kubernetes-list-type": "atomic"
 																										}
 																										matchLabels: {
 																											additionalProperties: type: "string"
-																											description: "matchLabels is a map of {key,value} pairs."
-																											type:        "object"
+																											type: "object"
 																										}
 																									}
 																									type:                    "object"
 																									"x-kubernetes-map-type": "atomic"
 																								}
-																								name: {
-																									description: "Select a single ClusterTrustBundle by object name."
-																									type:        "string"
-																								}
-																								optional: {
-																									description: "If true, don't block pod startup if the referenced ClusterTrustBundle(s) aren't available."
-																									type:        "boolean"
-																								}
-																								path: {
-																									description: "Relative path from the volume root to write the bundle."
-																									type:        "string"
-																								}
-																								signerName: {
-																									description: "Select all ClusterTrustBundles that match this signer name. Mutually-exclusive with name."
-																									type:        "string"
-																								}
+																								name: type:       "string"
+																								optional: type:   "boolean"
+																								path: type:       "string"
+																								signerName: type: "string"
 																							}
 																							required: ["path"]
 																							type: "object"
 																						}
 																						configMap: {
-																							description: "configMap information about the configMap data to project"
 																							properties: {
 																								items: {
-																									description: "items if unspecified, each key-value pair in the Data field of the referenced ConfigMap will be proj"
 																									items: {
-																										description: "Maps a string key to a path within a volume."
 																										properties: {
-																											key: {
-																												description: "key is the key to project."
-																												type:        "string"
-																											}
+																											key: type: "string"
 																											mode: {
-																												description: "mode is Optional: mode bits used to set permissions on this file."
-																												format:      "int32"
-																												type:        "integer"
+																												format: "int32"
+																												type:   "integer"
 																											}
-																											path: {
-																												description: "path is the relative path of the file to map the key to. May not be an absolute path."
-																												type:        "string"
-																											}
+																											path: type: "string"
 																										}
 																										required: [
 																											"key",
@@ -11523,73 +11035,49 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										]
 																										type: "object"
 																									}
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
 																								name: {
-																									description: "Name of the referent. More info: https://kubernetes."
-																									type:        "string"
+																									default: ""
+																									type:    "string"
 																								}
-																								optional: {
-																									description: "optional specify whether the ConfigMap or its keys must be defined"
-																									type:        "boolean"
-																								}
+																								optional: type: "boolean"
 																							}
 																							type:                    "object"
 																							"x-kubernetes-map-type": "atomic"
 																						}
 																						downwardAPI: {
-																							description: "downwardAPI information about the downwardAPI data to project"
 																							properties: items: {
-																								description: "Items is a list of DownwardAPIVolume file"
 																								items: {
-																									description: "DownwardAPIVolumeFile represents information to create the file containing the pod field"
 																									properties: {
 																										fieldRef: {
-																											description: "Required: Selects a field of the pod: only annotations, labels, name and namespace are supported."
 																											properties: {
-																												apiVersion: {
-																													description: "Version of the schema the FieldPath is written in terms of, defaults to \"v1\"."
-																													type:        "string"
-																												}
-																												fieldPath: {
-																													description: "Path of the field to select in the specified API version."
-																													type:        "string"
-																												}
+																												apiVersion: type: "string"
+																												fieldPath: type:  "string"
 																											}
 																											required: ["fieldPath"]
 																											type:                    "object"
 																											"x-kubernetes-map-type": "atomic"
 																										}
 																										mode: {
-																											description: "Optional: mode bits used to set permissions on this file, must be an octal value between 0000 and 07"
-																											format:      "int32"
-																											type:        "integer"
+																											format: "int32"
+																											type:   "integer"
 																										}
-																										path: {
-																											description: "Required: Path is  the relative path name of the file to be created."
-																											type:        "string"
-																										}
+																										path: type: "string"
 																										resourceFieldRef: {
-																											description: "Selects a resource of the container: only resources limits and requests (limits.cpu, limits."
 																											properties: {
-																												containerName: {
-																													description: "Container name: required for volumes, optional for env vars"
-																													type:        "string"
-																												}
+																												containerName: type: "string"
 																												divisor: {
 																													anyOf: [{
 																														type: "integer"
 																													}, {
 																														type: "string"
 																													}]
-																													description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
 																													pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																													"x-kubernetes-int-or-string": true
 																												}
-																												resource: {
-																													description: "Required: resource to select"
-																													type:        "string"
-																												}
+																												resource: type: "string"
 																											}
 																											required: ["resource"]
 																											type:                    "object"
@@ -11599,31 +11087,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									required: ["path"]
 																									type: "object"
 																								}
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																							type: "object"
 																						}
 																						secret: {
-																							description: "secret information about the secret data to project"
 																							properties: {
 																								items: {
-																									description: "items if unspecified, each key-value pair in the Data field of the referenced Secret will be project"
 																									items: {
-																										description: "Maps a string key to a path within a volume."
 																										properties: {
-																											key: {
-																												description: "key is the key to project."
-																												type:        "string"
-																											}
+																											key: type: "string"
 																											mode: {
-																												description: "mode is Optional: mode bits used to set permissions on this file."
-																												format:      "int32"
-																												type:        "integer"
+																												format: "int32"
+																												type:   "integer"
 																											}
-																											path: {
-																												description: "path is the relative path of the file to map the key to. May not be an absolute path."
-																												type:        "string"
-																											}
+																											path: type: "string"
 																										}
 																										required: [
 																											"key",
@@ -11631,36 +11110,26 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										]
 																										type: "object"
 																									}
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
 																								name: {
-																									description: "Name of the referent. More info: https://kubernetes."
-																									type:        "string"
+																									default: ""
+																									type:    "string"
 																								}
-																								optional: {
-																									description: "optional field specify whether the Secret or its key must be defined"
-																									type:        "boolean"
-																								}
+																								optional: type: "boolean"
 																							}
 																							type:                    "object"
 																							"x-kubernetes-map-type": "atomic"
 																						}
 																						serviceAccountToken: {
-																							description: "serviceAccountToken is information about the serviceAccountToken data to project"
 																							properties: {
-																								audience: {
-																									description: "audience is the intended audience of the token."
-																									type:        "string"
-																								}
+																								audience: type: "string"
 																								expirationSeconds: {
-																									description: "expirationSeconds is the requested duration of validity of the service account token."
-																									format:      "int64"
-																									type:        "integer"
+																									format: "int64"
+																									type:   "integer"
 																								}
-																								path: {
-																									description: "path is the path relative to the mount point of the file to project the token into."
-																									type:        "string"
-																								}
+																								path: type: "string"
 																							}
 																							required: ["path"]
 																							type: "object"
@@ -11668,37 +11137,27 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					}
 																					type: "object"
 																				}
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		type: "object"
 																	}
 																	secret: {
-																		description: "secret represents a secret that should populate this volume. More info: https://kubernetes."
 																		properties: {
 																			defaultMode: {
-																				description: "defaultMode is Optional: mode bits used to set permissions on created files by default."
-																				format:      "int32"
-																				type:        "integer"
+																				format: "int32"
+																				type:   "integer"
 																			}
 																			items: {
-																				description: "items If unspecified, each key-value pair in the Data field of the referenced Secret will be project"
 																				items: {
-																					description: "Maps a string key to a path within a volume."
 																					properties: {
-																						key: {
-																							description: "key is the key to project."
-																							type:        "string"
-																						}
+																						key: type: "string"
 																						mode: {
-																							description: "mode is Optional: mode bits used to set permissions on this file."
-																							format:      "int32"
-																							type:        "integer"
+																							format: "int32"
+																							type:   "integer"
 																						}
-																						path: {
-																							description: "path is the relative path of the file to map the key to. May not be an absolute path."
-																							type:        "string"
-																						}
+																						path: type: "string"
 																					}
 																					required: [
 																						"key",
@@ -11706,16 +11165,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					]
 																					type: "object"
 																				}
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
-																			optional: {
-																				description: "optional field specify whether the Secret or its keys must be defined"
-																				type:        "boolean"
-																			}
-																			secretName: {
-																				description: "secretName is the name of the secret in the pod's namespace to use. More info: https://kubernetes."
-																				type:        "string"
-																			}
+																			optional: type:   "boolean"
+																			secretName: type: "string"
 																		}
 																		type: "object"
 																	}
@@ -11732,10 +11186,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type: "array"
 												}
 												debugLevel: {
-													description: "DebugLevel sets the debug level for SSSD. If unset or set to 0, Rook does nothing."
-													maximum:     10
-													minimum:     0
-													type:        "integer"
+													description: """
+	DebugLevel sets the debug level for SSSD. If unset or set to 0, Rook does nothing. Otherwise,
+	this may be a value between 1 and 10. See SSSD docs for more info:
+	https://sssd.io/troubleshooting/basics.html#sssd-debug-logs
+	"""
+													maximum: 10
+													minimum: 0
+													type:    "integer"
 												}
 												image: {
 													description: "Image defines the container image that should be used for the SSSD sidecar."
@@ -11746,12 +11204,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													description: "Resources allow specifying resource requests/limits on the SSSD sidecar container."
 													properties: {
 														claims: {
-															description: "Claims lists the names of resources, defined in spec."
+															description: """
+	Claims lists the names of resources, defined in spec.resourceClaims,
+	that are used by this container.
+
+	This is an alpha field and requires enabling the
+	DynamicResourceAllocation feature gate.
+
+	This field is immutable. It can only be set for containers.
+	"""
 															items: {
 																description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
-																properties: name: {
-																	description: "Name must match the name of one entry in pod.spec."
-																	type:        "string"
+																properties: {
+																	name: {
+																		description: """
+	Name must match the name of one entry in pod.spec.resourceClaims of
+	the Pod where this field is used. It makes that resource available
+	inside a container.
+	"""
+																		type: "string"
+																	}
+																	request: {
+																		description: """
+	Request is the name chosen for a request in the referenced claim.
+	If empty, everything from the claim is made available, otherwise
+	only the result of this request.
+	"""
+																		type: "string"
+																	}
 																}
 																required: ["name"]
 																type: "object"
@@ -11770,8 +11250,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																"x-kubernetes-int-or-string": true
 															}
-															description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes."
-															type:        "object"
+															description: """
+	Limits describes the maximum amount of compute resources allowed.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+															type: "object"
 														}
 														requests: {
 															additionalProperties: {
@@ -11783,43 +11266,42 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																"x-kubernetes-int-or-string": true
 															}
-															description: "Requests describes the minimum amount of compute resources required."
-															type:        "object"
+															description: """
+	Requests describes the minimum amount of compute resources required.
+	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+	otherwise to an implementation-defined value. Requests cannot exceed Limits.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+															type: "object"
 														}
 													}
 													type: "object"
 												}
 												sssdConfigFile: {
-													description: "SSSDConfigFile defines where the SSSD configuration should be sourced from."
+													description: """
+	SSSDConfigFile defines where the SSSD configuration should be sourced from. The config file
+	will be placed into `/etc/sssd/sssd.conf`. If this is left empty, Rook will not add the file.
+	This allows you to manage the `sssd.conf` file yourself however you wish. For example, you
+	may build it into your custom Ceph container image or use the Vault agent injector to
+	securely add the file via annotations on the CephNFS spec (passed to the NFS server pods).
+	"""
 													properties: volumeSource: {
-														description: "VolumeSource accepts a pared down version of the standard Kubernetes VolumeSource for the SSSD confi"
 														properties: {
 															configMap: {
-																description: "configMap represents a configMap that should populate this volume"
 																properties: {
 																	defaultMode: {
-																		description: "defaultMode is optional: mode bits used to set permissions on created files by default."
-																		format:      "int32"
-																		type:        "integer"
+																		format: "int32"
+																		type:   "integer"
 																	}
 																	items: {
-																		description: "items if unspecified, each key-value pair in the Data field of the referenced ConfigMap will be proj"
 																		items: {
-																			description: "Maps a string key to a path within a volume."
 																			properties: {
-																				key: {
-																					description: "key is the key to project."
-																					type:        "string"
-																				}
+																				key: type: "string"
 																				mode: {
-																					description: "mode is Optional: mode bits used to set permissions on this file."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
-																				path: {
-																					description: "path is the relative path of the file to map the key to. May not be an absolute path."
-																					type:        "string"
-																				}
+																				path: type: "string"
 																			}
 																			required: [
 																				"key",
@@ -11827,34 +11309,27 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			]
 																			type: "object"
 																		}
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																	name: {
-																		description: "Name of the referent. More info: https://kubernetes."
-																		type:        "string"
+																		default: ""
+																		type:    "string"
 																	}
-																	optional: {
-																		description: "optional specify whether the ConfigMap or its keys must be defined"
-																		type:        "boolean"
-																	}
+																	optional: type: "boolean"
 																}
 																type:                    "object"
 																"x-kubernetes-map-type": "atomic"
 															}
 															emptyDir: {
-																description: "emptyDir represents a temporary directory that shares a pod's lifetime."
 																properties: {
-																	medium: {
-																		description: "medium represents what type of storage medium should back this directory."
-																		type:        "string"
-																	}
+																	medium: type: "string"
 																	sizeLimit: {
 																		anyOf: [{
 																			type: "integer"
 																		}, {
 																			type: "string"
 																		}]
-																		description:                  "sizeLimit is the total amount of local storage required for this EmptyDir volume."
 																		pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																		"x-kubernetes-int-or-string": true
 																	}
@@ -11862,71 +11337,43 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type: "object"
 															}
 															hostPath: {
-																description: "hostPath represents a pre-existing file or directory on the host machine that is directly exposed to"
 																properties: {
-																	path: {
-																		description: "path of the directory on the host."
-																		type:        "string"
-																	}
-																	type: {
-																		description: "type for HostPath Volume Defaults to \"\" More info: https://kubernetes."
-																		type:        "string"
-																	}
+																	path: type: "string"
+																	type: type: "string"
 																}
 																required: ["path"]
 																type: "object"
 															}
 															persistentVolumeClaim: {
-																description: "persistentVolumeClaimVolumeSource represents a reference to a PersistentVolumeClaim in the same name"
 																properties: {
-																	claimName: {
-																		description: "claimName is the name of a PersistentVolumeClaim in the same namespace as the pod using this volume."
-																		type:        "string"
-																	}
-																	readOnly: {
-																		description: "readOnly Will force the ReadOnly setting in VolumeMounts. Default false."
-																		type:        "boolean"
-																	}
+																	claimName: type: "string"
+																	readOnly: type:  "boolean"
 																}
 																required: ["claimName"]
 																type: "object"
 															}
 															projected: {
-																description: "projected items for all in one resources secrets, configmaps, and downward API"
 																properties: {
 																	defaultMode: {
-																		description: "defaultMode are the mode bits used to set permissions on created files by default."
-																		format:      "int32"
-																		type:        "integer"
+																		format: "int32"
+																		type:   "integer"
 																	}
 																	sources: {
-																		description: "sources is the list of volume projections"
 																		items: {
-																			description: "Projection that may be projected along with other supported volume types"
 																			properties: {
 																				clusterTrustBundle: {
-																					description: "ClusterTrustBundle allows a pod to access the `.spec."
 																					properties: {
 																						labelSelector: {
-																							description: "Select all ClusterTrustBundles that match this label selector."
 																							properties: {
 																								matchExpressions: {
-																									description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																									items: {
-																										description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																										properties: {
-																											key: {
-																												description: "key is the label key that the selector applies to."
-																												type:        "string"
-																											}
-																											operator: {
-																												description: "operator represents a key's relationship to a set of values."
-																												type:        "string"
-																											}
+																											key: type:      "string"
+																											operator: type: "string"
 																											values: {
-																												description: "values is an array of string values."
 																												items: type: "string"
-																												type: "array"
+																												type:                     "array"
+																												"x-kubernetes-list-type": "atomic"
 																											}
 																										}
 																										required: [
@@ -11935,58 +11382,36 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										]
 																										type: "object"
 																									}
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
 																								matchLabels: {
 																									additionalProperties: type: "string"
-																									description: "matchLabels is a map of {key,value} pairs."
-																									type:        "object"
+																									type: "object"
 																								}
 																							}
 																							type:                    "object"
 																							"x-kubernetes-map-type": "atomic"
 																						}
-																						name: {
-																							description: "Select a single ClusterTrustBundle by object name."
-																							type:        "string"
-																						}
-																						optional: {
-																							description: "If true, don't block pod startup if the referenced ClusterTrustBundle(s) aren't available."
-																							type:        "boolean"
-																						}
-																						path: {
-																							description: "Relative path from the volume root to write the bundle."
-																							type:        "string"
-																						}
-																						signerName: {
-																							description: "Select all ClusterTrustBundles that match this signer name. Mutually-exclusive with name."
-																							type:        "string"
-																						}
+																						name: type:       "string"
+																						optional: type:   "boolean"
+																						path: type:       "string"
+																						signerName: type: "string"
 																					}
 																					required: ["path"]
 																					type: "object"
 																				}
 																				configMap: {
-																					description: "configMap information about the configMap data to project"
 																					properties: {
 																						items: {
-																							description: "items if unspecified, each key-value pair in the Data field of the referenced ConfigMap will be proj"
 																							items: {
-																								description: "Maps a string key to a path within a volume."
 																								properties: {
-																									key: {
-																										description: "key is the key to project."
-																										type:        "string"
-																									}
+																									key: type: "string"
 																									mode: {
-																										description: "mode is Optional: mode bits used to set permissions on this file."
-																										format:      "int32"
-																										type:        "integer"
+																										format: "int32"
+																										type:   "integer"
 																									}
-																									path: {
-																										description: "path is the relative path of the file to map the key to. May not be an absolute path."
-																										type:        "string"
-																									}
+																									path: type: "string"
 																								}
 																								required: [
 																									"key",
@@ -11994,73 +11419,49 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								]
 																								type: "object"
 																							}
-																							type: "array"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
 																						name: {
-																							description: "Name of the referent. More info: https://kubernetes."
-																							type:        "string"
+																							default: ""
+																							type:    "string"
 																						}
-																						optional: {
-																							description: "optional specify whether the ConfigMap or its keys must be defined"
-																							type:        "boolean"
-																						}
+																						optional: type: "boolean"
 																					}
 																					type:                    "object"
 																					"x-kubernetes-map-type": "atomic"
 																				}
 																				downwardAPI: {
-																					description: "downwardAPI information about the downwardAPI data to project"
 																					properties: items: {
-																						description: "Items is a list of DownwardAPIVolume file"
 																						items: {
-																							description: "DownwardAPIVolumeFile represents information to create the file containing the pod field"
 																							properties: {
 																								fieldRef: {
-																									description: "Required: Selects a field of the pod: only annotations, labels, name and namespace are supported."
 																									properties: {
-																										apiVersion: {
-																											description: "Version of the schema the FieldPath is written in terms of, defaults to \"v1\"."
-																											type:        "string"
-																										}
-																										fieldPath: {
-																											description: "Path of the field to select in the specified API version."
-																											type:        "string"
-																										}
+																										apiVersion: type: "string"
+																										fieldPath: type:  "string"
 																									}
 																									required: ["fieldPath"]
 																									type:                    "object"
 																									"x-kubernetes-map-type": "atomic"
 																								}
 																								mode: {
-																									description: "Optional: mode bits used to set permissions on this file, must be an octal value between 0000 and 07"
-																									format:      "int32"
-																									type:        "integer"
+																									format: "int32"
+																									type:   "integer"
 																								}
-																								path: {
-																									description: "Required: Path is  the relative path name of the file to be created."
-																									type:        "string"
-																								}
+																								path: type: "string"
 																								resourceFieldRef: {
-																									description: "Selects a resource of the container: only resources limits and requests (limits.cpu, limits."
 																									properties: {
-																										containerName: {
-																											description: "Container name: required for volumes, optional for env vars"
-																											type:        "string"
-																										}
+																										containerName: type: "string"
 																										divisor: {
 																											anyOf: [{
 																												type: "integer"
 																											}, {
 																												type: "string"
 																											}]
-																											description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
 																											pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																											"x-kubernetes-int-or-string": true
 																										}
-																										resource: {
-																											description: "Required: resource to select"
-																											type:        "string"
-																										}
+																										resource: type: "string"
 																									}
 																									required: ["resource"]
 																									type:                    "object"
@@ -12070,31 +11471,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							required: ["path"]
 																							type: "object"
 																						}
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					type: "object"
 																				}
 																				secret: {
-																					description: "secret information about the secret data to project"
 																					properties: {
 																						items: {
-																							description: "items if unspecified, each key-value pair in the Data field of the referenced Secret will be project"
 																							items: {
-																								description: "Maps a string key to a path within a volume."
 																								properties: {
-																									key: {
-																										description: "key is the key to project."
-																										type:        "string"
-																									}
+																									key: type: "string"
 																									mode: {
-																										description: "mode is Optional: mode bits used to set permissions on this file."
-																										format:      "int32"
-																										type:        "integer"
+																										format: "int32"
+																										type:   "integer"
 																									}
-																									path: {
-																										description: "path is the relative path of the file to map the key to. May not be an absolute path."
-																										type:        "string"
-																									}
+																									path: type: "string"
 																								}
 																								required: [
 																									"key",
@@ -12102,36 +11494,26 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								]
 																								type: "object"
 																							}
-																							type: "array"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
 																						name: {
-																							description: "Name of the referent. More info: https://kubernetes."
-																							type:        "string"
+																							default: ""
+																							type:    "string"
 																						}
-																						optional: {
-																							description: "optional field specify whether the Secret or its key must be defined"
-																							type:        "boolean"
-																						}
+																						optional: type: "boolean"
 																					}
 																					type:                    "object"
 																					"x-kubernetes-map-type": "atomic"
 																				}
 																				serviceAccountToken: {
-																					description: "serviceAccountToken is information about the serviceAccountToken data to project"
 																					properties: {
-																						audience: {
-																							description: "audience is the intended audience of the token."
-																							type:        "string"
-																						}
+																						audience: type: "string"
 																						expirationSeconds: {
-																							description: "expirationSeconds is the requested duration of validity of the service account token."
-																							format:      "int64"
-																							type:        "integer"
+																							format: "int64"
+																							type:   "integer"
 																						}
-																						path: {
-																							description: "path is the path relative to the mount point of the file to project the token into."
-																							type:        "string"
-																						}
+																						path: type: "string"
 																					}
 																					required: ["path"]
 																					type: "object"
@@ -12139,37 +11521,27 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			}
 																			type: "object"
 																		}
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																}
 																type: "object"
 															}
 															secret: {
-																description: "secret represents a secret that should populate this volume. More info: https://kubernetes."
 																properties: {
 																	defaultMode: {
-																		description: "defaultMode is Optional: mode bits used to set permissions on created files by default."
-																		format:      "int32"
-																		type:        "integer"
+																		format: "int32"
+																		type:   "integer"
 																	}
 																	items: {
-																		description: "items If unspecified, each key-value pair in the Data field of the referenced Secret will be project"
 																		items: {
-																			description: "Maps a string key to a path within a volume."
 																			properties: {
-																				key: {
-																					description: "key is the key to project."
-																					type:        "string"
-																				}
+																				key: type: "string"
 																				mode: {
-																					description: "mode is Optional: mode bits used to set permissions on this file."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
-																				path: {
-																					description: "path is the relative path of the file to map the key to. May not be an absolute path."
-																					type:        "string"
-																				}
+																				path: type: "string"
 																			}
 																			required: [
 																				"key",
@@ -12177,16 +11549,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			]
 																			type: "object"
 																		}
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
-																	optional: {
-																		description: "optional field specify whether the Secret or its keys must be defined"
-																		type:        "boolean"
-																	}
-																	secretName: {
-																		description: "secretName is the name of the secret in the pod's namespace to use. More info: https://kubernetes."
-																		type:        "string"
-																	}
+																	optional: type:   "boolean"
+																	secretName: type: "string"
 																}
 																type: "object"
 															}
@@ -12219,7 +11586,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										"x-kubernetes-preserve-unknown-fields": true
 									}
 									hostNetwork: {
-										description: "Whether host networking is enabled for the Ganesha server."
+										description: "Whether host networking is enabled for the Ganesha server. If not set, the network settings from the cluster CR will be applied."
 										nullable:    true
 										type:        "boolean"
 									}
@@ -12231,28 +11598,44 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										"x-kubernetes-preserve-unknown-fields": true
 									}
 									livenessProbe: {
-										description: "A liveness-probe to verify that Ganesha server has valid run-time state. If LivenessProbe."
+										description: """
+	A liveness-probe to verify that Ganesha server has valid run-time state.
+	If LivenessProbe.Disabled is false and LivenessProbe.Probe is nil uses default probe.
+	"""
 										properties: {
 											disabled: {
 												description: "Disabled determines whether probe is disable or not"
 												type:        "boolean"
 											}
 											probe: {
-												description: "Probe describes a health check to be performed against a container to determine whether it is alive "
+												description: """
+	Probe describes a health check to be performed against a container to determine whether it is
+	alive or ready to receive traffic.
+	"""
 												properties: {
 													exec: {
 														description: "Exec specifies the action to take."
 														properties: command: {
-															description: "Command is the command line to execute inside the container, the working directory for the command  "
+															description: """
+	Command is the command line to execute inside the container, the working directory for the
+	command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
+	not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
+	a shell, you need to explicitly call out to that shell.
+	Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+	"""
 															items: type: "string"
-															type: "array"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
 														}
 														type: "object"
 													}
 													failureThreshold: {
-														description: "Minimum consecutive failures for the probe to be considered failed after having succeeded."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	Minimum consecutive failures for the probe to be considered failed after having succeeded.
+	Defaults to 3. Minimum value is 1.
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 													grpc: {
 														description: "GRPC specifies an action involving a GRPC port."
@@ -12263,8 +11646,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type:        "integer"
 															}
 															service: {
-																description: "Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github."
-																type:        "string"
+																default: ""
+																description: """
+	Service is the name of the service to place in the gRPC HealthCheckRequest
+	(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+
+	If this is not specified, the default behavior is defined by gRPC.
+	"""
+																type: "string"
 															}
 														}
 														required: ["port"]
@@ -12274,8 +11663,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														description: "HTTPGet specifies the http request to perform."
 														properties: {
 															host: {
-																description: "Host name to connect to, defaults to the pod IP."
-																type:        "string"
+																description: """
+	Host name to connect to, defaults to the pod IP. You probably want to set
+	"Host" in httpHeaders instead.
+	"""
+																type: "string"
 															}
 															httpHeaders: {
 																description: "Custom headers to set in the request. HTTP allows repeated headers."
@@ -12283,8 +11675,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	description: "HTTPHeader describes a custom header to be used in HTTP probes"
 																	properties: {
 																		name: {
-																			description: "The header field name."
-																			type:        "string"
+																			description: """
+	The header field name.
+	This will be canonicalized upon output, so case-variant names will be understood as the same header.
+	"""
+																			type: "string"
 																		}
 																		value: {
 																			description: "The header field value"
@@ -12297,7 +11692,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	]
 																	type: "object"
 																}
-																type: "array"
+																type:                     "array"
+																"x-kubernetes-list-type": "atomic"
 															}
 															path: {
 																description: "Path to access on the HTTP server."
@@ -12309,31 +11705,47 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																}, {
 																	type: "string"
 																}]
-																description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535."
+																description: """
+	Name or number of the port to access on the container.
+	Number must be in the range 1 to 65535.
+	Name must be an IANA_SVC_NAME.
+	"""
 																"x-kubernetes-int-or-string": true
 															}
 															scheme: {
-																description: "Scheme to use for connecting to the host. Defaults to HTTP."
-																type:        "string"
+																description: """
+	Scheme to use for connecting to the host.
+	Defaults to HTTP.
+	"""
+																type: "string"
 															}
 														}
 														required: ["port"]
 														type: "object"
 													}
 													initialDelaySeconds: {
-														description: "Number of seconds after the container has started before liveness probes are initiated."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	Number of seconds after the container has started before liveness probes are initiated.
+	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 													periodSeconds: {
-														description: "How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	How often (in seconds) to perform the probe.
+	Default to 10 seconds. Minimum value is 1.
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 													successThreshold: {
-														description: "Minimum consecutive successes for the probe to be considered successful after having failed."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	Minimum consecutive successes for the probe to be considered successful after having failed.
+	Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 													tcpSocket: {
 														description: "TCPSocket specifies an action involving a TCP port."
@@ -12348,7 +11760,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																}, {
 																	type: "string"
 																}]
-																description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535."
+																description: """
+	Number or name of the port to access on the container.
+	Number must be in the range 1 to 65535.
+	Name must be an IANA_SVC_NAME.
+	"""
 																"x-kubernetes-int-or-string": true
 															}
 														}
@@ -12356,14 +11772,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type: "object"
 													}
 													terminationGracePeriodSeconds: {
-														description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure."
-														format:      "int64"
-														type:        "integer"
+														format: "int64"
+														type:   "integer"
 													}
 													timeoutSeconds: {
-														description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	Number of seconds after which the probe times out.
+	Defaults to 1 second. Minimum value is 1.
+	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 												}
 												type: "object"
@@ -12376,37 +11795,24 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type:        "string"
 									}
 									placement: {
-										description: "The affinity to place the ganesha pods"
-										nullable:    true
+										nullable: true
 										properties: {
 											nodeAffinity: {
-												description: "NodeAffinity is a group of node affinity scheduling rules"
 												properties: {
 													preferredDuringSchedulingIgnoredDuringExecution: {
-														description: "The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified "
 														items: {
-															description: "An empty preferred scheduling term matches all objects with implicit weight 0 (i.e. it's a no-op)."
 															properties: {
 																preference: {
-																	description: "A node selector term, associated with the corresponding weight."
 																	properties: {
 																		matchExpressions: {
-																			description: "A list of node selector requirements by node's labels."
 																			items: {
-																				description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																				properties: {
-																					key: {
-																						description: "The label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "Represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -12415,25 +11821,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchFields: {
-																			description: "A list of node selector requirements by node's fields."
 																			items: {
-																				description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																				properties: {
-																					key: {
-																						description: "The label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "Represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -12442,16 +11841,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																weight: {
-																	description: "Weight associated with matching the corresponding nodeSelectorTerm, in the range 1-100."
-																	format:      "int32"
-																	type:        "integer"
+																	format: "int32"
+																	type:   "integer"
 																}
 															}
 															required: [
@@ -12460,32 +11859,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															]
 															type: "object"
 														}
-														type: "array"
+														type:                     "array"
+														"x-kubernetes-list-type": "atomic"
 													}
 													requiredDuringSchedulingIgnoredDuringExecution: {
-														description: "If the affinity requirements specified by this field are not met at scheduling time, the pod will no"
 														properties: nodeSelectorTerms: {
-															description: "Required. A list of node selector terms. The terms are ORed."
 															items: {
-																description: "A null or empty node selector term matches no objects. The requirements of them are ANDed."
 																properties: {
 																	matchExpressions: {
-																		description: "A list of node selector requirements by node's labels."
 																		items: {
-																			description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																			properties: {
-																				key: {
-																					description: "The label key that the selector applies to."
-																					type:        "string"
-																				}
-																				operator: {
-																					description: "Represents a key's relationship to a set of values."
-																					type:        "string"
-																				}
+																				key: type:      "string"
+																				operator: type: "string"
 																				values: {
-																					description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																					items: type: "string"
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
 																			required: [
@@ -12494,25 +11883,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			]
 																			type: "object"
 																		}
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																	matchFields: {
-																		description: "A list of node selector requirements by node's fields."
 																		items: {
-																			description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																			properties: {
-																				key: {
-																					description: "The label key that the selector applies to."
-																					type:        "string"
-																				}
-																				operator: {
-																					description: "Represents a key's relationship to a set of values."
-																					type:        "string"
-																				}
+																				key: type:      "string"
+																				operator: type: "string"
 																				values: {
-																					description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																					items: type: "string"
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
 																			required: [
@@ -12521,13 +11903,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			]
 																			type: "object"
 																		}
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																}
 																type:                    "object"
 																"x-kubernetes-map-type": "atomic"
 															}
-															type: "array"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
 														}
 														required: ["nodeSelectorTerms"]
 														type:                    "object"
@@ -12537,36 +11921,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type: "object"
 											}
 											podAffinity: {
-												description: "PodAffinity is a group of inter pod affinity scheduling rules"
 												properties: {
 													preferredDuringSchedulingIgnoredDuringExecution: {
-														description: "The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified "
 														items: {
-															description: "The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most"
 															properties: {
 																podAffinityTerm: {
-																	description: "Required. A pod affinity term, associated with the corresponding weight."
 																	properties: {
 																		labelSelector: {
-																			description: "A label query over a set of resources, in this case pods."
 																			properties: {
 																				matchExpressions: {
-																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																					items: {
-																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																						properties: {
-																							key: {
-																								description: "key is the label key that the selector applies to."
-																								type:        "string"
-																							}
-																							operator: {
-																								description: "operator represents a key's relationship to a set of values."
-																								type:        "string"
-																							}
+																							key: type:      "string"
+																							operator: type: "string"
 																							values: {
-																								description: "values is an array of string values."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
 																						required: [
@@ -12575,49 +11946,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																				matchLabels: {
 																					additionalProperties: type: "string"
-																					description: "matchLabels is a map of {key,value} pairs."
-																					type:        "object"
+																					type: "object"
 																				}
 																			}
 																			type:                    "object"
 																			"x-kubernetes-map-type": "atomic"
 																		}
 																		matchLabelKeys: {
-																			description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																			items: type: "string"
 																			type:                     "array"
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																		mismatchLabelKeys: {
-																			description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																			items: type: "string"
 																			type:                     "array"
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																		namespaceSelector: {
-																			description: "A label query over the set of namespaces that the term applies to."
 																			properties: {
 																				matchExpressions: {
-																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																					items: {
-																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																						properties: {
-																							key: {
-																								description: "key is the label key that the selector applies to."
-																								type:        "string"
-																							}
-																							operator: {
-																								description: "operator represents a key's relationship to a set of values."
-																								type:        "string"
-																							}
+																							key: type:      "string"
+																							operator: type: "string"
 																							values: {
-																								description: "values is an array of string values."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
 																						required: [
@@ -12626,34 +11986,30 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																				matchLabels: {
 																					additionalProperties: type: "string"
-																					description: "matchLabels is a map of {key,value} pairs."
-																					type:        "object"
+																					type: "object"
 																				}
 																			}
 																			type:                    "object"
 																			"x-kubernetes-map-type": "atomic"
 																		}
 																		namespaces: {
-																			description: "namespaces specifies a static list of namespace names that the term applies to."
 																			items: type: "string"
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
-																		topologyKey: {
-																			description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																			type:        "string"
-																		}
+																		topologyKey: type: "string"
 																	}
 																	required: ["topologyKey"]
 																	type: "object"
 																}
 																weight: {
-																	description: "weight associated with matching the corresponding podAffinityTerm, in the range 1-100."
-																	format:      "int32"
-																	type:        "integer"
+																	format: "int32"
+																	type:   "integer"
 																}
 															}
 															required: [
@@ -12662,33 +12018,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															]
 															type: "object"
 														}
-														type: "array"
+														type:                     "array"
+														"x-kubernetes-list-type": "atomic"
 													}
 													requiredDuringSchedulingIgnoredDuringExecution: {
-														description: "If the affinity requirements specified by this field are not met at scheduling time, the pod will no"
 														items: {
-															description: "Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) t"
 															properties: {
 																labelSelector: {
-																	description: "A label query over a set of resources, in this case pods."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -12697,49 +12043,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																matchLabelKeys: {
-																	description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																mismatchLabelKeys: {
-																	description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																namespaceSelector: {
-																	description: "A label query over the set of namespaces that the term applies to."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -12748,66 +12083,51 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																namespaces: {
-																	description: "namespaces specifies a static list of namespace names that the term applies to."
 																	items: type: "string"
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
-																topologyKey: {
-																	description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																	type:        "string"
-																}
+																topologyKey: type: "string"
 															}
 															required: ["topologyKey"]
 															type: "object"
 														}
-														type: "array"
+														type:                     "array"
+														"x-kubernetes-list-type": "atomic"
 													}
 												}
 												type: "object"
 											}
 											podAntiAffinity: {
-												description: "PodAntiAffinity is a group of inter pod anti affinity scheduling rules"
 												properties: {
 													preferredDuringSchedulingIgnoredDuringExecution: {
-														description: "The scheduler will prefer to schedule pods to nodes that satisfy the anti-affinity expressions speci"
 														items: {
-															description: "The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most"
 															properties: {
 																podAffinityTerm: {
-																	description: "Required. A pod affinity term, associated with the corresponding weight."
 																	properties: {
 																		labelSelector: {
-																			description: "A label query over a set of resources, in this case pods."
 																			properties: {
 																				matchExpressions: {
-																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																					items: {
-																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																						properties: {
-																							key: {
-																								description: "key is the label key that the selector applies to."
-																								type:        "string"
-																							}
-																							operator: {
-																								description: "operator represents a key's relationship to a set of values."
-																								type:        "string"
-																							}
+																							key: type:      "string"
+																							operator: type: "string"
 																							values: {
-																								description: "values is an array of string values."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
 																						required: [
@@ -12816,49 +12136,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																				matchLabels: {
 																					additionalProperties: type: "string"
-																					description: "matchLabels is a map of {key,value} pairs."
-																					type:        "object"
+																					type: "object"
 																				}
 																			}
 																			type:                    "object"
 																			"x-kubernetes-map-type": "atomic"
 																		}
 																		matchLabelKeys: {
-																			description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																			items: type: "string"
 																			type:                     "array"
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																		mismatchLabelKeys: {
-																			description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																			items: type: "string"
 																			type:                     "array"
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																		namespaceSelector: {
-																			description: "A label query over the set of namespaces that the term applies to."
 																			properties: {
 																				matchExpressions: {
-																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																					items: {
-																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																						properties: {
-																							key: {
-																								description: "key is the label key that the selector applies to."
-																								type:        "string"
-																							}
-																							operator: {
-																								description: "operator represents a key's relationship to a set of values."
-																								type:        "string"
-																							}
+																							key: type:      "string"
+																							operator: type: "string"
 																							values: {
-																								description: "values is an array of string values."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
 																						required: [
@@ -12867,34 +12176,30 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																				matchLabels: {
 																					additionalProperties: type: "string"
-																					description: "matchLabels is a map of {key,value} pairs."
-																					type:        "object"
+																					type: "object"
 																				}
 																			}
 																			type:                    "object"
 																			"x-kubernetes-map-type": "atomic"
 																		}
 																		namespaces: {
-																			description: "namespaces specifies a static list of namespace names that the term applies to."
 																			items: type: "string"
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
-																		topologyKey: {
-																			description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																			type:        "string"
-																		}
+																		topologyKey: type: "string"
 																	}
 																	required: ["topologyKey"]
 																	type: "object"
 																}
 																weight: {
-																	description: "weight associated with matching the corresponding podAffinityTerm, in the range 1-100."
-																	format:      "int32"
-																	type:        "integer"
+																	format: "int32"
+																	type:   "integer"
 																}
 															}
 															required: [
@@ -12903,33 +12208,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															]
 															type: "object"
 														}
-														type: "array"
+														type:                     "array"
+														"x-kubernetes-list-type": "atomic"
 													}
 													requiredDuringSchedulingIgnoredDuringExecution: {
-														description: "If the anti-affinity requirements specified by this field are not met at scheduling time, the pod wi"
 														items: {
-															description: "Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) t"
 															properties: {
 																labelSelector: {
-																	description: "A label query over a set of resources, in this case pods."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -12938,49 +12233,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																matchLabelKeys: {
-																	description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																mismatchLabelKeys: {
-																	description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																namespaceSelector: {
-																	description: "A label query over the set of namespaces that the term applies to."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -12989,91 +12273,63 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																namespaces: {
-																	description: "namespaces specifies a static list of namespace names that the term applies to."
 																	items: type: "string"
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
-																topologyKey: {
-																	description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																	type:        "string"
-																}
+																topologyKey: type: "string"
 															}
 															required: ["topologyKey"]
 															type: "object"
 														}
-														type: "array"
+														type:                     "array"
+														"x-kubernetes-list-type": "atomic"
 													}
 												}
 												type: "object"
 											}
 											tolerations: {
-												description: "The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect"
 												items: {
-													description: "The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect"
 													properties: {
-														effect: {
-															description: "Effect indicates the taint effect to match. Empty means match all taint effects."
-															type:        "string"
-														}
-														key: {
-															description: "Key is the taint key that the toleration applies to. Empty means match all taint keys."
-															type:        "string"
-														}
-														operator: {
-															description: "Operator represents a key's relationship to the value. Valid operators are Exists and Equal."
-															type:        "string"
-														}
+														effect: type:   "string"
+														key: type:      "string"
+														operator: type: "string"
 														tolerationSeconds: {
-															description: "TolerationSeconds represents the period of time the toleration (which must be of effect NoExecute, o"
-															format:      "int64"
-															type:        "integer"
+															format: "int64"
+															type:   "integer"
 														}
-														value: {
-															description: "Value is the taint value the toleration matches to."
-															type:        "string"
-														}
+														value: type: "string"
 													}
 													type: "object"
 												}
 												type: "array"
 											}
 											topologySpreadConstraints: {
-												description: "TopologySpreadConstraint specifies how to spread matching pods among the given topology"
 												items: {
-													description: "TopologySpreadConstraint specifies how to spread matching pods among the given topology."
 													properties: {
 														labelSelector: {
-															description: "LabelSelector is used to find matching pods."
 															properties: {
 																matchExpressions: {
-																	description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																	items: {
-																		description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																		properties: {
-																			key: {
-																				description: "key is the label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "operator represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "values is an array of string values."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -13082,49 +12338,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																matchLabels: {
 																	additionalProperties: type: "string"
-																	description: "matchLabels is a map of {key,value} pairs."
-																	type:        "object"
+																	type: "object"
 																}
 															}
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
 														matchLabelKeys: {
-															description: "MatchLabelKeys is a set of pod label keys to select the pods over which spreading will be calculated"
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
 														}
 														maxSkew: {
-															description: "MaxSkew describes the degree to which pods may be unevenly distributed."
-															format:      "int32"
-															type:        "integer"
+															format: "int32"
+															type:   "integer"
 														}
 														minDomains: {
-															description: "MinDomains indicates a minimum number of eligible domains."
-															format:      "int32"
-															type:        "integer"
+															format: "int32"
+															type:   "integer"
 														}
-														nodeAffinityPolicy: {
-															description: "NodeAffinityPolicy indicates how we will treat Pod's nodeAffinity/nodeSelector when calculating pod "
-															type:        "string"
-														}
-														nodeTaintsPolicy: {
-															description: "NodeTaintsPolicy indicates how we will treat node taints when calculating pod topology spread skew."
-															type:        "string"
-														}
-														topologyKey: {
-															description: "TopologyKey is the key of node labels."
-															type:        "string"
-														}
-														whenUnsatisfiable: {
-															description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint."
-															type:        "string"
-														}
+														nodeAffinityPolicy: type: "string"
+														nodeTaintsPolicy: type:   "string"
+														topologyKey: type:        "string"
+														whenUnsatisfiable: type:  "string"
 													}
 													required: [
 														"maxSkew",
@@ -13148,12 +12389,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										nullable:    true
 										properties: {
 											claims: {
-												description: "Claims lists the names of resources, defined in spec."
+												description: """
+	Claims lists the names of resources, defined in spec.resourceClaims,
+	that are used by this container.
+
+	This is an alpha field and requires enabling the
+	DynamicResourceAllocation feature gate.
+
+	This field is immutable. It can only be set for containers.
+	"""
 												items: {
 													description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
-													properties: name: {
-														description: "Name must match the name of one entry in pod.spec."
-														type:        "string"
+													properties: {
+														name: {
+															description: """
+	Name must match the name of one entry in pod.spec.resourceClaims of
+	the Pod where this field is used. It makes that resource available
+	inside a container.
+	"""
+															type: "string"
+														}
+														request: {
+															description: """
+	Request is the name chosen for a request in the referenced claim.
+	If empty, everything from the claim is made available, otherwise
+	only the result of this request.
+	"""
+															type: "string"
+														}
 													}
 													required: ["name"]
 													type: "object"
@@ -13172,8 +12435,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 													"x-kubernetes-int-or-string": true
 												}
-												description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes."
-												type:        "object"
+												description: """
+	Limits describes the maximum amount of compute resources allowed.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+												type: "object"
 											}
 											requests: {
 												additionalProperties: {
@@ -13185,8 +12451,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 													"x-kubernetes-int-or-string": true
 												}
-												description: "Requests describes the minimum amount of compute resources required."
-												type:        "object"
+												description: """
+	Requests describes the minimum amount of compute resources required.
+	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+	otherwise to an implementation-defined value. Requests cannot exceed Limits.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+												type: "object"
 											}
 										}
 										type:                                   "object"
@@ -13269,12 +12540,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				description: "CephObjectRealm represents a Ceph Object Store Gateway Realm"
 				properties: {
 					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object."
-						type:        "string"
+						description: """
+	APIVersion defines the versioned schema of this representation of an object.
+	Servers should convert recognized schemas to the latest internal value, and
+	may reject unrecognized values.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+	"""
+						type: "string"
 					}
 					kind: {
-						description: "Kind is a string value representing the REST resource this object represents."
-						type:        "string"
+						description: """
+	Kind is a string value representing the REST resource this object represents.
+	Servers may infer this from the endpoint the client submits requests to.
+	Cannot be updated.
+	In CamelCase.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+	"""
+						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
@@ -13355,34 +12637,115 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				jsonPath: ".status.phase"
 				name:     "Phase"
 				type:     "string"
+			}, {
+				jsonPath: ".status.info.endpoint"
+				name:     "Endpoint"
+				type:     "string"
+			}, {
+				jsonPath: ".status.info.secureEndpoint"
+				name:     "SecureEndpoint"
+				type:     "string"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
 			}]
 			name: "v1"
 			schema: openAPIV3Schema: {
 				description: "CephObjectStore represents a Ceph Object Store Gateway"
 				properties: {
 					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object."
-						type:        "string"
+						description: """
+	APIVersion defines the versioned schema of this representation of an object.
+	Servers should convert recognized schemas to the latest internal value, and
+	may reject unrecognized values.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+	"""
+						type: "string"
 					}
 					kind: {
-						description: "Kind is a string value representing the REST resource this object represents."
-						type:        "string"
+						description: """
+	Kind is a string value representing the REST resource this object represents.
+	Servers may infer this from the endpoint the client submits requests to.
+	Cannot be updated.
+	In CamelCase.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+	"""
+						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
 						description: "ObjectStoreSpec represent the spec of a pool"
 						properties: {
 							allowUsersInNamespaces: {
-								description: "The list of allowed namespaces in addition to the object store namespace where ceph object store use"
+								description: """
+	The list of allowed namespaces in addition to the object store namespace
+	where ceph object store users may be created. Specify "*" to allow all
+	namespaces, otherwise list individual namespaces that are to be allowed.
+	This is useful for applications that need object store credentials
+	to be created in their own namespace, where neither OBCs nor COSI
+	is being used to create buckets. The default is empty.
+	"""
 								items: type: "string"
 								type: "array"
+							}
+							auth: {
+								description: "The authentication configuration"
+								properties: keystone: {
+									description: "The spec for Keystone"
+									nullable:    true
+									properties: {
+										acceptedRoles: {
+											description: "The roles requires to serve requests."
+											items: type: "string"
+											type: "array"
+										}
+										implicitTenants: {
+											description: "Create new users in their own tenants of the same name. Possible values are true, false, swift and s3. The latter have the effect of splitting the identity space such that only the indicated protocol will use implicit tenants."
+											type:        "string"
+										}
+										revocationInterval: {
+											description: "The number of seconds between token revocation checks."
+											nullable:    true
+											type:        "integer"
+										}
+										serviceUserSecretName: {
+											description: "The name of the secret containing the credentials for the service user account used by RGW. It has to be in the same namespace as the object store resource."
+											type:        "string"
+										}
+										tokenCacheSize: {
+											description: "The maximum number of entries in each Keystone token cache."
+											nullable:    true
+											type:        "integer"
+										}
+										url: {
+											description: "The URL for the Keystone server."
+											type:        "string"
+										}
+									}
+									required: [
+										"acceptedRoles",
+										"serviceUserSecretName",
+										"url",
+									]
+									type: "object"
+								}
+								type: "object"
 							}
 							dataPool: {
 								description: "The data pool settings"
 								nullable:    true
 								properties: {
+									application: {
+										description: "The application name to set on the pool. Only expected to be set for rgw pools."
+										type:        "string"
+									}
 									compressionMode: {
-										description: "DEPRECATED: use Parameters instead, e.g."
+										description: """
+	DEPRECATED: use Parameters instead, e.g., Parameters["compression_mode"] = "force"
+	The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)
+	Do NOT set a default value for kubebuilder as this will override the Parameters
+	"""
 										enum: [
 											"none",
 											"passive",
@@ -13403,6 +12766,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										nullable:    true
 										type:        "string"
 									}
+									enableCrushUpdates: {
+										description: "Allow rook operator to change the pool CRUSH tunables once the pool is created"
+										type:        "boolean"
+									}
 									enableRBDStats: {
 										description: "EnableRBDStats is used to enable gathering of statistics for all RBD images in the pool"
 										type:        "boolean"
@@ -13415,14 +12782,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "string"
 											}
 											codingChunks: {
-												description: "Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool"
-												minimum:     0
-												type:        "integer"
+												description: """
+	Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+	This is the number of OSDs that can be lost simultaneously before data cannot be recovered.
+	"""
+												minimum: 0
+												type:    "integer"
 											}
 											dataChunks: {
-												description: "Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool t"
-												minimum:     0
-												type:        "integer"
+												description: """
+	Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+	The number of chunks required to recover an object when any single OSD is lost is the same
+	as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery.
+	"""
+												minimum: 0
+												type:    "integer"
 											}
 										}
 										required: [
@@ -13432,7 +12806,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "object"
 									}
 									failureDomain: {
-										description: "The failure domain: osd/host/(region or zone if available) - technically also any type in the crush "
+										description: "The failure domain: osd/host/(region or zone if available) - technically also any type in the crush map"
 										type:        "string"
 									}
 									mirroring: {
@@ -13493,9 +12867,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										nullable:    true
 										properties: {
 											maxBytes: {
-												description: "MaxBytes represents the quota in bytes Deprecated in favor of MaxSize"
-												format:      "int64"
-												type:        "integer"
+												description: """
+	MaxBytes represents the quota in bytes
+	Deprecated in favor of MaxSize
+	"""
+												format: "int64"
+												type:   "integer"
 											}
 											maxObjects: {
 												description: "MaxObjects represents the quota in objects"
@@ -13544,7 +12921,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "boolean"
 											}
 											size: {
-												description: "Size - Number of copies per object in a replicated storage pool, including the object itself (requir"
+												description: "Size - Number of copies per object in a replicated storage pool, including the object itself (required for replicated pool type)"
 												minimum:     0
 												type:        "integer"
 											}
@@ -13553,7 +12930,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "string"
 											}
 											targetSizeRatio: {
-												description: "TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capac"
+												description: "TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity"
 												type:        "number"
 											}
 										}
@@ -13585,6 +12962,314 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								description: "The rgw pod info"
 								nullable:    true
 								properties: {
+									additionalVolumeMounts: {
+										description: """
+	AdditionalVolumeMounts allows additional volumes to be mounted to the RGW pod.
+	The root directory for each additional volume mount is `/var/rgw`.
+	Example: for an additional mount at subPath `ldap`, mounted from a secret that has key
+	`bindpass.secret`, the file would reside at `/var/rgw/ldap/bindpass.secret`.
+	"""
+										items: {
+											description: """
+	AdditionalVolumeMount represents the source from where additional files in pod containers
+	should come from and what subdirectory they are made available in.
+	"""
+											properties: {
+												subPath: {
+													description: """
+	SubPath defines the sub-path (subdirectory) of the directory root where the volumeSource will
+	be mounted. All files/keys in the volume source's volume will be mounted to the subdirectory.
+	This is not the same as the Kubernetes `subPath` volume mount option.
+	Each subPath definition must be unique and must not contain ':'.
+	"""
+													minLength: 1
+													pattern:   "^[^:]+$"
+													type:      "string"
+												}
+												volumeSource: {
+													properties: {
+														configMap: {
+															properties: {
+																defaultMode: {
+																	format: "int32"
+																	type:   "integer"
+																}
+																items: {
+																	items: {
+																		properties: {
+																			key: type: "string"
+																			mode: {
+																				format: "int32"
+																				type:   "integer"
+																			}
+																			path: type: "string"
+																		}
+																		required: [
+																			"key",
+																			"path",
+																		]
+																		type: "object"
+																	}
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
+																}
+																name: {
+																	default: ""
+																	type:    "string"
+																}
+																optional: type: "boolean"
+															}
+															type:                    "object"
+															"x-kubernetes-map-type": "atomic"
+														}
+														emptyDir: {
+															properties: {
+																medium: type: "string"
+																sizeLimit: {
+																	anyOf: [{
+																		type: "integer"
+																	}, {
+																		type: "string"
+																	}]
+																	pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																	"x-kubernetes-int-or-string": true
+																}
+															}
+															type: "object"
+														}
+														hostPath: {
+															properties: {
+																path: type: "string"
+																type: type: "string"
+															}
+															required: ["path"]
+															type: "object"
+														}
+														persistentVolumeClaim: {
+															properties: {
+																claimName: type: "string"
+																readOnly: type:  "boolean"
+															}
+															required: ["claimName"]
+															type: "object"
+														}
+														projected: {
+															properties: {
+																defaultMode: {
+																	format: "int32"
+																	type:   "integer"
+																}
+																sources: {
+																	items: {
+																		properties: {
+																			clusterTrustBundle: {
+																				properties: {
+																					labelSelector: {
+																						properties: {
+																							matchExpressions: {
+																								items: {
+																									properties: {
+																										key: type:      "string"
+																										operator: type: "string"
+																										values: {
+																											items: type: "string"
+																											type:                     "array"
+																											"x-kubernetes-list-type": "atomic"
+																										}
+																									}
+																									required: [
+																										"key",
+																										"operator",
+																									]
+																									type: "object"
+																								}
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
+																							}
+																							matchLabels: {
+																								additionalProperties: type: "string"
+																								type: "object"
+																							}
+																						}
+																						type:                    "object"
+																						"x-kubernetes-map-type": "atomic"
+																					}
+																					name: type:       "string"
+																					optional: type:   "boolean"
+																					path: type:       "string"
+																					signerName: type: "string"
+																				}
+																				required: ["path"]
+																				type: "object"
+																			}
+																			configMap: {
+																				properties: {
+																					items: {
+																						items: {
+																							properties: {
+																								key: type: "string"
+																								mode: {
+																									format: "int32"
+																									type:   "integer"
+																								}
+																								path: type: "string"
+																							}
+																							required: [
+																								"key",
+																								"path",
+																							]
+																							type: "object"
+																						}
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
+																					}
+																					name: {
+																						default: ""
+																						type:    "string"
+																					}
+																					optional: type: "boolean"
+																				}
+																				type:                    "object"
+																				"x-kubernetes-map-type": "atomic"
+																			}
+																			downwardAPI: {
+																				properties: items: {
+																					items: {
+																						properties: {
+																							fieldRef: {
+																								properties: {
+																									apiVersion: type: "string"
+																									fieldPath: type:  "string"
+																								}
+																								required: ["fieldPath"]
+																								type:                    "object"
+																								"x-kubernetes-map-type": "atomic"
+																							}
+																							mode: {
+																								format: "int32"
+																								type:   "integer"
+																							}
+																							path: type: "string"
+																							resourceFieldRef: {
+																								properties: {
+																									containerName: type: "string"
+																									divisor: {
+																										anyOf: [{
+																											type: "integer"
+																										}, {
+																											type: "string"
+																										}]
+																										pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+																										"x-kubernetes-int-or-string": true
+																									}
+																									resource: type: "string"
+																								}
+																								required: ["resource"]
+																								type:                    "object"
+																								"x-kubernetes-map-type": "atomic"
+																							}
+																						}
+																						required: ["path"]
+																						type: "object"
+																					}
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
+																				}
+																				type: "object"
+																			}
+																			secret: {
+																				properties: {
+																					items: {
+																						items: {
+																							properties: {
+																								key: type: "string"
+																								mode: {
+																									format: "int32"
+																									type:   "integer"
+																								}
+																								path: type: "string"
+																							}
+																							required: [
+																								"key",
+																								"path",
+																							]
+																							type: "object"
+																						}
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
+																					}
+																					name: {
+																						default: ""
+																						type:    "string"
+																					}
+																					optional: type: "boolean"
+																				}
+																				type:                    "object"
+																				"x-kubernetes-map-type": "atomic"
+																			}
+																			serviceAccountToken: {
+																				properties: {
+																					audience: type: "string"
+																					expirationSeconds: {
+																						format: "int64"
+																						type:   "integer"
+																					}
+																					path: type: "string"
+																				}
+																				required: ["path"]
+																				type: "object"
+																			}
+																		}
+																		type: "object"
+																	}
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
+																}
+															}
+															type: "object"
+														}
+														secret: {
+															properties: {
+																defaultMode: {
+																	format: "int32"
+																	type:   "integer"
+																}
+																items: {
+																	items: {
+																		properties: {
+																			key: type: "string"
+																			mode: {
+																				format: "int32"
+																				type:   "integer"
+																			}
+																			path: type: "string"
+																		}
+																		required: [
+																			"key",
+																			"path",
+																		]
+																		type: "object"
+																	}
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
+																}
+																optional: type:   "boolean"
+																secretName: type: "string"
+															}
+															type: "object"
+														}
+													}
+													type: "object"
+												}
+											}
+											required: [
+												"subPath",
+												"volumeSource",
+											]
+											type: "object"
+										}
+										type: "array"
+									}
 									annotations: {
 										additionalProperties: type: "string"
 										description:                            "The annotations-related configuration to add/set on each Pod related object."
@@ -13604,20 +13289,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										"x-kubernetes-preserve-unknown-fields": true
 									}
 									disableMultisiteSyncTraffic: {
-										description: "DisableMultisiteSyncTraffic, when true, prevents this object store's gateways from transmitting mult"
-										type:        "boolean"
+										description: """
+	DisableMultisiteSyncTraffic, when true, prevents this object store's gateways from
+	transmitting multisite replication data. Note that this value does not affect whether
+	gateways receive multisite replication traffic: see ObjectZone.spec.customEndpoints for that.
+	If false or unset, this object store's gateways will be able to transmit multisite
+	replication data.
+	"""
+										type: "boolean"
 									}
 									externalRgwEndpoints: {
-										description: "ExternalRgwEndpoints points to external RGW endpoint(s)."
+										description: """
+	ExternalRgwEndpoints points to external RGW endpoint(s). Multiple endpoints can be given, but
+	for stability of ObjectBucketClaims, we highly recommend that users give only a single
+	external RGW endpoint that is a load balancer that sends requests to the multiple RGWs.
+	"""
 										items: {
-											description: "EndpointAddress is a tuple that describes a single IP address or host name."
+											description: """
+	EndpointAddress is a tuple that describes a single IP address or host name. This is a subset of
+	Kubernetes's v1.EndpointAddress.
+	"""
 											properties: {
 												hostname: {
-													description: "The DNS-addressable Hostname of this endpoint."
+													description: "The DNS-addressable Hostname of this endpoint. This field will be preferred over IP if both are given."
 													type:        "string"
 												}
 												ip: {
-													description: "The IP of this endpoint."
+													description: "The IP of this endpoint. As a legacy behavior, this supports being given a DNS-addressable hostname as well."
 													type:        "string"
 												}
 											}
@@ -13628,7 +13326,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type:     "array"
 									}
 									hostNetwork: {
-										description:                            "Whether host networking is enabled for the rgw daemon."
+										description:                            "Whether host networking is enabled for the rgw daemon. If not set, the network settings from the cluster CR will be applied."
 										nullable:                               true
 										type:                                   "boolean"
 										"x-kubernetes-preserve-unknown-fields": true
@@ -13647,37 +13345,24 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										"x-kubernetes-preserve-unknown-fields": true
 									}
 									placement: {
-										description: "The affinity to place the rgw pods (default is to place on any available node)"
-										nullable:    true
+										nullable: true
 										properties: {
 											nodeAffinity: {
-												description: "NodeAffinity is a group of node affinity scheduling rules"
 												properties: {
 													preferredDuringSchedulingIgnoredDuringExecution: {
-														description: "The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified "
 														items: {
-															description: "An empty preferred scheduling term matches all objects with implicit weight 0 (i.e. it's a no-op)."
 															properties: {
 																preference: {
-																	description: "A node selector term, associated with the corresponding weight."
 																	properties: {
 																		matchExpressions: {
-																			description: "A list of node selector requirements by node's labels."
 																			items: {
-																				description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																				properties: {
-																					key: {
-																						description: "The label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "Represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -13686,25 +13371,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchFields: {
-																			description: "A list of node selector requirements by node's fields."
 																			items: {
-																				description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																				properties: {
-																					key: {
-																						description: "The label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "Represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -13713,16 +13391,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																weight: {
-																	description: "Weight associated with matching the corresponding nodeSelectorTerm, in the range 1-100."
-																	format:      "int32"
-																	type:        "integer"
+																	format: "int32"
+																	type:   "integer"
 																}
 															}
 															required: [
@@ -13731,32 +13409,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															]
 															type: "object"
 														}
-														type: "array"
+														type:                     "array"
+														"x-kubernetes-list-type": "atomic"
 													}
 													requiredDuringSchedulingIgnoredDuringExecution: {
-														description: "If the affinity requirements specified by this field are not met at scheduling time, the pod will no"
 														properties: nodeSelectorTerms: {
-															description: "Required. A list of node selector terms. The terms are ORed."
 															items: {
-																description: "A null or empty node selector term matches no objects. The requirements of them are ANDed."
 																properties: {
 																	matchExpressions: {
-																		description: "A list of node selector requirements by node's labels."
 																		items: {
-																			description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																			properties: {
-																				key: {
-																					description: "The label key that the selector applies to."
-																					type:        "string"
-																				}
-																				operator: {
-																					description: "Represents a key's relationship to a set of values."
-																					type:        "string"
-																				}
+																				key: type:      "string"
+																				operator: type: "string"
 																				values: {
-																					description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																					items: type: "string"
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
 																			required: [
@@ -13765,25 +13433,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			]
 																			type: "object"
 																		}
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																	matchFields: {
-																		description: "A list of node selector requirements by node's fields."
 																		items: {
-																			description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																			properties: {
-																				key: {
-																					description: "The label key that the selector applies to."
-																					type:        "string"
-																				}
-																				operator: {
-																					description: "Represents a key's relationship to a set of values."
-																					type:        "string"
-																				}
+																				key: type:      "string"
+																				operator: type: "string"
 																				values: {
-																					description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																					items: type: "string"
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
 																			required: [
@@ -13792,13 +13453,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			]
 																			type: "object"
 																		}
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																}
 																type:                    "object"
 																"x-kubernetes-map-type": "atomic"
 															}
-															type: "array"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
 														}
 														required: ["nodeSelectorTerms"]
 														type:                    "object"
@@ -13808,36 +13471,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type: "object"
 											}
 											podAffinity: {
-												description: "PodAffinity is a group of inter pod affinity scheduling rules"
 												properties: {
 													preferredDuringSchedulingIgnoredDuringExecution: {
-														description: "The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified "
 														items: {
-															description: "The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most"
 															properties: {
 																podAffinityTerm: {
-																	description: "Required. A pod affinity term, associated with the corresponding weight."
 																	properties: {
 																		labelSelector: {
-																			description: "A label query over a set of resources, in this case pods."
 																			properties: {
 																				matchExpressions: {
-																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																					items: {
-																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																						properties: {
-																							key: {
-																								description: "key is the label key that the selector applies to."
-																								type:        "string"
-																							}
-																							operator: {
-																								description: "operator represents a key's relationship to a set of values."
-																								type:        "string"
-																							}
+																							key: type:      "string"
+																							operator: type: "string"
 																							values: {
-																								description: "values is an array of string values."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
 																						required: [
@@ -13846,49 +13496,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																				matchLabels: {
 																					additionalProperties: type: "string"
-																					description: "matchLabels is a map of {key,value} pairs."
-																					type:        "object"
+																					type: "object"
 																				}
 																			}
 																			type:                    "object"
 																			"x-kubernetes-map-type": "atomic"
 																		}
 																		matchLabelKeys: {
-																			description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																			items: type: "string"
 																			type:                     "array"
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																		mismatchLabelKeys: {
-																			description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																			items: type: "string"
 																			type:                     "array"
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																		namespaceSelector: {
-																			description: "A label query over the set of namespaces that the term applies to."
 																			properties: {
 																				matchExpressions: {
-																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																					items: {
-																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																						properties: {
-																							key: {
-																								description: "key is the label key that the selector applies to."
-																								type:        "string"
-																							}
-																							operator: {
-																								description: "operator represents a key's relationship to a set of values."
-																								type:        "string"
-																							}
+																							key: type:      "string"
+																							operator: type: "string"
 																							values: {
-																								description: "values is an array of string values."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
 																						required: [
@@ -13897,34 +13536,30 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																				matchLabels: {
 																					additionalProperties: type: "string"
-																					description: "matchLabels is a map of {key,value} pairs."
-																					type:        "object"
+																					type: "object"
 																				}
 																			}
 																			type:                    "object"
 																			"x-kubernetes-map-type": "atomic"
 																		}
 																		namespaces: {
-																			description: "namespaces specifies a static list of namespace names that the term applies to."
 																			items: type: "string"
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
-																		topologyKey: {
-																			description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																			type:        "string"
-																		}
+																		topologyKey: type: "string"
 																	}
 																	required: ["topologyKey"]
 																	type: "object"
 																}
 																weight: {
-																	description: "weight associated with matching the corresponding podAffinityTerm, in the range 1-100."
-																	format:      "int32"
-																	type:        "integer"
+																	format: "int32"
+																	type:   "integer"
 																}
 															}
 															required: [
@@ -13933,33 +13568,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															]
 															type: "object"
 														}
-														type: "array"
+														type:                     "array"
+														"x-kubernetes-list-type": "atomic"
 													}
 													requiredDuringSchedulingIgnoredDuringExecution: {
-														description: "If the affinity requirements specified by this field are not met at scheduling time, the pod will no"
 														items: {
-															description: "Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) t"
 															properties: {
 																labelSelector: {
-																	description: "A label query over a set of resources, in this case pods."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -13968,49 +13593,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																matchLabelKeys: {
-																	description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																mismatchLabelKeys: {
-																	description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																namespaceSelector: {
-																	description: "A label query over the set of namespaces that the term applies to."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -14019,66 +13633,51 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																namespaces: {
-																	description: "namespaces specifies a static list of namespace names that the term applies to."
 																	items: type: "string"
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
-																topologyKey: {
-																	description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																	type:        "string"
-																}
+																topologyKey: type: "string"
 															}
 															required: ["topologyKey"]
 															type: "object"
 														}
-														type: "array"
+														type:                     "array"
+														"x-kubernetes-list-type": "atomic"
 													}
 												}
 												type: "object"
 											}
 											podAntiAffinity: {
-												description: "PodAntiAffinity is a group of inter pod anti affinity scheduling rules"
 												properties: {
 													preferredDuringSchedulingIgnoredDuringExecution: {
-														description: "The scheduler will prefer to schedule pods to nodes that satisfy the anti-affinity expressions speci"
 														items: {
-															description: "The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most"
 															properties: {
 																podAffinityTerm: {
-																	description: "Required. A pod affinity term, associated with the corresponding weight."
 																	properties: {
 																		labelSelector: {
-																			description: "A label query over a set of resources, in this case pods."
 																			properties: {
 																				matchExpressions: {
-																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																					items: {
-																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																						properties: {
-																							key: {
-																								description: "key is the label key that the selector applies to."
-																								type:        "string"
-																							}
-																							operator: {
-																								description: "operator represents a key's relationship to a set of values."
-																								type:        "string"
-																							}
+																							key: type:      "string"
+																							operator: type: "string"
 																							values: {
-																								description: "values is an array of string values."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
 																						required: [
@@ -14087,49 +13686,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																				matchLabels: {
 																					additionalProperties: type: "string"
-																					description: "matchLabels is a map of {key,value} pairs."
-																					type:        "object"
+																					type: "object"
 																				}
 																			}
 																			type:                    "object"
 																			"x-kubernetes-map-type": "atomic"
 																		}
 																		matchLabelKeys: {
-																			description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																			items: type: "string"
 																			type:                     "array"
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																		mismatchLabelKeys: {
-																			description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																			items: type: "string"
 																			type:                     "array"
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																		namespaceSelector: {
-																			description: "A label query over the set of namespaces that the term applies to."
 																			properties: {
 																				matchExpressions: {
-																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																					items: {
-																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																						properties: {
-																							key: {
-																								description: "key is the label key that the selector applies to."
-																								type:        "string"
-																							}
-																							operator: {
-																								description: "operator represents a key's relationship to a set of values."
-																								type:        "string"
-																							}
+																							key: type:      "string"
+																							operator: type: "string"
 																							values: {
-																								description: "values is an array of string values."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
 																						required: [
@@ -14138,34 +13726,30 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																				matchLabels: {
 																					additionalProperties: type: "string"
-																					description: "matchLabels is a map of {key,value} pairs."
-																					type:        "object"
+																					type: "object"
 																				}
 																			}
 																			type:                    "object"
 																			"x-kubernetes-map-type": "atomic"
 																		}
 																		namespaces: {
-																			description: "namespaces specifies a static list of namespace names that the term applies to."
 																			items: type: "string"
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
-																		topologyKey: {
-																			description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																			type:        "string"
-																		}
+																		topologyKey: type: "string"
 																	}
 																	required: ["topologyKey"]
 																	type: "object"
 																}
 																weight: {
-																	description: "weight associated with matching the corresponding podAffinityTerm, in the range 1-100."
-																	format:      "int32"
-																	type:        "integer"
+																	format: "int32"
+																	type:   "integer"
 																}
 															}
 															required: [
@@ -14174,33 +13758,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															]
 															type: "object"
 														}
-														type: "array"
+														type:                     "array"
+														"x-kubernetes-list-type": "atomic"
 													}
 													requiredDuringSchedulingIgnoredDuringExecution: {
-														description: "If the anti-affinity requirements specified by this field are not met at scheduling time, the pod wi"
 														items: {
-															description: "Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) t"
 															properties: {
 																labelSelector: {
-																	description: "A label query over a set of resources, in this case pods."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -14209,49 +13783,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																matchLabelKeys: {
-																	description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																mismatchLabelKeys: {
-																	description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																namespaceSelector: {
-																	description: "A label query over the set of namespaces that the term applies to."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -14260,91 +13823,63 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																namespaces: {
-																	description: "namespaces specifies a static list of namespace names that the term applies to."
 																	items: type: "string"
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
-																topologyKey: {
-																	description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																	type:        "string"
-																}
+																topologyKey: type: "string"
 															}
 															required: ["topologyKey"]
 															type: "object"
 														}
-														type: "array"
+														type:                     "array"
+														"x-kubernetes-list-type": "atomic"
 													}
 												}
 												type: "object"
 											}
 											tolerations: {
-												description: "The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect"
 												items: {
-													description: "The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect"
 													properties: {
-														effect: {
-															description: "Effect indicates the taint effect to match. Empty means match all taint effects."
-															type:        "string"
-														}
-														key: {
-															description: "Key is the taint key that the toleration applies to. Empty means match all taint keys."
-															type:        "string"
-														}
-														operator: {
-															description: "Operator represents a key's relationship to the value. Valid operators are Exists and Equal."
-															type:        "string"
-														}
+														effect: type:   "string"
+														key: type:      "string"
+														operator: type: "string"
 														tolerationSeconds: {
-															description: "TolerationSeconds represents the period of time the toleration (which must be of effect NoExecute, o"
-															format:      "int64"
-															type:        "integer"
+															format: "int64"
+															type:   "integer"
 														}
-														value: {
-															description: "Value is the taint value the toleration matches to."
-															type:        "string"
-														}
+														value: type: "string"
 													}
 													type: "object"
 												}
 												type: "array"
 											}
 											topologySpreadConstraints: {
-												description: "TopologySpreadConstraint specifies how to spread matching pods among the given topology"
 												items: {
-													description: "TopologySpreadConstraint specifies how to spread matching pods among the given topology."
 													properties: {
 														labelSelector: {
-															description: "LabelSelector is used to find matching pods."
 															properties: {
 																matchExpressions: {
-																	description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																	items: {
-																		description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																		properties: {
-																			key: {
-																				description: "key is the label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "operator represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "values is an array of string values."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -14353,49 +13888,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																matchLabels: {
 																	additionalProperties: type: "string"
-																	description: "matchLabels is a map of {key,value} pairs."
-																	type:        "object"
+																	type: "object"
 																}
 															}
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
 														matchLabelKeys: {
-															description: "MatchLabelKeys is a set of pod label keys to select the pods over which spreading will be calculated"
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
 														}
 														maxSkew: {
-															description: "MaxSkew describes the degree to which pods may be unevenly distributed."
-															format:      "int32"
-															type:        "integer"
+															format: "int32"
+															type:   "integer"
 														}
 														minDomains: {
-															description: "MinDomains indicates a minimum number of eligible domains."
-															format:      "int32"
-															type:        "integer"
+															format: "int32"
+															type:   "integer"
 														}
-														nodeAffinityPolicy: {
-															description: "NodeAffinityPolicy indicates how we will treat Pod's nodeAffinity/nodeSelector when calculating pod "
-															type:        "string"
-														}
-														nodeTaintsPolicy: {
-															description: "NodeTaintsPolicy indicates how we will treat node taints when calculating pod topology spread skew."
-															type:        "string"
-														}
-														topologyKey: {
-															description: "TopologyKey is the key of node labels."
-															type:        "string"
-														}
-														whenUnsatisfiable: {
-															description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint."
-															type:        "string"
-														}
+														nodeAffinityPolicy: type: "string"
+														nodeTaintsPolicy: type:   "string"
+														topologyKey: type:        "string"
+														whenUnsatisfiable: type:  "string"
 													}
 													required: [
 														"maxSkew",
@@ -14424,12 +13944,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										nullable:    true
 										properties: {
 											claims: {
-												description: "Claims lists the names of resources, defined in spec."
+												description: """
+	Claims lists the names of resources, defined in spec.resourceClaims,
+	that are used by this container.
+
+	This is an alpha field and requires enabling the
+	DynamicResourceAllocation feature gate.
+
+	This field is immutable. It can only be set for containers.
+	"""
 												items: {
 													description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
-													properties: name: {
-														description: "Name must match the name of one entry in pod.spec."
-														type:        "string"
+													properties: {
+														name: {
+															description: """
+	Name must match the name of one entry in pod.spec.resourceClaims of
+	the Pod where this field is used. It makes that resource available
+	inside a container.
+	"""
+															type: "string"
+														}
+														request: {
+															description: """
+	Request is the name chosen for a request in the referenced claim.
+	If empty, everything from the claim is made available, otherwise
+	only the result of this request.
+	"""
+															type: "string"
+														}
 													}
 													required: ["name"]
 													type: "object"
@@ -14448,8 +13990,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 													"x-kubernetes-int-or-string": true
 												}
-												description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes."
-												type:        "object"
+												description: """
+	Limits describes the maximum amount of compute resources allowed.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+												type: "object"
 											}
 											requests: {
 												additionalProperties: {
@@ -14461,8 +14006,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 													"x-kubernetes-int-or-string": true
 												}
-												description: "Requests describes the minimum amount of compute resources required."
-												type:        "object"
+												description: """
+	Requests describes the minimum amount of compute resources required.
+	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+	otherwise to an implementation-defined value. Requests cannot exceed Limits.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+												type: "object"
 											}
 										}
 										type:                                   "object"
@@ -14481,8 +14031,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										nullable:    true
 										properties: annotations: {
 											additionalProperties: type: "string"
-											description: "The annotations-related configuration to add/set on each rgw service. nullable optional"
-											type:        "object"
+											description: """
+	The annotations-related configuration to add/set on each rgw service.
+	nullable
+	optional
+	"""
+											type: "object"
 										}
 										type: "object"
 									}
@@ -14506,21 +14060,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "boolean"
 											}
 											probe: {
-												description: "Probe describes a health check to be performed against a container to determine whether it is alive "
+												description: """
+	Probe describes a health check to be performed against a container to determine whether it is
+	alive or ready to receive traffic.
+	"""
 												properties: {
 													exec: {
 														description: "Exec specifies the action to take."
 														properties: command: {
-															description: "Command is the command line to execute inside the container, the working directory for the command  "
+															description: """
+	Command is the command line to execute inside the container, the working directory for the
+	command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
+	not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
+	a shell, you need to explicitly call out to that shell.
+	Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+	"""
 															items: type: "string"
-															type: "array"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
 														}
 														type: "object"
 													}
 													failureThreshold: {
-														description: "Minimum consecutive failures for the probe to be considered failed after having succeeded."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	Minimum consecutive failures for the probe to be considered failed after having succeeded.
+	Defaults to 3. Minimum value is 1.
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 													grpc: {
 														description: "GRPC specifies an action involving a GRPC port."
@@ -14531,8 +14098,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type:        "integer"
 															}
 															service: {
-																description: "Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github."
-																type:        "string"
+																default: ""
+																description: """
+	Service is the name of the service to place in the gRPC HealthCheckRequest
+	(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+
+	If this is not specified, the default behavior is defined by gRPC.
+	"""
+																type: "string"
 															}
 														}
 														required: ["port"]
@@ -14542,8 +14115,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														description: "HTTPGet specifies the http request to perform."
 														properties: {
 															host: {
-																description: "Host name to connect to, defaults to the pod IP."
-																type:        "string"
+																description: """
+	Host name to connect to, defaults to the pod IP. You probably want to set
+	"Host" in httpHeaders instead.
+	"""
+																type: "string"
 															}
 															httpHeaders: {
 																description: "Custom headers to set in the request. HTTP allows repeated headers."
@@ -14551,8 +14127,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	description: "HTTPHeader describes a custom header to be used in HTTP probes"
 																	properties: {
 																		name: {
-																			description: "The header field name."
-																			type:        "string"
+																			description: """
+	The header field name.
+	This will be canonicalized upon output, so case-variant names will be understood as the same header.
+	"""
+																			type: "string"
 																		}
 																		value: {
 																			description: "The header field value"
@@ -14565,7 +14144,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	]
 																	type: "object"
 																}
-																type: "array"
+																type:                     "array"
+																"x-kubernetes-list-type": "atomic"
 															}
 															path: {
 																description: "Path to access on the HTTP server."
@@ -14577,31 +14157,47 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																}, {
 																	type: "string"
 																}]
-																description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535."
+																description: """
+	Name or number of the port to access on the container.
+	Number must be in the range 1 to 65535.
+	Name must be an IANA_SVC_NAME.
+	"""
 																"x-kubernetes-int-or-string": true
 															}
 															scheme: {
-																description: "Scheme to use for connecting to the host. Defaults to HTTP."
-																type:        "string"
+																description: """
+	Scheme to use for connecting to the host.
+	Defaults to HTTP.
+	"""
+																type: "string"
 															}
 														}
 														required: ["port"]
 														type: "object"
 													}
 													initialDelaySeconds: {
-														description: "Number of seconds after the container has started before liveness probes are initiated."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	Number of seconds after the container has started before liveness probes are initiated.
+	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 													periodSeconds: {
-														description: "How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	How often (in seconds) to perform the probe.
+	Default to 10 seconds. Minimum value is 1.
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 													successThreshold: {
-														description: "Minimum consecutive successes for the probe to be considered successful after having failed."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	Minimum consecutive successes for the probe to be considered successful after having failed.
+	Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 													tcpSocket: {
 														description: "TCPSocket specifies an action involving a TCP port."
@@ -14616,7 +14212,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																}, {
 																	type: "string"
 																}]
-																description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535."
+																description: """
+	Number or name of the port to access on the container.
+	Number must be in the range 1 to 65535.
+	Name must be an IANA_SVC_NAME.
+	"""
 																"x-kubernetes-int-or-string": true
 															}
 														}
@@ -14624,14 +14224,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type: "object"
 													}
 													terminationGracePeriodSeconds: {
-														description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure."
-														format:      "int64"
-														type:        "integer"
+														format: "int64"
+														type:   "integer"
 													}
 													timeoutSeconds: {
-														description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	Number of seconds after which the probe times out.
+	Defaults to 1 second. Minimum value is 1.
+	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 												}
 												type: "object"
@@ -14648,21 +14251,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "boolean"
 											}
 											probe: {
-												description: "Probe describes a health check to be performed against a container to determine whether it is alive "
+												description: """
+	Probe describes a health check to be performed against a container to determine whether it is
+	alive or ready to receive traffic.
+	"""
 												properties: {
 													exec: {
 														description: "Exec specifies the action to take."
 														properties: command: {
-															description: "Command is the command line to execute inside the container, the working directory for the command  "
+															description: """
+	Command is the command line to execute inside the container, the working directory for the
+	command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
+	not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
+	a shell, you need to explicitly call out to that shell.
+	Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+	"""
 															items: type: "string"
-															type: "array"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
 														}
 														type: "object"
 													}
 													failureThreshold: {
-														description: "Minimum consecutive failures for the probe to be considered failed after having succeeded."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	Minimum consecutive failures for the probe to be considered failed after having succeeded.
+	Defaults to 3. Minimum value is 1.
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 													grpc: {
 														description: "GRPC specifies an action involving a GRPC port."
@@ -14673,8 +14289,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type:        "integer"
 															}
 															service: {
-																description: "Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github."
-																type:        "string"
+																default: ""
+																description: """
+	Service is the name of the service to place in the gRPC HealthCheckRequest
+	(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+
+	If this is not specified, the default behavior is defined by gRPC.
+	"""
+																type: "string"
 															}
 														}
 														required: ["port"]
@@ -14684,8 +14306,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														description: "HTTPGet specifies the http request to perform."
 														properties: {
 															host: {
-																description: "Host name to connect to, defaults to the pod IP."
-																type:        "string"
+																description: """
+	Host name to connect to, defaults to the pod IP. You probably want to set
+	"Host" in httpHeaders instead.
+	"""
+																type: "string"
 															}
 															httpHeaders: {
 																description: "Custom headers to set in the request. HTTP allows repeated headers."
@@ -14693,8 +14318,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	description: "HTTPHeader describes a custom header to be used in HTTP probes"
 																	properties: {
 																		name: {
-																			description: "The header field name."
-																			type:        "string"
+																			description: """
+	The header field name.
+	This will be canonicalized upon output, so case-variant names will be understood as the same header.
+	"""
+																			type: "string"
 																		}
 																		value: {
 																			description: "The header field value"
@@ -14707,7 +14335,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	]
 																	type: "object"
 																}
-																type: "array"
+																type:                     "array"
+																"x-kubernetes-list-type": "atomic"
 															}
 															path: {
 																description: "Path to access on the HTTP server."
@@ -14719,31 +14348,47 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																}, {
 																	type: "string"
 																}]
-																description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535."
+																description: """
+	Name or number of the port to access on the container.
+	Number must be in the range 1 to 65535.
+	Name must be an IANA_SVC_NAME.
+	"""
 																"x-kubernetes-int-or-string": true
 															}
 															scheme: {
-																description: "Scheme to use for connecting to the host. Defaults to HTTP."
-																type:        "string"
+																description: """
+	Scheme to use for connecting to the host.
+	Defaults to HTTP.
+	"""
+																type: "string"
 															}
 														}
 														required: ["port"]
 														type: "object"
 													}
 													initialDelaySeconds: {
-														description: "Number of seconds after the container has started before liveness probes are initiated."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	Number of seconds after the container has started before liveness probes are initiated.
+	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 													periodSeconds: {
-														description: "How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	How often (in seconds) to perform the probe.
+	Default to 10 seconds. Minimum value is 1.
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 													successThreshold: {
-														description: "Minimum consecutive successes for the probe to be considered successful after having failed."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	Minimum consecutive successes for the probe to be considered successful after having failed.
+	Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 													tcpSocket: {
 														description: "TCPSocket specifies an action involving a TCP port."
@@ -14758,7 +14403,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																}, {
 																	type: "string"
 																}]
-																description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535."
+																description: """
+	Number or name of the port to access on the container.
+	Number must be in the range 1 to 65535.
+	Name must be an IANA_SVC_NAME.
+	"""
 																"x-kubernetes-int-or-string": true
 															}
 														}
@@ -14766,14 +14415,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type: "object"
 													}
 													terminationGracePeriodSeconds: {
-														description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure."
-														format:      "int64"
-														type:        "integer"
+														format: "int64"
+														type:   "integer"
 													}
 													timeoutSeconds: {
-														description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1."
-														format:      "int32"
-														type:        "integer"
+														description: """
+	Number of seconds after which the probe times out.
+	Defaults to 1 second. Minimum value is 1.
+	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+	"""
+														format: "int32"
+														type:   "integer"
 													}
 												}
 												type: "object"
@@ -14784,12 +14436,86 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								}
 								type: "object"
 							}
+							hosting: {
+								description: """
+	Hosting settings for the object store.
+	A common use case for hosting configuration is to inform Rook of endpoints that support DNS
+	wildcards, which in turn allows virtual host-style bucket addressing.
+	"""
+								nullable: true
+								properties: {
+									advertiseEndpoint: {
+										description: """
+	AdvertiseEndpoint is the default endpoint Rook will return for resources dependent on this
+	object store. This endpoint will be returned to CephObjectStoreUsers, Object Bucket Claims,
+	and COSI Buckets/Accesses.
+	By default, Rook returns the endpoint for the object store's Kubernetes service using HTTPS
+	with `gateway.securePort` if it is defined (otherwise, HTTP with `gateway.port`).
+	"""
+										nullable: true
+										properties: {
+											dnsName: {
+												description: """
+	DnsName is the DNS name (in RFC-1123 format) of the endpoint.
+	If the DNS name corresponds to an endpoint with DNS wildcard support, do not include the
+	wildcard itself in the list of hostnames.
+	E.g., use "mystore.example.com" instead of "*.mystore.example.com".
+	"""
+												minLength: 1
+												type:      "string"
+											}
+											port: {
+												description: "Port is the port on which S3 connections can be made for this endpoint."
+												format:      "int32"
+												maximum:     65535
+												minimum:     1
+												type:        "integer"
+											}
+											useTls: {
+												description: "UseTls defines whether the endpoint uses TLS (HTTPS) or not (HTTP)."
+												type:        "boolean"
+											}
+										}
+										required: [
+											"dnsName",
+											"port",
+											"useTls",
+										]
+										type: "object"
+									}
+									dnsNames: {
+										description: """
+	A list of DNS host names on which object store gateways will accept client S3 connections.
+	When specified, object store gateways will reject client S3 connections to hostnames that are
+	not present in this list, so include all endpoints.
+	The object store's advertiseEndpoint and Kubernetes service endpoint, plus CephObjectZone
+	`customEndpoints` are automatically added to the list but may be set here again if desired.
+	Each DNS name must be valid according RFC-1123.
+	If the DNS name corresponds to an endpoint with DNS wildcard support, do not include the
+	wildcard itself in the list of hostnames.
+	E.g., use "mystore.example.com" instead of "*.mystore.example.com".
+	The feature is supported only for Ceph v18 and later versions.
+	"""
+										items: type: "string"
+										type: "array"
+									}
+								}
+								type: "object"
+							}
 							metadataPool: {
 								description: "The metadata pool settings"
 								nullable:    true
 								properties: {
+									application: {
+										description: "The application name to set on the pool. Only expected to be set for rgw pools."
+										type:        "string"
+									}
 									compressionMode: {
-										description: "DEPRECATED: use Parameters instead, e.g."
+										description: """
+	DEPRECATED: use Parameters instead, e.g., Parameters["compression_mode"] = "force"
+	The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)
+	Do NOT set a default value for kubebuilder as this will override the Parameters
+	"""
 										enum: [
 											"none",
 											"passive",
@@ -14810,6 +14536,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										nullable:    true
 										type:        "string"
 									}
+									enableCrushUpdates: {
+										description: "Allow rook operator to change the pool CRUSH tunables once the pool is created"
+										type:        "boolean"
+									}
 									enableRBDStats: {
 										description: "EnableRBDStats is used to enable gathering of statistics for all RBD images in the pool"
 										type:        "boolean"
@@ -14822,14 +14552,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "string"
 											}
 											codingChunks: {
-												description: "Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool"
-												minimum:     0
-												type:        "integer"
+												description: """
+	Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+	This is the number of OSDs that can be lost simultaneously before data cannot be recovered.
+	"""
+												minimum: 0
+												type:    "integer"
 											}
 											dataChunks: {
-												description: "Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool t"
-												minimum:     0
-												type:        "integer"
+												description: """
+	Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+	The number of chunks required to recover an object when any single OSD is lost is the same
+	as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery.
+	"""
+												minimum: 0
+												type:    "integer"
 											}
 										}
 										required: [
@@ -14839,7 +14576,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "object"
 									}
 									failureDomain: {
-										description: "The failure domain: osd/host/(region or zone if available) - technically also any type in the crush "
+										description: "The failure domain: osd/host/(region or zone if available) - technically also any type in the crush map"
 										type:        "string"
 									}
 									mirroring: {
@@ -14900,9 +14637,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										nullable:    true
 										properties: {
 											maxBytes: {
-												description: "MaxBytes represents the quota in bytes Deprecated in favor of MaxSize"
-												format:      "int64"
-												type:        "integer"
+												description: """
+	MaxBytes represents the quota in bytes
+	Deprecated in favor of MaxSize
+	"""
+												format: "int64"
+												type:   "integer"
 											}
 											maxObjects: {
 												description: "MaxObjects represents the quota in objects"
@@ -14951,7 +14691,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "boolean"
 											}
 											size: {
-												description: "Size - Number of copies per object in a replicated storage pool, including the object itself (requir"
+												description: "Size - Number of copies per object in a replicated storage pool, including the object itself (required for replicated pool type)"
 												minimum:     0
 												type:        "integer"
 											}
@@ -14960,7 +14700,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "string"
 											}
 											targetSizeRatio: {
-												description: "TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capac"
+												description: "TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity"
 												type:        "number"
 											}
 										}
@@ -14991,6 +14731,51 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							preservePoolsOnDelete: {
 								description: "Preserve pools on object store deletion"
 								type:        "boolean"
+							}
+							protocols: {
+								description: "The protocol specification"
+								properties: {
+									s3: {
+										description: "The spec for S3"
+										nullable:    true
+										properties: {
+											authUseKeystone: {
+												description: "Whether to use Keystone for authentication. This option maps directly to the rgw_s3_auth_use_keystone option. Enabling it allows generating S3 credentials via an OpenStack API call, see the docs. If not given, the defaults of the corresponding RGW option apply."
+												nullable:    true
+												type:        "boolean"
+											}
+											enabled: {
+												description: "Whether to enable S3. This defaults to true (even if protocols.s3 is not present in the CRD). This maintains backwards compatibility – by default S3 is enabled."
+												nullable:    true
+												type:        "boolean"
+											}
+										}
+										type: "object"
+									}
+									swift: {
+										description: "The spec for Swift"
+										nullable:    true
+										properties: {
+											accountInUrl: {
+												description: "Whether or not the Swift account name should be included in the Swift API URL. If set to false (the default), then the Swift API will listen on a URL formed like http://host:port/<rgw_swift_url_prefix>/v1. If set to true, the Swift API URL will be http://host:port/<rgw_swift_url_prefix>/v1/AUTH_<account_name>. You must set this option to true (and update the Keystone service catalog) if you want radosgw to support publicly-readable containers and temporary URLs."
+												nullable:    true
+												type:        "boolean"
+											}
+											urlPrefix: {
+												description: "The URL prefix for the Swift API, to distinguish it from the S3 API endpoint. The default is swift, which makes the Swift API available at the URL http://host:port/swift/v1 (or http://host:port/swift/v1/AUTH_%(tenant_id)s if rgw swift account in url is enabled)."
+												nullable:    true
+												type:        "string"
+											}
+											versioningEnabled: {
+												description: "Enables the Object Versioning of OpenStack Object Storage API. This allows clients to put the X-Versions-Location attribute on containers that should be versioned."
+												nullable:    true
+												type:        "boolean"
+											}
+										}
+										type: "object"
+									}
+								}
+								type: "object"
 							}
 							security: {
 								description: "Security represents security settings"
@@ -15047,6 +14832,121 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 										}
 										type: "object"
+									}
+								}
+								type: "object"
+							}
+							sharedPools: {
+								description: "The pool information when configuring RADOS namespaces in existing pools."
+								nullable:    true
+								properties: {
+									dataPoolName: {
+										description: "The data pool used for creating RADOS namespaces in the object store"
+										type:        "string"
+										"x-kubernetes-validations": [{
+											message: "object store shared data pool is immutable"
+											rule:    "self == oldSelf"
+										}]
+									}
+									metadataPoolName: {
+										description: "The metadata pool used for creating RADOS namespaces in the object store"
+										type:        "string"
+										"x-kubernetes-validations": [{
+											message: "object store shared metadata pool is immutable"
+											rule:    "self == oldSelf"
+										}]
+									}
+									poolPlacements: {
+										description: """
+	PoolPlacements control which Pools are associated with a particular RGW bucket.
+	Once PoolPlacements are defined, RGW client will be able to associate pool
+	with ObjectStore bucket by providing "<LocationConstraint>" during s3 bucket creation
+	or "X-Storage-Policy" header during swift container creation.
+	See: https://docs.ceph.com/en/latest/radosgw/placement/#placement-targets
+	PoolPlacement with name: "default" will be used as a default pool if no option
+	is provided during bucket creation.
+	If default placement is not provided, spec.sharedPools.dataPoolName and spec.sharedPools.MetadataPoolName will be used as default pools.
+	If spec.sharedPools are also empty, then RGW pools (spec.dataPool and spec.metadataPool) will be used as defaults.
+	"""
+										items: {
+											properties: {
+												dataNonECPoolName: {
+													description: """
+	The data pool used to store ObjectStore data that cannot use erasure coding (ex: multi-part uploads).
+	If dataPoolName is not erasure coded, then there is no need for dataNonECPoolName.
+	"""
+													type: "string"
+												}
+												dataPoolName: {
+													description: "The data pool used to store ObjectStore objects data."
+													minLength:   1
+													type:        "string"
+												}
+												default: {
+													description: """
+	Sets given placement as default. Only one placement in the list can be marked as default.
+	Default is false.
+	"""
+													type: "boolean"
+												}
+												metadataPoolName: {
+													description: "The metadata pool used to store ObjectStore bucket index."
+													minLength:   1
+													type:        "string"
+												}
+												name: {
+													description: "Pool placement name. Name can be arbitrary. Placement with name \"default\" will be used as default."
+													minLength:   1
+													pattern:     "^[a-zA-Z0-9._/-]+$"
+													type:        "string"
+												}
+												storageClasses: {
+													description: """
+	StorageClasses can be selected by user to override dataPoolName during object creation.
+	Each placement has default STANDARD StorageClass pointing to dataPoolName.
+	This list allows defining additional StorageClasses on top of default STANDARD storage class.
+	"""
+													items: {
+														properties: {
+															dataPoolName: {
+																description: "DataPoolName is the data pool used to store ObjectStore objects data."
+																minLength:   1
+																type:        "string"
+															}
+															name: {
+																description: """
+	Name is the StorageClass name. Ceph allows arbitrary name for StorageClasses,
+	however most clients/libs insist on AWS names so it is recommended to use
+	one of the valid x-amz-storage-class values for better compatibility:
+	REDUCED_REDUNDANCY | STANDARD_IA | ONEZONE_IA | INTELLIGENT_TIERING | GLACIER | DEEP_ARCHIVE | OUTPOSTS | GLACIER_IR | SNOW | EXPRESS_ONEZONE
+	See AWS docs: https://aws.amazon.com/de/s3/storage-classes/
+	"""
+																minLength: 1
+																pattern:   "^[a-zA-Z0-9._/-]+$"
+																type:      "string"
+															}
+														}
+														required: [
+															"dataPoolName",
+															"name",
+														]
+														type: "object"
+													}
+													type: "array"
+												}
+											}
+											required: [
+												"dataPoolName",
+												"metadataPoolName",
+												"name",
+											]
+											type: "object"
+										}
+										type: "array"
+									}
+									preserveRadosNamespaceDataOnDelete: {
+										description: "Whether the RADOS namespaces should be preserved on deletion of the object store"
+										type:        "boolean"
 									}
 								}
 								type: "object"
@@ -15160,18 +15060,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				jsonPath: ".status.phase"
 				name:     "Phase"
 				type:     "string"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
 			}]
 			name: "v1"
 			schema: openAPIV3Schema: {
 				description: "CephObjectStoreUser represents a Ceph Object Store Gateway User"
 				properties: {
 					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object."
-						type:        "string"
+						description: """
+	APIVersion defines the versioned schema of this representation of an object.
+	Servers should convert recognized schemas to the latest internal value, and
+	may reject unrecognized values.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+	"""
+						type: "string"
 					}
 					kind: {
-						description: "Kind is a string value representing the REST resource this object represents."
-						type:        "string"
+						description: """
+	Kind is a string value representing the REST resource this object represents.
+	Servers may infer this from the endpoint the client submits requests to.
+	Cannot be updated.
+	In CamelCase.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+	"""
+						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
@@ -15182,7 +15097,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								nullable:    true
 								properties: {
 									"amz-cache": {
-										description: "Add capabilities for user to send request to RGW Cache API header. Documented in https://docs.ceph."
+										description: "Add capabilities for user to send request to RGW Cache API header. Documented in https://docs.ceph.com/en/quincy/radosgw/rgw-cache/#cache-api"
 										enum: [
 											"*",
 											"read",
@@ -15192,7 +15107,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "string"
 									}
 									bilog: {
-										description: "Add capabilities for user to change bucket index logging. Documented in https://docs.ceph."
+										description: "Add capabilities for user to change bucket index logging. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
 										enum: [
 											"*",
 											"read",
@@ -15202,7 +15117,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "string"
 									}
 									bucket: {
-										description: "Admin capabilities to read/write Ceph object store buckets. Documented in https://docs.ceph."
+										description: "Admin capabilities to read/write Ceph object store buckets. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
 										enum: [
 											"*",
 											"read",
@@ -15212,7 +15127,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "string"
 									}
 									buckets: {
-										description: "Admin capabilities to read/write Ceph object store buckets. Documented in https://docs.ceph."
+										description: "Admin capabilities to read/write Ceph object store buckets. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
 										enum: [
 											"*",
 											"read",
@@ -15222,7 +15137,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "string"
 									}
 									datalog: {
-										description: "Add capabilities for user to change data logging. Documented in https://docs.ceph."
+										description: "Add capabilities for user to change data logging. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
 										enum: [
 											"*",
 											"read",
@@ -15232,7 +15147,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "string"
 									}
 									info: {
-										description: "Admin capabilities to read/write information about the user. Documented in https://docs.ceph."
+										description: "Admin capabilities to read/write information about the user. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
 										enum: [
 											"*",
 											"read",
@@ -15242,7 +15157,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "string"
 									}
 									mdlog: {
-										description: "Add capabilities for user to change metadata logging. Documented in https://docs.ceph."
+										description: "Add capabilities for user to change metadata logging. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
 										enum: [
 											"*",
 											"read",
@@ -15252,7 +15167,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "string"
 									}
 									metadata: {
-										description: "Admin capabilities to read/write Ceph object store metadata. Documented in https://docs.ceph."
+										description: "Admin capabilities to read/write Ceph object store metadata. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
 										enum: [
 											"*",
 											"read",
@@ -15262,7 +15177,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "string"
 									}
 									"oidc-provider": {
-										description: "Add capabilities for user to change oidc provider. Documented in https://docs.ceph."
+										description: "Add capabilities for user to change oidc provider. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
 										enum: [
 											"*",
 											"read",
@@ -15272,7 +15187,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "string"
 									}
 									ratelimit: {
-										description: "Add capabilities for user to set rate limiter for user and bucket. Documented in https://docs.ceph."
+										description: "Add capabilities for user to set rate limiter for user and bucket. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
 										enum: [
 											"*",
 											"read",
@@ -15282,7 +15197,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "string"
 									}
 									roles: {
-										description: "Admin capabilities to read/write roles for user. Documented in https://docs.ceph."
+										description: "Admin capabilities to read/write roles for user. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
 										enum: [
 											"*",
 											"read",
@@ -15292,7 +15207,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "string"
 									}
 									usage: {
-										description: "Admin capabilities to read/write Ceph object store usage. Documented in https://docs.ceph."
+										description: "Admin capabilities to read/write Ceph object store usage. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
 										enum: [
 											"*",
 											"read",
@@ -15302,7 +15217,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "string"
 									}
 									user: {
-										description: "Admin capabilities to read/write Ceph object store users. Documented in https://docs.ceph."
+										description: "Admin capabilities to read/write Ceph object store users. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
 										enum: [
 											"*",
 											"read",
@@ -15312,7 +15227,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "string"
 									}
 									"user-policy": {
-										description: "Add capabilities for user to change user policies. Documented in https://docs.ceph."
+										description: "Add capabilities for user to change user policies. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
 										enum: [
 											"*",
 											"read",
@@ -15322,7 +15237,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "string"
 									}
 									users: {
-										description: "Admin capabilities to read/write Ceph object store users. Documented in https://docs.ceph."
+										description: "Admin capabilities to read/write Ceph object store users. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
 										enum: [
 											"*",
 											"read",
@@ -15332,7 +15247,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "string"
 									}
 									zone: {
-										description: "Admin capabilities to read/write Ceph object store zones. Documented in https://docs.ceph."
+										description: "Admin capabilities to read/write Ceph object store zones. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
 										enum: [
 											"*",
 											"read",
@@ -15353,7 +15268,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type:        "string"
 							}
 							quotas: {
-								description: "ObjectUserQuotaSpec can be used to set quotas for the object store user to limit their usage."
+								description: "ObjectUserQuotaSpec can be used to set quotas for the object store user to limit their usage. See the [Ceph docs](https://docs.ceph.com/en/latest/radosgw/admin/?#quota-management) for more"
 								nullable:    true
 								properties: {
 									maxBuckets: {
@@ -15373,7 +15288,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										}, {
 											type: "string"
 										}]
-										description:                  "Maximum size limit of all objects across all the user's buckets See https://pkg.go.dev/k8s."
+										description: """
+	Maximum size limit of all objects across all the user's buckets
+	See https://pkg.go.dev/k8s.io/apimachinery/pkg/api/resource#Quantity for more info.
+	"""
 										nullable:                     true
 										pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 										"x-kubernetes-int-or-string": true
@@ -15434,18 +15352,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				jsonPath: ".status.phase"
 				name:     "Phase"
 				type:     "string"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
 			}]
 			name: "v1"
 			schema: openAPIV3Schema: {
 				description: "CephObjectZoneGroup represents a Ceph Object Store Gateway Zone Group"
 				properties: {
 					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object."
-						type:        "string"
+						description: """
+	APIVersion defines the versioned schema of this representation of an object.
+	Servers should convert recognized schemas to the latest internal value, and
+	may reject unrecognized values.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+	"""
+						type: "string"
 					}
 					kind: {
-						description: "Kind is a string value representing the REST resource this object represents."
-						type:        "string"
+						description: """
+	Kind is a string value representing the REST resource this object represents.
+	Servers may infer this from the endpoint the client submits requests to.
+	Cannot be updated.
+	In CamelCase.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+	"""
+						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
@@ -15525,25 +15458,51 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				jsonPath: ".status.phase"
 				name:     "Phase"
 				type:     "string"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
 			}]
 			name: "v1"
 			schema: openAPIV3Schema: {
 				description: "CephObjectZone represents a Ceph Object Store Gateway Zone"
 				properties: {
 					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object."
-						type:        "string"
+						description: """
+	APIVersion defines the versioned schema of this representation of an object.
+	Servers should convert recognized schemas to the latest internal value, and
+	may reject unrecognized values.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+	"""
+						type: "string"
 					}
 					kind: {
-						description: "Kind is a string value representing the REST resource this object represents."
-						type:        "string"
+						description: """
+	Kind is a string value representing the REST resource this object represents.
+	Servers may infer this from the endpoint the client submits requests to.
+	Cannot be updated.
+	In CamelCase.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+	"""
+						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
 						description: "ObjectZoneSpec represent the spec of an ObjectZone"
 						properties: {
 							customEndpoints: {
-								description: "If this zone cannot be accessed from other peer Ceph clusters via the ClusterIP Service endpoint cre"
+								description: """
+	If this zone cannot be accessed from other peer Ceph clusters via the ClusterIP Service
+	endpoint created by Rook, you must set this to the externally reachable endpoint(s). You may
+	include the port in the definition. For example: "https://my-object-store.my-domain.net:443".
+	In many cases, you should set this to the endpoint of the ingress resource that makes the
+	CephObjectStore associated with this CephObjectStoreZone reachable to peer clusters.
+	The list can have one or more endpoints pointing to different RGW servers in the zone.
+
+	If a CephObjectStore endpoint is omitted from this list, that object store's gateways will
+	not receive multisite replication data
+	(see CephObjectStore.spec.gateway.disableMultisiteSyncTraffic).
+	"""
 								items: type: "string"
 								nullable: true
 								type:     "array"
@@ -15552,8 +15511,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								description: "The data pool settings"
 								nullable:    true
 								properties: {
+									application: {
+										description: "The application name to set on the pool. Only expected to be set for rgw pools."
+										type:        "string"
+									}
 									compressionMode: {
-										description: "DEPRECATED: use Parameters instead, e.g."
+										description: """
+	DEPRECATED: use Parameters instead, e.g., Parameters["compression_mode"] = "force"
+	The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)
+	Do NOT set a default value for kubebuilder as this will override the Parameters
+	"""
 										enum: [
 											"none",
 											"passive",
@@ -15574,6 +15541,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										nullable:    true
 										type:        "string"
 									}
+									enableCrushUpdates: {
+										description: "Allow rook operator to change the pool CRUSH tunables once the pool is created"
+										type:        "boolean"
+									}
 									enableRBDStats: {
 										description: "EnableRBDStats is used to enable gathering of statistics for all RBD images in the pool"
 										type:        "boolean"
@@ -15586,14 +15557,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "string"
 											}
 											codingChunks: {
-												description: "Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool"
-												minimum:     0
-												type:        "integer"
+												description: """
+	Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+	This is the number of OSDs that can be lost simultaneously before data cannot be recovered.
+	"""
+												minimum: 0
+												type:    "integer"
 											}
 											dataChunks: {
-												description: "Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool t"
-												minimum:     0
-												type:        "integer"
+												description: """
+	Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+	The number of chunks required to recover an object when any single OSD is lost is the same
+	as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery.
+	"""
+												minimum: 0
+												type:    "integer"
 											}
 										}
 										required: [
@@ -15603,7 +15581,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "object"
 									}
 									failureDomain: {
-										description: "The failure domain: osd/host/(region or zone if available) - technically also any type in the crush "
+										description: "The failure domain: osd/host/(region or zone if available) - technically also any type in the crush map"
 										type:        "string"
 									}
 									mirroring: {
@@ -15664,9 +15642,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										nullable:    true
 										properties: {
 											maxBytes: {
-												description: "MaxBytes represents the quota in bytes Deprecated in favor of MaxSize"
-												format:      "int64"
-												type:        "integer"
+												description: """
+	MaxBytes represents the quota in bytes
+	Deprecated in favor of MaxSize
+	"""
+												format: "int64"
+												type:   "integer"
 											}
 											maxObjects: {
 												description: "MaxObjects represents the quota in objects"
@@ -15715,7 +15696,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "boolean"
 											}
 											size: {
-												description: "Size - Number of copies per object in a replicated storage pool, including the object itself (requir"
+												description: "Size - Number of copies per object in a replicated storage pool, including the object itself (required for replicated pool type)"
 												minimum:     0
 												type:        "integer"
 											}
@@ -15724,7 +15705,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "string"
 											}
 											targetSizeRatio: {
-												description: "TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capac"
+												description: "TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity"
 												type:        "number"
 											}
 										}
@@ -15756,8 +15737,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								description: "The metadata pool settings"
 								nullable:    true
 								properties: {
+									application: {
+										description: "The application name to set on the pool. Only expected to be set for rgw pools."
+										type:        "string"
+									}
 									compressionMode: {
-										description: "DEPRECATED: use Parameters instead, e.g."
+										description: """
+	DEPRECATED: use Parameters instead, e.g., Parameters["compression_mode"] = "force"
+	The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)
+	Do NOT set a default value for kubebuilder as this will override the Parameters
+	"""
 										enum: [
 											"none",
 											"passive",
@@ -15778,6 +15767,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										nullable:    true
 										type:        "string"
 									}
+									enableCrushUpdates: {
+										description: "Allow rook operator to change the pool CRUSH tunables once the pool is created"
+										type:        "boolean"
+									}
 									enableRBDStats: {
 										description: "EnableRBDStats is used to enable gathering of statistics for all RBD images in the pool"
 										type:        "boolean"
@@ -15790,14 +15783,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "string"
 											}
 											codingChunks: {
-												description: "Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool"
-												minimum:     0
-												type:        "integer"
+												description: """
+	Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+	This is the number of OSDs that can be lost simultaneously before data cannot be recovered.
+	"""
+												minimum: 0
+												type:    "integer"
 											}
 											dataChunks: {
-												description: "Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool t"
-												minimum:     0
-												type:        "integer"
+												description: """
+	Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+	The number of chunks required to recover an object when any single OSD is lost is the same
+	as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery.
+	"""
+												minimum: 0
+												type:    "integer"
 											}
 										}
 										required: [
@@ -15807,7 +15807,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "object"
 									}
 									failureDomain: {
-										description: "The failure domain: osd/host/(region or zone if available) - technically also any type in the crush "
+										description: "The failure domain: osd/host/(region or zone if available) - technically also any type in the crush map"
 										type:        "string"
 									}
 									mirroring: {
@@ -15868,9 +15868,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										nullable:    true
 										properties: {
 											maxBytes: {
-												description: "MaxBytes represents the quota in bytes Deprecated in favor of MaxSize"
-												format:      "int64"
-												type:        "integer"
+												description: """
+	MaxBytes represents the quota in bytes
+	Deprecated in favor of MaxSize
+	"""
+												format: "int64"
+												type:   "integer"
 											}
 											maxObjects: {
 												description: "MaxObjects represents the quota in objects"
@@ -15919,7 +15922,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "boolean"
 											}
 											size: {
-												description: "Size - Number of copies per object in a replicated storage pool, including the object itself (requir"
+												description: "Size - Number of copies per object in a replicated storage pool, including the object itself (required for replicated pool type)"
 												minimum:     0
 												type:        "integer"
 											}
@@ -15928,7 +15931,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "string"
 											}
 											targetSizeRatio: {
-												description: "TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capac"
+												description: "TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity"
 												type:        "number"
 											}
 										}
@@ -15961,16 +15964,127 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								description: "Preserve pools on object zone deletion"
 								type:        "boolean"
 							}
+							sharedPools: {
+								description: "The pool information when configuring RADOS namespaces in existing pools."
+								nullable:    true
+								properties: {
+									dataPoolName: {
+										description: "The data pool used for creating RADOS namespaces in the object store"
+										type:        "string"
+										"x-kubernetes-validations": [{
+											message: "object store shared data pool is immutable"
+											rule:    "self == oldSelf"
+										}]
+									}
+									metadataPoolName: {
+										description: "The metadata pool used for creating RADOS namespaces in the object store"
+										type:        "string"
+										"x-kubernetes-validations": [{
+											message: "object store shared metadata pool is immutable"
+											rule:    "self == oldSelf"
+										}]
+									}
+									poolPlacements: {
+										description: """
+	PoolPlacements control which Pools are associated with a particular RGW bucket.
+	Once PoolPlacements are defined, RGW client will be able to associate pool
+	with ObjectStore bucket by providing "<LocationConstraint>" during s3 bucket creation
+	or "X-Storage-Policy" header during swift container creation.
+	See: https://docs.ceph.com/en/latest/radosgw/placement/#placement-targets
+	PoolPlacement with name: "default" will be used as a default pool if no option
+	is provided during bucket creation.
+	If default placement is not provided, spec.sharedPools.dataPoolName and spec.sharedPools.MetadataPoolName will be used as default pools.
+	If spec.sharedPools are also empty, then RGW pools (spec.dataPool and spec.metadataPool) will be used as defaults.
+	"""
+										items: {
+											properties: {
+												dataNonECPoolName: {
+													description: """
+	The data pool used to store ObjectStore data that cannot use erasure coding (ex: multi-part uploads).
+	If dataPoolName is not erasure coded, then there is no need for dataNonECPoolName.
+	"""
+													type: "string"
+												}
+												dataPoolName: {
+													description: "The data pool used to store ObjectStore objects data."
+													minLength:   1
+													type:        "string"
+												}
+												default: {
+													description: """
+	Sets given placement as default. Only one placement in the list can be marked as default.
+	Default is false.
+	"""
+													type: "boolean"
+												}
+												metadataPoolName: {
+													description: "The metadata pool used to store ObjectStore bucket index."
+													minLength:   1
+													type:        "string"
+												}
+												name: {
+													description: "Pool placement name. Name can be arbitrary. Placement with name \"default\" will be used as default."
+													minLength:   1
+													pattern:     "^[a-zA-Z0-9._/-]+$"
+													type:        "string"
+												}
+												storageClasses: {
+													description: """
+	StorageClasses can be selected by user to override dataPoolName during object creation.
+	Each placement has default STANDARD StorageClass pointing to dataPoolName.
+	This list allows defining additional StorageClasses on top of default STANDARD storage class.
+	"""
+													items: {
+														properties: {
+															dataPoolName: {
+																description: "DataPoolName is the data pool used to store ObjectStore objects data."
+																minLength:   1
+																type:        "string"
+															}
+															name: {
+																description: """
+	Name is the StorageClass name. Ceph allows arbitrary name for StorageClasses,
+	however most clients/libs insist on AWS names so it is recommended to use
+	one of the valid x-amz-storage-class values for better compatibility:
+	REDUCED_REDUNDANCY | STANDARD_IA | ONEZONE_IA | INTELLIGENT_TIERING | GLACIER | DEEP_ARCHIVE | OUTPOSTS | GLACIER_IR | SNOW | EXPRESS_ONEZONE
+	See AWS docs: https://aws.amazon.com/de/s3/storage-classes/
+	"""
+																minLength: 1
+																pattern:   "^[a-zA-Z0-9._/-]+$"
+																type:      "string"
+															}
+														}
+														required: [
+															"dataPoolName",
+															"name",
+														]
+														type: "object"
+													}
+													type: "array"
+												}
+											}
+											required: [
+												"dataPoolName",
+												"metadataPoolName",
+												"name",
+											]
+											type: "object"
+										}
+										type: "array"
+									}
+									preserveRadosNamespaceDataOnDelete: {
+										description: "Whether the RADOS namespaces should be preserved on deletion of the object store"
+										type:        "boolean"
+									}
+								}
+								type: "object"
+							}
 							zoneGroup: {
 								description: "The display name for the ceph users"
 								type:        "string"
 							}
 						}
-						required: [
-							"dataPool",
-							"metadataPool",
-							"zoneGroup",
-						]
+						required: ["zoneGroup"]
 						type: "object"
 					}
 					status: {
@@ -16041,18 +16155,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				jsonPath: ".status.phase"
 				name:     "Phase"
 				type:     "string"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
 			}]
 			name: "v1"
 			schema: openAPIV3Schema: {
 				description: "CephRBDMirror represents a Ceph RBD Mirror"
 				properties: {
 					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object."
-						type:        "string"
+						description: """
+	APIVersion defines the versioned schema of this representation of an object.
+	Servers should convert recognized schemas to the latest internal value, and
+	may reject unrecognized values.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+	"""
+						type: "string"
 					}
 					kind: {
-						description: "Kind is a string value representing the REST resource this object represents."
-						type:        "string"
+						description: """
+	Kind is a string value representing the REST resource this object represents.
+	Servers may infer this from the endpoint the client submits requests to.
+	Cannot be updated.
+	In CamelCase.
+	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+	"""
+						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
@@ -16088,37 +16217,24 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type: "object"
 							}
 							placement: {
-								description: "The affinity to place the rgw pods (default is to place on any available node)"
-								nullable:    true
+								nullable: true
 								properties: {
 									nodeAffinity: {
-										description: "NodeAffinity is a group of node affinity scheduling rules"
 										properties: {
 											preferredDuringSchedulingIgnoredDuringExecution: {
-												description: "The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified "
 												items: {
-													description: "An empty preferred scheduling term matches all objects with implicit weight 0 (i.e. it's a no-op)."
 													properties: {
 														preference: {
-															description: "A node selector term, associated with the corresponding weight."
 															properties: {
 																matchExpressions: {
-																	description: "A list of node selector requirements by node's labels."
 																	items: {
-																		description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																		properties: {
-																			key: {
-																				description: "The label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "Represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -16127,25 +16243,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																matchFields: {
-																	description: "A list of node selector requirements by node's fields."
 																	items: {
-																		description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																		properties: {
-																			key: {
-																				description: "The label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "Represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -16154,16 +16263,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 															}
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
 														weight: {
-															description: "Weight associated with matching the corresponding nodeSelectorTerm, in the range 1-100."
-															format:      "int32"
-															type:        "integer"
+															format: "int32"
+															type:   "integer"
 														}
 													}
 													required: [
@@ -16172,32 +16281,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													]
 													type: "object"
 												}
-												type: "array"
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
 											}
 											requiredDuringSchedulingIgnoredDuringExecution: {
-												description: "If the affinity requirements specified by this field are not met at scheduling time, the pod will no"
 												properties: nodeSelectorTerms: {
-													description: "Required. A list of node selector terms. The terms are ORed."
 													items: {
-														description: "A null or empty node selector term matches no objects. The requirements of them are ANDed."
 														properties: {
 															matchExpressions: {
-																description: "A list of node selector requirements by node's labels."
 																items: {
-																	description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																	properties: {
-																		key: {
-																			description: "The label key that the selector applies to."
-																			type:        "string"
-																		}
-																		operator: {
-																			description: "Represents a key's relationship to a set of values."
-																			type:        "string"
-																		}
+																		key: type:      "string"
+																		operator: type: "string"
 																		values: {
-																			description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																			items: type: "string"
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																	}
 																	required: [
@@ -16206,25 +16305,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	]
 																	type: "object"
 																}
-																type: "array"
+																type:                     "array"
+																"x-kubernetes-list-type": "atomic"
 															}
 															matchFields: {
-																description: "A list of node selector requirements by node's fields."
 																items: {
-																	description: "A node selector requirement is a selector that contains values, a key, and an operator that relates "
 																	properties: {
-																		key: {
-																			description: "The label key that the selector applies to."
-																			type:        "string"
-																		}
-																		operator: {
-																			description: "Represents a key's relationship to a set of values."
-																			type:        "string"
-																		}
+																		key: type:      "string"
+																		operator: type: "string"
 																		values: {
-																			description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty."
 																			items: type: "string"
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																	}
 																	required: [
@@ -16233,13 +16325,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	]
 																	type: "object"
 																}
-																type: "array"
+																type:                     "array"
+																"x-kubernetes-list-type": "atomic"
 															}
 														}
 														type:                    "object"
 														"x-kubernetes-map-type": "atomic"
 													}
-													type: "array"
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
 												}
 												required: ["nodeSelectorTerms"]
 												type:                    "object"
@@ -16249,36 +16343,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "object"
 									}
 									podAffinity: {
-										description: "PodAffinity is a group of inter pod affinity scheduling rules"
 										properties: {
 											preferredDuringSchedulingIgnoredDuringExecution: {
-												description: "The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified "
 												items: {
-													description: "The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most"
 													properties: {
 														podAffinityTerm: {
-															description: "Required. A pod affinity term, associated with the corresponding weight."
 															properties: {
 																labelSelector: {
-																	description: "A label query over a set of resources, in this case pods."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -16287,49 +16368,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																matchLabelKeys: {
-																	description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																mismatchLabelKeys: {
-																	description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																namespaceSelector: {
-																	description: "A label query over the set of namespaces that the term applies to."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -16338,34 +16408,30 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																namespaces: {
-																	description: "namespaces specifies a static list of namespace names that the term applies to."
 																	items: type: "string"
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
-																topologyKey: {
-																	description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																	type:        "string"
-																}
+																topologyKey: type: "string"
 															}
 															required: ["topologyKey"]
 															type: "object"
 														}
 														weight: {
-															description: "weight associated with matching the corresponding podAffinityTerm, in the range 1-100."
-															format:      "int32"
-															type:        "integer"
+															format: "int32"
+															type:   "integer"
 														}
 													}
 													required: [
@@ -16374,33 +16440,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													]
 													type: "object"
 												}
-												type: "array"
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
 											}
 											requiredDuringSchedulingIgnoredDuringExecution: {
-												description: "If the affinity requirements specified by this field are not met at scheduling time, the pod will no"
 												items: {
-													description: "Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) t"
 													properties: {
 														labelSelector: {
-															description: "A label query over a set of resources, in this case pods."
 															properties: {
 																matchExpressions: {
-																	description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																	items: {
-																		description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																		properties: {
-																			key: {
-																				description: "key is the label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "operator represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "values is an array of string values."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -16409,49 +16465,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																matchLabels: {
 																	additionalProperties: type: "string"
-																	description: "matchLabels is a map of {key,value} pairs."
-																	type:        "object"
+																	type: "object"
 																}
 															}
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
 														matchLabelKeys: {
-															description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
 														}
 														mismatchLabelKeys: {
-															description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
 														}
 														namespaceSelector: {
-															description: "A label query over the set of namespaces that the term applies to."
 															properties: {
 																matchExpressions: {
-																	description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																	items: {
-																		description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																		properties: {
-																			key: {
-																				description: "key is the label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "operator represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "values is an array of string values."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -16460,66 +16505,51 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																matchLabels: {
 																	additionalProperties: type: "string"
-																	description: "matchLabels is a map of {key,value} pairs."
-																	type:        "object"
+																	type: "object"
 																}
 															}
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
 														namespaces: {
-															description: "namespaces specifies a static list of namespace names that the term applies to."
 															items: type: "string"
-															type: "array"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
 														}
-														topologyKey: {
-															description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-															type:        "string"
-														}
+														topologyKey: type: "string"
 													}
 													required: ["topologyKey"]
 													type: "object"
 												}
-												type: "array"
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
 											}
 										}
 										type: "object"
 									}
 									podAntiAffinity: {
-										description: "PodAntiAffinity is a group of inter pod anti affinity scheduling rules"
 										properties: {
 											preferredDuringSchedulingIgnoredDuringExecution: {
-												description: "The scheduler will prefer to schedule pods to nodes that satisfy the anti-affinity expressions speci"
 												items: {
-													description: "The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most"
 													properties: {
 														podAffinityTerm: {
-															description: "Required. A pod affinity term, associated with the corresponding weight."
 															properties: {
 																labelSelector: {
-																	description: "A label query over a set of resources, in this case pods."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -16528,49 +16558,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																matchLabelKeys: {
-																	description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																mismatchLabelKeys: {
-																	description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																namespaceSelector: {
-																	description: "A label query over the set of namespaces that the term applies to."
 																	properties: {
 																		matchExpressions: {
-																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
-																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																				properties: {
-																					key: {
-																						description: "key is the label key that the selector applies to."
-																						type:        "string"
-																					}
-																					operator: {
-																						description: "operator represents a key's relationship to a set of values."
-																						type:        "string"
-																					}
+																					key: type:      "string"
+																					operator: type: "string"
 																					values: {
-																						description: "values is an array of string values."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
 																				required: [
@@ -16579,34 +16598,30 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				]
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		matchLabels: {
 																			additionalProperties: type: "string"
-																			description: "matchLabels is a map of {key,value} pairs."
-																			type:        "object"
+																			type: "object"
 																		}
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																namespaces: {
-																	description: "namespaces specifies a static list of namespace names that the term applies to."
 																	items: type: "string"
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
-																topologyKey: {
-																	description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-																	type:        "string"
-																}
+																topologyKey: type: "string"
 															}
 															required: ["topologyKey"]
 															type: "object"
 														}
 														weight: {
-															description: "weight associated with matching the corresponding podAffinityTerm, in the range 1-100."
-															format:      "int32"
-															type:        "integer"
+															format: "int32"
+															type:   "integer"
 														}
 													}
 													required: [
@@ -16615,33 +16630,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													]
 													type: "object"
 												}
-												type: "array"
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
 											}
 											requiredDuringSchedulingIgnoredDuringExecution: {
-												description: "If the anti-affinity requirements specified by this field are not met at scheduling time, the pod wi"
 												items: {
-													description: "Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) t"
 													properties: {
 														labelSelector: {
-															description: "A label query over a set of resources, in this case pods."
 															properties: {
 																matchExpressions: {
-																	description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																	items: {
-																		description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																		properties: {
-																			key: {
-																				description: "key is the label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "operator represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "values is an array of string values."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -16650,49 +16655,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																matchLabels: {
 																	additionalProperties: type: "string"
-																	description: "matchLabels is a map of {key,value} pairs."
-																	type:        "object"
+																	type: "object"
 																}
 															}
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
 														matchLabelKeys: {
-															description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
 														}
 														mismatchLabelKeys: {
-															description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration."
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
 														}
 														namespaceSelector: {
-															description: "A label query over the set of namespaces that the term applies to."
 															properties: {
 																matchExpressions: {
-																	description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																	items: {
-																		description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																		properties: {
-																			key: {
-																				description: "key is the label key that the selector applies to."
-																				type:        "string"
-																			}
-																			operator: {
-																				description: "operator represents a key's relationship to a set of values."
-																				type:        "string"
-																			}
+																			key: type:      "string"
+																			operator: type: "string"
 																			values: {
-																				description: "values is an array of string values."
 																				items: type: "string"
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		required: [
@@ -16701,91 +16695,63 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		]
 																		type: "object"
 																	}
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 																matchLabels: {
 																	additionalProperties: type: "string"
-																	description: "matchLabels is a map of {key,value} pairs."
-																	type:        "object"
+																	type: "object"
 																}
 															}
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
 														namespaces: {
-															description: "namespaces specifies a static list of namespace names that the term applies to."
 															items: type: "string"
-															type: "array"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
 														}
-														topologyKey: {
-															description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching th"
-															type:        "string"
-														}
+														topologyKey: type: "string"
 													}
 													required: ["topologyKey"]
 													type: "object"
 												}
-												type: "array"
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
 											}
 										}
 										type: "object"
 									}
 									tolerations: {
-										description: "The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect"
 										items: {
-											description: "The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect"
 											properties: {
-												effect: {
-													description: "Effect indicates the taint effect to match. Empty means match all taint effects."
-													type:        "string"
-												}
-												key: {
-													description: "Key is the taint key that the toleration applies to. Empty means match all taint keys."
-													type:        "string"
-												}
-												operator: {
-													description: "Operator represents a key's relationship to the value. Valid operators are Exists and Equal."
-													type:        "string"
-												}
+												effect: type:   "string"
+												key: type:      "string"
+												operator: type: "string"
 												tolerationSeconds: {
-													description: "TolerationSeconds represents the period of time the toleration (which must be of effect NoExecute, o"
-													format:      "int64"
-													type:        "integer"
+													format: "int64"
+													type:   "integer"
 												}
-												value: {
-													description: "Value is the taint value the toleration matches to."
-													type:        "string"
-												}
+												value: type: "string"
 											}
 											type: "object"
 										}
 										type: "array"
 									}
 									topologySpreadConstraints: {
-										description: "TopologySpreadConstraint specifies how to spread matching pods among the given topology"
 										items: {
-											description: "TopologySpreadConstraint specifies how to spread matching pods among the given topology."
 											properties: {
 												labelSelector: {
-													description: "LabelSelector is used to find matching pods."
 													properties: {
 														matchExpressions: {
-															description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 															items: {
-																description: "A label selector requirement is a selector that contains values, a key, and an operator that relates"
 																properties: {
-																	key: {
-																		description: "key is the label key that the selector applies to."
-																		type:        "string"
-																	}
-																	operator: {
-																		description: "operator represents a key's relationship to a set of values."
-																		type:        "string"
-																	}
+																	key: type:      "string"
+																	operator: type: "string"
 																	values: {
-																		description: "values is an array of string values."
 																		items: type: "string"
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																}
 																required: [
@@ -16794,49 +16760,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																]
 																type: "object"
 															}
-															type: "array"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
 														}
 														matchLabels: {
 															additionalProperties: type: "string"
-															description: "matchLabels is a map of {key,value} pairs."
-															type:        "object"
+															type: "object"
 														}
 													}
 													type:                    "object"
 													"x-kubernetes-map-type": "atomic"
 												}
 												matchLabelKeys: {
-													description: "MatchLabelKeys is a set of pod label keys to select the pods over which spreading will be calculated"
 													items: type: "string"
 													type:                     "array"
 													"x-kubernetes-list-type": "atomic"
 												}
 												maxSkew: {
-													description: "MaxSkew describes the degree to which pods may be unevenly distributed."
-													format:      "int32"
-													type:        "integer"
+													format: "int32"
+													type:   "integer"
 												}
 												minDomains: {
-													description: "MinDomains indicates a minimum number of eligible domains."
-													format:      "int32"
-													type:        "integer"
+													format: "int32"
+													type:   "integer"
 												}
-												nodeAffinityPolicy: {
-													description: "NodeAffinityPolicy indicates how we will treat Pod's nodeAffinity/nodeSelector when calculating pod "
-													type:        "string"
-												}
-												nodeTaintsPolicy: {
-													description: "NodeTaintsPolicy indicates how we will treat node taints when calculating pod topology spread skew."
-													type:        "string"
-												}
-												topologyKey: {
-													description: "TopologyKey is the key of node labels."
-													type:        "string"
-												}
-												whenUnsatisfiable: {
-													description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint."
-													type:        "string"
-												}
+												nodeAffinityPolicy: type: "string"
+												nodeTaintsPolicy: type:   "string"
+												topologyKey: type:        "string"
+												whenUnsatisfiable: type:  "string"
 											}
 											required: [
 												"maxSkew",
@@ -16860,12 +16811,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								nullable:    true
 								properties: {
 									claims: {
-										description: "Claims lists the names of resources, defined in spec."
+										description: """
+	Claims lists the names of resources, defined in spec.resourceClaims,
+	that are used by this container.
+
+	This is an alpha field and requires enabling the
+	DynamicResourceAllocation feature gate.
+
+	This field is immutable. It can only be set for containers.
+	"""
 										items: {
 											description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
-											properties: name: {
-												description: "Name must match the name of one entry in pod.spec."
-												type:        "string"
+											properties: {
+												name: {
+													description: """
+	Name must match the name of one entry in pod.spec.resourceClaims of
+	the Pod where this field is used. It makes that resource available
+	inside a container.
+	"""
+													type: "string"
+												}
+												request: {
+													description: """
+	Request is the name chosen for a request in the referenced claim.
+	If empty, everything from the claim is made available, otherwise
+	only the result of this request.
+	"""
+													type: "string"
+												}
 											}
 											required: ["name"]
 											type: "object"
@@ -16884,8 +16857,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 											"x-kubernetes-int-or-string": true
 										}
-										description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes."
-										type:        "object"
+										description: """
+	Limits describes the maximum amount of compute resources allowed.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+										type: "object"
 									}
 									requests: {
 										additionalProperties: {
@@ -16897,8 +16873,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 											"x-kubernetes-int-or-string": true
 										}
-										description: "Requests describes the minimum amount of compute resources required."
-										type:        "object"
+										description: """
+	Requests describes the minimum amount of compute resources required.
+	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+	otherwise to an implementation-defined value. Requests cannot exceed Limits.
+	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+	"""
+										type: "object"
 									}
 								}
 								type:                                   "object"

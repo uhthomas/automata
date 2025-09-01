@@ -8,7 +8,9 @@ import (
 
 #Name:      "rook-ceph"
 #Namespace: #Name
-#Version:   "1.14.2"
+#Version:   "1.15.9"
+
+#CephVersion: "18.2.2"
 
 #List: v1.#List & {
 	apiVersion: "v1"
@@ -27,9 +29,7 @@ import (
 	}]
 }
 
-#List: items: list.Concat(_items)
-
-_items: [
+#List: items: list.Concat([
 	#CephBlockPoolList.items,
 	#CephClusterList.items,
 	#CephFilesystemList.items,
@@ -49,4 +49,4 @@ _items: [
 	#VMRuleList.items,
 	#VMServiceScrapeList.items,
 	#VolumeSnapshotClassList.items,
-]
+])
