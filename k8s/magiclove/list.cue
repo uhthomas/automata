@@ -3,6 +3,7 @@ import (
 
 	"github.com/uhthomas/automata/k8s/magiclove"
 	"github.com/uhthomas/automata/k8s/magiclove/backup"
+	"github.com/uhthomas/automata/k8s/magiclove/ceph_csi_operator"
 	"github.com/uhthomas/automata/k8s/magiclove/cert_manager_csi_driver"
 	"github.com/uhthomas/automata/k8s/magiclove/cert_manager"
 	"github.com/uhthomas/automata/k8s/magiclove/cilium_secrets"
@@ -82,6 +83,7 @@ _items: [
 	magiclove.#CustomResourceDefinitionList.items,
 	magiclove.#GatewayClassList.items,
 	backup.#List.items,
+	ceph_csi_operator.#List.items,
 	cert_manager_csi_driver.#List.items,
 	cert_manager.#List.items,
 	cilium.#List.items,
