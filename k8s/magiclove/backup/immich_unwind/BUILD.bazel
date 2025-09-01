@@ -4,8 +4,8 @@ cue_library(
     name = "cue_immich_unwind_library",
     srcs = [
         "list.cue",
-        "persistent_volume.cue",
         "persistent_volume_claim_list.cue",
+        "persistent_volume_list.cue",
         "service_list.cue",
         "statefulset_list.cue",
     ],

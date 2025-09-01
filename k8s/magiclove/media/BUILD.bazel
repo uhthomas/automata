@@ -5,8 +5,8 @@ cue_library(
     srcs = [
         "list.cue",
         "namespace_list.cue",
-        "persistent_volume.cue",
         "persistent_volume_claim_list.cue",
+        "persistent_volume_list.cue",
     ],
     importpath = "github.com/uhthomas/automata/k8s/magiclove/media",
     visibility = ["//visibility:public"],

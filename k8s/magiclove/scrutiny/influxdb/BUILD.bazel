@@ -5,8 +5,8 @@ cue_library(
     srcs = [
         "external_secret_list.cue",
         "list.cue",
-        "persistent_volume.cue",
         "persistent_volume_claim_list.cue",
+        "persistent_volume_list.cue",
         "service_list.cue",
         "stateful_set_list.cue",
     ],

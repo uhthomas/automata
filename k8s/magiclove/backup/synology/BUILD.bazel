@@ -5,8 +5,8 @@ cue_library(
     srcs = [
         "deployment_list.cue",
         "list.cue",
-        "persistent_volume.cue",
         "persistent_volume_claim_list.cue",
+        "persistent_volume_list.cue",
         "service_list.cue",
         "statefulset_list.cue",
     ],
