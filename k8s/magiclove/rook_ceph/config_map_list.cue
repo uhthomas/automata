@@ -36,6 +36,8 @@ import "k8s.io/api/core/v1"
 		// Allow using loop devices for osds in test clusters.
 		ROOK_CEPH_ALLOW_LOOP_DEVICES: "false"
 
+		ROOK_USE_CSI_OPERATOR: "true"
+
 		// Enable the CSI driver.
 		// To run the non-default version of the CSI driver, see the override-able image properties in operator.yaml
 		ROOK_CSI_ENABLE_CEPHFS: "true"
