@@ -37,7 +37,7 @@ import (
 						value: "ceph-csi-operator-"
 					}, {
 						name:  "WATCH_NAMESPACE"
-						value: ""
+						value: "rook-ceph"
 					}]
 					ports: [{
 						name:          "http-metrics"
