@@ -23,40 +23,4 @@ import rbacv1 "k8s.io/api/rbac/v1"
 		name:      "ceph-csi-operator-controller-manager"
 		namespace: #Namespace
 	}]
-}, {
-	metadata: name: "ceph-csi-operator-cephfs-ctrlplugin"
-	roleRef: {
-		apiGroup: "rbac.authorization.k8s.io"
-		kind:     "Role"
-		name:     "ceph-csi-operator-cephfs-ctrlplugin"
-	}
-	subjects: [{
-		kind:      "ServiceAccount"
-		name:      "ceph-csi-operator-cephfs-ctrlplugin"
-		namespace: #Namespace
-	}]
-}, {
-	metadata: name: "ceph-csi-operator-rbd-ctrlplugin"
-	roleRef: {
-		apiGroup: "rbac.authorization.k8s.io"
-		kind:     "Role"
-		name:     "ceph-csi-operator-rbd-ctrlplugin"
-	}
-	subjects: [{
-		kind:      "ServiceAccount"
-		name:      "ceph-csi-operator-rbd-ctrlplugin"
-		namespace: #Namespace
-	}]
-}, {
-	metadata: name: "ceph-csi-operator-rbd-nodeplugin"
-	roleRef: {
-		apiGroup: "rbac.authorization.k8s.io"
-		kind:     "Role"
-		name:     "ceph-csi-operator-rbd-nodeplugin"
-	}
-	subjects: [{
-		kind:      "ServiceAccount"
-		name:      "ceph-csi-operator-rbd-nodeplugin"
-		namespace: #Namespace
-	}]
 }]

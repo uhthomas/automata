@@ -3,6 +3,7 @@ package rook_ceph
 import (
 	"list"
 
+	"github.com/uhthomas/automata/k8s/magiclove/rook_ceph/ceph_csi"
 	"k8s.io/api/core/v1"
 )
 
@@ -30,6 +31,7 @@ import (
 }
 
 #List: items: list.Concat([
+	ceph_csi.#List.items,
 	#CephBlockPoolList.items,
 	#CephClusterList.items,
 	#CephFilesystemList.items,

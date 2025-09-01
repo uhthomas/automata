@@ -8,6 +8,7 @@ cue_library(
         "doc_go_gen.cue",
         "keys_go_gen.cue",
         "labels_go_gen.cue",
+        "namespace_go_gen.cue",
         "object_go_gen.cue",
         "placement_go_gen.cue",
         "register_go_gen.cue",
@@ -22,6 +23,6 @@ cue_library(
         "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
         "//cue.mod/gen/k8s.io/apimachinery/pkg/api/resource:cue_resource_library",
         "//cue.mod/gen/k8s.io/apimachinery/pkg/apis/meta/v1:cue_v1_library",
-        "//cue.mod/gen/pkg.go.dev/time:cue_time_library",
+        "//cue.mod/gen/k8s.io/apimachinery/pkg/types:cue_types_library",
     ],
 )
