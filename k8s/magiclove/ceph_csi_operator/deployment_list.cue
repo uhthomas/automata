@@ -23,7 +23,7 @@ import (
 			spec: {
 				containers: [{
 					name:  "manager"
-					image: "quay.io/cephcsi/ceph-csi-operator:v0.4.0"
+					image: "quay.io/cephcsi/ceph-csi-operator:v\(#Version)"
 					args: [
 						"--leader-elect",
 						"--metrics-bind-address=:8080",

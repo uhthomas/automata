@@ -24,6 +24,7 @@ import (
 		skipUpgradeChecks:                          false
 		continueUpgradeAfterChecksEvenIfNotHealthy: false
 		waitTimeoutForHealthyOSDInMinutes:          10
+		upgradeOSDRequiresHealthyPGs:               false
 		mon: {
 			count:                3
 			allowMultiplePerNode: true
@@ -54,8 +55,13 @@ import (
 		// rather than with service monitors.
 		//
 		// See: https://github.com/rook/rook/issues/12422
-		// monitoring: enabled: true
-		monitoring: metricsDisabled: false
+		monitoring: {
+			metricsDisabled: false
+			exporter: {
+				perfCountersPrioLimit: 5
+				statsPeriodSeconds:    5
+			}
+		}
 		network: connections: {
 			encryption: enabled:  true
 			compression: enabled: true
@@ -118,8 +124,10 @@ import (
 			}
 		}
 		storage: {
-			useAllNodes:   false
-			useAllDevices: false
+			useAllNodes:               false
+			useAllDevices:             false
+			allowDeviceClassUpdate:    false
+			allowOsdCrushWeightUpdate: false
 			nodes: [{
 				name: "dice"
 				devices: [{
@@ -160,12 +168,12 @@ import (
 					config: deviceClass: "nvme"
 				}]
 			}]
+			scheduleAlways:        false
 			onlyApplyOSDPlacement: false
 		}
 		disruptionManagement: {
 			managePodBudgets:      true
 			osdMaintenanceTimeout: 30
-			pgHealthCheckTimeout:  0
 		}
 		healthCheck: {
 			daemonHealth: {

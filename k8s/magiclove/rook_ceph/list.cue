@@ -8,7 +8,7 @@ import (
 
 #Name:      "rook-ceph"
 #Namespace: #Name
-#Version:   "1.17.8"
+#Version:   "1.18.1"
 
 #CephVersion: "18.2.2"
 
