@@ -1,4 +1,4 @@
-load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_export", "cue_library")
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
 
 cue_library(
     name = "cue_external_secrets_library",
@@ -22,10 +22,4 @@ cue_library(
         "//cue.mod/gen/k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1:cue_v1_library",
         "//k8s/magiclove/external_secrets/webhook:cue_webhook_library",
     ],
-)
-
-cue_export(
-    name = "external_secrets",
-    src = "external-secrets.cue",
-    visibility = ["//visibility:public"],
 )
