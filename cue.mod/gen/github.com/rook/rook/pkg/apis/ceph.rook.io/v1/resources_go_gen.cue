@@ -19,6 +19,9 @@ package v1
 // ResourcesKeyPrepareOSD represents the name of resource in the CR for the osd prepare job
 #ResourcesKeyPrepareOSD: "prepareosd"
 
+// ResourcesKeyCmdReporter represents the name of resource in the CR for the detect version and network jobs
+#ResourcesKeyCmdReporter: "cmd-reporter"
+
 // ResourcesKeyMDS represents the name of resource in the CR for the mds
 #ResourcesKeyMDS: "mds"
 

@@ -19,6 +19,7 @@ package v1
 	#KeyMon |
 	#KeyMonArbiter |
 	#KeyMgr |
+	#KeyDashboard |
 	#KeyOSDPrepare |
 	#KeyRotation |
 	#KeyOSD |
@@ -26,7 +27,8 @@ package v1
 	#KeyMonitoring |
 	#KeyCrashCollector |
 	#KeyClusterMetadata |
-	#KeyCephExporter
+	#KeyCephExporter |
+	#KeyCmdReporter
 
 // Labels are label for a given daemons
 #Labels: {[string]: string}

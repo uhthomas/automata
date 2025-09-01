@@ -10,6 +10,7 @@ package v1
 #KeyMon:             #KeyType & "mon"
 #KeyMonArbiter:      #KeyType & "arbiter"
 #KeyMgr:             #KeyType & "mgr"
+#KeyDashboard:       #KeyType & "dashboard"
 #KeyOSDPrepare:      #KeyType & "prepareosd"
 #KeyRotation:        #KeyType & "keyrotation"
 #KeyOSD:             #KeyType & "osd"
@@ -18,3 +19,4 @@ package v1
 #KeyCrashCollector:  #KeyType & "crashcollector"
 #KeyClusterMetadata: #KeyType & "clusterMetadata"
 #KeyCephExporter:    #KeyType & "exporter"
+#KeyCmdReporter:     #KeyType & "cmdreporter"

@@ -6,9 +6,9 @@ package v1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"pkg.go.dev/time"
-	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 // CephCluster is a Ceph storage cluster
@@ -21,6 +21,7 @@ import (
 // +kubebuilder:printcolumn:name="External",type=boolean,JSONPath=`.spec.external.enable`
 // +kubebuilder:printcolumn:name="FSID",type=string,JSONPath=`.status.ceph.fsid`,description="Ceph FSID"
 // +kubebuilder:subresource:status
+// +kubebuilder:resource:shortName=ceph
 #CephCluster: {
 	metav1.#TypeMeta
 	metadata: metav1.#ObjectMeta @go(ObjectMeta)
@@ -140,7 +141,13 @@ import (
 	// continue with the upgrade of an OSD even if its not ok to stop after the timeout. This timeout won't be applied if `skipUpgradeChecks` is `true`.
 	// The default wait timeout is 10 minutes.
 	// +optional
-	waitTimeoutForHealthyOSDInMinutes?: time.#Duration @go(WaitTimeoutForHealthyOSDInMinutes)
+	waitTimeoutForHealthyOSDInMinutes?: int @go(WaitTimeoutForHealthyOSDInMinutes,time.Duration)
+
+	// UpgradeOSDRequiresHealthyPGs defines if OSD upgrade requires PGs are clean. If set to `true` OSD upgrade process won't start until PGs are healthy.
+	// This configuration will be ignored if `skipUpgradeChecks` is `true`.
+	// Default is false.
+	// +optional
+	upgradeOSDRequiresHealthyPGs?: bool @go(UpgradeOSDRequiresHealthyPGs)
 
 	// A spec for configuring disruption management.
 	// +nullable
@@ -196,7 +203,7 @@ import (
 	// Security represents security settings
 	// +optional
 	// +nullable
-	security?: #SecuritySpec @go(Security)
+	security?: #ClusterSecuritySpec @go(Security)
 
 	// Logging represents loggings settings
 	// +optional
@@ -211,6 +218,11 @@ import (
 	// +optional
 	// +nullable
 	cephConfig?: {[string]: [string]: string} @go(CephConfig,map[string]map[string]string)
+
+	// CephConfigFromSecret works exactly like CephConfig but takes config value from Secret Key reference.
+	// +optional
+	// +nullable
+	cephConfigFromSecret?: {[string]: [string]: v1.#SecretKeySelector} @go(CephConfigFromSecret,map[string]map[string]v1.SecretKeySelector)
 }
 
 // CSIDriverSpec defines CSI Driver settings applied per cluster.
@@ -222,6 +234,11 @@ import (
 	// CephFS defines CSI Driver settings for CephFS driver.
 	// +optional
 	cephfs?: #CSICephFSSpec @go(CephFS)
+
+	// SkipUserCreation determines whether CSI users and their associated secrets should be skipped.
+	// If set to true, the user must manually manage these secrets.
+	// +optional
+	skipUserCreation?: bool @go(SkipUserCreation)
 }
 
 // CSICephFSSpec defines the settings for CephFS CSI driver.
@@ -276,6 +293,84 @@ import (
 	// +nullable
 	keyRotation?: #KeyRotationSpec @go(KeyRotation)
 }
+
+// ClusterSecuritySpec is the CephCluster security spec to include various security items such as kms
+#ClusterSecuritySpec: {
+	// KeyManagementService is the main Key Management option
+	// +optional
+	// +nullable
+	kms?: #KeyManagementServiceSpec @go(KeyManagementService)
+
+	// KeyRotation defines options for rotation of OSD disk encryption keys.
+	// +optional
+	// +nullable
+	keyRotation?: #KeyRotationSpec @go(KeyRotation)
+
+	// CephX configures CephX key settings. More: https://docs.ceph.com/en/latest/dev/cephx/
+	// +optional
+	cephx?: #ClusterCephxConfig @go(CephX)
+}
+
+#ClusterCephxConfig: {
+	// Daemon configures CephX key settings for local Ceph daemons managed by Rook and part of the
+	// Ceph cluster. Daemon CephX keys can be rotated without affecting client connections.
+	daemon?: #CephxConfig @go(Daemon)
+
+	// RBDMirrorPeer configures CephX key settings of the `rbd-mirror-peer` user that is used for creating
+	// bootstrap peer token used connect peer clusters. Rotating the `rbd-mirror-peer` user key will update
+	// the mirror peer token.
+	// Rotation will affect any existing peers connected to this cluster, so take care when exercising this option.
+	rbdMirrorPeer?: #CephxConfig @go(RBDMirrorPeer)
+
+	// CSI configures CephX key rotation settings for the Ceph-CSI daemons in the current Kubernetes cluster.
+	// CSI key rotation can affect existing PV connections, so take care when exercising this option.
+	csi?: #CephXConfigWithPriorCount @go(CSI)
+}
+
+#CephXConfigWithPriorCount: {
+	#CephxConfig
+
+	// KeepPriorKeyCountMax tells Rook how many prior keys to keep active.
+	// Generally, this would be set to 1 to allow for a migration period for applications.
+	// If desired, set this to 0 to delete prior keys after migration.
+	// This config only applies to prior keys that already exist.
+	// If PriorKeyCount is set to 2 while only a single key currently exists, only a single prior key will be kept,
+	// and the reported status will only indicate the actual number of prior keys,
+	// not necessarily a reflection of PriorKeyCount config here.
+	// +optional
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=10
+	keepPriorKeyCountMax?: uint8 @go(KeepPriorKeyCountMax)
+}
+
+#CephxConfig: {
+	// KeyRotationPolicy controls if and when CephX keys are rotated after initial creation.
+	// One of Disabled, or KeyGeneration. Default Disabled.
+	// +optional
+	// +kubebuilder:validation:Enum="";Disabled;KeyGeneration
+	keyRotationPolicy?: #CephxKeyRotationPolicy @go(KeyRotationPolicy)
+
+	// KeyGeneration specifies the desired CephX key generation. This is used when KeyRotationPolicy
+	// is KeyGeneration and ignored for other policies. If this is set to greater than the current
+	// key generation, relevant keys will be rotated, and the generation value will be updated to
+	// this new value (generation values are not necessarily incremental, though that is the
+	// intended use case). If this is set to less than or equal to the current key generation, keys
+	// are not rotated.
+	// +optional
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=4294967295
+	// +kubebuilder:validation:XValidation:message="keyGeneration cannot be decreased",rule="self >= oldSelf"
+	keyGeneration?: uint32 @go(KeyGeneration)
+}
+
+#CephxKeyRotationPolicy: string // #enumCephxKeyRotationPolicy
+
+#enumCephxKeyRotationPolicy:
+	#DisabledCephxKeyRotationPolicy |
+	#KeyGenerationCephxKeyRotationPolicy
+
+#DisabledCephxKeyRotationPolicy:      #CephxKeyRotationPolicy & "Disabled"
+#KeyGenerationCephxKeyRotationPolicy: #CephxKeyRotationPolicy & "KeyGeneration"
 
 // ObjectStoreSecuritySpec is spec to define security features like encryption
 #ObjectStoreSecuritySpec: {
@@ -393,6 +488,25 @@ import (
 	// Interval determines prometheus scrape interval
 	// +optional
 	interval?: null | metav1.#Duration @go(Interval,*metav1.Duration)
+
+	// Ceph exporter configuration
+	// +optional
+	exporter?: null | #CephExporterSpec @go(Exporter,*CephExporterSpec)
+}
+
+#CephExporterSpec: {
+	// Only performance counters greater than or equal to this option are fetched
+	// +kubebuilder:default=5
+	perfCountersPrioLimit?: int64 @go(PerfCountersPrioLimit)
+
+	// Time to wait before sending requests again to exporter server (seconds)
+	// +kubebuilder:default=5
+	statsPeriodSeconds?: int64 @go(StatsPeriodSeconds)
+
+	// Whether host networking is enabled for CephExporter. If not set, the network settings from CephCluster.spec.networking will be applied.
+	// +nullable
+	// +optional
+	hostNetwork?: null | bool @go(HostNetwork,*bool)
 }
 
 // ClusterStatus represents the status of a Ceph cluster
@@ -402,6 +516,7 @@ import (
 	message?: string         @go(Message)
 	conditions?: [...#Condition] @go(Conditions,[]Condition)
 	ceph?:    null | #CephStatus     @go(CephStatus,*CephStatus)
+	cephx?:   #ClusterCephxStatus    @go(Cephx)
 	storage?: null | #CephStorage    @go(CephStorage,*CephStorage)
 	version?: null | #ClusterVersion @go(CephVersion,*ClusterVersion)
 
@@ -471,6 +586,7 @@ import (
 #CephStorage: {
 	deviceClasses?: [...#DeviceClasses] @go(DeviceClasses,[]DeviceClasses)
 	osd?: #OSDStatus @go(OSD)
+	deprecatedOSDs?: {[string]: [...int]} @go(DeprecatedOSDs,map[string][]int)
 }
 
 // DeviceClasses represents device classes of a Ceph Cluster
@@ -482,6 +598,12 @@ import (
 #OSDStatus: {
 	// StoreType is a mapping between the OSD backend stores and number of OSDs using these stores
 	storeType?: {[string]: int} @go(StoreType,map[string]int)
+	migrationStatus?: #MigrationStatus @go(MigrationStatus)
+}
+
+// MigrationStatus status represents the current status of any OSD migration.
+#MigrationStatus: {
+	pending?: int @go(Pending)
 }
 
 // ClusterVersion represents the version of a Ceph Cluster
@@ -518,9 +640,14 @@ import (
 	#ReconcileSucceeded |
 	#ReconcileFailed |
 	#ReconcileStarted |
+	#ReconcileRequeuing |
 	#DeletingReason |
 	#ObjectHasDependentsReason |
-	#ObjectHasNoDependentsReason
+	#ObjectHasNoDependentsReason |
+	#PoolNotEmptyReason |
+	#PoolEmptyReason |
+	#RadosNamespaceNotEmptyReason |
+	#RadosNamespaceEmptyReason
 
 // ClusterCreatedReason is cluster created reason
 #ClusterCreatedReason: #ConditionReason & "ClusterCreated"
@@ -546,6 +673,9 @@ import (
 // ReconcileStarted represents when a resource reconciliation started.
 #ReconcileStarted: #ConditionReason & "ReconcileStarted"
 
+// ReconcileRequeuing represents when a resource reconciliation requeue.
+#ReconcileRequeuing: #ConditionReason & "ReconcileRequeuing"
+
 // DeletingReason represents when Rook has detected a resource object should be deleted.
 #DeletingReason: #ConditionReason & "Deleting"
 
@@ -557,6 +687,22 @@ import (
 // blocking deletion.
 #ObjectHasNoDependentsReason: #ConditionReason & "ObjectHasNoDependents"
 
+// PoolNotEmptyReason represents when a pool contains images or snapshots that are blocking
+// deletion.
+#PoolNotEmptyReason: #ConditionReason & "PoolNotEmpty"
+
+// PoolEmptyReason represents when a pool does not contain images or snapshots that are blocking
+// deletion.
+#PoolEmptyReason: #ConditionReason & "PoolEmpty"
+
+// RadosNamespaceNotEmptyReason represents when a rados namespace contains images or snapshots that are blocking
+// deletion.
+#RadosNamespaceNotEmptyReason: #ConditionReason & "RadosNamespaceNotEmpty"
+
+// RadosNamespaceEmptyReason represents when a rados namespace does not contain images or snapshots that are blocking
+// deletion.
+#RadosNamespaceEmptyReason: #ConditionReason & "RadosNamespaceEmpty"
+
 // ConditionType represent a resource's status
 #ConditionType: string // #enumConditionType
 
@@ -567,7 +713,9 @@ import (
 	#ConditionReady |
 	#ConditionFailure |
 	#ConditionDeleting |
-	#ConditionDeletionIsBlocked
+	#ConditionDeletionIsBlocked |
+	#ConditionPoolDeletionIsBlocked |
+	#ConditionRadosNSDeletionIsBlocked
 
 // ConditionConnecting represents Connecting state of an object
 #ConditionConnecting: #ConditionType & "Connecting"
@@ -589,6 +737,12 @@ import (
 
 // ConditionDeletionIsBlocked represents when deletion of the object is blocked.
 #ConditionDeletionIsBlocked: #ConditionType & "DeletionIsBlocked"
+
+// ConditionPoolDeletionIsBlocked represents when deletion of the object is blocked.
+#ConditionPoolDeletionIsBlocked: #ConditionType & "PoolDeletionIsBlocked"
+
+// ConditionRadosNSDeletionIsBlocked represents when deletion of the object is blocked.
+#ConditionRadosNSDeletionIsBlocked: #ConditionType & "RadosNamespaceDeletionIsBlocked"
 
 // ClusterState represents the state of a Ceph Cluster
 #ClusterState: string // #enumClusterState
@@ -619,6 +773,64 @@ import (
 // ClusterStateError represents the Error state of a Ceph Cluster
 #ClusterStateError: #ClusterState & "Error"
 
+#CephxStatus: {
+	// KeyGeneration represents the CephX key generation for the last successful reconcile.
+	// For all newly-created resources, this field is set to `1`.
+	// When keys are rotated due to any rotation policy, the generation is incremented or updated to
+	// the configured policy generation.
+	// Generation `0` indicates that keys existed prior to the implementation of key tracking.
+	keyGeneration?: uint32 @go(KeyGeneration)
+
+	// KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+	// same string format as reported by `CephCluster.status.version.version` to allow them to be
+	// compared. E.g., `20.2.0-0`.
+	// For all newly-created resources, this field set to the version of Ceph that created the key.
+	// The special value "Uninitialized" indicates that keys are being created for the first time.
+	// An empty string indicates that the version is unknown, as expected in brownfield deployments.
+	keyCephVersion?: string @go(KeyCephVersion)
+}
+
+#CephxStatusWithKeyCount: {
+	#CephxStatus
+
+	// PriorKeyCount reports the number of prior-generation CephX keys that remain active for the related component
+	priorKeyCount?: uint8 @go(PriorKeyCount)
+}
+
+#UninitializedCephxKeyCephVersion: "Uninitialized"
+
+#LocalCephxStatus: {
+	// Daemon shows the CephX key status for local Ceph daemons associated with this resources.
+	daemon?: #CephxStatus @go(Daemon)
+}
+
+// ClusterCephxStatus defines the cephx key rotation status of various daemons on the cephCluster resource
+#ClusterCephxStatus: {
+	// Admin shows the CephX key status for the client.admin key
+	admin?: #CephxStatus @go(Admin)
+
+	// Mon represents the CephX key status of the Monitor daemons
+	mon?: #CephxStatus @go(Mon)
+
+	// Mgr represents the cephx key rotation status of the ceph manager daemon
+	mgr?: #CephxStatus @go(Mgr)
+
+	// OSD shows the CephX key status of of OSDs
+	osd?: #CephxStatus @go(OSD)
+
+	// CSI shows the CephX key status for Ceph-CSI components.
+	csi?: #CephxStatusWithKeyCount @go(CSI)
+
+	// RBDMirrorPeer represents the cephx key rotation status of the `rbd-mirror-peer` user
+	rbdMirrorPeer?: #CephxStatus @go(RBDMirrorPeer)
+
+	// Crash Collector represents the cephx key rotation status of the crash collector daemon
+	crashCollector?: #CephxStatus @go(CrashCollector)
+
+	// Ceph Exporter represents the cephx key rotation status of the ceph exporter daemon
+	cephExporter?: #CephxStatus @go(CephExporter)
+}
+
 // MonSpec represents the specification of the monitor
 // +kubebuilder:validation:XValidation:message="zones must be less than or equal to count",rule="!has(self.zones) || (has(self.zones) && (size(self.zones) <= self.count))"
 // +kubebuilder:validation:XValidation:message="stretchCluster zones must be equal to 3",rule="!has(self.stretchCluster) || (has(self.stretchCluster) && (size(self.stretchCluster.zones) > 0) && (size(self.stretchCluster.zones) == 3))"
@@ -647,7 +859,28 @@ import (
 	// VolumeClaimTemplate is the PVC definition
 	// +kubebuilder:pruning:PreserveUnknownFields
 	// +optional
-	volumeClaimTemplate?: null | v1.#PersistentVolumeClaim @go(VolumeClaimTemplate,*v1.PersistentVolumeClaim)
+	volumeClaimTemplate?: null | #VolumeClaimTemplate @go(VolumeClaimTemplate,*VolumeClaimTemplate)
+
+	// ExternalMonIDs - optional list of monitor IDs which are deployed externally and not managed by Rook.
+	// If set, Rook will not remove mons with given IDs from quorum.
+	// This parameter is used only for local Rook cluster running in normal mode
+	// and will be ignored if external or stretched mode is used.
+	// leading
+	// +optional
+	externalMonIDs?: [...string] @go(ExternalMonIDs,[]string)
+}
+
+// VolumeClaimTemplate is a simplified version of K8s corev1's PVC. It has no type meta or status.
+#VolumeClaimTemplate: {
+	// Standard object's metadata.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	// +optional
+	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
+
+	// spec defines the desired characteristics of a volume requested by a pod author.
+	// More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
+	// +optional
+	spec?: v1.#PersistentVolumeClaimSpec @go(Spec) @protobuf(2,bytes,opt)
 }
 
 // StretchClusterSpec represents the specification of a stretched Ceph Cluster
@@ -679,7 +912,7 @@ import (
 	// VolumeClaimTemplate is the PVC template
 	// +kubebuilder:pruning:PreserveUnknownFields
 	// +optional
-	volumeClaimTemplate?: null | v1.#PersistentVolumeClaim @go(VolumeClaimTemplate,*v1.PersistentVolumeClaim)
+	volumeClaimTemplate?: null | #VolumeClaimTemplate @go(VolumeClaimTemplate,*VolumeClaimTemplate)
 }
 
 // MgrSpec represents options to configure a ceph mgr
@@ -709,6 +942,15 @@ import (
 	// Enabled determines whether a module should be enabled or not
 	// +optional
 	enabled?: bool @go(Enabled)
+
+	// Settings to further configure the module
+	settings?: #ModuleSettings @go(Settings)
+}
+
+#ModuleSettings: {
+	// BalancerMode sets the `balancer` module with different modes like `upmap`, `crush-compact` etc
+	// +kubebuilder:validation:Enum="";crush-compat;upmap;read;upmap-read
+	balancerMode?: string @go(BalancerMode)
 }
 
 // ExternalSpec represents the options supported by an external cluster
@@ -733,7 +975,14 @@ import (
 
 // CephBlockPool represents a Ceph Storage Pool
 // +kubebuilder:printcolumn:name="Phase",type=string,JSONPath=`.status.phase`
+// +kubebuilder:printcolumn:name="Type",type=string,JSONPath=`.status.info.type`
+// +kubebuilder:printcolumn:name="FailureDomain",type=string,JSONPath=`.status.info.failureDomain`
+// +kubebuilder:printcolumn:name="Replication",type=integer,JSONPath=`.spec.replicated.size`,priority=1
+// +kubebuilder:printcolumn:name="EC-CodingChunks",type=integer,JSONPath=`.spec.erasureCoded.codingChunks`,priority=1
+// +kubebuilder:printcolumn:name="EC-DataChunks",type=integer,JSONPath=`.spec.erasureCoded.dataChunks`,priority=1
+// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +kubebuilder:subresource:status
+// +kubebuilder:resource:shortName=cephbp
 #CephBlockPool: {
 	metav1.#TypeMeta
 	metadata: metav1.#ObjectMeta  @go(ObjectMeta)
@@ -773,6 +1022,10 @@ import (
 	// +nullable
 	deviceClass?: string @go(DeviceClass)
 
+	// Allow rook operator to change the pool CRUSH tunables once the pool is created
+	// +optional
+	enableCrushUpdates?: bool @go(EnableCrushUpdates)
+
 	// DEPRECATED: use Parameters instead, e.g., Parameters["compression_mode"] = "force"
 	// The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)
 	// +kubebuilder:validation:Enum=none;passive;aggressive;force;""
@@ -809,6 +1062,10 @@ import (
 	// +optional
 	// +nullable
 	quotas?: #QuotaSpec @go(Quotas)
+
+	// The application name to set on the pool. Only expected to be set for rgw pools.
+	// +optional
+	application?: string @go(Application)
 }
 
 // NamedBlockPoolSpec allows a block pool to be created with a non-default name.
@@ -816,7 +1073,7 @@ import (
 // allowed pool names that can be specified.
 #NamedBlockPoolSpec: {
 	// The desired name of the pool if different from the CephBlockPool CR name.
-	// +kubebuilder:validation:Enum=device_health_metrics;.nfs;.mgr
+	// +kubebuilder:validation:Enum=.rgw.root;.nfs;.mgr
 	// +optional
 	name?: string @go(Name)
 
@@ -844,10 +1101,16 @@ import (
 	phase?: #ConditionType @go(Phase)
 
 	// +optional
+	cephx?: #PeerTokenCephxStatus @go(Cephx)
+
+	// +optional
 	mirroringStatus?: null | #MirroringStatusSpec @go(MirroringStatus,*MirroringStatusSpec)
 
 	// +optional
 	mirroringInfo?: null | #MirroringInfoSpec @go(MirroringInfo,*MirroringInfoSpec)
+
+	// optional
+	poolID?: int @go(PoolID)
 
 	// +optional
 	snapshotScheduleStatus?: null | #SnapshotScheduleStatusSpec @go(SnapshotScheduleStatus,*SnapshotScheduleStatusSpec)
@@ -862,9 +1125,15 @@ import (
 	conditions?: [...#Condition] @go(Conditions,[]Condition)
 }
 
-// MirroringStatusSpec is the status of the pool mirroring
+// PeerTokenCephxStatus represents the cephx key rotation status for peer tokens
+#PeerTokenCephxStatus: {
+	// PeerToken shows the rotation status of the peer token associated with the `rbd-mirror-peer` user.
+	peerToken?: #CephxStatus @go(PeerToken)
+}
+
+// MirroringStatusSpec is the status of the pool/radosNamespace mirroring
 #MirroringStatusSpec: {
-	#PoolMirroringStatus
+	#MirroringStatus
 
 	// LastChecked is the last time time the status was checked
 	// +optional
@@ -879,15 +1148,15 @@ import (
 	details?: string @go(Details)
 }
 
-// PoolMirroringStatus is the pool mirror status
-#PoolMirroringStatus: {
+// MirroringStatus is the pool/radosNamespace mirror status
+#MirroringStatus: {
 	// Summary is the mirroring status summary
 	// +optional
-	summary?: null | #PoolMirroringStatusSummarySpec @go(Summary,*PoolMirroringStatusSummarySpec)
+	summary?: null | #MirroringStatusSummarySpec @go(Summary,*MirroringStatusSummarySpec)
 }
 
-// PoolMirroringStatusSummarySpec is the summary output of the command
-#PoolMirroringStatusSummarySpec: {
+// MirroringStatusSummarySpec is the summary output of the command
+#MirroringStatusSummarySpec: {
 	// Health is the mirroring health
 	// +optional
 	health?: string @go(Health)
@@ -904,6 +1173,21 @@ import (
 	// +optional
 	// +nullable
 	states?: #StatesSpec @go(States)
+
+	// ImageStates is the various state for all mirrored images
+	// +optional
+	// +nullable
+	image_states?: null | #StatesSpec @go(ImageStates,*StatesSpec)
+
+	// GroupHealth is the health of the mirrored image group
+	// +optional
+	// +nullable
+	group_health?: string @go(GroupHealth)
+
+	// GroupStates is the various state for all mirrored image groups
+	// +optional
+	// +nullable
+	group_states?: #StatesSpec @go(GroupStates)
 }
 
 // StatesSpec are rbd images mirroring state
@@ -937,9 +1221,9 @@ import (
 	error?: int @go(Error)
 }
 
-// MirroringInfoSpec is the status of the pool mirroring
+// MirroringInfoSpec is the status of the pool/radosnamespace mirroring
 #MirroringInfoSpec: {
-	#PoolMirroringInfo
+	#MirroringInfo
 
 	// +optional
 	lastChecked?: string @go(LastChecked)
@@ -951,8 +1235,8 @@ import (
 	details?: string @go(Details)
 }
 
-// PoolMirroringInfo is the mirroring info of a given pool
-#PoolMirroringInfo: {
+// MirroringInfo is the mirroring info of a given pool/radosnamespace
+#MirroringInfo: {
 	// Mode is the mirroring mode
 	// +optional
 	mode?: string @go(Mode)
@@ -1057,6 +1341,7 @@ import (
 	size: uint @go(Size)
 
 	// TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity
+	// +kubebuilder:validation:Minimum=0
 	// +optional
 	targetSizeRatio?: float64 @go(TargetSizeRatio)
 
@@ -1100,7 +1385,8 @@ import (
 	// +optional
 	enabled?: bool @go(Enabled)
 
-	// Mode is the mirroring mode: either pool or image
+	// Mode is the mirroring mode: pool, image or init-only.
+	// +kubebuilder:validation:Enum=pool;image;init-only
 	// +optional
 	mode?: string @go(Mode)
 
@@ -1159,7 +1445,9 @@ import (
 	// +kubebuilder:validation:Minimum=0
 	dataChunks: uint @go(DataChunks)
 
-	// The algorithm for erasure coding
+	// The algorithm for erasure coding.
+	// If absent, defaults to the plugin specified in osd_pool_default_erasure_code_profile.
+	// +kubebuilder:validation:Enum=isa;jerasure
 	// +optional
 	algorithm?: string @go(Algorithm)
 }
@@ -1169,6 +1457,7 @@ import (
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +kubebuilder:printcolumn:name="Phase",type=string,JSONPath=`.status.phase`
 // +kubebuilder:subresource:status
+// +kubebuilder:resource:shortName=cephfs
 #CephFilesystem: {
 	metav1.#TypeMeta
 	metadata: metav1.#ObjectMeta @go(ObjectMeta)
@@ -1189,11 +1478,15 @@ import (
 #FilesystemSpec: {
 	// The metadata pool settings
 	// +nullable
-	metadataPool: #PoolSpec @go(MetadataPool)
+	metadataPool: #NamedPoolSpec @go(MetadataPool)
 
 	// The data pool settings, with optional predefined pool name.
 	// +nullable
 	dataPools: [...#NamedPoolSpec] @go(DataPools,[]NamedPoolSpec)
+
+	// Preserve pool names as specified
+	// +optional
+	preservePoolNames?: bool @go(PreservePoolNames)
 
 	// Preserve pools on filesystem deletion
 	// +optional
@@ -1246,7 +1539,7 @@ import (
 	// +optional
 	labels?: #Labels @go(Labels)
 
-	// The resource requirements for the rgw pods
+	// The resource requirements for the mds pods
 	// +kubebuilder:pruning:PreserveUnknownFields
 	// +nullable
 	// +optional
@@ -1308,6 +1601,7 @@ import (
 	// +optional
 	// +nullable
 	info?: {[string]: string} @go(Info,map[string]string)
+	cephx?: #LocalCephxStatus @go(Cephx)
 
 	// MirroringStatus is the filesystem mirroring status
 	// +optional
@@ -1490,7 +1784,11 @@ import (
 
 // CephObjectStore represents a Ceph Object Store Gateway
 // +kubebuilder:printcolumn:name="Phase",type=string,JSONPath=`.status.phase`
+// +kubebuilder:printcolumn:name="Endpoint",type=string,JSONPath=`.status.info.endpoint`
+// +kubebuilder:printcolumn:name="SecureEndpoint",type=string,JSONPath=`.status.info.secureEndpoint`
+// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +kubebuilder:subresource:status
+// +kubebuilder:resource:shortName=cephos
 #CephObjectStore: {
 	metav1.#TypeMeta
 	metadata: metav1.#ObjectMeta @go(ObjectMeta)
@@ -1508,6 +1806,7 @@ import (
 }
 
 // ObjectStoreSpec represent the spec of a pool
+// +kubebuilder:validation:XValidation:rule="!(has(self.defaultRealm) && self.defaultRealm == true && has(self.zone) && size(self.zone.name) > 0)",message="defaultRealm must not be true when zone.name is set (multisite configuration)"
 #ObjectStoreSpec: {
 	// The metadata pool settings
 	// +optional
@@ -1519,6 +1818,11 @@ import (
 	// +nullable
 	dataPool?: #PoolSpec @go(DataPool)
 
+	// The pool information when configuring RADOS namespaces in existing pools.
+	// +optional
+	// +nullable
+	sharedPools?: #ObjectSharedPoolsSpec @go(SharedPools)
+
 	// Preserve pools on object store deletion
 	// +optional
 	preservePoolsOnDelete?: bool @go(PreservePoolsOnDelete)
@@ -1527,6 +1831,14 @@ import (
 	// +optional
 	// +nullable
 	gateway?: #GatewaySpec @go(Gateway)
+
+	// The protocol specification
+	// +optional
+	protocols?: #ProtocolSpec @go(Protocols)
+
+	// The authentication configuration
+	// +optional
+	auth?: #AuthSpec @go(Auth)
 
 	// The multisite info
 	// +optional
@@ -1551,6 +1863,100 @@ import (
 	// is being used to create buckets. The default is empty.
 	// +optional
 	allowUsersInNamespaces?: [...string] @go(AllowUsersInNamespaces,[]string)
+
+	// Hosting settings for the object store.
+	// A common use case for hosting configuration is to inform Rook of endpoints that support DNS
+	// wildcards, which in turn allows virtual host-style bucket addressing.
+	// +nullable
+	// +optional
+	hosting?: null | #ObjectStoreHostingSpec @go(Hosting,*ObjectStoreHostingSpec)
+
+	// Set this realm as the default in Ceph. Only one realm should be default.
+	// Do not set this true on more than one CephObjectStore.
+	// This may not be set when zone is also specified; in this case, the realm
+	// referenced by the zone's zonegroup should configure defaulting behavior.
+	// +optional
+	defaultRealm?: bool @go(DefaultRealm)
+}
+
+// ObjectSharedPoolsSpec represents object store pool info when configuring RADOS namespaces in existing pools.
+#ObjectSharedPoolsSpec: {
+	// The metadata pool used for creating RADOS namespaces in the object store
+	// +kubebuilder:validation:XValidation:message="object store shared metadata pool is immutable",rule="self == oldSelf"
+	// +optional
+	metadataPoolName?: string @go(MetadataPoolName)
+
+	// The data pool used for creating RADOS namespaces in the object store
+	// +kubebuilder:validation:XValidation:message="object store shared data pool is immutable",rule="self == oldSelf"
+	// +optional
+	dataPoolName?: string @go(DataPoolName)
+
+	// Whether the RADOS namespaces should be preserved on deletion of the object store
+	// +optional
+	preserveRadosNamespaceDataOnDelete?: bool @go(PreserveRadosNamespaceDataOnDelete)
+
+	// PoolPlacements control which Pools are associated with a particular RGW bucket.
+	// Once PoolPlacements are defined, RGW client will be able to associate pool
+	// with ObjectStore bucket by providing "<LocationConstraint>" during s3 bucket creation
+	// or "X-Storage-Policy" header during swift container creation.
+	// See: https://docs.ceph.com/en/latest/radosgw/placement/#placement-targets
+	// PoolPlacement with name: "default" will be used as a default pool if no option
+	// is provided during bucket creation.
+	// If default placement is not provided, spec.sharedPools.dataPoolName and spec.sharedPools.MetadataPoolName will be used as default pools.
+	// If spec.sharedPools are also empty, then RGW pools (spec.dataPool and spec.metadataPool) will be used as defaults.
+	// +optional
+	poolPlacements?: [...#PoolPlacementSpec] @go(PoolPlacements,[]PoolPlacementSpec)
+}
+
+#PoolPlacementSpec: {
+	// Pool placement name. Name can be arbitrary. Placement with name "default" will be used as default.
+	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9._/-]+$`
+	name: string @go(Name)
+
+	// Sets given placement as default. Only one placement in the list can be marked as default.
+	// Default is false.
+	// +optional
+	default?: bool @go(Default)
+
+	// The metadata pool used to store ObjectStore bucket index.
+	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:MinLength=1
+	metadataPoolName: string @go(MetadataPoolName)
+
+	// The data pool used to store ObjectStore objects data.
+	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:MinLength=1
+	dataPoolName: string @go(DataPoolName)
+
+	// The data pool used to store ObjectStore data that cannot use erasure coding (ex: multi-part uploads).
+	// If dataPoolName is not erasure coded, then there is no need for dataNonECPoolName.
+	// +optional
+	dataNonECPoolName?: string @go(DataNonECPoolName)
+
+	// StorageClasses can be selected by user to override dataPoolName during object creation.
+	// Each placement has default STANDARD StorageClass pointing to dataPoolName.
+	// This list allows defining additional StorageClasses on top of default STANDARD storage class.
+	// +optional
+	storageClasses?: [...#PlacementStorageClassSpec] @go(StorageClasses,[]PlacementStorageClassSpec)
+}
+
+#PlacementStorageClassSpec: {
+	// Name is the StorageClass name. Ceph allows arbitrary name for StorageClasses,
+	// however most clients/libs insist on AWS names so it is recommended to use
+	// one of the valid x-amz-storage-class values for better compatibility:
+	// REDUCED_REDUNDANCY | STANDARD_IA | ONEZONE_IA | INTELLIGENT_TIERING | GLACIER | DEEP_ARCHIVE | OUTPOSTS | GLACIER_IR | SNOW | EXPRESS_ONEZONE
+	// See AWS docs: https://aws.amazon.com/de/s3/storage-classes/
+	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9._/-]+$`
+	name: string @go(Name)
+
+	// DataPoolName is the data pool used to store ObjectStore objects data.
+	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:MinLength=1
+	dataPoolName: string @go(DataPoolName)
 }
 
 // ObjectHealthCheckSpec represents the health check of an object store
@@ -1651,6 +2057,11 @@ import (
 	// +nullable
 	service?: null | #RGWServiceSpec @go(Service,*RGWServiceSpec)
 
+	// Enable enhanced operation Logs for S3 in a sidecar named ops-log
+	// +optional
+	// +nullable
+	opsLogSidecar?: null | #OpsLogSidecar @go(OpsLogSidecar,*OpsLogSidecar)
+
 	// Whether host networking is enabled for the rgw daemon. If not set, the network settings from the cluster CR will be applied.
 	// +kubebuilder:pruning:PreserveUnknownFields
 	// +nullable
@@ -1662,13 +2073,65 @@ import (
 	// +nullable
 	// +optional
 	dashboardEnabled?: null | bool @go(DashboardEnabled,*bool)
+
+	// AdditionalVolumeMounts allows additional volumes to be mounted to the RGW pod.
+	// The root directory for each additional volume mount is `/var/rgw`.
+	// Example: for an additional mount at subPath `ldap`, mounted from a secret that has key
+	// `bindpass.secret`, the file would reside at `/var/rgw/ldap/bindpass.secret`.
+	additionalVolumeMounts?: #AdditionalVolumeMounts @go(AdditionalVolumeMounts)
+
+	// RgwConfig sets Ceph RGW config values for the gateway clients that serve this object store.
+	// Values are modified at runtime without RGW restart.
+	// This feature is intended for advanced users. It allows breaking configurations to be easily
+	// applied. Use with caution.
+	// +nullable
+	// +optional
+	rgwConfig?: {[string]: string} @go(RgwConfig,map[string]string)
+
+	// RgwConfigFromSecret works exactly like RgwConfig but takes config value from Secret Key reference.
+	// Values are modified at runtime without RGW restart.
+	// This feature is intended for advanced users. It allows breaking configurations to be easily
+	// applied. Use with caution.
+	// +nullable
+	// +optional
+	rgwConfigFromSecret?: {[string]: v1.#SecretKeySelector} @go(RgwConfigFromSecret,map[string]v1.SecretKeySelector)
+
+	// RgwCommandFlags sets Ceph RGW config values for the gateway clients that serve this object
+	// store. Values are modified at RGW startup, resulting in RGW pod restarts.
+	// This feature is intended for advanced users. It allows breaking configurations to be easily
+	// applied. Use with caution.
+	// +nullable
+	// +optional
+	rgwCommandFlags?: {[string]: string} @go(RgwCommandFlags,map[string]string)
+
+	// ReadAffinity defines the RGW read affinity policy to optimize the read requests for the RGW clients
+	// Note: Only supported from Ceph Tentacle (v20)
+	// +optional
+	readAffinity?: null | #RgwReadAffinity @go(ReadAffinity,*RgwReadAffinity)
+}
+
+#RgwReadAffinity: {
+	// Type defines the RGW ReadAffinity type
+	// localize: read from the nearest OSD based on crush location of the RGW client
+	// balance: picks a random OSD from the PG's active set
+	// default: read from the primary OSD
+	// +kubebuilder:validation:Enum=localize;balance;default
+	// +required
+	type: string @go(Type)
+}
+
+// RGWLoggingSpec is intended to extend the s3/swift logging for client operations
+#OpsLogSidecar: {
+	// Resources represents the way to specify resource requirements for the ops-log sidecar
+	// +optional
+	resources?: v1.#ResourceRequirements @go(Resources)
 }
 
 // EndpointAddress is a tuple that describes a single IP address or host name. This is a subset of
 // Kubernetes's v1.EndpointAddress.
 // +structType=atomic
 #EndpointAddress: {
-	// The IP of this endpoint. As a legacy behavior, this supports being given a DNS-adressable hostname as well.
+	// The IP of this endpoint. As a legacy behavior, this supports being given a DNS-addressable hostname as well.
 	// +optional
 	ip?: string @go(IP) @protobuf(1,bytes,opt)
 
@@ -1677,9 +2140,114 @@ import (
 	hostname?: string @go(Hostname) @protobuf(3,bytes,opt)
 }
 
+// ProtocolSpec represents a Ceph Object Store protocol specification
+#ProtocolSpec: {
+	// Represents RGW 'rgw_enable_apis' config option. See: https://docs.ceph.com/en/reef/radosgw/config-ref/#confval-rgw_enable_apis
+	// If no value provided then all APIs will be enabled: s3, s3website, swift, swift_auth, admin, sts, iam, notifications
+	// If enabled APIs are set, all remaining APIs will be disabled.
+	// This option overrides S3.Enabled value.
+	// +optional
+	// +nullable
+	enableAPIs?: [...#ObjectStoreAPI] @go(EnableAPIs,[]ObjectStoreAPI)
+
+	// The spec for S3
+	// +optional
+	// +nullable
+	s3?: null | #S3Spec @go(S3,*S3Spec)
+
+	// The spec for Swift
+	// +optional
+	// +nullable
+	swift?: null | #SwiftSpec @go(Swift,*SwiftSpec)
+}
+
+// +kubebuilder:validation:Enum=s3;s3website;swift;swift_auth;admin;sts;iam;notifications
+#ObjectStoreAPI: string
+
+// S3Spec represents Ceph Object Store specification for the S3 API
+#S3Spec: {
+	// Deprecated: use protocol.enableAPIs instead.
+	// Whether to enable S3. This defaults to true (even if protocols.s3 is not present in the CRD). This maintains backwards compatibility – by default S3 is enabled.
+	// +nullable
+	// +optional
+	enabled?: null | bool @go(Enabled,*bool)
+
+	// Whether to use Keystone for authentication. This option maps directly to the rgw_s3_auth_use_keystone option. Enabling it allows generating S3 credentials via an OpenStack API call, see the docs. If not given, the defaults of the corresponding RGW option apply.
+	// +nullable
+	// +optional
+	authUseKeystone?: null | bool @go(AuthUseKeystone,*bool)
+}
+
+// SwiftSpec represents Ceph Object Store specification for the Swift API
+#SwiftSpec: {
+	// Whether or not the Swift account name should be included in the Swift API URL. If set to false (the default), then the Swift API will listen on a URL formed like http://host:port/<rgw_swift_url_prefix>/v1. If set to true, the Swift API URL will be http://host:port/<rgw_swift_url_prefix>/v1/AUTH_<account_name>. You must set this option to true (and update the Keystone service catalog) if you want radosgw to support publicly-readable containers and temporary URLs.
+	// +nullable
+	// +optional
+	accountInUrl?: null | bool @go(AccountInUrl,*bool)
+
+	// The URL prefix for the Swift API, to distinguish it from the S3 API endpoint. The default is swift, which makes the Swift API available at the URL http://host:port/swift/v1 (or http://host:port/swift/v1/AUTH_%(tenant_id)s if rgw swift account in url is enabled).
+	// +nullable
+	// +optional
+	urlPrefix?: null | string @go(UrlPrefix,*string)
+
+	// Enables the Object Versioning of OpenStack Object Storage API. This allows clients to put the X-Versions-Location attribute on containers that should be versioned.
+	// +nullable
+	// +optional
+	versioningEnabled?: null | bool @go(VersioningEnabled,*bool)
+}
+
+// AuthSpec represents the authentication protocol configuration of a Ceph Object Store Gateway
+#AuthSpec: {
+	// The spec for Keystone
+	// +optional
+	// +nullable
+	keystone?: null | #KeystoneSpec @go(Keystone,*KeystoneSpec)
+}
+
+// KeystoneSpec represents the Keystone authentication configuration of a Ceph Object Store Gateway
+#KeystoneSpec: {
+	// The URL for the Keystone server.
+	url: string @go(Url)
+
+	// The name of the secret containing the credentials for the service user account used by RGW. It has to be in the same namespace as the object store resource.
+	serviceUserSecretName: string @go(ServiceUserSecretName)
+
+	// The roles requires to serve requests.
+	acceptedRoles: [...string] @go(AcceptedRoles,[]string)
+
+	// Create new users in their own tenants of the same name. Possible values are true, false, swift and s3. The latter have the effect of splitting the identity space such that only the indicated protocol will use implicit tenants.
+	// +optional
+	implicitTenants?: #ImplicitTenantSetting @go(ImplicitTenants)
+
+	// The maximum number of entries in each Keystone token cache.
+	// +optional
+	// +nullable
+	tokenCacheSize?: null | int @go(TokenCacheSize,*int)
+
+	// The number of seconds between token revocation checks.
+	// +optional
+	// +nullable
+	revocationInterval?: null | int @go(RevocationInterval,*int)
+}
+
+#ImplicitTenantSetting: string // #enumImplicitTenantSetting
+
+#enumImplicitTenantSetting:
+	#ImplicitTenantSwift |
+	#ImplicitTenantS3 |
+	#ImplicitTenantTrue |
+	#ImplicitTenantFalse |
+	#ImplicitTenantDefault
+
+#ImplicitTenantSwift:   #ImplicitTenantSetting & "swift"
+#ImplicitTenantS3:      #ImplicitTenantSetting & "s3"
+#ImplicitTenantTrue:    #ImplicitTenantSetting & "true"
+#ImplicitTenantFalse:   #ImplicitTenantSetting & "false"
+#ImplicitTenantDefault: #ImplicitTenantSetting & ""
+
 // ZoneSpec represents a Ceph Object Store Gateway Zone specification
 #ZoneSpec: {
-	// RGW Zone the Object Store is in
+	// CephObjectStoreZone name this CephObjectStore is part of
 	name: string @go(Name)
 }
 
@@ -1697,6 +2265,7 @@ import (
 	// +optional
 	// +nullable
 	info?: {[string]: string} @go(Info,map[string]string)
+	cephx?: #LocalCephxStatus @go(Cephx)
 	conditions?: [...#Condition] @go(Conditions,[]Condition)
 
 	// ObservedGeneration is the latest generation observed by the controller.
@@ -1714,9 +2283,55 @@ import (
 	secure?: [...string] @go(Secure,[]string)
 }
 
+// ObjectStoreHostingSpec represents the hosting settings for the object store
+#ObjectStoreHostingSpec: {
+	// AdvertiseEndpoint is the default endpoint Rook will return for resources dependent on this
+	// object store. This endpoint will be returned to CephObjectStoreUsers, Object Bucket Claims,
+	// and COSI Buckets/Accesses.
+	// By default, Rook returns the endpoint for the object store's Kubernetes service using HTTPS
+	// with `gateway.securePort` if it is defined (otherwise, HTTP with `gateway.port`).
+	// +nullable
+	// +optional
+	advertiseEndpoint?: null | #ObjectEndpointSpec @go(AdvertiseEndpoint,*ObjectEndpointSpec)
+
+	// A list of DNS host names on which object store gateways will accept client S3 connections.
+	// When specified, object store gateways will reject client S3 connections to hostnames that are
+	// not present in this list, so include all endpoints.
+	// The object store's advertiseEndpoint and Kubernetes service endpoint, plus CephObjectZone
+	// `customEndpoints` are automatically added to the list but may be set here again if desired.
+	// Each DNS name must be valid according RFC-1123.
+	// If the DNS name corresponds to an endpoint with DNS wildcard support, do not include the
+	// wildcard itself in the list of hostnames.
+	// E.g., use "mystore.example.com" instead of "*.mystore.example.com".
+	// +optional
+	dnsNames?: [...string] @go(DNSNames,[]string)
+}
+
+// ObjectEndpointSpec represents an object store endpoint
+#ObjectEndpointSpec: {
+	// DnsName is the DNS name (in RFC-1123 format) of the endpoint.
+	// If the DNS name corresponds to an endpoint with DNS wildcard support, do not include the
+	// wildcard itself in the list of hostnames.
+	// E.g., use "mystore.example.com" instead of "*.mystore.example.com".
+	// +kubebuilder:validation:MinLength=1
+	// +required
+	dnsName: string @go(DnsName)
+
+	// Port is the port on which S3 connections can be made for this endpoint.
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=65535
+	// +required
+	port: int32 @go(Port)
+
+	// UseTls defines whether the endpoint uses TLS (HTTPS) or not (HTTP).
+	// +required
+	useTls: bool @go(UseTls)
+}
+
 // CephObjectStoreUser represents a Ceph Object Store Gateway User
-// +kubebuilder:resource:shortName=rcou;objectuser
+// +kubebuilder:resource:shortName=rcou;objectuser;cephosu
 // +kubebuilder:printcolumn:name="Phase",type=string,JSONPath=`.status.phase`
+// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +kubebuilder:subresource:status
 #CephObjectStoreUser: {
 	metav1.#TypeMeta
@@ -1740,6 +2355,16 @@ import (
 	// ObservedGeneration is the latest generation observed by the controller.
 	// +optional
 	observedGeneration?: int64 @go(ObservedGeneration)
+
+	// +optional
+	// +nullable
+	keys?: [...#SecretReference] @go(Keys,[]SecretReference)
+}
+
+#SecretReference: {
+	SecretReference:  v1.#SecretReference
+	uid?:             types.#UID @go(UID)
+	resourceVersion?: string     @go(ResourceVersion)
 }
 
 // CephObjectStoreUserList represents a list Ceph Object Store Gateway Users
@@ -1766,6 +2391,11 @@ import (
 	// +optional
 	// +nullable
 	quotas?: null | #ObjectUserQuotaSpec @go(Quotas,*ObjectUserQuotaSpec)
+
+	// Allows specifying credentials for the user. If not provided, the operator
+	// will generate them.
+	// +optional
+	keys?: [...#ObjectUserKey] @go(Keys,[]ObjectUserKey)
 
 	// The namespace where the parent CephCluster and CephObjectStore are found
 	// +optional
@@ -1821,7 +2451,7 @@ import (
 
 	// +optional
 	// +kubebuilder:validation:Enum={"*","read","write","read, write"}
-	// Add capabilities for user to send request to RGW Cache API header. Documented in https://docs.ceph.com/en/quincy/radosgw/rgw-cache/#cache-api
+	// Add capabilities for user to send request to RGW Cache API header. Documented in https://docs.ceph.com/en/latest/radosgw/rgw-cache/#cache-api
 	"amz-cache"?: string @go(AMZCache)
 
 	// +optional
@@ -1874,8 +2504,19 @@ import (
 	maxObjects?: null | int64 @go(MaxObjects,*int64)
 }
 
+// ObjectUserKey defines a set of rgw user access credentials to be retrieved
+// from secret resources.
+#ObjectUserKey: {
+	// Secret key selector for the access_key (commonly referred to as AWS_ACCESS_KEY_ID).
+	accessKeyRef?: null | v1.#SecretKeySelector @go(AccessKeyRef,*v1.SecretKeySelector)
+
+	// Secret key selector for the secret_key (commonly referred to as AWS_SECRET_ACCESS_KEY).
+	secretKeyRef?: null | v1.#SecretKeySelector @go(SecretKeyRef,*v1.SecretKeySelector)
+}
+
 // CephObjectRealm represents a Ceph Object Store Gateway Realm
 // +kubebuilder:subresource:status
+// +kubebuilder:resource:shortName=cephor
 #CephObjectRealm: {
 	metav1.#TypeMeta
 	metadata: metav1.#ObjectMeta @go(ObjectMeta)
@@ -1900,6 +2541,10 @@ import (
 // ObjectRealmSpec represent the spec of an ObjectRealm
 #ObjectRealmSpec: {
 	pull?: #PullSpec @go(Pull)
+
+	// Set this realm as the default in Ceph. Only one realm should be default.
+	// +optional
+	defaultRealm?: bool @go(DefaultRealm)
 }
 
 // PullSpec represents the pulling specification of a Ceph Object Storage Gateway Realm
@@ -1910,7 +2555,9 @@ import (
 
 // CephObjectZoneGroup represents a Ceph Object Store Gateway Zone Group
 // +kubebuilder:printcolumn:name="Phase",type=string,JSONPath=`.status.phase`
+// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +kubebuilder:subresource:status
+// +kubebuilder:resource:shortName=cephozg
 #CephObjectZoneGroup: {
 	metav1.#TypeMeta
 	metadata: metav1.#ObjectMeta   @go(ObjectMeta)
@@ -1931,13 +2578,15 @@ import (
 
 // ObjectZoneGroupSpec represent the spec of an ObjectZoneGroup
 #ObjectZoneGroupSpec: {
-	//The display name for the ceph users
+	// The display name for the ceph users
 	realm: string @go(Realm)
 }
 
 // CephObjectZone represents a Ceph Object Store Gateway Zone
 // +kubebuilder:printcolumn:name="Phase",type=string,JSONPath=`.status.phase`
+// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +kubebuilder:subresource:status
+// +kubebuilder:resource:shortName=cephoz
 #CephObjectZone: {
 	metav1.#TypeMeta
 	metadata: metav1.#ObjectMeta @go(ObjectMeta)
@@ -1958,16 +2607,23 @@ import (
 
 // ObjectZoneSpec represent the spec of an ObjectZone
 #ObjectZoneSpec: {
-	//The display name for the ceph users
+	// The display name for the ceph users
 	zoneGroup: string @go(ZoneGroup)
 
 	// The metadata pool settings
+	// +optional
 	// +nullable
-	metadataPool: #PoolSpec @go(MetadataPool)
+	metadataPool?: #PoolSpec @go(MetadataPool)
 
 	// The data pool settings
+	// +optional
 	// +nullable
-	dataPool: #PoolSpec @go(DataPool)
+	dataPool?: #PoolSpec @go(DataPool)
+
+	// The pool information when configuring RADOS namespaces in existing pools.
+	// +optional
+	// +nullable
+	sharedPools?: #ObjectSharedPoolsSpec @go(SharedPools)
 
 	// If this zone cannot be accessed from other peer Ceph clusters via the ClusterIP Service
 	// endpoint created by Rook, you must set this to the externally reachable endpoint(s). You may
@@ -1991,7 +2647,9 @@ import (
 
 // CephBucketTopic represents a Ceph Object Topic for Bucket Notifications
 // +kubebuilder:printcolumn:name="Phase",type=string,JSONPath=`.status.phase`
+// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +kubebuilder:subresource:status
+// +kubebuilder:resource:shortName=cephbt
 #CephBucketTopic: {
 	metav1.#TypeMeta
 	metadata: metav1.#ObjectMeta @go(ObjectMeta)
@@ -2015,6 +2673,9 @@ import (
 	// ObservedGeneration is the latest generation observed by the controller.
 	// +optional
 	observedGeneration?: int64 @go(ObservedGeneration)
+
+	// +optional
+	secrets?: [...#SecretReference] @go(Secrets,[]SecretReference)
 }
 
 // CephBucketTopicList represents a list Ceph Object Store Bucket Notification Topics
@@ -2117,10 +2778,25 @@ import (
 	// +kubebuilder:default=broker
 	// +optional
 	ackLevel?: string @go(AckLevel)
+
+	// The authentication mechanism for this topic (PLAIN/SCRAM-SHA-512/SCRAM-SHA-256/GSSAPI/OAUTHBEARER)
+	// +kubebuilder:validation:Enum=PLAIN;SCRAM-SHA-512;SCRAM-SHA-256;GSSAPI;OAUTHBEARER
+	// +kubebuilder:default=PLAIN
+	// +optional
+	mechanism?: string @go(Mechanism)
+
+	// The kafka user name to use for authentication
+	// +optional
+	userSecretRef?: null | v1.#SecretKeySelector @go(UserSecretRef,*v1.SecretKeySelector)
+
+	// The kafka password to use for authentication
+	// +optional
+	passwordSecretRef?: null | v1.#SecretKeySelector @go(PasswordSecretRef,*v1.SecretKeySelector)
 }
 
 // CephBucketNotification represents a Bucket Notifications
 // +kubebuilder:subresource:status
+// +kubebuilder:resource:shortName=cephbn
 #CephBucketNotification: {
 	metav1.#TypeMeta
 	metadata: metav1.#ObjectMeta      @go(ObjectMeta)
@@ -2398,9 +3074,10 @@ import (
 	sssdConfigFile?: #SSSDSidecarConfigFile @go(SSSDConfigFile)
 
 	// AdditionalFiles defines any number of additional files that should be mounted into the SSSD
-	// sidecar. These files may be referenced by the sssd.conf config file.
+	// sidecar with a directory root of `/etc/sssd/rook-additional/`.
+	// These files may be referenced by the sssd.conf config file.
 	// +optional
-	additionalFiles?: [...#SSSDSidecarAdditionalFile] @go(AdditionalFiles,[]SSSDSidecarAdditionalFile)
+	additionalFiles?: #AdditionalVolumeMounts @go(AdditionalFiles)
 
 	// Resources allow specifying resource requests/limits on the SSSD sidecar container.
 	// +optional
@@ -2428,11 +3105,13 @@ import (
 	volumeSource?: null | #ConfigFileVolumeSource @go(VolumeSource,*ConfigFileVolumeSource)
 }
 
-// SSSDSidecarAdditionalFile represents the source from where additional files for the the SSSD
-// configuration should come from and are made available.
-#SSSDSidecarAdditionalFile: {
-	// SubPath defines the sub-path in `/etc/sssd/rook-additional/` where the additional file(s)
-	// will be placed. Each subPath definition must be unique and must not contain ':'.
+// AdditionalVolumeMount represents the source from where additional files in pod containers
+// should come from and what subdirectory they are made available in.
+#AdditionalVolumeMount: {
+	// SubPath defines the sub-path (subdirectory) of the directory root where the volumeSource will
+	// be mounted. All files/keys in the volume source's volume will be mounted to the subdirectory.
+	// This is not the same as the Kubernetes `subPath` volume mount option.
+	// Each subPath definition must be unique and must not contain ':'.
 	// +kubebuilder:validation:Required
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:Pattern=`^[^:]+$`
@@ -2441,18 +3120,21 @@ import (
 	// VolumeSource accepts a pared down version of the standard Kubernetes VolumeSource for the
 	// additional file(s) like what is normally used to configure Volumes for a Pod. Fore example, a
 	// ConfigMap, Secret, or HostPath. Each VolumeSource adds one or more additional files to the
-	// SSSD sidecar container in the `/etc/sssd/rook-additional/<subPath>` directory.
-	// Be aware that some files may need to have a specific file mode like 0600 due to requirements
-	// by SSSD for some files. For example, CA or TLS certificates.
+	// container `<directory-root>/<subPath>` directory.
+	// Be aware that some files may need to have a specific file mode like 0600 due to application
+	// requirements. For example, CA or TLS certificates.
 	volumeSource?: null | #ConfigFileVolumeSource @go(VolumeSource,*ConfigFileVolumeSource)
 }
 
+#AdditionalVolumeMounts: [...#AdditionalVolumeMount]
+
 // NetworkSpec for Ceph includes backward compatibility code
 // +kubebuilder:validation:XValidation:message="at least one network selector must be specified when using multus",rule="!has(self.provider) || (self.provider != 'multus' || (self.provider == 'multus' && size(self.selectors) > 0))"
+// +kubebuilder:validation:XValidation:message=`the legacy hostNetwork setting can only be set if the network.provider is set to the empty string`,rule=`!has(self.hostNetwork) || self.hostNetwork == false || !has(self.provider) || self.provider == ""`
 #NetworkSpec: {
 	// Provider is what provides network connectivity to the cluster e.g. "host" or "multus".
 	// If the Provider is updated from being empty to "host" on a running cluster, then the operator will automatically fail over all the mons to apply the "host" network settings.
-	// +kubebuilder:validation:XValidation:message="network provider must be disabled (reverted to empty string) before a new provider is enabled",rule="self == '' || self == oldSelf"
+	// +kubebuilder:validation:XValidation:message="network provider must be disabled (reverted to empty string) before a new provider is enabled",rule="self == '' || oldSelf == '' || self == oldSelf"
 	// +nullable
 	// +optional
 	provider?: #NetworkProviderType @go(Provider)
@@ -2462,7 +3144,7 @@ import (
 	// other network providers.
 	//
 	// Valid keys are "public" and "cluster". Refer to Ceph networking documentation for more:
-	// https://docs.ceph.com/en/reef/rados/configuration/network-config-ref/
+	// https://docs.ceph.com/en/latest/rados/configuration/network-config-ref/
 	//
 	// Refer to Multus network annotation documentation for help selecting values:
 	// https://github.com/k8snetworkplumbingwg/multus-cni/blob/master/docs/how-to-use.md#run-pod-with-network-annotation
@@ -2620,14 +3302,11 @@ import (
 	// it only works if managePodBudgets is true.
 	// the default is 30 minutes
 	// +optional
-	osdMaintenanceTimeout?: time.#Duration @go(OSDMaintenanceTimeout)
+	osdMaintenanceTimeout?: int @go(OSDMaintenanceTimeout,time.Duration)
 
-	// PGHealthCheckTimeout is the time (in minutes) that the operator will wait for the placement groups to become
-	// healthy (active+clean) after a drain was completed and OSDs came back up. Rook will continue with the next drain
-	// if the timeout exceeds. It only works if managePodBudgets is true.
-	// No values or 0 means that the operator will wait until the placement groups are healthy before unblocking the next drain.
+	// DEPRECATED: PGHealthCheckTimeout is no longer implemented
 	// +optional
-	pgHealthCheckTimeout?: time.#Duration @go(PGHealthCheckTimeout)
+	pgHealthCheckTimeout?: int @go(PGHealthCheckTimeout,time.Duration)
 
 	// PgHealthyRegex is the regular expression that is used to determine which PG states should be considered healthy.
 	// The default is `^(active\+clean|active\+clean\+scrubbing|active\+clean\+scrubbing\+deep)$`
@@ -2645,7 +3324,9 @@ import (
 
 // CephClient represents a Ceph Client
 // +kubebuilder:printcolumn:name="Phase",type=string,JSONPath=`.status.phase`
+// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +kubebuilder:subresource:status
+// +kubebuilder:resource:shortName=cephcl
 #CephClient: {
 	metav1.#TypeMeta
 	metadata: metav1.#ObjectMeta @go(ObjectMeta)
@@ -2671,8 +3352,30 @@ import (
 	// +optional
 	name?: string @go(Name)
 
+	// SecretName is the name of the secret created for this ceph client.
+	// If not specified, the default name is "rook-ceph-client-" as a prefix to the CR name.
+	// +kubebuilder:validation:XValidation:message="SecretName is immutable and cannot be changed",rule="self == oldSelf"
+	// +optional
+	secretName?: string @go(SecretName)
+
+	// RemoveSecret indicates whether the current secret for this ceph client should be removed or not.
+	// If true, the K8s secret will be deleted, but the cephx keyring will remain until the CR is deleted.
+	// +optional
+	removeSecret?: bool @go(RemoveSecret)
+
 	// +kubebuilder:pruning:PreserveUnknownFields
 	caps: {[string]: string} @go(Caps,map[string]string)
+
+	// Security represents security settings
+	// +optional
+	security?: #ClientSecuritySpec @go(Security)
+}
+
+// ClinetSecuritySpec represents security settings for a Ceph Client
+#ClientSecuritySpec: {
+	// CephX configures CephX key settings. More: https://docs.ceph.com/en/latest/dev/cephx/
+	// +optional
+	cephx?: #CephxConfig @go(CephX)
 }
 
 // CephClientStatus represents the Status of Ceph Client
@@ -2687,6 +3390,9 @@ import (
 	// ObservedGeneration is the latest generation observed by the controller.
 	// +optional
 	observedGeneration?: int64 @go(ObservedGeneration)
+
+	// +optional
+	cephx?: #CephxStatus @go(Cephx)
 }
 
 // CleanupPolicySpec represents a Ceph Cluster cleanup policy
@@ -2704,6 +3410,11 @@ import (
 	// AllowUninstallWithVolumes defines whether we can proceed with the uninstall if they are RBD images still present
 	// +optional
 	allowUninstallWithVolumes?: bool @go(AllowUninstallWithVolumes)
+
+	// WipeDevicesFromOtherClusters wipes the OSD disks belonging to other clusters. This is useful in scenarios where ceph cluster
+	// was reinstalled but OSD disk still contains the metadata from previous ceph cluster.
+	// +optional
+	wipeDevicesFromOtherClusters?: bool @go(WipeDevicesFromOtherClusters)
 }
 
 // CleanupConfirmationProperty represents the cleanup confirmation
@@ -2746,7 +3457,9 @@ import (
 
 // CephRBDMirror represents a Ceph RBD Mirror
 // +kubebuilder:printcolumn:name="Phase",type=string,JSONPath=`.status.phase`
+// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +kubebuilder:subresource:status
+// +kubebuilder:resource:shortName=cephrbdm
 #CephRBDMirror: {
 	metav1.#TypeMeta
 	metadata: metav1.#ObjectMeta @go(ObjectMeta)
@@ -2754,7 +3467,13 @@ import (
 
 	// +kubebuilder:pruning:PreserveUnknownFields
 	// +optional
-	status?: null | #Status @go(Status,*Status)
+	status?: null | #RBDMirrorStatus @go(Status,*RBDMirrorStatus)
+}
+
+// RBDMirrorStatus represents the status of the RBD mirror resource
+#RBDMirrorStatus: {
+	#Status
+	cephx?: #LocalCephxStatus @go(Cephx)
 }
 
 // CephRBDMirrorList represents a list Ceph RBD Mirrors
@@ -2814,14 +3533,22 @@ import (
 
 // CephFilesystemMirror is the Ceph Filesystem Mirror object definition
 // +kubebuilder:printcolumn:name="Phase",type=string,JSONPath=`.status.phase`
+// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +kubebuilder:subresource:status
+// +kubebuilder:resource:shortName=cephfsm
 #CephFilesystemMirror: {
 	metav1.#TypeMeta
 	metadata: metav1.#ObjectMeta       @go(ObjectMeta)
 	spec:     #FilesystemMirroringSpec @go(Spec)
 
 	// +optional
-	status?: null | #Status @go(Status,*Status)
+	status?: null | #FileMirrorStatus @go(Status,*FileMirrorStatus)
+}
+
+// FileMirrorStatus represents the status of the FileSystem mirror resource
+#FileMirrorStatus: {
+	#Status
+	cephx?: #LocalCephxStatus @go(Cephx)
 }
 
 // CephFilesystemMirrorList is a list of CephFilesystemMirror
@@ -2880,6 +3607,10 @@ import (
 	useAllNodes?: bool @go(UseAllNodes)
 
 	// +optional
+	// Whether to always schedule OSDs on a node even if the node is not currently scheduleable or ready
+	scheduleAlways?: bool @go(ScheduleAlways)
+
+	// +optional
 	onlyApplyOSDPlacement?: bool @go(OnlyApplyOSDPlacement)
 
 	// +kubebuilder:pruning:PreserveUnknownFields
@@ -2893,6 +3624,10 @@ import (
 	// +optional
 	storageClassDeviceSets?: [...#StorageClassDeviceSet] @go(StorageClassDeviceSets,[]StorageClassDeviceSet)
 
+	// Migration handles the OSD migration
+	// +optional
+	migration?: #Migration @go(Migration)
+
 	// +optional
 	store?: #OSDStore @go(Store)
 
@@ -2904,6 +3639,46 @@ import (
 	// User needs to manually restart the OSD pod if they manage to fix the underlying OSD flapping issue before the restart interval.
 	// The sleep will be disabled if this interval is set to 0.
 	flappingRestartIntervalHours?: int @go(FlappingRestartIntervalHours)
+
+	// FullRatio is the ratio at which the cluster is considered full and ceph will stop accepting writes. Default is 0.95.
+	// +kubebuilder:validation:Minimum=0.0
+	// +kubebuilder:validation:Maximum=1.0
+	// +optional
+	// +nullable
+	fullRatio?: null | float64 @go(FullRatio,*float64)
+
+	// NearFullRatio is the ratio at which the cluster is considered nearly full and will raise a ceph health warning. Default is 0.85.
+	// +kubebuilder:validation:Minimum=0.0
+	// +kubebuilder:validation:Maximum=1.0
+	// +optional
+	// +nullable
+	nearFullRatio?: null | float64 @go(NearFullRatio,*float64)
+
+	// BackfillFullRatio is the ratio at which the cluster is too full for backfill. Backfill will be disabled if above this threshold. Default is 0.90.
+	// +kubebuilder:validation:Minimum=0.0
+	// +kubebuilder:validation:Maximum=1.0
+	// +optional
+	// +nullable
+	backfillFullRatio?: null | float64 @go(BackfillFullRatio,*float64)
+
+	// Whether to allow updating the device class after the OSD is initially provisioned
+	// +optional
+	allowDeviceClassUpdate?: bool @go(AllowDeviceClassUpdate)
+
+	// Whether Rook will resize the OSD CRUSH weight when the OSD PVC size is increased.
+	// This allows cluster data to be rebalanced to make most effective use of new OSD space.
+	// The default is false since data rebalancing can cause temporary cluster slowdown.
+	// +optional
+	allowOsdCrushWeightUpdate?: bool @go(AllowOsdCrushWeightUpdate)
+}
+
+// Migration handles the OSD migration
+#Migration: {
+	// A user confirmation to migrate the OSDs. It destroys each OSD one at a time, cleans up the backing disk
+	// and prepares OSD with same ID on that disk
+	// +optional
+	// +kubebuilder:validation:Pattern=`^$|^yes-really-migrate-osds$`
+	confirmation?: string @go(Confirmation)
 }
 
 // OSDStore is the backend storage type used for creating the OSDs
@@ -2974,7 +3749,7 @@ import (
 
 	// PersistentVolumeClaims to use as storage
 	// +optional
-	volumeClaimTemplates?: [...v1.#PersistentVolumeClaim] @go(VolumeClaimTemplates,[]v1.PersistentVolumeClaim)
+	volumeClaimTemplates?: [...#VolumeClaimTemplate] @go(VolumeClaimTemplates,[]VolumeClaimTemplate)
 }
 
 // PlacementSpec is the placement for core ceph daemons part of the CephCluster CRD
@@ -2999,7 +3774,7 @@ import (
 	// +optional
 	tolerations?: [...v1.#Toleration] @go(Tolerations,[]v1.Toleration)
 
-	// TopologySpreadConstraint specifies how to spread matching pods among the given topology
+	// TopologySpreadConstraints specifies how to spread matching pods among the given topology
 	// +optional
 	topologySpreadConstraints?: [...v1.#TopologySpreadConstraint] @go(TopologySpreadConstraints,[]v1.TopologySpreadConstraint)
 }
@@ -3054,7 +3829,7 @@ import (
 	config?: {[string]: string} @go(Config,map[string]string)
 
 	// VolumeClaimTemplates is a list of PVC templates for the underlying storage devices
-	volumeClaimTemplates: [...v1.#PersistentVolumeClaim] @go(VolumeClaimTemplates,[]v1.PersistentVolumeClaim)
+	volumeClaimTemplates: [...#VolumeClaimTemplate] @go(VolumeClaimTemplates,[]VolumeClaimTemplate)
 
 	// Portable represents OSD portability across the hosts
 	// +optional
@@ -3079,7 +3854,12 @@ import (
 
 // CephFilesystemSubVolumeGroup represents a Ceph Filesystem SubVolumeGroup
 // +kubebuilder:printcolumn:name="Phase",type=string,JSONPath=`.status.phase`
+// +kubebuilder:printcolumn:name="Filesystem",type=string,JSONPath=`.spec.filesystemName`,description="Name of the CephFileSystem"
+// +kubebuilder:printcolumn:name="Quota",type=string,JSONPath=`.spec.quota`
+// +kubebuilder:printcolumn:name="Pinning",type=string,JSONPath=`.status.info.pinning`,priority=1
+// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +kubebuilder:subresource:status
+// +kubebuilder:resource:shortName=cephfssvg;cephsvg
 #CephFilesystemSubVolumeGroup: {
 	metav1.#TypeMeta
 	metadata: metav1.#ObjectMeta @go(ObjectMeta)
@@ -3119,6 +3899,24 @@ import (
 	// only one out of (export, distributed, random) can be set at a time
 	// +optional
 	pinning?: #CephFilesystemSubVolumeGroupSpecPinning @go(Pinning)
+
+	// Quota size of the Ceph Filesystem subvolume group.
+	// +optional
+	quota?: null | resource.#Quantity @go(Quota,*resource.Quantity)
+
+	// The data pool name for the Ceph Filesystem subvolume group layout, if the default CephFS pool is not desired.
+	// +optional
+	dataPoolName?: string @go(DataPoolName)
+
+	// ClusterID to be used for this subvolume group in the CSI configuration.
+	// It must be unique among all Ceph clusters managed by Rook.
+	// If not specified, the clusterID will be generated and can be found in the CR status.
+	// +optional
+	// +kubebuilder:validation:XValidation:message="ClusterID is immutable",rule="self == oldSelf"
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=36
+	// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9_-]+$`
+	clusterID?: string @go(ClusterID)
 }
 
 // CephFilesystemSubVolumeGroupSpecPinning represents the pinning configuration of SubVolumeGroup
@@ -3157,8 +3955,15 @@ import (
 	observedGeneration?: int64 @go(ObservedGeneration)
 }
 
+// +genclient
+// +genclient:noStatus
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // CephBlockPoolRadosNamespace represents a Ceph BlockPool Rados Namespace
+// +kubebuilder:printcolumn:name="Phase",type=string,JSONPath=`.status.phase`
+// +kubebuilder:printcolumn:name="BlockPool",type=string,JSONPath=`.spec.blockPoolName`,description="Name of the Ceph BlockPool"
+// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 // +kubebuilder:subresource:status
+// +kubebuilder:resource:shortName=cephbprns;cephrns
 #CephBlockPoolRadosNamespace: {
 	metav1.#TypeMeta
 	metadata: metav1.#ObjectMeta @go(ObjectMeta)
@@ -3179,6 +3984,34 @@ import (
 	items: [...#CephBlockPoolRadosNamespace] @go(Items,[]CephBlockPoolRadosNamespace)
 }
 
+// RadosNamespaceMirroring represents the mirroring configuration of CephBlockPoolRadosNamespace
+#RadosNamespaceMirroring: {
+	// RemoteNamespace is the name of the CephBlockPoolRadosNamespace on the secondary cluster CephBlockPool
+	// +optional
+	remoteNamespace?: null | string @go(RemoteNamespace,*string)
+
+	// Mode is the mirroring mode; either pool or image.
+	// +kubebuilder:validation:Enum="";pool;image
+	mode: #RadosNamespaceMirroringMode @go(Mode)
+
+	// SnapshotSchedules is the scheduling of snapshot for mirrored images
+	// +optional
+	snapshotSchedules?: [...#SnapshotScheduleSpec] @go(SnapshotSchedules,[]SnapshotScheduleSpec)
+}
+
+// RadosNamespaceMirroringMode represents the mode of the RadosNamespace
+#RadosNamespaceMirroringMode: string // #enumRadosNamespaceMirroringMode
+
+#enumRadosNamespaceMirroringMode:
+	#RadosNamespaceMirroringModePool |
+	#RadosNamespaceMirroringModeImage
+
+// RadosNamespaceMirroringModePool represents the pool mode
+#RadosNamespaceMirroringModePool: #RadosNamespaceMirroringMode & "pool"
+
+// RadosNamespaceMirroringModeImage represents the image mode
+#RadosNamespaceMirroringModeImage: #RadosNamespaceMirroringMode & "image"
+
 // CephBlockPoolRadosNamespaceSpec represents the specification of a CephBlockPool Rados Namespace
 #CephBlockPoolRadosNamespaceSpec: {
 	// The name of the CephBlockPoolRadosNamespaceSpec namespace. If not set, the default is the name of the CR.
@@ -3190,6 +4023,20 @@ import (
 	// the CephBlockPool CR.
 	// +kubebuilder:validation:XValidation:message="blockPoolName is immutable",rule="self == oldSelf"
 	blockPoolName: string @go(BlockPoolName)
+
+	// Mirroring configuration of CephBlockPoolRadosNamespace
+	// +optional
+	mirroring?: null | #RadosNamespaceMirroring @go(Mirroring,*RadosNamespaceMirroring)
+
+	// ClusterID to be used for this RadosNamespace in the CSI configuration.
+	// It must be unique among all Ceph clusters managed by Rook.
+	// If not specified, the clusterID will be generated and can be found in the CR status.
+	// +optional
+	// +kubebuilder:validation:XValidation:message="ClusterID is immutable",rule="self == oldSelf"
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=36
+	// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9_-]+$`
+	clusterID?: string @go(ClusterID)
 }
 
 // CephBlockPoolRadosNamespaceStatus represents the Status of Ceph BlockPool
@@ -3201,6 +4048,16 @@ import (
 	// +optional
 	// +nullable
 	info?: {[string]: string} @go(Info,map[string]string)
+
+	// +optional
+	mirroringStatus?: null | #MirroringStatusSpec @go(MirroringStatus,*MirroringStatusSpec)
+
+	// +optional
+	mirroringInfo?: null | #MirroringInfoSpec @go(MirroringInfo,*MirroringInfoSpec)
+
+	// +optional
+	snapshotScheduleStatus?: null | #SnapshotScheduleStatusSpec @go(SnapshotScheduleStatus,*SnapshotScheduleStatusSpec)
+	conditions?: [...#Condition] @go(Conditions,[]Condition)
 }
 
 // Represents the source of a volume to mount.
