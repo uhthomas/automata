@@ -1,7 +1,6 @@
 package rook_ceph
 
 import (
-	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	"k8s.io/api/core/v1"
@@ -26,6 +25,22 @@ import (
 		apiGroups: [v1.#GroupName]
 		resources: ["nodes"]
 		verbs: ["get"]
+	}, {
+		apiGroups: [v1.#GroupName]
+		resources: ["secrets"]
+		verbs: ["get"]
+	}, {
+		apiGroups: [v1.#GroupName]
+		resources: ["configmaps"]
+		verbs: ["get"]
+	}, {
+		apiGroups: [v1.#GroupName]
+		resources: ["serviceaccounts"]
+		verbs: ["get"]
+	}, {
+		apiGroups: [v1.#GroupName]
+		resources: ["serviceaccounts/token"]
+		verbs: ["create"]
 	}]
 }, {
 	metadata: name: "cephfs-external-provisioner-runner"
@@ -33,6 +48,14 @@ import (
 		apiGroups: [v1.#GroupName]
 		resources: ["secrets"]
 		verbs: ["get", "list"]
+	}, {
+		apiGroups: [v1.#GroupName]
+		resources: ["configmaps"]
+		verbs: ["get"]
+	}, {
+		apiGroups: [v1.#GroupName]
+		resources: ["nodes"]
+		verbs: ["get", "list", "watch"]
 	}, {
 		apiGroups: [storagev1.#GroupName]
 		resources: ["csinodes"]
@@ -93,6 +116,18 @@ import (
 		apiGroups: ["groupsnapshot.storage.k8s.io"]
 		resources: ["volumegroupsnapshotcontents/status"]
 		verbs: ["update", "patch"]
+	}, {
+		apiGroups: [v1.#GroupName]
+		resources: ["serviceaccounts"]
+		verbs: ["get"]
+	}, {
+		apiGroups: [v1.#GroupName]
+		resources: ["serviceaccounts/token"]
+		verbs: ["create"]
+	}, {
+		apiGroups: ["authentication.k8s.io"]
+		resources: ["tokenreviews"]
+		verbs: ["create"]
 	}]
 }, {
 	metadata: {
@@ -131,6 +166,10 @@ import (
 		apiGroups: [v1.#GroupName]
 		resources: ["nodes"]
 		verbs: ["get"]
+	}, {
+		apiGroups: ["authentication.k8s.io"]
+		resources: ["tokenreviews"]
+		verbs: ["create"]
 	}]
 }, {
 	metadata: name: "rbd-external-provisioner-runner"
@@ -218,6 +257,22 @@ import (
 		apiGroups: [v1.#GroupName]
 		resources: ["nodes"]
 		verbs: ["get", "list", "watch"]
+	}, {
+		apiGroups: ["gateway.networking.k8s.io"]
+		resources: ["referencegrants"]
+		verbs: ["get", "list", "watch"]
+	}, {
+		apiGroups: ["replication.storage.openshift.io"]
+		resources: ["volumegroupreplicationcontents"]
+		verbs: ["get", "list", "watch"]
+	}, {
+		apiGroups: ["replication.storage.openshift.io"]
+		resources: ["volumegroupreplicationclasses"]
+		verbs: ["get", "list", "watch"]
+	}, {
+		apiGroups: ["authentication.k8s.io"]
+		resources: ["tokenreviews"]
+		verbs: ["create"]
 	}]
 }, {
 	metadata: {
@@ -247,8 +302,8 @@ import (
 		resources: ["pods", "nodes", "nodes/proxy", "secrets", "configmaps"]
 		verbs: ["get", "list", "watch"]
 	}, {
-		apiGroups: [v1.#GroupName]
-		resources: ["events", "persistentvolumes", "persistentvolumeclaims", "endpoints", "services"]
+		apiGroups: [v1.#GroupName, "discovery.k8s.io"]
+		resources: ["events", "persistentvolumes", "persistentvolumeclaims", "endpoints", "services", "endpointslices", "endpointslices/restricted"]
 		verbs: ["get", "list", "watch", "patch", "create", "update", "delete"]
 	}, {
 		apiGroups: [storagev1.#GroupName]
@@ -259,7 +314,6 @@ import (
 		resources: ["jobs", "cronjobs"]
 		verbs: ["get", "list", "watch", "create", "update", "delete", "deletecollection"]
 	}, {
-		// The Rook operator must be able to watch all ceph.rook.io resources to reconcile them.
 		apiGroups: ["ceph.rook.io"]
 		resources: [
 			"cephclients",
@@ -282,8 +336,6 @@ import (
 		]
 		verbs: ["get", "list", "watch", "update"]
 	}, {
-		// Ideally the update permission is not required, but Rook needs it to add finalizers to resources.
-		// Rook must have update access to status subresources for its custom resources.
 		apiGroups: ["ceph.rook.io"]
 		resources: [
 			"cephclients/status",
@@ -440,13 +492,9 @@ import (
 		resources: ["pods/exec"]
 		verbs: ["create"]
 	}, {
-		apiGroups: [admissionregistrationv1.#GroupName]
-		resources: ["validatingwebhookconfigurations"]
-		verbs: ["create", "get", "delete", "update"]
-	}, {
 		apiGroups: ["csiaddons.openshift.io"]
 		resources: ["networkfences"]
-		verbs: ["create", "get", "update", "delete", "watch", "list"]
+		verbs: ["create", "get", "update", "delete", "watch", "list", "deletecollection"]
 	}, {
 		apiGroups: ["apiextensions.k8s.io"]
 		resources: ["customresourcedefinitions"]

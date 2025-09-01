@@ -19,6 +19,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephBlockPoolRadosNamespace"
 			listKind: "CephBlockPoolRadosNamespaceList"
 			plural:   "cephblockpoolradosnamespaces"
+			shortNames: [
+				"cephbprns",
+				"cephrns",
+			]
 			singular: "cephblockpoolradosnamespace"
 		}
 		scope: apiextensionsv1.#NamespaceScoped
@@ -79,7 +83,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								description: "Mirroring configuration of CephBlockPoolRadosNamespace"
 								properties: {
 									mode: {
-										description: "Mode is the mirroring mode; either pool or image"
+										description: "Mode is the mirroring mode; either pool or image."
 										enum: [
 											"",
 											"pool",
@@ -132,6 +136,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 					status: {
 						description: "Status represents the status of a CephBlockPool Rados Namespace"
 						properties: {
+							conditions: {
+								items: {
+									description: "Condition represents a status condition on any Rook-Ceph Custom Resource."
+									properties: {
+										lastHeartbeatTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										lastTransitionTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										message: type: "string"
+										reason: {
+											description: "ConditionReason is a reason for a condition"
+											type:        "string"
+										}
+										status: type: "string"
+										type: {
+											description: "ConditionType represent a resource's status"
+											type:        "string"
+										}
+									}
+									type: "object"
+								}
+								type: "array"
+							}
 							info: {
 								additionalProperties: type: "string"
 								nullable: true
@@ -206,6 +237,46 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												description: "DaemonHealth is the health of the mirroring daemon"
 												type:        "string"
 											}
+											group_health: {
+												description: "GroupHealth is the health of the mirrored image group"
+												nullable:    true
+												type:        "string"
+											}
+											group_states: {
+												description: "GroupStates is the various state for all mirrored image groups"
+												nullable:    true
+												properties: {
+													error: {
+														description: "Error is when the mirroring state is errored"
+														type:        "integer"
+													}
+													replaying: {
+														description: "Replaying is when the replay of the mirroring journal is on-going"
+														type:        "integer"
+													}
+													starting_replay: {
+														description: "StartingReplay is when the replay of the mirroring journal starts"
+														type:        "integer"
+													}
+													stopped: {
+														description: "Stopped is when the mirroring state is stopped"
+														type:        "integer"
+													}
+													stopping_replay: {
+														description: "StopReplaying is when the replay of the mirroring journal stops"
+														type:        "integer"
+													}
+													syncing: {
+														description: "Syncing is when the image is syncing"
+														type:        "integer"
+													}
+													unknown: {
+														description: "Unknown is when the mirroring state is unknown"
+														type:        "integer"
+													}
+												}
+												type: "object"
+											}
 											health: {
 												description: "Health is the mirroring health"
 												type:        "string"
@@ -213,6 +284,41 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											image_health: {
 												description: "ImageHealth is the health of the mirrored image"
 												type:        "string"
+											}
+											image_states: {
+												description: "ImageStates is the various state for all mirrored images"
+												nullable:    true
+												properties: {
+													error: {
+														description: "Error is when the mirroring state is errored"
+														type:        "integer"
+													}
+													replaying: {
+														description: "Replaying is when the replay of the mirroring journal is on-going"
+														type:        "integer"
+													}
+													starting_replay: {
+														description: "StartingReplay is when the replay of the mirroring journal starts"
+														type:        "integer"
+													}
+													stopped: {
+														description: "Stopped is when the mirroring state is stopped"
+														type:        "integer"
+													}
+													stopping_replay: {
+														description: "StopReplaying is when the replay of the mirroring journal stops"
+														type:        "integer"
+													}
+													syncing: {
+														description: "Syncing is when the image is syncing"
+														type:        "integer"
+													}
+													unknown: {
+														description: "Unknown is when the mirroring state is unknown"
+														type:        "integer"
+													}
+												}
+												type: "object"
 											}
 											states: {
 												description: "States is the various state for all mirrored images"
@@ -342,6 +448,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephBlockPool"
 			listKind: "CephBlockPoolList"
 			plural:   "cephblockpools"
+			shortNames: ["cephbp"]
 			singular: "cephblockpool"
 		}
 		scope: apiextensionsv1.#NamespaceScoped
@@ -451,8 +558,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								description: "The erasure code settings"
 								properties: {
 									algorithm: {
-										description: "The algorithm for erasure coding"
-										type:        "string"
+										description: """
+	The algorithm for erasure coding.
+	If absent, defaults to the plugin specified in osd_pool_default_erasure_code_profile.
+	"""
+										enum: [
+											"isa",
+											"jerasure",
+										]
+										type: "string"
 									}
 									codingChunks: {
 										description: """
@@ -490,8 +604,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type:        "boolean"
 									}
 									mode: {
-										description: "Mode is the mirroring mode: either pool or image"
-										type:        "string"
+										description: "Mode is the mirroring mode: pool, image or init-only."
+										enum: [
+											"pool",
+											"image",
+											"init-only",
+										]
+										type: "string"
 									}
 									peers: {
 										description: "Peers represents the peers spec"
@@ -613,6 +732,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									targetSizeRatio: {
 										description: "TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity"
+										minimum:     0
 										type:        "number"
 									}
 								}
@@ -744,6 +864,46 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												description: "DaemonHealth is the health of the mirroring daemon"
 												type:        "string"
 											}
+											group_health: {
+												description: "GroupHealth is the health of the mirrored image group"
+												nullable:    true
+												type:        "string"
+											}
+											group_states: {
+												description: "GroupStates is the various state for all mirrored image groups"
+												nullable:    true
+												properties: {
+													error: {
+														description: "Error is when the mirroring state is errored"
+														type:        "integer"
+													}
+													replaying: {
+														description: "Replaying is when the replay of the mirroring journal is on-going"
+														type:        "integer"
+													}
+													starting_replay: {
+														description: "StartingReplay is when the replay of the mirroring journal starts"
+														type:        "integer"
+													}
+													stopped: {
+														description: "Stopped is when the mirroring state is stopped"
+														type:        "integer"
+													}
+													stopping_replay: {
+														description: "StopReplaying is when the replay of the mirroring journal stops"
+														type:        "integer"
+													}
+													syncing: {
+														description: "Syncing is when the image is syncing"
+														type:        "integer"
+													}
+													unknown: {
+														description: "Unknown is when the mirroring state is unknown"
+														type:        "integer"
+													}
+												}
+												type: "object"
+											}
 											health: {
 												description: "Health is the mirroring health"
 												type:        "string"
@@ -751,6 +911,41 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											image_health: {
 												description: "ImageHealth is the health of the mirrored image"
 												type:        "string"
+											}
+											image_states: {
+												description: "ImageStates is the various state for all mirrored images"
+												nullable:    true
+												properties: {
+													error: {
+														description: "Error is when the mirroring state is errored"
+														type:        "integer"
+													}
+													replaying: {
+														description: "Replaying is when the replay of the mirroring journal is on-going"
+														type:        "integer"
+													}
+													starting_replay: {
+														description: "StartingReplay is when the replay of the mirroring journal starts"
+														type:        "integer"
+													}
+													stopped: {
+														description: "Stopped is when the mirroring state is stopped"
+														type:        "integer"
+													}
+													stopping_replay: {
+														description: "StopReplaying is when the replay of the mirroring journal stops"
+														type:        "integer"
+													}
+													syncing: {
+														description: "Syncing is when the image is syncing"
+														type:        "integer"
+													}
+													unknown: {
+														description: "Unknown is when the mirroring state is unknown"
+														type:        "integer"
+													}
+												}
+												type: "object"
 											}
 											states: {
 												description: "States is the various state for all mirrored images"
@@ -889,6 +1084,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephBucketNotification"
 			listKind: "CephBucketNotificationList"
 			plural:   "cephbucketnotifications"
+			shortNames: ["cephbn"]
 			singular: "cephbucketnotification"
 		}
 		scope: apiextensionsv1.#NamespaceScoped
@@ -1086,6 +1282,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephBucketTopic"
 			listKind: "CephBucketTopicList"
 			plural:   "cephbuckettopics"
+			shortNames: ["cephbt"]
 			singular: "cephbuckettopic"
 		}
 		scope: apiextensionsv1.#NamespaceScoped
@@ -1199,6 +1396,45 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												description: "Indicate whether the server certificate is validated by the client or not"
 												type:        "boolean"
 											}
+											mechanism: {
+												default:     "PLAIN"
+												description: "The authentication mechanism for this topic (PLAIN/SCRAM-SHA-512/SCRAM-SHA-256/GSSAPI/OAUTHBEARER)"
+												enum: [
+													"PLAIN",
+													"SCRAM-SHA-512",
+													"SCRAM-SHA-256",
+													"GSSAPI",
+													"OAUTHBEARER",
+												]
+												type: "string"
+											}
+											passwordSecretRef: {
+												description: "The kafka password to use for authentication"
+												properties: {
+													key: {
+														description: "The key of the secret to select from.  Must be a valid secret key."
+														type:        "string"
+													}
+													name: {
+														default: ""
+														description: """
+	Name of the referent.
+	This field is effectively required, but due to backwards compatibility is
+	allowed to be empty. Instances of this type with an empty value here are
+	almost certainly wrong.
+	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+	"""
+														type: "string"
+													}
+													optional: {
+														description: "Specify whether the Secret or its key must be defined"
+														type:        "boolean"
+													}
+												}
+												required: ["key"]
+												type:                    "object"
+												"x-kubernetes-map-type": "atomic"
+											}
 											uri: {
 												description: "The URI of the Kafka endpoint to push notification to"
 												minLength:   1
@@ -1207,6 +1443,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											useSSL: {
 												description: "Indicate whether to use SSL when communicating with the broker"
 												type:        "boolean"
+											}
+											userSecretRef: {
+												description: "The kafka user name to use for authentication"
+												properties: {
+													key: {
+														description: "The key of the secret to select from.  Must be a valid secret key."
+														type:        "string"
+													}
+													name: {
+														default: ""
+														description: """
+	Name of the referent.
+	This field is effectively required, but due to backwards compatibility is
+	allowed to be empty. Instances of this type with an empty value here are
+	almost certainly wrong.
+	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+	"""
+														type: "string"
+													}
+													optional: {
+														description: "Specify whether the Secret or its key must be defined"
+														type:        "boolean"
+													}
+												}
+												required: ["key"]
+												type:                    "object"
+												"x-kubernetes-map-type": "atomic"
 											}
 										}
 										required: ["uri"]
@@ -1255,6 +1518,32 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type:        "integer"
 							}
 							phase: type: "string"
+							secrets: {
+								items: {
+									properties: {
+										name: {
+											description: "name is unique within a namespace to reference a secret resource."
+											type:        "string"
+										}
+										namespace: {
+											description: "namespace defines the space within which the secret name must be unique."
+											type:        "string"
+										}
+										resourceVersion: type: "string"
+										uid: {
+											description: """
+	UID is a type that holds unique ID values, including UUIDs.  Because we
+	don't ONLY use UUIDs, this is an alias to string.  Being a type captures
+	intent and helps make sure that UIDs and names do not get conflated.
+	"""
+											type: "string"
+										}
+									}
+									type:                    "object"
+									"x-kubernetes-map-type": "atomic"
+								}
+								type: "array"
+							}
 						}
 						type:                                   "object"
 						"x-kubernetes-preserve-unknown-fields": true
@@ -1279,6 +1568,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephClient"
 			listKind: "CephClientList"
 			plural:   "cephclients"
+			shortNames: ["cephcl"]
 			singular: "cephclient"
 		}
 		scope: apiextensionsv1.#NamespaceScoped
@@ -1325,6 +1615,24 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								"x-kubernetes-preserve-unknown-fields": true
 							}
 							name: type: "string"
+							removeSecret: {
+								description: """
+	RemoveSecret indicates whether the current secret for this ceph client should be removed or not.
+	If true, the K8s secret will be deleted, but the cephx keyring will remain until the CR is deleted.
+	"""
+								type: "boolean"
+							}
+							secretName: {
+								description: """
+	SecretName is the name of the secret created for this ceph client.
+	If not specified, the default name is "rook-ceph-client-" as a prefix to the CR name.
+	"""
+								type: "string"
+								"x-kubernetes-validations": [{
+									message: "SecretName is immutable and cannot be changed"
+									rule:    "self == oldSelf"
+								}]
+							}
 						}
 						required: ["caps"]
 						type: "object"
@@ -1370,6 +1678,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephCluster"
 			listKind: "CephClusterList"
 			plural:   "cephclusters"
+			shortNames: ["ceph"]
 			singular: "cephcluster"
 		}
 		scope: apiextensionsv1.#NamespaceScoped
@@ -1459,6 +1768,41 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								nullable:    true
 								type:        "object"
 							}
+							cephConfigFromSecret: {
+								additionalProperties: {
+									additionalProperties: {
+										description: "SecretKeySelector selects a key of a Secret."
+										properties: {
+											key: {
+												description: "The key of the secret to select from.  Must be a valid secret key."
+												type:        "string"
+											}
+											name: {
+												default: ""
+												description: """
+	Name of the referent.
+	This field is effectively required, but due to backwards compatibility is
+	allowed to be empty. Instances of this type with an empty value here are
+	almost certainly wrong.
+	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+	"""
+												type: "string"
+											}
+											optional: {
+												description: "Specify whether the Secret or its key must be defined"
+												type:        "boolean"
+											}
+										}
+										required: ["key"]
+										type:                    "object"
+										"x-kubernetes-map-type": "atomic"
+									}
+									type: "object"
+								}
+								description: "CephConfigFromSecret works exactly like CephConfig but takes config value from Secret Key reference."
+								nullable:    true
+								type:        "object"
+							}
 							cephVersion: {
 								description: "The version information that instructs Rook to orchestrate a particular version of Ceph."
 								nullable:    true
@@ -1535,6 +1879,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										}
 										type: "object"
 									}
+									wipeDevicesFromOtherClusters: {
+										description: """
+	WipeDevicesFromOtherClusters wipes the OSD disks belonging to other clusters. This is useful in scenarios where ceph cluster
+	was reinstalled but OSD disk still contains the metadata from previous ceph cluster.
+	"""
+										type: "boolean"
+									}
 								}
 								type: "object"
 							}
@@ -1592,6 +1943,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 										}
 										type: "object"
+									}
+									skipUserCreation: {
+										description: """
+	SkipUserCreation determines whether CSI users and their associated secrets should be skipped.
+	If set to true, the user must manually manage these secrets.
+	"""
+										type: "boolean"
 									}
 								}
 								type: "object"
@@ -2233,6 +2591,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										maximum:     9
 										minimum:     0
 										type:        "integer"
+									}
+									externalMonIDs: {
+										description: """
+	ExternalMonIDs - optional list of monitor IDs which are deployed externally and not managed by Rook.
+	If set, Rook will not remove mons with given IDs from quorum.
+	This parameter is used only for local Rook cluster running in normal mode
+	and will be ignored if external or stretched mode is used.
+	leading
+	"""
+										items: type: "string"
+										type: "array"
 									}
 									failureDomainLabel: type: "string"
 									stretchCluster: {
@@ -3425,7 +3794,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type:     "string"
 										"x-kubernetes-validations": [{
 											message: "network provider must be disabled (reverted to empty string) before a new provider is enabled"
-											rule:    "self == '' || self == oldSelf"
+											rule:    "self == '' || oldSelf == '' || self == oldSelf"
 										}]
 									}
 									selectors: {
@@ -7561,6 +7930,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephFilesystemMirror"
 			listKind: "CephFilesystemMirrorList"
 			plural:   "cephfilesystemmirrors"
+			shortNames: ["cephfsm"]
 			singular: "cephfilesystemmirror"
 		}
 		scope: apiextensionsv1.#NamespaceScoped
@@ -8342,6 +8712,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephFilesystem"
 			listKind: "CephFilesystemList"
 			plural:   "cephfilesystems"
+			shortNames: ["cephfs"]
 			singular: "cephfilesystem"
 		}
 		scope: apiextensionsv1.#NamespaceScoped
@@ -8434,8 +8805,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											description: "The erasure code settings"
 											properties: {
 												algorithm: {
-													description: "The algorithm for erasure coding"
-													type:        "string"
+													description: """
+	The algorithm for erasure coding.
+	If absent, defaults to the plugin specified in osd_pool_default_erasure_code_profile.
+	"""
+													enum: [
+														"isa",
+														"jerasure",
+													]
+													type: "string"
 												}
 												codingChunks: {
 													description: """
@@ -8473,8 +8851,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "boolean"
 												}
 												mode: {
-													description: "Mode is the mirroring mode: either pool or image"
-													type:        "string"
+													description: "Mode is the mirroring mode: pool, image or init-only."
+													enum: [
+														"pool",
+														"image",
+														"init-only",
+													]
+													type: "string"
 												}
 												peers: {
 													description: "Peers represents the peers spec"
@@ -8591,6 +8974,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												}
 												targetSizeRatio: {
 													description: "TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity"
+													minimum:     0
 													type:        "number"
 												}
 											}
@@ -8667,8 +9051,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										description: "The erasure code settings"
 										properties: {
 											algorithm: {
-												description: "The algorithm for erasure coding"
-												type:        "string"
+												description: """
+	The algorithm for erasure coding.
+	If absent, defaults to the plugin specified in osd_pool_default_erasure_code_profile.
+	"""
+												enum: [
+													"isa",
+													"jerasure",
+												]
+												type: "string"
 											}
 											codingChunks: {
 												description: """
@@ -8706,8 +9097,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "boolean"
 											}
 											mode: {
-												description: "Mode is the mirroring mode: either pool or image"
-												type:        "string"
+												description: "Mode is the mirroring mode: pool, image or init-only."
+												enum: [
+													"pool",
+													"image",
+													"init-only",
+												]
+												type: "string"
 											}
 											peers: {
 												description: "Peers represents the peers spec"
@@ -8824,6 +9220,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											targetSizeRatio: {
 												description: "TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity"
+												minimum:     0
 												type:        "number"
 											}
 										}
@@ -10289,6 +10686,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephFilesystemSubVolumeGroup"
 			listKind: "CephFilesystemSubVolumeGroupList"
 			plural:   "cephfilesystemsubvolumegroups"
+			shortNames: [
+				"cephfssvg",
+				"cephsvg",
+			]
 			singular: "cephfilesystemsubvolumegroup"
 		}
 		scope: apiextensionsv1.#NamespaceScoped
@@ -12773,6 +13174,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephObjectRealm"
 			listKind: "CephObjectRealmList"
 			plural:   "cephobjectrealms"
+			shortNames: ["cephor"]
 			singular: "cephobjectrealm"
 		}
 		scope: apiextensionsv1.#NamespaceScoped
@@ -12804,13 +13206,19 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 					spec: {
 						description: "ObjectRealmSpec represent the spec of an ObjectRealm"
 						nullable:    true
-						properties: pull: {
-							description: "PullSpec represents the pulling specification of a Ceph Object Storage Gateway Realm"
-							properties: endpoint: {
-								pattern: "^https*://"
-								type:    "string"
+						properties: {
+							defaultRealm: {
+								description: "Set this realm as the default in Ceph. Only one realm should be default."
+								type:        "boolean"
 							}
-							type: "object"
+							pull: {
+								description: "PullSpec represents the pulling specification of a Ceph Object Storage Gateway Realm"
+								properties: endpoint: {
+									pattern: "^https*://"
+									type:    "string"
+								}
+								type: "object"
+							}
 						}
 						type: "object"
 					}
@@ -12871,6 +13279,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephObjectStore"
 			listKind: "CephObjectStoreList"
 			plural:   "cephobjectstores"
+			shortNames: ["cephos"]
 			singular: "cephobjectstore"
 		}
 		scope: apiextensionsv1.#NamespaceScoped
@@ -13020,8 +13429,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										description: "The erasure code settings"
 										properties: {
 											algorithm: {
-												description: "The algorithm for erasure coding"
-												type:        "string"
+												description: """
+	The algorithm for erasure coding.
+	If absent, defaults to the plugin specified in osd_pool_default_erasure_code_profile.
+	"""
+												enum: [
+													"isa",
+													"jerasure",
+												]
+												type: "string"
 											}
 											codingChunks: {
 												description: """
@@ -13059,8 +13475,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "boolean"
 											}
 											mode: {
-												description: "Mode is the mirroring mode: either pool or image"
-												type:        "string"
+												description: "Mode is the mirroring mode: pool, image or init-only."
+												enum: [
+													"pool",
+													"image",
+													"init-only",
+												]
+												type: "string"
 											}
 											peers: {
 												description: "Peers represents the peers spec"
@@ -13173,6 +13594,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											targetSizeRatio: {
 												description: "TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity"
+												minimum:     0
 												type:        "number"
 											}
 										}
@@ -13199,6 +13621,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 								}
 								type: "object"
+							}
+							defaultRealm: {
+								description: """
+	Set this realm as the default in Ceph. Only one realm should be default.
+	Do not set this true on more than one CephObjectStore.
+	This may not be set when zone is also specified; in this case, the realm
+	referenced by the zone's zonegroup should configure defaulting behavior.
+	"""
+								type: "boolean"
 							}
 							gateway: {
 								description: "The rgw pod info"
@@ -14263,6 +14694,28 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										description: "PriorityClassName sets priority classes on the rgw pods"
 										type:        "string"
 									}
+									readAffinity: {
+										description: """
+	ReadAffinity defines the RGW read affinity policy to optimize the read requests for the RGW clients
+	Note: Only supported from Ceph Tentacle (v20)
+	"""
+										properties: type: {
+											description: """
+	Type defines the RGW ReadAffinity type
+	localize: read from the nearest OSD based on crush location of the RGW client
+	balance: picks a random OSD from the PG's active set
+	default: read from the primary OSD
+	"""
+											enum: [
+												"localize",
+												"balance",
+												"default",
+											]
+											type: "string"
+										}
+										required: ["type"]
+										type: "object"
+									}
 									resources: {
 										description: "The resource requirements for the rgw pods"
 										nullable:    true
@@ -14930,8 +15383,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										description: "The erasure code settings"
 										properties: {
 											algorithm: {
-												description: "The algorithm for erasure coding"
-												type:        "string"
+												description: """
+	The algorithm for erasure coding.
+	If absent, defaults to the plugin specified in osd_pool_default_erasure_code_profile.
+	"""
+												enum: [
+													"isa",
+													"jerasure",
+												]
+												type: "string"
 											}
 											codingChunks: {
 												description: """
@@ -14969,8 +15429,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "boolean"
 											}
 											mode: {
-												description: "Mode is the mirroring mode: either pool or image"
-												type:        "string"
+												description: "Mode is the mirroring mode: pool, image or init-only."
+												enum: [
+													"pool",
+													"image",
+													"init-only",
+												]
+												type: "string"
 											}
 											peers: {
 												description: "Peers represents the peers spec"
@@ -15083,6 +15548,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											targetSizeRatio: {
 												description: "TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity"
+												minimum:     0
 												type:        "number"
 											}
 										}
@@ -15363,7 +15829,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								description: "The multisite info"
 								nullable:    true
 								properties: name: {
-									description: "RGW Zone the Object Store is in"
+									description: "CephObjectStoreZone name this CephObjectStore is part of"
 									type:        "string"
 								}
 								required: ["name"]
@@ -15371,6 +15837,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 						}
 						type: "object"
+						"x-kubernetes-validations": [{
+							message: "defaultRealm must not be true when zone.name is set (multisite configuration)"
+							rule:    "!(has(self.defaultRealm) && self.defaultRealm == true && has(self.zone) && size(self.zone.name) > 0)"
+						}]
 					}
 					status: {
 						description: "ObjectStoreStatus represents the status of a Ceph Object Store resource"
@@ -15459,6 +15929,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			shortNames: [
 				"rcou",
 				"objectuser",
+				"cephosu",
 			]
 			singular: "cephobjectstoreuser"
 		}
@@ -15675,6 +16146,76 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								description: "The display name for the ceph users"
 								type:        "string"
 							}
+							keys: {
+								description: """
+	Allows specifying credentials for the user. If not provided, the operator
+	will generate them.
+	"""
+								items: {
+									description: """
+	ObjectUserKey defines a set of rgw user access credentials to be retrieved
+	from secret resources.
+	"""
+									properties: {
+										accessKeyRef: {
+											description: "Secret key selector for the access_key (commonly referred to as AWS_ACCESS_KEY_ID)."
+											properties: {
+												key: {
+													description: "The key of the secret to select from.  Must be a valid secret key."
+													type:        "string"
+												}
+												name: {
+													default: ""
+													description: """
+	Name of the referent.
+	This field is effectively required, but due to backwards compatibility is
+	allowed to be empty. Instances of this type with an empty value here are
+	almost certainly wrong.
+	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+	"""
+													type: "string"
+												}
+												optional: {
+													description: "Specify whether the Secret or its key must be defined"
+													type:        "boolean"
+												}
+											}
+											required: ["key"]
+											type:                    "object"
+											"x-kubernetes-map-type": "atomic"
+										}
+										secretKeyRef: {
+											description: "Secret key selector for the secret_key (commonly referred to as AWS_SECRET_ACCESS_KEY)."
+											properties: {
+												key: {
+													description: "The key of the secret to select from.  Must be a valid secret key."
+													type:        "string"
+												}
+												name: {
+													default: ""
+													description: """
+	Name of the referent.
+	This field is effectively required, but due to backwards compatibility is
+	allowed to be empty. Instances of this type with an empty value here are
+	almost certainly wrong.
+	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+	"""
+													type: "string"
+												}
+												optional: {
+													description: "Specify whether the Secret or its key must be defined"
+													type:        "boolean"
+												}
+											}
+											required: ["key"]
+											type:                    "object"
+											"x-kubernetes-map-type": "atomic"
+										}
+									}
+									type: "object"
+								}
+								type: "array"
+							}
 							quotas: {
 								description: "ObjectUserQuotaSpec can be used to set quotas for the object store user to limit their usage. See the [Ceph docs](https://docs.ceph.com/en/latest/radosgw/admin/?#quota-management) for more"
 								nullable:    true
@@ -15722,6 +16263,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								nullable: true
 								type:     "object"
 							}
+							keys: {
+								items: {
+									properties: {
+										name: {
+											description: "name is unique within a namespace to reference a secret resource."
+											type:        "string"
+										}
+										namespace: {
+											description: "namespace defines the space within which the secret name must be unique."
+											type:        "string"
+										}
+										resourceVersion: type: "string"
+										uid: {
+											description: """
+	UID is a type that holds unique ID values, including UUIDs.  Because we
+	don't ONLY use UUIDs, this is an alias to string.  Being a type captures
+	intent and helps make sure that UIDs and names do not get conflated.
+	"""
+											type: "string"
+										}
+									}
+									type:                    "object"
+									"x-kubernetes-map-type": "atomic"
+								}
+								nullable: true
+								type:     "array"
+							}
 							observedGeneration: {
 								description: "ObservedGeneration is the latest generation observed by the controller."
 								format:      "int64"
@@ -15752,6 +16320,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephObjectZoneGroup"
 			listKind: "CephObjectZoneGroupList"
 			plural:   "cephobjectzonegroups"
+			shortNames: ["cephozg"]
 			singular: "cephobjectzonegroup"
 		}
 		scope: apiextensionsv1.#NamespaceScoped
@@ -15858,6 +16427,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephObjectZone"
 			listKind: "CephObjectZoneList"
 			plural:   "cephobjectzones"
+			shortNames: ["cephoz"]
 			singular: "cephobjectzone"
 		}
 		scope: apiextensionsv1.#NamespaceScoped
@@ -15961,8 +16531,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										description: "The erasure code settings"
 										properties: {
 											algorithm: {
-												description: "The algorithm for erasure coding"
-												type:        "string"
+												description: """
+	The algorithm for erasure coding.
+	If absent, defaults to the plugin specified in osd_pool_default_erasure_code_profile.
+	"""
+												enum: [
+													"isa",
+													"jerasure",
+												]
+												type: "string"
 											}
 											codingChunks: {
 												description: """
@@ -16000,8 +16577,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "boolean"
 											}
 											mode: {
-												description: "Mode is the mirroring mode: either pool or image"
-												type:        "string"
+												description: "Mode is the mirroring mode: pool, image or init-only."
+												enum: [
+													"pool",
+													"image",
+													"init-only",
+												]
+												type: "string"
 											}
 											peers: {
 												description: "Peers represents the peers spec"
@@ -16114,6 +16696,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											targetSizeRatio: {
 												description: "TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity"
+												minimum:     0
 												type:        "number"
 											}
 										}
@@ -16187,8 +16770,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										description: "The erasure code settings"
 										properties: {
 											algorithm: {
-												description: "The algorithm for erasure coding"
-												type:        "string"
+												description: """
+	The algorithm for erasure coding.
+	If absent, defaults to the plugin specified in osd_pool_default_erasure_code_profile.
+	"""
+												enum: [
+													"isa",
+													"jerasure",
+												]
+												type: "string"
 											}
 											codingChunks: {
 												description: """
@@ -16226,8 +16816,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "boolean"
 											}
 											mode: {
-												description: "Mode is the mirroring mode: either pool or image"
-												type:        "string"
+												description: "Mode is the mirroring mode: pool, image or init-only."
+												enum: [
+													"pool",
+													"image",
+													"init-only",
+												]
+												type: "string"
 											}
 											peers: {
 												description: "Peers represents the peers spec"
@@ -16340,6 +16935,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											targetSizeRatio: {
 												description: "TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity"
+												minimum:     0
 												type:        "number"
 											}
 										}
@@ -16555,6 +17151,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephRBDMirror"
 			listKind: "CephRBDMirrorList"
 			plural:   "cephrbdmirrors"
+			shortNames: ["cephrbdm"]
 			singular: "cephrbdmirror"
 		}
 		scope: apiextensionsv1.#NamespaceScoped

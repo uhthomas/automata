@@ -26,7 +26,7 @@ import (
 	}, {
 		apiGroups: ["csiaddons.openshift.io"]
 		resources: ["csiaddonsnodes"]
-		verbs: ["get", "create", "update", "delete"]
+		verbs: ["get", "watch", "list", "create", "update", "delete"]
 	}, {
 		apiGroups: [""]
 		resources: ["pods"]
@@ -45,7 +45,7 @@ import (
 	rules: [{
 		apiGroups: ["csiaddons.openshift.io"]
 		resources: ["csiaddonsnodes"]
-		verbs: ["get", "create", "update", "delete"]
+		verbs: ["get", "watch", "list", "create", "update", "delete"]
 	}, {
 		apiGroups: [""]
 		resources: ["pods"]
@@ -68,7 +68,7 @@ import (
 	}, {
 		apiGroups: ["csiaddons.openshift.io"]
 		resources: ["csiaddonsnodes"]
-		verbs: ["get", "create", "update", "delete"]
+		verbs: ["get", "watch", "list", "create", "update", "delete"]
 	}, {
 		apiGroups: [""]
 		resources: ["pods"]
@@ -167,11 +167,11 @@ import (
 	}, {
 		apiGroups: [appsv1.#GroupName, "extensions"]
 		resources: ["daemonsets", "statefulsets", "deployments"]
-		verbs: ["get", "list", "watch", "create", "update", "delete"]
+		verbs: ["get", "list", "watch", "create", "update", "delete", "deletecollection"]
 	}, {
 		apiGroups: [batchv1.#GroupName]
 		resources: ["cronjobs"]
-		verbs: ["delete", "deletecollection"]
+		verbs: ["delete"]
 	}, {
 		apiGroups: ["cert-manager.io"]
 		resources: ["certificates", "issuers"]
