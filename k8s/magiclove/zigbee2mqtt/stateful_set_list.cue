@@ -29,6 +29,10 @@ import (
 					image: "alpine:3.17.2@sha256:e2e16842c9b54d985bf1ef9242a313f36b856181f188de21313820e177002501"
 					command: ["cp"]
 					args: ["/etc/zigbee2mqtt/configuration.yaml", "/app/data/configuration.yaml"]
+					resources: limits: {
+						(v1.#ResourceCPU):    "50m"
+						(v1.#ResourceMemory): "8Mi"
+					}
 					volumeMounts: [{
 						name:      "config"
 						mountPath: "/etc/zigbee2mqtt/configuration.yaml"
@@ -37,6 +41,12 @@ import (
 						name:      "data"
 						mountPath: "/app/data"
 					}]
+					imagePullPolicy: v1.#PullIfNotPresent
+					securityContext: {
+						capabilities: drop: ["ALL"]
+						readOnlyRootFilesystem:   true
+						allowPrivilegeEscalation: false
+					}
 				}]
 				containers: [{
 					name:  #Name
