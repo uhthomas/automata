@@ -17,6 +17,38 @@ import (
 #ValidatingWebhookConfigurationList: items: [{
 	metadata: annotations: (certmanagerv1.#WantInjectAnnotation): "\(#Namespace)/\(#Name)-webhook"
 	webhooks: [{
+		name: "vvlsingle.kb.io"
+		clientConfig: service: {
+			namespace: #Namespace
+			name:      "\(#Name)-webhook"
+			path:      "/validate-operator-victoriametrics-com-v1beta1-vlsingle"
+		}
+		rules: [{
+			apiGroups: ["operator.victoriametrics.com"]
+			apiVersions: ["v1beta1"]
+			operations: ["CREATE", "UPDATE"]
+			resources: ["vlsingle"]
+		}]
+		failurePolicy: admissionregistrationv1.#Fail
+		sideEffects:   admissionregistrationv1.#SideEffectClassNone
+		admissionReviewVersions: ["v1"]
+	}, {
+		name: "vvlcluster.kb.io"
+		clientConfig: service: {
+			namespace: #Namespace
+			name:      "\(#Name)-webhook"
+			path:      "/validate-operator-victoriametrics-com-v1beta1-vlcluster"
+		}
+		rules: [{
+			apiGroups: ["operator.victoriametrics.com"]
+			apiVersions: ["v1beta1"]
+			operations: ["CREATE", "UPDATE"]
+			resources: ["vlcluster"]
+		}]
+		failurePolicy: admissionregistrationv1.#Fail
+		sideEffects:   admissionregistrationv1.#SideEffectClassNone
+		admissionReviewVersions: ["v1"]
+	}, {
 		name: "vvlogs.kb.io"
 		clientConfig: service: {
 			namespace: #Namespace
@@ -129,6 +161,38 @@ import (
 		sideEffects:   admissionregistrationv1.#SideEffectClassNone
 		admissionReviewVersions: ["v1"]
 	}, {
+		name: "vvmnodescrape.kb.io"
+		clientConfig: service: {
+			namespace: #Namespace
+			name:      "\(#Name)-webhook"
+			path:      "/validate-operator-victoriametrics-com-v1beta1-vmnodescrape"
+		}
+		rules: [{
+			apiGroups: ["operator.victoriametrics.com"]
+			apiVersions: ["v1beta1"]
+			operations: ["CREATE", "UPDATE"]
+			resources: ["vmnodescrapes"]
+		}]
+		failurePolicy: admissionregistrationv1.#Fail
+		sideEffects:   admissionregistrationv1.#SideEffectClassNone
+		admissionReviewVersions: ["v1"]
+	}, {
+		name: "vvmpodscrape.kb.io"
+		clientConfig: service: {
+			namespace: #Namespace
+			name:      "\(#Name)-webhook"
+			path:      "/validate-operator-victoriametrics-com-v1beta1-vmpodscrape"
+		}
+		rules: [{
+			apiGroups: ["operator.victoriametrics.com"]
+			apiVersions: ["v1beta1"]
+			operations: ["CREATE", "UPDATE"]
+			resources: ["vmpodscrapes"]
+		}]
+		failurePolicy: admissionregistrationv1.#Fail
+		sideEffects:   admissionregistrationv1.#SideEffectClassNone
+		admissionReviewVersions: ["v1"]
+	}, {
 		name: "vvmrule.kb.io"
 		clientConfig: service: {
 			namespace: #Namespace
@@ -140,6 +204,38 @@ import (
 			apiVersions: ["v1beta1"]
 			operations: ["CREATE", "UPDATE"]
 			resources: ["vmrules"]
+		}]
+		failurePolicy: admissionregistrationv1.#Fail
+		sideEffects:   admissionregistrationv1.#SideEffectClassNone
+		admissionReviewVersions: ["v1"]
+	}, {
+		name: "vvmscrapeconfig.kb.io"
+		clientConfig: service: {
+			namespace: #Namespace
+			name:      "\(#Name)-webhook"
+			path:      "/validate-operator-victoriametrics-com-v1beta1-vmscrapeconfig"
+		}
+		rules: [{
+			apiGroups: ["operator.victoriametrics.com"]
+			apiVersions: ["v1beta1"]
+			operations: ["CREATE", "UPDATE"]
+			resources: ["vmscrapeconfigs"]
+		}]
+		failurePolicy: admissionregistrationv1.#Fail
+		sideEffects:   admissionregistrationv1.#SideEffectClassNone
+		admissionReviewVersions: ["v1"]
+	}, {
+		name: "vvmservicescrape.kb.io"
+		clientConfig: service: {
+			namespace: #Namespace
+			name:      "\(#Name)-webhook"
+			path:      "/validate-operator-victoriametrics-com-v1beta1-vmservicescrape"
+		}
+		rules: [{
+			apiGroups: ["operator.victoriametrics.com"]
+			apiVersions: ["v1beta1"]
+			operations: ["CREATE", "UPDATE"]
+			resources: ["vmservicescrapes"]
 		}]
 		failurePolicy: admissionregistrationv1.#Fail
 		sideEffects:   admissionregistrationv1.#SideEffectClassNone
@@ -161,6 +257,22 @@ import (
 		sideEffects:   admissionregistrationv1.#SideEffectClassNone
 		admissionReviewVersions: ["v1"]
 	}, {
+		name: "vvmstaticscrape.kb.io"
+		clientConfig: service: {
+			namespace: #Namespace
+			name:      "\(#Name)-webhook"
+			path:      "/validate-operator-victoriametrics-com-v1beta1-vmstaticscrape"
+		}
+		rules: [{
+			apiGroups: ["operator.victoriametrics.com"]
+			apiVersions: ["v1beta1"]
+			operations: ["CREATE", "UPDATE"]
+			resources: ["vmstaticscrapes"]
+		}]
+		failurePolicy: admissionregistrationv1.#Fail
+		sideEffects:   admissionregistrationv1.#SideEffectClassNone
+		admissionReviewVersions: ["v1"]
+	}, {
 		name: "vvmuser.kb.io"
 		clientConfig: service: {
 			namespace: #Namespace
@@ -172,6 +284,38 @@ import (
 			apiVersions: ["v1beta1"]
 			operations: ["CREATE", "UPDATE"]
 			resources: ["vmusers"]
+		}]
+		failurePolicy: admissionregistrationv1.#Fail
+		sideEffects:   admissionregistrationv1.#SideEffectClassNone
+		admissionReviewVersions: ["v1"]
+	}, {
+		name: "vvmprobe.kb.io"
+		clientConfig: service: {
+			namespace: #Namespace
+			name:      "\(#Name)-webhook"
+			path:      "/validate-operator-victoriametrics-com-v1beta1-vmprobe"
+		}
+		rules: [{
+			apiGroups: ["operator.victoriametrics.com"]
+			apiVersions: ["v1beta1"]
+			operations: ["CREATE", "UPDATE"]
+			resources: ["vmprobes"]
+		}]
+		failurePolicy: admissionregistrationv1.#Fail
+		sideEffects:   admissionregistrationv1.#SideEffectClassNone
+		admissionReviewVersions: ["v1"]
+	}, {
+		name: "vvmanomaly.kb.io"
+		clientConfig: service: {
+			namespace: #Namespace
+			name:      "\(#Name)-webhook"
+			path:      "/validate-operator-victoriametrics-com-v1beta1-vmanomaly"
+		}
+		rules: [{
+			apiGroups: ["operator.victoriametrics.com"]
+			apiVersions: ["v1beta1"]
+			operations: ["CREATE", "UPDATE"]
+			resources: ["vmanomalies"]
 		}]
 		failurePolicy: admissionregistrationv1.#Fail
 		sideEffects:   admissionregistrationv1.#SideEffectClassNone

@@ -21,11 +21,8 @@ import (
 			metadata: labels: "app.kubernetes.io/name": #Name
 			spec: {
 				volumes: [{
-					name: "certificate"
-					secret: {
-						secretName:  "\(#Name)-webhook-certificate"
-						defaultMode: 0o420
-					}
+					name: "webhook-certs"
+					secret: secretName: "\(#Name)-webhook-certificate"
 				}]
 				containers: [{
 					name:  "manager"
@@ -33,8 +30,9 @@ import (
 					args: [
 						"--leader-elect",
 						"--health-probe-bind-address=:8081",
-						"--webhook.enable",
 						"--metrics-bind-address=:8080",
+						"--webhook.enable",
+						"--webhook.certDir=/tmp/k8s-webhook-server/serving-certs",
 					]
 					ports: [{
 						name:          "http"
@@ -56,15 +54,9 @@ import (
 						name:  "VM_ENABLEDPROMETHEUSCONVERTEROWNERREFERENCES"
 						value: "true"
 					}]
-					resources: {
-						limits: {
-							(v1.#ResourceCPU):    "120m"
-							(v1.#ResourceMemory): "520Mi"
-						}
-						requests: {
-							(v1.#ResourceCPU):    "80m"
-							(v1.#ResourceMemory): "120Mi"
-						}
+					resources: limits: {
+						(v1.#ResourceCPU):    "120m"
+						(v1.#ResourceMemory): "520Mi"
 					}
 
 					let probe = {httpGet: port: "healthz"}
@@ -81,7 +73,7 @@ import (
 					}
 
 					volumeMounts: [{
-						name:      "certificate"
+						name:      "webhook-certs"
 						mountPath: "/tmp/k8s-webhook-server/serving-certs"
 						readOnly:  true
 					}]
