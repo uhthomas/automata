@@ -12,7 +12,7 @@ require (
 	github.com/backube/snapscheduler v1.2.0
 	github.com/backube/volsync v0.8.0
 	github.com/cert-manager/cert-manager v1.15.3
-	github.com/cilium/cilium v1.16.1
+	github.com/cilium/cilium v1.16.9
 	github.com/cloudnative-pg/cloudnative-pg v1.25.1
 	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
 	github.com/envoyproxy/gateway v1.4.2
@@ -55,7 +55,7 @@ require (
 	github.com/chai2010/gettext-go v1.0.2 // indirect
 	github.com/cilium/ebpf v0.18.0 // indirect
 	github.com/cilium/hive v0.0.0-20240529072208-d997f86e4219 // indirect
-	github.com/cilium/proxy v0.0.0-20240418093727-2c7164c53e26 // indirect
+	github.com/cilium/proxy v0.0.0-20250305113347-723568176820 // indirect
 	github.com/cloudnative-pg/barman-cloud v0.1.0 // indirect
 	github.com/cloudnative-pg/machinery v0.1.0 // indirect
 	github.com/cockroachdb/apd/v3 v3.2.1 // indirect
@@ -168,7 +168,7 @@ require (
 	github.com/opentracing/opentracing-go v1.2.1-0.20220228012449-10b1cf09e00b // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
-	github.com/petermattis/goid v0.0.0-20230904192822-1876fd5063bc // indirect
+	github.com/petermattis/goid v0.0.0-20240813172612-4fcff4a6cae7 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.80.1 // indirect
@@ -183,7 +183,7 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/sagikazarmark/locafero v0.7.0 // indirect
-	github.com/sasha-s/go-deadlock v0.3.1 // indirect
+	github.com/sasha-s/go-deadlock v0.3.5 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.12.0 // indirect
@@ -201,7 +201,7 @@ require (
 	github.com/valyala/gozstd v1.21.2 // indirect
 	github.com/valyala/histogram v1.2.0 // indirect
 	github.com/valyala/quicktemplate v1.8.0 // indirect
-	github.com/vishvananda/netlink v1.3.0 // indirect
+	github.com/vishvananda/netlink v1.3.1-0.20241022031324-976bd8de7d81 // indirect
 	github.com/vishvananda/netns v0.0.5 // indirect
 	github.com/xlab/treeprint v1.2.0 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.21 // indirect
