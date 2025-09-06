@@ -54,6 +54,7 @@ cue_export(
         "//k8s/magiclove/nvidia_device_plugin:cue_nvidia_device_plugin_library",
         "//k8s/magiclove/onepassword_connect:cue_onepassword_connect_library",
         "//k8s/magiclove/ping_exporter:cue_ping_exporter_library",
+        "//k8s/magiclove/redlib:cue_redlib_library",
         "//k8s/magiclove/rook_ceph:cue_rook_ceph_library",
         "//k8s/magiclove/scrutiny:cue_scrutiny_library",
         "//k8s/magiclove/smartctl_exporter:cue_smartctl_exporter_library",
