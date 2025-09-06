@@ -26,7 +26,7 @@ import (
 				}]
 				initContainers: [{
 					name:  "proxy"
-					image: "ghcr.io/uhthomas/socks5-wireguard-proxy@sha256:bd532015f7621733a0cda03a357dcbe68221398f38188b77c283588625e5631a"
+					image: "ghcr.io/uhthomas/socks5-wireguard-proxy@sha256:2333c296d923bdb91ef3f767f88dd6f117862405a998d0abff1dcb5891cba502"
 					args: ["--wireguard-address=10.8.0.2"]
 					ports: [{
 						name:          "socks5-proxy"
