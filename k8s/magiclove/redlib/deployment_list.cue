@@ -33,7 +33,7 @@ import (
 						containerPort: 1080
 					}]
 					resources: limits: {
-						(v1.#ResourceCPU):    "100m"
+						(v1.#ResourceCPU):    "300m"
 						(v1.#ResourceMemory): "64Mi"
 					}
 					restartPolicy: v1.#ContainerRestartPolicyAlways
@@ -70,8 +70,8 @@ import (
 						value: "on"
 					}]
 					resources: limits: {
-						(v1.#ResourceCPU):    "50m"
-						(v1.#ResourceMemory): "32Mi"
+						(v1.#ResourceCPU):    "300m"
+						(v1.#ResourceMemory): "96Mi"
 					}
 
 					let probe = {
