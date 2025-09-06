@@ -21,7 +21,7 @@ require (
 	github.com/jodevsa/wireguard-operator v1.2.21-0.20240509203524-1d1bef4d0d82
 	github.com/kubernetes-csi/external-snapshotter/client/v8 v8.2.0
 	github.com/prometheus/prometheus v0.300.1
-	github.com/rook/rook/pkg/apis v0.0.0-20250829210302-107bb8176eeb
+	github.com/rook/rook/pkg/apis v0.0.0-20250904154142-f90fa269f0c6
 	k8s.io/api v0.33.4
 	k8s.io/apiextensions-apiserver v0.33.0
 	k8s.io/client-go v12.0.0+incompatible
