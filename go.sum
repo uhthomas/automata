@@ -862,6 +862,8 @@ github.com/backube/snapscheduler v1.2.0 h1:xw3frZQf0SxGKKjqxIdOzZP5hNLSCY1f+UR2f
 github.com/backube/snapscheduler v1.2.0/go.mod h1:rd3qsBeJN4St19YlJy1A4Hq8eaiHjPk/VQiXfTTy+j8=
 github.com/backube/volsync v0.8.0 h1:r3uhabaNbrU+U7eI++baqI3tnkBbD+8habjYUrCU0Yg=
 github.com/backube/volsync v0.8.0/go.mod h1:B/droDyFZPtX5NIE5li1S22nEA3O3EUwduiE8wf0bLw=
+github.com/backube/volsync v0.13.0 h1:FQynJZJ9Hu3OozrvdhV5wXL8pGFYanJ4F9ftx7DUyUQ=
+github.com/backube/volsync v0.13.0/go.mod h1:3SDB0yGR3d76sn6lezDJM+6jPOHeZnqAIpyYBQhJQz4=
 github.com/bboreham/go-loser v0.0.0-20230920113527-fcc2c21820a3 h1:6df1vn4bBlDDo4tARvBm7l6KA9iVMnE3NWizDeWSrps=
 github.com/bboreham/go-loser v0.0.0-20230920113527-fcc2c21820a3/go.mod h1:CIWtjkly68+yqLPbvwwR/fjNJA/idrtULjZWh2v1ys0=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
@@ -2108,6 +2110,7 @@ golang.org/x/mod v0.12.0/go.mod h1:iBbtSCu2XBx23ZKBPSOrRkjjQPZFPuis4dIYUhu/chs=
 golang.org/x/mod v0.14.0/go.mod h1:hTbmBsO62+eylJbnUtE2MGJUyE7QWk4xUqPFrRgJ+7c=
 golang.org/x/mod v0.24.0 h1:ZfthKaKaT4NrhGVZHO1/WDTwGES4De8KtWO0SIbNJMU=
 golang.org/x/mod v0.24.0/go.mod h1:IXM97Txy2VM4PJ3gI61r1YEk/gAj6zAHN3AdZt6S9Ww=
+golang.org/x/mod v0.25.0 h1:n7a+ZbQKQA/Ysbyb0/6IbB1H/X41mKgbhfv7AfG/44w=
 golang.org/x/mod v0.25.0/go.mod h1:IXM97Txy2VM4PJ3gI61r1YEk/gAj6zAHN3AdZt6S9Ww=
 golang.org/x/net v0.0.0-20180724234803-3673e40ba225/go.mod h1:mL1N/T3taQHkDXs73rZJwtUhF3w3ftmwwsq0BUmARs4=
 golang.org/x/net v0.0.0-20180826012351-8a410e7b638d/go.mod h1:mL1N/T3taQHkDXs73rZJwtUhF3w3ftmwwsq0BUmARs4=

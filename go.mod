@@ -10,7 +10,7 @@ require (
 	github.com/NVIDIA/gpu-operator v1.11.1
 	github.com/VictoriaMetrics/operator/api v0.51.3
 	github.com/backube/snapscheduler v1.2.0
-	github.com/backube/volsync v0.8.0
+	github.com/backube/volsync v0.13.0
 	github.com/cert-manager/cert-manager v1.15.3
 	github.com/cilium/cilium v1.16.1
 	github.com/cloudnative-pg/cloudnative-pg v1.25.1
@@ -250,7 +250,7 @@ require (
 	k8s.io/apiserver v0.33.0 // indirect
 	k8s.io/cli-runtime v0.33.0 // indirect
 	k8s.io/component-base v0.33.0 // indirect
-	k8s.io/component-helpers v0.29.1 // indirect
+	k8s.io/component-helpers v0.32.3 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kms v0.30.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20250701173324-9bd5c66d9911 // indirect
