@@ -26,7 +26,7 @@ require (
 	k8s.io/apiextensions-apiserver v0.33.0
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/kube-aggregator v0.30.1
-	k8s.io/kubernetes v1.29.1
+	k8s.io/kubernetes v1.31.12
 	sigs.k8s.io/external-dns v0.14.2
 	sigs.k8s.io/gateway-api v1.3.0
 )
@@ -261,7 +261,7 @@ require (
 	sigs.k8s.io/controller-runtime v0.20.4 // indirect
 	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8 // indirect
 	sigs.k8s.io/kustomize/api v0.19.0 // indirect
-	sigs.k8s.io/kustomize/kustomize/v5 v5.0.4-0.20230601165947-6ce0bf390ce3 // indirect
+	sigs.k8s.io/kustomize/kustomize/v5 v5.4.2 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.19.0 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.7.0 // indirect
