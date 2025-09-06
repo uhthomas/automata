@@ -238,8 +238,8 @@ require (
 	golang.org/x/tools v0.34.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250218202821-56aae31c358a // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250219182151-9fdb1cabc7b2 // indirect
-	google.golang.org/grpc v1.72.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250303144028-a0af3efb3deb // indirect
+	google.golang.org/grpc v1.72.1 // indirect
 	google.golang.org/protobuf v1.36.7 // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.12.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
@@ -284,7 +284,7 @@ replace (
 	k8s.io/cri-api => k8s.io/cri-api v0.29.1
 	k8s.io/csi-translation-lib => k8s.io/csi-translation-lib v0.29.1
 	k8s.io/dynamic-resource-allocation => k8s.io/dynamic-resource-allocation v0.29.1
-	k8s.io/kms => k8s.io/kms v0.29.1
+	k8s.io/kms => k8s.io/kms v0.34.0
 	k8s.io/kube-aggregator => k8s.io/kube-aggregator v0.29.1
 	k8s.io/kube-controller-manager => k8s.io/kube-controller-manager v0.29.1
 	k8s.io/kube-proxy => k8s.io/kube-proxy v0.29.1
