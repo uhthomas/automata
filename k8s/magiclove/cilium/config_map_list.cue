@@ -252,7 +252,16 @@ import "k8s.io/api/core/v1"
 		"l2-announcements-lease-duration": "30s"
 		"l2-announcements-renew-deadline": "10s"
 		"l2-announcements-retry-period":   "1s"
-		"k8s-client-qps":                  "50"
-		"k8s-client-burst":                "150"
+
+		// https://docs.cilium.io/en/latest/network/bgp-control-plane/bgp-control-plane/
+		"enable-bgp-control-plane":               "true"
+		"bgp-secrets-namespace":                  #Namespace
+		"enable-bgp-control-plane-status-report": "true"
+		"bgp-router-id-allocation-mode":          "default"
+		"bgp-router-id-allocation-ip-pool":       ""
+		"enable-bgp-legacy-origin-attribute":     "false"
+
+		"k8s-client-qps":   "50"
+		"k8s-client-burst": "150"
 	}
 }]

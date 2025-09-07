@@ -41,3 +41,24 @@ the target version.
 ❯ cue import -l "strings.ToLower(kind)" --list -R cilium-1.14.0.yaml cilium-1.16.1.yaml
 ❯ diff -urN cilium-1.14.0.cue cilium-1.16.1.cue > out.diff
 ```
+
+## BGP
+
+```frr
+router bgp 65000
+  bgp router-id 172.16.0.1
+  no bgp ebgp-requires-policy
+
+  neighbor magiclove peer-group
+  neighbor magiclove remote-as 65100
+
+  neighbor 172.16.0.110 peer-group magiclove
+  neighbor 172.16.0.120 peer-group magiclove
+  neighbor 172.16.0.130 peer-group magiclove
+
+  address-family ipv4 unicast
+    neighbor magiclove next-hop-self
+    neighbor magiclove soft-reconfiguration inbound
+  exit-address-family
+exit
+```

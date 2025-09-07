@@ -17,13 +17,26 @@ import rbacv1 "k8s.io/api/rbac/v1"
 		labels: "app.kubernetes.io/part-of": "cilium"
 	}
 	roleRef: {
-		apiGroup: "rbac.authorization.k8s.io"
+		apiGroup: rbacv1.#GroupName
 		kind:     "Role"
 		name:     "cilium-config-agent"
 	}
 	subjects: [{
-		kind:      "ServiceAccount"
-		name:      "cilium"
-		namespace: #Namespace
+		kind: rbacv1.#ServiceAccountKind
+		name: "cilium"
+	}]
+}, {
+	metadata: {
+		name: "cilium-bgp-control-plane-secrets"
+		labels: "app.kubernetes.io/part-of": "cilium"
+	}
+	roleRef: {
+		apiGroup: rbacv1.#GroupName
+		kind:     "Role"
+		name:     "cilium-bgp-control-plane-secrets"
+	}
+	subjects: [{
+		kind: rbacv1.#ServiceAccountKind
+		name: "cilium"
 	}]
 }]

@@ -25,7 +25,9 @@ import (
 
 _items: [
 	#CertificateList.items,
-	#CiliumL2AnnouncementPolicyList.items,
+	#CiliumBGPAdvertisementList.items,
+	#CiliumBGPClusterConfigList.items,
+	#CiliumBGPPeerConfigList.items,
 	#CiliumLoadBalancerIPPoolList.items,
 	#ClusterRoleBindingList.items,
 	#ClusterRoleList.items,

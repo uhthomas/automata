@@ -4,7 +4,9 @@ cue_library(
     name = "cue_cilium_library",
     srcs = [
         "certificate_list.cue",
-        "cilium_l2_announcement_policy_list.cue",
+        "cilium_bgp_advertisement_list.cue",
+        "cilium_bgp_cluster_config_list.cue",
+        "cilium_bgp_peer_config_list.cue",
         "cilium_load_balancer_ip_pool_list.cue",
         "cluster_role_binding_list.cue",
         "cluster_role_list.cue",
