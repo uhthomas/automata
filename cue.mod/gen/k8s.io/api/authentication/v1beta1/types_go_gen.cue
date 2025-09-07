@@ -40,6 +40,7 @@ import (
 	// this list. If no audiences are provided, the audience will default to the
 	// audience of the Kubernetes apiserver.
 	// +optional
+	// +listType=atomic
 	audiences?: [...string] @go(Audiences,[]string) @protobuf(2,bytes,rep)
 }
 
@@ -63,6 +64,7 @@ import (
 	// status.audience field where status.authenticated is "true", the token is
 	// valid against the audience of the Kubernetes API server.
 	// +optional
+	// +listType=atomic
 	audiences?: [...string] @go(Audiences,[]string) @protobuf(4,bytes,rep)
 
 	// Error indicates that the token couldn't be checked
@@ -85,6 +87,7 @@ import (
 
 	// The names of groups this user is a part of.
 	// +optional
+	// +listType=atomic
 	groups?: [...string] @go(Groups,[]string) @protobuf(3,bytes,rep)
 
 	// Any additional information provided by the authenticator.

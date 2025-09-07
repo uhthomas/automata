@@ -40,6 +40,7 @@ import (
 	// e.g. ["ro", "soft"]. Not validated -
 	// mount of the PVs will simply fail if one is invalid.
 	// +optional
+	// +listType=atomic
 	mountOptions?: [...string] @go(MountOptions,[]string) @protobuf(5,bytes,opt)
 
 	// allowVolumeExpansion shows whether the storage class allow volume expand
@@ -141,8 +142,8 @@ import (
 }
 
 // VolumeAttachmentSource represents a volume that should be attached.
-// Right now only PersistenVolumes can be attached via external attacher,
-// in future we may allow also inline volumes in pods.
+// Right now only PersistentVolumes can be attached via external attacher,
+// in the future we may allow also inline volumes in pods.
 // Exactly one member can be set.
 #VolumeAttachmentSource: {
 	// persistentVolumeName represents the name of the persistent volume to attach.
@@ -198,6 +199,14 @@ import (
 	// information.
 	// +optional
 	message?: string @go(Message) @protobuf(2,bytes,opt)
+
+	// errorCode is a numeric gRPC code representing the error encountered during Attach or Detach operations.
+	//
+	// This is an optional, beta field that requires the MutableCSINodeAllocatableCount feature gate being enabled to be set.
+	//
+	// +featureGate=MutableCSINodeAllocatableCount
+	// +optional
+	errorCode?: null | int32 @go(ErrorCode,*int32) @protobuf(3,varint,opt)
 }
 
 // CSIDriver captures information about a Container Storage Interface (CSI)
@@ -247,8 +256,7 @@ import (
 	// and waits until the volume is attached before proceeding to mounting.
 	// The CSI external-attacher coordinates with CSI volume driver and updates
 	// the volumeattachment status when the attach operation is complete.
-	// If the CSIDriverRegistry feature gate is enabled and the value is
-	// specified to false, the attach operation will be skipped.
+	// If the value is specified to false, the attach operation will be skipped.
 	// Otherwise the attach operation will be called.
 	//
 	// This field is immutable.
@@ -301,6 +309,7 @@ import (
 	// This field is immutable.
 	//
 	// +optional
+	// +listType=atomic
 	volumeLifecycleModes?: [...#VolumeLifecycleMode] @go(VolumeLifecycleModes,[]VolumeLifecycleMode) @protobuf(3,bytes,opt)
 
 	// storageCapacity indicates that the CSI volume driver wants pod scheduling to consider the storage
@@ -387,6 +396,20 @@ import (
 	// +featureGate=SELinuxMountReadWriteOncePod
 	// +optional
 	seLinuxMount?: null | bool @go(SELinuxMount,*bool) @protobuf(8,varint,opt)
+
+	// nodeAllocatableUpdatePeriodSeconds specifies the interval between periodic updates of
+	// the CSINode allocatable capacity for this driver. When set, both periodic updates and
+	// updates triggered by capacity-related failures are enabled. If not set, no updates
+	// occur (neither periodic nor upon detecting capacity-related failures), and the
+	// allocatable.count remains static. The minimum allowed value for this field is 10 seconds.
+	//
+	// This is a beta feature and requires the MutableCSINodeAllocatableCount feature gate to be enabled.
+	//
+	// This field is mutable.
+	//
+	// +featureGate=MutableCSINodeAllocatableCount
+	// +optional
+	nodeAllocatableUpdatePeriodSeconds?: null | int64 @go(NodeAllocatableUpdatePeriodSeconds,*int64) @protobuf(9,varint,opt)
 }
 
 // FSGroupPolicy specifies if a CSI Driver supports modifying
@@ -486,6 +509,8 @@ import (
 	// If all drivers in the list are uninstalled, this can become empty.
 	// +patchMergeKey=name
 	// +patchStrategy=merge
+	// +listType=map
+	// +listMapKey=name
 	drivers: [...#CSINodeDriver] @go(Drivers,[]CSINodeDriver) @protobuf(1,bytes,rep)
 }
 
@@ -518,6 +543,7 @@ import (
 	// It is possible for different nodes to use different topology keys.
 	// This can be empty if driver does not support topology.
 	// +optional
+	// +listType=atomic
 	topologyKeys?: [...string] @go(TopologyKeys,[]string) @protobuf(3,bytes,rep)
 
 	// allocatable represents the volume resources of a node that are available for scheduling.
@@ -641,7 +667,49 @@ import (
 	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
 
 	// items is the list of CSIStorageCapacity objects.
-	// +listType=map
-	// +listMapKey=name
 	items: [...#CSIStorageCapacity] @go(Items,[]CSIStorageCapacity) @protobuf(2,bytes,rep)
+}
+
+// VolumeAttributesClass represents a specification of mutable volume attributes
+// defined by the CSI driver. The class can be specified during dynamic provisioning
+// of PersistentVolumeClaims, and changed in the PersistentVolumeClaim spec after provisioning.
+#VolumeAttributesClass: {
+	metav1.#TypeMeta
+
+	// Standard object's metadata.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	// +optional
+	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
+
+	// Name of the CSI driver
+	// This field is immutable.
+	driverName: string @go(DriverName) @protobuf(2,bytes,opt)
+
+	// parameters hold volume attributes defined by the CSI driver. These values
+	// are opaque to the Kubernetes and are passed directly to the CSI driver.
+	// The underlying storage provider supports changing these attributes on an
+	// existing volume, however the parameters field itself is immutable. To
+	// invoke a volume update, a new VolumeAttributesClass should be created with
+	// new parameters, and the PersistentVolumeClaim should be updated to reference
+	// the new VolumeAttributesClass.
+	//
+	// This field is required and must contain at least one key/value pair.
+	// The keys cannot be empty, and the maximum number of parameters is 512, with
+	// a cumulative max size of 256K. If the CSI driver rejects invalid parameters,
+	// the target PersistentVolumeClaim will be set to an "Infeasible" state in the
+	// modifyVolumeStatus field.
+	parameters?: {[string]: string} @go(Parameters,map[string]string) @protobuf(3,bytes,rep)
+}
+
+// VolumeAttributesClassList is a collection of VolumeAttributesClass objects.
+#VolumeAttributesClassList: {
+	metav1.#TypeMeta
+
+	// Standard list metadata
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	// +optional
+	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
+
+	// items is the list of VolumeAttributesClass objects.
+	items: [...#VolumeAttributesClass] @go(Items,[]VolumeAttributesClass) @protobuf(2,bytes,rep)
 }

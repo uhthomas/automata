@@ -214,6 +214,8 @@ import (
 	// +optional
 	// +patchMergeKey=uid
 	// +patchStrategy=merge
+	// +listType=map
+	// +listMapKey=uid
 	ownerReferences?: [...#OwnerReference] @go(OwnerReferences,[]OwnerReference) @protobuf(13,bytes,rep)
 
 	// Must be empty before the object is deleted from the registry. Each entry
@@ -231,6 +233,7 @@ import (
 	// are not vulnerable to ordering changes in the list.
 	// +optional
 	// +patchStrategy=merge
+	// +listType=set
 	finalizers?: [...string] @go(Finalizers,[]string) @protobuf(14,bytes,rep)
 
 	// ManagedFields maps workflow-id and version to the set of fields
@@ -242,6 +245,7 @@ import (
 	// workflow used when modifying the object.
 	//
 	// +optional
+	// +listType=atomic
 	managedFields?: [...#ManagedFieldsEntry] @go(ManagedFields,[]ManagedFieldsEntry) @protobuf(17,bytes,rep)
 }
 
@@ -408,6 +412,13 @@ import (
 	sendInitialEvents?: null | bool @go(SendInitialEvents,*bool) @protobuf(11,varint,opt)
 }
 
+// InitialEventsAnnotationKey the name of the key
+// under which an annotation marking the end of
+// a watchlist stream is stored.
+//
+// The annotation is added to a "Bookmark" event.
+#InitialEventsAnnotationKey: "k8s.io/initial-events-end"
+
 // resourceVersionMatch specifies how the resourceVersion parameter is applied. resourceVersionMatch
 // may only be set if resourceVersion is also set.
 //
@@ -511,7 +522,23 @@ import (
 	// request. Valid values are:
 	// - All: all dry run stages will be processed
 	// +optional
+	// +listType=atomic
 	dryRun?: [...string] @go(DryRun,[]string) @protobuf(5,bytes,rep)
+
+	// if set to true, it will trigger an unsafe deletion of the resource in
+	// case the normal deletion flow fails with a corrupt object error.
+	// A resource is considered corrupt if it can not be retrieved from
+	// the underlying storage successfully because of a) its data can
+	// not be transformed e.g. decryption failure, or b) it fails
+	// to decode into an object.
+	// NOTE: unsafe deletion ignores finalizer constraints, skips
+	// precondition checks, and removes the object from the storage.
+	// WARNING: This may potentially break the cluster if the workload
+	// associated with the resource being unsafe-deleted relies on normal
+	// deletion flow. Use only if you REALLY know what you are doing.
+	// The default value is false, and the user must opt in to enable it
+	// +optional
+	ignoreStoreReadErrorWithClusterBreakingPotential?: null | bool @go(IgnoreStoreReadErrorWithClusterBreakingPotential,*bool) @protobuf(6,varint,opt)
 }
 
 // FieldValidationIgnore ignores unknown/duplicate fields
@@ -533,6 +560,7 @@ import (
 	// request. Valid values are:
 	// - All: all dry run stages will be processed
 	// +optional
+	// +listType=atomic
 	dryRun?: [...string] @go(DryRun,[]string) @protobuf(1,bytes,rep)
 
 	// fieldManager is a name associated with the actor or entity
@@ -573,6 +601,7 @@ import (
 	// request. Valid values are:
 	// - All: all dry run stages will be processed
 	// +optional
+	// +listType=atomic
 	dryRun?: [...string] @go(DryRun,[]string) @protobuf(1,bytes,rep)
 
 	// Force is going to "force" Apply requests. It means user will
@@ -624,6 +653,7 @@ import (
 	// request. Valid values are:
 	// - All: all dry run stages will be processed
 	// +optional
+	// +listType=atomic
 	dryRun?: [...string] @go(DryRun,[]string) @protobuf(1,bytes,rep)
 
 	// Force is going to "force" Apply requests. It means user will
@@ -649,6 +679,7 @@ import (
 	// request. Valid values are:
 	// - All: all dry run stages will be processed
 	// +optional
+	// +listType=atomic
 	dryRun?: [...string] @go(DryRun,[]string) @protobuf(1,bytes,rep)
 
 	// fieldManager is a name associated with the actor or entity
@@ -720,6 +751,7 @@ import (
 	// is not guaranteed to conform to any schema except that defined by
 	// the reason type.
 	// +optional
+	// +listType=atomic
 	details?: null | #StatusDetails @go(Details,*StatusDetails) @protobuf(5,bytes,opt)
 
 	// Suggested HTTP return code for this status, 0 if not set.
@@ -758,6 +790,7 @@ import (
 	// The Causes array includes more details associated with the StatusReason
 	// failure. Not all StatusReasons may provide detailed causes.
 	// +optional
+	// +listType=atomic
 	causes?: [...#StatusCause] @go(Causes,[]StatusCause) @protobuf(4,bytes,rep)
 
 	// If specified, the time in seconds before the operation should be retried. Some errors may indicate
@@ -786,6 +819,7 @@ import (
 	#StatusReasonGone |
 	#StatusReasonInvalid |
 	#StatusReasonServerTimeout |
+	#StatusReasonStoreReadError |
 	#StatusReasonTimeout |
 	#StatusReasonTooManyRequests |
 	#StatusReasonBadRequest |
@@ -873,6 +907,22 @@ import (
 //   "retryAfterSeconds" int32 - the number of seconds before the operation should be retried
 // Status code 500
 #StatusReasonServerTimeout: #StatusReason & "ServerTimeout"
+
+// StatusReasonStoreReadError means that the server encountered an error while
+// retrieving resources from the backend object store.
+// This may be due to backend database error, or because processing of the read
+// resource failed.
+// Details:
+//   "kind" string - the kind attribute of the resource being acted on.
+//   "name" string - the prefix where the reading error(s) occurred
+//   "causes" []StatusCause
+//      - (optional):
+//        - "type" CauseType - CauseTypeUnexpectedServerResponse
+//        - "message" string - the error message from the store backend
+//        - "field" string - the full path with the key of the resource that failed reading
+//
+// Status code 500
+#StatusReasonStoreReadError: #StatusReason & "StorageReadError"
 
 // StatusReasonTimeout means that the request could not be completed within the given time.
 // Clients can get this response only when they specified a timeout param in the request,
@@ -1065,6 +1115,7 @@ import (
 	#TypeMeta
 
 	// versions are the api versions that are available.
+	// +listType=atomic
 	versions: [...string] @go(Versions,[]string) @protobuf(1,bytes,rep)
 
 	// a map of client CIDR to server address that is serving this group.
@@ -1074,6 +1125,7 @@ import (
 	// The server returns only those CIDRs that it thinks that the client can match.
 	// For example: the master will return an internal IP CIDR only, if the client reaches the server using an internal IP.
 	// Server looks at X-Forwarded-For header or X-Real-Ip header or request.RemoteAddr (in that order) to get the client IP.
+	// +listType=atomic
 	serverAddressByClientCIDRs: [...#ServerAddressByClientCIDR] @go(ServerAddressByClientCIDRs,[]ServerAddressByClientCIDR) @protobuf(2,bytes,rep)
 }
 
@@ -1083,6 +1135,7 @@ import (
 	#TypeMeta
 
 	// groups is a list of APIGroup.
+	// +listType=atomic
 	groups: [...#APIGroup] @go(Groups,[]APIGroup) @protobuf(1,bytes,rep)
 }
 
@@ -1095,6 +1148,7 @@ import (
 	name: string @go(Name) @protobuf(1,bytes,opt)
 
 	// versions are the versions supported in this group.
+	// +listType=atomic
 	versions: [...#GroupVersionForDiscovery] @go(Versions,[]GroupVersionForDiscovery) @protobuf(2,bytes,rep)
 
 	// preferredVersion is the version preferred by the API server, which
@@ -1110,6 +1164,7 @@ import (
 	// For example: the master will return an internal IP CIDR only, if the client reaches the server using an internal IP.
 	// Server looks at X-Forwarded-For header or X-Real-Ip header or request.RemoteAddr (in that order) to get the client IP.
 	// +optional
+	// +listType=atomic
 	serverAddressByClientCIDRs?: [...#ServerAddressByClientCIDR] @go(ServerAddressByClientCIDRs,[]ServerAddressByClientCIDR) @protobuf(4,bytes,rep)
 }
 
@@ -1163,9 +1218,11 @@ import (
 	verbs: #Verbs @go(Verbs) @protobuf(4,bytes,opt)
 
 	// shortNames is a list of suggested short names of the resource.
+	// +listType=atomic
 	shortNames?: [...string] @go(ShortNames,[]string) @protobuf(5,bytes,rep)
 
 	// categories is a list of the grouped resources this resource belongs to (e.g. 'all')
+	// +listType=atomic
 	categories?: [...string] @go(Categories,[]string) @protobuf(7,bytes,rep)
 
 	// The hash value of the storage version, the version this resource is
@@ -1195,6 +1252,7 @@ import (
 	groupVersion: string @go(GroupVersion) @protobuf(1,bytes,opt)
 
 	// resources contains the name of the resources and if they are namespaced.
+	// +listType=atomic
 	resources: [...#APIResource] @go(APIResources,[]APIResource) @protobuf(2,bytes,rep)
 }
 
@@ -1202,6 +1260,7 @@ import (
 // For example: "/healthz", "/apis".
 #RootPaths: {
 	// paths are the paths available at root.
+	// +listType=atomic
 	paths: [...string] @go(Paths,[]string) @protobuf(1,bytes,rep)
 }
 
@@ -1221,6 +1280,7 @@ import (
 
 	// matchExpressions is a list of label selector requirements. The requirements are ANDed.
 	// +optional
+	// +listType=atomic
 	matchExpressions?: [...#LabelSelectorRequirement] @go(MatchExpressions,[]LabelSelectorRequirement) @protobuf(2,bytes,rep)
 }
 
@@ -1239,6 +1299,7 @@ import (
 	// the values array must be empty. This array is replaced during a strategic
 	// merge patch.
 	// +optional
+	// +listType=atomic
 	values?: [...string] @go(Values,[]string) @protobuf(3,bytes,rep)
 }
 
@@ -1255,6 +1316,39 @@ import (
 #LabelSelectorOpNotIn:        #LabelSelectorOperator & "NotIn"
 #LabelSelectorOpExists:       #LabelSelectorOperator & "Exists"
 #LabelSelectorOpDoesNotExist: #LabelSelectorOperator & "DoesNotExist"
+
+// FieldSelectorRequirement is a selector that contains values, a key, and an operator that
+// relates the key and values.
+#FieldSelectorRequirement: {
+	// key is the field selector key that the requirement applies to.
+	key: string @go(Key) @protobuf(1,bytes,opt)
+
+	// operator represents a key's relationship to a set of values.
+	// Valid operators are In, NotIn, Exists, DoesNotExist.
+	// The list of operators may grow in the future.
+	operator: #FieldSelectorOperator @go(Operator) @protobuf(2,bytes,opt,casttype=FieldSelectorOperator)
+
+	// values is an array of string values.
+	// If the operator is In or NotIn, the values array must be non-empty.
+	// If the operator is Exists or DoesNotExist, the values array must be empty.
+	// +optional
+	// +listType=atomic
+	values?: [...string] @go(Values,[]string) @protobuf(3,bytes,rep)
+}
+
+// A field selector operator is the set of operators that can be used in a selector requirement.
+#FieldSelectorOperator: string // #enumFieldSelectorOperator
+
+#enumFieldSelectorOperator:
+	#FieldSelectorOpIn |
+	#FieldSelectorOpNotIn |
+	#FieldSelectorOpExists |
+	#FieldSelectorOpDoesNotExist
+
+#FieldSelectorOpIn:           #FieldSelectorOperator & "In"
+#FieldSelectorOpNotIn:        #FieldSelectorOperator & "NotIn"
+#FieldSelectorOpExists:       #FieldSelectorOperator & "Exists"
+#FieldSelectorOpDoesNotExist: #FieldSelectorOperator & "DoesNotExist"
 
 // ManagedFieldsEntry is a workflow-id, a FieldSet and the group version of the resource
 // that the fieldset applies to.
@@ -1336,9 +1430,11 @@ import (
 
 	// columnDefinitions describes each column in the returned items array. The number of cells per row
 	// will always match the number of column definitions.
+	// +listType=atomic
 	columnDefinitions: [...#TableColumnDefinition] @go(ColumnDefinitions,[]TableColumnDefinition)
 
 	// rows is the list of items in the table.
+	// +listType=atomic
 	rows: [...#TableRow] @go(Rows,[]TableRow)
 }
 
@@ -1375,6 +1471,7 @@ import (
 	// cells will be as wide as the column definitions array and may contain strings, numbers (float64 or
 	// int64), booleans, simple maps, lists, or null. See the type field of the column definition for a
 	// more detailed description.
+	// +listType=atomic
 	cells: [...] @go(Cells,[]interface{})
 
 	// conditions describe additional status of a row that are relevant for a human user. These conditions
@@ -1382,6 +1479,7 @@ import (
 	// condition type is 'Completed', for a row that indicates a resource that has run to completion and
 	// can be given less visual priority.
 	// +optional
+	// +listType=atomic
 	conditions?: [...#TableRowCondition] @go(Conditions,[]TableRowCondition)
 
 	// This field contains the requested additional information about each object based on the includeObject

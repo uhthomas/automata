@@ -60,8 +60,8 @@ import (
 }
 
 // VolumeAttachmentSource represents a volume that should be attached.
-// Right now only PersistenVolumes can be attached via external attacher,
-// in future we may allow also inline volumes in pods.
+// Right now only PersistentVolumes can be attached via external attacher,
+// in the future we may allow also inline volumes in pods.
 // Exactly one member can be set.
 #VolumeAttachmentSource: {
 	// persistentVolumeName represents the name of the persistent volume to attach.
@@ -117,6 +117,14 @@ import (
 	// information.
 	// +optional
 	message?: string @go(Message) @protobuf(2,bytes,opt)
+
+	// errorCode is a numeric gRPC code representing the error encountered during Attach or Detach operations.
+	//
+	// This is an optional, alpha field that requires the MutableCSINodeAllocatableCount feature gate being enabled to be set.
+	//
+	// +featureGate=MutableCSINodeAllocatableCount
+	// +optional
+	errorCode?: null | int32 @go(ErrorCode,*int32) @protobuf(3,varint,opt)
 }
 
 // CSIStorageCapacity stores the result of one CSI GetCapacity call.
@@ -212,8 +220,6 @@ import (
 	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
 
 	// items is the list of CSIStorageCapacity objects.
-	// +listType=map
-	// +listMapKey=name
 	items: [...#CSIStorageCapacity] @go(Items,[]CSIStorageCapacity) @protobuf(2,bytes,rep)
 }
 

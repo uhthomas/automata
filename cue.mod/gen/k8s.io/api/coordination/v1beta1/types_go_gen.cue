@@ -4,7 +4,10 @@
 
 package v1beta1
 
-import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/api/coordination/v1"
+)
 
 // Lease defines a lease concept.
 #Lease: {
@@ -23,6 +26,8 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // LeaseSpec is a specification of a Lease.
 #LeaseSpec: {
 	// holderIdentity contains the identity of the holder of a current lease.
+	// If Coordinated Leader Election is used, the holder identity must be
+	// equal to the elected LeaseCandidate.metadata.name field.
 	// +optional
 	holderIdentity?: null | string @go(HolderIdentity,*string) @protobuf(1,bytes,opt)
 
@@ -45,6 +50,18 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// holders.
 	// +optional
 	leaseTransitions?: null | int32 @go(LeaseTransitions,*int32) @protobuf(5,varint,opt)
+
+	// Strategy indicates the strategy for picking the leader for coordinated leader election
+	// (Alpha) Using this field requires the CoordinatedLeaderElection feature gate to be enabled.
+	// +featureGate=CoordinatedLeaderElection
+	// +optional
+	strategy?: null | v1.#CoordinatedLeaseStrategy @go(Strategy,*v1.CoordinatedLeaseStrategy) @protobuf(6,bytes,opt)
+
+	// PreferredHolder signals to a lease holder that the lease has a
+	// more optimal holder and should be given up.
+	// +featureGate=CoordinatedLeaderElection
+	// +optional
+	preferredHolder?: null | string @go(PreferredHolder,*string) @protobuf(7,bytes,opt)
 }
 
 // LeaseList is a list of Lease objects.
@@ -58,4 +75,77 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	// items is a list of schema objects.
 	items: [...#Lease] @go(Items,[]Lease) @protobuf(2,bytes,rep)
+}
+
+// LeaseCandidate defines a candidate for a Lease object.
+// Candidates are created such that coordinated leader election will pick the best leader from the list of candidates.
+#LeaseCandidate: {
+	metav1.#TypeMeta
+
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	// +optional
+	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
+
+	// spec contains the specification of the Lease.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+	// +optional
+	spec?: #LeaseCandidateSpec @go(Spec) @protobuf(2,bytes,opt)
+}
+
+// LeaseCandidateSpec is a specification of a Lease.
+#LeaseCandidateSpec: {
+	// LeaseName is the name of the lease for which this candidate is contending.
+	// The limits on this field are the same as on Lease.name. Multiple lease candidates
+	// may reference the same Lease.name.
+	// This field is immutable.
+	// +required
+	leaseName: string @go(LeaseName) @protobuf(1,bytes)
+
+	// PingTime is the last time that the server has requested the LeaseCandidate
+	// to renew. It is only done during leader election to check if any
+	// LeaseCandidates have become ineligible. When PingTime is updated, the
+	// LeaseCandidate will respond by updating RenewTime.
+	// +optional
+	pingTime?: null | metav1.#MicroTime @go(PingTime,*metav1.MicroTime) @protobuf(2,bytes,opt)
+
+	// RenewTime is the time that the LeaseCandidate was last updated.
+	// Any time a Lease needs to do leader election, the PingTime field
+	// is updated to signal to the LeaseCandidate that they should update
+	// the RenewTime.
+	// Old LeaseCandidate objects are also garbage collected if it has been hours
+	// since the last renew. The PingTime field is updated regularly to prevent
+	// garbage collection for still active LeaseCandidates.
+	// +optional
+	renewTime?: null | metav1.#MicroTime @go(RenewTime,*metav1.MicroTime) @protobuf(3,bytes,opt)
+
+	// BinaryVersion is the binary version. It must be in a semver format without leading `v`.
+	// This field is required.
+	// +required
+	binaryVersion: string @go(BinaryVersion) @protobuf(4,bytes)
+
+	// EmulationVersion is the emulation version. It must be in a semver format without leading `v`.
+	// EmulationVersion must be less than or equal to BinaryVersion.
+	// This field is required when strategy is "OldestEmulationVersion"
+	// +optional
+	emulationVersion?: string @go(EmulationVersion) @protobuf(5,bytes,opt)
+
+	// Strategy is the strategy that coordinated leader election will use for picking the leader.
+	// If multiple candidates for the same Lease return different strategies, the strategy provided
+	// by the candidate with the latest BinaryVersion will be used. If there is still conflict,
+	// this is a user error and coordinated leader election will not operate the Lease until resolved.
+	// +required
+	strategy?: v1.#CoordinatedLeaseStrategy @go(Strategy) @protobuf(6,bytes,opt)
+}
+
+// LeaseCandidateList is a list of Lease objects.
+#LeaseCandidateList: {
+	metav1.#TypeMeta
+
+	// Standard list metadata.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	// +optional
+	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
+
+	// items is a list of schema objects.
+	items: [...#LeaseCandidate] @go(Items,[]LeaseCandidate) @protobuf(2,bytes,rep)
 }

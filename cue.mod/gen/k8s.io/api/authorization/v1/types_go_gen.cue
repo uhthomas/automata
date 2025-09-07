@@ -94,6 +94,68 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Name is the name of the resource being requested for a "get" or deleted for a "delete". "" (empty) means all.
 	// +optional
 	name?: string @go(Name) @protobuf(7,bytes,opt)
+
+	// fieldSelector describes the limitation on access based on field.  It can only limit access, not broaden it.
+	// +optional
+	fieldSelector?: null | #FieldSelectorAttributes @go(FieldSelector,*FieldSelectorAttributes) @protobuf(8,bytes,opt)
+
+	// labelSelector describes the limitation on access based on labels.  It can only limit access, not broaden it.
+	// +optional
+	labelSelector?: null | #LabelSelectorAttributes @go(LabelSelector,*LabelSelectorAttributes) @protobuf(9,bytes,opt)
+}
+
+// LabelSelectorAttributes indicates a label limited access.
+// Webhook authors are encouraged to
+// * ensure rawSelector and requirements are not both set
+// * consider the requirements field if set
+// * not try to parse or consider the rawSelector field if set. This is to avoid another CVE-2022-2880 (i.e. getting different systems to agree on how exactly to parse a query is not something we want), see https://www.oxeye.io/resources/golang-parameter-smuggling-attack for more details.
+// For the *SubjectAccessReview endpoints of the kube-apiserver:
+// * If rawSelector is empty and requirements are empty, the request is not limited.
+// * If rawSelector is present and requirements are empty, the rawSelector will be parsed and limited if the parsing succeeds.
+// * If rawSelector is empty and requirements are present, the requirements should be honored
+// * If rawSelector is present and requirements are present, the request is invalid.
+#LabelSelectorAttributes: {
+	// rawSelector is the serialization of a field selector that would be included in a query parameter.
+	// Webhook implementations are encouraged to ignore rawSelector.
+	// The kube-apiserver's *SubjectAccessReview will parse the rawSelector as long as the requirements are not present.
+	// +optional
+	rawSelector?: string @go(RawSelector) @protobuf(1,bytes,opt)
+
+	// requirements is the parsed interpretation of a label selector.
+	// All requirements must be met for a resource instance to match the selector.
+	// Webhook implementations should handle requirements, but how to handle them is up to the webhook.
+	// Since requirements can only limit the request, it is safe to authorize as unlimited request if the requirements
+	// are not understood.
+	// +optional
+	// +listType=atomic
+	requirements?: [...metav1.#LabelSelectorRequirement] @go(Requirements,[]metav1.LabelSelectorRequirement) @protobuf(2,bytes,rep)
+}
+
+// FieldSelectorAttributes indicates a field limited access.
+// Webhook authors are encouraged to
+// * ensure rawSelector and requirements are not both set
+// * consider the requirements field if set
+// * not try to parse or consider the rawSelector field if set. This is to avoid another CVE-2022-2880 (i.e. getting different systems to agree on how exactly to parse a query is not something we want), see https://www.oxeye.io/resources/golang-parameter-smuggling-attack for more details.
+// For the *SubjectAccessReview endpoints of the kube-apiserver:
+// * If rawSelector is empty and requirements are empty, the request is not limited.
+// * If rawSelector is present and requirements are empty, the rawSelector will be parsed and limited if the parsing succeeds.
+// * If rawSelector is empty and requirements are present, the requirements should be honored
+// * If rawSelector is present and requirements are present, the request is invalid.
+#FieldSelectorAttributes: {
+	// rawSelector is the serialization of a field selector that would be included in a query parameter.
+	// Webhook implementations are encouraged to ignore rawSelector.
+	// The kube-apiserver's *SubjectAccessReview will parse the rawSelector as long as the requirements are not present.
+	// +optional
+	rawSelector?: string @go(RawSelector) @protobuf(1,bytes,opt)
+
+	// requirements is the parsed interpretation of a field selector.
+	// All requirements must be met for a resource instance to match the selector.
+	// Webhook implementations should handle requirements, but how to handle them is up to the webhook.
+	// Since requirements can only limit the request, it is safe to authorize as unlimited request if the requirements
+	// are not understood.
+	// +optional
+	// +listType=atomic
+	requirements?: [...metav1.#FieldSelectorRequirement] @go(Requirements,[]metav1.FieldSelectorRequirement) @protobuf(2,bytes,rep)
 }
 
 // NonResourceAttributes includes the authorization attributes available for non-resource requests to the Authorizer interface
@@ -125,6 +187,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	// Groups is the groups you're testing for.
 	// +optional
+	// +listType=atomic
 	groups?: [...string] @go(Groups,[]string) @protobuf(4,bytes,rep)
 
 	// Extra corresponds to the user.Info.GetExtra() method from the authenticator.  Since that is input to the authorizer
@@ -212,10 +275,12 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 #SubjectRulesReviewStatus: {
 	// ResourceRules is the list of actions the subject is allowed to perform on resources.
 	// The list ordering isn't significant, may contain duplicates, and possibly be incomplete.
+	// +listType=atomic
 	resourceRules: [...#ResourceRule] @go(ResourceRules,[]ResourceRule) @protobuf(1,bytes,rep)
 
 	// NonResourceRules is the list of actions the subject is allowed to perform on non-resources.
 	// The list ordering isn't significant, may contain duplicates, and possibly be incomplete.
+	// +listType=atomic
 	nonResourceRules: [...#NonResourceRule] @go(NonResourceRules,[]NonResourceRule) @protobuf(2,bytes,rep)
 
 	// Incomplete is true when the rules returned by this call are incomplete. This is most commonly
@@ -233,30 +298,36 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // may contain duplicates, and possibly be incomplete.
 #ResourceRule: {
 	// Verb is a list of kubernetes resource API verbs, like: get, list, watch, create, update, delete, proxy.  "*" means all.
+	// +listType=atomic
 	verbs: [...string] @go(Verbs,[]string) @protobuf(1,bytes,rep)
 
 	// APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
 	// the enumerated resources in any API group will be allowed.  "*" means all.
 	// +optional
+	// +listType=atomic
 	apiGroups?: [...string] @go(APIGroups,[]string) @protobuf(2,bytes,rep)
 
 	// Resources is a list of resources this rule applies to.  "*" means all in the specified apiGroups.
 	//  "*/foo" represents the subresource 'foo' for all resources in the specified apiGroups.
 	// +optional
+	// +listType=atomic
 	resources?: [...string] @go(Resources,[]string) @protobuf(3,bytes,rep)
 
 	// ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.  "*" means all.
 	// +optional
+	// +listType=atomic
 	resourceNames?: [...string] @go(ResourceNames,[]string) @protobuf(4,bytes,rep)
 }
 
 // NonResourceRule holds information that describes a rule for the non-resource
 #NonResourceRule: {
 	// Verb is a list of kubernetes non-resource API verbs, like: get, post, put, delete, patch, head, options.  "*" means all.
+	// +listType=atomic
 	verbs: [...string] @go(Verbs,[]string) @protobuf(1,bytes,rep)
 
 	// NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full,
 	// final step in the path.  "*" means all.
 	// +optional
+	// +listType=atomic
 	nonResourceURLs?: [...string] @go(NonResourceURLs,[]string) @protobuf(2,bytes,rep)
 }

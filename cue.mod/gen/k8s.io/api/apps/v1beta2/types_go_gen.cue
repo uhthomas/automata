@@ -21,6 +21,9 @@ import (
 #ScaleSpec: {
 	// desired number of instances for the scaled object.
 	// +optional
+	// +k8s:optional
+	// +default=0
+	// +k8s:minimum=0
 	replicas?: int32 @go(Replicas) @protobuf(1,varint,opt)
 }
 
@@ -167,7 +170,7 @@ import (
 
 #enumPersistentVolumeClaimRetentionPolicyType:
 	#RetainPersistentVolumeClaimRetentionPolicyType |
-	#RetentionPersistentVolumeClaimRetentionPolicyType
+	#DeletePersistentVolumeClaimRetentionPolicyType
 
 // RetainPersistentVolumeClaimRetentionPolicyType is the default
 // PersistentVolumeClaimRetentionPolicy and specifies that
@@ -175,11 +178,11 @@ import (
 // will not be deleted.
 #RetainPersistentVolumeClaimRetentionPolicyType: #PersistentVolumeClaimRetentionPolicyType & "Retain"
 
-// RetentionPersistentVolumeClaimRetentionPolicyType specifies that
+// DeletePersistentVolumeClaimRetentionPolicyType specifies that
 // PersistentVolumeClaims associated with StatefulSet VolumeClaimTemplates
 // will be deleted in the scenario specified in
 // StatefulSetPersistentVolumeClaimRetentionPolicy.
-#RetentionPersistentVolumeClaimRetentionPolicyType: #PersistentVolumeClaimRetentionPolicyType & "Delete"
+#DeletePersistentVolumeClaimRetentionPolicyType: #PersistentVolumeClaimRetentionPolicyType & "Delete"
 
 // StatefulSetPersistentVolumeClaimRetentionPolicy describes the policy used for PVCs
 // created from the StatefulSet VolumeClaimTemplates.
@@ -245,6 +248,7 @@ import (
 	// any volumes in the template, with the same name.
 	// TODO: Define the behavior if a claim already exists with the same name.
 	// +optional
+	// +listType=atomic
 	volumeClaimTemplates?: [...v1.#PersistentVolumeClaim] @go(VolumeClaimTemplates,[]v1.PersistentVolumeClaim) @protobuf(4,bytes,rep)
 
 	// serviceName is the name of the service that governs this StatefulSet.
@@ -252,7 +256,8 @@ import (
 	// the network identity of the set. Pods get DNS/hostnames that follow the
 	// pattern: pod-specific-string.serviceName.default.svc.cluster.local
 	// where "pod-specific-string" is managed by the StatefulSet controller.
-	serviceName: string @go(ServiceName) @protobuf(5,bytes,opt)
+	// +optional
+	serviceName?: string @go(ServiceName) @protobuf(5,bytes,opt)
 
 	// podManagementPolicy controls how pods are created during initial scale up,
 	// when replacing pods on nodes, or when scaling down. The default policy is
@@ -283,16 +288,13 @@ import (
 	minReadySeconds?: int32 @go(MinReadySeconds) @protobuf(9,varint,opt)
 
 	// PersistentVolumeClaimRetentionPolicy describes the policy used for PVCs created from
-	// the StatefulSet VolumeClaimTemplates. This requires the
-	// StatefulSetAutoDeletePVC feature gate to be enabled, which is alpha.
+	// the StatefulSet VolumeClaimTemplates.
 	// +optional
 	persistentVolumeClaimRetentionPolicy?: null | #StatefulSetPersistentVolumeClaimRetentionPolicy @go(PersistentVolumeClaimRetentionPolicy,*StatefulSetPersistentVolumeClaimRetentionPolicy) @protobuf(10,bytes,opt)
 
 	// ordinals controls the numbering of replica indices in a StatefulSet. The
 	// default ordinals behavior assigns a "0" index to the first replica and
-	// increments the index by one for each additional replica requested. Using
-	// the ordinals field requires the StatefulSetStartOrdinal feature gate to be
-	// enabled, which is beta.
+	// increments the index by one for each additional replica requested.
 	// +optional
 	ordinals?: null | #StatefulSetOrdinals @go(Ordinals,*StatefulSetOrdinals) @protobuf(11,bytes,opt)
 }
@@ -336,6 +338,8 @@ import (
 	// +optional
 	// +patchMergeKey=type
 	// +patchStrategy=merge
+	// +listType=map
+	// +listMapKey=type
 	conditions?: [...#StatefulSetCondition] @go(Conditions,[]StatefulSetCondition) @protobuf(10,bytes,rep)
 
 	// Total number of available pods (ready for at least minReadySeconds) targeted by this StatefulSet.
@@ -507,19 +511,19 @@ import (
 	// +optional
 	observedGeneration?: int64 @go(ObservedGeneration) @protobuf(1,varint,opt)
 
-	// Total number of non-terminated pods targeted by this deployment (their labels match the selector).
+	// Total number of non-terminating pods targeted by this deployment (their labels match the selector).
 	// +optional
 	replicas?: int32 @go(Replicas) @protobuf(2,varint,opt)
 
-	// Total number of non-terminated pods targeted by this deployment that have the desired template spec.
+	// Total number of non-terminating pods targeted by this deployment that have the desired template spec.
 	// +optional
 	updatedReplicas?: int32 @go(UpdatedReplicas) @protobuf(3,varint,opt)
 
-	// readyReplicas is the number of pods targeted by this Deployment controller with a Ready Condition.
+	// Total number of non-terminating pods targeted by this Deployment with a Ready Condition.
 	// +optional
 	readyReplicas?: int32 @go(ReadyReplicas) @protobuf(7,varint,opt)
 
-	// Total number of available pods (ready for at least minReadySeconds) targeted by this deployment.
+	// Total number of available non-terminating pods (ready for at least minReadySeconds) targeted by this deployment.
 	// +optional
 	availableReplicas?: int32 @go(AvailableReplicas) @protobuf(4,varint,opt)
 
@@ -529,9 +533,18 @@ import (
 	// +optional
 	unavailableReplicas?: int32 @go(UnavailableReplicas) @protobuf(5,varint,opt)
 
+	// Total number of terminating pods targeted by this deployment. Terminating pods have a non-null
+	// .metadata.deletionTimestamp and have not yet reached the Failed or Succeeded .status.phase.
+	//
+	// This is an alpha field. Enable DeploymentReplicaSetTerminatingReplicas to be able to use this field.
+	// +optional
+	terminatingReplicas?: null | int32 @go(TerminatingReplicas,*int32) @protobuf(9,varint,opt)
+
 	// Represents the latest available observations of a deployment's current state.
 	// +patchMergeKey=type
 	// +patchStrategy=merge
+	// +listType=map
+	// +listMapKey=type
 	conditions?: [...#DeploymentCondition] @go(Conditions,[]DeploymentCondition) @protobuf(6,bytes,rep)
 
 	// Count of hash collisions for the Deployment. The Deployment controller uses this
@@ -654,7 +667,7 @@ import (
 	// pod is available (Ready for at least minReadySeconds) the old DaemonSet pod
 	// on that node is marked deleted. If the old pod becomes unavailable for any
 	// reason (Ready transitions to false, is evicted, or is drained) an updated
-	// pod is immediatedly created on that node without considering surge limits.
+	// pod is immediately created on that node without considering surge limits.
 	// Allowing surge implies the possibility that the resources consumed by the
 	// daemonset on any given node can double if the readiness check fails, and
 	// so resource intensive daemonsets should take into account that they may
@@ -748,6 +761,8 @@ import (
 	// +optional
 	// +patchMergeKey=type
 	// +patchStrategy=merge
+	// +listType=map
+	// +listMapKey=type
 	conditions?: [...#DaemonSetCondition] @go(Conditions,[]DaemonSetCondition) @protobuf(10,bytes,rep)
 }
 
@@ -853,16 +868,16 @@ import (
 	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
 
 	// List of ReplicaSets.
-	// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller
+	// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset
 	items: [...#ReplicaSet] @go(Items,[]ReplicaSet) @protobuf(2,bytes,rep)
 }
 
 // ReplicaSetSpec is the specification of a ReplicaSet.
 #ReplicaSetSpec: {
-	// Replicas is the number of desired replicas.
+	// Replicas is the number of desired pods.
 	// This is a pointer to distinguish between explicit zero and unspecified.
 	// Defaults to 1.
-	// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller/#what-is-a-replicationcontroller
+	// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset
 	// +optional
 	replicas?: null | int32 @go(Replicas,*int32) @protobuf(1,varint,opt)
 
@@ -880,28 +895,35 @@ import (
 
 	// Template is the object that describes the pod that will be created if
 	// insufficient replicas are detected.
-	// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller#pod-template
+	// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/#pod-template
 	// +optional
 	template?: v1.#PodTemplateSpec @go(Template) @protobuf(3,bytes,opt)
 }
 
 // ReplicaSetStatus represents the current status of a ReplicaSet.
 #ReplicaSetStatus: {
-	// Replicas is the most recently observed number of replicas.
-	// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller/#what-is-a-replicationcontroller
+	// Replicas is the most recently observed number of non-terminating pods.
+	// More info: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset
 	replicas: int32 @go(Replicas) @protobuf(1,varint,opt)
 
-	// The number of pods that have labels matching the labels of the pod template of the replicaset.
+	// The number of non-terminating pods that have labels matching the labels of the pod template of the replicaset.
 	// +optional
 	fullyLabeledReplicas?: int32 @go(FullyLabeledReplicas) @protobuf(2,varint,opt)
 
-	// readyReplicas is the number of pods targeted by this ReplicaSet controller with a Ready Condition.
+	// The number of non-terminating pods targeted by this ReplicaSet with a Ready Condition.
 	// +optional
 	readyReplicas?: int32 @go(ReadyReplicas) @protobuf(4,varint,opt)
 
-	// The number of available replicas (ready for at least minReadySeconds) for this replica set.
+	// The number of available non-terminating pods (ready for at least minReadySeconds) for this replica set.
 	// +optional
 	availableReplicas?: int32 @go(AvailableReplicas) @protobuf(5,varint,opt)
+
+	// The number of terminating pods for this replica set. Terminating pods have a non-null .metadata.deletionTimestamp
+	// and have not yet reached the Failed or Succeeded .status.phase.
+	//
+	// This is an alpha field. Enable DeploymentReplicaSetTerminatingReplicas to be able to use this field.
+	// +optional
+	terminatingReplicas?: null | int32 @go(TerminatingReplicas,*int32) @protobuf(7,varint,opt)
 
 	// ObservedGeneration reflects the generation of the most recently observed ReplicaSet.
 	// +optional
@@ -911,6 +933,8 @@ import (
 	// +optional
 	// +patchMergeKey=type
 	// +patchStrategy=merge
+	// +listType=map
+	// +listMapKey=type
 	conditions?: [...#ReplicaSetCondition] @go(Conditions,[]ReplicaSetCondition) @protobuf(6,bytes,rep)
 }
 

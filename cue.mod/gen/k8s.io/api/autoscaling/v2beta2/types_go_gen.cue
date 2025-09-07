@@ -58,6 +58,7 @@ import (
 	// more information about how each type of metric must respond.
 	// If not set, the default metric will be set to 80% average CPU utilization.
 	// +optional
+	// +listType=atomic
 	metrics?: [...#MetricSpec] @go(Metrics,[]MetricSpec) @protobuf(4,bytes,rep)
 
 	// behavior configures the scaling behavior of the target
@@ -85,8 +86,6 @@ import (
 #MetricSpec: {
 	// type is the type of metric source.  It should be one of "ContainerResource", "External",
 	// "Object", "Pods" or "Resource", each mapping to a matching field in the object.
-	// Note: "ContainerResource" type is available on when the feature-gate
-	// HPAContainerMetrics is enabled
 	type: #MetricSourceType @go(Type) @protobuf(1,bytes)
 
 	// object refers to a metric describing a single kubernetes object
@@ -113,7 +112,6 @@ import (
 	// each pod of the current scale target (e.g. CPU or memory). Such metrics are
 	// built in to Kubernetes, and have special scaling options on top of those
 	// available to normal per-pod metrics using the "pods" source.
-	// This is an alpha feature and can be enabled by the HPAContainerMetrics feature flag.
 	// +optional
 	containerResource?: null | #ContainerResourceMetricSource @go(ContainerResource,*ContainerResourceMetricSource) @protobuf(7,bytes,opt)
 
@@ -186,6 +184,7 @@ import (
 	// policies is a list of potential scaling polices which can be used during scaling.
 	// At least one policy must be specified, otherwise the HPAScalingRules will be discarded as invalid
 	// +optional
+	// +listType=atomic
 	policies?: [...#HPAScalingPolicy] @go(Policies,[]HPAScalingPolicy) @protobuf(2,bytes,rep)
 }
 
@@ -398,11 +397,13 @@ import (
 
 	// currentMetrics is the last read state of the metrics used by this autoscaler.
 	// +optional
+	// +listType=atomic
 	currentMetrics?: [...#MetricStatus] @go(CurrentMetrics,[]MetricStatus) @protobuf(5,bytes,rep)
 
 	// conditions is the set of conditions required for this autoscaler to scale its target,
 	// and indicates whether or not those conditions are met.
 	// +optional
+	// +listType=atomic
 	conditions?: [...#HorizontalPodAutoscalerCondition] @go(Conditions,[]HorizontalPodAutoscalerCondition) @protobuf(6,bytes,rep)
 }
 
@@ -455,8 +456,6 @@ import (
 #MetricStatus: {
 	// type is the type of metric source.  It will be one of "ContainerResource", "External",
 	// "Object", "Pods" or "Resource", each corresponds to a matching field in the object.
-	// Note: "ContainerResource" type is available on when the feature-gate
-	// HPAContainerMetrics is enabled
 	type: #MetricSourceType @go(Type) @protobuf(1,bytes)
 
 	// object refers to a metric describing a single kubernetes object

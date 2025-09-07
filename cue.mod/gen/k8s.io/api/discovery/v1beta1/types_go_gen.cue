@@ -145,11 +145,24 @@ import (
 	// enable topology aware routing. May contain a maximum of 8 entries.
 	// +listType=atomic
 	forZones?: [...#ForZone] @go(ForZones,[]ForZone) @protobuf(1,bytes)
+
+	// forNodes indicates the node(s) this endpoint should be consumed by when
+	// using topology aware routing. May contain a maximum of 8 entries.
+	// This is an Alpha feature and is only used when the PreferSameTrafficDistribution
+	// feature gate is enabled.
+	// +listType=atomic
+	forNodes?: [...#ForNode] @go(ForNodes,[]ForNode) @protobuf(2,bytes)
 }
 
 // ForZone provides information about which zones should consume this endpoint.
 #ForZone: {
 	// name represents the name of the zone.
+	name: string @go(Name) @protobuf(1,bytes)
+}
+
+// ForNode provides information about which nodes should consume this endpoint.
+#ForNode: {
+	// name represents the name of the node.
 	name: string @go(Name) @protobuf(1,bytes)
 }
 

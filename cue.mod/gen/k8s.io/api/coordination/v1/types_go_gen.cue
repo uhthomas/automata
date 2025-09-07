@@ -6,6 +6,18 @@ package v1
 
 import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+#CoordinatedLeaseStrategy: string // #enumCoordinatedLeaseStrategy
+
+#enumCoordinatedLeaseStrategy:
+	#OldestEmulationVersion
+
+// OldestEmulationVersion picks the oldest LeaseCandidate, where "oldest" is defined as follows
+// 1) Select the candidate(s) with the lowest emulation version
+// 2) If multiple candidates have the same emulation version, select the candidate(s) with the lowest binary version. (Note that binary version must be greater or equal to emulation version)
+// 3) If multiple candidates have the same binary version, select the candidate with the oldest creationTimestamp.
+// If a candidate does not specify the emulationVersion and binaryVersion fields, it will not be considered a candidate for the lease.
+#OldestEmulationVersion: #CoordinatedLeaseStrategy & "OldestEmulationVersion"
+
 // Lease defines a lease concept.
 #Lease: {
 	metav1.#TypeMeta
@@ -23,11 +35,13 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // LeaseSpec is a specification of a Lease.
 #LeaseSpec: {
 	// holderIdentity contains the identity of the holder of a current lease.
+	// If Coordinated Leader Election is used, the holder identity must be
+	// equal to the elected LeaseCandidate.metadata.name field.
 	// +optional
 	holderIdentity?: null | string @go(HolderIdentity,*string) @protobuf(1,bytes,opt)
 
 	// leaseDurationSeconds is a duration that candidates for a lease need
-	// to wait to force acquire it. This is measure against time of last
+	// to wait to force acquire it. This is measured against the time of last
 	// observed renewTime.
 	// +optional
 	leaseDurationSeconds?: null | int32 @go(LeaseDurationSeconds,*int32) @protobuf(2,varint,opt)
@@ -45,6 +59,20 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// holders.
 	// +optional
 	leaseTransitions?: null | int32 @go(LeaseTransitions,*int32) @protobuf(5,varint,opt)
+
+	// Strategy indicates the strategy for picking the leader for coordinated leader election.
+	// If the field is not specified, there is no active coordination for this lease.
+	// (Alpha) Using this field requires the CoordinatedLeaderElection feature gate to be enabled.
+	// +featureGate=CoordinatedLeaderElection
+	// +optional
+	strategy?: null | #CoordinatedLeaseStrategy @go(Strategy,*CoordinatedLeaseStrategy) @protobuf(6,bytes,opt)
+
+	// PreferredHolder signals to a lease holder that the lease has a
+	// more optimal holder and should be given up.
+	// This field can only be set if Strategy is also set.
+	// +featureGate=CoordinatedLeaderElection
+	// +optional
+	preferredHolder?: null | string @go(PreferredHolder,*string) @protobuf(7,bytes,opt)
 }
 
 // LeaseList is a list of Lease objects.

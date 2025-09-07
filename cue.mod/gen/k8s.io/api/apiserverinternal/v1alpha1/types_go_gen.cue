@@ -22,8 +22,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 }
 
 // StorageVersionSpec is an empty spec.
-#StorageVersionSpec: {
-}
+#StorageVersionSpec: {}
 
 // API server instances report the versions they can decode and the version they
 // encode objects to when persisting objects in the backend.
@@ -103,7 +102,6 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	observedGeneration?: int64 @go(ObservedGeneration) @protobuf(3,varint,opt)
 
 	// Last time the condition transitioned from one status to another.
-	// +required
 	lastTransitionTime?: metav1.#Time @go(LastTransitionTime) @protobuf(4,bytes,opt)
 
 	// The reason for the condition's last transition.

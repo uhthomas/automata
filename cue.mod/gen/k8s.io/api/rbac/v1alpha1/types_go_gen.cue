@@ -21,25 +21,30 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // about who the rule applies to or which namespace the rule applies to.
 #PolicyRule: {
 	// Verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs.
+	// +listType=atomic
 	verbs: [...string] @go(Verbs,[]string) @protobuf(1,bytes,rep)
 
 	// APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
 	// the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
 	// +optional
+	// +listType=atomic
 	apiGroups?: [...string] @go(APIGroups,[]string) @protobuf(3,bytes,rep)
 
 	// Resources is a list of resources this rule applies to. '*' represents all resources.
 	// +optional
+	// +listType=atomic
 	resources?: [...string] @go(Resources,[]string) @protobuf(4,bytes,rep)
 
 	// ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.
 	// +optional
+	// +listType=atomic
 	resourceNames?: [...string] @go(ResourceNames,[]string) @protobuf(5,bytes,rep)
 
 	// NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
 	// Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding.
 	// Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
 	// +optional
+	// +listType=atomic
 	nonResourceURLs?: [...string] @go(NonResourceURLs,[]string) @protobuf(6,bytes,rep)
 }
 
@@ -55,7 +60,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Defaults to "rbac.authorization.k8s.io/v1alpha1" for User and Group subjects.
 	// +k8s:conversion-gen=false
 	// +optional
-	apiVersion?: string @go(APIVersion) @protobuf(2,bytes,opt.name=apiVersion)
+	apiVersion?: string @go(APIVersion) @protobuf(2,bytes,opt)
 
 	// Name of the object being referenced.
 	name: string @go(Name) @protobuf(3,bytes,opt)
@@ -89,6 +94,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	// Rules holds all the PolicyRules for this Role
 	// +optional
+	// +listType=atomic
 	rules?: [...#PolicyRule] @go(Rules,[]PolicyRule) @protobuf(2,bytes,rep)
 }
 
@@ -105,6 +111,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	// Subjects holds references to the objects the role applies to.
 	// +optional
+	// +listType=atomic
 	subjects?: [...#Subject] @go(Subjects,[]Subject) @protobuf(2,bytes,rep)
 
 	// RoleRef can reference a Role in the current namespace or a ClusterRole in the global namespace.
@@ -149,6 +156,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	// Rules holds all the PolicyRules for this ClusterRole
 	// +optional
+	// +listType=atomic
 	rules?: [...#PolicyRule] @go(Rules,[]PolicyRule) @protobuf(2,bytes,rep)
 
 	// AggregationRule is an optional field that describes how to build the Rules for this ClusterRole.
@@ -163,6 +171,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// ClusterRoleSelectors holds a list of selectors which will be used to find ClusterRoles and create the rules.
 	// If any of the selectors match, then the ClusterRole's permissions will be added
 	// +optional
+	// +listType=atomic
 	clusterRoleSelectors?: [...metav1.#LabelSelector] @go(ClusterRoleSelectors,[]metav1.LabelSelector) @protobuf(1,bytes,rep)
 }
 
@@ -178,6 +187,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	// Subjects holds references to the objects the role applies to.
 	// +optional
+	// +listType=atomic
 	subjects?: [...#Subject] @go(Subjects,[]Subject) @protobuf(2,bytes,rep)
 
 	// RoleRef can only reference a ClusterRole in the global namespace.

@@ -27,6 +27,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 #ImageReviewSpec: {
 	// Containers is a list of a subset of the information in each container of the Pod being created.
 	// +optional
+	// +listType=atomic
 	containers?: [...#ImageReviewContainerSpec] @go(Containers,[]ImageReviewContainerSpec) @protobuf(1,bytes,rep)
 
 	// Annotations is a list of key-value pairs extracted from the Pod's annotations.

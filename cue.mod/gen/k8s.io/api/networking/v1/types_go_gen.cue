@@ -42,12 +42,13 @@ import (
 // NetworkPolicySpec provides the specification of a NetworkPolicy
 #NetworkPolicySpec: {
 	// podSelector selects the pods to which this NetworkPolicy object applies.
-	// The array of ingress rules is applied to any pods selected by this field.
+	// The array of rules is applied to any pods selected by this field. An empty
+	// selector matches all pods in the policy's namespace.
 	// Multiple network policies can select the same set of pods. In this case,
 	// the ingress rules for each are combined additively.
-	// This field is NOT optional and follows standard label selector semantics.
-	// An empty podSelector matches all pods in this namespace.
-	podSelector: metav1.#LabelSelector @go(PodSelector) @protobuf(1,bytes,opt)
+	// This field is optional. If it is not specified, it defaults to an empty selector.
+	// +optional
+	podSelector?: metav1.#LabelSelector @go(PodSelector) @protobuf(1,bytes,opt)
 
 	// ingress is a list of ingress rules to be applied to the selected pods.
 	// Traffic is allowed to a pod if there are no NetworkPolicies selecting the pod
@@ -57,6 +58,7 @@ import (
 	// this field is empty then this NetworkPolicy does not allow any traffic (and serves
 	// solely to ensure that the pods it selects are isolated by default)
 	// +optional
+	// +listType=atomic
 	ingress?: [...#NetworkPolicyIngressRule] @go(Ingress,[]NetworkPolicyIngressRule) @protobuf(2,bytes,rep)
 
 	// egress is a list of egress rules to be applied to the selected pods. Outgoing traffic
@@ -67,6 +69,7 @@ import (
 	// solely to ensure that the pods it selects are isolated by default).
 	// This field is beta-level in 1.8
 	// +optional
+	// +listType=atomic
 	egress?: [...#NetworkPolicyEgressRule] @go(Egress,[]NetworkPolicyEgressRule) @protobuf(3,bytes,rep)
 
 	// policyTypes is a list of rule types that the NetworkPolicy relates to.
@@ -80,6 +83,7 @@ import (
 	// an egress section and would otherwise default to just [ "Ingress" ]).
 	// This field is beta-level in 1.8
 	// +optional
+	// +listType=atomic
 	policyTypes?: [...#PolicyType] @go(PolicyTypes,[]PolicyType) @protobuf(4,bytes,rep,casttype=PolicyType)
 }
 
@@ -92,6 +96,7 @@ import (
 	// If this field is present and contains at least one item, then this rule allows
 	// traffic only if the traffic matches at least one port in the list.
 	// +optional
+	// +listType=atomic
 	ports?: [...#NetworkPolicyPort] @go(Ports,[]NetworkPolicyPort) @protobuf(1,bytes,rep)
 
 	// from is a list of sources which should be able to access the pods selected for this rule.
@@ -100,6 +105,7 @@ import (
 	// source). If this field is present and contains at least one item, this rule
 	// allows traffic only if the traffic matches at least one item in the from list.
 	// +optional
+	// +listType=atomic
 	from?: [...#NetworkPolicyPeer] @go(From,[]NetworkPolicyPeer) @protobuf(2,bytes,rep)
 }
 
@@ -113,6 +119,7 @@ import (
 	// If this field is present and contains at least one item, then this rule allows
 	// traffic only if the traffic matches at least one port in the list.
 	// +optional
+	// +listType=atomic
 	ports?: [...#NetworkPolicyPort] @go(Ports,[]NetworkPolicyPort) @protobuf(1,bytes,rep)
 
 	// to is a list of destinations for outgoing traffic of pods selected for this rule.
@@ -121,6 +128,7 @@ import (
 	// destination). If this field is present and contains at least one item, this rule
 	// allows traffic only if the traffic matches at least one item in the to list.
 	// +optional
+	// +listType=atomic
 	to?: [...#NetworkPolicyPeer] @go(To,[]NetworkPolicyPeer) @protobuf(2,bytes,rep)
 }
 
@@ -158,6 +166,7 @@ import (
 	// Valid examples are "192.168.1.0/24" or "2001:db8::/64"
 	// Except values will be rejected if they are outside the cidr range
 	// +optional
+	// +listType=atomic
 	except?: [...string] @go(Except,[]string) @protobuf(2,bytes,rep)
 }
 
@@ -305,6 +314,7 @@ import (
 #IngressLoadBalancerStatus: {
 	// ingress is a list containing ingress points for the load-balancer.
 	// +optional
+	// +listType=atomic
 	ingress?: [...#IngressLoadBalancerIngress] @go(Ingress,[]IngressLoadBalancerIngress) @protobuf(1,bytes,rep)
 }
 
@@ -492,6 +502,7 @@ import (
 }
 
 // ServiceBackendPort is the service port being referenced.
+// +structType=atomic
 #ServiceBackendPort: {
 	// name is the name of the port on the Service.
 	// This is a mutually exclusive setting with "Number".
@@ -585,4 +596,129 @@ import (
 
 	// items is the list of IngressClasses.
 	items: [...#IngressClass] @go(Items,[]IngressClass) @protobuf(2,bytes,rep)
+}
+
+// IPAddress represents a single IP of a single IP Family. The object is designed to be used by APIs
+// that operate on IP addresses. The object is used by the Service core API for allocation of IP addresses.
+// An IP address can be represented in different formats, to guarantee the uniqueness of the IP,
+// the name of the object is the IP address in canonical format, four decimal digits separated
+// by dots suppressing leading zeros for IPv4 and the representation defined by RFC 5952 for IPv6.
+// Valid: 192.168.1.5 or 2001:db8::1 or 2001:db8:aaaa:bbbb:cccc:dddd:eeee:1
+// Invalid: 10.01.2.3 or 2001:db8:0:0:0::1
+#IPAddress: {
+	metav1.#TypeMeta
+
+	// Standard object's metadata.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	// +optional
+	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
+
+	// spec is the desired state of the IPAddress.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+	// +optional
+	spec?: #IPAddressSpec @go(Spec) @protobuf(2,bytes,opt)
+}
+
+// IPAddressSpec describe the attributes in an IP Address.
+#IPAddressSpec: {
+	// ParentRef references the resource that an IPAddress is attached to.
+	// An IPAddress must reference a parent object.
+	// +required
+	parentRef?: null | #ParentReference @go(ParentRef,*ParentReference) @protobuf(1,bytes,opt)
+}
+
+// ParentReference describes a reference to a parent object.
+#ParentReference: {
+	// Group is the group of the object being referenced.
+	// +optional
+	group?: string @go(Group) @protobuf(1,bytes,opt)
+
+	// Resource is the resource of the object being referenced.
+	// +required
+	resource?: string @go(Resource) @protobuf(2,bytes,opt)
+
+	// Namespace is the namespace of the object being referenced.
+	// +optional
+	namespace?: string @go(Namespace) @protobuf(3,bytes,opt)
+
+	// Name is the name of the object being referenced.
+	// +required
+	name?: string @go(Name) @protobuf(4,bytes,opt)
+}
+
+// IPAddressList contains a list of IPAddress.
+#IPAddressList: {
+	metav1.#TypeMeta
+
+	// Standard object's metadata.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	// +optional
+	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
+
+	// items is the list of IPAddresses.
+	items: [...#IPAddress] @go(Items,[]IPAddress) @protobuf(2,bytes,rep)
+}
+
+// ServiceCIDR defines a range of IP addresses using CIDR format (e.g. 192.168.0.0/24 or 2001:db2::/64).
+// This range is used to allocate ClusterIPs to Service objects.
+#ServiceCIDR: {
+	metav1.#TypeMeta
+
+	// Standard object's metadata.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	// +optional
+	metadata?: metav1.#ObjectMeta @go(ObjectMeta) @protobuf(1,bytes,opt)
+
+	// spec is the desired state of the ServiceCIDR.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+	// +optional
+	spec?: #ServiceCIDRSpec @go(Spec) @protobuf(2,bytes,opt)
+
+	// status represents the current state of the ServiceCIDR.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+	// +optional
+	status?: #ServiceCIDRStatus @go(Status) @protobuf(3,bytes,opt)
+}
+
+// ServiceCIDRSpec define the CIDRs the user wants to use for allocating ClusterIPs for Services.
+#ServiceCIDRSpec: {
+	// CIDRs defines the IP blocks in CIDR notation (e.g. "192.168.0.0/24" or "2001:db8::/64")
+	// from which to assign service cluster IPs. Max of two CIDRs is allowed, one of each IP family.
+	// This field is immutable.
+	// +optional
+	// +listType=atomic
+	cidrs?: [...string] @go(CIDRs,[]string) @protobuf(1,bytes,opt)
+}
+
+// ServiceCIDRConditionReady represents status of a ServiceCIDR that is ready to be used by the
+// apiserver to allocate ClusterIPs for Services.
+#ServiceCIDRConditionReady: "Ready"
+
+// ServiceCIDRReasonTerminating represents a reason where a ServiceCIDR is not ready because it is
+// being deleted.
+#ServiceCIDRReasonTerminating: "Terminating"
+
+// ServiceCIDRStatus describes the current state of the ServiceCIDR.
+#ServiceCIDRStatus: {
+	// conditions holds an array of metav1.Condition that describe the state of the ServiceCIDR.
+	// Current service state
+	// +optional
+	// +patchMergeKey=type
+	// +patchStrategy=merge
+	// +listType=map
+	// +listMapKey=type
+	conditions?: [...metav1.#Condition] @go(Conditions,[]metav1.Condition) @protobuf(1,bytes,rep)
+}
+
+// ServiceCIDRList contains a list of ServiceCIDR objects.
+#ServiceCIDRList: {
+	metav1.#TypeMeta
+
+	// Standard object's metadata.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	// +optional
+	metadata?: metav1.#ListMeta @go(ListMeta) @protobuf(1,bytes,opt)
+
+	// items is the list of ServiceCIDRs.
+	items: [...#ServiceCIDR] @go(Items,[]ServiceCIDR) @protobuf(2,bytes,rep)
 }
