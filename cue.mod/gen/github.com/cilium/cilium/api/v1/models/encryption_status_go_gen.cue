@@ -14,7 +14,7 @@ package models
 	ipsec?: null | #IPsecStatus @go(Ipsec,*IPsecStatus)
 
 	// mode
-	// Enum: [Disabled IPsec Wireguard]
+	// Enum: ["Disabled","IPsec","Wireguard"]
 	mode?: string @go(Mode)
 
 	// Human readable error/warning message

@@ -11,7 +11,7 @@ package models
 // swagger:model BandwidthManager
 #BandwidthManager: {
 	// congestion control
-	// Enum: [cubic bbr]
+	// Enum: ["cubic","bbr"]
 	congestionControl?: string @go(CongestionControl)
 
 	// devices

@@ -9,5 +9,4 @@ package schema
 // For objects that cannot be serialized or have unique requirements, this interface may be a no-op.
 #ObjectKind: _
 
-_#emptyObjectKind: {
-}
+_#emptyObjectKind: {}

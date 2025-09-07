@@ -11,7 +11,7 @@ package models
 // swagger:model ProxyStatus
 #ProxyStatus: {
 	// Deployment mode of Envoy L7 proxy
-	// Enum: [embedded external]
+	// Enum: ["embedded","external"]
 	"envoy-deployment-mode"?: string @go(EnvoyDeploymentMode)
 
 	// IP address that the proxy listens on

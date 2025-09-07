@@ -1,0 +1,12 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_netns_library",
+    srcs = [
+        "doc_go_gen.cue",
+        "netns_linux_go_gen.cue",
+        "nshandle_linux_go_gen.cue",
+    ],
+    importpath = "github.com/vishvananda/netns",
+    visibility = ["//visibility:public"],
+)

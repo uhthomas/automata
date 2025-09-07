@@ -4,6 +4,8 @@
 
 package api
 
+import slim_metav1 "github.com/cilium/cilium/pkg/k8s/slim/k8s/apis/meta/v1"
+
 // CIDR specifies a block of IP addresses.
 // Example: 192.0.2.1/32
 //
@@ -26,6 +28,12 @@ package api
 	//
 	// +kubebuilder:validation:OneOf
 	cidrGroupRef?: #CIDRGroupRef @go(CIDRGroupRef)
+
+	// CIDRGroupSelector selects CiliumCIDRGroups by their labels,
+	// rather than by name.
+	//
+	// +kubebuilder:validation:OneOf
+	cidrGroupSelector?: null | slim_metav1.#LabelSelector @go(CIDRGroupSelector,*slim_metav1.LabelSelector)
 
 	// ExceptCIDRs is a list of IP blocks which the endpoint subject to the rule
 	// is not allowed to initiate connections to. These CIDR prefixes should be
@@ -55,3 +63,5 @@ package api
 // A CIDR Group is a list of CIDRs whose IP addresses should be considered as a
 // same entity when applying fromCIDRGroupRefs policies on incoming network traffic.
 #CIDRGroupRef: string
+
+#LabelPrefixGroupName: "io.cilium.policy.cidrgroupname"

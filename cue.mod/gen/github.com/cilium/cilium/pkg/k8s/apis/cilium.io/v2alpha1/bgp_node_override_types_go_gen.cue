@@ -65,6 +65,13 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// +listType=map
 	// +listMapKey=name
 	peers?: [...#CiliumBGPNodeConfigPeerOverride] @go(Peers,[]CiliumBGPNodeConfigPeerOverride)
+
+	// LocalASN is the ASN to use for this BGP instance.
+	//
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=4294967295
+	localASN?: null | int64 @go(LocalASN,*int64)
 }
 
 // CiliumBGPNodeConfigPeerOverride defines configuration options which can be overridden for a specific peer.

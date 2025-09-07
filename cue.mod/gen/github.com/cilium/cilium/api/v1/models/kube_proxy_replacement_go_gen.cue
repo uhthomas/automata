@@ -25,7 +25,7 @@ package models
 	features?: null | #KubeProxyReplacementFeatures @go(Features,*KubeProxyReplacementFeatures)
 
 	// mode
-	// Enum: [True False]
+	// Enum: ["True","False"]
 	mode?: string @go(Mode)
 }
 
@@ -56,6 +56,9 @@ package models
 //
 // swagger:model KubeProxyReplacementFeatures
 #KubeProxyReplacementFeatures: {
+	// annotations
+	annotations: [...string] @go(Annotations,[]string)
+
 	// flag bpf-lb-sock-hostns-only
 	bpfSocketLBHostnsOnly?: bool @go(BpfSocketLBHostnsOnly)
 
@@ -87,9 +90,7 @@ package models
 	socketLBTracing?: null | #KubeProxyReplacementFeaturesSocketLBTracing @go(SocketLBTracing,*KubeProxyReplacementFeaturesSocketLBTracing)
 }
 
-// KubeProxyReplacementFeaturesExternalIPs
-//
-// +k8s:deepcopy-gen=true
+// KubeProxyReplacementFeaturesExternalIPs kube proxy replacement features external i ps
 //
 // swagger:model KubeProxyReplacementFeaturesExternalIPs
 #KubeProxyReplacementFeaturesExternalIPs: {
@@ -97,9 +98,7 @@ package models
 	enabled?: bool @go(Enabled)
 }
 
-// KubeProxyReplacementFeaturesGracefulTermination
-//
-// +k8s:deepcopy-gen=true
+// KubeProxyReplacementFeaturesGracefulTermination Deprecated
 //
 // swagger:model KubeProxyReplacementFeaturesGracefulTermination
 #KubeProxyReplacementFeaturesGracefulTermination: {
@@ -107,9 +106,7 @@ package models
 	enabled?: bool @go(Enabled)
 }
 
-// KubeProxyReplacementFeaturesHostPort
-//
-// +k8s:deepcopy-gen=true
+// KubeProxyReplacementFeaturesHostPort kube proxy replacement features host port
 //
 // swagger:model KubeProxyReplacementFeaturesHostPort
 #KubeProxyReplacementFeaturesHostPort: {
@@ -159,9 +156,7 @@ package models
 	prefixes: [...string] @go(Prefixes,[]string)
 }
 
-// KubeProxyReplacementFeaturesNat46X64Service
-//
-// +k8s:deepcopy-gen=true
+// KubeProxyReplacementFeaturesNat46X64Service kube proxy replacement features nat46 x64 service
 //
 // swagger:model KubeProxyReplacementFeaturesNat46X64Service
 #KubeProxyReplacementFeaturesNat46X64Service: {
@@ -169,22 +164,20 @@ package models
 	enabled?: bool @go(Enabled)
 }
 
-// KubeProxyReplacementFeaturesNodePort
-//
-// +k8s:deepcopy-gen=true
+// KubeProxyReplacementFeaturesNodePort kube proxy replacement features node port
 //
 // swagger:model KubeProxyReplacementFeaturesNodePort
 #KubeProxyReplacementFeaturesNodePort: {
 	// acceleration
-	// Enum: [None Native Generic Best-Effort]
+	// Enum: ["None","Native","Generic","Best-Effort"]
 	acceleration?: string @go(Acceleration)
 
 	// algorithm
-	// Enum: [Random Maglev]
+	// Enum: ["Random","Maglev"]
 	algorithm?: string @go(Algorithm)
 
 	// dsr mode
-	// Enum: [IP Option/Extension IPIP Geneve]
+	// Enum: ["IP Option/Extension","IPIP","Geneve"]
 	dsrMode?: string @go(DsrMode)
 
 	// enabled
@@ -194,7 +187,7 @@ package models
 	lutSize?: int64 @go(LutSize)
 
 	// mode
-	// Enum: [SNAT DSR Hybrid]
+	// Enum: ["SNAT","DSR","Hybrid"]
 	mode?: string @go(Mode)
 
 	// port max
@@ -240,9 +233,7 @@ package models
 // KubeProxyReplacementFeaturesNodePortModeHybrid captures enum value "Hybrid"
 #KubeProxyReplacementFeaturesNodePortModeHybrid: "Hybrid"
 
-// KubeProxyReplacementFeaturesSessionAffinity
-//
-// +k8s:deepcopy-gen=true
+// KubeProxyReplacementFeaturesSessionAffinity kube proxy replacement features session affinity
 //
 // swagger:model KubeProxyReplacementFeaturesSessionAffinity
 #KubeProxyReplacementFeaturesSessionAffinity: {
@@ -250,9 +241,7 @@ package models
 	enabled?: bool @go(Enabled)
 }
 
-// KubeProxyReplacementFeaturesSocketLB
-//
-// +k8s:deepcopy-gen=true
+// KubeProxyReplacementFeaturesSocketLB kube proxy replacement features socket l b
 //
 // swagger:model KubeProxyReplacementFeaturesSocketLB
 #KubeProxyReplacementFeaturesSocketLB: {
@@ -260,9 +249,7 @@ package models
 	enabled?: bool @go(Enabled)
 }
 
-// KubeProxyReplacementFeaturesSocketLBTracing
-//
-// +k8s:deepcopy-gen=true
+// KubeProxyReplacementFeaturesSocketLBTracing kube proxy replacement features socket l b tracing
 //
 // swagger:model KubeProxyReplacementFeaturesSocketLBTracing
 #KubeProxyReplacementFeaturesSocketLBTracing: {

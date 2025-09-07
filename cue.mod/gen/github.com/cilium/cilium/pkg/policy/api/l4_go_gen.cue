@@ -144,8 +144,23 @@ import "github.com/cilium/proxy/pkg/policy/api/kafka"
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=100
 	// +kubebuilder:validation:Optional
-	priority: uint16 @go(Priority)
+	priority: uint8 @go(Priority)
 }
+
+// ServerName allows using prefix only wildcards to match DNS names.
+//
+// - "*" matches 0 or more DNS valid characters, and may only occur at the
+// beginning of the pattern. As a special case a "*" as the leftmost character,
+// without a following "." matches all subdomains as well as the name to the right.
+//
+// Examples:
+//   - `*.cilium.io` matches exactly one subdomain of cilium at that level www.cilium.io and blog.cilium.io match, cilium.io and google.com do not.
+//   - `**.cilium.io` matches more than one subdomain of cilium, e.g. sub1.sub2.cilium.io and sub.cilium.io match, cilium.io do not.
+//
+// +kubebuilder:validation:MaxLength=255
+// +kubebuilder:validation:Pattern=`^(\*?\*\.)?([-a-zA-Z0-9_]+\.?)+$`
+// +kubebuilder:validation:OneOf
+#ServerName: string
 
 // PortRule is a list of ports/protocol combinations with optional Layer 7
 // rules which must be met.
@@ -181,7 +196,9 @@ import "github.com/cilium/proxy/pkg/policy/api/kafka"
 	// TLS handshake.
 	//
 	// +kubebuilder:validation:Optional
-	serverNames?: [...string] @go(ServerNames,[]string)
+	// +kubebuilder:validation:MinItems=1
+	// +listType=set
+	serverNames?: [...#ServerName] @go(ServerNames,[]ServerName)
 
 	// listener specifies the name of a custom Envoy listener to which this traffic should be
 	// redirected to.

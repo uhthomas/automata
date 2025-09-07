@@ -1,0 +1,8 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_timestamppb_library",
+    srcs = ["timestamp.pb_go_gen.cue"],
+    importpath = "github.com/uhthomas/automata/cue.mod/gen/google.golang.org/protobuf/types/known/timestamppb",
+    visibility = ["//visibility:public"],
+)

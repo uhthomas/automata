@@ -17,7 +17,7 @@ package models
 	msg?: string @go(Msg)
 
 	// State the component is in
-	// Enum: [Ok Warning Failure Disabled]
+	// Enum: ["Ok","Warning","Failure","Disabled"]
 	state?: string @go(State)
 }
 

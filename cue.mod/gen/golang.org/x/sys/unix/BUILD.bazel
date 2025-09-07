@@ -1,0 +1,26 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_unix_library",
+    srcs = [
+        "affinity_linux_go_gen.cue",
+        "aliases_go_gen.cue",
+        "bluetooth_linux_go_gen.cue",
+        "constants_go_gen.cue",
+        "endian_little_go_gen.cue",
+        "ioctl_linux_go_gen.cue",
+        "race0_go_gen.cue",
+        "sockcmsg_unix_go_gen.cue",
+        "syscall_go_gen.cue",
+        "syscall_linux_go_gen.cue",
+        "syscall_unix_go_gen.cue",
+        "zerrors_linux_amd64_go_gen.cue",
+        "zerrors_linux_go_gen.cue",
+        "zptrace_x86_linux_go_gen.cue",
+        "zsysnum_linux_amd64_go_gen.cue",
+        "ztypes_linux_amd64_go_gen.cue",
+        "ztypes_linux_go_gen.cue",
+    ],
+    importpath = "github.com/uhthomas/automata/cue.mod/gen/golang.org/x/sys/unix",
+    visibility = ["//visibility:public"],
+)

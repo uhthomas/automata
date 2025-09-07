@@ -1,0 +1,22 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_rest_library",
+    srcs = [
+        "client_go_gen.cue",
+        "config_go_gen.cue",
+        "plugin_go_gen.cue",
+        "request_go_gen.cue",
+        "urlbackoff_go_gen.cue",
+        "warnings_go_gen.cue",
+        "with_retry_go_gen.cue",
+    ],
+    importpath = "k8s.io/client-go/rest",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//cue.mod/gen/k8s.io/apimachinery/pkg/runtime:cue_runtime_library",
+        "//cue.mod/gen/k8s.io/apimachinery/pkg/runtime/schema:cue_schema_library",
+        "//cue.mod/gen/k8s.io/client-go/tools/clientcmd/api:cue_api_library",
+        "//cue.mod/gen/k8s.io/client-go/util/flowcontrol:cue_flowcontrol_library",
+    ],
+)

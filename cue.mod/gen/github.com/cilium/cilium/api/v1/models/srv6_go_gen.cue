@@ -6,15 +6,13 @@ package models
 
 // Srv6 Status of the SRv6
 //
-// +k8s:deepcopy-gen=true
-//
 // swagger:model Srv6
 #Srv6: {
 	// enabled
 	enabled?: bool @go(Enabled)
 
 	// srv6 encap mode
-	// Enum: [SRH Reduced]
+	// Enum: ["SRH","Reduced"]
 	srv6EncapMode?: string @go(Srv6EncapMode)
 }
 

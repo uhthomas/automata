@@ -1,0 +1,9 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_peer_library",
+    srcs = ["peer_go_gen.cue"],
+    importpath = "github.com/uhthomas/automata/cue.mod/gen/google.golang.org/grpc/peer",
+    visibility = ["//visibility:public"],
+    deps = ["@org_golang_google_grpc//credentials:cue_credentials_library"],
+)

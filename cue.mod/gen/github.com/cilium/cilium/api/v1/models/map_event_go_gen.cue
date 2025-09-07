@@ -9,11 +9,11 @@ package models
 // swagger:model MapEvent
 #MapEvent: {
 	// Action type for event
-	// Enum: [update delete]
+	// Enum: ["update","delete"]
 	action?: string @go(Action)
 
 	// Desired action to be performed after this event
-	// Enum: [ok insert delete]
+	// Enum: ["ok","insert","delete"]
 	"desired-action"?: string @go(DesiredAction)
 
 	// Map key on which the event occured

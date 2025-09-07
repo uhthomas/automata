@@ -17,6 +17,14 @@ package labels
 // IDNameWorld is the label used for the world ID.
 #IDNameWorld: "world"
 
+// IDNameWorldIPv4 is the label used for the world-ipv4 ID, to distinguish
+// it from world-ipv6 in dual-stack mode.
+#IDNameWorldIPv4: "world-ipv4"
+
+// IDNameWorldIPv6 is the label used for the world-ipv6 ID, to distinguish
+// it from world-ipv4 in dual-stack mode.
+#IDNameWorldIPv6: "world-ipv6"
+
 // IDNameCluster is the label used to identify an unspecified endpoint
 // inside the cluster
 #IDNameCluster: "cluster"
@@ -32,6 +40,16 @@ package labels
 // is part of the reserved identity 7 and it is also used in conjunction
 // with IDNameHost if the kube-apiserver is running on the local host.
 #IDNameKubeAPIServer: "kube-apiserver"
+
+// IDNameEncryptedOverlay is the label used to identify encrypted overlay
+// traffic.
+//
+// It is part of the reserved identity 11 and signals that overlay traffic
+// with this identity must be IPSec encrypted before leaving the host.
+//
+// This identity should never be seen on the wire and is used only on the
+// local host.
+#IDNameEncryptedOverlay: "overlay-to-encrypt"
 
 // IDNameIngress is the label used to identify Ingress proxies. It is part
 // of the reserved identity 8.
@@ -67,29 +85,35 @@ package labels
 // LabelSourceContainer is a label imported from the container runtime
 #LabelSourceContainer: "container"
 
+// LabelSourceCNI is a label imported from the CNI plugin
+#LabelSourceCNI: "cni"
+
 // LabelSourceReserved is the label source for reserved types.
 #LabelSourceReserved: "reserved"
 
 // LabelSourceCIDR is the label source for generated CIDRs.
 #LabelSourceCIDR: "cidr"
 
+// LabelSourceCIDRGroup is the label source used for labels from CIDRGroups
+#LabelSourceCIDRGroup: "cidrgroup"
+
+// LabelSourceCIDRGroupKeyPrefix is the source as a k8s selector key prefix
+#LabelSourceCIDRGroupKeyPrefix: "cidrgroup."
+
+// LabelSourceNode is the label source for remote-nodes.
+#LabelSourceNode: "node"
+
+// LabelSourceFQDN is the label source for IPs resolved by fqdn lookups
+#LabelSourceFQDN: "fqdn"
+
 // LabelSourceReservedKeyPrefix is the prefix of a reserved label
 #LabelSourceReservedKeyPrefix: "reserved."
 
-// LabelKeyFixedIdentity is the label that can be used to define a fixed
-// identity.
-#LabelKeyFixedIdentity: "io.cilium.fixed-identity"
+// LabelSourceDirectory is the label source for policies read from files
+#LabelSourceDirectory: "directory"
 
 // Label is the Cilium's representation of a container label.
-#Label: {
-	key:    string @go(Key)
-	value?: string @go(Value)
-
-	// Source can be one of the above values (e.g.: LabelSourceContainer).
-	//
-	// +kubebuilder:validation:Optional
-	source: string @go(Source)
-}
+#Label: _
 
 // Labels is a map of labels where the map's key is the same as the label's key.
 #Labels: {[string]: #Label}

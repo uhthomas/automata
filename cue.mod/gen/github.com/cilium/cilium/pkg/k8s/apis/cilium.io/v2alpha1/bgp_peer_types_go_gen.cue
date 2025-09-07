@@ -26,6 +26,11 @@ import (
 
 	// Spec is the specification of the desired behavior of the CiliumBGPPeerConfig.
 	spec: #CiliumBGPPeerConfigSpec @go(Spec)
+
+	// Status is the running status of the CiliumBGPPeerConfig
+	//
+	// +kubebuilder:validation:Optional
+	status: #CiliumBGPPeerConfigStatus @go(Status)
 }
 
 #CiliumBGPPeerConfigSpec: {
@@ -79,6 +84,19 @@ import (
 	// +kubebuilder:validation:Optional
 	families?: [...#CiliumBGPFamilyWithAdverts] @go(Families,[]CiliumBGPFamilyWithAdverts)
 }
+
+#CiliumBGPPeerConfigStatus: {
+	// The current conditions of the CiliumBGPPeerConfig
+	//
+	// +optional
+	// +listType=map
+	// +listMapKey=type
+	// +deepequal-gen=false
+	conditions?: [...metav1.#Condition] @go(Conditions,[]metav1.Condition)
+}
+
+// Referenced auth secret is missing
+#BGPPeerConfigConditionMissingAuthSecret: "cilium.io/MissingAuthSecret"
 
 // CiliumBGPFamily represents a AFI/SAFI address family pair.
 #CiliumBGPFamily: {
@@ -136,6 +154,9 @@ import (
 	peerPort?: null | int32 @go(PeerPort,*int32)
 }
 
+// CiliumBGPTimers defines timers configuration for a BGP peer.
+//
+// +kubebuilder:validation:XValidation:rule="self.keepAliveTimeSeconds <= self.holdTimeSeconds", message="keepAliveTimeSeconds can not be larger than holdTimeSeconds"
 #CiliumBGPTimers: {
 	// ConnectRetryTimeSeconds defines the initial value for the BGP ConnectRetryTimer (RFC 4271, Section 8).
 	//

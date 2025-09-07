@@ -18,7 +18,7 @@ package models
 	statements: [...null | #BgpRoutePolicyStatement] @go(Statements,[]*BgpRoutePolicyStatement)
 
 	// Type of the route policy
-	// Enum: [export import]
+	// Enum: ["export","import"]
 	type?: string @go(Type)
 }
 

@@ -65,6 +65,9 @@ package models
 	// Network namespace cookie
 	"netns-cookie"?: string @go(NetnsCookie)
 
+	// Index of network device from which an IP was used as endpoint IP. Only relevant for ENI environments.
+	"parent-interface-index"?: int64 @go(ParentInterfaceIndex)
+
 	// Process ID of the workload belonging to this endpoint
 	pid?: int64 @go(Pid)
 

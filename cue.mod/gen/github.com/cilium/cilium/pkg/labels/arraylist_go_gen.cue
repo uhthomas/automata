@@ -7,3 +7,9 @@ package labels
 // LabelArrayList is an array of LabelArrays. It is primarily intended as a
 // simple collection
 #LabelArrayList: [...#LabelArray]
+
+// LabelArrayListString is the string representation of a list of lists
+// of labels. It must always be sorted.
+//
+// e.g. "[foo:a=b foo:c=d], [any:x=y]"
+#LabelArrayListString: string

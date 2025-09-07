@@ -1,0 +1,11 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_rate_library",
+    srcs = [
+        "rate_go_gen.cue",
+        "sometimes_go_gen.cue",
+    ],
+    importpath = "github.com/uhthomas/automata/cue.mod/gen/golang.org/x/time/rate",
+    visibility = ["//visibility:public"],
+)

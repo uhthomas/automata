@@ -6,8 +6,6 @@ package models
 
 // BgpPeerFamilies BGP AFI SAFI state of the peer
 //
-// +k8s:deepcopy-gen=true
-//
 // swagger:model BgpPeerFamilies
 #BgpPeerFamilies: {
 	// Number of routes accepted from the peer of this address family

@@ -6,16 +6,14 @@ package models
 
 // Routing Status of routing
 //
-// +k8s:deepcopy-gen=true
-//
 // swagger:model Routing
 #Routing: {
 	// Datapath routing mode for cross-cluster connectivity
-	// Enum: [Native Tunnel]
+	// Enum: ["Native","Tunnel"]
 	"inter-host-routing-mode"?: string @go(InterHostRoutingMode)
 
 	// Datapath routing mode for connectivity within the host
-	// Enum: [BPF Legacy]
+	// Enum: ["BPF","Legacy"]
 	"intra-host-routing-mode"?: string @go(IntraHostRoutingMode)
 
 	// Tunnel protocol in use for cross-cluster connectivity

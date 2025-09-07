@@ -4,8 +4,6 @@
 
 package types
 
-import "github.com/cilium/cilium/pkg/cidr"
-
 // Limits specifies the IPAM relevant instance limits
 #Limits: {
 	// Adapters specifies the maximum number of interfaces that can be
@@ -21,6 +19,9 @@ import "github.com/cilium/cilium/pkg/cidr"
 	// HypervisorType tracks the instance's hypervisor type if available. Used to determine if features like prefix
 	// delegation are supported on an instance. Bare metal instances would have empty string.
 	HypervisorType: string
+
+	// IsBareMetal tracks whether an instance is a bare metal instance or not
+	IsBareMetal: bool
 }
 
 // AllocationIP is an IP which is available for allocation, or already
@@ -160,6 +161,13 @@ import "github.com/cilium/cilium/pkg/cidr"
 	//
 	// +kubebuilder:validation:Minimum=0
 	"max-above-watermark"?: int @go(MaxAboveWatermark)
+
+	// StaticIPTags are used to determine the pool of IPs from which to
+	// attribute a static IP to the node. For example in AWS this is used to
+	// filter Elastic IP Addresses.
+	//
+	// +optional
+	"static-ip-tags"?: {[string]: string} @go(StaticIPTags,map[string]string)
 }
 
 // IPReleaseStatus defines the valid states in IP release handshake
@@ -212,6 +220,11 @@ import "github.com/cilium/cilium/pkg/cidr"
 	//
 	// +optional
 	"release-ipv6s"?: {[string]: #IPReleaseStatus} @go(ReleaseIPv6s,map[string]IPReleaseStatus)
+
+	// AssignedStaticIP is the static IP assigned to the node (ex: public Elastic IP address in AWS)
+	//
+	// +optional
+	"assigned-static-ip"?: string @go(AssignedStaticIP)
 }
 
 // IPAMPoolRequest is a request from the agent to the operator, indicating how
@@ -264,18 +277,14 @@ import "github.com/cilium/cilium/pkg/cidr"
 #Tags: {[string]: string}
 
 // Subnet is a representation of a subnet
+// +k8s:deepcopy-gen=false
+// +deepequal-gen=false
 #Subnet: {
 	// ID is the subnet ID
 	ID: string
 
 	// Name is the subnet name
 	Name: string
-
-	// CIDR is the IPv4 CIDR associated with the subnet
-	CIDR?: null | cidr.#CIDR @go(,*cidr.CIDR)
-
-	// IPv6CIDR is the IPv6 CIDR associated with the subnet
-	IPv6CIDR?: null | cidr.#CIDR @go(,*cidr.CIDR)
 
 	// AvailabilityZone is the availability zone of the subnet
 	AvailabilityZone: string
@@ -315,6 +324,24 @@ import "github.com/cilium/cilium/pkg/cidr"
 
 // VirtualNetworkMap indexes virtual networks by their ID
 #VirtualNetworkMap: {[string]: null | #VirtualNetwork}
+
+// RouteTable is a representation of a route table but only for the purpose of
+// to check the subnets are in the same route table. It is not a full
+// representation of a route table.
+#RouteTable: {
+	// ID is the ID of the route table
+	ID: string
+
+	// VirtualNetworkID is the virtual network the route table is in
+	VirtualNetworkID: string
+
+	// Subnets maps subnet IDs to their presence in this route table
+	// +deepequal-gen=false
+	Subnets: {[string]: {}} @go(,map[string]struct{})
+}
+
+// RouteTableMap indexes route tables by their ID
+#RouteTableMap: {[string]: null | #RouteTable}
 
 #PoolNotExists: #PoolID & ""
 

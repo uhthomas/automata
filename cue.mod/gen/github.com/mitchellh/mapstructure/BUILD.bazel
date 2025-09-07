@@ -1,0 +1,11 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_mapstructure_library",
+    srcs = [
+        "error_go_gen.cue",
+        "mapstructure_go_gen.cue",
+    ],
+    importpath = "github.com/mitchellh/mapstructure",
+    visibility = ["//visibility:public"],
+)

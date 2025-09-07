@@ -14,7 +14,7 @@ package models
 	"allocated-proxy-port"?: int64 @go(AllocatedProxyPort)
 
 	// Location of where the redirect is installed
-	// Enum: [ingress egress]
+	// Enum: ["ingress","egress"]
 	location?: string @go(Location)
 
 	// The port subject to the redirect

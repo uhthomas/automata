@@ -1,0 +1,20 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_zap_library",
+    srcs = [
+        "array_go_gen.cue",
+        "config_go_gen.cue",
+        "doc_go_gen.cue",
+        "error_go_gen.cue",
+        "field_go_gen.cue",
+        "global_go_gen.cue",
+        "level_go_gen.cue",
+        "options_go_gen.cue",
+        "sink_go_gen.cue",
+        "sugar_go_gen.cue",
+    ],
+    importpath = "github.com/uhthomas/automata/cue.mod/gen/go.uber.org/zap",
+    visibility = ["//visibility:public"],
+    deps = ["@org_uber_go_zap//zapcore:cue_zapcore_library"],
+)

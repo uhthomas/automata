@@ -14,6 +14,9 @@ import (
 	ipamTypes "github.com/cilium/cilium/pkg/ipam/types"
 )
 
+// +kubebuilder:validation:Format=cidr
+#IPv4orIPv6CIDR: string
+
 // CiliumEndpoint is the status of a Cilium policy rule.
 #CiliumEndpoint: {
 	metav1.#TypeMeta
@@ -57,9 +60,8 @@ import (
 	// Encryption is the encryption configuration of the node
 	//
 	// +kubebuilder:validation:Optional
-	encryption?:                 #EncryptionSpec        @go(Encryption)
-	policy?:                     null | #EndpointPolicy @go(Policy,*EndpointPolicy)
-	"visibility-policy-status"?: null | string          @go(VisibilityPolicyStatus,*string)
+	encryption?: #EncryptionSpec        @go(Encryption)
+	policy?:     null | #EndpointPolicy @go(Policy,*EndpointPolicy)
 
 	// State is the state of the endpoint.
 	//

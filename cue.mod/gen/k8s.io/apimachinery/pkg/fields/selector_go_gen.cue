@@ -7,8 +7,7 @@ package fields
 // Selector represents a field selector.
 #Selector: _
 
-_#nothingSelector: {
-}
+_#nothingSelector: {}
 
 _#andTerm: [...#Selector]
 

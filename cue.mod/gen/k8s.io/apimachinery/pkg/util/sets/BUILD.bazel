@@ -6,6 +6,8 @@ cue_library(
         "doc_go_gen.cue",
         "empty_go_gen.cue",
         "ordered_go_gen.cue",
+        "set_go_gen.cue",
+        "string_go_gen.cue",
     ],
     importpath = "k8s.io/apimachinery/pkg/util/sets",
     visibility = ["//visibility:public"],

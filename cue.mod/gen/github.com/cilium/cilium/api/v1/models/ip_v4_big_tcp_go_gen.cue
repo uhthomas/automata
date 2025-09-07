@@ -6,8 +6,6 @@ package models
 
 // IPV4BigTCP Status of IPv4 BIG TCP
 //
-// +k8s:deepcopy-gen=true
-//
 // swagger:model IPV4BigTCP
 #IPV4BigTCP: {
 	// Is IPv4 BIG TCP enabled

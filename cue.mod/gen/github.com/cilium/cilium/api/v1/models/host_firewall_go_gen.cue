@@ -14,7 +14,7 @@ package models
 	devices: [...string] @go(Devices,[]string)
 
 	// mode
-	// Enum: [Disabled Enabled]
+	// Enum: ["Disabled","Enabled"]
 	mode?: string @go(Mode)
 }
 

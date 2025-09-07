@@ -6,8 +6,6 @@ package models
 
 // IdentityRange Status of identity range of the cluster
 //
-// +k8s:deepcopy-gen=true
-//
 // swagger:model IdentityRange
 #IdentityRange: {
 	// Maximum identity of the cluster

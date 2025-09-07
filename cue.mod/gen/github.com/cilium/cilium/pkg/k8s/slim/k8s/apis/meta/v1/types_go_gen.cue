@@ -250,10 +250,10 @@ import "k8s.io/apimachinery/pkg/types"
 	// operator is "In", and the values array contains only "value". The requirements are ANDed.
 	//
 	// +kubebuilder:validation:Optional
-	matchLabels?: {[string]: string} @go(MatchLabels,map[string]string) @protobuf(1,bytes,rep)
+	matchLabels?: {[string]: string} @go(MatchLabels,map[string]MatchLabelsValue) @protobuf(1,bytes,rep)
 
 	// matchExpressions is a list of label selector requirements. The requirements are ANDed.
-	// +kubebuilder:validation:Optional
+	// +optional
 	// +listType=atomic
 	matchExpressions?: [...#LabelSelectorRequirement] @go(MatchExpressions,[]LabelSelectorRequirement) @protobuf(2,bytes,rep)
 }
@@ -280,7 +280,7 @@ import "k8s.io/apimachinery/pkg/types"
 	// the values array must be non-empty. If the operator is Exists or DoesNotExist,
 	// the values array must be empty. This array is replaced during a strategic
 	// merge patch.
-	// +kubebuilder:validation:Optional
+	// +optional
 	// +listType=atomic
 	values?: [...string] @go(Values,[]string) @protobuf(3,bytes,rep)
 }

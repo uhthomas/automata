@@ -22,6 +22,9 @@ package models
 	// Whether the configuration has been correctly retrieved
 	retrieved?: bool @go(Retrieved)
 
+	// Whether or not MCS-API ServiceExports is enabled by the cluster (null means unsupported).
+	"service-exports-enabled"?: null | bool @go(ServiceExportsEnabled,*bool)
+
 	// Whether the remote cluster supports per-prefix "synced" canaries
 	"sync-canaries"?: bool @go(SyncCanaries)
 }

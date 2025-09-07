@@ -12,9 +12,6 @@ import "github.com/go-openapi/strfmt"
 //
 // swagger:model HubbleStatus
 #HubbleStatus: {
-	// metrics
-	metrics?: null | #HubbleStatusMetrics @go(Metrics,*HubbleStatusMetrics)
-
 	// Human readable status/error/warning message
 	msg?: string @go(Msg)
 
@@ -22,7 +19,7 @@ import "github.com/go-openapi/strfmt"
 	observer?: null | #HubbleStatusObserver @go(Observer,*HubbleStatusObserver)
 
 	// State the component is in
-	// Enum: [Ok Warning Failure Disabled]
+	// Enum: ["Ok","Warning","Failure","Disabled"]
 	state?: string @go(State)
 }
 
@@ -37,27 +34,6 @@ import "github.com/go-openapi/strfmt"
 
 // HubbleStatusStateDisabled captures enum value "Disabled"
 #HubbleStatusStateDisabled: "Disabled"
-
-// HubbleStatusMetrics Status of the Hubble metrics server
-//
-// swagger:model HubbleStatusMetrics
-#HubbleStatusMetrics: {
-	// State of the Hubble metrics
-	// Enum: [Ok Warning Failure Disabled]
-	state?: string @go(State)
-}
-
-// HubbleStatusMetricsStateOk captures enum value "Ok"
-#HubbleStatusMetricsStateOk: "Ok"
-
-// HubbleStatusMetricsStateWarning captures enum value "Warning"
-#HubbleStatusMetricsStateWarning: "Warning"
-
-// HubbleStatusMetricsStateFailure captures enum value "Failure"
-#HubbleStatusMetricsStateFailure: "Failure"
-
-// HubbleStatusMetricsStateDisabled captures enum value "Disabled"
-#HubbleStatusMetricsStateDisabled: "Disabled"
 
 // HubbleStatusObserver Status of the Hubble observer
 //

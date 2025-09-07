@@ -22,8 +22,11 @@ package models
 	// on related annotation of global service. Applicable for active state only.
 	preferred?: bool @go(Preferred)
 
+	// Layer 4 protocol (TCP, UDP, etc)
+	protocol?: string @go(Protocol)
+
 	// State of the backend for load-balancing service traffic
-	// Enum: [active terminating quarantined maintenance]
+	// Enum: ["active","terminating","quarantined","maintenance"]
 	state?: string @go(State)
 
 	// Backend weight

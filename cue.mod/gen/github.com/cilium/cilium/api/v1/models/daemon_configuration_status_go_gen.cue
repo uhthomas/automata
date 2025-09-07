@@ -37,11 +37,19 @@ package models
 	// Configured compatibility mode for --egress-multi-home-ip-rule-compat
 	"egress-multi-home-ip-rule-compat"?: bool @go(EgressMultiHomeIPRuleCompat)
 
+	// True if BBR is enabled only in the host network namespace
+	enableBBRHostNamespaceOnly?: bool @go(EnableBBRHostNamespaceOnly)
+
 	// Enable route MTU for pod netns when CNI chaining is used
 	enableRouteMTUForCNIChaining?: bool @go(EnableRouteMTUForCNIChaining)
 
 	// Immutable configuration (read-only)
 	immutable?: #ConfigurationMap @go(Immutable)
+
+	// Install ingress/egress routes through uplink on host for Pods when working with
+	// delegated IPAM plugin.
+	//
+	installUplinkRoutesForDelegatedIPAM?: bool @go(InstallUplinkRoutesForDelegatedIPAM)
 
 	// Comma-separated list of IP ports should be reserved in the workload network namespace
 	ipLocalReservedPorts?: string @go(IPLocalReservedPorts)

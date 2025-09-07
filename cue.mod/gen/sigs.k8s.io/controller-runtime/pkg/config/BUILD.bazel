@@ -1,0 +1,8 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_config_library",
+    srcs = ["controller_go_gen.cue"],
+    importpath = "sigs.k8s.io/controller-runtime/pkg/config",
+    visibility = ["//visibility:public"],
+)

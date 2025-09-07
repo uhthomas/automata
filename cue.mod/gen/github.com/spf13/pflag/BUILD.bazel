@@ -1,0 +1,33 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_pflag_library",
+    srcs = [
+        "bool_go_gen.cue",
+        "bytes_go_gen.cue",
+        "count_go_gen.cue",
+        "duration_go_gen.cue",
+        "errors_go_gen.cue",
+        "flag_go_gen.cue",
+        "float32_go_gen.cue",
+        "float64_go_gen.cue",
+        "golangflag_go_gen.cue",
+        "int16_go_gen.cue",
+        "int32_go_gen.cue",
+        "int64_go_gen.cue",
+        "int8_go_gen.cue",
+        "int_go_gen.cue",
+        "ip_go_gen.cue",
+        "ipmask_go_gen.cue",
+        "ipnet_go_gen.cue",
+        "string_go_gen.cue",
+        "time_go_gen.cue",
+        "uint16_go_gen.cue",
+        "uint32_go_gen.cue",
+        "uint64_go_gen.cue",
+        "uint8_go_gen.cue",
+        "uint_go_gen.cue",
+    ],
+    importpath = "github.com/spf13/pflag",
+    visibility = ["//visibility:public"],
+)

@@ -1,0 +1,8 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_durationpb_library",
+    srcs = ["duration.pb_go_gen.cue"],
+    importpath = "github.com/uhthomas/automata/cue.mod/gen/google.golang.org/protobuf/types/known/durationpb",
+    visibility = ["//visibility:public"],
+)

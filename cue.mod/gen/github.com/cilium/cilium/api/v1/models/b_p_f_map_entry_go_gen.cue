@@ -9,7 +9,7 @@ package models
 // swagger:model BPFMapEntry
 #BPFMapEntry: {
 	// Desired action to be performed
-	// Enum: [ok insert delete]
+	// Enum: ["ok","insert","delete"]
 	"desired-action"?: string @go(DesiredAction)
 
 	// Key of map entry

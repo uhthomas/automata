@@ -43,6 +43,5 @@ package schema
 // GroupVersions can be used to represent a set of desired group versions.
 // TODO: Move GroupVersions to a package under pkg/runtime, since it's used by scheme.
 // TODO: Introduce an adapter type between GroupVersions and runtime.GroupVersioner, and use LegacyCodec(GroupVersion)
-//
 // in fewer places.
 #GroupVersions: [...#GroupVersion]

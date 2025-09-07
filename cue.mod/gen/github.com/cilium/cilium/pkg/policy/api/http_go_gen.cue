@@ -22,8 +22,8 @@ package api
 #MismatchActionReplace: #MismatchAction & "REPLACE"
 
 // HeaderMatch extends the HeaderValue for matching requirement of a
-// named header field against an immediate string, a secret value, or
-// a regex.  If none of the optional fields is present, then the
+// named header field against an immediate string or a secret value.
+// If none of the optional fields is present, then the
 // header value is not matched, only presence of the header is enough.
 #HeaderMatch: {
 	// Mismatch identifies what to do in case there is no match. The default is
@@ -82,7 +82,10 @@ package api
 	method?: string @go(Method)
 
 	// Host is an extended POSIX regex matched against the host header of a
-	// request, e.g. "foo.com"
+	// request. Examples:
+	//
+	// - foo.bar.com will match the host fooXbar.com or foo-bar.com
+	// - foo\.bar\.com will only match the host foo.bar.com
 	//
 	// If omitted or empty, the value of the host header is ignored.
 	//

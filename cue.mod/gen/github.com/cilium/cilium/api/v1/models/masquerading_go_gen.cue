@@ -20,7 +20,7 @@ package models
 	"ip-masq-agent"?: bool @go(IPMasqAgent)
 
 	// mode
-	// Enum: [BPF iptables]
+	// Enum: ["BPF","iptables"]
 	mode?: string @go(Mode)
 
 	// This field is obsolete, please use snat-exclusion-cidr-v4 or snat-exclusion-cidr-v6.

@@ -11,7 +11,7 @@ package models
 // swagger:model EndpointStatusChange
 #EndpointStatusChange: {
 	// Code indicate type of status change
-	// Enum: [ok failed]
+	// Enum: ["ok","failed"]
 	code?: string @go(Code)
 
 	// Status message

@@ -6,8 +6,6 @@ package models
 
 // L4Policy L4 endpoint policy
 //
-// +k8s:deepcopy-gen=true
-//
 // swagger:model L4Policy
 #L4Policy: {
 	// List of L4 egress rules

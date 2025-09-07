@@ -4,10 +4,9 @@
 
 package labels
 
-_#keepMarks: [string]: {
-}
+_#keepMarks: [string]: {}
 
-// OpLabels represents the the possible types.
+// OpLabels represents the possible types.
 #OpLabels: {
 	// Active labels that are enabled and disabled but not deleted
 	Custom: #Labels

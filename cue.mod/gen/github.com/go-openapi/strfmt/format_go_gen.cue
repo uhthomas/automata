@@ -16,5 +16,5 @@ package strfmt
 _#knownFormat: {
 	Name:     string
 	OrigName: string
-	Type:     _
+	Type:     _ @go(,reflect.Type)
 }

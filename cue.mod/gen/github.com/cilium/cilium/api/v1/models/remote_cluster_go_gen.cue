@@ -31,6 +31,9 @@ package models
 	// Number of nodes in the cluster
 	"num-nodes"?: int64 @go(NumNodes)
 
+	// Number of MCS-API service exports in the cluster
+	"num-service-exports"?: int64 @go(NumServiceExports)
+
 	// Number of services in the cluster
 	"num-shared-services"?: int64 @go(NumSharedServices)
 

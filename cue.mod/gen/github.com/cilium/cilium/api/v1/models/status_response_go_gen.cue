@@ -64,6 +64,9 @@ package models
 	// Status of Hubble server
 	hubble?: null | #HubbleStatus @go(Hubble,*HubbleStatus)
 
+	// Status of Hubble metrics server
+	"hubble-metrics"?: null | #HubbleMetricsStatus @go(HubbleMetrics,*HubbleMetricsStatus)
+
 	// Status of identity range of the cluster
 	"identity-range"?: null | #IdentityRange @go(IdentityRange,*IdentityRange)
 

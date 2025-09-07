@@ -7,8 +7,7 @@ package labels
 // Selector represents a label selector.
 #Selector: _
 
-_#nothingSelector: {
-}
+_#nothingSelector: {}
 
 // Token represents constant definition for lexer token
 #Token: int // #enumToken
@@ -108,3 +107,15 @@ _#nothingSelector: {
 
 // Values represents values
 #Values: #ParserContext & 1
+
+// ValidatedSetSelector wraps a Set, allowing it to implement the Selector interface. Unlike
+// Set.AsSelectorPreValidated (which copies the input Set), this type simply wraps the underlying
+// Set. As a result, it is substantially more efficient. A nil and empty Sets are considered
+// equivalent to Everything().
+//
+// Callers MUST ensure the underlying Set is not mutated, and that it is already validated. If these
+// constraints are not met, Set.AsValidatedSelector should be preferred
+//
+// None of the Selector methods mutate the underlying Set, but Add() and Requirements() convert to
+// the less optimized version.
+#ValidatedSetSelector: #Set

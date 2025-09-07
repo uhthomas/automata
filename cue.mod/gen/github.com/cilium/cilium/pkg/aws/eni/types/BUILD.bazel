@@ -1,8 +1,0 @@
-load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
-
-cue_library(
-    name = "cue_types_library",
-    srcs = ["types_go_gen.cue"],
-    importpath = "github.com/cilium/cilium/pkg/aws/eni/types",
-    visibility = ["//visibility:public"],
-)

@@ -29,7 +29,6 @@ import (
 #BGPCiliumPodIPPoolAdvert: #BGPAdvertisementType & "CiliumPodIPPool"
 
 // BGPServiceAdvert when configured, Cilium will advertise service related routes to BGP peers.
-//
 #BGPServiceAdvert: #BGPAdvertisementType & "Service"
 
 // BGPServiceAddressType defines type of service address to be advertised.
@@ -90,6 +89,9 @@ import (
 
 // BGPAdvertisement defines which routes Cilium should advertise to BGP peers. Optionally, additional attributes can be
 // set to the advertised routes.
+//
+// +kubebuilder:validation:XValidation:rule="self.advertisementType != 'Service' || has(self.service)", message="service field is required for the 'Service' advertisementType"
+// +kubebuilder:validation:XValidation:rule="self.advertisementType != 'PodCIDR' || !has(self.selector)", message="selector field is not allowed for the 'PodCIDR' advertisementType"
 #BGPAdvertisement: {
 	// AdvertisementType defines type of advertisement which has to be advertised.
 	//
@@ -102,7 +104,8 @@ import (
 	service?: null | #BGPServiceOptions @go(Service,*BGPServiceOptions)
 
 	// Selector is a label selector to select objects of the type specified by AdvertisementType.
-	// If not specified, no objects of the type specified by AdvertisementType are selected for advertisement.
+	// For the PodCIDR AdvertisementType it is not applicable. For other advertisement types,
+	// if not specified, no objects of the type specified by AdvertisementType are selected for advertisement.
 	//
 	// +kubebuilder:validation:Optional
 	selector?: null | slimv1.#LabelSelector @go(Selector,*slimv1.LabelSelector)
@@ -121,6 +124,20 @@ import (
 	// +kubebuilder:validation:Required
 	// +kubebuilder:validation:MinItems=1
 	addresses?: [...#BGPServiceAddressType] @go(Addresses,[]BGPServiceAddressType)
+
+	// IPv4 mask to aggregate BGP route advertisements of service
+	//
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=31
+	// +kubebuilder:validation:Optional
+	aggregationLengthIPv4?: null | int16 @go(AggregationLengthIPv4,*int16)
+
+	// IPv6 mask to aggregate BGP route advertisements of service
+	//
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=127
+	// +kubebuilder:validation:Optional
+	aggregationLengthIPv6?: null | int16 @go(AggregationLengthIPv6,*int16)
 }
 
 // BGPAttributes defines additional attributes to set to the advertised NLRIs.

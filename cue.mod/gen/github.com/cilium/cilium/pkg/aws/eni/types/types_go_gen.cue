@@ -203,6 +203,11 @@ package types
 	//
 	// +optional
 	tags?: {[string]: string} @go(Tags,map[string]string)
+
+	// PublicIP is the public IP associated with the ENI
+	//
+	// +optional
+	"public-ip"?: string @go(PublicIP)
 }
 
 // ENIStatus is the status of ENI addressing of the node

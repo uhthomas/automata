@@ -17,11 +17,11 @@ package models
 	port?: uint16 @go(Port)
 
 	// Layer 4 protocol
-	// Enum: [tcp udp any]
+	// Enum: ["tcp","udp","any"]
 	protocol?: string @go(Protocol)
 
 	// Load balancing scope for frontend address
-	// Enum: [external internal]
+	// Enum: ["external","internal"]
 	scope?: string @go(Scope)
 }
 

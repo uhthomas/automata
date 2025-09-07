@@ -6,12 +6,10 @@ package models
 
 // CNIChainingStatus Status of CNI chaining
 //
-// +k8s:deepcopy-gen=true
-//
 // swagger:model CNIChainingStatus
 #CNIChainingStatus: {
 	// mode
-	// Enum: [none aws-cni flannel generic-veth portmap]
+	// Enum: ["none","aws-cni","flannel","generic-veth","portmap"]
 	mode?: string @go(Mode)
 }
 

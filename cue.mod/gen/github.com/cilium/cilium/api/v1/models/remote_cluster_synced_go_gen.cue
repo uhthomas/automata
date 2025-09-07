@@ -22,6 +22,9 @@ package models
 	// Nodes synchronization status
 	nodes?: bool @go(Nodes)
 
+	// MCS-API service exports synchronization status (null means that the component is not watching service exports)
+	"service-exports"?: null | bool @go(ServiceExports,*bool)
+
 	// Services synchronization status
 	services?: bool @go(Services)
 }

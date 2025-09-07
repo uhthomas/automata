@@ -4,6 +4,8 @@
 
 package api
 
+import "github.com/cilium/cilium/pkg/labels"
+
 // AuthenticationMode is a string identifying a supported authentication type
 #AuthenticationMode: string // #enumAuthenticationMode
 
@@ -42,6 +44,16 @@ package api
 	egress?: null | bool @go(Egress,*bool)
 }
 
+// LogConfig specifies custom policy-specific Hubble logging configuration.
+#LogConfig: {
+	// Value is a free-form string that is included in Hubble flows
+	// that match this policy. The string is limited to 32 printable characters.
+	//
+	// +kubebuilder:validation:MaxLength=32
+	// +kubebuilder:validation:Pattern=`^\PC*$`
+	value?: string @go(Value)
+}
+
 // Rule is a policy rule which must be applied to all endpoints which match the
 // labels contained in the endpointSelector
 //
@@ -55,4 +67,85 @@ package api
 // are omitted, the rule has no effect.
 //
 // +deepequal-gen:private-method=true
-#Rule: _
+#Rule: {
+	// EndpointSelector selects all endpoints which should be subject to
+	// this rule. EndpointSelector and NodeSelector cannot be both empty and
+	// are mutually exclusive.
+	//
+	// +kubebuilder:validation:OneOf
+	endpointSelector?: #EndpointSelector @go(EndpointSelector)
+
+	// NodeSelector selects all nodes which should be subject to this rule.
+	// EndpointSelector and NodeSelector cannot be both empty and are mutually
+	// exclusive. Can only be used in CiliumClusterwideNetworkPolicies.
+	//
+	// +kubebuilder:validation:OneOf
+	nodeSelector?: #EndpointSelector @go(NodeSelector)
+
+	// Ingress is a list of IngressRule which are enforced at ingress.
+	// If omitted or empty, this rule does not apply at ingress.
+	//
+	// +kubebuilder:validation:AnyOf
+	ingress?: [...#IngressRule] @go(Ingress,[]IngressRule)
+
+	// IngressDeny is a list of IngressDenyRule which are enforced at ingress.
+	// Any rule inserted here will be denied regardless of the allowed ingress
+	// rules in the 'ingress' field.
+	// If omitted or empty, this rule does not apply at ingress.
+	//
+	// +kubebuilder:validation:AnyOf
+	ingressDeny?: [...#IngressDenyRule] @go(IngressDeny,[]IngressDenyRule)
+
+	// Egress is a list of EgressRule which are enforced at egress.
+	// If omitted or empty, this rule does not apply at egress.
+	//
+	// +kubebuilder:validation:AnyOf
+	egress?: [...#EgressRule] @go(Egress,[]EgressRule)
+
+	// EgressDeny is a list of EgressDenyRule which are enforced at egress.
+	// Any rule inserted here will be denied regardless of the allowed egress
+	// rules in the 'egress' field.
+	// If omitted or empty, this rule does not apply at egress.
+	//
+	// +kubebuilder:validation:AnyOf
+	egressDeny?: [...#EgressDenyRule] @go(EgressDeny,[]EgressDenyRule)
+
+	// Labels is a list of optional strings which can be used to
+	// re-identify the rule or to store metadata. It is possible to lookup
+	// or delete strings based on labels. Labels are not required to be
+	// unique, multiple rules can have overlapping or identical labels.
+	//
+	// +kubebuilder:validation:Optional
+	"labels"?: labels.#LabelArray @go(Labels)
+
+	// EnableDefaultDeny determines whether this policy configures the
+	// subject endpoint(s) to have a default deny mode. If enabled,
+	// this causes all traffic not explicitly allowed by a network policy
+	// to be dropped.
+	//
+	// If not specified, the default is true for each traffic direction
+	// that has rules, and false otherwise. For example, if a policy
+	// only has Ingress or IngressDeny rules, then the default for
+	// ingress is true and egress is false.
+	//
+	// If multiple policies apply to an endpoint, that endpoint's default deny
+	// will be enabled if any policy requests it.
+	//
+	// This is useful for creating broad-based network policies that will not
+	// cause endpoints to enter default-deny mode.
+	//
+	// +kubebuilder:validation:Optional
+	enableDefaultDeny?: #DefaultDenyConfig @go(EnableDefaultDeny)
+
+	// Description is a free form string, it can be used by the creator of
+	// the rule to store human readable explanation of the purpose of this
+	// rule. Rules cannot be identified by comment.
+	//
+	// +kubebuilder:validation:Optional
+	description?: string @go(Description)
+
+	// Log specifies custom policy-specific Hubble logging configuration.
+	//
+	// +kubebuilder:validation:Optional
+	log?: #LogConfig @go(Log)
+}

@@ -18,6 +18,11 @@ import (
 
 	// Spec defines the desired cluster configuration of the BGP control plane.
 	spec: #CiliumBGPClusterConfigSpec @go(Spec)
+
+	// Status is a running status of the cluster configuration
+	//
+	// +kubebuilder:validation:Optional
+	status: #CiliumBGPClusterConfigStatus @go(Status)
 }
 
 // CiliumBGPClusterConfigList is a list of CiliumBGPClusterConfig objects.
@@ -65,6 +70,15 @@ import (
 	// +kubebuilder:validation:Maximum=4294967295
 	localASN?: null | int64 @go(LocalASN,*int64)
 
+	// LocalPort is the port on which the BGP daemon listens for incoming connections.
+	//
+	// If not specified, BGP instance will not listen for incoming connections.
+	//
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=65535
+	localPort?: null | int32 @go(LocalPort,*int32)
+
 	// Peers is a list of neighboring BGP peers for this virtual router
 	//
 	// +kubebuilder:validation:Optional
@@ -91,9 +105,13 @@ import (
 	// PeerASN is the ASN of the peer BGP router.
 	// Supports extended 32bit ASNs.
 	//
+	// If peerASN is 0, the BGP OPEN message validation of ASN will be disabled and
+	// ASN will be determined based on peer's OPEN message.
+	//
 	// +kubebuilder:validation:Optional
-	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=4294967295
+	// +kubebuilder:default=0
 	peerASN?: null | int64 @go(PeerASN,*int64)
 
 	// PeerConfigRef is a reference to a peer configuration resource.
@@ -125,3 +143,22 @@ import (
 	// +kubebuilder:validation:Required
 	name: string @go(Name)
 }
+
+#CiliumBGPClusterConfigStatus: {
+	// The current conditions of the CiliumBGPClusterConfig
+	//
+	// +optional
+	// +listType=map
+	// +listMapKey=type
+	// +deepequal-gen=false
+	conditions?: [...metav1.#Condition] @go(Conditions,[]metav1.Condition)
+}
+
+// Node selector selects nothing
+#BGPClusterConfigConditionNoMatchingNode: "cilium.io/NoMatchingNode"
+
+// Referenced peer configs are missing
+#BGPClusterConfigConditionMissingPeerConfigs: "cilium.io/MissingPeerConfigs"
+
+// ClusterConfig with conflicting nodeSelector present
+#BGPClusterConfigConditionConflictingClusterConfigs: "cilium.io/ConflictingClusterConfig"

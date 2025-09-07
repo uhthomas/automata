@@ -15,7 +15,7 @@ package models
 	"dst-prefix"?: string @go(DstPrefix)
 
 	// Layer 4 protocol
-	// Enum: [TCP UDP SCTP ANY]
+	// Enum: ["TCP","UDP","SCTP","ANY"]
 	protocol?: string @go(Protocol)
 
 	// Layer 4 source port, zero (or in future range)

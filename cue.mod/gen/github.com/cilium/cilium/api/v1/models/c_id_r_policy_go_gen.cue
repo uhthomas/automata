@@ -6,8 +6,6 @@ package models
 
 // CIDRPolicy CIDR endpoint policy
 //
-// +k8s:deepcopy-gen=true
-//
 // swagger:model CIDRPolicy
 #CIDRPolicy: {
 	// List of CIDR egress rules

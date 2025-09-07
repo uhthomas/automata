@@ -28,6 +28,15 @@ package v2
 // CCNPName is the full name of Cilium Cluster wide Network Policy
 #CCNPName: "ciliumclusterwidenetworkpolicies.cilium.io"
 
+// CCGPluralName is the plural name of Cilium CIDR Group
+#CCGPluralName: "ciliumcidrgroups"
+
+// CCGKindDefinition is the kind name for Cilium CIDR Group
+#CCGKindDefinition: "CiliumCIDRGroup"
+
+// CCGName is the full name of Cilium CIDR Group
+#CCGName: "ciliumcidrgroups.cilium.io"
+
 // CEGPPluralName is the plural name of Cilium Egress Gateway Policy
 #CEGPPluralName: "ciliumegressgatewaypolicies"
 
@@ -73,15 +82,6 @@ package v2
 // CLRPName is the full name of Local Redirect Policy
 #CLRPName: "ciliumlocalredirectpolicies.cilium.io"
 
-// CEWPluralName is the plural name of Cilium External Workload
-#CEWPluralName: "ciliumexternalworkloads"
-
-// CEWKindDefinition is the kind name for Cilium External Workload
-#CEWKindDefinition: "CiliumExternalWorkload"
-
-// CEWName is the full name of Cilium External Workload
-#CEWName: "ciliumexternalworkloads.cilium.io"
-
 // CCECPluralName is the plural name of Cilium Clusterwide Envoy Config
 #CCECPluralName: "ciliumclusterwideenvoyconfigs"
 
@@ -108,3 +108,37 @@ package v2
 
 // CNCName is the full name of Cilium Node Config
 #CNCName: "ciliumnodeconfigs.cilium.io"
+
+// BGPClusterConfig (BGPCC)
+#BGPCCPluralName:     "ciliumbgpclusterconfigs"
+#BGPCCKindDefinition: "CiliumBGPClusterConfig"
+#BGPCCName:           "ciliumbgpclusterconfigs.cilium.io"
+
+// BGPPeerConfig (BGPPC)
+#BGPPCPluralName:     "ciliumbgppeerconfigs"
+#BGPPCKindDefinition: "CiliumBGPPeerConfig"
+#BGPPCName:           "ciliumbgppeerconfigs.cilium.io"
+
+// BGPAdvertisement (BGPA)
+#BGPAPluralName:     "ciliumbgpadvertisements"
+#BGPAKindDefinition: "CiliumBGPAdvertisement"
+#BGPAName:           "ciliumbgpadvertisements.cilium.io"
+
+// BGPNodeConfig (BGPNC)
+#BGPNCPluralName:     "ciliumbgpnodeconfigs"
+#BGPNCKindDefinition: "CiliumBGPNodeConfig"
+#BGPNCName:           "ciliumbgpnodeconfigs.cilium.io"
+
+// BGPNodeConfigOverride (BGPNCO)
+#BGPNCOPluralName:     "ciliumbgpnodeconfigoverrides"
+#BGPNCOKindDefinition: "CiliumBGPNodeConfigOverride"
+#BGPNCOName:           "ciliumbgpnodeconfigoverrides.cilium.io"
+
+// PoolPluralName is the plural name of Cilium Load Balancer IP Pool
+#PoolPluralName: "ciliumloadbalancerippools"
+
+// PoolKindDefinition is the kind name of Cilium Peering Policy
+#PoolKindDefinition: "CiliumLoadBalancerIPPool"
+
+// LBIPPoolName is the full name of Cilium Load Balancer IP Pool
+#LBIPPoolName: "ciliumloadbalancerippools.cilium.io"

@@ -71,11 +71,6 @@ package v2alpha1
 // CNCName is the full name of Cilium Node Config
 #CNCName: "ciliumnodeconfigs.cilium.io"
 
-// CiliumCIDRGroup (CCG)
-#CCGPluralName:     "ciliumcidrgroups"
-#CCGKindDefinition: "CiliumCIDRGroup"
-#CCGName:           "ciliumcidrgroups.cilium.io"
-
 // L2AnnouncementSingularName is the singular name ofCilium L2 announcement policy
 #L2AnnouncementSingularName: "ciliuml2announcementpolicy"
 
@@ -92,3 +87,9 @@ package v2alpha1
 #CPIPPluralName:     "ciliumpodippools"
 #CPIPKindDefinition: "CiliumPodIPPool"
 #CPIPName:           "ciliumpodippools.cilium.io"
+
+// CiliumGatewayClassConfig (CGCC)
+#CGCCPluralName:     "ciliumgatewayclassconfigs"
+#CGCCListName:       "ciliumgatewayclassconfiglists"
+#CGCCKindDefinition: "CiliumGatewayClassConfig"
+#CGCCName:           "ciliumgatewayclassconfigs.cilium.io"

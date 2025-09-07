@@ -1,0 +1,18 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_internal_library",
+    srcs = [
+        "cache_reader_go_gen.cue",
+        "informers_go_gen.cue",
+        "selector_go_gen.cue",
+    ],
+    importpath = "sigs.k8s.io/controller-runtime/pkg/cache/internal",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//cue.mod/gen/k8s.io/apimachinery/pkg/api/meta:cue_meta_library",
+        "//cue.mod/gen/k8s.io/apimachinery/pkg/fields:cue_fields_library",
+        "//cue.mod/gen/k8s.io/apimachinery/pkg/labels:cue_labels_library",
+        "//cue.mod/gen/k8s.io/client-go/tools/cache:cue_cache_library",
+    ],
+)

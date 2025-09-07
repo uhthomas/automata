@@ -6,15 +6,13 @@ package models
 
 // ClockSource Status of BPF clock source
 //
-// +k8s:deepcopy-gen=true
-//
 // swagger:model ClockSource
 #ClockSource: {
 	// Kernel Hz
 	hertz?: int64 @go(Hertz)
 
 	// Datapath clock source
-	// Enum: [ktime jiffies]
+	// Enum: ["ktime","jiffies"]
 	mode?: string @go(Mode)
 }
 

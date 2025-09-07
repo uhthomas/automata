@@ -14,14 +14,20 @@ package models
 	// List of BGP large community values to be added to the matched route
 	"add-large-communities": [...string] @go(AddLargeCommunities,[]string)
 
+	// Matches any of the provided address families. If empty matches all address families.
+	"match-families": [...null | #BgpFamily] @go(MatchFamilies,[]*BgpFamily)
+
 	// Matches any of the provided BGP neighbor IP addresses. If empty matches all neighbors.
 	"match-neighbors": [...string] @go(MatchNeighbors,[]string)
 
 	// Matches any of the provided prefixes. If empty matches all prefixes.
 	"match-prefixes": [...null | #BgpRoutePolicyPrefixMatch] @go(MatchPrefixes,[]*BgpRoutePolicyPrefixMatch)
 
+	// BGP nexthop action
+	nexthop?: null | #BgpRoutePolicyNexthopAction @go(Nexthop,*BgpRoutePolicyNexthopAction)
+
 	// RIB processing action taken on the matched route
-	// Enum: [none accept reject]
+	// Enum: ["none","accept","reject"]
 	"route-action"?: string @go(RouteAction)
 
 	// BGP local preference value to be set on the matched route

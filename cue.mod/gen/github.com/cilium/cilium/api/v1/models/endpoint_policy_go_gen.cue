@@ -6,8 +6,6 @@ package models
 
 // EndpointPolicy Policy information of an endpoint
 //
-// +k8s:deepcopy-gen=true
-//
 // swagger:model EndpointPolicy
 #EndpointPolicy: {
 	// List of identities to which this endpoint is allowed to communicate

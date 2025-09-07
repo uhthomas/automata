@@ -1,0 +1,21 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_runtime_library",
+    srcs = [
+        "bytestream_go_gen.cue",
+        "client_auth_info_go_gen.cue",
+        "client_operation_go_gen.cue",
+        "client_request_go_gen.cue",
+        "client_response_go_gen.cue",
+        "constants_go_gen.cue",
+        "csv_options_go_gen.cue",
+        "file_go_gen.cue",
+        "interfaces_go_gen.cue",
+        "request_go_gen.cue",
+        "values_go_gen.cue",
+    ],
+    importpath = "github.com/go-openapi/runtime",
+    visibility = ["//visibility:public"],
+    deps = ["//cue.mod/gen/github.com/go-openapi/swag:cue_swag_library"],
+)

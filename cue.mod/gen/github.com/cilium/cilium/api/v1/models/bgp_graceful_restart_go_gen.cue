@@ -6,8 +6,6 @@ package models
 
 // BgpGracefulRestart BGP graceful restart parameters negotiated with the peer.
 //
-// +k8s:deepcopy-gen=true
-//
 // swagger:model BgpGracefulRestart
 #BgpGracefulRestart: {
 	// When set, graceful restart capability is negotiated for all AFI/SAFIs of

@@ -1,0 +1,17 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_admission_library",
+    srcs = [
+        "decode_go_gen.cue",
+        "defaulter_custom_go_gen.cue",
+        "doc_go_gen.cue",
+        "http_go_gen.cue",
+        "multi_go_gen.cue",
+        "validator_custom_go_gen.cue",
+        "webhook_go_gen.cue",
+    ],
+    importpath = "sigs.k8s.io/controller-runtime/pkg/webhook/admission",
+    visibility = ["//visibility:public"],
+    deps = ["//cue.mod/gen/k8s.io/api/admission/v1:cue_v1_library"],
+)

@@ -35,14 +35,14 @@ package models
 	cluster?: string @go(Cluster)
 
 	// Service external traffic policy
-	// Enum: [Cluster Local]
+	// Enum: ["Cluster","Local"]
 	extTrafficPolicy?: string @go(ExtTrafficPolicy)
 
 	// Service health check node port
 	healthCheckNodePort?: uint16 @go(HealthCheckNodePort)
 
 	// Service internal traffic policy
-	// Enum: [Cluster Local]
+	// Enum: ["Cluster","Local"]
 	intTrafficPolicy?: string @go(IntTrafficPolicy)
 
 	// Service name  (e.g. Kubernetes service name)
@@ -52,15 +52,15 @@ package models
 	namespace?: string @go(Namespace)
 
 	// Service protocol NAT policy
-	// Enum: [None Nat46 Nat64]
+	// Enum: ["None","Nat46","Nat64"]
 	natPolicy?: string @go(NatPolicy)
 
 	// Service external traffic policy (deprecated in favor of extTrafficPolicy)
-	// Enum: [Cluster Local]
+	// Enum: ["Cluster","Local"]
 	trafficPolicy?: string @go(TrafficPolicy)
 
 	// Service type
-	// Enum: [ClusterIP NodePort ExternalIPs HostPort LoadBalancer LocalRedirect]
+	// Enum: ["ClusterIP","NodePort","ExternalIPs","HostPort","LoadBalancer","LocalRedirect"]
 	type?: string @go(Type)
 }
 

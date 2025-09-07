@@ -12,7 +12,7 @@ package models
 	options?: #ConfigurationMap @go(Options)
 
 	// The policy-enforcement mode
-	// Enum: [default always never]
+	// Enum: ["default","always","never"]
 	"policy-enforcement"?: string @go(PolicyEnforcement)
 }
 

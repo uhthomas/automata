@@ -5,6 +5,7 @@
 package models
 
 // Policy Policy definition
+// Deprecated, will be removed in v1.19.
 //
 // swagger:model Policy
 #Policy: {
