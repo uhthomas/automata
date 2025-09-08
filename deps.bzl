@@ -17,9 +17,9 @@ def dependencies():
     )
     http_archive(
         name = "com_github_tnarg_rules_cue",
-        sha256 = "f0869e8a8fe99a3cc0e967a4506c2c237f668a61a346211184ae576bc46b83cc",
-        strip_prefix = "rules_cue-a687771e1b85f7552f9f128f5231fe0e27ec97df",
-        urls = ["https://github.com/uhthomas/rules_cue/archive/a687771e1b85f7552f9f128f5231fe0e27ec97df.tar.gz"],
+        sha256 = "5eecd1bd285a7b571cd0cdd6ce87123a37ae2781a284eeaf83875e5db9c9e6c6",
+        strip_prefix = "rules_cue-99a560ce1af57eafe16aee997430449261ffce80",
+        urls = ["https://github.com/uhthomas/rules_cue/archive/99a560ce1af57eafe16aee997430449261ffce80.tar.gz"],
     )
     http_archive(
         name = "rules_proto",
