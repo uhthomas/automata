@@ -8,49 +8,23 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.base.sha }}
-      - uses: bazelbuild/setup-bazelisk@v2
-      - name: Mount bazel cache
-        uses: actions/cache@v3
-        with:
-          path: "~/.cache/bazel"
-          key: bazel
-      - name: Build
-        run: |
-          bazel build \
-          --config=ci \
-          --remote_header=x-buildbuddy-api-key=${{ secrets.BUILDBUDDY_ORG_API_KEY }} \
-          //k8s/unwind:list
-      - name: Get output path
-        id: get-output-path
-        run: echo "PATH=$(bazel cquery --output=files //k8s/unwind:list 2> /dev/null)" >> "$GITHUB_OUTPUT"
+      - uses: cue-lang/setup-cue@v1.0.0
+      - run: cue export ./k8s/magiclove/list.cue > list.json
       - uses: actions/upload-artifact@v3
         with:
           name: base
-          path: "${{ steps.get-output-path.outputs.PATH }}"
+          path: list.json
   head:
     name: Head
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: bazelbuild/setup-bazelisk@v2
-      - name: Mount bazel cache
-        uses: actions/cache@v3
-        with:
-          path: "~/.cache/bazel"
-          key: bazel
-      - name: Build
-        run: |
-          bazel build \
-          --config=ci \
-          --remote_header=x-buildbuddy-api-key=${{ secrets.BUILDBUDDY_ORG_API_KEY }} \
-          //k8s/unwind:list
-      - name: Get output path
-        id: get-output-path
-        run: echo "PATH=$(bazel cquery --output=files //k8s/unwind:list 2> /dev/null)" >> "$GITHUB_OUTPUT"
+      - uses: cue-lang/setup-cue@v1.0.0
+      - run: cue export ./k8s/magiclove/list.cue > list.json
       - uses: actions/upload-artifact@v3
         with:
-          name: head
-          path: "${{ steps.get-output-path.outputs.PATH }}"
+          name: base
+          path: list.json
   compare:
     name: Compare
     needs: [base, head]
