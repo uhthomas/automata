@@ -1,8 +1,0 @@
-load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
-
-cue_library(
-    name = "cue_validation_library",
-    srcs = ["validation_go_gen.cue"],
-    importpath = "k8s.io/apimachinery/pkg/apis/meta/v1/validation",
-    visibility = ["//visibility:public"],
-)

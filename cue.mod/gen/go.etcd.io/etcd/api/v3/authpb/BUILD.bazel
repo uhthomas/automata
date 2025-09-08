@@ -1,8 +1,0 @@
-load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
-
-cue_library(
-    name = "cue_authpb_library",
-    srcs = ["auth.pb_go_gen.cue"],
-    importpath = "github.com/uhthomas/automata/cue.mod/gen/go.etcd.io/etcd/api/v3/authpb",
-    visibility = ["//visibility:public"],
-)

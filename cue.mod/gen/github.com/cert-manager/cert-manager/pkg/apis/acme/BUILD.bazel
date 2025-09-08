@@ -1,8 +1,0 @@
-load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
-
-cue_library(
-    name = "cue_acme_library",
-    srcs = ["doc_go_gen.cue"],
-    importpath = "github.com/cert-manager/cert-manager/pkg/apis/acme",
-    visibility = ["//visibility:public"],
-)

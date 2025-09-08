@@ -1,8 +1,0 @@
-load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
-
-cue_library(
-    name = "cue_lru_library",
-    srcs = ["lru_go_gen.cue"],
-    importpath = "github.com/golang/groupcache/lru",
-    visibility = ["//visibility:public"],
-)

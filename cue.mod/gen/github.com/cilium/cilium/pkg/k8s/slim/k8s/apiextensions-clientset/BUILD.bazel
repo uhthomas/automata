@@ -1,9 +1,0 @@
-load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
-
-cue_library(
-    name = "cue_clientset_library",
-    srcs = ["clientset_go_gen.cue"],
-    importpath = "github.com/cilium/cilium/pkg/k8s/slim/k8s/apiextensions-clientset:clientset",
-    visibility = ["//visibility:public"],
-    deps = ["//cue.mod/gen/k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset:cue_clientset_library"],
-)

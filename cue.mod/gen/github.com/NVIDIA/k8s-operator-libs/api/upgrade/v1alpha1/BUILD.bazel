@@ -1,9 +1,0 @@
-load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
-
-cue_library(
-    name = "cue_v1alpha1_library",
-    srcs = ["upgrade_spec_go_gen.cue"],
-    importpath = "github.com/NVIDIA/k8s-operator-libs/api/upgrade/v1alpha1",
-    visibility = ["//visibility:public"],
-    deps = ["//cue.mod/gen/k8s.io/apimachinery/pkg/util/intstr:cue_intstr_library"],
-)

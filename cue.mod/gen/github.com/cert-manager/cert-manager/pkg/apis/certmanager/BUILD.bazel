@@ -1,8 +1,0 @@
-load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
-
-cue_library(
-    name = "cue_certmanager_library",
-    srcs = ["doc_go_gen.cue"],
-    importpath = "github.com/cert-manager/cert-manager/pkg/apis/certmanager",
-    visibility = ["//visibility:public"],
-)

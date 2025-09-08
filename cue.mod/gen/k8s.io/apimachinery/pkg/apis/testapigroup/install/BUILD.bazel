@@ -1,8 +1,0 @@
-load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
-
-cue_library(
-    name = "cue_install_library",
-    srcs = ["install_go_gen.cue"],
-    importpath = "k8s.io/apimachinery/pkg/apis/testapigroup/install",
-    visibility = ["//visibility:public"],
-)

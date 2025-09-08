@@ -1,7 +1,0 @@
-load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_export")
-
-cue_export(
-    name = "module",
-    src = "module.cue",
-    visibility = ["//visibility:public"],
-)
