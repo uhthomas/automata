@@ -1,38 +1,38 @@
-name: k8s
-on:
-  push:
-    branches: [main]
-jobs:
-  unwind:
-    name: Unwind
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: tailscale/github-action@v2
-        with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          tags: tag:ci
-      - name: Login to the Kubernetes cluster
-        run: tailscale configure kubeconfig tailscale-operator
-      - uses: bazelbuild/setup-bazelisk@v2
-      - name: Mount bazel cache
-        uses: actions/cache@v3
-        with:
-          path: "~/.cache/bazel"
-          key: bazel
-      - name: Login to the GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      # https://github.com/bazelbuild/rules_k8s/issues/640
-      - name: Apply
-        env:
-          KUBECTL_APPLYSET: "true"
-        run: |
-          bazel run \
-          --config=ci \
-          --remote_header=x-buildbuddy-api-key=${{ secrets.BUILDBUDDY_ORG_API_KEY }} \
-          //k8s/unwind:object.apply
+# name: k8s
+# on:
+#   push:
+#     branches: [main]
+# jobs:
+#   unwind:
+#     name: Unwind
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v3
+#       - uses: tailscale/github-action@v2
+#         with:
+#           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+#           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+#           tags: tag:ci
+#       - name: Login to the Kubernetes cluster
+#         run: tailscale configure kubeconfig tailscale-operator
+#       - uses: bazelbuild/setup-bazelisk@v2
+#       - name: Mount bazel cache
+#         uses: actions/cache@v3
+#         with:
+#           path: "~/.cache/bazel"
+#           key: bazel
+#       - name: Login to the GitHub Container Registry
+#         uses: docker/login-action@v2
+#         with:
+#           registry: ghcr.io
+#           username: ${{ github.actor }}
+#           password: ${{ secrets.GITHUB_TOKEN }}
+#       # https://github.com/bazelbuild/rules_k8s/issues/640
+#       - name: Apply
+#         env:
+#           KUBECTL_APPLYSET: "true"
+#         run: |
+#           bazel run \
+#           --config=ci \
+#           --remote_header=x-buildbuddy-api-key=${{ secrets.BUILDBUDDY_ORG_API_KEY }} \
+#           //k8s/unwind:object.apply
