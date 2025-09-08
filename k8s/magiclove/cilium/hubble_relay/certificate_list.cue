@@ -20,6 +20,12 @@ import certmanagerv1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/
 			kind: certmanagerv1.#IssuerKind
 			name: "cilium-ca"
 		}
+		isCA: false
+		usages: [
+			certmanagerv1.#UsageSigning,
+			certmanagerv1.#UsageKeyEncipherment,
+			certmanagerv1.#UsageClientAuth,
+		]
 	}
 }, {
 	metadata: name: "hubble-relay-server-certs"
@@ -30,5 +36,12 @@ import certmanagerv1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/
 			kind: certmanagerv1.#IssuerKind
 			name: "cilium-ca"
 		}
+		isCA: false
+		usages: [
+			certmanagerv1.#UsageSigning,
+			certmanagerv1.#UsageKeyEncipherment,
+			certmanagerv1.#UsageServerAuth,
+			certmanagerv1.#UsageClientAuth,
+		]
 	}
 }]

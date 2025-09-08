@@ -1,0 +1,12 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_apis_library",
+    srcs = ["cell_go_gen.cue"],
+    importpath = "github.com/cilium/cilium/pkg/k8s/apis",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//cue.mod/gen/github.com/cilium/cilium/pkg/k8s/client:cue_client_library",
+        "//cue.mod/gen/github.com/cilium/hive/cell:cue_cell_library",
+    ],
+)

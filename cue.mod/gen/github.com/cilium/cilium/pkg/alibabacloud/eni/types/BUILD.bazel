@@ -1,0 +1,11 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_types_library",
+    srcs = [
+        "doc_go_gen.cue",
+        "types_go_gen.cue",
+    ],
+    importpath = "github.com/cilium/cilium/pkg/alibabacloud/eni/types",
+    visibility = ["//visibility:public"],
+)

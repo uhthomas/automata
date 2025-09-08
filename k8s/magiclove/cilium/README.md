@@ -5,10 +5,10 @@
 Pretty sure the resources were created with:
 
 ```sh
-❯ KUBERNETES_API_SERVER_ADDRESS="magiclove.starjunk.net" KUBERNETES_API_SERVER_PORT=6443 helm template \
+❯ KUBERNETES_API_SERVER_ADDRESS="magiclove.hipparcos.net" KUBERNETES_API_SERVER_PORT=6443 helm template \
     cilium \
     cilium/cilium \
-    --version 1.16.1 \
+    --version 1.18.1 \
     --namespace cilium \
     --set ipam.mode=kubernetes \
     --set=kubeProxyReplacement=true \
@@ -26,20 +26,20 @@ Pretty sure the resources were created with:
     --set hubble.tls.auto.certManagerIssuerRef.group="cert-manager.io" \
     --set hubble.tls.auto.certManagerIssuerRef.kind="ClusterIssuer" \
     --set hubble.tls.auto.certManagerIssuerRef.name="ca-issuer" \
-    --set=gatewayAPI.enabled=true  > cilium.yaml
+    --set bgpControlPlane.enabled=true > cilium.yaml
 ```
 
 Per
-[https://www.talos.dev/v1.8/kubernetes-guides/network/deploying-cilium/](https://www.talos.dev/v1.8/kubernetes-guides/network/deploying-cilium/)
+[https://www.talos.dev/v1.11/kubernetes-guides/network/deploying-cilium/](https://www.talos.dev/v1.11/kubernetes-guides/network/deploying-cilium/)
 
 To update, render with the chart at the current version and then diff it against
 the target version.
 
 ```sh
-❯ helm template ... --version=1.14.0 --kube-version-1.30.0 > cilium-1.14.0.yaml
-❯ helm template ... --version=1.16.1 --kube-version-1.30.0 > cilium-1.16.1.yaml
-❯ cue import -l "strings.ToLower(kind)" --list -R cilium-1.14.0.yaml cilium-1.16.1.yaml
-❯ diff -urN cilium-1.14.0.cue cilium-1.16.1.cue > out.diff
+❯ helm template ... --version=1.16.1 --kube-version=1.34.0 > cilium-1.16.1.yaml
+❯ helm template ... --version=1.18.1 --kube-version=1.34.0 > cilium-1.18.1.yaml
+❯ cue import -l "strings.ToLower(kind)" --list -R cilium-1.16.1.yaml cilium-1.18.1.yaml
+❯ diff -urN cilium-1.16.1.cue cilium-1.18.1.cue > out.diff
 ```
 
 ## BGP

@@ -1,0 +1,8 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_validator_library",
+    srcs = ["unknown_fields_go_gen.cue"],
+    importpath = "github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2/validator",
+    visibility = ["//visibility:public"],
+)

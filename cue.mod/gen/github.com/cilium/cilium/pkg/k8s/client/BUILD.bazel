@@ -1,0 +1,20 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_client_library",
+    srcs = [
+        "cell_go_gen.cue",
+        "config_go_gen.cue",
+        "getters_go_gen.cue",
+        "rest_config_provider_go_gen.cue",
+    ],
+    importpath = "github.com/cilium/cilium/pkg/k8s/client",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//cue.mod/gen/github.com/cilium/cilium/pkg/k8s/client/clientset/versioned:cue_versioned_library",
+        "//cue.mod/gen/github.com/cilium/cilium/pkg/k8s/slim/k8s/apiextensions-clientset:cue_clientset_library",
+        "//cue.mod/gen/github.com/cilium/cilium/pkg/k8s/slim/k8s/client/clientset/versioned:cue_versioned_library",
+        "//cue.mod/gen/github.com/cilium/hive/job:cue_job_library",
+        "//cue.mod/gen/k8s.io/client-go/kubernetes:cue_kubernetes_library",
+    ],
+)

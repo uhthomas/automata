@@ -11,4 +11,7 @@ import "k8s.io/api/core/v1"
 	}]
 }
 
-#ServiceAccountList: items: [{metadata: name: "hubble-relay"}]
+#ServiceAccountList: items: [{
+	metadata: name: "hubble-relay"
+	automountServiceAccountToken: false
+}]

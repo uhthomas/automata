@@ -1,0 +1,11 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_intstr_library",
+    srcs = [
+        "doc_go_gen.cue",
+        "intstr_go_gen.cue",
+    ],
+    importpath = "github.com/cilium/cilium/pkg/k8s/slim/k8s/apis/util/intstr",
+    visibility = ["//visibility:public"],
+)

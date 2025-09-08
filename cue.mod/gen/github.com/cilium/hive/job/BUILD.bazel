@@ -1,0 +1,13 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_job_library",
+    srcs = [
+        "job_go_gen.cue",
+        "metrics_go_gen.cue",
+        "oneshot_go_gen.cue",
+        "timer_go_gen.cue",
+    ],
+    importpath = "github.com/cilium/hive/job",
+    visibility = ["//visibility:public"],
+)

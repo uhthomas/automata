@@ -79,7 +79,6 @@ import (
 						"-c /var/run/cilium/envoy/bootstrap-config.json",
 						"--base-id 0",
 						"--log-level info",
-						"--log-format [%Y-%m-%d %T.%e][%t][%l][%n] [%g:%#] %v",
 					]
 					ports: [{
 						name:          "envoy-metrics"

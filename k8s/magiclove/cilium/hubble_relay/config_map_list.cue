@@ -19,7 +19,7 @@ import (
 	metadata: name: "hubble-relay-config"
 	data: "config.yaml": yaml.Marshal({
 		"cluster-name":                "default"
-		"peer-service":                "hubble-peer.cilium.svc.cluster.local:443"
+		"peer-service":                "hubble-peer.cilium.svc.cluster.local.:443"
 		"listen-address":              ":4245"
 		gops:                          true
 		"gops-port":                   "9893"

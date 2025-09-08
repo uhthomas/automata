@@ -1,0 +1,38 @@
+load("@com_github_tnarg_rules_cue//cue:cue.bzl", "cue_library")
+
+cue_library(
+    name = "cue_v2_library",
+    srcs = [
+        "bgp_advert_types_go_gen.cue",
+        "bgp_cluster_types_go_gen.cue",
+        "bgp_node_override_types_go_gen.cue",
+        "bgp_node_types_go_gen.cue",
+        "bgp_peer_types_go_gen.cue",
+        "ccec_types_go_gen.cue",
+        "ccnp_types_go_gen.cue",
+        "cec_types_go_gen.cue",
+        "cegp_types_go_gen.cue",
+        "cidrgroups_types_go_gen.cue",
+        "clrp_types_go_gen.cue",
+        "cnc_types_go_gen.cue",
+        "cnp_types_go_gen.cue",
+        "doc_go_gen.cue",
+        "lbipam_types_go_gen.cue",
+        "register_go_gen.cue",
+        "types_go_gen.cue",
+    ],
+    importpath = "github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//cue.mod/gen/github.com/cilium/cilium/api/v1/models:cue_models_library",
+        "//cue.mod/gen/github.com/cilium/cilium/pkg/alibabacloud/eni/types:cue_types_library",
+        "//cue.mod/gen/github.com/cilium/cilium/pkg/aws/eni/types:cue_types_library",
+        "//cue.mod/gen/github.com/cilium/cilium/pkg/azure/types:cue_types_library",
+        "//cue.mod/gen/github.com/cilium/cilium/pkg/ipam/types:cue_types_library",
+        "//cue.mod/gen/github.com/cilium/cilium/pkg/k8s/slim/k8s/apis/meta/v1:cue_v1_library",
+        "//cue.mod/gen/github.com/cilium/cilium/pkg/node/addressing:cue_addressing_library",
+        "//cue.mod/gen/github.com/cilium/cilium/pkg/policy/api:cue_api_library",
+        "//cue.mod/gen/k8s.io/api/core/v1:cue_v1_library",
+        "//cue.mod/gen/k8s.io/apimachinery/pkg/apis/meta/v1:cue_v1_library",
+    ],
+)

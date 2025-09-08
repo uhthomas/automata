@@ -26,10 +26,13 @@ import (
 	spec: {
 		selector: matchLabels: "k8s-app": "hubble-relay"
 		template: {
-			metadata: labels: {
-				"k8s-app":                   "hubble-relay"
-				"app.kubernetes.io/name":    "hubble-relay"
-				"app.kubernetes.io/part-of": "cilium"
+			metadata: {
+				annotations: "kubectl.kubernetes.io/default-container": "cilium-agent"
+				labels: {
+					"k8s-app":                   "hubble-relay"
+					"app.kubernetes.io/name":    "hubble-relay"
+					"app.kubernetes.io/part-of": "cilium"
+				}
 			}
 			spec: {
 				volumes: [{
@@ -117,7 +120,7 @@ import (
 					imagePullPolicy:          v1.#PullIfNotPresent
 					securityContext: {
 						capabilities: drop: ["ALL"]
-						readOnlyRootFilesystem:   true
+						// readOnlyRootFilesystem:   true
 						allowPrivilegeEscalation: false
 					}
 				}]

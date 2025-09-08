@@ -50,6 +50,12 @@ import (
 						type: v1.#HostPathDirectoryOrCreate
 					}
 				}, {
+					name: "cilium-netns"
+					hostPath: {
+						path: "/var/run/netns"
+						type: v1.#HostPathDirectoryOrCreate
+					}
+				}, {
 					// To keep state between restarts / upgrades for bpf maps
 					name: "bpf-maps"
 					hostPath: {
@@ -231,6 +237,10 @@ import (
 						name:      "cilium-run"
 						mountPath: "/var/run/cilium"
 					}, {
+						name:             "cilium-netns"
+						mountPath:        "/var/run/cilium/netns"
+						mountPropagation: v1.#MountPropagationHostToContainer
+					}, {
 						name:      "etc-cni-netd"
 						mountPath: "/host/etc/cni/net.d"
 					}, {
@@ -261,6 +271,9 @@ import (
 							httpHeaders: [{
 								name:  "brief"
 								value: "true"
+							}, {
+								name:  "require-k8s-connectivity"
+								value: "false"
 							}]
 						}
 						successThreshold: 1
@@ -278,7 +291,7 @@ import (
 						initialDelaySeconds: 5
 					}
 					startupProbe: probe & {
-						failureThreshold: 105
+						failureThreshold: 300
 						periodSeconds:    2
 					}
 
@@ -340,6 +353,12 @@ import (
 					}, {
 						name:  "KUBERNETES_SERVICE_PORT"
 						value: "7445"
+					}, {
+						name:  "KUBE_CLIENT_BACKOFF_BASE"
+						value: "1"
+					}, {
+						name:  "KUBE_CLIENT_BACKOFF_DURATION"
+						value: "120"
 					}]
 					volumeMounts: [{
 						name:      "tmp"
@@ -478,6 +497,10 @@ import (
 						capabilities: drop: ["ALL"]
 					}
 				}]
+				securityContext: {
+					appArmorProfile: type: "Unconfined"
+					seccompProfile: type:  "Unconfined"
+				}
 				terminationGracePeriodSeconds: 1
 				nodeSelector: (v1.#LabelOSStable): v1.#Linux
 				serviceAccountName: "cilium"

@@ -98,15 +98,40 @@ import (
 
 					terminationMessagePolicy: v1.#TerminationMessageFallbackToLogsOnError
 					imagePullPolicy:          v1.#PullIfNotPresent
+					securityContext: {
+						capabilities: drop: ["ALL"]
+						// readOnlyRootFilesystem:   true
+						allowPrivilegeEscalation: false
+					}
 				}]
 				nodeSelector: (v1.#LabelOSStable): v1.#Linux
 				serviceAccountName: "cilium-operator"
-				hostNetwork:        true
+				securityContext: {
+					// runAsUser:           1000
+					// runAsGroup:          3000
+					// runAsNonRoot: true
+					// fsGroup:             2000
+					fsGroupChangePolicy: v1.#FSGroupChangeOnRootMismatch
+					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
+				}
+				hostNetwork: true
 				affinity: podAntiAffinity: requiredDuringSchedulingIgnoredDuringExecution: [{
 					labelSelector: matchLabels: "io.cilium/app": "operator"
 					topologyKey: v1.#LabelHostname
 				}]
-				tolerations: [{operator: v1.#TolerationOpExists}]
+				tolerations: [{
+					key:      "node-role.kubernetes.io/control-plane"
+					operator: v1.#TolerationOpExists
+				}, {
+					key:      "node-role.kubernetes.io/master"
+					operator: v1.#TolerationOpExists
+				}, {
+					key:      "node.kubernetes.io/not-ready"
+					operator: v1.#TolerationOpExists
+				}, {
+					key:      "node.cilium.io/agent-not-ready"
+					operator: v1.#TolerationOpExists
+				}]
 				priorityClassName: "system-cluster-critical"
 			}
 		}
