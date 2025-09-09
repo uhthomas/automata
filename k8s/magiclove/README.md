@@ -3,6 +3,12 @@
 Please follow the documentation for `onepassword-connect` as it is a
 prerequisite.
 
+## Apply
+
+```sh
+cue export ./k8s/magiclove/list.cue | KUBECTL_APPLYSET=true kubectl apply -f - --server-side --force-conflicts --applyset=applyset/automata --prune
+```
+
 ## Talos Upgrades
 
 The current manifest ID is
