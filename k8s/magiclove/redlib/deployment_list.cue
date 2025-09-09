@@ -32,10 +32,7 @@ import (
 						name:          "socks5-proxy"
 						containerPort: 1080
 					}]
-					resources: limits: {
-						(v1.#ResourceCPU):    "300m"
-						(v1.#ResourceMemory): "64Mi"
-					}
+					resources: limits: (v1.#ResourceMemory): "128Mi"
 					restartPolicy: v1.#ContainerRestartPolicyAlways
 					volumeMounts: [{
 						name:      "config"
@@ -69,10 +66,7 @@ import (
 						name:  "REDLIB_DEFAULT_USE_HLS"
 						value: "on"
 					}]
-					resources: limits: {
-						(v1.#ResourceCPU):    "300m"
-						(v1.#ResourceMemory): "96Mi"
-					}
+					resources: limits: (v1.#ResourceMemory): "96Mi"
 
 					let probe = {
 						httpGet: {
@@ -99,6 +93,7 @@ import (
 					fsGroupChangePolicy: v1.#FSGroupChangeOnRootMismatch
 					seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 				}
+				resources: limits: (v1.#ResourceCPU): "1"
 			}
 		}
 	}
