@@ -45,8 +45,6 @@ import (
 						mountPath: "/var/lib/kubelet/device-plugins"
 					}]
 					imagePullPolicy: v1.#PullIfNotPresent
-					securityContext: capabilities: add: ["SYS_ADMIN"]
-				},
 					// securityContext: {
 					// 	capabilities: {
 					// 		add: ["SYS_ADMIN"]
@@ -55,7 +53,16 @@ import (
 					// 	readOnlyRootFilesystem:   true
 					// 	allowPrivilegeEscalation: false
 					// }
-				]
+					securityContext: capabilities: add: ["SYS_ADMIN"]
+				}]
+				nodeSelector: (v1.#LabelHostname): "dice"
+				// securityContext: {
+				// 	runAsUser:    1000
+				// 	runAsGroup:   3000
+				// 	runAsNonRoot: true
+				// 	fsGroup:      2000
+				// 	seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
+				// }
 				tolerations: [{
 					key:      "CriticalAddonsOnly"
 					operator: v1.#TolerationOpExists
@@ -64,13 +71,6 @@ import (
 					operator: v1.#TolerationOpExists
 					effect:   v1.#TaintEffectNoSchedule
 				}]
-				// securityContext: {
-				// 	runAsUser:    1000
-				// 	runAsGroup:   3000
-				// 	runAsNonRoot: true
-				// 	fsGroup:      2000
-				// 	seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
-				// }
 				priorityClassName: "system-node-critical"
 				runtimeClassName:  "nvidia"
 			}
