@@ -10,7 +10,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=github-tags depName=prometheus-community/smartctl_exporter extractVersion=^v(?<version>.*)$
-#Version: "master-2cc2249"
+#Version: "0.14.0"
 
 #List: v1.#List & {
 	apiVersion: "v1"
