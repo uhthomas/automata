@@ -129,6 +129,10 @@ import (
 					name: "csi-data-dir"
 				}]
 				serviceAccountName: #Name
+				tolerations: [{
+					operator: v1.#TolerationOpExists
+					effect:   v1.#TaintEffectNoSchedule
+				}]
 			}
 		}
 	}
