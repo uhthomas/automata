@@ -20,18 +20,26 @@ import (
 			image:            "quay.io/ceph/ceph:v\(#CephVersion)"
 			allowUnsupported: false
 		}
+		placement: {
+			mgr: tolerations: [{
+				key:      "node-role.kubernetes.io/control-plane"
+				operator: v1.#TolerationOpExists
+				effect:   v1.#TaintEffectNoSchedule
+			}]
+			mon: tolerations: [{
+				key:      "node-role.kubernetes.io/control-plane"
+				operator: v1.#TolerationOpExists
+				effect:   v1.#TaintEffectNoSchedule
+			}]
+		}
 		dataDirHostPath:                            "/var/lib/rook"
 		skipUpgradeChecks:                          false
 		continueUpgradeAfterChecksEvenIfNotHealthy: false
 		waitTimeoutForHealthyOSDInMinutes:          10
 		upgradeOSDRequiresHealthyPGs:               false
-		mon: {
-			count:                3
-			allowMultiplePerNode: true
-		}
+		mon: count: 3
 		mgr: {
-			count:                2
-			allowMultiplePerNode: true
+			count: 2
 			modules: [{
 				name:    "diskprediction_local"
 				enabled: true
