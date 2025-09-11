@@ -41,7 +41,6 @@ import (
 					}
 					volumeMounts: [{
 						name:      "dev"
-						readOnly:  true
 						mountPath: "/dev"
 					}]
 
