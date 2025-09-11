@@ -15,7 +15,7 @@ require (
 	github.com/cilium/cilium v1.18.1
 	github.com/cloudnative-pg/cloudnative-pg v1.25.1
 	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
-	github.com/envoyproxy/gateway v1.4.2
+	github.com/envoyproxy/gateway v1.5.0
 	github.com/external-secrets/external-secrets v0.9.11
 	github.com/grafana/grafana-operator/v5 v5.8.0
 	github.com/jodevsa/wireguard-operator v1.2.21-0.20240509203524-1d1bef4d0d82
