@@ -115,8 +115,8 @@ import (
 				requests: (v1.#ResourceCPU): "1"
 			}
 			mon: limits: {
-				(v1.#ResourceCPU):    "500m"
-				(v1.#ResourceMemory): "768Mi"
+				(v1.#ResourceCPU):    "1"
+				(v1.#ResourceMemory): "1Gi"
 			}
 			osd: {
 				limits: (v1.#ResourceMemory): "3Gi"
