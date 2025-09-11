@@ -21,7 +21,7 @@ require (
 	github.com/jodevsa/wireguard-operator v1.2.21-0.20240509203524-1d1bef4d0d82
 	github.com/kubernetes-csi/external-snapshotter/client/v8 v8.2.0
 	github.com/prometheus/prometheus v0.300.1
-	github.com/rook/rook/pkg/apis v0.0.0-20250829210302-107bb8176eeb
+	github.com/rook/rook/pkg/apis v0.0.0-20250911164322-1c3ebbd01ab1
 	k8s.io/api v0.34.0
 	k8s.io/apiextensions-apiserver v0.34.0
 	k8s.io/client-go v12.0.0+incompatible
@@ -181,7 +181,7 @@ require (
 	github.com/spf13/afero v1.14.0 // indirect
 	github.com/spf13/cast v1.9.2 // indirect
 	github.com/spf13/cobra v1.9.1 // indirect
-	github.com/spf13/pflag v1.0.7 // indirect
+	github.com/spf13/pflag v1.0.9 // indirect
 	github.com/spf13/viper v1.20.1 // indirect
 	github.com/stoewer/go-strcase v1.3.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
