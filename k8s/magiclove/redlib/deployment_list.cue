@@ -66,7 +66,7 @@ import (
 						name:  "REDLIB_DEFAULT_USE_HLS"
 						value: "on"
 					}]
-					resources: limits: (v1.#ResourceMemory): "96Mi"
+					resources: limits: (v1.#ResourceMemory): "192Mi"
 
 					let probe = {
 						httpGet: {
