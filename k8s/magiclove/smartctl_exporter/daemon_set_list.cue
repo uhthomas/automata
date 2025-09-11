@@ -56,17 +56,16 @@ import (
 					readinessProbe: probe
 
 					imagePullPolicy: v1.#PullIfNotPresent
-					securityContext: {
-						privileged: true
-						runAsUser:  0
-					}
-				},
 					// securityContext: {
 					// 	capabilities: drop: ["ALL"]
 					// 	readOnlyRootFilesystem:   true
 					// 	allowPrivilegeEscalation: false
 					// }
-				]
+					securityContext: {
+						privileged: true
+						runAsUser:  0
+					}
+				}]
 				// securityContext: {
 				// 	runAsUser:    1000
 				// 	runAsGroup:   3000
@@ -74,6 +73,10 @@ import (
 				// 	fsGroup:      2000
 				// 	seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 				// }
+				tolerations: [{
+					operator: v1.#TolerationOpExists
+					effect:   v1.#TaintEffectNoSchedule
+				}]
 			}
 		}
 	}
