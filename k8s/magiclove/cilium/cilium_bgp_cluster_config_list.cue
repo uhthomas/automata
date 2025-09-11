@@ -1,6 +1,10 @@
 package cilium
 
-import ciliumv2 "github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2"
+import (
+	"k8s.io/core/v1"
+
+	ciliumv2 "github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2"
+)
 
 #CiliumBGPClusterConfigList: ciliumv2.#CiliumBGPClusterConfigList & {
 	apiVersion: "cilium.io/v2"
@@ -14,7 +18,7 @@ import ciliumv2 "github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2"
 #CiliumBGPClusterConfigList: items: [{
 	metadata: name: "default"
 	spec: {
-		nodeSelector: matchLabels: "kubernetes.io/hostname": "dice"
+		nodeSelector: matchLabels: (v1.#LabelHostname): "dice"
 		bgpInstances: [{
 			name:     "cilium"
 			localASN: 65100
