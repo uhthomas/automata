@@ -16,7 +16,7 @@ import (
 	kind:       "List"
 	items: [...{
 		metadata: {
-			name:      #Name
+			name:      string | *#Name
 			namespace: #Namespace
 			labels: {
 				"app.kubernetes.io/name":    #Name

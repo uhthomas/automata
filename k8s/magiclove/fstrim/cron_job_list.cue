@@ -14,7 +14,15 @@ import (
 	}]
 }
 
-#CronJobList: items: [{
+// todo: use a daemonset instead
+let nodes = [
+	"dice",
+	"indigo",
+	"venasque",
+]
+
+#CronJobList: items: [for node in nodes {
+	metadata: name: "\(#Name)-\(node)"
 	spec: {
 		schedule:          "0 0 * * *" // every day
 		concurrencyPolicy: batchv1.#ForbidConcurrent
@@ -41,7 +49,12 @@ import (
 				securityContext: privileged: true
 			}]
 			restartPolicy: v1.#RestartPolicyOnFailure
-			hostPID:       true
+			nodeSelector: (v1.#LabelHostname): node
+			hostPID: true
+			tolerations: [{
+				operator: v1.#TolerationOpExists
+				effect:   v1.#TaintEffectNoSchedule
+			}]
 		}
 	}
 }]
