@@ -72,6 +72,10 @@ import (
 				// 	fsGroup:      2000
 				// 	seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 				// }
+				tolerations: [{
+					operator: v1.#TolerationOpExists
+					effect:   v1.#TaintEffectNoSchedule
+				}]
 			}
 		}
 	}
