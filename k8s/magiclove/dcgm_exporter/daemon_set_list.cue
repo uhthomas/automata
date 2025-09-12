@@ -33,9 +33,6 @@ import (
 						containerPort: 8080
 					}]
 					env: [{
-						name:  "DCGM_EXPORTER_KUBERNETES"
-						value: "true"
-					}, {
 						name:  "DCGM_EXPORTER_LISTEN"
 						value: ":8080"
 					}, {
@@ -57,7 +54,6 @@ import (
 							path: "/health"
 							port: "http-metrics"
 						}
-						initialDelaySeconds: 45
 					}
 
 					livenessProbe: probe & {periodSeconds: 5}
