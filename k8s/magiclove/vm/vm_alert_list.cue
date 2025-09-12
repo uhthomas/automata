@@ -44,9 +44,12 @@ import (
 			targetPort: "http"
 		}]
 		notifiers: [{selector: labelSelector: matchLabels: "app.kubernetes.io/name": #Name}]
-		remoteWrite: url:                           "http://vmsingle-vm:8429/api/v1/write"
-		remoteRead: url:                            "http://vmsingle-vm:8429"
-		datasource: url:                            "http://vmsingle-vm:8429"
-		extraArgs: "remoteWrite.disablePathAppend": "true"
+		remoteWrite: url: "http://vmsingle-vm:8429/api/v1/write"
+		remoteRead: url:  "http://vmsingle-vm:8429"
+		datasource: url:  "http://vmsingle-vm:8429"
+		extraArgs: {
+			"external.url":                  "https://vmalert-magiclove.hipparcos.net"
+			"remoteWrite.disablePathAppend": "true"
+		}
 	}
 }]
