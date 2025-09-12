@@ -41,6 +41,11 @@ import (
 				allowPrivilegeEscalation: false
 			}
 		}]
+		serviceSpec: spec: ports: [{
+			name:       "http"
+			port:       80
+			targetPort: "http"
+		}]
 		removePvcAfterDelete: true
 		retentionPeriod:      "2y"
 		extraArgs: {

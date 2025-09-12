@@ -38,6 +38,11 @@ import (
 		}]
 		evaluationInterval: "1m"
 		selectAllByDefault: true
+		serviceSpec: spec: ports: [{
+			name:       "http"
+			port:       80
+			targetPort: "http"
+		}]
 		notifiers: [{selector: labelSelector: matchLabels: "app.kubernetes.io/name": #Name}]
 		remoteWrite: url:                           "http://vmsingle-vm:8429/api/v1/write"
 		remoteRead: url:                            "http://vmsingle-vm:8429"
