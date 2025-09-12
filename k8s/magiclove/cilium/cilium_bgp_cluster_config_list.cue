@@ -1,7 +1,7 @@
 package cilium
 
 import (
-	"k8s.io/core/v1"
+	"k8s.io/api/core/v1"
 
 	ciliumv2 "github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2"
 )
