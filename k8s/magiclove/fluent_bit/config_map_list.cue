@@ -2,6 +2,7 @@ package fluent_bit
 
 import (
 	"encoding/yaml"
+	"strings"
 
 	"k8s.io/api/core/v1"
 )
@@ -37,7 +38,7 @@ import (
 				daemon:       "off"
 				flush:        1
 				daemon:       "off"
-				log_level:    "warn"
+				log_level:    "info"
 				parsers_file: "/fluent-bit/etc/conf/custom_parsers.conf"
 				http_server:  "on"
 				http_listen:  "0.0.0.0"
@@ -73,30 +74,31 @@ import (
 					merge_log:             "on"
 					"k8s-logging.parser":  "on"
 					"k8s-logging.exclude": "on"
-					namespace_labels:      "on"
 				}, {
 					name:   "modify"
 					match:  "kubernetes.*"
 					add:    "source kubernetes"
 					remove: "logtag"
-				}, {
-					name:         "nest"
-					match:        "*"
-					wildcard:     "pod_name"
-					operation:    "lift"
-					nested_under: "kubernetes"
-					add_prefix:   "kubernetes_"
 				}]
 				outputs: [{
-					name:             "http"
-					match:            "*"
-					host:             "victoria-logs.victoria-logs"
-					port:             80
-					compress:         "gzip"
-					uri:              "/insert/jsonline?_stream_fields=stream,source,kubernetes_namespace_name,kubernetes_pod_name,kubernetes_container_name&_msg_field=log&_time_field=date"
+					name:     "http"
+					match:    "*"
+					host:     "victoria-logs.victoria-logs"
+					port:     80
+					compress: "gzip"
+
+					let _stream_fields = strings.Join([
+						"stream",
+						"source",
+						"kubernetes.host",
+						"kubernetes.namespace_name",
+						"kubernetes.pod_name",
+						"kubernetes.container_name",
+					], ",")
+
+					uri:              "/insert/jsonline?_stream_fields=\(_stream_fields)&_msg_field=log&_time_field=date"
 					format:           "json_lines"
 					json_date_format: "iso8601"
-					header: ["AccountID 0", "ProjectID 0"]
 				}]
 			}
 		})

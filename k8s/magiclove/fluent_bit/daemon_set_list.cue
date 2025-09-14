@@ -18,7 +18,10 @@ import (
 	spec: {
 		selector: matchLabels: "app.kubernetes.io/name": #Name
 		template: {
-			metadata: labels: "app.kubernetes.io/name": #Name
+			metadata: {
+				annotations: "fluentbit.io/exclude": "true"
+				labels: "app.kubernetes.io/name":    #Name
+			}
 			spec: {
 				volumes: [{
 					name: "config"
@@ -85,6 +88,11 @@ import (
 				// 	fsGroup:      2000
 				// 	seccompProfile: type: v1.#SeccompProfileTypeRuntimeDefault
 				// }
+				tolerations: [{
+					key:      "node-role.kubernetes.io/control-plane"
+					operator: v1.#TolerationOpExists
+					effect:   v1.#TaintEffectNoSchedule
+				}]
 			}
 		}
 	}
