@@ -14,7 +14,7 @@ import (
 	"github.com/uhthomas/automata/k8s/magiclove/envoy_gateway"
 	"github.com/uhthomas/automata/k8s/magiclove/external_dns"
 	"github.com/uhthomas/automata/k8s/magiclove/external_secrets"
-	// "github.com/uhthomas/automata/k8s/magiclove/fluent_bit"
+	"github.com/uhthomas/automata/k8s/magiclove/fluent_bit"
 	"github.com/uhthomas/automata/k8s/magiclove/frigate"
 	"github.com/uhthomas/automata/k8s/magiclove/fstrim"
 	"github.com/uhthomas/automata/k8s/magiclove/gateway_api"
@@ -46,7 +46,7 @@ import (
 	"github.com/uhthomas/automata/k8s/magiclove/thomas"
 	// "github.com/uhthomas/automata/k8s/magiclove/trivy_system"
 	// "github.com/uhthomas/automata/k8s/magiclove/vector"
-	// "github.com/uhthomas/automata/k8s/magiclove/victoria_logs"
+	"github.com/uhthomas/automata/k8s/magiclove/victoria_logs"
 	"github.com/uhthomas/automata/k8s/magiclove/vm_operator"
 	"github.com/uhthomas/automata/k8s/magiclove/vm"
 	// "github.com/uhthomas/automata/k8s/magiclove/volsync_system"
@@ -95,7 +95,7 @@ _items: [
 	envoy_gateway.#List.items,
 	external_dns.#List.items,
 	external_secrets.#List.items,
-	// fluent_bit.#List.items,
+	fluent_bit.#List.items,
 	frigate.#List.items,
 	fstrim.#List.items,
 	gateway_api.#List.items,
@@ -127,7 +127,7 @@ _items: [
 	thomas.#List.items,
 	// trivy_system.#List.items,
 	// vector.#List.items,
-	// victoria_logs.#List.items,
+	victoria_logs.#List.items,
 	vm_operator.#List.items,
 	vm.#List.items,
 	// volsync_system.#List.items,

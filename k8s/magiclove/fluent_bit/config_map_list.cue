@@ -38,7 +38,7 @@ import (
 				daemon:       "off"
 				flush:        1
 				daemon:       "off"
-				log_level:    "info"
+				log_level:    "warn"
 				parsers_file: "/fluent-bit/etc/conf/custom_parsers.conf"
 				http_server:  "on"
 				http_listen:  "0.0.0.0"
