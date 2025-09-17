@@ -8,7 +8,7 @@ require (
 	cuelang.org/go v0.7.0
 	github.com/1Password/onepassword-operator v1.8.0
 	github.com/NVIDIA/gpu-operator v1.11.1
-	github.com/VictoriaMetrics/operator/api v0.51.3
+	github.com/VictoriaMetrics/operator/api v0.63.0
 	github.com/backube/snapscheduler v1.2.0
 	github.com/backube/volsync v0.8.0
 	github.com/cert-manager/cert-manager v1.15.3
