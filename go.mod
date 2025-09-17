@@ -6,7 +6,7 @@ toolchain go1.24.5
 
 require (
 	cuelang.org/go v0.7.0
-	github.com/1Password/onepassword-operator v1.8.0
+	github.com/1Password/onepassword-operator v1.9.1
 	github.com/NVIDIA/gpu-operator v1.11.1
 	github.com/VictoriaMetrics/operator/api v0.51.3
 	github.com/backube/snapscheduler v1.2.0
@@ -185,7 +185,7 @@ require (
 	github.com/spf13/viper v1.20.1 // indirect
 	github.com/stoewer/go-strcase v1.3.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	github.com/tetratelabs/wazero v1.8.2 // indirect
+	github.com/tetratelabs/wazero v1.9.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fastjson v1.6.4 // indirect
 	github.com/valyala/fastrand v1.1.0 // indirect
