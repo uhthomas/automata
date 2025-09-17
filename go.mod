@@ -10,7 +10,7 @@ require (
 	github.com/NVIDIA/gpu-operator v1.11.1
 	github.com/VictoriaMetrics/operator/api v0.51.3
 	github.com/backube/snapscheduler v1.2.0
-	github.com/backube/volsync v0.8.0
+	github.com/backube/volsync v0.13.0
 	github.com/cert-manager/cert-manager v1.15.3
 	github.com/cilium/cilium v1.18.1
 	github.com/cloudnative-pg/cloudnative-pg v1.25.1
