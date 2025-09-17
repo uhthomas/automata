@@ -1449,6 +1449,8 @@ github.com/backube/snapscheduler v1.2.0 h1:xw3frZQf0SxGKKjqxIdOzZP5hNLSCY1f+UR2f
 github.com/backube/snapscheduler v1.2.0/go.mod h1:rd3qsBeJN4St19YlJy1A4Hq8eaiHjPk/VQiXfTTy+j8=
 github.com/backube/volsync v0.8.0 h1:r3uhabaNbrU+U7eI++baqI3tnkBbD+8habjYUrCU0Yg=
 github.com/backube/volsync v0.8.0/go.mod h1:B/droDyFZPtX5NIE5li1S22nEA3O3EUwduiE8wf0bLw=
+github.com/backube/volsync v0.13.0 h1:FQynJZJ9Hu3OozrvdhV5wXL8pGFYanJ4F9ftx7DUyUQ=
+github.com/backube/volsync v0.13.0/go.mod h1:3SDB0yGR3d76sn6lezDJM+6jPOHeZnqAIpyYBQhJQz4=
 github.com/bazelbuild/rules_go v0.49.0/go.mod h1:Dhcz716Kqg1RHNWos+N6MlXNkjNP2EwZQ0LukRKJfMs=
 github.com/bboreham/go-loser v0.0.0-20230920113527-fcc2c21820a3 h1:6df1vn4bBlDDo4tARvBm7l6KA9iVMnE3NWizDeWSrps=
 github.com/bboreham/go-loser v0.0.0-20230920113527-fcc2c21820a3/go.mod h1:CIWtjkly68+yqLPbvwwR/fjNJA/idrtULjZWh2v1ys0=
