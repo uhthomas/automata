@@ -34,7 +34,7 @@ import (
 						}]
 					}
 				}
-				shutdownManager: image: "docker.io/envoyproxy/gateway:v1.4.2"
+				shutdownManager: image: "docker.io/envoyproxy/gateway:v1.5.1"
 			}
 			type: "Kubernetes"
 		}
