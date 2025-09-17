@@ -43,6 +43,7 @@ import (
 	"github.com/uhthomas/automata/k8s/magiclove/snapscheduler"
 	"github.com/uhthomas/automata/k8s/magiclove/snapshot_controller"
 	"github.com/uhthomas/automata/k8s/magiclove/speedtest_exporter"
+	"github.com/uhthomas/automata/k8s/magiclove/spegel"
 	"github.com/uhthomas/automata/k8s/magiclove/thomas"
 	// "github.com/uhthomas/automata/k8s/magiclove/trivy_system"
 	// "github.com/uhthomas/automata/k8s/magiclove/vector"
@@ -124,6 +125,7 @@ _items: [
 	snapscheduler.#List.items,
 	snapshot_controller.#List.items,
 	speedtest_exporter.#List.items,
+	spegel.#List.items,
 	thomas.#List.items,
 	// trivy_system.#List.items,
 	// vector.#List.items,
