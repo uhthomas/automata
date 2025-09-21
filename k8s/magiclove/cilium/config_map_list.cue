@@ -73,7 +73,8 @@ import "k8s.io/api/core/v1"
 		// Users who wish to specify their own custom CNI configuration file must set
 		// custom-cni-conf to "true", otherwise Cilium may overwrite the configuration.
 		"custom-cni-conf":        "false"
-		"enable-bpf-clock-probe": "false"
+		"enable-bpf-clock-probe": "true"
+		"enable-bpf-tproxy":      "true"
 		// If you want cilium monitor to aggregate tracing for packets, set this level
 		// to "low", "medium", or "maximum". The higher the level, the less packets
 		// that will be seen in monitor output.
@@ -126,7 +127,7 @@ import "k8s.io/api/core/v1"
 		//
 		// If this option is set to "false" during an upgrade from 1.3 or earlier to
 		// 1.4 or later, then it may cause one-time disruptions during the upgrade.
-		"preallocate-bpf-maps": "false"
+		"preallocate-bpf-maps": "true"
 
 		// Name of the cluster. Only relevant when building a mesh of clusters.
 		"cluster-name": "default"
@@ -134,30 +135,39 @@ import "k8s.io/api/core/v1"
 		// in the range of 1 and 255. Only relevant when building a mesh of clusters.
 		"cluster-id": "0"
 
+		"routing-mode": "native"
 		// Encapsulation mode for communication between nodes
 		// Possible values:
 		//   - disabled
 		//   - vxlan (default)
 		//   - geneve
-		"routing-mode":                "tunnel"
 		"tunnel-protocol":             "vxlan"
 		"tunnel-source-port-range":    "0-0"
 		"service-no-backend-response": "reject"
 
 		// Enables L7 proxy for L7 policy enforcement and visibility
-		"enable-l7-proxy":                             "true"
-		"enable-ipv4-masquerade":                      "true"
-		"enable-ipv4-big-tcp":                         "false"
-		"enable-ipv6-big-tcp":                         "false"
-		"enable-ipv6-masquerade":                      "true"
-		"enable-tcx":                                  "true"
-		"datapath-mode":                               "veth"
+		"enable-l7-proxy":        "true"
+		"enable-ipv4-masquerade": "true"
+		"enable-ipv4-big-tcp":    "true"
+		"enable-ipv6-big-tcp":    "true"
+		"enable-ipv6-masquerade": "true"
+		"enable-tcx":             "true"
+		"datapath-mode":          "netkit"
+		// Doesn't work for some reason.
+		//
+		// https://github.com/cilium/cilium/issues/32489
+		"enable-bpf-masquerade":                       "false"
 		"enable-masquerade-to-route-source":           "false"
 		"enable-xt-socket-fallback":                   "true"
 		"install-no-conntrack-iptables-rules":         "false"
 		"iptables-random-fully":                       "false"
-		"auto-direct-node-routes":                     "false"
+		"auto-direct-node-routes":                     "true"
 		"direct-routing-skip-unreachable":             "false"
+		"enable-bandwidth-manager":                    "true"
+		"enable-bbr":                                  "true"
+		"enable-bbr-hostns-only":                      "false"
+		"enable-local-redirect-policy":                "true"
+		"ipv4-native-routing-cidr":                    "10.244.0.0/16"
 		"kube-proxy-replacement":                      "true"
 		"kube-proxy-replacement-healthz-bind-address": ""
 		"bpf-lb-sock":                                 "false"
@@ -166,11 +176,14 @@ import "k8s.io/api/core/v1"
 		"enable-health-check-loadbalancer-ip":         "false"
 		"node-port-bind-protection":                   "true"
 		"enable-auto-protect-node-port-range":         "true"
+		"bpf-lb-mode":                                 "dsr"
+		"bpf-lb-algorithm":                            "maglev"
 		"bpf-lb-acceleration":                         "disabled"
 		"enable-svc-source-range-check":               "true"
 		"enable-l2-neigh-discovery":                   "false"
 		"k8s-require-ipv4-pod-cidr":                   "false"
 		"k8s-require-ipv6-pod-cidr":                   "false"
+		"enable-endpoint-routes":                      "true"
 		"enable-k8s-networkpolicy":                    "true"
 		"enable-endpoint-lockdown-on-policy-overflow": "false"
 
