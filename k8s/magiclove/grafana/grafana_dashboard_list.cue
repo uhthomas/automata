@@ -25,6 +25,8 @@ let dashboards = {
 		// CloudNativePG
 		// https://grafana.com/grafana/dashboards/20417-cloudnativepg/
 		20417,
+		// Spegel
+		"https://raw.githubusercontent.com/spegel-org/spegel/v0.4.0/charts/spegel/monitoring/grafana-dashboard.json",
 	]
 	Ceph: [
 		"https://raw.githubusercontent.com/ceph/ceph/278d89538d248b92584c49442aef613cf0540c8a/monitoring/ceph-mixin/dashboards_out/ceph-cluster-advanced.json",
