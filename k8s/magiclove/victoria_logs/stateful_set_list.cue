@@ -26,6 +26,7 @@ import (
 					args: [
 						"--retentionPeriod=1",
 						"--storageDataPath=/var/lib/victoria-logs",
+						"--defaultMsgValue=",
 					]
 					ports: [{
 						name:          "http"
