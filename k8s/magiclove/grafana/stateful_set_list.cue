@@ -1,8 +1,6 @@
 package grafana
 
 import (
-	"strings"
-
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/api/core/v1"
 )
@@ -15,17 +13,6 @@ import (
 		kind:       "StatefulSet"
 	}]
 }
-
-let plugins = [{
-	name:   "victoriametrics-datasource"
-	source: "https://github.com/VictoriaMetrics/victoriametrics-datasource/releases/download/v0.8.2/victoriametrics-datasource-v0.8.2.zip"
-	signed: false
-}, {
-	name:   "victorialogs-datasource"
-	source: "https://github.com/VictoriaMetrics/victorialogs-datasource/releases/download/v0.2.1/victorialogs-datasource-v0.2.1.zip;victorialogs-datasource"
-	signed: false
-}]
-
 #StatefulSetList: items: [{
 	spec: {
 		selector: matchLabels: "app.kubernetes.io/name": #Name
@@ -58,17 +45,6 @@ let plugins = [{
 							name: "grafana"
 							key:  "password"
 						}
-					}, {
-						name: "GF_INSTALL_PLUGINS"
-						value: strings.Join([for plugin in plugins {
-							strings.Join([
-								if plugin.source != _|_ {plugin.source},
-								plugin.name,
-							], ";")
-						}], ",")
-					}, {
-						name: "GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS"
-						value: strings.Join([for plugin in plugins if !plugin.signed != _|_ {plugin.name}], ",")
 					}]
 					volumeMounts: [{
 						name:      "config"

@@ -34,12 +34,12 @@ import (
 				handleGrafanaManagedAlerts: true
 			}, {
 				name:   "VictoriaLogs"
-				type:   "victorialogs-datasource"
+				type:   "victoriametrics-logs-datasource"
 				access: "proxy"
 				url:    "http://victoria-logs.victoria-logs"
 			}, {
 				name:   "VictoriaMetrics (ds)"
-				type:   "victoriametrics-datasource"
+				type:   "victoriametrics-metrics-datasource"
 				access: "proxy"
 				url:    "http://vmsingle-vm.vm:8429"
 			}]
@@ -70,10 +70,8 @@ import (
 			[log]
 			mode = console
 
-			# https://github.com/VictoriaMetrics/victorialogs-datasource/blob/058bd8d81a8119511abdc35398459a1094381b5c/README.md
-			# https://github.com/VictoriaMetrics/grafana-datasource/blob/5b8a0ba190e116bdebfdb51d11b4e0d03d86d766/README.md
 			[plugins]
-			allow_loading_unsigned_plugins = victorialogs-datasource,victoriametrics-datasource
+			preinstall = victoriametrics-logs-datasource,victoriametrics-metrics-datasource
 			"""
 	}
 }]

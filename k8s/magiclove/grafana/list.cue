@@ -10,7 +10,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=github-releases depName=grafana/grafana extractVersion=^v(?<version>.*)$
-#Version: "11.3.0"
+#Version: "12.1.0"
 
 #List: v1.#List & {
 	apiVersion: "v1"
