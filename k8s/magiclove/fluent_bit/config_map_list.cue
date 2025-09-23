@@ -79,6 +79,16 @@ import (
 					match:  "kubernetes.*"
 					add:    "source kubernetes"
 					remove: "logtag"
+				}, {
+					name:       "nest"
+					match:      "audit.*"
+					operation:  "nest"
+					nest_under: "audit"
+				}, {
+					name:   "modify"
+					match:  "audit.*"
+					add:    "source audit"
+					remove: "logtag"
 				}]
 				outputs: [{
 					name:     "http"
