@@ -3,10 +3,10 @@ package magiclove
 import externalsecretsv1beta1 "github.com/external-secrets/external-secrets/apis/externalsecrets/v1beta1"
 
 #ClusterSecretStoreList: externalsecretsv1beta1.#ClusterSecretStoreList & {
-	apiVersion: "external-secrets.io/v1beta1"
+	apiVersion: "external-secrets.io/v1"
 	kind:       "ClusterSecretStoreList"
 	items: [...{
-		apiVersion: "external-secrets.io/v1beta1"
+		apiVersion: "external-secrets.io/v1"
 		kind:       "ClusterSecretStore"
 	}]
 }

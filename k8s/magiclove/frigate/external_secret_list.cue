@@ -3,10 +3,10 @@ package frigate
 import externalsecretsv1beta1 "github.com/external-secrets/external-secrets/apis/externalsecrets/v1beta1"
 
 #ExternalSecretList: externalsecretsv1beta1.#ExternalSecretList & {
-	apiVersion: "external-secrets.io/v1beta1"
+	apiVersion: "external-secrets.io/v1"
 	kind:       "ExternalSecretList"
 	items: [...{
-		apiVersion: "external-secrets.io/v1beta1"
+		apiVersion: "external-secrets.io/v1"
 		kind:       "ExternalSecret"
 	}]
 }
