@@ -39,7 +39,13 @@ import (
 					"app.kubernetes.io/instance":  "vm"
 				}
 			}]
-			toPorts: [{ports: [{port: "9093"}]}]
+			toPorts: [{
+				ports: [{
+					port: "80"
+				}, {
+					port: "9093"
+				}]
+			}]
 		}]
 	}
 }]

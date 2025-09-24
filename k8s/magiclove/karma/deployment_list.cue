@@ -32,7 +32,7 @@ import (
 						value: "true"
 					}, {
 						name:  "ALERTMANAGER_URI"
-						value: "http://vmalertmanager-vm.vm:9093"
+						value: "http://vmalertmanager-vm-additional-service.vm"
 					}, {
 						name:  "FILTERS_DEFAULT"
 						value: "@state=active"
