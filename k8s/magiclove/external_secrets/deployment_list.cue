@@ -22,8 +22,13 @@ import (
 			spec: {
 				containers: [{
 					name:  "external-secrets"
-					image: "ghcr.io/external-secrets/external-secrets:v0.9.5"
-					args: ["--concurrent=1"]
+					image: "oci.external-secrets.io/external-secrets/external-secrets:v\(#Version)"
+					args: [
+						"--concurrent=1",
+						"--metrics-addr=:8080",
+						"--loglevel=info",
+						"--zap-time-encoding=epoch",
+					]
 					ports: [{
 						name:          "http-metrics"
 						containerPort: 8080

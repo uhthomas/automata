@@ -26,7 +26,7 @@ import (
 				}]
 				containers: [{
 					name:  "webhook"
-					image: "ghcr.io/external-secrets/external-secrets:v0.9.5"
+					image: "oci.external-secrets.io/external-secrets/external-secrets:v\(#Version)"
 					args: [
 						"webhook",
 						"--port=10250",
@@ -35,6 +35,8 @@ import (
 						"--check-interval=5m",
 						"--metrics-addr=:8080",
 						"--healthz-addr=:8081",
+						"--loglevel=info",
+						"--zap-time-encoding=epoch",
 						"--lookahead-interval=72h",
 					]
 					ports: [{

@@ -21,11 +21,11 @@ import (
 		clientConfig: service: {
 			namespace: #Namespace
 			name:      #Name
-			path:      "/validate-external-secrets-io-v1beta1-secretstore"
+			path:      "/validate-external-secrets-io-v1-secretstore"
 		}
 		rules: [{
 			apiGroups: ["external-secrets.io"]
-			apiVersions: ["v1beta1"]
+			apiVersions: ["v1"]
 			operations: ["CREATE", "UPDATE", "DELETE"]
 			resources: ["secretstores"]
 			scope: admissionregistrationv1.#NamespacedScope
@@ -38,11 +38,11 @@ import (
 		clientConfig: service: {
 			namespace: #Namespace
 			name:      #Name
-			path:      "/validate-external-secrets-io-v1beta1-clustersecretstore"
+			path:      "/validate-external-secrets-io-v1-clustersecretstore"
 		}
 		rules: [{
 			apiGroups: ["external-secrets.io"]
-			apiVersions: ["v1beta1"]
+			apiVersions: ["v1"]
 			operations: ["CREATE", "UPDATE", "DELETE"]
 			resources: ["clustersecretstores"]
 			scope: admissionregistrationv1.#ClusterScope
@@ -55,11 +55,11 @@ import (
 		clientConfig: service: {
 			namespace: #Namespace
 			name:      #Name
-			path:      "/validate-external-secrets-io-v1beta1-externalsecret"
+			path:      "/validate-external-secrets-io-v1-externalsecret"
 		}
 		rules: [{
 			apiGroups: ["external-secrets.io"]
-			apiVersions: ["v1beta1"]
+			apiVersions: ["v1"]
 			operations: ["CREATE", "UPDATE", "DELETE"]
 			resources: ["externalsecrets"]
 			scope: admissionregistrationv1.#NamespacedScope
