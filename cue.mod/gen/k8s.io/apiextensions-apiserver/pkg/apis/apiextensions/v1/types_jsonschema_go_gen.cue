@@ -83,13 +83,23 @@ package v1
 	minItems?:         null | int64   @go(MinItems,*int64) @protobuf(17,bytes,opt)
 	uniqueItems?:      bool           @go(UniqueItems) @protobuf(18,bytes,opt)
 	multipleOf?:       null | float64 @go(MultipleOf,*float64) @protobuf(19,bytes,opt)
+
+	// +listType=atomic
 	enum?: [...#JSON] @go(Enum,[]JSON) @protobuf(20,bytes,rep)
 	maxProperties?: null | int64 @go(MaxProperties,*int64) @protobuf(21,bytes,opt)
 	minProperties?: null | int64 @go(MinProperties,*int64) @protobuf(22,bytes,opt)
+
+	// +listType=atomic
 	required?: [...string] @go(Required,[]string) @protobuf(23,bytes,rep)
 	items?: null | #JSONSchemaPropsOrArray @go(Items,*JSONSchemaPropsOrArray) @protobuf(24,bytes,opt)
+
+	// +listType=atomic
 	allOf?: [...#JSONSchemaProps] @go(AllOf,[]JSONSchemaProps) @protobuf(25,bytes,rep)
+
+	// +listType=atomic
 	oneOf?: [...#JSONSchemaProps] @go(OneOf,[]JSONSchemaProps) @protobuf(26,bytes,rep)
+
+	// +listType=atomic
 	anyOf?: [...#JSONSchemaProps] @go(AnyOf,[]JSONSchemaProps) @protobuf(27,bytes,rep)
 	not?: null | #JSONSchemaProps @go(Not,*JSONSchemaProps) @protobuf(28,bytes,opt)
 	properties?: {[string]: #JSONSchemaProps} @go(Properties,map[string]JSONSchemaProps) @protobuf(29,bytes,rep)
@@ -145,6 +155,7 @@ package v1
 	// to ensure those properties are present for all list items.
 	//
 	// +optional
+	// +listType=atomic
 	"x-kubernetes-list-map-keys"?: [...string] @go(XListMapKeys,[]string) @protobuf(41,bytes,rep,name=xKubernetesListMapKeys)
 
 	// x-kubernetes-list-type annotates an array to further describe its topology.
@@ -178,7 +189,6 @@ package v1
 	"x-kubernetes-map-type"?: null | string @go(XMapType,*string) @protobuf(43,bytes,opt,name=xKubernetesMapType)
 
 	// x-kubernetes-validations describes a list of validation rules written in the CEL expression language.
-	// This field is an alpha-level. Using this field requires the feature gate `CustomResourceValidationExpressions` to be enabled.
 	// +patchMergeKey=rule
 	// +patchStrategy=merge
 	// +listType=map

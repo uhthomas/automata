@@ -50,6 +50,7 @@ import (
 	// by GA > beta > alpha (where GA is a version with no suffix such as beta or alpha), and then by comparing
 	// major version, then minor version. An example sorted list of versions:
 	// v10, v2, v1, v11beta2, v10beta3, v3beta1, v12alpha1, v11alpha2, foo1, foo10.
+	// +listType=atomic
 	versions: [...#CustomResourceDefinitionVersion] @go(Versions,[]CustomResourceDefinitionVersion) @protobuf(7,bytes,rep)
 
 	// conversion defines conversion settings for the CRD.
@@ -90,6 +91,7 @@ import (
 	// are supported by API server, conversion will fail for the custom resource.
 	// If a persisted Webhook configuration specifies allowed versions and does not
 	// include any versions known to the API Server, calls to the webhook will fail.
+	// +listType=atomic
 	conversionReviewVersions: [...string] @go(ConversionReviewVersions,[]string) @protobuf(3,bytes,rep)
 }
 
@@ -197,7 +199,30 @@ import (
 	// See https://kubernetes.io/docs/reference/using-api/api-concepts/#receiving-resources-as-tables for details.
 	// If no columns are specified, a single column displaying the age of the custom resource is used.
 	// +optional
+	// +listType=atomic
 	additionalPrinterColumns?: [...#CustomResourceColumnDefinition] @go(AdditionalPrinterColumns,[]CustomResourceColumnDefinition) @protobuf(6,bytes,rep)
+
+	// selectableFields specifies paths to fields that may be used as field selectors.
+	// A maximum of 8 selectable fields are allowed.
+	// See https://kubernetes.io/docs/concepts/overview/working-with-objects/field-selectors
+	//
+	// +featureGate=CustomResourceFieldSelectors
+	// +optional
+	// +listType=atomic
+	selectableFields?: [...#SelectableField] @go(SelectableFields,[]SelectableField) @protobuf(9,bytes,rep)
+}
+
+// SelectableField specifies the JSON path of a field that may be used with field selectors.
+#SelectableField: {
+	// jsonPath is a simple JSON path which is evaluated against each custom resource to produce a
+	// field selector value.
+	// Only JSON paths without the array notation are allowed.
+	// Must point to a field of type string, boolean or integer. Types with enum values
+	// and strings with formats are allowed.
+	// If jsonPath refers to absent field in a resource, the jsonPath evaluates to an empty string.
+	// Must not point to metdata fields.
+	// Required.
+	jsonPath: string @go(JSONPath) @protobuf(1,bytes,opt)
 }
 
 // CustomResourceColumnDefinition specifies a column for server side printing.
@@ -246,6 +271,7 @@ import (
 	// and used by clients to support invocations like `kubectl get <shortname>`.
 	// It must be all lowercase.
 	// +optional
+	// +listType=atomic
 	shortNames?: [...string] @go(ShortNames,[]string) @protobuf(3,bytes,opt)
 
 	// kind is the serialized kind of the resource. It is normally CamelCase and singular.
@@ -260,6 +286,7 @@ import (
 	// This is published in API discovery documents, and used by clients to support invocations like
 	// `kubectl get all`.
 	// +optional
+	// +listType=atomic
 	categories?: [...string] @go(Categories,[]string) @protobuf(6,bytes,rep)
 }
 
@@ -371,6 +398,7 @@ import (
 	// versions from this list.
 	// Versions may not be removed from `spec.versions` while they exist in this list.
 	// +optional
+	// +listType=atomic
 	storedVersions?: [...string] @go(StoredVersions,[]string) @protobuf(3,bytes,rep)
 }
 
@@ -488,6 +516,7 @@ import (
 	desiredAPIVersion: string @go(DesiredAPIVersion) @protobuf(2,bytes)
 
 	// objects is the list of custom resource objects to be converted.
+	// +listType=atomic
 	objects: [...runtime.#RawExtension] @go(Objects,[]runtime.RawExtension) @protobuf(3,bytes,rep)
 }
 
@@ -501,6 +530,7 @@ import (
 	// The webhook is expected to set `apiVersion` of these objects to the `request.desiredAPIVersion`. The list
 	// must also have the same size as the input list with the same objects in the same order (equal kind, metadata.uid, metadata.name and metadata.namespace).
 	// The webhook is allowed to mutate labels and annotations. Any other change to the metadata is silently ignored.
+	// +listType=atomic
 	convertedObjects: [...runtime.#RawExtension] @go(ConvertedObjects,[]runtime.RawExtension) @protobuf(2,bytes,rep)
 
 	// result contains the result of conversion with extra details if the conversion failed. `result.status` determines if
