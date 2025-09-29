@@ -7,7 +7,7 @@ import (
 )
 
 #Name:    "jellyseerr"
-#Version: "2.0.1"
+#Version: "2.7.3"
 
 #List: v1.#List & {
 	apiVersion: "v1"
