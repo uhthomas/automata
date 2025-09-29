@@ -40,7 +40,7 @@ _image: tag: #Version
 #List: items: list.Concat(_items)
 
 _items: [
-	#CiliumNetworkPolicyList.items,
+	// #CiliumNetworkPolicyList.items,
 	#DeploymentList.items,
 	#GatewayList.items,
 	#HTTPRouteList.items,
