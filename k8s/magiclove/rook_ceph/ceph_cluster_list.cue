@@ -147,6 +147,10 @@ import (
 					name: "/dev/disk/by-id/nvme-eui.01000000000000000022a1002039c452"
 					config: deviceClass: "nvme"
 				}, {
+					// Huawei HWE52P436T4M002N
+					name: "/dev/disk/by-id/nvme-eui.01000000000000000022a100e038c452"
+					config: deviceClass: "nvme"
+				}, {
 					// KIOXIA KCD61LUL3T84
 					name: "/dev/disk/by-id/nvme-eui.00000000000000008ce38ee206d20501"
 					config: deviceClass: "nvme"
