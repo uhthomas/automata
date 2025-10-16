@@ -24,7 +24,7 @@ import (
 					name:  #Name
 					image: "victoriametrics/victoria-logs:v\(#Version)"
 					args: [
-						"--retentionPeriod=1",
+						"--retention.maxDiskUsagePercent=80",
 						"--storageDataPath=/var/lib/victoria-logs",
 						"--defaultMsgValue=",
 					]
