@@ -12,7 +12,7 @@ require (
 	github.com/backube/snapscheduler v1.2.0
 	github.com/backube/volsync v0.8.0
 	github.com/cert-manager/cert-manager v1.15.3
-	github.com/cilium/cilium v1.18.1
+	github.com/cilium/cilium v1.18.4
 	github.com/cloudnative-pg/cloudnative-pg v1.25.1
 	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
 	github.com/envoyproxy/gateway v1.4.2
@@ -94,7 +94,7 @@ require (
 	github.com/go-openapi/swag v0.23.1 // indirect
 	github.com/go-openapi/validate v0.24.0 // indirect
 	github.com/go-test/deep v1.1.0 // indirect
-	github.com/go-viper/mapstructure/v2 v2.3.0 // indirect
+	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
