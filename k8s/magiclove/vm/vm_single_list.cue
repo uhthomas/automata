@@ -47,7 +47,7 @@ import (
 			targetPort: "http"
 		}]
 		removePvcAfterDelete: true
-		retentionPeriod:      "2y"
+		retentionPeriod:      "1y"
 		extraArgs: {
 			maxLabelsPerTimeseries: "150"
 			"vmalert.proxyURL":     "http://vmalert-\(#Name):8080"
