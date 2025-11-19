@@ -14,7 +14,7 @@ import "k8s.io/api/core/v1"
 #PersistentVolumeList: items: [{
 	metadata: name: "vm-vmsingle-vm"
 	spec: {
-		capacity: storage: "64Gi"
+		capacity: storage: "96Gi"
 		csi: {
 			driver:       "rook-ceph.rbd.csi.ceph.com"
 			volumeHandle: "csi-vol-1d987e9e-2ec1-4aca-8169-3b13b3c49673"
