@@ -13,7 +13,7 @@ require (
 	github.com/backube/volsync v0.8.0
 	github.com/cert-manager/cert-manager v1.15.3
 	github.com/cilium/cilium v1.18.1
-	github.com/cloudnative-pg/cloudnative-pg v1.25.1
+	github.com/cloudnative-pg/cloudnative-pg v1.27.1
 	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
 	github.com/envoyproxy/gateway v1.4.2
 	github.com/external-secrets/external-secrets v0.9.11
