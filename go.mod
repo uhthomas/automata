@@ -22,7 +22,7 @@ require (
 	github.com/kubernetes-csi/external-snapshotter/client/v8 v8.2.0
 	github.com/prometheus/prometheus v0.300.1
 	github.com/rook/rook/pkg/apis v0.0.0-20250829210302-107bb8176eeb
-	k8s.io/api v0.34.0
+	k8s.io/api v0.34.1
 	k8s.io/apiextensions-apiserver v0.34.0
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/kube-aggregator v0.30.1
@@ -239,7 +239,7 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apimachinery v0.34.0 // indirect
+	k8s.io/apimachinery v0.34.1 // indirect
 	k8s.io/apiserver v0.34.0 // indirect
 	k8s.io/cli-runtime v0.34.0 // indirect
 	k8s.io/component-base v0.34.0 // indirect
@@ -304,4 +304,4 @@ exclude github.com/kubernetes-incubator/external-storage v0.20.4-openstorage-rc2
 
 replace github.com/crunchydata/postgres-operator => github.com/crunchydata/postgres-operator v1.3.3-0.20230629151007-94ebcf2df74d
 
-replace github.com/openshift/api => github.com/openshift/api v0.0.0-20240401200911-ab1b479a063f
+replace github.com/openshift/api => github.com/openshift/api v0.0.0-20251205114208-5eb46a7b4ce8
