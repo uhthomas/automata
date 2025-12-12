@@ -10,7 +10,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=github-releases depName=fluent/fluent-bit
-#Version: "3.0.2"
+#Version: "3.2.10"
 
 #List: v1.#List & {
 	apiVersion: "v1"
