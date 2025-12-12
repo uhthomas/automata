@@ -26,7 +26,7 @@ require (
 	k8s.io/apiextensions-apiserver v0.34.0
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/kube-aggregator v0.30.1
-	k8s.io/kubernetes v1.34.0
+	k8s.io/kubernetes v1.34.3
 	sigs.k8s.io/external-dns v0.14.2
 	sigs.k8s.io/gateway-api v1.3.1-0.20250611112659-17a60f668a0d
 )
