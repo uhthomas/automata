@@ -16,7 +16,7 @@ import "k8s.io/api/core/v1"
 	spec: {
 		accessModes: [v1.#ReadWriteOnce]
 		storageClassName: "rook-ceph-nvme"
-		resources: requests: (v1.#ResourceStorage): "1Gi"
+		resources: requests: (v1.#ResourceStorage): "4Gi"
 		volumeName: "media-config-jellyfin-0"
 	}
 }, {
@@ -24,7 +24,7 @@ import "k8s.io/api/core/v1"
 	spec: {
 		accessModes: [v1.#ReadWriteOnce]
 		storageClassName: "rook-ceph-nvme"
-		resources: requests: (v1.#ResourceStorage): "4Gi"
+		resources: requests: (v1.#ResourceStorage): "6Gi"
 		volumeName: "media-data-jellyfin-0"
 	}
 }]
