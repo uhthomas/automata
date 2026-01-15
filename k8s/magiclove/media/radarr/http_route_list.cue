@@ -46,6 +46,7 @@ import gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 				name: #Name
 				port: 80
 			}]
+			timeouts: request: "1m"
 		}]
 	}
 }]
