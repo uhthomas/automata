@@ -10,7 +10,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=github-releases depName=kubernetes-sigs/external-dns extractVersion=^v(?<version>.*)$
-#Version: "0.14.2"
+#Version: "0.20.0"
 
 #List: v1.#List & {
 	apiVersion: "v1"
