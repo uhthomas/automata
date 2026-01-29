@@ -7,7 +7,7 @@ import (
 )
 
 #Name:    "immich-server"
-#Version: "1.138.0"
+#Version: "2.5.2"
 
 #List: v1.#List & {
 	apiVersion: "v1"
