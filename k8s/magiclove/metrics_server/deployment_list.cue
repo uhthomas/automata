@@ -27,7 +27,7 @@ import (
 				}]
 				containers: [{
 					name:  "metrics-server"
-					image: "registry.k8s.io/metrics-server/metrics-server:v0.6.3"
+					image: "registry.k8s.io/metrics-server/metrics-server:v0.8.1"
 					args: [
 						"--cert-dir=/tmp",
 						"--secure-port=4443",
