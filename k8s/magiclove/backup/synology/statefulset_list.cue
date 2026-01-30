@@ -28,7 +28,7 @@ import (
 				}]
 				containers: [{
 					name:  "syncthing"
-					image: "syncthing/syncthing:edge@sha256:a200af1e5b2aee7c184c848c3af179d6fedca55e899c15a9c2851c35501f1943"
+					image: "syncthing/syncthing:edge@sha256:87a8b6e0847f125e087b3b9384fe709bb7b807512d8c125c8fa8035747338cc0"
 					ports: [{
 						name:          "http"
 						containerPort: 8384
