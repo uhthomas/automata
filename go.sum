@@ -2058,6 +2058,8 @@ github.com/jmespath/go-jmespath/internal/testify v1.5.1 h1:shLQSRRSCCPj3f2gpwzGw
 github.com/jmespath/go-jmespath/internal/testify v1.5.1/go.mod h1:L3OGu8Wl2/fWfCI6z80xFu9LTZmf1ZRjMHUOPmWr69U=
 github.com/jodevsa/wireguard-operator v1.2.21-0.20240509203524-1d1bef4d0d82 h1:KVj+efByFziVY/nbd6ymJS2Z1K9RLNXXIGYT6UemQtM=
 github.com/jodevsa/wireguard-operator v1.2.21-0.20240509203524-1d1bef4d0d82/go.mod h1:HlZsR9MuQVbaIKT1n7QiX/Ke3HMCHWwcBgkWeSAtFck=
+github.com/jodevsa/wireguard-operator v1.2.21-0.20251203155334-bebdf36c3ee0 h1:MDSBEBO2uEGV+KO6oxGHTcMqgHgMXNfAar3fJ1IJHCE=
+github.com/jodevsa/wireguard-operator v1.2.21-0.20251203155334-bebdf36c3ee0/go.mod h1:HlZsR9MuQVbaIKT1n7QiX/Ke3HMCHWwcBgkWeSAtFck=
 github.com/jonboulle/clockwork v0.5.0 h1:Hyh9A8u51kptdkR+cqRpT1EebBwTn1oK9YfGYbdFz6I=
 github.com/jonboulle/clockwork v0.5.0/go.mod h1:3mZlmanh0g2NDKO5TWZVJAfofYk64M7XN3SzBPjZF60=
 github.com/josharian/intern v1.0.0 h1:vlS4z54oSdjm0bgjRigI+G1HpF+tI+9rE5LLzOg8HmY=

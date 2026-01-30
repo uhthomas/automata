@@ -16,7 +16,7 @@ require (
 	github.com/envoyproxy/gateway v1.4.2
 	github.com/external-secrets/external-secrets v0.9.11
 	github.com/grafana/grafana-operator/v5 v5.8.0
-	github.com/jodevsa/wireguard-operator v1.2.21-0.20240509203524-1d1bef4d0d82
+	github.com/jodevsa/wireguard-operator v1.2.21-0.20251203155334-bebdf36c3ee0
 	github.com/kubernetes-csi/external-snapshotter/client/v8 v8.2.0
 	github.com/prometheus/prometheus v0.303.1
 	github.com/rook/rook/pkg/apis v0.0.0-20250829210302-107bb8176eeb
