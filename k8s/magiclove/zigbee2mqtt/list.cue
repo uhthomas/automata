@@ -10,7 +10,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=docker depName=koenkk/zigbee2mqtt
-#Version: "2.1.1"
+#Version: "2.8.0"
 
 #List: v1.#List & {
 	apiVersion: "v1"
