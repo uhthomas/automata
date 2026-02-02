@@ -12,7 +12,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=github-releases depName=prymitive/karma extractVersion=^v(?<version>.*)$
-#Version: "0.116"
+#Version: "0.122"
 
 _image: tools.#Image & {
 	name:   "ghcr.io/prymitive/karma"
