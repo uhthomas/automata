@@ -10,7 +10,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=github-releases depName=czerwonk/ping_exporter
-#Version: "1.1.0"
+#Version: "v1.1.5"
 
 #List: v1.#List & {
 	apiVersion: "v1"
