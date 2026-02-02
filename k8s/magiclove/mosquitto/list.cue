@@ -10,7 +10,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=docker depName=eclipse-mosquitto
-#Version: "2.0.20"
+#Version: "2.0.22"
 
 #List: v1.#List & {
 	apiVersion: "v1"
