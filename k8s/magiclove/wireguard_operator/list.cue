@@ -10,7 +10,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=github-releases depName=jodevsa/wireguard-operator extractVersion=^v(?<version>.*)$
-#Version: "2.0.30"
+#Version: "2.7.0"
 
 #List: v1.#List & {
 	apiVersion: "v1"
