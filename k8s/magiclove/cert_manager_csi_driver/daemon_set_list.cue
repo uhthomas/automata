@@ -61,7 +61,7 @@ import (
 						capabilities: add: ["SYS_ADMIN"]
 						allowPrivilegeEscalation: true
 					}
-					image:           "quay.io/jetstack/cert-manager-csi-driver:v0.5.0"
+					image:           "quay.io/jetstack/cert-manager-csi-driver:v0.12.0"
 					imagePullPolicy: v1.#PullIfNotPresent
 					args: [
 						"--log-level=1",
