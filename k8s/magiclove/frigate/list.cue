@@ -10,7 +10,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=github-releases depName=blakeblackshear/frigate extractVersion=^v(?<version>.*)$
-#Version: "0.13.2"
+#Version: "0.16.4"
 
 #List: v1.#List & {
 	apiVersion: "v1"
