@@ -12,7 +12,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=github-releases depName=spegel-org/spegel extractVersion=^v(?<version>.*)$
-#Version: "0.4.0"
+#Version: "0.6.0"
 
 _image: tools.#Image & {
 	name:   "ghcr.io/spegel-org/spegel"
