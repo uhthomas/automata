@@ -10,7 +10,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=docker depName=victoriametrics/victoria-logs versioning=docker extractVersion=^v(?<version>.*)$
-#Version: "1.34.0"
+#Version: "1.45.0"
 
 #List: v1.#List & {
 	apiVersion: "v1"
