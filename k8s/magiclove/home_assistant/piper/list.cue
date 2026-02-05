@@ -9,7 +9,7 @@ import (
 #Name: "piper"
 
 // renovate: datasource=docker depName=rhasspy/wyoming-piper
-#Version: "1.5.0"
+#Version: "2.2.2"
 
 #List: v1.#List & {
 	apiVersion: "v1"
