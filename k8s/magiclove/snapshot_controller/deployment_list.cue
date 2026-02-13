@@ -28,7 +28,7 @@ import (
 			spec: {
 				containers: [{
 					name:  "snapshot-controller"
-					image: "registry.k8s.io/sig-storage/snapshot-controller:v6.2.1"
+					image: "registry.k8s.io/sig-storage/snapshot-controller:v8.5.0"
 					args: [
 						"--v=5",
 						"--leader-election=true",
