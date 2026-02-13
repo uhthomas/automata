@@ -12,7 +12,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=github-releases depName=home-assistant/core
-#Version: "2025.1.2"
+#Version: "2026.2.2"
 
 #List: v1.#List & {
 	apiVersion: "v1"
