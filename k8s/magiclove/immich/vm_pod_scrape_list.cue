@@ -14,7 +14,10 @@ import operatorv1beta1 "github.com/VictoriaMetrics/operator/api/operator/v1beta1
 #VMPodScrapeList: items: [{
 	metadata: name: "immich-pg-db"
 	spec: {
-		podMetricsEndpoints: [{port: "metrics"}]
+		podMetricsEndpoints: [{
+			port:        "metrics"
+			honorLabels: true
+		}]
 		selector: matchLabels: "cnpg.io/cluster": "immich-pg-db"
 	}
 }]
