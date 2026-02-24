@@ -80,9 +80,9 @@ import (
 						name:  "IMMICH_TELEMETRY_INCLUDE"
 						value: "all"
 					}]
-					resources: limits: {
-						(v1.#ResourceCPU):    "2"
-						(v1.#ResourceMemory): "4Gi"
+					resources: {
+						requests: (v1.#ResourceCPU):  "2"
+						limits: (v1.#ResourceMemory): "8Gi"
 					}
 					volumeMounts: [{
 						name:      "library"
