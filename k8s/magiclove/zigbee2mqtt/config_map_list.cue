@@ -30,7 +30,7 @@ import (
 			user:   "zigbee2mqtt"
 		}
 		serial: {
-			port:    "tcp://slzb-06.internal:6638"
+			port:    "tcp://192.168.1.80:6638"
 			adapter: "zstack"
 		}
 		frontend: enabled: true
