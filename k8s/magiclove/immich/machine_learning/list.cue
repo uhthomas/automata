@@ -7,7 +7,7 @@ import (
 )
 
 #Name:    "immich-machine-learning"
-#Version: "2.5.2"
+#Version: "2.6.0"
 
 #List: v1.#List & {
 	apiVersion: "v1"
