@@ -22,10 +22,6 @@ import (
 			user:     "frigate"
 			password: "{FRIGATE_MQTT_PASSWORD}"
 		}
-		detectors: tensorrt: {
-			type:   "tensorrt"
-			device: 0
-		}
 		ffmpeg: {
 			hwaccel_args: "preset-nvidia-h264"
 			output_args: record: "preset-record-generic-audio-aac"
@@ -33,21 +29,11 @@ import (
 		detect: enabled: false
 		record: {
 			enabled: true
-			retain: {
-				days: 7
-				mode: "all"
-			}
+			continuous: days: 7
 		}
 		snapshots: {
 			enabled: true
 			retain: default: 7
-		}
-		model: {
-			path:               "/config/model_cache/tensorrt/yolov7-320.trt"
-			input_tensor:       "nchw"
-			input_pixel_format: "rgb"
-			width:              320
-			height:             320
 		}
 		cameras: {
 			doorbell: {

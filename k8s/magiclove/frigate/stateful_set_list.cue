@@ -31,9 +31,6 @@ import (
 						name:          "http"
 						containerPort: 5000
 					}, {
-						name:          "rtmp"
-						containerPort: 1935
-					}, {
 						name:          "rtsp"
 						containerPort: 8554
 					}]

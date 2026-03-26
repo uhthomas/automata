@@ -18,13 +18,9 @@ import "k8s.io/api/core/v1"
 			port:       80
 			targetPort: "http"
 		}, {
-			name:       "rtmp"
-			port:       1935
-			targetPort: "upnp"
-		}, {
 			name:       "rtsp"
 			port:       8554
-			targetPort: "discovery"
+			targetPort: "rtsp"
 		}]
 		selector: "app.kubernetes.io/name": #Name
 	}
