@@ -30,7 +30,6 @@ import (
 _items: [
 	#DaemonSetList.items,
 	#NamespaceList.items,
-	#NamespaceList.items,
 	#ServiceAccountList.items,
 	#ServiceList.items,
 	#VMRuleList.items,
