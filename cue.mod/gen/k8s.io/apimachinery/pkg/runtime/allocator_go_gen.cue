@@ -6,4 +6,5 @@ package runtime
 
 // SimpleAllocator a wrapper around make([]byte)
 // conforms to the MemoryAllocator interface
-#SimpleAllocator: {}
+#SimpleAllocator: {
+}

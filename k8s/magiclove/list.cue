@@ -11,6 +11,7 @@ import (
 	"github.com/uhthomas/automata/k8s/magiclove/cnpg_system"
 	"github.com/uhthomas/automata/k8s/magiclove/dcgm_exporter"
 	"github.com/uhthomas/automata/k8s/magiclove/default"
+	"github.com/uhthomas/automata/k8s/magiclove/descheduler"
 	"github.com/uhthomas/automata/k8s/magiclove/envoy_gateway"
 	"github.com/uhthomas/automata/k8s/magiclove/external_dns"
 	"github.com/uhthomas/automata/k8s/magiclove/external_secrets"
@@ -93,6 +94,7 @@ _items: [
 	cnpg_system.#List.items,
 	dcgm_exporter.#List.items,
 	default.#List.items,
+	descheduler.#List.items,
 	envoy_gateway.#List.items,
 	external_dns.#List.items,
 	external_secrets.#List.items,
