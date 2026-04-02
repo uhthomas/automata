@@ -1,4 +1,4 @@
-package jellyseerr
+package seerr
 
 import "k8s.io/api/core/v1"
 
@@ -12,7 +12,7 @@ import "k8s.io/api/core/v1"
 }
 
 #PersistentVolumeList: items: [{
-	metadata: name: "media-config-jellyseerr-0"
+	metadata: name: "media-config-seerr-0"
 	spec: {
 		capacity: storage: "4Gi"
 		csi: {

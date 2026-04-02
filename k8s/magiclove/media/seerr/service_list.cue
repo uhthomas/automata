@@ -1,4 +1,4 @@
-package jellyseerr
+package seerr
 
 import "k8s.io/api/core/v1"
 

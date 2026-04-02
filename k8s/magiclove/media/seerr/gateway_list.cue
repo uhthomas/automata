@@ -1,4 +1,4 @@
-package jellyseerr
+package seerr
 
 import gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 

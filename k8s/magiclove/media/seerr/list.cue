@@ -1,4 +1,4 @@
-package jellyseerr
+package seerr
 
 import (
 	"list"
@@ -6,8 +6,8 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-#Name:    "jellyseerr"
-#Version: "2.7.3"
+#Name:    "seerr"
+#Version: "3.1.0"
 
 #List: v1.#List & {
 	apiVersion: "v1"

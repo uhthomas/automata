@@ -5,7 +5,7 @@ import (
 
 	// "github.com/uhthomas/automata/k8s/magiclove/media/bazarr"
 	"github.com/uhthomas/automata/k8s/magiclove/media/jellyfin"
-	"github.com/uhthomas/automata/k8s/magiclove/media/jellyseerr"
+	"github.com/uhthomas/automata/k8s/magiclove/media/seerr"
 	// "github.com/uhthomas/automata/k8s/magiclove/media/lidarr"
 	"github.com/uhthomas/automata/k8s/magiclove/media/prowlarr"
 	"github.com/uhthomas/automata/k8s/magiclove/media/radarr"
@@ -35,7 +35,7 @@ _items: [
 	#PersistentVolumeList.items,
 	// bazarr.#List.items,
 	jellyfin.#List.items,
-	jellyseerr.#List.items,
+	seerr.#List.items,
 	// lidarr.#List.items,
 	prowlarr.#List.items,
 	radarr.#List.items,

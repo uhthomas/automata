@@ -1,4 +1,4 @@
-package jellyseerr
+package seerr
 
 import (
 	appsv1 "k8s.io/api/apps/v1"
@@ -32,7 +32,7 @@ import (
 				}]
 				containers: [{
 					name:  #Name
-					image: "fallenbagel/jellyseerr:\(#Version)"
+					image: "ghcr.io/seerr-team/seerr:v\(#Version)"
 					ports: [{
 						name:          "http"
 						containerPort: 5055
