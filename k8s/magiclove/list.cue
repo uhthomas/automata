@@ -47,7 +47,6 @@ import (
 	"github.com/uhthomas/automata/k8s/magiclove/spegel"
 	"github.com/uhthomas/automata/k8s/magiclove/thomas"
 	// "github.com/uhthomas/automata/k8s/magiclove/trivy_system"
-	// "github.com/uhthomas/automata/k8s/magiclove/vector"
 	"github.com/uhthomas/automata/k8s/magiclove/victoria_logs"
 	"github.com/uhthomas/automata/k8s/magiclove/vm_operator"
 	"github.com/uhthomas/automata/k8s/magiclove/vm"
