@@ -34,6 +34,7 @@ _items: [
 	#ExternalSecretList.items,
 	#GatewayList.items,
 	#GrafanaDashboardList.items,
+	#GrafanaDatasourceList.items,
 	#GrafanaList.items,
 	#HTTPRouteList.items,
 	#NamespaceList.items,

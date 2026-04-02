@@ -51,10 +51,6 @@ import (
 						mountPath: "/etc/grafana/grafana.ini"
 						subPath:   "grafana.ini"
 					}, {
-						name:      "config"
-						mountPath: "/etc/grafana/provisioning/datasources/datasources.yaml"
-						subPath:   "datasources.yaml"
-					}, {
 						name:      "data"
 						mountPath: "/var/lib/grafana"
 					}, {
