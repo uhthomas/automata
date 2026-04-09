@@ -1,4 +1,3 @@
-module: "github.com/uhthomas/automata"
-language: {
-	version: "v0.9.2"
-}
+module: "github.com/uhthomas/automata@v0"
+language: version: "v0.16.0"
+source: kind: "self"

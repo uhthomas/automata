@@ -6,7 +6,7 @@ import (
 )
 
 #StorageClassList: storagev1.#StorageClassList & {
-	apiVersion: "v1"
+	apiVersion: "storage.k8s.io/v1"
 	kind:       "StorageClassList"
 	items: [...{
 		apiVersion: "storage.k8s.io/v1"
