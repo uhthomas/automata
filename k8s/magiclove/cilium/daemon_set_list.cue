@@ -267,7 +267,7 @@ import (
 						httpGet: {
 							host: "127.0.0.1"
 							path: "/healthz"
-							port: 9879
+							port: "health"
 							httpHeaders: [{
 								name:  "brief"
 								value: "true"
@@ -324,6 +324,17 @@ import (
 						]
 						preStop: exec: command: ["/cni-uninstall.sh"]
 					}
+					ports: [{
+						name:          "health"
+						containerPort: 9879
+						hostPort:      9879
+						protocol:      "TCP"
+					}, {
+						name:          "peer-service"
+						containerPort: 4244
+						hostPort:      4244
+						protocol:      "TCP"
+					}]
 					terminationMessagePolicy: v1.#TerminationMessageFallbackToLogsOnError
 					imagePullPolicy:          v1.#PullIfNotPresent
 					securityContext: {
@@ -366,6 +377,10 @@ import (
 					}]
 					terminationMessagePolicy: v1.#TerminationMessageFallbackToLogsOnError
 					imagePullPolicy:          v1.#PullIfNotPresent
+					securityContext: capabilities: {
+						add: ["NET_ADMIN"]
+						drop: ["ALL"]
+					}
 				}, {
 					name:  "apply-sysctl-overwrites"
 					image: "quay.io/cilium/cilium:v\(#Version)"
@@ -479,9 +494,15 @@ import (
 					name:  "install-cni-binaries"
 					image: "quay.io/cilium/cilium:v\(#Version)"
 					command: ["/install-plugin.sh"]
-					resources: requests: {
-						(v1.#ResourceCPU):    "100m"
-						(v1.#ResourceMemory): "10Mi"
+					resources: {
+						limits: {
+							(v1.#ResourceCPU):    1
+							(v1.#ResourceMemory): "1Gi"
+						}
+						requests: {
+							(v1.#ResourceCPU):    "100m"
+							(v1.#ResourceMemory): "10Mi"
+						}
 					}
 					volumeMounts: [{
 						name:      "cni-path"

@@ -39,4 +39,18 @@ import rbacv1 "k8s.io/api/rbac/v1"
 		kind: rbacv1.#ServiceAccountKind
 		name: "cilium"
 	}]
+}, {
+	metadata: {
+		name: "cilium-operator-ztunnel"
+		labels: "app.kubernetes.io/part-of": "cilium"
+	}
+	roleRef: {
+		apiGroup: rbacv1.#GroupName
+		kind:     "Role"
+		name:     "cilium-operator-ztunnel"
+	}
+	subjects: [{
+		kind: rbacv1.#ServiceAccountKind
+		name: "cilium-operator"
+	}]
 }]

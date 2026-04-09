@@ -31,4 +31,17 @@ import rbacv1 "k8s.io/api/rbac/v1"
 		resources: ["secrets"]
 		verbs: ["get", "list", "watch"]
 	}]
+}, {
+	metadata: {
+		name: "cilium-operator-ztunnel"
+		labels: "app.kubernetes.io/part-of": "cilium"
+	}
+	// ZTunnel DaemonSet management permissions
+	// Note: These permissions must always be granted (not conditional on encryption.type)
+	// because the controller needs to clean up stale DaemonSets when ztunnel is disabled.
+	rules: [{
+		apiGroups: ["apps"]
+		resources: ["daemonsets"]
+		verbs: ["create", "delete", "get", "list", "watch"]
+	}]
 }]

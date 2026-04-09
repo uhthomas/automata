@@ -18,7 +18,10 @@ import (
 #ConfigMapList: items: [{
 	metadata: name: "\(#Name)-config"
 	data: "bootstrap-config.json": json.Marshal({
-		admin: address: pipe: path: "/var/run/cilium/envoy/sockets/admin.sock"
+		admin: address: pipe: {
+			mode: 432
+			path: "/var/run/cilium/envoy/sockets/admin.sock"
+		}
 		applicationLogConfig: logFormat: textFormat: "[%Y-%m-%d %T.%e][%t][%l][%n] [%g:%#] %v"
 		bootstrapExtensions: [{
 			name: "envoy.bootstrap.internal_listener"
@@ -64,7 +67,9 @@ import (
 		staticResources: {
 			clusters: [{
 				circuitBreakers: thresholds: [{
-					maxRetries: 128
+					maxConnections: 1024
+					maxRequests:    1024
+					maxRetries:     128
 				}]
 				cleanupInterval: "2.500s"
 				connectTimeout:  "2s"
@@ -81,7 +86,9 @@ import (
 				}
 			}, {
 				circuitBreakers: thresholds: [{
-					maxRetries: 128
+					maxConnections: 1024
+					maxRequests:    1024
+					maxRetries:     128
 				}]
 				cleanupInterval: "2.500s"
 				connectTimeout:  "2s"
@@ -103,7 +110,9 @@ import (
 				}
 			}, {
 				circuitBreakers: thresholds: [{
-					maxRetries: 128
+					maxConnections: 1024
+					maxRequests:    1024
+					maxRetries:     128
 				}]
 				cleanupInterval: "2.500s"
 				connectTimeout:  "2s"
@@ -120,7 +129,9 @@ import (
 				}
 			}, {
 				circuitBreakers: thresholds: [{
-					maxRetries: 128
+					maxConnections: 1024
+					maxRequests:    1024
+					maxRetries:     128
 				}]
 				cleanupInterval: "2.500s"
 				connectTimeout:  "2s"

@@ -29,7 +29,7 @@ import "k8s.io/api/core/v1"
 		ports: [{
 			name:       "envoy-metrics"
 			port:       9964
-			targetPort: "envoy-metrics"
+			targetPort: 9964
 		}]
 		selector: "k8s-app": "cilium-envoy"
 		clusterIP: "None"

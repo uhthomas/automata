@@ -47,6 +47,10 @@ import (
 					command: ["cilium-operator-generic"]
 					args: ["--config-dir=/tmp/cilium/config-map", "--debug=$(CILIUM_DEBUG)"]
 					ports: [{
+						name:          "health"
+						containerPort: 9234
+						hostPort:      9234
+					}, {
 						name:          "prometheus"
 						hostPort:      9963
 						containerPort: 9963
@@ -81,7 +85,7 @@ import (
 						httpGet: {
 							host:   "127.0.0.1"
 							path:   "/healthz"
-							port:   9234
+							port:   "health"
 							scheme: "HTTP"
 						}
 						timeoutSeconds: 3
@@ -127,6 +131,9 @@ import (
 					operator: v1.#TolerationOpExists
 				}, {
 					key:      "node.kubernetes.io/not-ready"
+					operator: v1.#TolerationOpExists
+				}, {
+					key:      "node.cloudprovider.kubernetes.io/uninitialized"
 					operator: v1.#TolerationOpExists
 				}, {
 					key:      "node.cilium.io/agent-not-ready"

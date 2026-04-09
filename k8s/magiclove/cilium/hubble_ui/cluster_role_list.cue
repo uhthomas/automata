@@ -20,20 +20,12 @@ import (
 		labels: "app.kubernetes.io/part-of": "cilium"
 	}
 	rules: [{
-		apiGroups: ["networking.k8s.io"]
-		resources: ["networkpolicies"]
-		verbs: ["get", "list", "watch"]
-	}, {
 		apiGroups: [v1.#GroupName]
 		resources: ["componentstatuses", "endpoints", "namespaces", "nodes", "pods", "services"]
 		verbs: ["get", "list", "watch"]
 	}, {
 		apiGroups: ["apiextensions.k8s.io"]
 		resources: ["customresourcedefinitions"]
-		verbs: ["get", "list", "watch"]
-	}, {
-		apiGroups: ["cilium.io"]
-		resources: ["*"]
 		verbs: ["get", "list", "watch"]
 	}]
 }]
