@@ -13,26 +13,6 @@ import rbacv1 "k8s.io/api/rbac/v1"
 
 #RoleList: items: [{
 	metadata: {
-		name: "cilium-gateway-secrets"
-		labels: "app.kubernetes.io/part-of": "cilium"
-	}
-	rules: [{
-		apiGroups: [""]
-		resources: ["secrets"]
-		verbs: ["get", "list", "watch"]
-	}]
-}, {
-	metadata: {
-		name: "cilium-operator-gateway-secrets"
-		labels: "app.kubernetes.io/part-of": "cilium"
-	}
-	rules: [{
-		apiGroups: [""]
-		resources: ["secrets"]
-		verbs: ["create", "delete", "update", "patch"]
-	}]
-}, {
-	metadata: {
 		name: "cilium-tlsinterception-secrets"
 		labels: "app.kubernetes.io/part-of": "cilium"
 	}

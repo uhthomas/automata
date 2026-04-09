@@ -13,36 +13,6 @@ import rbacv1 "k8s.io/api/rbac/v1"
 
 #RoleBindingList: items: [{
 	metadata: {
-		name: "cilium-gateway-secrets"
-		labels: "app.kubernetes.io/part-of": "cilium"
-	}
-	roleRef: {
-		apiGroup: rbacv1.#GroupName
-		kind:     "Role"
-		name:     "cilium-gateway-secrets"
-	}
-	subjects: [{
-		name:      "cilium"
-		kind:      rbacv1.#ServiceAccountKind
-		namespace: "cilium"
-	}]
-}, {
-	metadata: {
-		name: "cilium-operator-gateway-secrets"
-		labels: "app.kubernetes.io/part-of": "cilium"
-	}
-	roleRef: {
-		apiGroup: rbacv1.#GroupName
-		kind:     "Role"
-		name:     "cilium-operator-gateway-secrets"
-	}
-	subjects: [{
-		name:      "cilium-operator"
-		kind:      rbacv1.#ServiceAccountKind
-		namespace: "cilium"
-	}]
-}, {
-	metadata: {
 		name: "cilium-tlsinterception-secrets"
 		labels: "app.kubernetes.io/part-of": "cilium"
 	}

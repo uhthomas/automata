@@ -12,12 +12,6 @@ import gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 }
 
 #GatewayClassList: items: [{
-	metadata: name: "cilium"
-	spec: {
-		controllerName: "io.cilium/gateway-controller"
-		description:    "The default Cilium GatewayClass"
-	}
-}, {
 	metadata: name: "envoy-gateway"
 	spec: {
 		controllerName: "gateway.envoyproxy.io/gatewayclass-controller"

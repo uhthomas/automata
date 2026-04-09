@@ -8,7 +8,7 @@ Pretty sure the resources were created with:
 ❯ KUBERNETES_API_SERVER_ADDRESS="magiclove.hipparcos.net" KUBERNETES_API_SERVER_PORT=6443 helm template \
     cilium \
     cilium/cilium \
-    --version 1.18.1 \
+    --version 1.19.2 \
     --namespace cilium \
     --set ipam.mode=kubernetes \
     --set=kubeProxyReplacement=true \
@@ -26,8 +26,15 @@ Pretty sure the resources were created with:
     --set hubble.tls.auto.certManagerIssuerRef.group="cert-manager.io" \
     --set hubble.tls.auto.certManagerIssuerRef.kind="ClusterIssuer" \
     --set hubble.tls.auto.certManagerIssuerRef.name="ca-issuer" \
-    --set bgpControlPlane.enabled=true > cilium.yaml
+    --set bgpControlPlane.enabled=true \
+    --set gatewayAPI.enabled=false \
+    --set envoy.enabled=false > cilium.yaml
 ```
+
+L7 routing is handled by [Envoy Gateway](https://gateway.envoyproxy.io/) rather
+than Cilium's own gateway-api / standalone envoy DaemonSet, so both
+`gatewayAPI.enabled` and `envoy.enabled` are off. Cilium still runs envoy
+embedded inside the agent for L7 network policies.
 
 Per
 [https://www.talos.dev/v1.11/kubernetes-guides/network/deploying-cilium/](https://www.talos.dev/v1.11/kubernetes-guides/network/deploying-cilium/)
@@ -36,10 +43,10 @@ To update, render with the chart at the current version and then diff it against
 the target version.
 
 ```sh
-❯ helm template ... --version=1.16.1 --kube-version=1.34.0 > cilium-1.16.1.yaml
 ❯ helm template ... --version=1.18.1 --kube-version=1.34.0 > cilium-1.18.1.yaml
-❯ cue import -l "strings.ToLower(kind)" --list -R cilium-1.16.1.yaml cilium-1.18.1.yaml
-❯ diff -urN cilium-1.16.1.cue cilium-1.18.1.cue > out.diff
+❯ helm template ... --version=1.19.2 --kube-version=1.34.0 > cilium-1.19.2.yaml
+❯ cue import -l "strings.ToLower(kind)" --list -R cilium-1.18.1.yaml cilium-1.19.2.yaml
+❯ diff -urN cilium-1.18.1.cue cilium-1.19.2.cue > out.diff
 ```
 
 ## BGP

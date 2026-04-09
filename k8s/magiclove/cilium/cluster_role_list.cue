@@ -164,18 +164,6 @@ import (
 		resources: ["leases"]
 		verbs: ["create", "get", "update"]
 	}, {
-		apiGroups: ["gateway.networking.k8s.io"]
-		resources: ["gatewayclasses", "gateways", "tlsroutes", "httproutes", "grpcroutes", "referencegrants", "referencepolicies"]
-		verbs: ["get", "list", "watch"]
-	}, {
-		apiGroups: ["gateway.networking.k8s.io"]
-		resources: ["gatewayclasses/status", "gateways/status", "httproutes/status", "grpcroutes/status", "tlsroutes/status"]
-		verbs: ["update", "patch"]
-	}, {
-		apiGroups: ["multicluster.x-k8s.io"]
-		resources: ["serviceimports"]
-		verbs: ["get", "list", "watch"]
-	}, {
 		apiGroups: ["cilium.io"]
 		resources: ["ciliumendpointslices"]
 		verbs: ["deletecollection"]

@@ -3,7 +3,6 @@ package cilium
 import (
 	"list"
 
-	"github.com/uhthomas/automata/k8s/magiclove/cilium/envoy"
 	"github.com/uhthomas/automata/k8s/magiclove/cilium/hubble_relay"
 	"github.com/uhthomas/automata/k8s/magiclove/cilium/hubble_ui"
 	"k8s.io/api/core/v1"
@@ -41,7 +40,6 @@ _items: [
 	#ServiceAccountList.items,
 	#ServiceList.items,
 	#VMPodScrapeList.items,
-	envoy.#List.items,
 	hubble_relay.#List.items,
 	hubble_ui.#List.items,
 ]

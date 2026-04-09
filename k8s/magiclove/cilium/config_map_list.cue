@@ -41,6 +41,10 @@ import "k8s.io/api/core/v1"
 		"enable-policy":          "default"
 		"policy-cidr-match-mode": ""
 
+		// Port to expose Envoy metrics (e.g. "9964"). Envoy metrics listener will be disabled if this
+		// field is not set.
+		"proxy-prometheus-port": "9964"
+
 		// If you want metrics enabled in cilium-operator, set the port for
 		// which the Cilium Operator will have their metrics exposed.
 		// NOTE that this will open the port on the nodes where Cilium operator pod
@@ -50,18 +54,6 @@ import "k8s.io/api/core/v1"
 		"enable-policy-secrets-sync":                 "true"
 		"policy-secrets-only-from-secrets-namespace": "true"
 		"policy-secrets-namespace":                   "cilium-secrets"
-		"enable-envoy-config":                        "true"
-		"envoy-config-retry-interval":                "15s"
-		"enable-gateway-api":                         "true"
-		"enable-gateway-api-secrets-sync":            "true"
-		"enable-gateway-api-proxy-protocol":          "false"
-		"enable-gateway-api-app-protocol":            "false"
-		"enable-gateway-api-alpn":                    "false"
-		"gateway-api-xff-num-trusted-hops":           "0"
-		"gateway-api-service-externaltrafficpolicy":  "Cluster"
-		"gateway-api-secrets-namespace":              "cilium-secrets"
-		"gateway-api-hostnetwork-enabled":            "false"
-		"gateway-api-hostnetwork-nodelabelselector":  ""
 
 		// Enable IPv4 addressing. If enabled, all endpoints are allocated an IPv4
 		// address.
@@ -259,7 +251,7 @@ import "k8s.io/api/core/v1"
 		"proxy-cluster-max-requests":              "1024"
 		"http-retry-count":                        "3"
 		"http-stream-idle-timeout":                "300"
-		"external-envoy-proxy":                    "true"
+		"external-envoy-proxy":                    "false"
 		"envoy-base-id":                           "0"
 		"envoy-access-log-buffer-size":            "4096"
 		"envoy-keep-cap-netbindservice":           "false"

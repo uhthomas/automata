@@ -102,14 +102,6 @@ import (
 						type: v1.#HostPathFileOrCreate
 					}
 				}, {
-					// Sharing socket with Cilium Envoy on the same node by using a host path
-					name: "envoy-sockets"
-					hostPath: {
-						path: "/var/run/cilium/envoy/sockets"
-						// To read the clustermesh configuration
-						type: v1.#HostPathDirectoryOrCreate
-					}
-				}, {
 					// To read the clustermesh configuration
 					name: "clustermesh-secrets"
 					projected: {
@@ -218,9 +210,6 @@ import (
 						value: "7445"
 					}]
 					volumeMounts: [{
-						name:      "envoy-sockets"
-						mountPath: "/var/run/cilium/envoy/sockets"
-					}, {
 						name:      "host-proc-sys-net"
 						mountPath: "/host/proc/sys/net"
 					}, {
