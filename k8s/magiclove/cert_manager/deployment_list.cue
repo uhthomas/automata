@@ -119,7 +119,6 @@ _#FeatureGates: {
 						"--max-concurrent-challenges=60",
 						{
 							let featureGates = _#FeatureGates & {features: [
-								"AdditionalCertificateOutputFormats",
 								"ExperimentalGatewayAPISupport",
 								"ServerSideApply",
 							]}
@@ -206,12 +205,6 @@ _#FeatureGates: {
 						"--dynamic-serving-dns-names=cert-manager-webhook",
 						"--dynamic-serving-dns-names=cert-manager-webhook.$(POD_NAMESPACE)",
 						"--dynamic-serving-dns-names=cert-manager-webhook.$(POD_NAMESPACE).svc",
-						{
-							let featureGates = _#FeatureGates & {features: [
-								"AdditionalCertificateOutputFormats",
-							]}
-							"--feature-gates=\(featureGates.value)"
-						},
 					]
 					ports: [{
 						name:          "https"

@@ -20,8 +20,9 @@ import "k8s.io/api/core/v1"
 	}
 	spec: {
 		ports: [{
-			name: "http-metrics"
-			port: 9402
+			name:       "http-metrics"
+			port:       9402
+			targetPort: "http-metrics"
 		}]
 		selector: {
 			"app.kubernetes.io/name":      "cert-manager"
@@ -67,8 +68,9 @@ import "k8s.io/api/core/v1"
 	}
 	spec: {
 		ports: [{
-			name: "http-metrics"
-			port: 9402
+			name:       "http-metrics"
+			port:       9402
+			targetPort: "http-metrics"
 		}]
 		selector: {
 			"app.kubernetes.io/name":      "cainjector"

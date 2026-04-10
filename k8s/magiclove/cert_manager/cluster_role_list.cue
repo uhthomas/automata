@@ -175,6 +175,10 @@ import (
 		resources: ["orders/finalizers"]
 		verbs: ["update"]
 	}, {
+		apiGroups: ["cert-manager.io"]
+		resources: ["clusterissuers/finalizers", "issuers/finalizers"]
+		verbs: ["update"]
+	}, {
 		apiGroups: [v1.#GroupName]
 		resources: ["secrets"]
 		verbs: ["get", "list", "watch"]
@@ -282,11 +286,11 @@ import (
 		verbs: ["update"]
 	}, {
 		apiGroups: ["gateway.networking.k8s.io"]
-		resources: ["gateways", "httproutes"]
+		resources: ["gateways", "httproutes", "listenersets"]
 		verbs: ["get", "list", "watch"]
 	}, {
 		apiGroups: ["gateway.networking.k8s.io"]
-		resources: ["gateways/finalizers", "httproutes/finalizers"]
+		resources: ["gateways/finalizers", "httproutes/finalizers", "listenersets/finalizers"]
 		verbs: ["update"]
 	}, {
 		apiGroups: [v1.#GroupName]
