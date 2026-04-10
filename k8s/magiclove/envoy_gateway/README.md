@@ -3,21 +3,25 @@
 [https://gateway.envoyproxy.io/](https://gateway.envoyproxy.io/)
 
 [https://github.com/envoyproxy/gateway](https://github.com/envoyproxy/gateway)
-T
+
 The certgen job has been removed, cert-manager is used instead.
 
 [https://gateway.envoyproxy.io/docs/install/custom-cert/](https://gateway.envoyproxy.io/docs/install/custom-cert/)
 
 ```sh
-❯ helm template eg oci://docker.io/envoyproxy/gateway-helm --version v1.4.2 -n envoy-gateway > out.yaml
-Pulled: docker.io/envoyproxy/gateway-helm:v1.4.2
-Digest: sha256:02bd3e316d3c333e34baf01ad784fb91a5c5a3ac546a23977f18f30315177749
+❯ helm template eg oci://docker.io/envoyproxy/gateway-helm --version v1.7.1 -n envoy-gateway > out.yaml
 ❯ cue import -l "strings.ToLower(kind)" --list out.yaml
 ```
 
-CRDs:
+CRDs are sourced from the release `install.yaml` (helm doesn't render them):
 
-[https://github.com/envoyproxy/gateway/releases/tag/v1.4.2](https://github.com/envoyproxy/gateway/releases/tag/v1)
+```sh
+❯ curl -sL https://github.com/envoyproxy/gateway/releases/download/v1.7.1/install.yaml -o install.yaml
+❯ yq 'select(.kind == "CustomResourceDefinition" and (.metadata.name | test("gateway.envoyproxy.io")))' install.yaml > eg-crds.yaml
+❯ cue import -l "strings.ToLower(kind)" --list eg-crds.yaml
+```
+
+[https://github.com/envoyproxy/gateway/releases/tag/v1.7.1](https://github.com/envoyproxy/gateway/releases/tag/v1.7.1)
 
 The merged deployment strategy is used to save resources.
 

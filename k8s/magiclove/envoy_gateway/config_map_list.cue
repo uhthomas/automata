@@ -25,7 +25,7 @@ import (
 		provider: {
 			kubernetes: {
 				rateLimitDeployment: {
-					container: image: "docker.io/envoyproxy/ratelimit:bb4dae24"
+					container: image: "docker.io/envoyproxy/ratelimit:c8765e89"
 					patch: {
 						type: "StrategicMerge"
 						value: spec: template: spec: containers: [{
@@ -34,7 +34,7 @@ import (
 						}]
 					}
 				}
-				shutdownManager: image: "docker.io/envoyproxy/gateway:v1.4.2"
+				shutdownManager: image: "docker.io/envoyproxy/gateway:v\(#Version)"
 			}
 			type: "Kubernetes"
 		}

@@ -57,6 +57,14 @@ import rbacv1 "k8s.io/api/rbac/v1"
 		resources: ["gateways/status", "grpcroutes/status", "httproutes/status", "tcproutes/status", "tlsroutes/status", "udproutes/status", "backendtlspolicies/status"]
 		verbs: ["update"]
 	}, {
+		apiGroups: ["gateway.networking.x-k8s.io"]
+		resources: ["xlistenersets"]
+		verbs: ["get", "list", "watch"]
+	}, {
+		apiGroups: ["gateway.networking.x-k8s.io"]
+		resources: ["xlistenersets/status"]
+		verbs: ["update"]
+	}, {
 		apiGroups: [""]
 		resources: ["pods", "pods/binding"]
 		verbs: ["get", "list", "patch", "update", "watch"]

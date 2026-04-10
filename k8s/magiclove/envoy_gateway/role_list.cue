@@ -15,7 +15,7 @@ import rbacv1 "k8s.io/api/rbac/v1"
 	rules: [{
 		apiGroups: [""]
 		resources: ["serviceaccounts", "services", "configmaps"]
-		verbs: ["create", "get", "delete", "deletecollection", "patch"]
+		verbs: ["create", "get", "list", "delete", "deletecollection", "patch"]
 	}, {
 		apiGroups: ["apps"]
 		resources: ["deployments", "daemonsets"]
@@ -23,7 +23,11 @@ import rbacv1 "k8s.io/api/rbac/v1"
 	}, {
 		apiGroups: ["autoscaling", "policy"]
 		resources: ["horizontalpodautoscalers", "poddisruptionbudgets"]
-		verbs: ["create", "get", "delete", "deletecollection", "patch"]
+		verbs: ["create", "get", "list", "delete", "deletecollection", "patch"]
+	}, {
+		apiGroups: ["certificates.k8s.io"]
+		resources: ["clustertrustbundles"]
+		verbs: ["list", "get", "watch"]
 	}]
 }, {
 	metadata: name: "\(#Name)-leader-election"
