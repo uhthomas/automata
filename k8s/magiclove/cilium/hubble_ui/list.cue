@@ -25,7 +25,6 @@ _items: [
 	#ClusterRoleList.items,
 	#ConfigMapList.items,
 	#DeploymentList.items,
-	#IngressList.items,
 	#ServiceAccountList.items,
 	#ServiceList.items,
 ]

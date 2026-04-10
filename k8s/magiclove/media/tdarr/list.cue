@@ -26,7 +26,6 @@ import (
 #List: items: list.Concat(_items)
 
 _items: [
-	#IngressList.items,
 	#ServiceList.items,
 	#StatefulSetList.items,
 ]
