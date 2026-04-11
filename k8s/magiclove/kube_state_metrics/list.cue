@@ -10,7 +10,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=github-releases depName=kubernetes/kube-state-metrics extractVersion=^v(?<version>.*)$
-#Version: "2.8.2"
+#Version: "2.18.0"
 
 #List: v1.#List & {
 	apiVersion: "v1"
