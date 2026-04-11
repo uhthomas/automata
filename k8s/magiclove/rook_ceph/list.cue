@@ -11,7 +11,7 @@ import (
 #Namespace: #Name
 #Version:   "1.19.3"
 
-#CephVersion: "19.2.3"
+#CephVersion: "20.2.1"
 
 #List: v1.#List & {
 	apiVersion: "v1"
