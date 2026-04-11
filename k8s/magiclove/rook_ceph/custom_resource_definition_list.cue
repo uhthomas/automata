@@ -19,13 +19,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephBlockPoolRadosNamespace"
 			listKind: "CephBlockPoolRadosNamespaceList"
 			plural:   "cephblockpoolradosnamespaces"
-			shortNames: [
-				"cephbprns",
-				"cephrns",
-			]
+			shortNames: ["cephbprns", "cephrns"]
 			singular: "cephblockpoolradosnamespace"
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.phase"
@@ -47,21 +44,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
 						type: "string"
 					}
 					metadata: type: "object"
@@ -70,9 +67,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						properties: {
 							blockPoolName: {
 								description: """
-	BlockPoolName is the name of Ceph BlockPool. Typically it's the name of
-	the CephBlockPool CR.
-	"""
+												BlockPoolName is the name of Ceph BlockPool. Typically it's the name of
+												the CephBlockPool CR.
+												"""
 								type: "string"
 								"x-kubernetes-validations": [{
 									message: "blockPoolName is immutable"
@@ -81,10 +78,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							clusterID: {
 								description: """
-	ClusterID to be used for this RadosNamespace in the CSI configuration.
-	It must be unique among all Ceph clusters managed by Rook.
-	If not specified, the clusterID will be generated and can be found in the CR status.
-	"""
+												ClusterID to be used for this RadosNamespace in the CSI configuration.
+												It must be unique among all Ceph clusters managed by Rook.
+												If not specified, the clusterID will be generated and can be found in the CR status.
+												"""
 								maxLength: 36
 								minLength: 1
 								pattern:   "^[a-zA-Z0-9_-]+$"
@@ -99,11 +96,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								properties: {
 									mode: {
 										description: "Mode is the mirroring mode; either pool or image."
-										enum: [
-											"",
-											"pool",
-											"image",
-										]
+										enum: ["", "pool", "image"]
 										type: "string"
 									}
 									remoteNamespace: {
@@ -444,10 +437,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						"x-kubernetes-preserve-unknown-fields": true
 					}
 				}
-				required: [
-					"metadata",
-					"spec",
-				]
+				required: ["metadata", "spec"]
 				type: "object"
 			}
 			served:  true
@@ -463,10 +453,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephBlockPool"
 			listKind: "CephBlockPoolList"
 			plural:   "cephblockpools"
-			shortNames: ["cephbp"]
+			shortNames: [
+				"cephbp",
+			]
 			singular: "cephblockpool"
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.phase"
@@ -506,30 +498,30 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
 						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
 						description: """
-	NamedBlockPoolSpec allows a block pool to be created with a non-default name.
-	This is more specific than the NamedPoolSpec so we get schema validation on the
-	allowed pool names that can be specified.
-	"""
+										NamedBlockPoolSpec allows a block pool to be created with a non-default name.
+										This is more specific than the NamedPoolSpec so we get schema validation on the
+										allowed pool names that can be specified.
+										"""
 						properties: {
 							application: {
 								description: "The application name to set on the pool. Only expected to be set for rgw pools."
@@ -537,17 +529,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							compressionMode: {
 								description: """
-	DEPRECATED: use Parameters instead, e.g., Parameters["compression_mode"] = "force"
-	The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)
-	Do NOT set a default value for kubebuilder as this will override the Parameters
-	"""
-								enum: [
-									"none",
-									"passive",
-									"aggressive",
-									"force",
-									"",
-								]
+												DEPRECATED: use Parameters instead, e.g., Parameters["compression_mode"] = "force"
+												The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)
+												Do NOT set a default value for kubebuilder as this will override the Parameters
+												"""
+								enum: ["none", "passive", "aggressive", "force", ""]
 								nullable: true
 								type:     "string"
 							}
@@ -563,6 +549,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							enableCrushUpdates: {
 								description: "Allow rook operator to change the pool CRUSH tunables once the pool is created"
+								nullable:    true
 								type:        "boolean"
 							}
 							enableRBDStats: {
@@ -574,37 +561,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								properties: {
 									algorithm: {
 										description: """
-	The algorithm for erasure coding.
-	If absent, defaults to the plugin specified in osd_pool_default_erasure_code_profile.
-	"""
-										enum: [
-											"isa",
-											"jerasure",
-										]
+														The algorithm for erasure coding.
+														If absent, defaults to the plugin specified in osd_pool_default_erasure_code_profile.
+														"""
+										enum: ["isa", "jerasure"]
 										type: "string"
 									}
 									codingChunks: {
 										description: """
-	Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
-	This is the number of OSDs that can be lost simultaneously before data cannot be recovered.
-	"""
+														Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+														This is the number of OSDs that can be lost simultaneously before data cannot be recovered.
+														"""
 										minimum: 0
 										type:    "integer"
 									}
 									dataChunks: {
 										description: """
-	Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
-	The number of chunks required to recover an object when any single OSD is lost is the same
-	as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery.
-	"""
+														Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+														The number of chunks required to recover an object when any single OSD is lost is the same
+														as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery.
+														"""
 										minimum: 0
 										type:    "integer"
 									}
 								}
-								required: [
-									"codingChunks",
-									"dataChunks",
-								]
+								required: ["codingChunks", "dataChunks"]
 								type: "object"
 							}
 							failureDomain: {
@@ -620,11 +601,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									mode: {
 										description: "Mode is the mirroring mode: pool, image or init-only."
-										enum: [
-											"pool",
-											"image",
-											"init-only",
-										]
+										enum: ["pool", "image", "init-only"]
 										type: "string"
 									}
 									peers: {
@@ -664,11 +641,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							name: {
 								description: "The desired name of the pool if different from the CephBlockPool CR name."
-								enum: [
-									".rgw.root",
-									".nfs",
-									".mgr",
-								]
+								enum: [".rgw.root", ".nfs", ".mgr"]
 								type: "string"
 							}
 							parameters: {
@@ -684,9 +657,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								properties: {
 									maxBytes: {
 										description: """
-	MaxBytes represents the quota in bytes
-	Deprecated in favor of MaxSize
-	"""
+														MaxBytes represents the quota in bytes
+														Deprecated in favor of MaxSize
+														"""
 										format: "int64"
 										type:   "integer"
 									}
@@ -721,10 +694,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "string"
 											}
 										}
-										required: [
-											"primaryDeviceClass",
-											"secondaryDeviceClass",
-										]
+										required: ["primaryDeviceClass", "secondaryDeviceClass"]
 										type: "object"
 									}
 									replicasPerFailureDomain: {
@@ -785,23 +755,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									properties: {
 										keyCephVersion: {
 											description: """
-	KeyCephVersion reports the Ceph version that created the current generation's keys. This is
-	same string format as reported by `CephCluster.status.version.version` to allow them to be
-	compared. E.g., `20.2.0-0`.
-	For all newly-created resources, this field set to the version of Ceph that created the key.
-	The special value "Uninitialized" indicates that keys are being created for the first time.
-	An empty string indicates that the version is unknown, as expected in brownfield deployments.
-	"""
+																KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+																same string format as reported by `CephCluster.status.version.version` to allow them to be
+																compared. E.g., `20.2.0-0`.
+																For all newly-created resources, this field set to the version of Ceph that created the key.
+																The special value "Uninitialized" indicates that keys are being created for the first time.
+																An empty string indicates that the version is unknown, as expected in brownfield deployments.
+																"""
 											type: "string"
 										}
 										keyGeneration: {
 											description: """
-	KeyGeneration represents the CephX key generation for the last successful reconcile.
-	For all newly-created resources, this field is set to `1`.
-	When keys are rotated due to any rotation policy, the generation is incremented or updated to
-	the configured policy generation.
-	Generation `0` indicates that keys existed prior to the implementation of key tracking.
-	"""
+																KeyGeneration represents the CephX key generation for the last successful reconcile.
+																For all newly-created resources, this field is set to `1`.
+																When keys are rotated due to any rotation policy, the generation is incremented or updated to
+																the configured policy generation.
+																Generation `0` indicates that keys existed prior to the implementation of key tracking.
+																"""
 											format: "int32"
 											type:   "integer"
 										}
@@ -1112,10 +1082,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						"x-kubernetes-preserve-unknown-fields": true
 					}
 				}
-				required: [
-					"metadata",
-					"spec",
-				]
+				required: ["metadata", "spec"]
 				type: "object"
 			}
 			served:  true
@@ -1131,32 +1098,43 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephBucketNotification"
 			listKind: "CephBucketNotificationList"
 			plural:   "cephbucketnotifications"
-			shortNames: ["cephbn"]
+			shortNames: [
+				"cephbn",
+			]
 			singular: "cephbucketnotification"
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
+			additionalPrinterColumns: [{
+				jsonPath: ".status.phase"
+				name:     "Phase"
+				type:     "string"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
+			}]
 			name: "v1"
 			schema: openAPIV3Schema: {
 				description: "CephBucketNotification represents a Bucket Notifications"
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
 						type: "string"
 					}
 					metadata: type: "object"
@@ -1166,17 +1144,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							events: {
 								description: "List of events that should trigger the notification"
 								items: {
-									description: "BucketNotificationSpec represent the event type of the bucket notification"
-									enum: [
-										"s3:ObjectCreated:*",
-										"s3:ObjectCreated:Put",
-										"s3:ObjectCreated:Post",
-										"s3:ObjectCreated:Copy",
-										"s3:ObjectCreated:CompleteMultipartUpload",
-										"s3:ObjectRemoved:*",
-										"s3:ObjectRemoved:Delete",
-										"s3:ObjectRemoved:DeleteMarkerCreated",
-									]
+									description: """
+													BucketNotificationSpec represent the event type of the bucket notification
+													See: https://docs.ceph.com/en/latest/radosgw/s3-notification-compatibility/#event-types
+													"""
+									enum: ["s3:ObjectCreated:*", "s3:ObjectCreated:Put", "s3:ObjectCreated:Post", "s3:ObjectCreated:Copy", "s3:ObjectCreated:CompleteMultipartUpload", "s3:ObjectRemoved:*", "s3:ObjectRemoved:Delete", "s3:ObjectRemoved:DeleteMarkerCreated", "s3:ObjectLifecycle:Expiration:Current", "s3:ObjectLifecycle:Expiration:NonCurrent", "s3:ObjectLifecycle:Expiration:DeleteMarker", "s3:ObjectLifecycle:Expiration:AbortMultipartUpload", "s3:ObjectLifecycle:Transition:Current", "s3:ObjectLifecycle:Transition:NonCurrent", "s3:LifecycleExpiration:*", "s3:LifecycleExpiration:Delete", "s3:LifecycleExpiration:DeleteMarkerCreated", "s3:LifecycleTransition", "s3:ObjectSynced:*", "s3:ObjectSynced:Create", "s3:ObjectSynced:Delete", "s3:ObjectSynced:DeletionMarkerCreated", "s3:Replication:*", "s3:Replication:Create", "s3:Replication:Delete", "s3:Replication:DeletionMarkerCreated", "s3:ObjectRestore:*", "s3:ObjectRestore:Post", "s3:ObjectRestore:Completed", "s3:ObjectRestore:Delete"]
 									type: "string"
 								}
 								type: "array"
@@ -1191,11 +1163,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											properties: {
 												name: {
 													description: "Name of the filter - prefix/suffix/regex"
-													enum: [
-														"prefix",
-														"suffix",
-														"regex",
-													]
+													enum: ["prefix", "suffix", "regex"]
 													type: "string"
 												}
 												value: {
@@ -1203,10 +1171,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "string"
 												}
 											}
-											required: [
-												"name",
-												"value",
-											]
+											required: ["name", "value"]
 											type: "object"
 										}
 										type: "array"
@@ -1226,10 +1191,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "string"
 												}
 											}
-											required: [
-												"name",
-												"value",
-											]
+											required: ["name", "value"]
 											type: "object"
 										}
 										type: "array"
@@ -1249,10 +1211,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "string"
 												}
 											}
-											required: [
-												"name",
-												"value",
-											]
+											required: ["name", "value"]
 											type: "object"
 										}
 										type: "array"
@@ -1266,7 +1225,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type:        "string"
 							}
 						}
-						required: ["topic"]
+						required: [
+							"topic",
+						]
 						type: "object"
 					}
 					status: {
@@ -1310,10 +1271,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						"x-kubernetes-preserve-unknown-fields": true
 					}
 				}
-				required: [
-					"metadata",
-					"spec",
-				]
+				required: ["metadata", "spec"]
 				type: "object"
 			}
 			served:  true
@@ -1329,10 +1287,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephBucketTopic"
 			listKind: "CephBucketTopicList"
 			plural:   "cephbuckettopics"
-			shortNames: ["cephbt"]
+			shortNames: [
+				"cephbt",
+			]
 			singular: "cephbuckettopic"
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.phase"
@@ -1349,21 +1309,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
 						type: "string"
 					}
 					metadata: type: "object"
@@ -1379,11 +1339,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											ackLevel: {
 												default:     "broker"
 												description: "The ack level required for this topic (none/broker/routeable)"
-												enum: [
-													"none",
-													"broker",
-													"routeable",
-												]
+												enum: ["none", "broker", "routeable"]
 												type: "string"
 											}
 											disableVerifySSL: {
@@ -1401,10 +1357,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "string"
 											}
 										}
-										required: [
-											"exchange",
-											"uri",
-										]
+										required: ["exchange", "uri"]
 										type: "object"
 									}
 									http: {
@@ -1433,10 +1386,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											ackLevel: {
 												default:     "broker"
 												description: "The ack level required for this topic (none/broker)"
-												enum: [
-													"none",
-													"broker",
-												]
+												enum: ["none", "broker"]
 												type: "string"
 											}
 											disableVerifySSL: {
@@ -1446,13 +1396,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											mechanism: {
 												default:     "PLAIN"
 												description: "The authentication mechanism for this topic (PLAIN/SCRAM-SHA-512/SCRAM-SHA-256/GSSAPI/OAUTHBEARER)"
-												enum: [
-													"PLAIN",
-													"SCRAM-SHA-512",
-													"SCRAM-SHA-256",
-													"GSSAPI",
-													"OAUTHBEARER",
-												]
+												enum: ["PLAIN", "SCRAM-SHA-512", "SCRAM-SHA-256", "GSSAPI", "OAUTHBEARER"]
 												type: "string"
 											}
 											passwordSecretRef: {
@@ -1465,12 +1409,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													name: {
 														default: ""
 														description: """
-	Name of the referent.
-	This field is effectively required, but due to backwards compatibility is
-	allowed to be empty. Instances of this type with an empty value here are
-	almost certainly wrong.
-	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-	"""
+																		Name of the referent.
+																		This field is effectively required, but due to backwards compatibility is
+																		allowed to be empty. Instances of this type with an empty value here are
+																		almost certainly wrong.
+																		More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																		"""
 														type: "string"
 													}
 													optional: {
@@ -1501,12 +1445,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													name: {
 														default: ""
 														description: """
-	Name of the referent.
-	This field is effectively required, but due to backwards compatibility is
-	allowed to be empty. Instances of this type with an empty value here are
-	almost certainly wrong.
-	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-	"""
+																		Name of the referent.
+																		This field is effectively required, but due to backwards compatibility is
+																		allowed to be empty. Instances of this type with an empty value here are
+																		almost certainly wrong.
+																		More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																		"""
 														type: "string"
 													}
 													optional: {
@@ -1544,11 +1488,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type:        "boolean"
 							}
 						}
-						required: [
-							"endpoint",
-							"objectStoreName",
-							"objectStoreNamespace",
-						]
+						required: ["endpoint", "objectStoreName", "objectStoreNamespace"]
 						type: "object"
 					}
 					status: {
@@ -1579,10 +1519,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										resourceVersion: type: "string"
 										uid: {
 											description: """
-	UID is a type that holds unique ID values, including UUIDs.  Because we
-	don't ONLY use UUIDs, this is an alias to string.  Being a type captures
-	intent and helps make sure that UIDs and names do not get conflated.
-	"""
+															UID is a type that holds unique ID values, including UUIDs.  Because we
+															don't ONLY use UUIDs, this is an alias to string.  Being a type captures
+															intent and helps make sure that UIDs and names do not get conflated.
+															"""
 											type: "string"
 										}
 									}
@@ -1596,10 +1536,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						"x-kubernetes-preserve-unknown-fields": true
 					}
 				}
-				required: [
-					"metadata",
-					"spec",
-				]
+				required: ["metadata", "spec"]
 				type: "object"
 			}
 			served:  true
@@ -1615,10 +1552,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephClient"
 			listKind: "CephClientList"
 			plural:   "cephclients"
-			shortNames: ["cephcl"]
+			shortNames: [
+				"cephcl",
+			]
 			singular: "cephclient"
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.phase"
@@ -1635,21 +1574,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
 						type: "string"
 					}
 					metadata: type: "object"
@@ -1664,16 +1603,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							name: type: "string"
 							removeSecret: {
 								description: """
-	RemoveSecret indicates whether the current secret for this ceph client should be removed or not.
-	If true, the K8s secret will be deleted, but the cephx keyring will remain until the CR is deleted.
-	"""
+												RemoveSecret indicates whether the current secret for this ceph client should be removed or not.
+												If true, the K8s secret will be deleted, but the cephx keyring will remain until the CR is deleted.
+												"""
 								type: "boolean"
 							}
 							secretName: {
 								description: """
-	SecretName is the name of the secret created for this ceph client.
-	If not specified, the default name is "rook-ceph-client-" as a prefix to the CR name.
-	"""
+												SecretName is the name of the secret created for this ceph client.
+												If not specified, the default name is "rook-ceph-client-" as a prefix to the CR name.
+												"""
 								type: "string"
 								"x-kubernetes-validations": [{
 									message: "SecretName is immutable and cannot be changed"
@@ -1687,13 +1626,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									properties: {
 										keyGeneration: {
 											description: """
-	KeyGeneration specifies the desired CephX key generation. This is used when KeyRotationPolicy
-	is KeyGeneration and ignored for other policies. If this is set to greater than the current
-	key generation, relevant keys will be rotated, and the generation value will be updated to
-	this new value (generation values are not necessarily incremental, though that is the
-	intended use case). If this is set to less than or equal to the current key generation, keys
-	are not rotated.
-	"""
+																KeyGeneration specifies the desired CephX key generation. This is used when KeyRotationPolicy
+																is KeyGeneration and ignored for other policies. If this is set to greater than the current
+																key generation, relevant keys will be rotated, and the generation value will be updated to
+																this new value (generation values are not necessarily incremental, though that is the
+																intended use case). If this is set to less than or equal to the current key generation, keys
+																are not rotated.
+																"""
 											format:  "int32"
 											maximum: 4294967295
 											minimum: 0
@@ -1705,14 +1644,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										}
 										keyRotationPolicy: {
 											description: """
-	KeyRotationPolicy controls if and when CephX keys are rotated after initial creation.
-	One of Disabled, or KeyGeneration. Default Disabled.
-	"""
-											enum: [
-												"",
-												"Disabled",
-												"KeyGeneration",
-											]
+																KeyRotationPolicy controls if and when CephX keys are rotated after initial creation.
+																One of Disabled, or KeyGeneration. Default Disabled.
+																"""
+											enum: ["", "Disabled", "KeyGeneration"]
 											type: "string"
 										}
 									}
@@ -1721,7 +1656,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type: "object"
 							}
 						}
-						required: ["caps"]
+						required: [
+							"caps",
+						]
 						type: "object"
 					}
 					status: {
@@ -1731,23 +1668,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								properties: {
 									keyCephVersion: {
 										description: """
-	KeyCephVersion reports the Ceph version that created the current generation's keys. This is
-	same string format as reported by `CephCluster.status.version.version` to allow them to be
-	compared. E.g., `20.2.0-0`.
-	For all newly-created resources, this field set to the version of Ceph that created the key.
-	The special value "Uninitialized" indicates that keys are being created for the first time.
-	An empty string indicates that the version is unknown, as expected in brownfield deployments.
-	"""
+														KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+														same string format as reported by `CephCluster.status.version.version` to allow them to be
+														compared. E.g., `20.2.0-0`.
+														For all newly-created resources, this field set to the version of Ceph that created the key.
+														The special value "Uninitialized" indicates that keys are being created for the first time.
+														An empty string indicates that the version is unknown, as expected in brownfield deployments.
+														"""
 										type: "string"
 									}
 									keyGeneration: {
 										description: """
-	KeyGeneration represents the CephX key generation for the last successful reconcile.
-	For all newly-created resources, this field is set to `1`.
-	When keys are rotated due to any rotation policy, the generation is incremented or updated to
-	the configured policy generation.
-	Generation `0` indicates that keys existed prior to the implementation of key tracking.
-	"""
+														KeyGeneration represents the CephX key generation for the last successful reconcile.
+														For all newly-created resources, this field is set to `1`.
+														When keys are rotated due to any rotation policy, the generation is incremented or updated to
+														the configured policy generation.
+														Generation `0` indicates that keys existed prior to the implementation of key tracking.
+														"""
 										format: "int32"
 										type:   "integer"
 									}
@@ -1773,10 +1710,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						"x-kubernetes-preserve-unknown-fields": true
 					}
 				}
-				required: [
-					"metadata",
-					"spec",
-				]
+				required: ["metadata", "spec"]
 				type: "object"
 			}
 			served:  true
@@ -1792,10 +1726,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephCluster"
 			listKind: "CephClusterList"
 			plural:   "cephclusters"
-			shortNames: ["ceph"]
+			shortNames: [
+				"ceph",
+			]
 			singular: "cephcluster"
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
 			additionalPrinterColumns: [{
 				description: "Directory used on the K8s nodes"
@@ -1841,21 +1777,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
 						type: "string"
 					}
 					metadata: type: "object"
@@ -1894,12 +1830,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											name: {
 												default: ""
 												description: """
-	Name of the referent.
-	This field is effectively required, but due to backwards compatibility is
-	allowed to be empty. Instances of this type with an empty value here are
-	almost certainly wrong.
-	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-	"""
+																Name of the referent.
+																This field is effectively required, but due to backwards compatibility is
+																allowed to be empty. Instances of this type with an empty value here are
+																almost certainly wrong.
+																More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																"""
 												type: "string"
 											}
 											optional: {
@@ -1927,22 +1863,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									image: {
 										description: """
-	Image is the container image used to launch the ceph daemons, such as quay.io/ceph/ceph:<tag>
-	The full list of images can be found at https://quay.io/repository/ceph/ceph?tab=tags
-	"""
+														Image is the container image used to launch the ceph daemons, such as quay.io/ceph/ceph:<tag>
+														The full list of images can be found at https://quay.io/repository/ceph/ceph?tab=tags
+														"""
 										type: "string"
 									}
 									imagePullPolicy: {
 										description: """
-	ImagePullPolicy describes a policy for if/when to pull a container image
-	One of Always, Never, IfNotPresent.
-	"""
-										enum: [
-											"IfNotPresent",
-											"Always",
-											"Never",
-											"",
-										]
+														ImagePullPolicy describes a policy for if/when to pull a container image
+														One of Always, Never, IfNotPresent.
+														"""
+										enum: ["IfNotPresent", "Always", "Never", ""]
 										type: "string"
 									}
 								}
@@ -1950,9 +1881,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							cleanupPolicy: {
 								description: """
-	Indicates user intent when deleting a cluster; blocks orchestration and should not be set if cluster
-	deletion is not imminent.
-	"""
+												Indicates user intent when deleting a cluster; blocks orchestration and should not be set if cluster
+												deletion is not imminent.
+												"""
 								nullable: true
 								properties: {
 									allowUninstallWithVolumes: {
@@ -1971,10 +1902,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											dataSource: {
 												description: "DataSource is the data source to use to sanitize the disk with"
-												enum: [
-													"zero",
-													"random",
-												]
+												enum: ["zero", "random"]
 												type: "string"
 											}
 											iteration: {
@@ -1984,10 +1912,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											method: {
 												description: "Method is the method we use to sanitize disks"
-												enum: [
-													"complete",
-													"quick",
-												]
+												enum: ["complete", "quick"]
 												type: "string"
 											}
 										}
@@ -1995,9 +1920,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									wipeDevicesFromOtherClusters: {
 										description: """
-	WipeDevicesFromOtherClusters wipes the OSD disks belonging to other clusters. This is useful in scenarios where ceph cluster
-	was reinstalled but OSD disk still contains the metadata from previous ceph cluster.
-	"""
+														WipeDevicesFromOtherClusters wipes the OSD disks belonging to other clusters. This is useful in scenarios where ceph cluster
+														was reinstalled but OSD disk still contains the metadata from previous ceph cluster.
+														"""
 										type: "boolean"
 									}
 								}
@@ -2044,10 +1969,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											crushLocationLabels: {
 												description: """
-	CrushLocationLabels defines which node labels to use
-	as CRUSH location. This should correspond to the values set in
-	the CRUSH map.
-	"""
+																CrushLocationLabels defines which node labels to use
+																as CRUSH location. This should correspond to the values set in
+																the CRUSH map.
+																"""
 												items: type: "string"
 												type: "array"
 											}
@@ -2060,9 +1985,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									skipUserCreation: {
 										description: """
-	SkipUserCreation determines whether CSI users and their associated secrets should be skipped.
-	If set to true, the user must manually manage these secrets.
-	"""
+														SkipUserCreation determines whether CSI users and their associated secrets should be skipped.
+														If set to true, the user must manually manage these secrets.
+														"""
 										type: "boolean"
 									}
 								}
@@ -2128,10 +2053,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									osdMaintenanceTimeout: {
 										description: """
-	OSDMaintenanceTimeout sets how many additional minutes the DOWN/OUT interval is for drained failure domains
-	it only works if managePodBudgets is true.
-	the default is 30 minutes
-	"""
+														OSDMaintenanceTimeout sets how many additional minutes the DOWN/OUT interval is for drained failure domains
+														it only works if managePodBudgets is true.
+														the default is 30 minutes
+														"""
 										format: "int64"
 										type:   "integer"
 									}
@@ -2142,9 +2067,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									pgHealthyRegex: {
 										description: """
-	PgHealthyRegex is the regular expression that is used to determine which PG states should be considered healthy.
-	The default is `^(active\\+clean|active\\+clean\\+scrubbing|active\\+clean\\+scrubbing\\+deep)$`
-	"""
+														PgHealthyRegex is the regular expression that is used to determine which PG states should be considered healthy.
+														The default is `^(active\\+clean|active\\+clean\\+scrubbing|active\\+clean\\+scrubbing\\+deep)$`
+														"""
 										type: "string"
 									}
 								}
@@ -2152,9 +2077,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							external: {
 								description: """
-	Whether the Ceph Cluster is running external to this Kubernetes cluster
-	mon, mgr, osd, mds, and discover daemons will not be created for external clusters.
-	"""
+												Whether the Ceph Cluster is running external to this Kubernetes cluster
+												mon, mgr, osd, mds, and discover daemons will not be created for external clusters.
+												"""
 								nullable: true
 								properties: enable: {
 									description: "Enable determines whether external mode is enabled or not"
@@ -2223,20 +2148,20 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												}
 												probe: {
 													description: """
-	Probe describes a health check to be performed against a container to determine whether it is
-	alive or ready to receive traffic.
-	"""
+																	Probe describes a health check to be performed against a container to determine whether it is
+																	alive or ready to receive traffic.
+																	"""
 													properties: {
 														exec: {
 															description: "Exec specifies a command to execute in the container."
 															properties: command: {
 																description: """
-	Command is the command line to execute inside the container, the working directory for the
-	command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
-	not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
-	a shell, you need to explicitly call out to that shell.
-	Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
-	"""
+																					Command is the command line to execute inside the container, the working directory for the
+																					command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
+																					not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
+																					a shell, you need to explicitly call out to that shell.
+																					Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+																					"""
 																items: type: "string"
 																type:                     "array"
 																"x-kubernetes-list-type": "atomic"
@@ -2245,9 +2170,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														failureThreshold: {
 															description: """
-	Minimum consecutive failures for the probe to be considered failed after having succeeded.
-	Defaults to 3. Minimum value is 1.
-	"""
+																			Minimum consecutive failures for the probe to be considered failed after having succeeded.
+																			Defaults to 3. Minimum value is 1.
+																			"""
 															format: "int32"
 															type:   "integer"
 														}
@@ -2262,11 +2187,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																service: {
 																	default: ""
 																	description: """
-	Service is the name of the service to place in the gRPC HealthCheckRequest
-	(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+																					Service is the name of the service to place in the gRPC HealthCheckRequest
+																					(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
 
-	If this is not specified, the default behavior is defined by gRPC.
-	"""
+																					If this is not specified, the default behavior is defined by gRPC.
+																					"""
 																	type: "string"
 																}
 															}
@@ -2278,9 +2203,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															properties: {
 																host: {
 																	description: """
-	Host name to connect to, defaults to the pod IP. You probably want to set
-	"Host" in httpHeaders instead.
-	"""
+																					Host name to connect to, defaults to the pod IP. You probably want to set
+																					"Host" in httpHeaders instead.
+																					"""
 																	type: "string"
 																}
 																httpHeaders: {
@@ -2290,9 +2215,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		properties: {
 																			name: {
 																				description: """
-	The header field name.
-	This will be canonicalized upon output, so case-variant names will be understood as the same header.
-	"""
+																								The header field name.
+																								This will be canonicalized upon output, so case-variant names will be understood as the same header.
+																								"""
 																				type: "string"
 																			}
 																			value: {
@@ -2300,10 +2225,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type:        "string"
 																			}
 																		}
-																		required: [
-																			"name",
-																			"value",
-																		]
+																		required: ["name", "value"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -2320,17 +2242,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type: "string"
 																	}]
 																	description: """
-	Name or number of the port to access on the container.
-	Number must be in the range 1 to 65535.
-	Name must be an IANA_SVC_NAME.
-	"""
+																					Name or number of the port to access on the container.
+																					Number must be in the range 1 to 65535.
+																					Name must be an IANA_SVC_NAME.
+																					"""
 																	"x-kubernetes-int-or-string": true
 																}
 																scheme: {
 																	description: """
-	Scheme to use for connecting to the host.
-	Defaults to HTTP.
-	"""
+																					Scheme to use for connecting to the host.
+																					Defaults to HTTP.
+																					"""
 																	type: "string"
 																}
 															}
@@ -2339,25 +2261,25 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														initialDelaySeconds: {
 															description: """
-	Number of seconds after the container has started before liveness probes are initiated.
-	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-	"""
+																			Number of seconds after the container has started before liveness probes are initiated.
+																			More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+																			"""
 															format: "int32"
 															type:   "integer"
 														}
 														periodSeconds: {
 															description: """
-	How often (in seconds) to perform the probe.
-	Default to 10 seconds. Minimum value is 1.
-	"""
+																			How often (in seconds) to perform the probe.
+																			Default to 10 seconds. Minimum value is 1.
+																			"""
 															format: "int32"
 															type:   "integer"
 														}
 														successThreshold: {
 															description: """
-	Minimum consecutive successes for the probe to be considered successful after having failed.
-	Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
-	"""
+																			Minimum consecutive successes for the probe to be considered successful after having failed.
+																			Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+																			"""
 															format: "int32"
 															type:   "integer"
 														}
@@ -2375,10 +2297,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type: "string"
 																	}]
 																	description: """
-	Number or name of the port to access on the container.
-	Number must be in the range 1 to 65535.
-	Name must be an IANA_SVC_NAME.
-	"""
+																					Number or name of the port to access on the container.
+																					Number must be in the range 1 to 65535.
+																					Name must be an IANA_SVC_NAME.
+																					"""
 																	"x-kubernetes-int-or-string": true
 																}
 															}
@@ -2391,10 +2313,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														timeoutSeconds: {
 															description: """
-	Number of seconds after which the probe times out.
-	Defaults to 1 second. Minimum value is 1.
-	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-	"""
+																			Number of seconds after which the probe times out.
+																			Defaults to 1 second. Minimum value is 1.
+																			More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+																			"""
 															format: "int32"
 															type:   "integer"
 														}
@@ -2417,20 +2339,20 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												}
 												probe: {
 													description: """
-	Probe describes a health check to be performed against a container to determine whether it is
-	alive or ready to receive traffic.
-	"""
+																	Probe describes a health check to be performed against a container to determine whether it is
+																	alive or ready to receive traffic.
+																	"""
 													properties: {
 														exec: {
 															description: "Exec specifies a command to execute in the container."
 															properties: command: {
 																description: """
-	Command is the command line to execute inside the container, the working directory for the
-	command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
-	not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
-	a shell, you need to explicitly call out to that shell.
-	Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
-	"""
+																					Command is the command line to execute inside the container, the working directory for the
+																					command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
+																					not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
+																					a shell, you need to explicitly call out to that shell.
+																					Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+																					"""
 																items: type: "string"
 																type:                     "array"
 																"x-kubernetes-list-type": "atomic"
@@ -2439,9 +2361,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														failureThreshold: {
 															description: """
-	Minimum consecutive failures for the probe to be considered failed after having succeeded.
-	Defaults to 3. Minimum value is 1.
-	"""
+																			Minimum consecutive failures for the probe to be considered failed after having succeeded.
+																			Defaults to 3. Minimum value is 1.
+																			"""
 															format: "int32"
 															type:   "integer"
 														}
@@ -2456,11 +2378,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																service: {
 																	default: ""
 																	description: """
-	Service is the name of the service to place in the gRPC HealthCheckRequest
-	(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+																					Service is the name of the service to place in the gRPC HealthCheckRequest
+																					(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
 
-	If this is not specified, the default behavior is defined by gRPC.
-	"""
+																					If this is not specified, the default behavior is defined by gRPC.
+																					"""
 																	type: "string"
 																}
 															}
@@ -2472,9 +2394,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															properties: {
 																host: {
 																	description: """
-	Host name to connect to, defaults to the pod IP. You probably want to set
-	"Host" in httpHeaders instead.
-	"""
+																					Host name to connect to, defaults to the pod IP. You probably want to set
+																					"Host" in httpHeaders instead.
+																					"""
 																	type: "string"
 																}
 																httpHeaders: {
@@ -2484,9 +2406,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		properties: {
 																			name: {
 																				description: """
-	The header field name.
-	This will be canonicalized upon output, so case-variant names will be understood as the same header.
-	"""
+																								The header field name.
+																								This will be canonicalized upon output, so case-variant names will be understood as the same header.
+																								"""
 																				type: "string"
 																			}
 																			value: {
@@ -2494,10 +2416,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type:        "string"
 																			}
 																		}
-																		required: [
-																			"name",
-																			"value",
-																		]
+																		required: ["name", "value"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -2514,17 +2433,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type: "string"
 																	}]
 																	description: """
-	Name or number of the port to access on the container.
-	Number must be in the range 1 to 65535.
-	Name must be an IANA_SVC_NAME.
-	"""
+																					Name or number of the port to access on the container.
+																					Number must be in the range 1 to 65535.
+																					Name must be an IANA_SVC_NAME.
+																					"""
 																	"x-kubernetes-int-or-string": true
 																}
 																scheme: {
 																	description: """
-	Scheme to use for connecting to the host.
-	Defaults to HTTP.
-	"""
+																					Scheme to use for connecting to the host.
+																					Defaults to HTTP.
+																					"""
 																	type: "string"
 																}
 															}
@@ -2533,25 +2452,25 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														initialDelaySeconds: {
 															description: """
-	Number of seconds after the container has started before liveness probes are initiated.
-	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-	"""
+																			Number of seconds after the container has started before liveness probes are initiated.
+																			More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+																			"""
 															format: "int32"
 															type:   "integer"
 														}
 														periodSeconds: {
 															description: """
-	How often (in seconds) to perform the probe.
-	Default to 10 seconds. Minimum value is 1.
-	"""
+																			How often (in seconds) to perform the probe.
+																			Default to 10 seconds. Minimum value is 1.
+																			"""
 															format: "int32"
 															type:   "integer"
 														}
 														successThreshold: {
 															description: """
-	Minimum consecutive successes for the probe to be considered successful after having failed.
-	Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
-	"""
+																			Minimum consecutive successes for the probe to be considered successful after having failed.
+																			Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+																			"""
 															format: "int32"
 															type:   "integer"
 														}
@@ -2569,10 +2488,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type: "string"
 																	}]
 																	description: """
-	Number or name of the port to access on the container.
-	Number must be in the range 1 to 65535.
-	Name must be an IANA_SVC_NAME.
-	"""
+																					Number or name of the port to access on the container.
+																					Number must be in the range 1 to 65535.
+																					Name must be an IANA_SVC_NAME.
+																					"""
 																	"x-kubernetes-int-or-string": true
 																}
 															}
@@ -2585,10 +2504,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														timeoutSeconds: {
 															description: """
-	Number of seconds after which the probe times out.
-	Defaults to 1 second. Minimum value is 1.
-	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-	"""
+																			Number of seconds after which the probe times out.
+																			Defaults to 1 second. Minimum value is 1.
+																			More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+																			"""
 															format: "int32"
 															type:   "integer"
 														}
@@ -2655,6 +2574,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										minimum:     0
 										type:        "integer"
 									}
+									hostNetwork: {
+										description: "Whether host networking is enabled for the Ceph Mgr. If not set, the network settings from CephCluster.spec.networking will be applied."
+										type:        "boolean"
+									}
 									modules: {
 										description: "Modules is the list of ceph manager modules to enable/disable"
 										items: {
@@ -2672,13 +2595,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													description: "Settings to further configure the module"
 													properties: balancerMode: {
 														description: "BalancerMode sets the `balancer` module with different modes like `upmap`, `crush-compact` etc"
-														enum: [
-															"",
-															"crush-compat",
-															"upmap",
-															"read",
-															"upmap-read",
-														]
+														enum: ["", "crush-compat", "upmap", "read", "upmap-read"]
 														type: "string"
 													}
 													type: "object"
@@ -2708,12 +2625,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									externalMonIDs: {
 										description: """
-	ExternalMonIDs - optional list of monitor IDs which are deployed externally and not managed by Rook.
-	If set, Rook will not remove mons with given IDs from quorum.
-	This parameter is used only for local Rook cluster running in normal mode
-	and will be ignored if external or stretched mode is used.
-	leading
-	"""
+														ExternalMonIDs - optional list of monitor IDs which are deployed externally and not managed by Rook.
+														If set, Rook will not remove mons with given IDs from quorum.
+														This parameter is used only for local Rook cluster running in normal mode
+														and will be ignored if external or stretched mode is used.
+														leading
+														"""
 										items: type: "string"
 										type: "array"
 									}
@@ -2747,9 +2664,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															properties: {
 																metadata: {
 																	description: """
-	Standard object's metadata.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-	"""
+																					Standard object's metadata.
+																					More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+																					"""
 																	properties: {
 																		annotations: {
 																			additionalProperties: type: "string"
@@ -2770,37 +2687,37 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																}
 																spec: {
 																	description: """
-	spec defines the desired characteristics of a volume requested by a pod author.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
-	"""
+																					spec defines the desired characteristics of a volume requested by a pod author.
+																					More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
+																					"""
 																	properties: {
 																		accessModes: {
 																			description: """
-	accessModes contains the desired access modes the volume should have.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
-	"""
+																							accessModes contains the desired access modes the volume should have.
+																							More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
+																							"""
 																			items: type: "string"
 																			type:                     "array"
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																		dataSource: {
 																			description: """
-	dataSource field can be used to specify either:
-	* An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot)
-	* An existing PVC (PersistentVolumeClaim)
-	If the provisioner or an external controller can support the specified data source,
-	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
-	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
-	"""
+																							dataSource field can be used to specify either:
+																							* An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot)
+																							* An existing PVC (PersistentVolumeClaim)
+																							If the provisioner or an external controller can support the specified data source,
+																							it will create a new volume based on the contents of the specified data source.
+																							When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
+																							and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+																							If the namespace is specified, then dataSourceRef will not be copied to dataSource.
+																							"""
 																			properties: {
 																				apiGroup: {
 																					description: """
-	APIGroup is the group for the resource being referenced.
-	If APIGroup is not specified, the specified Kind must be in the core API group.
-	For any other third-party types, APIGroup is required.
-	"""
+																									APIGroup is the group for the resource being referenced.
+																									If APIGroup is not specified, the specified Kind must be in the core API group.
+																									For any other third-party types, APIGroup is required.
+																									"""
 																					type: "string"
 																				}
 																				kind: {
@@ -2812,46 +2729,43 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:        "string"
 																				}
 																			}
-																			required: [
-																				"kind",
-																				"name",
-																			]
+																			required: ["kind", "name"]
 																			type:                    "object"
 																			"x-kubernetes-map-type": "atomic"
 																		}
 																		dataSourceRef: {
 																			description: """
-	dataSourceRef specifies the object from which to populate the volume with data, if a non-empty
-	volume is desired. This may be any object from a non-empty API group (non
-	core object) or a PersistentVolumeClaim object.
-	When this field is specified, volume binding will only succeed if the type of
-	the specified object matches some installed volume populator or dynamic
-	provisioner.
-	This field will replace the functionality of the dataSource field and as such
-	if both fields are non-empty, they must have the same value. For backwards
-	compatibility, when namespace isn't specified in dataSourceRef,
-	both fields (dataSource and dataSourceRef) will be set to the same
-	value automatically if one of them is empty and the other is non-empty.
-	When namespace is specified in dataSourceRef,
-	dataSource isn't set to the same value and must be empty.
-	There are three important differences between dataSource and dataSourceRef:
-	* While dataSource only allows two specific types of objects, dataSourceRef
-	  allows any non-core object, as well as PersistentVolumeClaim objects.
-	* While dataSource ignores disallowed values (dropping them), dataSourceRef
-	  preserves all values, and generates an error if a disallowed value is
-	  specified.
-	* While dataSource only allows local objects, dataSourceRef allows objects
-	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
-	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
-	"""
+																							dataSourceRef specifies the object from which to populate the volume with data, if a non-empty
+																							volume is desired. This may be any object from a non-empty API group (non
+																							core object) or a PersistentVolumeClaim object.
+																							When this field is specified, volume binding will only succeed if the type of
+																							the specified object matches some installed volume populator or dynamic
+																							provisioner.
+																							This field will replace the functionality of the dataSource field and as such
+																							if both fields are non-empty, they must have the same value. For backwards
+																							compatibility, when namespace isn't specified in dataSourceRef,
+																							both fields (dataSource and dataSourceRef) will be set to the same
+																							value automatically if one of them is empty and the other is non-empty.
+																							When namespace is specified in dataSourceRef,
+																							dataSource isn't set to the same value and must be empty.
+																							There are three important differences between dataSource and dataSourceRef:
+																							* While dataSource only allows two specific types of objects, dataSourceRef
+																							  allows any non-core object, as well as PersistentVolumeClaim objects.
+																							* While dataSource ignores disallowed values (dropping them), dataSourceRef
+																							  preserves all values, and generates an error if a disallowed value is
+																							  specified.
+																							* While dataSource only allows local objects, dataSourceRef allows objects
+																							  in any namespaces.
+																							(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
+																							(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+																							"""
 																			properties: {
 																				apiGroup: {
 																					description: """
-	APIGroup is the group for the resource being referenced.
-	If APIGroup is not specified, the specified Kind must be in the core API group.
-	For any other third-party types, APIGroup is required.
-	"""
+																									APIGroup is the group for the resource being referenced.
+																									If APIGroup is not specified, the specified Kind must be in the core API group.
+																									For any other third-party types, APIGroup is required.
+																									"""
 																					type: "string"
 																				}
 																				kind: {
@@ -2864,27 +2778,24 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				}
 																				namespace: {
 																					description: """
-	Namespace is the namespace of resource being referenced
-	Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
-	(Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
-	"""
+																									Namespace is the namespace of resource being referenced
+																									Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
+																									(Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+																									"""
 																					type: "string"
 																				}
 																			}
-																			required: [
-																				"kind",
-																				"name",
-																			]
+																			required: ["kind", "name"]
 																			type: "object"
 																		}
 																		resources: {
 																			description: """
-	resources represents the minimum resources the volume should have.
-	If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
-	that are lower than previous value but must still be higher than capacity recorded in the
-	status field of the claim.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
-	"""
+																							resources represents the minimum resources the volume should have.
+																							Users are allowed to specify resource requirements
+																							that are lower than previous value but must still be higher than capacity recorded in the
+																							status field of the claim.
+																							More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
+																							"""
 																			properties: {
 																				limits: {
 																					additionalProperties: {
@@ -2897,9 +2808,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-int-or-string": true
 																					}
 																					description: """
-	Limits describes the maximum amount of compute resources allowed.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																									Limits describes the maximum amount of compute resources allowed.
+																									More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																									"""
 																					type: "object"
 																				}
 																				requests: {
@@ -2913,11 +2824,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-int-or-string": true
 																					}
 																					description: """
-	Requests describes the minimum amount of compute resources required.
-	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
-	otherwise to an implementation-defined value. Requests cannot exceed Limits.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																									Requests describes the minimum amount of compute resources required.
+																									If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+																									otherwise to an implementation-defined value. Requests cannot exceed Limits.
+																									More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																									"""
 																					type: "object"
 																				}
 																			}
@@ -2930,9 +2841,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																					items: {
 																						description: """
-	A label selector requirement is a selector that contains values, a key, and an operator that
-	relates the key and values.
-	"""
+																										A label selector requirement is a selector that contains values, a key, and an operator that
+																										relates the key and values.
+																										"""
 																						properties: {
 																							key: {
 																								description: "key is the label key that the selector applies to."
@@ -2940,27 +2851,24 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							}
 																							operator: {
 																								description: """
-	operator represents a key's relationship to a set of values.
-	Valid operators are In, NotIn, Exists and DoesNotExist.
-	"""
+																												operator represents a key's relationship to a set of values.
+																												Valid operators are In, NotIn, Exists and DoesNotExist.
+																												"""
 																								type: "string"
 																							}
 																							values: {
 																								description: """
-	values is an array of string values. If the operator is In or NotIn,
-	the values array must be non-empty. If the operator is Exists or DoesNotExist,
-	the values array must be empty. This array is replaced during a strategic
-	merge patch.
-	"""
+																												values is an array of string values. If the operator is In or NotIn,
+																												the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																												the values array must be empty. This array is replaced during a strategic
+																												merge patch.
+																												"""
 																								items: type: "string"
 																								type:                     "array"
 																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
-																						required: [
-																							"key",
-																							"operator",
-																						]
+																						required: ["key", "operator"]
 																						type: "object"
 																					}
 																					type:                     "array"
@@ -2969,10 +2877,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				matchLabels: {
 																					additionalProperties: type: "string"
 																					description: """
-	matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
-	map is equivalent to an element of matchExpressions, whose key field is "key", the
-	operator is "In", and the values array contains only "value". The requirements are ANDed.
-	"""
+																									matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+																									map is equivalent to an element of matchExpressions, whose key field is "key", the
+																									operator is "In", and the values array contains only "value". The requirements are ANDed.
+																									"""
 																					type: "object"
 																				}
 																			}
@@ -2981,33 +2889,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		}
 																		storageClassName: {
 																			description: """
-	storageClassName is the name of the StorageClass required by the claim.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
-	"""
+																							storageClassName is the name of the StorageClass required by the claim.
+																							More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
+																							"""
 																			type: "string"
 																		}
 																		volumeAttributesClassName: {
 																			description: """
-	volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
-	If specified, the CSI driver will create or update the volume with the attributes defined
-	in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
-	it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
-	will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
-	If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
-	will be set by the persistentvolume controller if it exists.
-	If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
-	set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
-	exists.
-	More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
-	(Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
-	"""
+																							volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
+																							If specified, the CSI driver will create or update the volume with the attributes defined
+																							in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
+																							it can be changed after the claim is created. An empty string or nil value indicates that no
+																							VolumeAttributesClass will be applied to the claim. If the claim enters an Infeasible error state,
+																							this field can be reset to its previous value (including nil) to cancel the modification.
+																							If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
+																							set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
+																							exists.
+																							More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
+																							"""
 																			type: "string"
 																		}
 																		volumeMode: {
 																			description: """
-	volumeMode defines what type of volume is required by the claim.
-	Value of Filesystem is implied when not included in claim spec.
-	"""
+																							volumeMode defines what type of volume is required by the claim.
+																							Value of Filesystem is implied when not included in claim spec.
+																							"""
 																			type: "string"
 																		}
 																		volumeName: {
@@ -3035,9 +2941,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											metadata: {
 												description: """
-	Standard object's metadata.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-	"""
+																Standard object's metadata.
+																More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+																"""
 												properties: {
 													annotations: {
 														additionalProperties: type: "string"
@@ -3058,37 +2964,37 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											spec: {
 												description: """
-	spec defines the desired characteristics of a volume requested by a pod author.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
-	"""
+																spec defines the desired characteristics of a volume requested by a pod author.
+																More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
+																"""
 												properties: {
 													accessModes: {
 														description: """
-	accessModes contains the desired access modes the volume should have.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
-	"""
+																		accessModes contains the desired access modes the volume should have.
+																		More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
+																		"""
 														items: type: "string"
 														type:                     "array"
 														"x-kubernetes-list-type": "atomic"
 													}
 													dataSource: {
 														description: """
-	dataSource field can be used to specify either:
-	* An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot)
-	* An existing PVC (PersistentVolumeClaim)
-	If the provisioner or an external controller can support the specified data source,
-	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
-	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
-	"""
+																		dataSource field can be used to specify either:
+																		* An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot)
+																		* An existing PVC (PersistentVolumeClaim)
+																		If the provisioner or an external controller can support the specified data source,
+																		it will create a new volume based on the contents of the specified data source.
+																		When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
+																		and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+																		If the namespace is specified, then dataSourceRef will not be copied to dataSource.
+																		"""
 														properties: {
 															apiGroup: {
 																description: """
-	APIGroup is the group for the resource being referenced.
-	If APIGroup is not specified, the specified Kind must be in the core API group.
-	For any other third-party types, APIGroup is required.
-	"""
+																				APIGroup is the group for the resource being referenced.
+																				If APIGroup is not specified, the specified Kind must be in the core API group.
+																				For any other third-party types, APIGroup is required.
+																				"""
 																type: "string"
 															}
 															kind: {
@@ -3100,46 +3006,43 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type:        "string"
 															}
 														}
-														required: [
-															"kind",
-															"name",
-														]
+														required: ["kind", "name"]
 														type:                    "object"
 														"x-kubernetes-map-type": "atomic"
 													}
 													dataSourceRef: {
 														description: """
-	dataSourceRef specifies the object from which to populate the volume with data, if a non-empty
-	volume is desired. This may be any object from a non-empty API group (non
-	core object) or a PersistentVolumeClaim object.
-	When this field is specified, volume binding will only succeed if the type of
-	the specified object matches some installed volume populator or dynamic
-	provisioner.
-	This field will replace the functionality of the dataSource field and as such
-	if both fields are non-empty, they must have the same value. For backwards
-	compatibility, when namespace isn't specified in dataSourceRef,
-	both fields (dataSource and dataSourceRef) will be set to the same
-	value automatically if one of them is empty and the other is non-empty.
-	When namespace is specified in dataSourceRef,
-	dataSource isn't set to the same value and must be empty.
-	There are three important differences between dataSource and dataSourceRef:
-	* While dataSource only allows two specific types of objects, dataSourceRef
-	  allows any non-core object, as well as PersistentVolumeClaim objects.
-	* While dataSource ignores disallowed values (dropping them), dataSourceRef
-	  preserves all values, and generates an error if a disallowed value is
-	  specified.
-	* While dataSource only allows local objects, dataSourceRef allows objects
-	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
-	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
-	"""
+																		dataSourceRef specifies the object from which to populate the volume with data, if a non-empty
+																		volume is desired. This may be any object from a non-empty API group (non
+																		core object) or a PersistentVolumeClaim object.
+																		When this field is specified, volume binding will only succeed if the type of
+																		the specified object matches some installed volume populator or dynamic
+																		provisioner.
+																		This field will replace the functionality of the dataSource field and as such
+																		if both fields are non-empty, they must have the same value. For backwards
+																		compatibility, when namespace isn't specified in dataSourceRef,
+																		both fields (dataSource and dataSourceRef) will be set to the same
+																		value automatically if one of them is empty and the other is non-empty.
+																		When namespace is specified in dataSourceRef,
+																		dataSource isn't set to the same value and must be empty.
+																		There are three important differences between dataSource and dataSourceRef:
+																		* While dataSource only allows two specific types of objects, dataSourceRef
+																		  allows any non-core object, as well as PersistentVolumeClaim objects.
+																		* While dataSource ignores disallowed values (dropping them), dataSourceRef
+																		  preserves all values, and generates an error if a disallowed value is
+																		  specified.
+																		* While dataSource only allows local objects, dataSourceRef allows objects
+																		  in any namespaces.
+																		(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
+																		(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+																		"""
 														properties: {
 															apiGroup: {
 																description: """
-	APIGroup is the group for the resource being referenced.
-	If APIGroup is not specified, the specified Kind must be in the core API group.
-	For any other third-party types, APIGroup is required.
-	"""
+																				APIGroup is the group for the resource being referenced.
+																				If APIGroup is not specified, the specified Kind must be in the core API group.
+																				For any other third-party types, APIGroup is required.
+																				"""
 																type: "string"
 															}
 															kind: {
@@ -3152,27 +3055,24 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															}
 															namespace: {
 																description: """
-	Namespace is the namespace of resource being referenced
-	Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
-	(Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
-	"""
+																				Namespace is the namespace of resource being referenced
+																				Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
+																				(Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+																				"""
 																type: "string"
 															}
 														}
-														required: [
-															"kind",
-															"name",
-														]
+														required: ["kind", "name"]
 														type: "object"
 													}
 													resources: {
 														description: """
-	resources represents the minimum resources the volume should have.
-	If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
-	that are lower than previous value but must still be higher than capacity recorded in the
-	status field of the claim.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
-	"""
+																		resources represents the minimum resources the volume should have.
+																		Users are allowed to specify resource requirements
+																		that are lower than previous value but must still be higher than capacity recorded in the
+																		status field of the claim.
+																		More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
+																		"""
 														properties: {
 															limits: {
 																additionalProperties: {
@@ -3185,9 +3085,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	"x-kubernetes-int-or-string": true
 																}
 																description: """
-	Limits describes the maximum amount of compute resources allowed.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																				Limits describes the maximum amount of compute resources allowed.
+																				More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																				"""
 																type: "object"
 															}
 															requests: {
@@ -3201,11 +3101,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	"x-kubernetes-int-or-string": true
 																}
 																description: """
-	Requests describes the minimum amount of compute resources required.
-	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
-	otherwise to an implementation-defined value. Requests cannot exceed Limits.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																				Requests describes the minimum amount of compute resources required.
+																				If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+																				otherwise to an implementation-defined value. Requests cannot exceed Limits.
+																				More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																				"""
 																type: "object"
 															}
 														}
@@ -3218,9 +3118,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																items: {
 																	description: """
-	A label selector requirement is a selector that contains values, a key, and an operator that
-	relates the key and values.
-	"""
+																					A label selector requirement is a selector that contains values, a key, and an operator that
+																					relates the key and values.
+																					"""
 																	properties: {
 																		key: {
 																			description: "key is the label key that the selector applies to."
@@ -3228,27 +3128,24 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		}
 																		operator: {
 																			description: """
-	operator represents a key's relationship to a set of values.
-	Valid operators are In, NotIn, Exists and DoesNotExist.
-	"""
+																							operator represents a key's relationship to a set of values.
+																							Valid operators are In, NotIn, Exists and DoesNotExist.
+																							"""
 																			type: "string"
 																		}
 																		values: {
 																			description: """
-	values is an array of string values. If the operator is In or NotIn,
-	the values array must be non-empty. If the operator is Exists or DoesNotExist,
-	the values array must be empty. This array is replaced during a strategic
-	merge patch.
-	"""
+																							values is an array of string values. If the operator is In or NotIn,
+																							the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																							the values array must be empty. This array is replaced during a strategic
+																							merge patch.
+																							"""
 																			items: type: "string"
 																			type:                     "array"
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																	}
-																	required: [
-																		"key",
-																		"operator",
-																	]
+																	required: ["key", "operator"]
 																	type: "object"
 																}
 																type:                     "array"
@@ -3257,10 +3154,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															matchLabels: {
 																additionalProperties: type: "string"
 																description: """
-	matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
-	map is equivalent to an element of matchExpressions, whose key field is "key", the
-	operator is "In", and the values array contains only "value". The requirements are ANDed.
-	"""
+																				matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+																				map is equivalent to an element of matchExpressions, whose key field is "key", the
+																				operator is "In", and the values array contains only "value". The requirements are ANDed.
+																				"""
 																type: "object"
 															}
 														}
@@ -3269,33 +3166,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													storageClassName: {
 														description: """
-	storageClassName is the name of the StorageClass required by the claim.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
-	"""
+																		storageClassName is the name of the StorageClass required by the claim.
+																		More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
+																		"""
 														type: "string"
 													}
 													volumeAttributesClassName: {
 														description: """
-	volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
-	If specified, the CSI driver will create or update the volume with the attributes defined
-	in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
-	it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
-	will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
-	If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
-	will be set by the persistentvolume controller if it exists.
-	If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
-	set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
-	exists.
-	More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
-	(Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
-	"""
+																		volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
+																		If specified, the CSI driver will create or update the volume with the attributes defined
+																		in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
+																		it can be changed after the claim is created. An empty string or nil value indicates that no
+																		VolumeAttributesClass will be applied to the claim. If the claim enters an Infeasible error state,
+																		this field can be reset to its previous value (including nil) to cancel the modification.
+																		If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
+																		set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
+																		exists.
+																		More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
+																		"""
 														type: "string"
 													}
 													volumeMode: {
 														description: """
-	volumeMode defines what type of volume is required by the claim.
-	Value of Filesystem is implied when not included in claim spec.
-	"""
+																		volumeMode defines what type of volume is required by the claim.
+																		Value of Filesystem is implied when not included in claim spec.
+																		"""
 														type: "string"
 													}
 													volumeName: {
@@ -3327,9 +3222,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													properties: {
 														metadata: {
 															description: """
-	Standard object's metadata.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-	"""
+																			Standard object's metadata.
+																			More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+																			"""
 															properties: {
 																annotations: {
 																	additionalProperties: type: "string"
@@ -3350,37 +3245,37 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														spec: {
 															description: """
-	spec defines the desired characteristics of a volume requested by a pod author.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
-	"""
+																			spec defines the desired characteristics of a volume requested by a pod author.
+																			More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
+																			"""
 															properties: {
 																accessModes: {
 																	description: """
-	accessModes contains the desired access modes the volume should have.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
-	"""
+																					accessModes contains the desired access modes the volume should have.
+																					More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
+																					"""
 																	items: type: "string"
 																	type:                     "array"
 																	"x-kubernetes-list-type": "atomic"
 																}
 																dataSource: {
 																	description: """
-	dataSource field can be used to specify either:
-	* An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot)
-	* An existing PVC (PersistentVolumeClaim)
-	If the provisioner or an external controller can support the specified data source,
-	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
-	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
-	"""
+																					dataSource field can be used to specify either:
+																					* An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot)
+																					* An existing PVC (PersistentVolumeClaim)
+																					If the provisioner or an external controller can support the specified data source,
+																					it will create a new volume based on the contents of the specified data source.
+																					When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
+																					and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+																					If the namespace is specified, then dataSourceRef will not be copied to dataSource.
+																					"""
 																	properties: {
 																		apiGroup: {
 																			description: """
-	APIGroup is the group for the resource being referenced.
-	If APIGroup is not specified, the specified Kind must be in the core API group.
-	For any other third-party types, APIGroup is required.
-	"""
+																							APIGroup is the group for the resource being referenced.
+																							If APIGroup is not specified, the specified Kind must be in the core API group.
+																							For any other third-party types, APIGroup is required.
+																							"""
 																			type: "string"
 																		}
 																		kind: {
@@ -3392,46 +3287,43 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			type:        "string"
 																		}
 																	}
-																	required: [
-																		"kind",
-																		"name",
-																	]
+																	required: ["kind", "name"]
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
 																}
 																dataSourceRef: {
 																	description: """
-	dataSourceRef specifies the object from which to populate the volume with data, if a non-empty
-	volume is desired. This may be any object from a non-empty API group (non
-	core object) or a PersistentVolumeClaim object.
-	When this field is specified, volume binding will only succeed if the type of
-	the specified object matches some installed volume populator or dynamic
-	provisioner.
-	This field will replace the functionality of the dataSource field and as such
-	if both fields are non-empty, they must have the same value. For backwards
-	compatibility, when namespace isn't specified in dataSourceRef,
-	both fields (dataSource and dataSourceRef) will be set to the same
-	value automatically if one of them is empty and the other is non-empty.
-	When namespace is specified in dataSourceRef,
-	dataSource isn't set to the same value and must be empty.
-	There are three important differences between dataSource and dataSourceRef:
-	* While dataSource only allows two specific types of objects, dataSourceRef
-	  allows any non-core object, as well as PersistentVolumeClaim objects.
-	* While dataSource ignores disallowed values (dropping them), dataSourceRef
-	  preserves all values, and generates an error if a disallowed value is
-	  specified.
-	* While dataSource only allows local objects, dataSourceRef allows objects
-	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
-	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
-	"""
+																					dataSourceRef specifies the object from which to populate the volume with data, if a non-empty
+																					volume is desired. This may be any object from a non-empty API group (non
+																					core object) or a PersistentVolumeClaim object.
+																					When this field is specified, volume binding will only succeed if the type of
+																					the specified object matches some installed volume populator or dynamic
+																					provisioner.
+																					This field will replace the functionality of the dataSource field and as such
+																					if both fields are non-empty, they must have the same value. For backwards
+																					compatibility, when namespace isn't specified in dataSourceRef,
+																					both fields (dataSource and dataSourceRef) will be set to the same
+																					value automatically if one of them is empty and the other is non-empty.
+																					When namespace is specified in dataSourceRef,
+																					dataSource isn't set to the same value and must be empty.
+																					There are three important differences between dataSource and dataSourceRef:
+																					* While dataSource only allows two specific types of objects, dataSourceRef
+																					  allows any non-core object, as well as PersistentVolumeClaim objects.
+																					* While dataSource ignores disallowed values (dropping them), dataSourceRef
+																					  preserves all values, and generates an error if a disallowed value is
+																					  specified.
+																					* While dataSource only allows local objects, dataSourceRef allows objects
+																					  in any namespaces.
+																					(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
+																					(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+																					"""
 																	properties: {
 																		apiGroup: {
 																			description: """
-	APIGroup is the group for the resource being referenced.
-	If APIGroup is not specified, the specified Kind must be in the core API group.
-	For any other third-party types, APIGroup is required.
-	"""
+																							APIGroup is the group for the resource being referenced.
+																							If APIGroup is not specified, the specified Kind must be in the core API group.
+																							For any other third-party types, APIGroup is required.
+																							"""
 																			type: "string"
 																		}
 																		kind: {
@@ -3444,27 +3336,24 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		}
 																		namespace: {
 																			description: """
-	Namespace is the namespace of resource being referenced
-	Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
-	(Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
-	"""
+																							Namespace is the namespace of resource being referenced
+																							Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
+																							(Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+																							"""
 																			type: "string"
 																		}
 																	}
-																	required: [
-																		"kind",
-																		"name",
-																	]
+																	required: ["kind", "name"]
 																	type: "object"
 																}
 																resources: {
 																	description: """
-	resources represents the minimum resources the volume should have.
-	If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
-	that are lower than previous value but must still be higher than capacity recorded in the
-	status field of the claim.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
-	"""
+																					resources represents the minimum resources the volume should have.
+																					Users are allowed to specify resource requirements
+																					that are lower than previous value but must still be higher than capacity recorded in the
+																					status field of the claim.
+																					More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
+																					"""
 																	properties: {
 																		limits: {
 																			additionalProperties: {
@@ -3477,9 +3366,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-int-or-string": true
 																			}
 																			description: """
-	Limits describes the maximum amount of compute resources allowed.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																							Limits describes the maximum amount of compute resources allowed.
+																							More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																							"""
 																			type: "object"
 																		}
 																		requests: {
@@ -3493,11 +3382,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-int-or-string": true
 																			}
 																			description: """
-	Requests describes the minimum amount of compute resources required.
-	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
-	otherwise to an implementation-defined value. Requests cannot exceed Limits.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																							Requests describes the minimum amount of compute resources required.
+																							If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+																							otherwise to an implementation-defined value. Requests cannot exceed Limits.
+																							More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																							"""
 																			type: "object"
 																		}
 																	}
@@ -3510,9 +3399,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																			items: {
 																				description: """
-	A label selector requirement is a selector that contains values, a key, and an operator that
-	relates the key and values.
-	"""
+																								A label selector requirement is a selector that contains values, a key, and an operator that
+																								relates the key and values.
+																								"""
 																				properties: {
 																					key: {
 																						description: "key is the label key that the selector applies to."
@@ -3520,27 +3409,24 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					}
 																					operator: {
 																						description: """
-	operator represents a key's relationship to a set of values.
-	Valid operators are In, NotIn, Exists and DoesNotExist.
-	"""
+																										operator represents a key's relationship to a set of values.
+																										Valid operators are In, NotIn, Exists and DoesNotExist.
+																										"""
 																						type: "string"
 																					}
 																					values: {
 																						description: """
-	values is an array of string values. If the operator is In or NotIn,
-	the values array must be non-empty. If the operator is Exists or DoesNotExist,
-	the values array must be empty. This array is replaced during a strategic
-	merge patch.
-	"""
+																										values is an array of string values. If the operator is In or NotIn,
+																										the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																										the values array must be empty. This array is replaced during a strategic
+																										merge patch.
+																										"""
 																						items: type: "string"
 																						type:                     "array"
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -3549,10 +3435,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		matchLabels: {
 																			additionalProperties: type: "string"
 																			description: """
-	matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
-	map is equivalent to an element of matchExpressions, whose key field is "key", the
-	operator is "In", and the values array contains only "value". The requirements are ANDed.
-	"""
+																							matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+																							map is equivalent to an element of matchExpressions, whose key field is "key", the
+																							operator is "In", and the values array contains only "value". The requirements are ANDed.
+																							"""
 																			type: "object"
 																		}
 																	}
@@ -3561,33 +3447,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																}
 																storageClassName: {
 																	description: """
-	storageClassName is the name of the StorageClass required by the claim.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
-	"""
+																					storageClassName is the name of the StorageClass required by the claim.
+																					More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
+																					"""
 																	type: "string"
 																}
 																volumeAttributesClassName: {
 																	description: """
-	volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
-	If specified, the CSI driver will create or update the volume with the attributes defined
-	in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
-	it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
-	will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
-	If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
-	will be set by the persistentvolume controller if it exists.
-	If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
-	set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
-	exists.
-	More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
-	(Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
-	"""
+																					volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
+																					If specified, the CSI driver will create or update the volume with the attributes defined
+																					in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
+																					it can be changed after the claim is created. An empty string or nil value indicates that no
+																					VolumeAttributesClass will be applied to the claim. If the claim enters an Infeasible error state,
+																					this field can be reset to its previous value (including nil) to cancel the modification.
+																					If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
+																					set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
+																					exists.
+																					More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
+																					"""
 																	type: "string"
 																}
 																volumeMode: {
 																	description: """
-	volumeMode defines what type of volume is required by the claim.
-	Value of Filesystem is implied when not included in claim spec.
-	"""
+																					volumeMode defines what type of volume is required by the claim.
+																					Value of Filesystem is implied when not included in claim spec.
+																					"""
 																	type: "string"
 																}
 																volumeName: {
@@ -3622,9 +3506,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								properties: {
 									enabled: {
 										description: """
-	Enabled determines whether to create the prometheus rules for the ceph cluster. If true, the prometheus
-	types must exist or the creation will fail. Default is false.
-	"""
+														Enabled determines whether to create the prometheus rules for the ceph cluster. If true, the prometheus
+														types must exist or the creation will fail. Default is false.
+														"""
 										type: "boolean"
 									}
 									exporter: {
@@ -3641,6 +3525,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												format:      "int64"
 												type:        "integer"
 											}
+											port: {
+												description: "Port is the listening port of the ceph-exporter process. Defaults to 9926."
+												format:      "int32"
+												maximum:     65535
+												minimum:     1
+												type:        "integer"
+											}
 											statsPeriodSeconds: {
 												default:     5
 												description: "Time to wait before sending requests again to exporter server (seconds)"
@@ -3654,9 +3545,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										description: "ExternalMgrEndpoints points to an existing Ceph prometheus exporter endpoint"
 										items: {
 											description: """
-	EndpointAddress is a tuple that describes single IP address.
-	Deprecated: This API is deprecated in v1.33+.
-	"""
+															EndpointAddress is a tuple that describes single IP address.
+															Deprecated: This API is deprecated in v1.33+.
+															"""
 											properties: {
 												hostname: {
 													description: "The Hostname of this endpoint"
@@ -3664,10 +3555,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												}
 												ip: {
 													description: """
-	The IP of this endpoint.
-	May not be loopback (127.0.0.0/8 or ::1), link-local (169.254.0.0/16 or fe80::/10),
-	or link-local multicast (224.0.0.0/24 or ff02::/16).
-	"""
+																	The IP of this endpoint.
+																	May not be loopback (127.0.0.0/8 or ::1), link-local (169.254.0.0/16 or fe80::/10),
+																	or link-local multicast (224.0.0.0/24 or ff02::/16).
+																	"""
 													type: "string"
 												}
 												nodeName: {
@@ -3683,49 +3574,49 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														fieldPath: {
 															description: """
-	If referring to a piece of an object instead of an entire object, this string
-	should contain a valid JSON/Go field access statement, such as desiredState.manifest.containers[2].
-	For example, if the object reference is to a container within a pod, this would take on a value like:
-	"spec.containers{name}" (where "name" refers to the name of the container that triggered
-	the event) or if no container name is specified "spec.containers[2]" (container with
-	index 2 in this pod). This syntax is chosen only to have some well-defined way of
-	referencing a part of an object.
-	"""
+																			If referring to a piece of an object instead of an entire object, this string
+																			should contain a valid JSON/Go field access statement, such as desiredState.manifest.containers[2].
+																			For example, if the object reference is to a container within a pod, this would take on a value like:
+																			"spec.containers{name}" (where "name" refers to the name of the container that triggered
+																			the event) or if no container name is specified "spec.containers[2]" (container with
+																			index 2 in this pod). This syntax is chosen only to have some well-defined way of
+																			referencing a part of an object.
+																			"""
 															type: "string"
 														}
 														kind: {
 															description: """
-	Kind of the referent.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+																			Kind of the referent.
+																			More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+																			"""
 															type: "string"
 														}
 														name: {
 															description: """
-	Name of the referent.
-	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-	"""
+																			Name of the referent.
+																			More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																			"""
 															type: "string"
 														}
 														namespace: {
 															description: """
-	Namespace of the referent.
-	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
-	"""
+																			Namespace of the referent.
+																			More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
+																			"""
 															type: "string"
 														}
 														resourceVersion: {
 															description: """
-	Specific resourceVersion to which this reference is made, if any.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
-	"""
+																			Specific resourceVersion to which this reference is made, if any.
+																			More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+																			"""
 															type: "string"
 														}
 														uid: {
 															description: """
-	UID of the referent.
-	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
-	"""
+																			UID of the referent.
+																			More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
+																			"""
 															type: "string"
 														}
 													}
@@ -3752,9 +3643,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									metricsDisabled: {
 										description: """
-	Whether to disable the metrics reported by Ceph. If false, the prometheus mgr module and Ceph exporter are enabled.
-	If true, the prometheus mgr module and Ceph exporter are both disabled. Default is false.
-	"""
+														Whether to disable the metrics reported by Ceph. If false, the prometheus mgr module and Ceph exporter are enabled.
+														If true, the prometheus mgr module and Ceph exporter are both disabled. Default is false.
+														"""
 										type: "boolean"
 									}
 									port: {
@@ -3772,21 +3663,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								properties: {
 									addressRanges: {
 										description: """
-	AddressRanges specify a list of CIDRs that Rook will apply to Ceph's 'public_network' and/or
-	'cluster_network' configurations. This config section may be used for the "host" or "multus"
-	network providers.
-	"""
+														AddressRanges specify a list of CIDRs that Rook will apply to Ceph's 'public_network' and/or
+														'cluster_network' configurations. This config section may be used for the "host" or "multus"
+														network providers.
+														"""
 										nullable: true
 										properties: {
 											cluster: {
 												description: "Cluster defines a list of CIDRs to use for Ceph cluster network communication."
 												items: {
 													description: """
-	An IPv4 or IPv6 network CIDR.
+																	An IPv4 or IPv6 network CIDR.
 
-	This naive kubebuilder regex provides immediate feedback for some typos and for a common problem
-	case where the range spec is forgotten (e.g., /24). Rook does in-depth validation in code.
-	"""
+																	This naive kubebuilder regex provides immediate feedback for some typos and for a common problem
+																	case where the range spec is forgotten (e.g., /24). Rook does in-depth validation in code.
+																	"""
 													pattern: "^[0-9a-fA-F:.]{2,}\\/[0-9]{1,3}$"
 													type:    "string"
 												}
@@ -3796,11 +3687,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												description: "Public defines a list of CIDRs to use for Ceph public network communication."
 												items: {
 													description: """
-	An IPv4 or IPv6 network CIDR.
+																	An IPv4 or IPv6 network CIDR.
 
-	This naive kubebuilder regex provides immediate feedback for some typos and for a common problem
-	case where the range spec is forgotten (e.g., /24). Rook does in-depth validation in code.
-	"""
+																	This naive kubebuilder regex provides immediate feedback for some typos and for a common problem
+																	case where the range spec is forgotten (e.g., /24). Rook does in-depth validation in code.
+																	"""
 													pattern: "^[0-9a-fA-F:.]{2,}\\/[0-9]{1,3}$"
 													type:    "string"
 												}
@@ -3811,9 +3702,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									connections: {
 										description: """
-	Settings for network connections such as compression and encryption across the
-	wire.
-	"""
+														Settings for network connections such as compression and encryption across the
+														wire.
+														"""
 										nullable: true
 										properties: {
 											compression: {
@@ -3821,9 +3712,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												nullable:    true
 												properties: enabled: {
 													description: """
-	Whether to compress the data in transit across the wire.
-	The default is not set.
-	"""
+																		Whether to compress the data in transit across the wire.
+																		The default is not set.
+																		"""
 													type: "boolean"
 												}
 												type: "object"
@@ -3833,23 +3724,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												nullable:    true
 												properties: enabled: {
 													description: """
-	Whether to encrypt the data in transit across the wire to prevent eavesdropping
-	the data on the network. The default is not set. Even if encryption is not enabled,
-	clients still establish a strong initial authentication for the connection
-	and data integrity is still validated with a crc check. When encryption is enabled,
-	all communication between clients and Ceph daemons, or between Ceph daemons will
-	be encrypted.
-	"""
+																		Whether to encrypt the data in transit across the wire to prevent eavesdropping
+																		the data on the network. The default is not set. Even if encryption is not enabled,
+																		clients still establish a strong initial authentication for the connection
+																		and data integrity is still validated with a crc check. When encryption is enabled,
+																		all communication between clients and Ceph daemons, or between Ceph daemons will
+																		be encrypted.
+																		"""
 													type: "boolean"
 												}
 												type: "object"
 											}
 											requireMsgr2: {
 												description: """
-	Whether to require msgr2 (port 3300) even if compression or encryption are not enabled.
-	If true, the msgr1 port (6789) will be disabled.
-	Requires a kernel that supports msgr2 (kernel 5.11 or CentOS 8.4 or newer).
-	"""
+																Whether to require msgr2 (port 3300) even if compression or encryption are not enabled.
+																If true, the msgr1 port (6789) will be disabled.
+																Requires a kernel that supports msgr2 (kernel 5.11 or CentOS 8.4 or newer).
+																"""
 												type: "boolean"
 											}
 										}
@@ -3861,18 +3752,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									hostNetwork: {
 										description: """
-	HostNetwork to enable host network.
-	If host networking is enabled or disabled on a running cluster, then the operator will automatically fail over all the mons to
-	apply the new network settings.
-	"""
+														HostNetwork to enable host network.
+														If host networking is enabled or disabled on a running cluster, then the operator will automatically fail over all the mons to
+														apply the new network settings.
+														"""
 										type: "boolean"
 									}
 									ipFamily: {
 										description: "IPFamily is the single stack IPv6 or IPv4 protocol"
-										enum: [
-											"IPv4",
-											"IPv6",
-										]
+										enum: ["IPv4", "IPv6"]
 										nullable: true
 										type:     "string"
 									}
@@ -3881,17 +3769,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											clusterID: {
 												description: """
-	ClusterID uniquely identifies a cluster. It is used as a prefix to nslookup exported
-	services. For example: <clusterid>.<svc>.<ns>.svc.clusterset.local
-	"""
+																ClusterID uniquely identifies a cluster. It is used as a prefix to nslookup exported
+																services. For example: <clusterid>.<svc>.<ns>.svc.clusterset.local
+																"""
 												type: "string"
 											}
 											enabled: {
 												description: """
-	Enable multiClusterService to export the mon and OSD services to peer cluster.
-	Ensure that peer clusters are connected using an MCS API compatible application,
-	like Globalnet Submariner.
-	"""
+																Enable multiClusterService to export the mon and OSD services to peer cluster.
+																Ensure that peer clusters are connected using an MCS API compatible application,
+																like Globalnet Submariner.
+																"""
 												type: "boolean"
 											}
 										}
@@ -3899,14 +3787,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									provider: {
 										description: """
-	Provider is what provides network connectivity to the cluster e.g. "host" or "multus".
-	If the Provider is updated from being empty to "host" on a running cluster, then the operator will automatically fail over all the mons to apply the "host" network settings.
-	"""
-										enum: [
-											"",
-											"host",
-											"multus",
-										]
+														Provider is what provides network connectivity to the cluster e.g. "host" or "multus".
+														If the Provider is updated from being empty to "host" on a running cluster, then the operator will automatically fail over all the mons to apply the "host" network settings.
+														"""
+										enum: ["", "host", "multus"]
 										nullable: true
 										type:     "string"
 										"x-kubernetes-validations": [{
@@ -3917,29 +3801,29 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									selectors: {
 										additionalProperties: type: "string"
 										description: """
-	Selectors define NetworkAttachmentDefinitions to be used for Ceph public and/or cluster
-	networks when the "multus" network provider is used. This config section is not used for
-	other network providers.
+														Selectors define NetworkAttachmentDefinitions to be used for Ceph public and/or cluster
+														networks when the "multus" network provider is used. This config section is not used for
+														other network providers.
 
-	Valid keys are "public" and "cluster". Refer to Ceph networking documentation for more:
-	https://docs.ceph.com/en/latest/rados/configuration/network-config-ref/
+														Valid keys are "public" and "cluster". Refer to Ceph networking documentation for more:
+														https://docs.ceph.com/en/latest/rados/configuration/network-config-ref/
 
-	Refer to Multus network annotation documentation for help selecting values:
-	https://github.com/k8snetworkplumbingwg/multus-cni/blob/master/docs/how-to-use.md#run-pod-with-network-annotation
+														Refer to Multus network annotation documentation for help selecting values:
+														https://github.com/k8snetworkplumbingwg/multus-cni/blob/master/docs/how-to-use.md#run-pod-with-network-annotation
 
-	Rook will make a best-effort attempt to automatically detect CIDR address ranges for given
-	network attachment definitions. Rook's methods are robust but may be imprecise for
-	sufficiently complicated networks. Rook's auto-detection process obtains a new IP address
-	lease for each CephCluster reconcile. If Rook fails to detect, incorrectly detects, only
-	partially detects, or if underlying networks do not support reusing old IP addresses, it is
-	best to use the 'addressRanges' config section to specify CIDR ranges for the Ceph cluster.
+														Rook will make a best-effort attempt to automatically detect CIDR address ranges for given
+														network attachment definitions. Rook's methods are robust but may be imprecise for
+														sufficiently complicated networks. Rook's auto-detection process obtains a new IP address
+														lease for each CephCluster reconcile. If Rook fails to detect, incorrectly detects, only
+														partially detects, or if underlying networks do not support reusing old IP addresses, it is
+														best to use the 'addressRanges' config section to specify CIDR ranges for the Ceph cluster.
 
-	As a contrived example, one can use a theoretical Kubernetes-wide network for Ceph client
-	traffic and a theoretical Rook-only network for Ceph replication traffic as shown:
-	  selectors:
-	    public: "default/cluster-fast-net"
-	    cluster: "rook-ceph/ceph-backend-net"
-	"""
+														As a contrived example, one can use a theoretical Kubernetes-wide network for Ceph client
+														traffic and a theoretical Rook-only network for Ceph replication traffic as shown:
+														  selectors:
+														    public: "default/cluster-fast-net"
+														    cluster: "rook-ceph/ceph-backend-net"
+														"""
 										nullable: true
 										type:     "object"
 									}
@@ -3975,10 +3859,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
-																			required: [
-																				"key",
-																				"operator",
-																			]
+																			required: ["key", "operator"]
 																			type: "object"
 																		}
 																		type:                     "array"
@@ -3995,10 +3876,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
-																			required: [
-																				"key",
-																				"operator",
-																			]
+																			required: ["key", "operator"]
 																			type: "object"
 																		}
 																		type:                     "array"
@@ -4013,10 +3891,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type:   "integer"
 															}
 														}
-														required: [
-															"preference",
-															"weight",
-														]
+														required: ["preference", "weight"]
 														type: "object"
 													}
 													type:                     "array"
@@ -4037,10 +3912,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -4057,10 +3929,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -4100,10 +3969,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							"x-kubernetes-list-type": "atomic"
 																						}
 																					}
-																					required: [
-																						"key",
-																						"operator",
-																					]
+																					required: ["key", "operator"]
 																					type: "object"
 																				}
 																				type:                     "array"
@@ -4140,10 +4006,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							"x-kubernetes-list-type": "atomic"
 																						}
 																					}
-																					required: [
-																						"key",
-																						"operator",
-																					]
+																					required: ["key", "operator"]
 																					type: "object"
 																				}
 																				type:                     "array"
@@ -4172,10 +4035,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type:   "integer"
 															}
 														}
-														required: [
-															"podAffinityTerm",
-															"weight",
-														]
+														required: ["podAffinityTerm", "weight"]
 														type: "object"
 													}
 													type:                     "array"
@@ -4197,10 +4057,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
-																			required: [
-																				"key",
-																				"operator",
-																			]
+																			required: ["key", "operator"]
 																			type: "object"
 																		}
 																		type:                     "array"
@@ -4237,10 +4094,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
-																			required: [
-																				"key",
-																				"operator",
-																			]
+																			required: ["key", "operator"]
 																			type: "object"
 																		}
 																		type:                     "array"
@@ -4290,10 +4144,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							"x-kubernetes-list-type": "atomic"
 																						}
 																					}
-																					required: [
-																						"key",
-																						"operator",
-																					]
+																					required: ["key", "operator"]
 																					type: "object"
 																				}
 																				type:                     "array"
@@ -4330,10 +4181,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							"x-kubernetes-list-type": "atomic"
 																						}
 																					}
-																					required: [
-																						"key",
-																						"operator",
-																					]
+																					required: ["key", "operator"]
 																					type: "object"
 																				}
 																				type:                     "array"
@@ -4362,10 +4210,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type:   "integer"
 															}
 														}
-														required: [
-															"podAffinityTerm",
-															"weight",
-														]
+														required: ["podAffinityTerm", "weight"]
 														type: "object"
 													}
 													type:                     "array"
@@ -4387,10 +4232,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
-																			required: [
-																				"key",
-																				"operator",
-																			]
+																			required: ["key", "operator"]
 																			type: "object"
 																		}
 																		type:                     "array"
@@ -4427,10 +4269,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
-																			required: [
-																				"key",
-																				"operator",
-																			]
+																			required: ["key", "operator"]
 																			type: "object"
 																		}
 																		type:                     "array"
@@ -4492,10 +4331,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																	}
-																	required: [
-																		"key",
-																		"operator",
-																	]
+																	required: ["key", "operator"]
 																	type: "object"
 																}
 																type:                     "array"
@@ -4527,11 +4363,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													topologyKey: type:        "string"
 													whenUnsatisfiable: type:  "string"
 												}
-												required: [
-													"maxSkew",
-													"topologyKey",
-													"whenUnsatisfiable",
-												]
+												required: ["maxSkew", "topologyKey", "whenUnsatisfiable"]
 												type: "object"
 											}
 											type: "array"
@@ -4560,31 +4392,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									properties: {
 										claims: {
 											description: """
-	Claims lists the names of resources, defined in spec.resourceClaims,
-	that are used by this container.
+															Claims lists the names of resources, defined in spec.resourceClaims,
+															that are used by this container.
 
-	This is an alpha field and requires enabling the
-	DynamicResourceAllocation feature gate.
+															This field depends on the
+															DynamicResourceAllocation feature gate.
 
-	This field is immutable. It can only be set for containers.
-	"""
+															This field is immutable. It can only be set for containers.
+															"""
 											items: {
 												description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
 												properties: {
 													name: {
 														description: """
-	Name must match the name of one entry in pod.spec.resourceClaims of
-	the Pod where this field is used. It makes that resource available
-	inside a container.
-	"""
+																		Name must match the name of one entry in pod.spec.resourceClaims of
+																		the Pod where this field is used. It makes that resource available
+																		inside a container.
+																		"""
 														type: "string"
 													}
 													request: {
 														description: """
-	Request is the name chosen for a request in the referenced claim.
-	If empty, everything from the claim is made available, otherwise
-	only the result of this request.
-	"""
+																		Request is the name chosen for a request in the referenced claim.
+																		If empty, everything from the claim is made available, otherwise
+																		only the result of this request.
+																		"""
 														type: "string"
 													}
 												}
@@ -4606,9 +4438,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												"x-kubernetes-int-or-string": true
 											}
 											description: """
-	Limits describes the maximum amount of compute resources allowed.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+															Limits describes the maximum amount of compute resources allowed.
+															More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+															"""
 											type: "object"
 										}
 										requests: {
@@ -4622,11 +4454,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												"x-kubernetes-int-or-string": true
 											}
 											description: """
-	Requests describes the minimum amount of compute resources required.
-	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
-	otherwise to an implementation-defined value. Requests cannot exceed Limits.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+															Requests describes the minimum amount of compute resources required.
+															If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+															otherwise to an implementation-defined value. Requests cannot exceed Limits.
+															More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+															"""
 											type: "object"
 										}
 									}
@@ -4646,33 +4478,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											csi: {
 												description: """
-	CSI configures CephX key rotation settings for the Ceph-CSI daemons in the current Kubernetes cluster.
-	CSI key rotation can affect existing PV connections, so take care when exercising this option.
-	"""
+																CSI configures CephX key rotation settings for the Ceph-CSI daemons in the current Kubernetes cluster.
+																CSI key rotation can affect existing PV connections, so take care when exercising this option.
+																"""
 												properties: {
 													keepPriorKeyCountMax: {
 														description: """
-	KeepPriorKeyCountMax tells Rook how many prior keys to keep active.
-	Generally, this would be set to 1 to allow for a migration period for applications.
-	If desired, set this to 0 to delete prior keys after migration.
-	This config only applies to prior keys that already exist.
-	If PriorKeyCount is set to 2 while only a single key currently exists, only a single prior key will be kept,
-	and the reported status will only indicate the actual number of prior keys,
-	not necessarily a reflection of PriorKeyCount config here.
-	"""
+																		KeepPriorKeyCountMax tells Rook how many prior keys to keep active.
+																		Generally, this would be set to 1 to allow for a migration period for applications.
+																		If desired, set this to 0 to delete prior keys after migration.
+																		This config only applies to prior keys that already exist.
+																		If PriorKeyCount is set to 2 while only a single key currently exists, only a single prior key will be kept,
+																		and the reported status will only indicate the actual number of prior keys,
+																		not necessarily a reflection of PriorKeyCount config here.
+																		"""
 														maximum: 10
 														minimum: 0
 														type:    "integer"
 													}
 													keyGeneration: {
 														description: """
-	KeyGeneration specifies the desired CephX key generation. This is used when KeyRotationPolicy
-	is KeyGeneration and ignored for other policies. If this is set to greater than the current
-	key generation, relevant keys will be rotated, and the generation value will be updated to
-	this new value (generation values are not necessarily incremental, though that is the
-	intended use case). If this is set to less than or equal to the current key generation, keys
-	are not rotated.
-	"""
+																		KeyGeneration specifies the desired CephX key generation. This is used when KeyRotationPolicy
+																		is KeyGeneration and ignored for other policies. If this is set to greater than the current
+																		key generation, relevant keys will be rotated, and the generation value will be updated to
+																		this new value (generation values are not necessarily incremental, though that is the
+																		intended use case). If this is set to less than or equal to the current key generation, keys
+																		are not rotated.
+																		"""
 														format:  "int32"
 														maximum: 4294967295
 														minimum: 0
@@ -4684,14 +4516,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													keyRotationPolicy: {
 														description: """
-	KeyRotationPolicy controls if and when CephX keys are rotated after initial creation.
-	One of Disabled, or KeyGeneration. Default Disabled.
-	"""
-														enum: [
-															"",
-															"Disabled",
-															"KeyGeneration",
-														]
+																		KeyRotationPolicy controls if and when CephX keys are rotated after initial creation.
+																		One of Disabled, or KeyGeneration. Default Disabled.
+																		"""
+														enum: ["", "Disabled", "KeyGeneration"]
 														type: "string"
 													}
 												}
@@ -4699,19 +4527,19 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											daemon: {
 												description: """
-	Daemon configures CephX key settings for local Ceph daemons managed by Rook and part of the
-	Ceph cluster. Daemon CephX keys can be rotated without affecting client connections.
-	"""
+																Daemon configures CephX key settings for local Ceph daemons managed by Rook and part of the
+																Ceph cluster. Daemon CephX keys can be rotated without affecting client connections.
+																"""
 												properties: {
 													keyGeneration: {
 														description: """
-	KeyGeneration specifies the desired CephX key generation. This is used when KeyRotationPolicy
-	is KeyGeneration and ignored for other policies. If this is set to greater than the current
-	key generation, relevant keys will be rotated, and the generation value will be updated to
-	this new value (generation values are not necessarily incremental, though that is the
-	intended use case). If this is set to less than or equal to the current key generation, keys
-	are not rotated.
-	"""
+																		KeyGeneration specifies the desired CephX key generation. This is used when KeyRotationPolicy
+																		is KeyGeneration and ignored for other policies. If this is set to greater than the current
+																		key generation, relevant keys will be rotated, and the generation value will be updated to
+																		this new value (generation values are not necessarily incremental, though that is the
+																		intended use case). If this is set to less than or equal to the current key generation, keys
+																		are not rotated.
+																		"""
 														format:  "int32"
 														maximum: 4294967295
 														minimum: 0
@@ -4723,14 +4551,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													keyRotationPolicy: {
 														description: """
-	KeyRotationPolicy controls if and when CephX keys are rotated after initial creation.
-	One of Disabled, or KeyGeneration. Default Disabled.
-	"""
-														enum: [
-															"",
-															"Disabled",
-															"KeyGeneration",
-														]
+																		KeyRotationPolicy controls if and when CephX keys are rotated after initial creation.
+																		One of Disabled, or KeyGeneration. Default Disabled.
+																		"""
+														enum: ["", "Disabled", "KeyGeneration"]
 														type: "string"
 													}
 												}
@@ -4738,21 +4562,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											rbdMirrorPeer: {
 												description: """
-	RBDMirrorPeer configures CephX key settings of the `rbd-mirror-peer` user that is used for creating
-	bootstrap peer token used connect peer clusters. Rotating the `rbd-mirror-peer` user key will update
-	the mirror peer token.
-	Rotation will affect any existing peers connected to this cluster, so take care when exercising this option.
-	"""
+																RBDMirrorPeer configures CephX key settings of the `rbd-mirror-peer` user that is used for creating
+																bootstrap peer token used connect peer clusters. Rotating the `rbd-mirror-peer` user key will update
+																the mirror peer token.
+																Rotation will affect any existing peers connected to this cluster, so take care when exercising this option.
+																"""
 												properties: {
 													keyGeneration: {
 														description: """
-	KeyGeneration specifies the desired CephX key generation. This is used when KeyRotationPolicy
-	is KeyGeneration and ignored for other policies. If this is set to greater than the current
-	key generation, relevant keys will be rotated, and the generation value will be updated to
-	this new value (generation values are not necessarily incremental, though that is the
-	intended use case). If this is set to less than or equal to the current key generation, keys
-	are not rotated.
-	"""
+																		KeyGeneration specifies the desired CephX key generation. This is used when KeyRotationPolicy
+																		is KeyGeneration and ignored for other policies. If this is set to greater than the current
+																		key generation, relevant keys will be rotated, and the generation value will be updated to
+																		this new value (generation values are not necessarily incremental, though that is the
+																		intended use case). If this is set to less than or equal to the current key generation, keys
+																		are not rotated.
+																		"""
 														format:  "int32"
 														maximum: 4294967295
 														minimum: 0
@@ -4764,14 +4588,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													keyRotationPolicy: {
 														description: """
-	KeyRotationPolicy controls if and when CephX keys are rotated after initial creation.
-	One of Disabled, or KeyGeneration. Default Disabled.
-	"""
-														enum: [
-															"",
-															"Disabled",
-															"KeyGeneration",
-														]
+																		KeyRotationPolicy controls if and when CephX keys are rotated after initial creation.
+																		One of Disabled, or KeyGeneration. Default Disabled.
+																		"""
+														enum: ["", "Disabled", "KeyGeneration"]
 														type: "string"
 													}
 												}
@@ -4831,10 +4651,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									allowOsdCrushWeightUpdate: {
 										description: """
-	Whether Rook will resize the OSD CRUSH weight when the OSD PVC size is increased.
-	This allows cluster data to be rebalanced to make most effective use of new OSD space.
-	The default is false since data rebalancing can cause temporary cluster slowdown.
-	"""
+														Whether Rook will resize the OSD CRUSH weight when the OSD PVC size is increased.
+														This allows cluster data to be rebalanced to make most effective use of new OSD space.
+														The default is false since data rebalancing can cause temporary cluster slowdown.
+														"""
 										type: "boolean"
 									}
 									backfillFullRatio: {
@@ -4880,13 +4700,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									flappingRestartIntervalHours: {
 										description: """
-	FlappingRestartIntervalHours defines the time for which the OSD pods, that failed with zero exit code, will sleep before restarting.
-	This is needed for OSD flapping where OSD daemons are marked down more than 5 times in 600 seconds by Ceph.
-	Preventing the OSD pods to restart immediately in such scenarios will prevent Rook from marking OSD as `up` and thus
-	peering of the PGs mapped to the OSD.
-	User needs to manually restart the OSD pod if they manage to fix the underlying OSD flapping issue before the restart interval.
-	The sleep will be disabled if this interval is set to 0.
-	"""
+														FlappingRestartIntervalHours defines the time for which the OSD pods, that failed with zero exit code, will sleep before restarting.
+														This is needed for OSD flapping where OSD daemons are marked down more than 5 times in 600 seconds by Ceph.
+														Preventing the OSD pods to restart immediately in such scenarios will prevent Rook from marking OSD as `up` and thus
+														peering of the PGs mapped to the OSD.
+														User needs to manually restart the OSD pod if they manage to fix the underlying OSD flapping issue before the restart interval.
+														The sleep will be disabled if this interval is set to 0.
+														"""
 										type: "integer"
 									}
 									fullRatio: {
@@ -4900,9 +4720,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										description: "Migration handles the OSD migration"
 										properties: confirmation: {
 											description: """
-	A user confirmation to migrate the OSDs. It destroys each OSD one at a time, cleans up the backing disk
-	and prepares OSD with same ID on that disk
-	"""
+																A user confirmation to migrate the OSDs. It destroys each OSD one at a time, cleans up the backing disk
+																and prepares OSD with same ID on that disk
+																"""
 											pattern: "^$|^yes-really-migrate-osds$"
 											type:    "string"
 										}
@@ -4960,31 +4780,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													properties: {
 														claims: {
 															description: """
-	Claims lists the names of resources, defined in spec.resourceClaims,
-	that are used by this container.
+																			Claims lists the names of resources, defined in spec.resourceClaims,
+																			that are used by this container.
 
-	This is an alpha field and requires enabling the
-	DynamicResourceAllocation feature gate.
+																			This field depends on the
+																			DynamicResourceAllocation feature gate.
 
-	This field is immutable. It can only be set for containers.
-	"""
+																			This field is immutable. It can only be set for containers.
+																			"""
 															items: {
 																description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
 																properties: {
 																	name: {
 																		description: """
-	Name must match the name of one entry in pod.spec.resourceClaims of
-	the Pod where this field is used. It makes that resource available
-	inside a container.
-	"""
+																						Name must match the name of one entry in pod.spec.resourceClaims of
+																						the Pod where this field is used. It makes that resource available
+																						inside a container.
+																						"""
 																		type: "string"
 																	}
 																	request: {
 																		description: """
-	Request is the name chosen for a request in the referenced claim.
-	If empty, everything from the claim is made available, otherwise
-	only the result of this request.
-	"""
+																						Request is the name chosen for a request in the referenced claim.
+																						If empty, everything from the claim is made available, otherwise
+																						only the result of this request.
+																						"""
 																		type: "string"
 																	}
 																}
@@ -5006,9 +4826,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																"x-kubernetes-int-or-string": true
 															}
 															description: """
-	Limits describes the maximum amount of compute resources allowed.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																			Limits describes the maximum amount of compute resources allowed.
+																			More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																			"""
 															type: "object"
 														}
 														requests: {
@@ -5022,11 +4842,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																"x-kubernetes-int-or-string": true
 															}
 															description: """
-	Requests describes the minimum amount of compute resources required.
-	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
-	otherwise to an implementation-defined value. Requests cannot exceed Limits.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																			Requests describes the minimum amount of compute resources required.
+																			If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+																			otherwise to an implementation-defined value. Requests cannot exceed Limits.
+																			More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																			"""
 															type: "object"
 														}
 													}
@@ -5044,9 +4864,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														properties: {
 															metadata: {
 																description: """
-	Standard object's metadata.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-	"""
+																				Standard object's metadata.
+																				More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+																				"""
 																properties: {
 																	annotations: {
 																		additionalProperties: type: "string"
@@ -5067,37 +4887,37 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															}
 															spec: {
 																description: """
-	spec defines the desired characteristics of a volume requested by a pod author.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
-	"""
+																				spec defines the desired characteristics of a volume requested by a pod author.
+																				More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
+																				"""
 																properties: {
 																	accessModes: {
 																		description: """
-	accessModes contains the desired access modes the volume should have.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
-	"""
+																						accessModes contains the desired access modes the volume should have.
+																						More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
+																						"""
 																		items: type: "string"
 																		type:                     "array"
 																		"x-kubernetes-list-type": "atomic"
 																	}
 																	dataSource: {
 																		description: """
-	dataSource field can be used to specify either:
-	* An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot)
-	* An existing PVC (PersistentVolumeClaim)
-	If the provisioner or an external controller can support the specified data source,
-	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
-	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
-	"""
+																						dataSource field can be used to specify either:
+																						* An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot)
+																						* An existing PVC (PersistentVolumeClaim)
+																						If the provisioner or an external controller can support the specified data source,
+																						it will create a new volume based on the contents of the specified data source.
+																						When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
+																						and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+																						If the namespace is specified, then dataSourceRef will not be copied to dataSource.
+																						"""
 																		properties: {
 																			apiGroup: {
 																				description: """
-	APIGroup is the group for the resource being referenced.
-	If APIGroup is not specified, the specified Kind must be in the core API group.
-	For any other third-party types, APIGroup is required.
-	"""
+																								APIGroup is the group for the resource being referenced.
+																								If APIGroup is not specified, the specified Kind must be in the core API group.
+																								For any other third-party types, APIGroup is required.
+																								"""
 																				type: "string"
 																			}
 																			kind: {
@@ -5109,46 +4929,43 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type:        "string"
 																			}
 																		}
-																		required: [
-																			"kind",
-																			"name",
-																		]
+																		required: ["kind", "name"]
 																		type:                    "object"
 																		"x-kubernetes-map-type": "atomic"
 																	}
 																	dataSourceRef: {
 																		description: """
-	dataSourceRef specifies the object from which to populate the volume with data, if a non-empty
-	volume is desired. This may be any object from a non-empty API group (non
-	core object) or a PersistentVolumeClaim object.
-	When this field is specified, volume binding will only succeed if the type of
-	the specified object matches some installed volume populator or dynamic
-	provisioner.
-	This field will replace the functionality of the dataSource field and as such
-	if both fields are non-empty, they must have the same value. For backwards
-	compatibility, when namespace isn't specified in dataSourceRef,
-	both fields (dataSource and dataSourceRef) will be set to the same
-	value automatically if one of them is empty and the other is non-empty.
-	When namespace is specified in dataSourceRef,
-	dataSource isn't set to the same value and must be empty.
-	There are three important differences between dataSource and dataSourceRef:
-	* While dataSource only allows two specific types of objects, dataSourceRef
-	  allows any non-core object, as well as PersistentVolumeClaim objects.
-	* While dataSource ignores disallowed values (dropping them), dataSourceRef
-	  preserves all values, and generates an error if a disallowed value is
-	  specified.
-	* While dataSource only allows local objects, dataSourceRef allows objects
-	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
-	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
-	"""
+																						dataSourceRef specifies the object from which to populate the volume with data, if a non-empty
+																						volume is desired. This may be any object from a non-empty API group (non
+																						core object) or a PersistentVolumeClaim object.
+																						When this field is specified, volume binding will only succeed if the type of
+																						the specified object matches some installed volume populator or dynamic
+																						provisioner.
+																						This field will replace the functionality of the dataSource field and as such
+																						if both fields are non-empty, they must have the same value. For backwards
+																						compatibility, when namespace isn't specified in dataSourceRef,
+																						both fields (dataSource and dataSourceRef) will be set to the same
+																						value automatically if one of them is empty and the other is non-empty.
+																						When namespace is specified in dataSourceRef,
+																						dataSource isn't set to the same value and must be empty.
+																						There are three important differences between dataSource and dataSourceRef:
+																						* While dataSource only allows two specific types of objects, dataSourceRef
+																						  allows any non-core object, as well as PersistentVolumeClaim objects.
+																						* While dataSource ignores disallowed values (dropping them), dataSourceRef
+																						  preserves all values, and generates an error if a disallowed value is
+																						  specified.
+																						* While dataSource only allows local objects, dataSourceRef allows objects
+																						  in any namespaces.
+																						(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
+																						(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+																						"""
 																		properties: {
 																			apiGroup: {
 																				description: """
-	APIGroup is the group for the resource being referenced.
-	If APIGroup is not specified, the specified Kind must be in the core API group.
-	For any other third-party types, APIGroup is required.
-	"""
+																								APIGroup is the group for the resource being referenced.
+																								If APIGroup is not specified, the specified Kind must be in the core API group.
+																								For any other third-party types, APIGroup is required.
+																								"""
 																				type: "string"
 																			}
 																			kind: {
@@ -5161,27 +4978,24 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			}
 																			namespace: {
 																				description: """
-	Namespace is the namespace of resource being referenced
-	Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
-	(Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
-	"""
+																								Namespace is the namespace of resource being referenced
+																								Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
+																								(Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+																								"""
 																				type: "string"
 																			}
 																		}
-																		required: [
-																			"kind",
-																			"name",
-																		]
+																		required: ["kind", "name"]
 																		type: "object"
 																	}
 																	resources: {
 																		description: """
-	resources represents the minimum resources the volume should have.
-	If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
-	that are lower than previous value but must still be higher than capacity recorded in the
-	status field of the claim.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
-	"""
+																						resources represents the minimum resources the volume should have.
+																						Users are allowed to specify resource requirements
+																						that are lower than previous value but must still be higher than capacity recorded in the
+																						status field of the claim.
+																						More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
+																						"""
 																		properties: {
 																			limits: {
 																				additionalProperties: {
@@ -5194,9 +5008,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					"x-kubernetes-int-or-string": true
 																				}
 																				description: """
-	Limits describes the maximum amount of compute resources allowed.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																								Limits describes the maximum amount of compute resources allowed.
+																								More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																								"""
 																				type: "object"
 																			}
 																			requests: {
@@ -5210,11 +5024,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					"x-kubernetes-int-or-string": true
 																				}
 																				description: """
-	Requests describes the minimum amount of compute resources required.
-	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
-	otherwise to an implementation-defined value. Requests cannot exceed Limits.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																								Requests describes the minimum amount of compute resources required.
+																								If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+																								otherwise to an implementation-defined value. Requests cannot exceed Limits.
+																								More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																								"""
 																				type: "object"
 																			}
 																		}
@@ -5227,9 +5041,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																				items: {
 																					description: """
-	A label selector requirement is a selector that contains values, a key, and an operator that
-	relates the key and values.
-	"""
+																									A label selector requirement is a selector that contains values, a key, and an operator that
+																									relates the key and values.
+																									"""
 																					properties: {
 																						key: {
 																							description: "key is the label key that the selector applies to."
@@ -5237,27 +5051,24 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						}
 																						operator: {
 																							description: """
-	operator represents a key's relationship to a set of values.
-	Valid operators are In, NotIn, Exists and DoesNotExist.
-	"""
+																											operator represents a key's relationship to a set of values.
+																											Valid operators are In, NotIn, Exists and DoesNotExist.
+																											"""
 																							type: "string"
 																						}
 																						values: {
 																							description: """
-	values is an array of string values. If the operator is In or NotIn,
-	the values array must be non-empty. If the operator is Exists or DoesNotExist,
-	the values array must be empty. This array is replaced during a strategic
-	merge patch.
-	"""
+																											values is an array of string values. If the operator is In or NotIn,
+																											the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																											the values array must be empty. This array is replaced during a strategic
+																											merge patch.
+																											"""
 																							items: type: "string"
 																							type:                     "array"
 																							"x-kubernetes-list-type": "atomic"
 																						}
 																					}
-																					required: [
-																						"key",
-																						"operator",
-																					]
+																					required: ["key", "operator"]
 																					type: "object"
 																				}
 																				type:                     "array"
@@ -5266,10 +5077,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			matchLabels: {
 																				additionalProperties: type: "string"
 																				description: """
-	matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
-	map is equivalent to an element of matchExpressions, whose key field is "key", the
-	operator is "In", and the values array contains only "value". The requirements are ANDed.
-	"""
+																								matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+																								map is equivalent to an element of matchExpressions, whose key field is "key", the
+																								operator is "In", and the values array contains only "value". The requirements are ANDed.
+																								"""
 																				type: "object"
 																			}
 																		}
@@ -5278,33 +5089,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	}
 																	storageClassName: {
 																		description: """
-	storageClassName is the name of the StorageClass required by the claim.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
-	"""
+																						storageClassName is the name of the StorageClass required by the claim.
+																						More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
+																						"""
 																		type: "string"
 																	}
 																	volumeAttributesClassName: {
 																		description: """
-	volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
-	If specified, the CSI driver will create or update the volume with the attributes defined
-	in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
-	it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
-	will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
-	If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
-	will be set by the persistentvolume controller if it exists.
-	If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
-	set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
-	exists.
-	More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
-	(Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
-	"""
+																						volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
+																						If specified, the CSI driver will create or update the volume with the attributes defined
+																						in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
+																						it can be changed after the claim is created. An empty string or nil value indicates that no
+																						VolumeAttributesClass will be applied to the claim. If the claim enters an Infeasible error state,
+																						this field can be reset to its previous value (including nil) to cancel the modification.
+																						If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
+																						set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
+																						exists.
+																						More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
+																						"""
 																		type: "string"
 																	}
 																	volumeMode: {
 																		description: """
-	volumeMode defines what type of volume is required by the claim.
-	Value of Filesystem is implied when not included in claim spec.
-	"""
+																						volumeMode defines what type of volume is required by the claim.
+																						Value of Filesystem is implied when not included in claim spec.
+																						"""
 																		type: "string"
 																	}
 																	volumeName: {
@@ -5326,6 +5135,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type:     "array"
 									}
 									onlyApplyOSDPlacement: type: "boolean"
+									osdMaxUpdatesInParallel: {
+										description: "The maximum number of OSDs to update in parallel."
+										format:      "int32"
+										minimum:     1
+										type:        "integer"
+									}
 									scheduleAlways: {
 										description: "Whether to always schedule OSDs on a node even if the node is not currently scheduleable or ready"
 										type:        "boolean"
@@ -5375,10 +5190,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
-																							required: [
-																								"key",
-																								"operator",
-																							]
+																							required: ["key", "operator"]
 																							type: "object"
 																						}
 																						type:                     "array"
@@ -5395,10 +5207,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
-																							required: [
-																								"key",
-																								"operator",
-																							]
+																							required: ["key", "operator"]
 																							type: "object"
 																						}
 																						type:                     "array"
@@ -5413,10 +5222,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type:   "integer"
 																			}
 																		}
-																		required: [
-																			"preference",
-																			"weight",
-																		]
+																		required: ["preference", "weight"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -5437,10 +5243,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
-																						required: [
-																							"key",
-																							"operator",
-																						]
+																						required: ["key", "operator"]
 																						type: "object"
 																					}
 																					type:                     "array"
@@ -5457,10 +5260,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
-																						required: [
-																							"key",
-																							"operator",
-																						]
+																						required: ["key", "operator"]
 																						type: "object"
 																					}
 																					type:                     "array"
@@ -5500,10 +5300,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
-																									required: [
-																										"key",
-																										"operator",
-																									]
+																									required: ["key", "operator"]
 																									type: "object"
 																								}
 																								type:                     "array"
@@ -5540,10 +5337,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
-																									required: [
-																										"key",
-																										"operator",
-																									]
+																									required: ["key", "operator"]
 																									type: "object"
 																								}
 																								type:                     "array"
@@ -5572,10 +5366,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type:   "integer"
 																			}
 																		}
-																		required: [
-																			"podAffinityTerm",
-																			"weight",
-																		]
+																		required: ["podAffinityTerm", "weight"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -5597,10 +5388,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
-																							required: [
-																								"key",
-																								"operator",
-																							]
+																							required: ["key", "operator"]
 																							type: "object"
 																						}
 																						type:                     "array"
@@ -5637,10 +5425,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
-																							required: [
-																								"key",
-																								"operator",
-																							]
+																							required: ["key", "operator"]
 																							type: "object"
 																						}
 																						type:                     "array"
@@ -5690,10 +5475,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
-																									required: [
-																										"key",
-																										"operator",
-																									]
+																									required: ["key", "operator"]
 																									type: "object"
 																								}
 																								type:                     "array"
@@ -5730,10 +5512,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
-																									required: [
-																										"key",
-																										"operator",
-																									]
+																									required: ["key", "operator"]
 																									type: "object"
 																								}
 																								type:                     "array"
@@ -5762,10 +5541,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type:   "integer"
 																			}
 																		}
-																		required: [
-																			"podAffinityTerm",
-																			"weight",
-																		]
+																		required: ["podAffinityTerm", "weight"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -5787,10 +5563,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
-																							required: [
-																								"key",
-																								"operator",
-																							]
+																							required: ["key", "operator"]
 																							type: "object"
 																						}
 																						type:                     "array"
@@ -5827,10 +5600,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
-																							required: [
-																								"key",
-																								"operator",
-																							]
+																							required: ["key", "operator"]
 																							type: "object"
 																						}
 																						type:                     "array"
@@ -5892,10 +5662,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							"x-kubernetes-list-type": "atomic"
 																						}
 																					}
-																					required: [
-																						"key",
-																						"operator",
-																					]
+																					required: ["key", "operator"]
 																					type: "object"
 																				}
 																				type:                     "array"
@@ -5927,11 +5694,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	topologyKey: type:        "string"
 																	whenUnsatisfiable: type:  "string"
 																}
-																required: [
-																	"maxSkew",
-																	"topologyKey",
-																	"whenUnsatisfiable",
-																]
+																required: ["maxSkew", "topologyKey", "whenUnsatisfiable"]
 																type: "object"
 															}
 															type: "array"
@@ -5965,10 +5728,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
-																							required: [
-																								"key",
-																								"operator",
-																							]
+																							required: ["key", "operator"]
 																							type: "object"
 																						}
 																						type:                     "array"
@@ -5985,10 +5745,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
-																							required: [
-																								"key",
-																								"operator",
-																							]
+																							required: ["key", "operator"]
 																							type: "object"
 																						}
 																						type:                     "array"
@@ -6003,10 +5760,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type:   "integer"
 																			}
 																		}
-																		required: [
-																			"preference",
-																			"weight",
-																		]
+																		required: ["preference", "weight"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -6027,10 +5781,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
-																						required: [
-																							"key",
-																							"operator",
-																						]
+																						required: ["key", "operator"]
 																						type: "object"
 																					}
 																					type:                     "array"
@@ -6047,10 +5798,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
-																						required: [
-																							"key",
-																							"operator",
-																						]
+																						required: ["key", "operator"]
 																						type: "object"
 																					}
 																					type:                     "array"
@@ -6090,10 +5838,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
-																									required: [
-																										"key",
-																										"operator",
-																									]
+																									required: ["key", "operator"]
 																									type: "object"
 																								}
 																								type:                     "array"
@@ -6130,10 +5875,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
-																									required: [
-																										"key",
-																										"operator",
-																									]
+																									required: ["key", "operator"]
 																									type: "object"
 																								}
 																								type:                     "array"
@@ -6162,10 +5904,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type:   "integer"
 																			}
 																		}
-																		required: [
-																			"podAffinityTerm",
-																			"weight",
-																		]
+																		required: ["podAffinityTerm", "weight"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -6187,10 +5926,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
-																							required: [
-																								"key",
-																								"operator",
-																							]
+																							required: ["key", "operator"]
 																							type: "object"
 																						}
 																						type:                     "array"
@@ -6227,10 +5963,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
-																							required: [
-																								"key",
-																								"operator",
-																							]
+																							required: ["key", "operator"]
 																							type: "object"
 																						}
 																						type:                     "array"
@@ -6280,10 +6013,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
-																									required: [
-																										"key",
-																										"operator",
-																									]
+																									required: ["key", "operator"]
 																									type: "object"
 																								}
 																								type:                     "array"
@@ -6320,10 +6050,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
-																									required: [
-																										"key",
-																										"operator",
-																									]
+																									required: ["key", "operator"]
 																									type: "object"
 																								}
 																								type:                     "array"
@@ -6352,10 +6079,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type:   "integer"
 																			}
 																		}
-																		required: [
-																			"podAffinityTerm",
-																			"weight",
-																		]
+																		required: ["podAffinityTerm", "weight"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -6377,10 +6101,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
-																							required: [
-																								"key",
-																								"operator",
-																							]
+																							required: ["key", "operator"]
 																							type: "object"
 																						}
 																						type:                     "array"
@@ -6417,10 +6138,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
-																							required: [
-																								"key",
-																								"operator",
-																							]
+																							required: ["key", "operator"]
 																							type: "object"
 																						}
 																						type:                     "array"
@@ -6482,10 +6200,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							"x-kubernetes-list-type": "atomic"
 																						}
 																					}
-																					required: [
-																						"key",
-																						"operator",
-																					]
+																					required: ["key", "operator"]
 																					type: "object"
 																				}
 																				type:                     "array"
@@ -6517,11 +6232,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	topologyKey: type:        "string"
 																	whenUnsatisfiable: type:  "string"
 																}
-																required: [
-																	"maxSkew",
-																	"topologyKey",
-																	"whenUnsatisfiable",
-																]
+																required: ["maxSkew", "topologyKey", "whenUnsatisfiable"]
 																type: "object"
 															}
 															type: "array"
@@ -6536,31 +6247,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													properties: {
 														claims: {
 															description: """
-	Claims lists the names of resources, defined in spec.resourceClaims,
-	that are used by this container.
+																			Claims lists the names of resources, defined in spec.resourceClaims,
+																			that are used by this container.
 
-	This is an alpha field and requires enabling the
-	DynamicResourceAllocation feature gate.
+																			This field depends on the
+																			DynamicResourceAllocation feature gate.
 
-	This field is immutable. It can only be set for containers.
-	"""
+																			This field is immutable. It can only be set for containers.
+																			"""
 															items: {
 																description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
 																properties: {
 																	name: {
 																		description: """
-	Name must match the name of one entry in pod.spec.resourceClaims of
-	the Pod where this field is used. It makes that resource available
-	inside a container.
-	"""
+																						Name must match the name of one entry in pod.spec.resourceClaims of
+																						the Pod where this field is used. It makes that resource available
+																						inside a container.
+																						"""
 																		type: "string"
 																	}
 																	request: {
 																		description: """
-	Request is the name chosen for a request in the referenced claim.
-	If empty, everything from the claim is made available, otherwise
-	only the result of this request.
-	"""
+																						Request is the name chosen for a request in the referenced claim.
+																						If empty, everything from the claim is made available, otherwise
+																						only the result of this request.
+																						"""
 																		type: "string"
 																	}
 																}
@@ -6582,9 +6293,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																"x-kubernetes-int-or-string": true
 															}
 															description: """
-	Limits describes the maximum amount of compute resources allowed.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																			Limits describes the maximum amount of compute resources allowed.
+																			More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																			"""
 															type: "object"
 														}
 														requests: {
@@ -6598,11 +6309,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																"x-kubernetes-int-or-string": true
 															}
 															description: """
-	Requests describes the minimum amount of compute resources required.
-	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
-	otherwise to an implementation-defined value. Requests cannot exceed Limits.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																			Requests describes the minimum amount of compute resources required.
+																			If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+																			otherwise to an implementation-defined value. Requests cannot exceed Limits.
+																			More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																			"""
 															type: "object"
 														}
 													}
@@ -6628,9 +6339,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														properties: {
 															metadata: {
 																description: """
-	Standard object's metadata.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-	"""
+																				Standard object's metadata.
+																				More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+																				"""
 																properties: {
 																	annotations: {
 																		additionalProperties: type: "string"
@@ -6652,37 +6363,37 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															}
 															spec: {
 																description: """
-	spec defines the desired characteristics of a volume requested by a pod author.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
-	"""
+																				spec defines the desired characteristics of a volume requested by a pod author.
+																				More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
+																				"""
 																properties: {
 																	accessModes: {
 																		description: """
-	accessModes contains the desired access modes the volume should have.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
-	"""
+																						accessModes contains the desired access modes the volume should have.
+																						More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
+																						"""
 																		items: type: "string"
 																		type:                     "array"
 																		"x-kubernetes-list-type": "atomic"
 																	}
 																	dataSource: {
 																		description: """
-	dataSource field can be used to specify either:
-	* An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot)
-	* An existing PVC (PersistentVolumeClaim)
-	If the provisioner or an external controller can support the specified data source,
-	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
-	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
-	"""
+																						dataSource field can be used to specify either:
+																						* An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot)
+																						* An existing PVC (PersistentVolumeClaim)
+																						If the provisioner or an external controller can support the specified data source,
+																						it will create a new volume based on the contents of the specified data source.
+																						When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
+																						and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+																						If the namespace is specified, then dataSourceRef will not be copied to dataSource.
+																						"""
 																		properties: {
 																			apiGroup: {
 																				description: """
-	APIGroup is the group for the resource being referenced.
-	If APIGroup is not specified, the specified Kind must be in the core API group.
-	For any other third-party types, APIGroup is required.
-	"""
+																								APIGroup is the group for the resource being referenced.
+																								If APIGroup is not specified, the specified Kind must be in the core API group.
+																								For any other third-party types, APIGroup is required.
+																								"""
 																				type: "string"
 																			}
 																			kind: {
@@ -6694,46 +6405,43 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type:        "string"
 																			}
 																		}
-																		required: [
-																			"kind",
-																			"name",
-																		]
+																		required: ["kind", "name"]
 																		type:                    "object"
 																		"x-kubernetes-map-type": "atomic"
 																	}
 																	dataSourceRef: {
 																		description: """
-	dataSourceRef specifies the object from which to populate the volume with data, if a non-empty
-	volume is desired. This may be any object from a non-empty API group (non
-	core object) or a PersistentVolumeClaim object.
-	When this field is specified, volume binding will only succeed if the type of
-	the specified object matches some installed volume populator or dynamic
-	provisioner.
-	This field will replace the functionality of the dataSource field and as such
-	if both fields are non-empty, they must have the same value. For backwards
-	compatibility, when namespace isn't specified in dataSourceRef,
-	both fields (dataSource and dataSourceRef) will be set to the same
-	value automatically if one of them is empty and the other is non-empty.
-	When namespace is specified in dataSourceRef,
-	dataSource isn't set to the same value and must be empty.
-	There are three important differences between dataSource and dataSourceRef:
-	* While dataSource only allows two specific types of objects, dataSourceRef
-	  allows any non-core object, as well as PersistentVolumeClaim objects.
-	* While dataSource ignores disallowed values (dropping them), dataSourceRef
-	  preserves all values, and generates an error if a disallowed value is
-	  specified.
-	* While dataSource only allows local objects, dataSourceRef allows objects
-	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
-	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
-	"""
+																						dataSourceRef specifies the object from which to populate the volume with data, if a non-empty
+																						volume is desired. This may be any object from a non-empty API group (non
+																						core object) or a PersistentVolumeClaim object.
+																						When this field is specified, volume binding will only succeed if the type of
+																						the specified object matches some installed volume populator or dynamic
+																						provisioner.
+																						This field will replace the functionality of the dataSource field and as such
+																						if both fields are non-empty, they must have the same value. For backwards
+																						compatibility, when namespace isn't specified in dataSourceRef,
+																						both fields (dataSource and dataSourceRef) will be set to the same
+																						value automatically if one of them is empty and the other is non-empty.
+																						When namespace is specified in dataSourceRef,
+																						dataSource isn't set to the same value and must be empty.
+																						There are three important differences between dataSource and dataSourceRef:
+																						* While dataSource only allows two specific types of objects, dataSourceRef
+																						  allows any non-core object, as well as PersistentVolumeClaim objects.
+																						* While dataSource ignores disallowed values (dropping them), dataSourceRef
+																						  preserves all values, and generates an error if a disallowed value is
+																						  specified.
+																						* While dataSource only allows local objects, dataSourceRef allows objects
+																						  in any namespaces.
+																						(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
+																						(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+																						"""
 																		properties: {
 																			apiGroup: {
 																				description: """
-	APIGroup is the group for the resource being referenced.
-	If APIGroup is not specified, the specified Kind must be in the core API group.
-	For any other third-party types, APIGroup is required.
-	"""
+																								APIGroup is the group for the resource being referenced.
+																								If APIGroup is not specified, the specified Kind must be in the core API group.
+																								For any other third-party types, APIGroup is required.
+																								"""
 																				type: "string"
 																			}
 																			kind: {
@@ -6746,27 +6454,24 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			}
 																			namespace: {
 																				description: """
-	Namespace is the namespace of resource being referenced
-	Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
-	(Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
-	"""
+																								Namespace is the namespace of resource being referenced
+																								Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
+																								(Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+																								"""
 																				type: "string"
 																			}
 																		}
-																		required: [
-																			"kind",
-																			"name",
-																		]
+																		required: ["kind", "name"]
 																		type: "object"
 																	}
 																	resources: {
 																		description: """
-	resources represents the minimum resources the volume should have.
-	If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
-	that are lower than previous value but must still be higher than capacity recorded in the
-	status field of the claim.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
-	"""
+																						resources represents the minimum resources the volume should have.
+																						Users are allowed to specify resource requirements
+																						that are lower than previous value but must still be higher than capacity recorded in the
+																						status field of the claim.
+																						More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
+																						"""
 																		properties: {
 																			limits: {
 																				additionalProperties: {
@@ -6779,9 +6484,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					"x-kubernetes-int-or-string": true
 																				}
 																				description: """
-	Limits describes the maximum amount of compute resources allowed.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																								Limits describes the maximum amount of compute resources allowed.
+																								More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																								"""
 																				type: "object"
 																			}
 																			requests: {
@@ -6795,11 +6500,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					"x-kubernetes-int-or-string": true
 																				}
 																				description: """
-	Requests describes the minimum amount of compute resources required.
-	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
-	otherwise to an implementation-defined value. Requests cannot exceed Limits.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																								Requests describes the minimum amount of compute resources required.
+																								If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+																								otherwise to an implementation-defined value. Requests cannot exceed Limits.
+																								More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																								"""
 																				type: "object"
 																			}
 																		}
@@ -6812,9 +6517,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																				items: {
 																					description: """
-	A label selector requirement is a selector that contains values, a key, and an operator that
-	relates the key and values.
-	"""
+																									A label selector requirement is a selector that contains values, a key, and an operator that
+																									relates the key and values.
+																									"""
 																					properties: {
 																						key: {
 																							description: "key is the label key that the selector applies to."
@@ -6822,27 +6527,24 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						}
 																						operator: {
 																							description: """
-	operator represents a key's relationship to a set of values.
-	Valid operators are In, NotIn, Exists and DoesNotExist.
-	"""
+																											operator represents a key's relationship to a set of values.
+																											Valid operators are In, NotIn, Exists and DoesNotExist.
+																											"""
 																							type: "string"
 																						}
 																						values: {
 																							description: """
-	values is an array of string values. If the operator is In or NotIn,
-	the values array must be non-empty. If the operator is Exists or DoesNotExist,
-	the values array must be empty. This array is replaced during a strategic
-	merge patch.
-	"""
+																											values is an array of string values. If the operator is In or NotIn,
+																											the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																											the values array must be empty. This array is replaced during a strategic
+																											merge patch.
+																											"""
 																							items: type: "string"
 																							type:                     "array"
 																							"x-kubernetes-list-type": "atomic"
 																						}
 																					}
-																					required: [
-																						"key",
-																						"operator",
-																					]
+																					required: ["key", "operator"]
 																					type: "object"
 																				}
 																				type:                     "array"
@@ -6851,10 +6553,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			matchLabels: {
 																				additionalProperties: type: "string"
 																				description: """
-	matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
-	map is equivalent to an element of matchExpressions, whose key field is "key", the
-	operator is "In", and the values array contains only "value". The requirements are ANDed.
-	"""
+																								matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+																								map is equivalent to an element of matchExpressions, whose key field is "key", the
+																								operator is "In", and the values array contains only "value". The requirements are ANDed.
+																								"""
 																				type: "object"
 																			}
 																		}
@@ -6863,33 +6565,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	}
 																	storageClassName: {
 																		description: """
-	storageClassName is the name of the StorageClass required by the claim.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
-	"""
+																						storageClassName is the name of the StorageClass required by the claim.
+																						More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
+																						"""
 																		type: "string"
 																	}
 																	volumeAttributesClassName: {
 																		description: """
-	volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
-	If specified, the CSI driver will create or update the volume with the attributes defined
-	in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
-	it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
-	will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
-	If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
-	will be set by the persistentvolume controller if it exists.
-	If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
-	set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
-	exists.
-	More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
-	(Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
-	"""
+																						volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
+																						If specified, the CSI driver will create or update the volume with the attributes defined
+																						in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
+																						it can be changed after the claim is created. An empty string or nil value indicates that no
+																						VolumeAttributesClass will be applied to the claim. If the claim enters an Infeasible error state,
+																						this field can be reset to its previous value (including nil) to cancel the modification.
+																						If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
+																						set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
+																						exists.
+																						More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
+																						"""
 																		type: "string"
 																	}
 																	volumeMode: {
 																		description: """
-	volumeMode defines what type of volume is required by the claim.
-	Value of Filesystem is implied when not included in claim spec.
-	"""
+																						volumeMode defines what type of volume is required by the claim.
+																						Value of Filesystem is implied when not included in claim spec.
+																						"""
 																		type: "string"
 																	}
 																	volumeName: {
@@ -6905,11 +6605,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type: "array"
 												}
 											}
-											required: [
-												"count",
-												"name",
-												"volumeClaimTemplates",
-											]
+											required: ["count", "name", "volumeClaimTemplates"]
 											type: "object"
 										}
 										nullable: true
@@ -6920,17 +6616,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											type: {
 												description: "Type of backend storage to be used while creating OSDs. If empty, then bluestore will be used"
-												enum: [
-													"bluestore",
-													"bluestore-rdr",
-												]
+												enum: ["bluestore", "bluestore-rdr"]
 												type: "string"
 											}
 											updateStore: {
 												description: """
-	UpdateStore updates the backend store for existing OSDs. It destroys each OSD one at a time, cleans up the backing disk
-	and prepares same OSD on that disk
-	"""
+																UpdateStore updates the backend store for existing OSDs. It destroys each OSD one at a time, cleans up the backing disk
+																and prepares same OSD on that disk
+																"""
 												pattern: "^$|^yes-really-update-store$"
 												type:    "string"
 											}
@@ -6949,9 +6642,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											properties: {
 												metadata: {
 													description: """
-	Standard object's metadata.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-	"""
+																	Standard object's metadata.
+																	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+																	"""
 													properties: {
 														annotations: {
 															additionalProperties: type: "string"
@@ -6972,37 +6665,37 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												}
 												spec: {
 													description: """
-	spec defines the desired characteristics of a volume requested by a pod author.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
-	"""
+																	spec defines the desired characteristics of a volume requested by a pod author.
+																	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
+																	"""
 													properties: {
 														accessModes: {
 															description: """
-	accessModes contains the desired access modes the volume should have.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
-	"""
+																			accessModes contains the desired access modes the volume should have.
+																			More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
+																			"""
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
 														}
 														dataSource: {
 															description: """
-	dataSource field can be used to specify either:
-	* An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot)
-	* An existing PVC (PersistentVolumeClaim)
-	If the provisioner or an external controller can support the specified data source,
-	it will create a new volume based on the contents of the specified data source.
-	When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-	and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
-	If the namespace is specified, then dataSourceRef will not be copied to dataSource.
-	"""
+																			dataSource field can be used to specify either:
+																			* An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot)
+																			* An existing PVC (PersistentVolumeClaim)
+																			If the provisioner or an external controller can support the specified data source,
+																			it will create a new volume based on the contents of the specified data source.
+																			When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
+																			and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+																			If the namespace is specified, then dataSourceRef will not be copied to dataSource.
+																			"""
 															properties: {
 																apiGroup: {
 																	description: """
-	APIGroup is the group for the resource being referenced.
-	If APIGroup is not specified, the specified Kind must be in the core API group.
-	For any other third-party types, APIGroup is required.
-	"""
+																					APIGroup is the group for the resource being referenced.
+																					If APIGroup is not specified, the specified Kind must be in the core API group.
+																					For any other third-party types, APIGroup is required.
+																					"""
 																	type: "string"
 																}
 																kind: {
@@ -7014,46 +6707,43 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type:        "string"
 																}
 															}
-															required: [
-																"kind",
-																"name",
-															]
+															required: ["kind", "name"]
 															type:                    "object"
 															"x-kubernetes-map-type": "atomic"
 														}
 														dataSourceRef: {
 															description: """
-	dataSourceRef specifies the object from which to populate the volume with data, if a non-empty
-	volume is desired. This may be any object from a non-empty API group (non
-	core object) or a PersistentVolumeClaim object.
-	When this field is specified, volume binding will only succeed if the type of
-	the specified object matches some installed volume populator or dynamic
-	provisioner.
-	This field will replace the functionality of the dataSource field and as such
-	if both fields are non-empty, they must have the same value. For backwards
-	compatibility, when namespace isn't specified in dataSourceRef,
-	both fields (dataSource and dataSourceRef) will be set to the same
-	value automatically if one of them is empty and the other is non-empty.
-	When namespace is specified in dataSourceRef,
-	dataSource isn't set to the same value and must be empty.
-	There are three important differences between dataSource and dataSourceRef:
-	* While dataSource only allows two specific types of objects, dataSourceRef
-	  allows any non-core object, as well as PersistentVolumeClaim objects.
-	* While dataSource ignores disallowed values (dropping them), dataSourceRef
-	  preserves all values, and generates an error if a disallowed value is
-	  specified.
-	* While dataSource only allows local objects, dataSourceRef allows objects
-	  in any namespaces.
-	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
-	(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
-	"""
+																			dataSourceRef specifies the object from which to populate the volume with data, if a non-empty
+																			volume is desired. This may be any object from a non-empty API group (non
+																			core object) or a PersistentVolumeClaim object.
+																			When this field is specified, volume binding will only succeed if the type of
+																			the specified object matches some installed volume populator or dynamic
+																			provisioner.
+																			This field will replace the functionality of the dataSource field and as such
+																			if both fields are non-empty, they must have the same value. For backwards
+																			compatibility, when namespace isn't specified in dataSourceRef,
+																			both fields (dataSource and dataSourceRef) will be set to the same
+																			value automatically if one of them is empty and the other is non-empty.
+																			When namespace is specified in dataSourceRef,
+																			dataSource isn't set to the same value and must be empty.
+																			There are three important differences between dataSource and dataSourceRef:
+																			* While dataSource only allows two specific types of objects, dataSourceRef
+																			  allows any non-core object, as well as PersistentVolumeClaim objects.
+																			* While dataSource ignores disallowed values (dropping them), dataSourceRef
+																			  preserves all values, and generates an error if a disallowed value is
+																			  specified.
+																			* While dataSource only allows local objects, dataSourceRef allows objects
+																			  in any namespaces.
+																			(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
+																			(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+																			"""
 															properties: {
 																apiGroup: {
 																	description: """
-	APIGroup is the group for the resource being referenced.
-	If APIGroup is not specified, the specified Kind must be in the core API group.
-	For any other third-party types, APIGroup is required.
-	"""
+																					APIGroup is the group for the resource being referenced.
+																					If APIGroup is not specified, the specified Kind must be in the core API group.
+																					For any other third-party types, APIGroup is required.
+																					"""
 																	type: "string"
 																}
 																kind: {
@@ -7066,27 +6756,24 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																}
 																namespace: {
 																	description: """
-	Namespace is the namespace of resource being referenced
-	Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
-	(Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
-	"""
+																					Namespace is the namespace of resource being referenced
+																					Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
+																					(Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+																					"""
 																	type: "string"
 																}
 															}
-															required: [
-																"kind",
-																"name",
-															]
+															required: ["kind", "name"]
 															type: "object"
 														}
 														resources: {
 															description: """
-	resources represents the minimum resources the volume should have.
-	If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
-	that are lower than previous value but must still be higher than capacity recorded in the
-	status field of the claim.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
-	"""
+																			resources represents the minimum resources the volume should have.
+																			Users are allowed to specify resource requirements
+																			that are lower than previous value but must still be higher than capacity recorded in the
+																			status field of the claim.
+																			More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
+																			"""
 															properties: {
 																limits: {
 																	additionalProperties: {
@@ -7099,9 +6786,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		"x-kubernetes-int-or-string": true
 																	}
 																	description: """
-	Limits describes the maximum amount of compute resources allowed.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																					Limits describes the maximum amount of compute resources allowed.
+																					More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																					"""
 																	type: "object"
 																}
 																requests: {
@@ -7115,11 +6802,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		"x-kubernetes-int-or-string": true
 																	}
 																	description: """
-	Requests describes the minimum amount of compute resources required.
-	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
-	otherwise to an implementation-defined value. Requests cannot exceed Limits.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																					Requests describes the minimum amount of compute resources required.
+																					If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+																					otherwise to an implementation-defined value. Requests cannot exceed Limits.
+																					More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																					"""
 																	type: "object"
 																}
 															}
@@ -7132,9 +6819,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																	items: {
 																		description: """
-	A label selector requirement is a selector that contains values, a key, and an operator that
-	relates the key and values.
-	"""
+																						A label selector requirement is a selector that contains values, a key, and an operator that
+																						relates the key and values.
+																						"""
 																		properties: {
 																			key: {
 																				description: "key is the label key that the selector applies to."
@@ -7142,27 +6829,24 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			}
 																			operator: {
 																				description: """
-	operator represents a key's relationship to a set of values.
-	Valid operators are In, NotIn, Exists and DoesNotExist.
-	"""
+																								operator represents a key's relationship to a set of values.
+																								Valid operators are In, NotIn, Exists and DoesNotExist.
+																								"""
 																				type: "string"
 																			}
 																			values: {
 																				description: """
-	values is an array of string values. If the operator is In or NotIn,
-	the values array must be non-empty. If the operator is Exists or DoesNotExist,
-	the values array must be empty. This array is replaced during a strategic
-	merge patch.
-	"""
+																								values is an array of string values. If the operator is In or NotIn,
+																								the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																								the values array must be empty. This array is replaced during a strategic
+																								merge patch.
+																								"""
 																				items: type: "string"
 																				type:                     "array"
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -7171,10 +6855,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																matchLabels: {
 																	additionalProperties: type: "string"
 																	description: """
-	matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
-	map is equivalent to an element of matchExpressions, whose key field is "key", the
-	operator is "In", and the values array contains only "value". The requirements are ANDed.
-	"""
+																					matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+																					map is equivalent to an element of matchExpressions, whose key field is "key", the
+																					operator is "In", and the values array contains only "value". The requirements are ANDed.
+																					"""
 																	type: "object"
 																}
 															}
@@ -7183,33 +6867,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														storageClassName: {
 															description: """
-	storageClassName is the name of the StorageClass required by the claim.
-	More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
-	"""
+																			storageClassName is the name of the StorageClass required by the claim.
+																			More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
+																			"""
 															type: "string"
 														}
 														volumeAttributesClassName: {
 															description: """
-	volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
-	If specified, the CSI driver will create or update the volume with the attributes defined
-	in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
-	it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
-	will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
-	If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
-	will be set by the persistentvolume controller if it exists.
-	If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
-	set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
-	exists.
-	More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
-	(Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
-	"""
+																			volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
+																			If specified, the CSI driver will create or update the volume with the attributes defined
+																			in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
+																			it can be changed after the claim is created. An empty string or nil value indicates that no
+																			VolumeAttributesClass will be applied to the claim. If the claim enters an Infeasible error state,
+																			this field can be reset to its previous value (including nil) to cancel the modification.
+																			If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
+																			set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
+																			exists.
+																			More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
+																			"""
 															type: "string"
 														}
 														volumeMode: {
 															description: """
-	volumeMode defines what type of volume is required by the claim.
-	Value of Filesystem is implied when not included in claim spec.
-	"""
+																			volumeMode defines what type of volume is required by the claim.
+																			Value of Filesystem is implied when not included in claim spec.
+																			"""
 															type: "string"
 														}
 														volumeName: {
@@ -7229,20 +6911,20 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							upgradeOSDRequiresHealthyPGs: {
 								description: """
-	UpgradeOSDRequiresHealthyPGs defines if OSD upgrade requires PGs are clean. If set to `true` OSD upgrade process won't start until PGs are healthy.
-	This configuration will be ignored if `skipUpgradeChecks` is `true`.
-	Default is false.
-	"""
+												UpgradeOSDRequiresHealthyPGs defines if OSD upgrade requires PGs are clean. If set to `true` OSD upgrade process won't start until PGs are healthy.
+												This configuration will be ignored if `skipUpgradeChecks` is `true`.
+												Default is false.
+												"""
 								type: "boolean"
 							}
 							waitTimeoutForHealthyOSDInMinutes: {
 								description: """
-	WaitTimeoutForHealthyOSDInMinutes defines the time the operator would wait before an OSD can be stopped for upgrade or restart.
-	If the timeout exceeds and OSD is not ok to stop, then the operator would skip upgrade for the current OSD and proceed with the next one
-	if `continueUpgradeAfterChecksEvenIfNotHealthy` is `false`. If `continueUpgradeAfterChecksEvenIfNotHealthy` is `true`, then operator would
-	continue with the upgrade of an OSD even if its not ok to stop after the timeout. This timeout won't be applied if `skipUpgradeChecks` is `true`.
-	The default wait timeout is 10 minutes.
-	"""
+												WaitTimeoutForHealthyOSDInMinutes defines the time the operator would wait before an OSD can be stopped for upgrade or restart.
+												If the timeout exceeds and OSD is not ok to stop, then the operator would skip upgrade for the current OSD and proceed with the next one
+												if `continueUpgradeAfterChecksEvenIfNotHealthy` is `false`. If `continueUpgradeAfterChecksEvenIfNotHealthy` is `true`, then operator would
+												continue with the upgrade of an OSD even if its not ok to stop after the timeout. This timeout won't be applied if `skipUpgradeChecks` is `true`.
+												The default wait timeout is 10 minutes.
+												"""
 								format: "int64"
 								type:   "integer"
 							}
@@ -7282,10 +6964,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												message: type:  "string"
 												severity: type: "string"
 											}
-											required: [
-												"message",
-												"severity",
-											]
+											required: ["message", "severity"]
 											type: "object"
 										}
 										type: "object"
@@ -7347,28 +7026,56 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							cephx: {
 								description: "ClusterCephxStatus defines the cephx key rotation status of various daemons on the cephCluster resource"
 								properties: {
+									admin: {
+										description: "Admin shows the CephX key status for the client.admin key"
+										properties: {
+											keyCephVersion: {
+												description: """
+																KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+																same string format as reported by `CephCluster.status.version.version` to allow them to be
+																compared. E.g., `20.2.0-0`.
+																For all newly-created resources, this field set to the version of Ceph that created the key.
+																The special value "Uninitialized" indicates that keys are being created for the first time.
+																An empty string indicates that the version is unknown, as expected in brownfield deployments.
+																"""
+												type: "string"
+											}
+											keyGeneration: {
+												description: """
+																KeyGeneration represents the CephX key generation for the last successful reconcile.
+																For all newly-created resources, this field is set to `1`.
+																When keys are rotated due to any rotation policy, the generation is incremented or updated to
+																the configured policy generation.
+																Generation `0` indicates that keys existed prior to the implementation of key tracking.
+																"""
+												format: "int32"
+												type:   "integer"
+											}
+										}
+										type: "object"
+									}
 									cephExporter: {
 										description: "Ceph Exporter represents the cephx key rotation status of the ceph exporter daemon"
 										properties: {
 											keyCephVersion: {
 												description: """
-	KeyCephVersion reports the Ceph version that created the current generation's keys. This is
-	same string format as reported by `CephCluster.status.version.version` to allow them to be
-	compared. E.g., `20.2.0-0`.
-	For all newly-created resources, this field set to the version of Ceph that created the key.
-	The special value "Uninitialized" indicates that keys are being created for the first time.
-	An empty string indicates that the version is unknown, as expected in brownfield deployments.
-	"""
+																KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+																same string format as reported by `CephCluster.status.version.version` to allow them to be
+																compared. E.g., `20.2.0-0`.
+																For all newly-created resources, this field set to the version of Ceph that created the key.
+																The special value "Uninitialized" indicates that keys are being created for the first time.
+																An empty string indicates that the version is unknown, as expected in brownfield deployments.
+																"""
 												type: "string"
 											}
 											keyGeneration: {
 												description: """
-	KeyGeneration represents the CephX key generation for the last successful reconcile.
-	For all newly-created resources, this field is set to `1`.
-	When keys are rotated due to any rotation policy, the generation is incremented or updated to
-	the configured policy generation.
-	Generation `0` indicates that keys existed prior to the implementation of key tracking.
-	"""
+																KeyGeneration represents the CephX key generation for the last successful reconcile.
+																For all newly-created resources, this field is set to `1`.
+																When keys are rotated due to any rotation policy, the generation is incremented or updated to
+																the configured policy generation.
+																Generation `0` indicates that keys existed prior to the implementation of key tracking.
+																"""
 												format: "int32"
 												type:   "integer"
 											}
@@ -7380,23 +7087,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											keyCephVersion: {
 												description: """
-	KeyCephVersion reports the Ceph version that created the current generation's keys. This is
-	same string format as reported by `CephCluster.status.version.version` to allow them to be
-	compared. E.g., `20.2.0-0`.
-	For all newly-created resources, this field set to the version of Ceph that created the key.
-	The special value "Uninitialized" indicates that keys are being created for the first time.
-	An empty string indicates that the version is unknown, as expected in brownfield deployments.
-	"""
+																KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+																same string format as reported by `CephCluster.status.version.version` to allow them to be
+																compared. E.g., `20.2.0-0`.
+																For all newly-created resources, this field set to the version of Ceph that created the key.
+																The special value "Uninitialized" indicates that keys are being created for the first time.
+																An empty string indicates that the version is unknown, as expected in brownfield deployments.
+																"""
 												type: "string"
 											}
 											keyGeneration: {
 												description: """
-	KeyGeneration represents the CephX key generation for the last successful reconcile.
-	For all newly-created resources, this field is set to `1`.
-	When keys are rotated due to any rotation policy, the generation is incremented or updated to
-	the configured policy generation.
-	Generation `0` indicates that keys existed prior to the implementation of key tracking.
-	"""
+																KeyGeneration represents the CephX key generation for the last successful reconcile.
+																For all newly-created resources, this field is set to `1`.
+																When keys are rotated due to any rotation policy, the generation is incremented or updated to
+																the configured policy generation.
+																Generation `0` indicates that keys existed prior to the implementation of key tracking.
+																"""
 												format: "int32"
 												type:   "integer"
 											}
@@ -7408,23 +7115,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											keyCephVersion: {
 												description: """
-	KeyCephVersion reports the Ceph version that created the current generation's keys. This is
-	same string format as reported by `CephCluster.status.version.version` to allow them to be
-	compared. E.g., `20.2.0-0`.
-	For all newly-created resources, this field set to the version of Ceph that created the key.
-	The special value "Uninitialized" indicates that keys are being created for the first time.
-	An empty string indicates that the version is unknown, as expected in brownfield deployments.
-	"""
+																KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+																same string format as reported by `CephCluster.status.version.version` to allow them to be
+																compared. E.g., `20.2.0-0`.
+																For all newly-created resources, this field set to the version of Ceph that created the key.
+																The special value "Uninitialized" indicates that keys are being created for the first time.
+																An empty string indicates that the version is unknown, as expected in brownfield deployments.
+																"""
 												type: "string"
 											}
 											keyGeneration: {
 												description: """
-	KeyGeneration represents the CephX key generation for the last successful reconcile.
-	For all newly-created resources, this field is set to `1`.
-	When keys are rotated due to any rotation policy, the generation is incremented or updated to
-	the configured policy generation.
-	Generation `0` indicates that keys existed prior to the implementation of key tracking.
-	"""
+																KeyGeneration represents the CephX key generation for the last successful reconcile.
+																For all newly-created resources, this field is set to `1`.
+																When keys are rotated due to any rotation policy, the generation is incremented or updated to
+																the configured policy generation.
+																Generation `0` indicates that keys existed prior to the implementation of key tracking.
+																"""
 												format: "int32"
 												type:   "integer"
 											}
@@ -7440,23 +7147,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											keyCephVersion: {
 												description: """
-	KeyCephVersion reports the Ceph version that created the current generation's keys. This is
-	same string format as reported by `CephCluster.status.version.version` to allow them to be
-	compared. E.g., `20.2.0-0`.
-	For all newly-created resources, this field set to the version of Ceph that created the key.
-	The special value "Uninitialized" indicates that keys are being created for the first time.
-	An empty string indicates that the version is unknown, as expected in brownfield deployments.
-	"""
+																KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+																same string format as reported by `CephCluster.status.version.version` to allow them to be
+																compared. E.g., `20.2.0-0`.
+																For all newly-created resources, this field set to the version of Ceph that created the key.
+																The special value "Uninitialized" indicates that keys are being created for the first time.
+																An empty string indicates that the version is unknown, as expected in brownfield deployments.
+																"""
 												type: "string"
 											}
 											keyGeneration: {
 												description: """
-	KeyGeneration represents the CephX key generation for the last successful reconcile.
-	For all newly-created resources, this field is set to `1`.
-	When keys are rotated due to any rotation policy, the generation is incremented or updated to
-	the configured policy generation.
-	Generation `0` indicates that keys existed prior to the implementation of key tracking.
-	"""
+																KeyGeneration represents the CephX key generation for the last successful reconcile.
+																For all newly-created resources, this field is set to `1`.
+																When keys are rotated due to any rotation policy, the generation is incremented or updated to
+																the configured policy generation.
+																Generation `0` indicates that keys existed prior to the implementation of key tracking.
+																"""
 												format: "int32"
 												type:   "integer"
 											}
@@ -7468,23 +7175,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											keyCephVersion: {
 												description: """
-	KeyCephVersion reports the Ceph version that created the current generation's keys. This is
-	same string format as reported by `CephCluster.status.version.version` to allow them to be
-	compared. E.g., `20.2.0-0`.
-	For all newly-created resources, this field set to the version of Ceph that created the key.
-	The special value "Uninitialized" indicates that keys are being created for the first time.
-	An empty string indicates that the version is unknown, as expected in brownfield deployments.
-	"""
+																KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+																same string format as reported by `CephCluster.status.version.version` to allow them to be
+																compared. E.g., `20.2.0-0`.
+																For all newly-created resources, this field set to the version of Ceph that created the key.
+																The special value "Uninitialized" indicates that keys are being created for the first time.
+																An empty string indicates that the version is unknown, as expected in brownfield deployments.
+																"""
 												type: "string"
 											}
 											keyGeneration: {
 												description: """
-	KeyGeneration represents the CephX key generation for the last successful reconcile.
-	For all newly-created resources, this field is set to `1`.
-	When keys are rotated due to any rotation policy, the generation is incremented or updated to
-	the configured policy generation.
-	Generation `0` indicates that keys existed prior to the implementation of key tracking.
-	"""
+																KeyGeneration represents the CephX key generation for the last successful reconcile.
+																For all newly-created resources, this field is set to `1`.
+																When keys are rotated due to any rotation policy, the generation is incremented or updated to
+																the configured policy generation.
+																Generation `0` indicates that keys existed prior to the implementation of key tracking.
+																"""
 												format: "int32"
 												type:   "integer"
 											}
@@ -7496,23 +7203,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											keyCephVersion: {
 												description: """
-	KeyCephVersion reports the Ceph version that created the current generation's keys. This is
-	same string format as reported by `CephCluster.status.version.version` to allow them to be
-	compared. E.g., `20.2.0-0`.
-	For all newly-created resources, this field set to the version of Ceph that created the key.
-	The special value "Uninitialized" indicates that keys are being created for the first time.
-	An empty string indicates that the version is unknown, as expected in brownfield deployments.
-	"""
+																KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+																same string format as reported by `CephCluster.status.version.version` to allow them to be
+																compared. E.g., `20.2.0-0`.
+																For all newly-created resources, this field set to the version of Ceph that created the key.
+																The special value "Uninitialized" indicates that keys are being created for the first time.
+																An empty string indicates that the version is unknown, as expected in brownfield deployments.
+																"""
 												type: "string"
 											}
 											keyGeneration: {
 												description: """
-	KeyGeneration represents the CephX key generation for the last successful reconcile.
-	For all newly-created resources, this field is set to `1`.
-	When keys are rotated due to any rotation policy, the generation is incremented or updated to
-	the configured policy generation.
-	Generation `0` indicates that keys existed prior to the implementation of key tracking.
-	"""
+																KeyGeneration represents the CephX key generation for the last successful reconcile.
+																For all newly-created resources, this field is set to `1`.
+																When keys are rotated due to any rotation policy, the generation is incremented or updated to
+																the configured policy generation.
+																Generation `0` indicates that keys existed prior to the implementation of key tracking.
+																"""
 												format: "int32"
 												type:   "integer"
 											}
@@ -7524,23 +7231,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											keyCephVersion: {
 												description: """
-	KeyCephVersion reports the Ceph version that created the current generation's keys. This is
-	same string format as reported by `CephCluster.status.version.version` to allow them to be
-	compared. E.g., `20.2.0-0`.
-	For all newly-created resources, this field set to the version of Ceph that created the key.
-	The special value "Uninitialized" indicates that keys are being created for the first time.
-	An empty string indicates that the version is unknown, as expected in brownfield deployments.
-	"""
+																KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+																same string format as reported by `CephCluster.status.version.version` to allow them to be
+																compared. E.g., `20.2.0-0`.
+																For all newly-created resources, this field set to the version of Ceph that created the key.
+																The special value "Uninitialized" indicates that keys are being created for the first time.
+																An empty string indicates that the version is unknown, as expected in brownfield deployments.
+																"""
 												type: "string"
 											}
 											keyGeneration: {
 												description: """
-	KeyGeneration represents the CephX key generation for the last successful reconcile.
-	For all newly-created resources, this field is set to `1`.
-	When keys are rotated due to any rotation policy, the generation is incremented or updated to
-	the configured policy generation.
-	Generation `0` indicates that keys existed prior to the implementation of key tracking.
-	"""
+																KeyGeneration represents the CephX key generation for the last successful reconcile.
+																For all newly-created resources, this field is set to `1`.
+																When keys are rotated due to any rotation policy, the generation is incremented or updated to
+																the configured policy generation.
+																Generation `0` indicates that keys existed prior to the implementation of key tracking.
+																"""
 												format: "int32"
 												type:   "integer"
 											}
@@ -7641,10 +7348,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						"x-kubernetes-preserve-unknown-fields": true
 					}
 				}
-				required: [
-					"metadata",
-					"spec",
-				]
+				required: ["metadata", "spec"]
 				type: "object"
 			}
 			served:  true
@@ -7660,10 +7364,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephCOSIDriver"
 			listKind: "CephCOSIDriverList"
 			plural:   "cephcosidrivers"
-			shortNames: ["cephcosi"]
+			shortNames: [
+				"cephcosi",
+			]
 			singular: "cephcosidriver"
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
 			name: "v1"
 			schema: openAPIV3Schema: {
@@ -7671,21 +7377,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
 						type: "string"
 					}
 					metadata: type: "object"
@@ -7694,11 +7400,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						properties: {
 							deploymentStrategy: {
 								description: "DeploymentStrategy is the strategy to use to deploy the COSI driver."
-								enum: [
-									"Never",
-									"Auto",
-									"Always",
-								]
+								enum: ["Never", "Auto", "Always"]
 								type: "string"
 							}
 							image: {
@@ -7729,10 +7431,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -7749,10 +7448,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -7767,10 +7463,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:   "integer"
 														}
 													}
-													required: [
-														"preference",
-														"weight",
-													]
+													required: ["preference", "weight"]
 													type: "object"
 												}
 												type:                     "array"
@@ -7791,10 +7484,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																	}
-																	required: [
-																		"key",
-																		"operator",
-																	]
+																	required: ["key", "operator"]
 																	type: "object"
 																}
 																type:                     "array"
@@ -7811,10 +7501,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																	}
-																	required: [
-																		"key",
-																		"operator",
-																	]
+																	required: ["key", "operator"]
 																	type: "object"
 																}
 																type:                     "array"
@@ -7854,10 +7541,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -7894,10 +7578,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -7926,10 +7607,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:   "integer"
 														}
 													}
-													required: [
-														"podAffinityTerm",
-														"weight",
-													]
+													required: ["podAffinityTerm", "weight"]
 													type: "object"
 												}
 												type:                     "array"
@@ -7951,10 +7629,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -7991,10 +7666,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -8044,10 +7716,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -8084,10 +7753,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -8116,10 +7782,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:   "integer"
 														}
 													}
-													required: [
-														"podAffinityTerm",
-														"weight",
-													]
+													required: ["podAffinityTerm", "weight"]
 													type: "object"
 												}
 												type:                     "array"
@@ -8141,10 +7804,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -8181,10 +7841,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -8246,10 +7903,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		"x-kubernetes-list-type": "atomic"
 																	}
 																}
-																required: [
-																	"key",
-																	"operator",
-																]
+																required: ["key", "operator"]
 																type: "object"
 															}
 															type:                     "array"
@@ -8281,11 +7935,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												topologyKey: type:        "string"
 												whenUnsatisfiable: type:  "string"
 											}
-											required: [
-												"maxSkew",
-												"topologyKey",
-												"whenUnsatisfiable",
-											]
+											required: ["maxSkew", "topologyKey", "whenUnsatisfiable"]
 											type: "object"
 										}
 										type: "array"
@@ -8298,31 +7948,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								properties: {
 									claims: {
 										description: """
-	Claims lists the names of resources, defined in spec.resourceClaims,
-	that are used by this container.
+														Claims lists the names of resources, defined in spec.resourceClaims,
+														that are used by this container.
 
-	This is an alpha field and requires enabling the
-	DynamicResourceAllocation feature gate.
+														This field depends on the
+														DynamicResourceAllocation feature gate.
 
-	This field is immutable. It can only be set for containers.
-	"""
+														This field is immutable. It can only be set for containers.
+														"""
 										items: {
 											description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
 											properties: {
 												name: {
 													description: """
-	Name must match the name of one entry in pod.spec.resourceClaims of
-	the Pod where this field is used. It makes that resource available
-	inside a container.
-	"""
+																	Name must match the name of one entry in pod.spec.resourceClaims of
+																	the Pod where this field is used. It makes that resource available
+																	inside a container.
+																	"""
 													type: "string"
 												}
 												request: {
 													description: """
-	Request is the name chosen for a request in the referenced claim.
-	If empty, everything from the claim is made available, otherwise
-	only the result of this request.
-	"""
+																	Request is the name chosen for a request in the referenced claim.
+																	If empty, everything from the claim is made available, otherwise
+																	only the result of this request.
+																	"""
 													type: "string"
 												}
 											}
@@ -8344,9 +7994,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											"x-kubernetes-int-or-string": true
 										}
 										description: """
-	Limits describes the maximum amount of compute resources allowed.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+														Limits describes the maximum amount of compute resources allowed.
+														More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+														"""
 										type: "object"
 									}
 									requests: {
@@ -8360,11 +8010,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											"x-kubernetes-int-or-string": true
 										}
 										description: """
-	Requests describes the minimum amount of compute resources required.
-	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
-	otherwise to an implementation-defined value. Requests cannot exceed Limits.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+														Requests describes the minimum amount of compute resources required.
+														If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+														otherwise to an implementation-defined value. Requests cannot exceed Limits.
+														More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+														"""
 										type: "object"
 									}
 								}
@@ -8374,10 +8024,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						type: "object"
 					}
 				}
-				required: [
-					"metadata",
-					"spec",
-				]
+				required: ["metadata", "spec"]
 				type: "object"
 			}
 			served:  true
@@ -8392,10 +8039,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephFilesystemMirror"
 			listKind: "CephFilesystemMirrorList"
 			plural:   "cephfilesystemmirrors"
-			shortNames: ["cephfsm"]
+			shortNames: [
+				"cephfsm",
+			]
 			singular: "cephfilesystemmirror"
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.phase"
@@ -8412,21 +8061,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
 						type: "string"
 					}
 					metadata: type: "object"
@@ -8466,10 +8115,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -8486,10 +8132,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -8504,10 +8147,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:   "integer"
 														}
 													}
-													required: [
-														"preference",
-														"weight",
-													]
+													required: ["preference", "weight"]
 													type: "object"
 												}
 												type:                     "array"
@@ -8528,10 +8168,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																	}
-																	required: [
-																		"key",
-																		"operator",
-																	]
+																	required: ["key", "operator"]
 																	type: "object"
 																}
 																type:                     "array"
@@ -8548,10 +8185,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																	}
-																	required: [
-																		"key",
-																		"operator",
-																	]
+																	required: ["key", "operator"]
 																	type: "object"
 																}
 																type:                     "array"
@@ -8591,10 +8225,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -8631,10 +8262,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -8663,10 +8291,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:   "integer"
 														}
 													}
-													required: [
-														"podAffinityTerm",
-														"weight",
-													]
+													required: ["podAffinityTerm", "weight"]
 													type: "object"
 												}
 												type:                     "array"
@@ -8688,10 +8313,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -8728,10 +8350,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -8781,10 +8400,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -8821,10 +8437,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -8853,10 +8466,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:   "integer"
 														}
 													}
-													required: [
-														"podAffinityTerm",
-														"weight",
-													]
+													required: ["podAffinityTerm", "weight"]
 													type: "object"
 												}
 												type:                     "array"
@@ -8878,10 +8488,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -8918,10 +8525,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -8983,10 +8587,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		"x-kubernetes-list-type": "atomic"
 																	}
 																}
-																required: [
-																	"key",
-																	"operator",
-																]
+																required: ["key", "operator"]
 																type: "object"
 															}
 															type:                     "array"
@@ -9018,11 +8619,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												topologyKey: type:        "string"
 												whenUnsatisfiable: type:  "string"
 											}
-											required: [
-												"maxSkew",
-												"topologyKey",
-												"whenUnsatisfiable",
-											]
+											required: ["maxSkew", "topologyKey", "whenUnsatisfiable"]
 											type: "object"
 										}
 										type: "array"
@@ -9040,31 +8637,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								properties: {
 									claims: {
 										description: """
-	Claims lists the names of resources, defined in spec.resourceClaims,
-	that are used by this container.
+														Claims lists the names of resources, defined in spec.resourceClaims,
+														that are used by this container.
 
-	This is an alpha field and requires enabling the
-	DynamicResourceAllocation feature gate.
+														This field depends on the
+														DynamicResourceAllocation feature gate.
 
-	This field is immutable. It can only be set for containers.
-	"""
+														This field is immutable. It can only be set for containers.
+														"""
 										items: {
 											description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
 											properties: {
 												name: {
 													description: """
-	Name must match the name of one entry in pod.spec.resourceClaims of
-	the Pod where this field is used. It makes that resource available
-	inside a container.
-	"""
+																	Name must match the name of one entry in pod.spec.resourceClaims of
+																	the Pod where this field is used. It makes that resource available
+																	inside a container.
+																	"""
 													type: "string"
 												}
 												request: {
 													description: """
-	Request is the name chosen for a request in the referenced claim.
-	If empty, everything from the claim is made available, otherwise
-	only the result of this request.
-	"""
+																	Request is the name chosen for a request in the referenced claim.
+																	If empty, everything from the claim is made available, otherwise
+																	only the result of this request.
+																	"""
 													type: "string"
 												}
 											}
@@ -9086,9 +8683,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											"x-kubernetes-int-or-string": true
 										}
 										description: """
-	Limits describes the maximum amount of compute resources allowed.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+														Limits describes the maximum amount of compute resources allowed.
+														More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+														"""
 										type: "object"
 									}
 									requests: {
@@ -9102,11 +8699,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											"x-kubernetes-int-or-string": true
 										}
 										description: """
-	Requests describes the minimum amount of compute resources required.
-	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
-	otherwise to an implementation-defined value. Requests cannot exceed Limits.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+														Requests describes the minimum amount of compute resources required.
+														If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+														otherwise to an implementation-defined value. Requests cannot exceed Limits.
+														More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+														"""
 										type: "object"
 									}
 								}
@@ -9124,23 +8721,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									properties: {
 										keyCephVersion: {
 											description: """
-	KeyCephVersion reports the Ceph version that created the current generation's keys. This is
-	same string format as reported by `CephCluster.status.version.version` to allow them to be
-	compared. E.g., `20.2.0-0`.
-	For all newly-created resources, this field set to the version of Ceph that created the key.
-	The special value "Uninitialized" indicates that keys are being created for the first time.
-	An empty string indicates that the version is unknown, as expected in brownfield deployments.
-	"""
+																KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+																same string format as reported by `CephCluster.status.version.version` to allow them to be
+																compared. E.g., `20.2.0-0`.
+																For all newly-created resources, this field set to the version of Ceph that created the key.
+																The special value "Uninitialized" indicates that keys are being created for the first time.
+																An empty string indicates that the version is unknown, as expected in brownfield deployments.
+																"""
 											type: "string"
 										}
 										keyGeneration: {
 											description: """
-	KeyGeneration represents the CephX key generation for the last successful reconcile.
-	For all newly-created resources, this field is set to `1`.
-	When keys are rotated due to any rotation policy, the generation is incremented or updated to
-	the configured policy generation.
-	Generation `0` indicates that keys existed prior to the implementation of key tracking.
-	"""
+																KeyGeneration represents the CephX key generation for the last successful reconcile.
+																For all newly-created resources, this field is set to `1`.
+																When keys are rotated due to any rotation policy, the generation is incremented or updated to
+																the configured policy generation.
+																Generation `0` indicates that keys existed prior to the implementation of key tracking.
+																"""
 											format: "int32"
 											type:   "integer"
 										}
@@ -9186,10 +8783,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						type: "object"
 					}
 				}
-				required: [
-					"metadata",
-					"spec",
-				]
+				required: ["metadata", "spec"]
 				type: "object"
 			}
 			served:  true
@@ -9205,10 +8799,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephFilesystem"
 			listKind: "CephFilesystemList"
 			plural:   "cephfilesystems"
-			shortNames: ["cephfs"]
+			shortNames: [
+				"cephfs",
+			]
 			singular: "cephfilesystem"
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
 			additionalPrinterColumns: [{
 				description: "Number of desired active MDS daemons"
@@ -9230,21 +8826,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
 						type: "string"
 					}
 					metadata: type: "object"
@@ -9262,17 +8858,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										}
 										compressionMode: {
 											description: """
-	DEPRECATED: use Parameters instead, e.g., Parameters["compression_mode"] = "force"
-	The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)
-	Do NOT set a default value for kubebuilder as this will override the Parameters
-	"""
-											enum: [
-												"none",
-												"passive",
-												"aggressive",
-												"force",
-												"",
-											]
+															DEPRECATED: use Parameters instead, e.g., Parameters["compression_mode"] = "force"
+															The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)
+															Do NOT set a default value for kubebuilder as this will override the Parameters
+															"""
+											enum: ["none", "passive", "aggressive", "force", ""]
 											nullable: true
 											type:     "string"
 										}
@@ -9288,6 +8878,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										}
 										enableCrushUpdates: {
 											description: "Allow rook operator to change the pool CRUSH tunables once the pool is created"
+											nullable:    true
 											type:        "boolean"
 										}
 										enableRBDStats: {
@@ -9299,37 +8890,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											properties: {
 												algorithm: {
 													description: """
-	The algorithm for erasure coding.
-	If absent, defaults to the plugin specified in osd_pool_default_erasure_code_profile.
-	"""
-													enum: [
-														"isa",
-														"jerasure",
-													]
+																	The algorithm for erasure coding.
+																	If absent, defaults to the plugin specified in osd_pool_default_erasure_code_profile.
+																	"""
+													enum: ["isa", "jerasure"]
 													type: "string"
 												}
 												codingChunks: {
 													description: """
-	Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
-	This is the number of OSDs that can be lost simultaneously before data cannot be recovered.
-	"""
+																	Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+																	This is the number of OSDs that can be lost simultaneously before data cannot be recovered.
+																	"""
 													minimum: 0
 													type:    "integer"
 												}
 												dataChunks: {
 													description: """
-	Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
-	The number of chunks required to recover an object when any single OSD is lost is the same
-	as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery.
-	"""
+																	Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+																	The number of chunks required to recover an object when any single OSD is lost is the same
+																	as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery.
+																	"""
 													minimum: 0
 													type:    "integer"
 												}
 											}
-											required: [
-												"codingChunks",
-												"dataChunks",
-											]
+											required: ["codingChunks", "dataChunks"]
 											type: "object"
 										}
 										failureDomain: {
@@ -9345,11 +8930,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												}
 												mode: {
 													description: "Mode is the mirroring mode: pool, image or init-only."
-													enum: [
-														"pool",
-														"image",
-														"init-only",
-													]
+													enum: ["pool", "image", "init-only"]
 													type: "string"
 												}
 												peers: {
@@ -9404,9 +8985,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											properties: {
 												maxBytes: {
 													description: """
-	MaxBytes represents the quota in bytes
-	Deprecated in favor of MaxSize
-	"""
+																	MaxBytes represents the quota in bytes
+																	Deprecated in favor of MaxSize
+																	"""
 													format: "int64"
 													type:   "integer"
 												}
@@ -9441,10 +9022,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:        "string"
 														}
 													}
-													required: [
-														"primaryDeviceClass",
-														"secondaryDeviceClass",
-													]
+													required: ["primaryDeviceClass", "secondaryDeviceClass"]
 													type: "object"
 												}
 												replicasPerFailureDomain: {
@@ -9508,17 +9086,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									compressionMode: {
 										description: """
-	DEPRECATED: use Parameters instead, e.g., Parameters["compression_mode"] = "force"
-	The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)
-	Do NOT set a default value for kubebuilder as this will override the Parameters
-	"""
-										enum: [
-											"none",
-											"passive",
-											"aggressive",
-											"force",
-											"",
-										]
+														DEPRECATED: use Parameters instead, e.g., Parameters["compression_mode"] = "force"
+														The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)
+														Do NOT set a default value for kubebuilder as this will override the Parameters
+														"""
+										enum: ["none", "passive", "aggressive", "force", ""]
 										nullable: true
 										type:     "string"
 									}
@@ -9534,6 +9106,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									enableCrushUpdates: {
 										description: "Allow rook operator to change the pool CRUSH tunables once the pool is created"
+										nullable:    true
 										type:        "boolean"
 									}
 									enableRBDStats: {
@@ -9545,37 +9118,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											algorithm: {
 												description: """
-	The algorithm for erasure coding.
-	If absent, defaults to the plugin specified in osd_pool_default_erasure_code_profile.
-	"""
-												enum: [
-													"isa",
-													"jerasure",
-												]
+																The algorithm for erasure coding.
+																If absent, defaults to the plugin specified in osd_pool_default_erasure_code_profile.
+																"""
+												enum: ["isa", "jerasure"]
 												type: "string"
 											}
 											codingChunks: {
 												description: """
-	Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
-	This is the number of OSDs that can be lost simultaneously before data cannot be recovered.
-	"""
+																Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+																This is the number of OSDs that can be lost simultaneously before data cannot be recovered.
+																"""
 												minimum: 0
 												type:    "integer"
 											}
 											dataChunks: {
 												description: """
-	Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
-	The number of chunks required to recover an object when any single OSD is lost is the same
-	as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery.
-	"""
+																Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+																The number of chunks required to recover an object when any single OSD is lost is the same
+																as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery.
+																"""
 												minimum: 0
 												type:    "integer"
 											}
 										}
-										required: [
-											"codingChunks",
-											"dataChunks",
-										]
+										required: ["codingChunks", "dataChunks"]
 										type: "object"
 									}
 									failureDomain: {
@@ -9591,11 +9158,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											mode: {
 												description: "Mode is the mirroring mode: pool, image or init-only."
-												enum: [
-													"pool",
-													"image",
-													"init-only",
-												]
+												enum: ["pool", "image", "init-only"]
 												type: "string"
 											}
 											peers: {
@@ -9650,9 +9213,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											maxBytes: {
 												description: """
-	MaxBytes represents the quota in bytes
-	Deprecated in favor of MaxSize
-	"""
+																MaxBytes represents the quota in bytes
+																Deprecated in favor of MaxSize
+																"""
 												format: "int64"
 												type:   "integer"
 											}
@@ -9687,10 +9250,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:        "string"
 													}
 												}
-												required: [
-													"primaryDeviceClass",
-													"secondaryDeviceClass",
-												]
+												required: ["primaryDeviceClass", "secondaryDeviceClass"]
 												type: "object"
 											}
 											replicasPerFailureDomain: {
@@ -9753,9 +9313,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									activeStandby: {
 										description: """
-	Whether each active MDS instance will have an active standby with a warm metadata cache for faster failover.
-	If false, standbys will still be available, but will not have a warm metadata cache.
-	"""
+														Whether each active MDS instance will have an active standby with a warm metadata cache for faster failover.
+														If false, standbys will still be available, but will not have a warm metadata cache.
+														"""
 										type: "boolean"
 									}
 									annotations: {
@@ -9764,6 +9324,26 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										nullable:                               true
 										type:                                   "object"
 										"x-kubernetes-preserve-unknown-fields": true
+									}
+									cacheMemoryLimitFactor: {
+										description: """
+														CacheMemoryLimitFactor is the factor applied to the memory limit to determine the MDS cache memory limit.
+														MDS cache memory limit should be set to 50-60% of RAM reserved for the MDS container.
+														MDS uses approximately 125% of the value of mds_cache_memory_limit in RAM.
+														This factor is applied when resources.limits.memory is set.
+														"""
+										maximum: 1
+										minimum: 0
+										type:    "number"
+									}
+									cacheMemoryRequestFactor: {
+										description: """
+														CacheMemoryRequestFactor is the factor applied to the memory request to determine the MDS cache memory limit.
+														This factor is applied when resources.requests.memory is set and resources.limits.memory is not set.
+														"""
+										maximum: 1
+										minimum: 0
+										type:    "number"
 									}
 									labels: {
 										additionalProperties: type: "string"
@@ -9781,20 +9361,20 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											probe: {
 												description: """
-	Probe describes a health check to be performed against a container to determine whether it is
-	alive or ready to receive traffic.
-	"""
+																Probe describes a health check to be performed against a container to determine whether it is
+																alive or ready to receive traffic.
+																"""
 												properties: {
 													exec: {
 														description: "Exec specifies a command to execute in the container."
 														properties: command: {
 															description: """
-	Command is the command line to execute inside the container, the working directory for the
-	command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
-	not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
-	a shell, you need to explicitly call out to that shell.
-	Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
-	"""
+																				Command is the command line to execute inside the container, the working directory for the
+																				command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
+																				not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
+																				a shell, you need to explicitly call out to that shell.
+																				Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+																				"""
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
@@ -9803,9 +9383,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													failureThreshold: {
 														description: """
-	Minimum consecutive failures for the probe to be considered failed after having succeeded.
-	Defaults to 3. Minimum value is 1.
-	"""
+																		Minimum consecutive failures for the probe to be considered failed after having succeeded.
+																		Defaults to 3. Minimum value is 1.
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
@@ -9820,11 +9400,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															service: {
 																default: ""
 																description: """
-	Service is the name of the service to place in the gRPC HealthCheckRequest
-	(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+																				Service is the name of the service to place in the gRPC HealthCheckRequest
+																				(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
 
-	If this is not specified, the default behavior is defined by gRPC.
-	"""
+																				If this is not specified, the default behavior is defined by gRPC.
+																				"""
 																type: "string"
 															}
 														}
@@ -9836,9 +9416,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														properties: {
 															host: {
 																description: """
-	Host name to connect to, defaults to the pod IP. You probably want to set
-	"Host" in httpHeaders instead.
-	"""
+																				Host name to connect to, defaults to the pod IP. You probably want to set
+																				"Host" in httpHeaders instead.
+																				"""
 																type: "string"
 															}
 															httpHeaders: {
@@ -9848,9 +9428,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	properties: {
 																		name: {
 																			description: """
-	The header field name.
-	This will be canonicalized upon output, so case-variant names will be understood as the same header.
-	"""
+																							The header field name.
+																							This will be canonicalized upon output, so case-variant names will be understood as the same header.
+																							"""
 																			type: "string"
 																		}
 																		value: {
@@ -9858,10 +9438,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			type:        "string"
 																		}
 																	}
-																	required: [
-																		"name",
-																		"value",
-																	]
+																	required: ["name", "value"]
 																	type: "object"
 																}
 																type:                     "array"
@@ -9878,17 +9455,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type: "string"
 																}]
 																description: """
-	Name or number of the port to access on the container.
-	Number must be in the range 1 to 65535.
-	Name must be an IANA_SVC_NAME.
-	"""
+																				Name or number of the port to access on the container.
+																				Number must be in the range 1 to 65535.
+																				Name must be an IANA_SVC_NAME.
+																				"""
 																"x-kubernetes-int-or-string": true
 															}
 															scheme: {
 																description: """
-	Scheme to use for connecting to the host.
-	Defaults to HTTP.
-	"""
+																				Scheme to use for connecting to the host.
+																				Defaults to HTTP.
+																				"""
 																type: "string"
 															}
 														}
@@ -9897,25 +9474,25 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													initialDelaySeconds: {
 														description: """
-	Number of seconds after the container has started before liveness probes are initiated.
-	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-	"""
+																		Number of seconds after the container has started before liveness probes are initiated.
+																		More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
 													periodSeconds: {
 														description: """
-	How often (in seconds) to perform the probe.
-	Default to 10 seconds. Minimum value is 1.
-	"""
+																		How often (in seconds) to perform the probe.
+																		Default to 10 seconds. Minimum value is 1.
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
 													successThreshold: {
 														description: """
-	Minimum consecutive successes for the probe to be considered successful after having failed.
-	Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
-	"""
+																		Minimum consecutive successes for the probe to be considered successful after having failed.
+																		Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
@@ -9933,10 +9510,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type: "string"
 																}]
 																description: """
-	Number or name of the port to access on the container.
-	Number must be in the range 1 to 65535.
-	Name must be an IANA_SVC_NAME.
-	"""
+																				Number or name of the port to access on the container.
+																				Number must be in the range 1 to 65535.
+																				Name must be an IANA_SVC_NAME.
+																				"""
 																"x-kubernetes-int-or-string": true
 															}
 														}
@@ -9949,10 +9526,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													timeoutSeconds: {
 														description: """
-	Number of seconds after which the probe times out.
-	Defaults to 1 second. Minimum value is 1.
-	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-	"""
+																		Number of seconds after which the probe times out.
+																		Defaults to 1 second. Minimum value is 1.
+																		More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
@@ -9983,10 +9560,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -10003,10 +9577,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -10021,10 +9592,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type:   "integer"
 																}
 															}
-															required: [
-																"preference",
-																"weight",
-															]
+															required: ["preference", "weight"]
 															type: "object"
 														}
 														type:                     "array"
@@ -10045,10 +9613,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
-																			required: [
-																				"key",
-																				"operator",
-																			]
+																			required: ["key", "operator"]
 																			type: "object"
 																		}
 																		type:                     "array"
@@ -10065,10 +9630,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
-																			required: [
-																				"key",
-																				"operator",
-																			]
+																			required: ["key", "operator"]
 																			type: "object"
 																		}
 																		type:                     "array"
@@ -10108,10 +9670,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
-																						required: [
-																							"key",
-																							"operator",
-																						]
+																						required: ["key", "operator"]
 																						type: "object"
 																					}
 																					type:                     "array"
@@ -10148,10 +9707,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
-																						required: [
-																							"key",
-																							"operator",
-																						]
+																						required: ["key", "operator"]
 																						type: "object"
 																					}
 																					type:                     "array"
@@ -10180,10 +9736,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type:   "integer"
 																}
 															}
-															required: [
-																"podAffinityTerm",
-																"weight",
-															]
+															required: ["podAffinityTerm", "weight"]
 															type: "object"
 														}
 														type:                     "array"
@@ -10205,10 +9758,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -10245,10 +9795,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -10298,10 +9845,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
-																						required: [
-																							"key",
-																							"operator",
-																						]
+																						required: ["key", "operator"]
 																						type: "object"
 																					}
 																					type:                     "array"
@@ -10338,10 +9882,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
-																						required: [
-																							"key",
-																							"operator",
-																						]
+																						required: ["key", "operator"]
 																						type: "object"
 																					}
 																					type:                     "array"
@@ -10370,10 +9911,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type:   "integer"
 																}
 															}
-															required: [
-																"podAffinityTerm",
-																"weight",
-															]
+															required: ["podAffinityTerm", "weight"]
 															type: "object"
 														}
 														type:                     "array"
@@ -10395,10 +9933,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -10435,10 +9970,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -10500,10 +10032,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -10535,11 +10064,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														topologyKey: type:        "string"
 														whenUnsatisfiable: type:  "string"
 													}
-													required: [
-														"maxSkew",
-														"topologyKey",
-														"whenUnsatisfiable",
-													]
+													required: ["maxSkew", "topologyKey", "whenUnsatisfiable"]
 													type: "object"
 												}
 												type: "array"
@@ -10558,31 +10083,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											claims: {
 												description: """
-	Claims lists the names of resources, defined in spec.resourceClaims,
-	that are used by this container.
+																Claims lists the names of resources, defined in spec.resourceClaims,
+																that are used by this container.
 
-	This is an alpha field and requires enabling the
-	DynamicResourceAllocation feature gate.
+																This field depends on the
+																DynamicResourceAllocation feature gate.
 
-	This field is immutable. It can only be set for containers.
-	"""
+																This field is immutable. It can only be set for containers.
+																"""
 												items: {
 													description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
 													properties: {
 														name: {
 															description: """
-	Name must match the name of one entry in pod.spec.resourceClaims of
-	the Pod where this field is used. It makes that resource available
-	inside a container.
-	"""
+																			Name must match the name of one entry in pod.spec.resourceClaims of
+																			the Pod where this field is used. It makes that resource available
+																			inside a container.
+																			"""
 															type: "string"
 														}
 														request: {
 															description: """
-	Request is the name chosen for a request in the referenced claim.
-	If empty, everything from the claim is made available, otherwise
-	only the result of this request.
-	"""
+																			Request is the name chosen for a request in the referenced claim.
+																			If empty, everything from the claim is made available, otherwise
+																			only the result of this request.
+																			"""
 															type: "string"
 														}
 													}
@@ -10604,9 +10129,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													"x-kubernetes-int-or-string": true
 												}
 												description: """
-	Limits describes the maximum amount of compute resources allowed.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																Limits describes the maximum amount of compute resources allowed.
+																More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																"""
 												type: "object"
 											}
 											requests: {
@@ -10620,11 +10145,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													"x-kubernetes-int-or-string": true
 												}
 												description: """
-	Requests describes the minimum amount of compute resources required.
-	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
-	otherwise to an implementation-defined value. Requests cannot exceed Limits.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																Requests describes the minimum amount of compute resources required.
+																If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+																otherwise to an implementation-defined value. Requests cannot exceed Limits.
+																More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																"""
 												type: "object"
 											}
 										}
@@ -10640,20 +10165,20 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											probe: {
 												description: """
-	Probe describes a health check to be performed against a container to determine whether it is
-	alive or ready to receive traffic.
-	"""
+																Probe describes a health check to be performed against a container to determine whether it is
+																alive or ready to receive traffic.
+																"""
 												properties: {
 													exec: {
 														description: "Exec specifies a command to execute in the container."
 														properties: command: {
 															description: """
-	Command is the command line to execute inside the container, the working directory for the
-	command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
-	not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
-	a shell, you need to explicitly call out to that shell.
-	Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
-	"""
+																				Command is the command line to execute inside the container, the working directory for the
+																				command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
+																				not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
+																				a shell, you need to explicitly call out to that shell.
+																				Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+																				"""
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
@@ -10662,9 +10187,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													failureThreshold: {
 														description: """
-	Minimum consecutive failures for the probe to be considered failed after having succeeded.
-	Defaults to 3. Minimum value is 1.
-	"""
+																		Minimum consecutive failures for the probe to be considered failed after having succeeded.
+																		Defaults to 3. Minimum value is 1.
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
@@ -10679,11 +10204,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															service: {
 																default: ""
 																description: """
-	Service is the name of the service to place in the gRPC HealthCheckRequest
-	(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+																				Service is the name of the service to place in the gRPC HealthCheckRequest
+																				(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
 
-	If this is not specified, the default behavior is defined by gRPC.
-	"""
+																				If this is not specified, the default behavior is defined by gRPC.
+																				"""
 																type: "string"
 															}
 														}
@@ -10695,9 +10220,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														properties: {
 															host: {
 																description: """
-	Host name to connect to, defaults to the pod IP. You probably want to set
-	"Host" in httpHeaders instead.
-	"""
+																				Host name to connect to, defaults to the pod IP. You probably want to set
+																				"Host" in httpHeaders instead.
+																				"""
 																type: "string"
 															}
 															httpHeaders: {
@@ -10707,9 +10232,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	properties: {
 																		name: {
 																			description: """
-	The header field name.
-	This will be canonicalized upon output, so case-variant names will be understood as the same header.
-	"""
+																							The header field name.
+																							This will be canonicalized upon output, so case-variant names will be understood as the same header.
+																							"""
 																			type: "string"
 																		}
 																		value: {
@@ -10717,10 +10242,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			type:        "string"
 																		}
 																	}
-																	required: [
-																		"name",
-																		"value",
-																	]
+																	required: ["name", "value"]
 																	type: "object"
 																}
 																type:                     "array"
@@ -10737,17 +10259,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type: "string"
 																}]
 																description: """
-	Name or number of the port to access on the container.
-	Number must be in the range 1 to 65535.
-	Name must be an IANA_SVC_NAME.
-	"""
+																				Name or number of the port to access on the container.
+																				Number must be in the range 1 to 65535.
+																				Name must be an IANA_SVC_NAME.
+																				"""
 																"x-kubernetes-int-or-string": true
 															}
 															scheme: {
 																description: """
-	Scheme to use for connecting to the host.
-	Defaults to HTTP.
-	"""
+																				Scheme to use for connecting to the host.
+																				Defaults to HTTP.
+																				"""
 																type: "string"
 															}
 														}
@@ -10756,25 +10278,25 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													initialDelaySeconds: {
 														description: """
-	Number of seconds after the container has started before liveness probes are initiated.
-	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-	"""
+																		Number of seconds after the container has started before liveness probes are initiated.
+																		More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
 													periodSeconds: {
 														description: """
-	How often (in seconds) to perform the probe.
-	Default to 10 seconds. Minimum value is 1.
-	"""
+																		How often (in seconds) to perform the probe.
+																		Default to 10 seconds. Minimum value is 1.
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
 													successThreshold: {
 														description: """
-	Minimum consecutive successes for the probe to be considered successful after having failed.
-	Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
-	"""
+																		Minimum consecutive successes for the probe to be considered successful after having failed.
+																		Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
@@ -10792,10 +10314,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type: "string"
 																}]
 																description: """
-	Number or name of the port to access on the container.
-	Number must be in the range 1 to 65535.
-	Name must be an IANA_SVC_NAME.
-	"""
+																				Number or name of the port to access on the container.
+																				Number must be in the range 1 to 65535.
+																				Name must be an IANA_SVC_NAME.
+																				"""
 																"x-kubernetes-int-or-string": true
 															}
 														}
@@ -10808,10 +10330,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													timeoutSeconds: {
 														description: """
-	Number of seconds after which the probe times out.
-	Defaults to 1 second. Minimum value is 1.
-	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-	"""
+																		Number of seconds after which the probe times out.
+																		Defaults to 1 second. Minimum value is 1.
+																		More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
@@ -10845,10 +10367,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									snapshotRetention: {
 										description: """
-	Retention is the retention policy for a snapshot schedule
-	One path has exactly one retention policy.
-	A policy can however contain multiple count-time period pairs in order to specify complex retention policies
-	"""
+														Retention is the retention policy for a snapshot schedule
+														One path has exactly one retention policy.
+														A policy can however contain multiple count-time period pairs in order to specify complex retention policies
+														"""
 										items: {
 											description: "SnapshotScheduleRetentionSpec is a retention policy"
 											properties: {
@@ -10921,11 +10443,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								"x-kubernetes-preserve-unknown-fields": true
 							}
 						}
-						required: [
-							"dataPools",
-							"metadataPool",
-							"metadataServer",
-						]
+						required: ["dataPools", "metadataPool", "metadataServer"]
 						type: "object"
 					}
 					status: {
@@ -10937,23 +10455,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									properties: {
 										keyCephVersion: {
 											description: """
-	KeyCephVersion reports the Ceph version that created the current generation's keys. This is
-	same string format as reported by `CephCluster.status.version.version` to allow them to be
-	compared. E.g., `20.2.0-0`.
-	For all newly-created resources, this field set to the version of Ceph that created the key.
-	The special value "Uninitialized" indicates that keys are being created for the first time.
-	An empty string indicates that the version is unknown, as expected in brownfield deployments.
-	"""
+																KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+																same string format as reported by `CephCluster.status.version.version` to allow them to be
+																compared. E.g., `20.2.0-0`.
+																For all newly-created resources, this field set to the version of Ceph that created the key.
+																The special value "Uninitialized" indicates that keys are being created for the first time.
+																An empty string indicates that the version is unknown, as expected in brownfield deployments.
+																"""
 											type: "string"
 										}
 										keyGeneration: {
 											description: """
-	KeyGeneration represents the CephX key generation for the last successful reconcile.
-	For all newly-created resources, this field is set to `1`.
-	When keys are rotated due to any rotation policy, the generation is incremented or updated to
-	the configured policy generation.
-	Generation `0` indicates that keys existed prior to the implementation of key tracking.
-	"""
+																KeyGeneration represents the CephX key generation for the last successful reconcile.
+																For all newly-created resources, this field is set to `1`.
+																When keys are rotated due to any rotation policy, the generation is incremented or updated to
+																the configured policy generation.
+																Generation `0` indicates that keys existed prior to the implementation of key tracking.
+																"""
 											format: "int32"
 											type:   "integer"
 										}
@@ -11191,10 +10709,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						"x-kubernetes-preserve-unknown-fields": true
 					}
 				}
-				required: [
-					"metadata",
-					"spec",
-				]
+				required: ["metadata", "spec"]
 				type: "object"
 			}
 			served:  true
@@ -11210,13 +10725,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephFilesystemSubVolumeGroup"
 			listKind: "CephFilesystemSubVolumeGroupList"
 			plural:   "cephfilesystemsubvolumegroups"
-			shortNames: [
-				"cephfssvg",
-				"cephsvg",
-			]
+			shortNames: ["cephfssvg", "cephsvg"]
 			singular: "cephfilesystemsubvolumegroup"
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.phase"
@@ -11247,21 +10759,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
 						type: "string"
 					}
 					metadata: type: "object"
@@ -11270,10 +10782,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						properties: {
 							clusterID: {
 								description: """
-	ClusterID to be used for this subvolume group in the CSI configuration.
-	It must be unique among all Ceph clusters managed by Rook.
-	If not specified, the clusterID will be generated and can be found in the CR status.
-	"""
+												ClusterID to be used for this subvolume group in the CSI configuration.
+												It must be unique among all Ceph clusters managed by Rook.
+												If not specified, the clusterID will be generated and can be found in the CR status.
+												"""
 								maxLength: 36
 								minLength: 1
 								pattern:   "^[a-zA-Z0-9_-]+$"
@@ -11289,11 +10801,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							filesystemName: {
 								description: """
-	FilesystemName is the name of Ceph Filesystem SubVolumeGroup volume name. Typically it's the name of
-	the CephFilesystem CR. If not coming from the CephFilesystem CR, it can be retrieved from the
-	list of Ceph Filesystem volumes with `ceph fs volume ls`. To learn more about Ceph Filesystem
-	abstractions see https://docs.ceph.com/en/latest/cephfs/fs-volumes/#fs-volumes-and-subvolumes
-	"""
+												FilesystemName is the name of Ceph Filesystem SubVolumeGroup volume name. Typically it's the name of
+												the CephFilesystem CR. If not coming from the CephFilesystem CR, it can be retrieved from the
+												list of Ceph Filesystem volumes with `ceph fs volume ls`. To learn more about Ceph Filesystem
+												abstractions see https://docs.ceph.com/en/latest/cephfs/fs-volumes/#fs-volumes-and-subvolumes
+												"""
 								type: "string"
 								"x-kubernetes-validations": [{
 									message: "filesystemName is immutable"
@@ -11310,10 +10822,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							pinning: {
 								description: """
-	Pinning configuration of CephFilesystemSubVolumeGroup,
-	reference https://docs.ceph.com/en/latest/cephfs/fs-volumes/#pinning-subvolumes-and-subvolume-groups
-	only one out of (export, distributed, random) can be set at a time
-	"""
+												Pinning configuration of CephFilesystemSubVolumeGroup,
+												reference https://docs.ceph.com/en/latest/cephfs/fs-volumes/#pinning-subvolumes-and-subvolume-groups
+												only one out of (export, distributed, random) can be set at a time
+												"""
 								properties: {
 									distributed: {
 										maximum:  1
@@ -11376,10 +10888,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						"x-kubernetes-preserve-unknown-fields": true
 					}
 				}
-				required: [
-					"metadata",
-					"spec",
-				]
+				required: ["metadata", "spec"]
 				type: "object"
 			}
 			served:  true
@@ -11395,32 +10904,43 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephNFS"
 			listKind: "CephNFSList"
 			plural:   "cephnfses"
-			shortNames: ["nfs"]
+			shortNames: [
+				"nfs",
+			]
 			singular: "cephnfs"
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
+			additionalPrinterColumns: [{
+				jsonPath: ".status.phase"
+				name:     "Phase"
+				type:     "string"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
+			}]
 			name: "v1"
 			schema: openAPIV3Schema: {
 				description: "CephNFS represents a Ceph NFS"
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
 						type: "string"
 					}
 					metadata: type: "object"
@@ -11433,16 +10953,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								properties: {
 									namespace: {
 										description: """
-	The namespace inside the Ceph pool (set by 'pool') where shared NFS-Ganesha config is stored.
-	This setting is deprecated as it is internally set to the name of the CephNFS.
-	"""
+														The namespace inside the Ceph pool (set by 'pool') where shared NFS-Ganesha config is stored.
+														This setting is deprecated as it is internally set to the name of the CephNFS.
+														"""
 										type: "string"
 									}
 									pool: {
 										description: """
-	The Ceph pool used store the shared configuration for NFS-Ganesha daemons.
-	This setting is deprecated, as it is internally required to be ".nfs".
-	"""
+														The Ceph pool used store the shared configuration for NFS-Ganesha daemons.
+														This setting is deprecated, as it is internally required to be ".nfs".
+														"""
 										type: "string"
 									}
 								}
@@ -11458,17 +10978,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											configFiles: {
 												description: """
-	ConfigFiles defines where the Kerberos configuration should be sourced from. Config files
-	will be placed into the `/etc/krb5.conf.rook/` directory.
+																ConfigFiles defines where the Kerberos configuration should be sourced from. Config files
+																will be placed into the `/etc/krb5.conf.rook/` directory.
 
-	If this is left empty, Rook will not add any files. This allows you to manage the files
-	yourself however you wish. For example, you may build them into your custom Ceph container
-	image or use the Vault agent injector to securely add the files via annotations on the
-	CephNFS spec (passed to the NFS server pods).
+																If this is left empty, Rook will not add any files. This allows you to manage the files
+																yourself however you wish. For example, you may build them into your custom Ceph container
+																image or use the Vault agent injector to securely add the files via annotations on the
+																CephNFS spec (passed to the NFS server pods).
 
-	Rook configures Kerberos to log to stderr. We suggest removing logging sections from config
-	files to avoid consuming unnecessary disk space from logging to files.
-	"""
+																Rook configures Kerberos to log to stderr. We suggest removing logging sections from config
+																files to avoid consuming unnecessary disk space from logging to files.
+																"""
 												properties: volumeSource: {
 													properties: {
 														configMap: {
@@ -11487,10 +11007,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			}
 																			path: type: "string"
 																		}
-																		required: [
-																			"key",
-																			"path",
-																		]
+																		required: ["key", "path"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -11560,10 +11077,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
-																									required: [
-																										"key",
-																										"operator",
-																									]
+																									required: ["key", "operator"]
 																									type: "object"
 																								}
 																								type:                     "array"
@@ -11597,10 +11111,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								}
 																								path: type: "string"
 																							}
-																							required: [
-																								"key",
-																								"path",
-																							]
+																							required: ["key", "path"]
 																							type: "object"
 																						}
 																						type:                     "array"
@@ -11660,6 +11171,25 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				}
 																				type: "object"
 																			}
+																			podCertificate: {
+																				properties: {
+																					certificateChainPath: type: "string"
+																					credentialBundlePath: type: "string"
+																					keyPath: type:              "string"
+																					keyType: type:              "string"
+																					maxExpirationSeconds: {
+																						format: "int32"
+																						type:   "integer"
+																					}
+																					signerName: type: "string"
+																					userAnnotations: {
+																						additionalProperties: type: "string"
+																						type: "object"
+																					}
+																				}
+																				required: ["keyType", "signerName"]
+																				type: "object"
+																			}
 																			secret: {
 																				properties: {
 																					items: {
@@ -11672,10 +11202,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								}
 																								path: type: "string"
 																							}
-																							required: [
-																								"key",
-																								"path",
-																							]
+																							required: ["key", "path"]
 																							type: "object"
 																						}
 																						type:                     "array"
@@ -11727,10 +11254,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			}
 																			path: type: "string"
 																		}
-																		required: [
-																			"key",
-																			"path",
-																		]
+																		required: ["key", "path"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -11752,12 +11276,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											keytabFile: {
 												description: """
-	KeytabFile defines where the Kerberos keytab should be sourced from. The keytab file will be
-	placed into `/etc/krb5.keytab`. If this is left empty, Rook will not add the file.
-	This allows you to manage the `krb5.keytab` file yourself however you wish. For example, you
-	may build it into your custom Ceph container image or use the Vault agent injector to
-	securely add the file via annotations on the CephNFS spec (passed to the NFS server pods).
-	"""
+																KeytabFile defines where the Kerberos keytab should be sourced from. The keytab file will be
+																placed into `/etc/krb5.keytab`. If this is left empty, Rook will not add the file.
+																This allows you to manage the `krb5.keytab` file yourself however you wish. For example, you
+																may build it into your custom Ceph container image or use the Vault agent injector to
+																securely add the file via annotations on the CephNFS spec (passed to the NFS server pods).
+																"""
 												properties: volumeSource: {
 													properties: {
 														configMap: {
@@ -11776,10 +11300,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			}
 																			path: type: "string"
 																		}
-																		required: [
-																			"key",
-																			"path",
-																		]
+																		required: ["key", "path"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -11849,10 +11370,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
-																									required: [
-																										"key",
-																										"operator",
-																									]
+																									required: ["key", "operator"]
 																									type: "object"
 																								}
 																								type:                     "array"
@@ -11886,10 +11404,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								}
 																								path: type: "string"
 																							}
-																							required: [
-																								"key",
-																								"path",
-																							]
+																							required: ["key", "path"]
 																							type: "object"
 																						}
 																						type:                     "array"
@@ -11949,6 +11464,25 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				}
 																				type: "object"
 																			}
+																			podCertificate: {
+																				properties: {
+																					certificateChainPath: type: "string"
+																					credentialBundlePath: type: "string"
+																					keyPath: type:              "string"
+																					keyType: type:              "string"
+																					maxExpirationSeconds: {
+																						format: "int32"
+																						type:   "integer"
+																					}
+																					signerName: type: "string"
+																					userAnnotations: {
+																						additionalProperties: type: "string"
+																						type: "object"
+																					}
+																				}
+																				required: ["keyType", "signerName"]
+																				type: "object"
+																			}
 																			secret: {
 																				properties: {
 																					items: {
@@ -11961,10 +11495,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								}
 																								path: type: "string"
 																							}
-																							required: [
-																								"key",
-																								"path",
-																							]
+																							required: ["key", "path"]
 																							type: "object"
 																						}
 																						type:                     "array"
@@ -12016,10 +11547,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			}
 																			path: type: "string"
 																		}
-																		required: [
-																			"key",
-																			"path",
-																		]
+																		required: ["key", "path"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -12038,13 +11566,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											principalName: {
 												default: "nfs"
 												description: """
-	PrincipalName corresponds directly to NFS-Ganesha's NFS_KRB5:PrincipalName config. In
-	practice, this is the service prefix of the principal name. The default is "nfs".
-	This value is combined with (a) the namespace and name of the CephNFS (with a hyphen between)
-	and (b) the Realm configured in the user-provided krb5.conf to determine the full principal
-	name: <principalName>/<namespace>-<name>@<realm>. e.g., nfs/rook-ceph-my-nfs@example.net.
-	See https://github.com/nfs-ganesha/nfs-ganesha/wiki/RPCSEC_GSS for more detail.
-	"""
+																PrincipalName corresponds directly to NFS-Ganesha's NFS_KRB5:PrincipalName config. In
+																practice, this is the service prefix of the principal name. The default is "nfs".
+																This value is combined with (a) the namespace and name of the CephNFS (with a hyphen between)
+																and (b) the Realm configured in the user-provided krb5.conf to determine the full principal
+																name: <principalName>/<namespace>-<name>@<realm>. e.g., nfs/rook-ceph-my-nfs@example.net.
+																See https://github.com/nfs-ganesha/nfs-ganesha/wiki/RPCSEC_GSS for more detail.
+																"""
 												type: "string"
 											}
 										}
@@ -12052,33 +11580,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									sssd: {
 										description: """
-	SSSD enables integration with System Security Services Daemon (SSSD). SSSD can be used to
-	provide user ID mapping from a number of sources. See https://sssd.io for more information
-	about the SSSD project.
-	"""
+														SSSD enables integration with System Security Services Daemon (SSSD). SSSD can be used to
+														provide user ID mapping from a number of sources. See https://sssd.io for more information
+														about the SSSD project.
+														"""
 										nullable: true
 										properties: sidecar: {
 											description: "Sidecar tells Rook to run SSSD in a sidecar alongside the NFS-Ganesha server in each NFS pod."
 											properties: {
 												additionalFiles: {
 													description: """
-	AdditionalFiles defines any number of additional files that should be mounted into the SSSD
-	sidecar with a directory root of `/etc/sssd/rook-additional/`.
-	These files may be referenced by the sssd.conf config file.
-	"""
+																		AdditionalFiles defines any number of additional files that should be mounted into the SSSD
+																		sidecar with a directory root of `/etc/sssd/rook-additional/`.
+																		These files may be referenced by the sssd.conf config file.
+																		"""
 													items: {
 														description: """
-	AdditionalVolumeMount represents the source from where additional files in pod containers
-	should come from and what subdirectory they are made available in.
-	"""
+																			AdditionalVolumeMount represents the source from where additional files in pod containers
+																			should come from and what subdirectory they are made available in.
+																			"""
 														properties: {
 															subPath: {
 																description: """
-	SubPath defines the sub-path (subdirectory) of the directory root where the volumeSource will
-	be mounted. All files/keys in the volume source's volume will be mounted to the subdirectory.
-	This is not the same as the Kubernetes `subPath` volume mount option.
-	Each subPath definition must be unique and must not contain ':'.
-	"""
+																					SubPath defines the sub-path (subdirectory) of the directory root where the volumeSource will
+																					be mounted. All files/keys in the volume source's volume will be mounted to the subdirectory.
+																					This is not the same as the Kubernetes `subPath` volume mount option.
+																					Each subPath definition must be unique and must not contain ':'.
+																					"""
 																minLength: 1
 																pattern:   "^[^:]+$"
 																type:      "string"
@@ -12101,10 +11629,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						}
 																						path: type: "string"
 																					}
-																					required: [
-																						"key",
-																						"path",
-																					]
+																					required: ["key", "path"]
 																					type: "object"
 																				}
 																				type:                     "array"
@@ -12174,10 +11699,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																														"x-kubernetes-list-type": "atomic"
 																													}
 																												}
-																												required: [
-																													"key",
-																													"operator",
-																												]
+																												required: ["key", "operator"]
 																												type: "object"
 																											}
 																											type:                     "array"
@@ -12211,10 +11733,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																											}
 																											path: type: "string"
 																										}
-																										required: [
-																											"key",
-																											"path",
-																										]
+																										required: ["key", "path"]
 																										type: "object"
 																									}
 																									type:                     "array"
@@ -12274,6 +11793,25 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							}
 																							type: "object"
 																						}
+																						podCertificate: {
+																							properties: {
+																								certificateChainPath: type: "string"
+																								credentialBundlePath: type: "string"
+																								keyPath: type:              "string"
+																								keyType: type:              "string"
+																								maxExpirationSeconds: {
+																									format: "int32"
+																									type:   "integer"
+																								}
+																								signerName: type: "string"
+																								userAnnotations: {
+																									additionalProperties: type: "string"
+																									type: "object"
+																								}
+																							}
+																							required: ["keyType", "signerName"]
+																							type: "object"
+																						}
 																						secret: {
 																							properties: {
 																								items: {
@@ -12286,10 +11824,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																											}
 																											path: type: "string"
 																										}
-																										required: [
-																											"key",
-																											"path",
-																										]
+																										required: ["key", "path"]
 																										type: "object"
 																									}
 																									type:                     "array"
@@ -12341,10 +11876,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						}
 																						path: type: "string"
 																					}
-																					required: [
-																						"key",
-																						"path",
-																					]
+																					required: ["key", "path"]
 																					type: "object"
 																				}
 																				type:                     "array"
@@ -12359,20 +11891,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type: "object"
 															}
 														}
-														required: [
-															"subPath",
-															"volumeSource",
-														]
+														required: ["subPath", "volumeSource"]
 														type: "object"
 													}
 													type: "array"
 												}
 												debugLevel: {
 													description: """
-	DebugLevel sets the debug level for SSSD. If unset or set to 0, Rook does nothing. Otherwise,
-	this may be a value between 1 and 10. See SSSD docs for more info:
-	https://sssd.io/troubleshooting/basics.html#sssd-debug-logs
-	"""
+																		DebugLevel sets the debug level for SSSD. If unset or set to 0, Rook does nothing. Otherwise,
+																		this may be a value between 1 and 10. See SSSD docs for more info:
+																		https://sssd.io/troubleshooting/basics.html#sssd-debug-logs
+																		"""
 													maximum: 10
 													minimum: 0
 													type:    "integer"
@@ -12387,31 +11916,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													properties: {
 														claims: {
 															description: """
-	Claims lists the names of resources, defined in spec.resourceClaims,
-	that are used by this container.
+																				Claims lists the names of resources, defined in spec.resourceClaims,
+																				that are used by this container.
 
-	This is an alpha field and requires enabling the
-	DynamicResourceAllocation feature gate.
+																				This field depends on the
+																				DynamicResourceAllocation feature gate.
 
-	This field is immutable. It can only be set for containers.
-	"""
+																				This field is immutable. It can only be set for containers.
+																				"""
 															items: {
 																description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
 																properties: {
 																	name: {
 																		description: """
-	Name must match the name of one entry in pod.spec.resourceClaims of
-	the Pod where this field is used. It makes that resource available
-	inside a container.
-	"""
+																							Name must match the name of one entry in pod.spec.resourceClaims of
+																							the Pod where this field is used. It makes that resource available
+																							inside a container.
+																							"""
 																		type: "string"
 																	}
 																	request: {
 																		description: """
-	Request is the name chosen for a request in the referenced claim.
-	If empty, everything from the claim is made available, otherwise
-	only the result of this request.
-	"""
+																							Request is the name chosen for a request in the referenced claim.
+																							If empty, everything from the claim is made available, otherwise
+																							only the result of this request.
+																							"""
 																		type: "string"
 																	}
 																}
@@ -12433,9 +11962,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																"x-kubernetes-int-or-string": true
 															}
 															description: """
-	Limits describes the maximum amount of compute resources allowed.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																				Limits describes the maximum amount of compute resources allowed.
+																				More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																				"""
 															type: "object"
 														}
 														requests: {
@@ -12449,11 +11978,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																"x-kubernetes-int-or-string": true
 															}
 															description: """
-	Requests describes the minimum amount of compute resources required.
-	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
-	otherwise to an implementation-defined value. Requests cannot exceed Limits.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																				Requests describes the minimum amount of compute resources required.
+																				If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+																				otherwise to an implementation-defined value. Requests cannot exceed Limits.
+																				More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																				"""
 															type: "object"
 														}
 													}
@@ -12461,12 +11990,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												}
 												sssdConfigFile: {
 													description: """
-	SSSDConfigFile defines where the SSSD configuration should be sourced from. The config file
-	will be placed into `/etc/sssd/sssd.conf`. If this is left empty, Rook will not add the file.
-	This allows you to manage the `sssd.conf` file yourself however you wish. For example, you
-	may build it into your custom Ceph container image or use the Vault agent injector to
-	securely add the file via annotations on the CephNFS spec (passed to the NFS server pods).
-	"""
+																		SSSDConfigFile defines where the SSSD configuration should be sourced from. The config file
+																		will be placed into `/etc/sssd/sssd.conf`. If this is left empty, Rook will not add the file.
+																		This allows you to manage the `sssd.conf` file yourself however you wish. For example, you
+																		may build it into your custom Ceph container image or use the Vault agent injector to
+																		securely add the file via annotations on the CephNFS spec (passed to the NFS server pods).
+																		"""
 													properties: volumeSource: {
 														properties: {
 															configMap: {
@@ -12485,10 +12014,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				}
 																				path: type: "string"
 																			}
-																			required: [
-																				"key",
-																				"path",
-																			]
+																			required: ["key", "path"]
 																			type: "object"
 																		}
 																		type:                     "array"
@@ -12558,10 +12084,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																												"x-kubernetes-list-type": "atomic"
 																											}
 																										}
-																										required: [
-																											"key",
-																											"operator",
-																										]
+																										required: ["key", "operator"]
 																										type: "object"
 																									}
 																									type:                     "array"
@@ -12595,10 +12118,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									}
 																									path: type: "string"
 																								}
-																								required: [
-																									"key",
-																									"path",
-																								]
+																								required: ["key", "path"]
 																								type: "object"
 																							}
 																							type:                     "array"
@@ -12658,6 +12178,25 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					}
 																					type: "object"
 																				}
+																				podCertificate: {
+																					properties: {
+																						certificateChainPath: type: "string"
+																						credentialBundlePath: type: "string"
+																						keyPath: type:              "string"
+																						keyType: type:              "string"
+																						maxExpirationSeconds: {
+																							format: "int32"
+																							type:   "integer"
+																						}
+																						signerName: type: "string"
+																						userAnnotations: {
+																							additionalProperties: type: "string"
+																							type: "object"
+																						}
+																					}
+																					required: ["keyType", "signerName"]
+																					type: "object"
+																				}
 																				secret: {
 																					properties: {
 																						items: {
@@ -12670,10 +12209,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									}
 																									path: type: "string"
 																								}
-																								required: [
-																									"key",
-																									"path",
-																								]
+																								required: ["key", "path"]
 																								type: "object"
 																							}
 																							type:                     "array"
@@ -12725,10 +12261,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				}
 																				path: type: "string"
 																			}
-																			required: [
-																				"key",
-																				"path",
-																			]
+																			required: ["key", "path"]
 																			type: "object"
 																		}
 																		type:                     "array"
@@ -12772,6 +12305,28 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										nullable:    true
 										type:        "boolean"
 									}
+									image: {
+										description: """
+														Image is the container image used to launch the Ceph NFS (Ganesha) daemon(s).
+														The image must include the NFS Ganesha binaries, such as are included with the official Ceph releases. E.g.: quay.io/ceph/ceph:<tag>
+														If not specified, the Ceph image defined in the CephCluster is used.
+														Overriding the CephCluster defined image is not normally necessary when using the official Ceph images.
+														The image must contain the NFS Ganesha and dbus packages.
+														If the SSSD sidecar is enabled, the image must also contain the sssd-client package.
+														"""
+										maxLength: 1572864
+										minLength: 1
+										type:      "string"
+									}
+									imagePullPolicy: {
+										description: """
+														ImagePullPolicy describes a policy for if/when to pull a container image
+														One of Always, Never, IfNotPresent.
+														This field only has effect if an image is specified.
+														"""
+										enum: ["IfNotPresent", "Always", "Never", ""]
+										type: "string"
+									}
 									labels: {
 										additionalProperties: type: "string"
 										description:                            "The labels-related configuration to add/set on each Pod related object."
@@ -12781,9 +12336,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									livenessProbe: {
 										description: """
-	A liveness-probe to verify that Ganesha server has valid run-time state.
-	If LivenessProbe.Disabled is false and LivenessProbe.Probe is nil uses default probe.
-	"""
+														A liveness-probe to verify that Ganesha server has valid run-time state.
+														If LivenessProbe.Disabled is false and LivenessProbe.Probe is nil uses default probe.
+														"""
 										properties: {
 											disabled: {
 												description: "Disabled determines whether probe is disable or not"
@@ -12791,20 +12346,20 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											probe: {
 												description: """
-	Probe describes a health check to be performed against a container to determine whether it is
-	alive or ready to receive traffic.
-	"""
+																Probe describes a health check to be performed against a container to determine whether it is
+																alive or ready to receive traffic.
+																"""
 												properties: {
 													exec: {
 														description: "Exec specifies a command to execute in the container."
 														properties: command: {
 															description: """
-	Command is the command line to execute inside the container, the working directory for the
-	command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
-	not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
-	a shell, you need to explicitly call out to that shell.
-	Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
-	"""
+																				Command is the command line to execute inside the container, the working directory for the
+																				command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
+																				not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
+																				a shell, you need to explicitly call out to that shell.
+																				Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+																				"""
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
@@ -12813,9 +12368,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													failureThreshold: {
 														description: """
-	Minimum consecutive failures for the probe to be considered failed after having succeeded.
-	Defaults to 3. Minimum value is 1.
-	"""
+																		Minimum consecutive failures for the probe to be considered failed after having succeeded.
+																		Defaults to 3. Minimum value is 1.
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
@@ -12830,11 +12385,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															service: {
 																default: ""
 																description: """
-	Service is the name of the service to place in the gRPC HealthCheckRequest
-	(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+																				Service is the name of the service to place in the gRPC HealthCheckRequest
+																				(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
 
-	If this is not specified, the default behavior is defined by gRPC.
-	"""
+																				If this is not specified, the default behavior is defined by gRPC.
+																				"""
 																type: "string"
 															}
 														}
@@ -12846,9 +12401,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														properties: {
 															host: {
 																description: """
-	Host name to connect to, defaults to the pod IP. You probably want to set
-	"Host" in httpHeaders instead.
-	"""
+																				Host name to connect to, defaults to the pod IP. You probably want to set
+																				"Host" in httpHeaders instead.
+																				"""
 																type: "string"
 															}
 															httpHeaders: {
@@ -12858,9 +12413,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	properties: {
 																		name: {
 																			description: """
-	The header field name.
-	This will be canonicalized upon output, so case-variant names will be understood as the same header.
-	"""
+																							The header field name.
+																							This will be canonicalized upon output, so case-variant names will be understood as the same header.
+																							"""
 																			type: "string"
 																		}
 																		value: {
@@ -12868,10 +12423,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			type:        "string"
 																		}
 																	}
-																	required: [
-																		"name",
-																		"value",
-																	]
+																	required: ["name", "value"]
 																	type: "object"
 																}
 																type:                     "array"
@@ -12888,17 +12440,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type: "string"
 																}]
 																description: """
-	Name or number of the port to access on the container.
-	Number must be in the range 1 to 65535.
-	Name must be an IANA_SVC_NAME.
-	"""
+																				Name or number of the port to access on the container.
+																				Number must be in the range 1 to 65535.
+																				Name must be an IANA_SVC_NAME.
+																				"""
 																"x-kubernetes-int-or-string": true
 															}
 															scheme: {
 																description: """
-	Scheme to use for connecting to the host.
-	Defaults to HTTP.
-	"""
+																				Scheme to use for connecting to the host.
+																				Defaults to HTTP.
+																				"""
 																type: "string"
 															}
 														}
@@ -12907,25 +12459,25 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													initialDelaySeconds: {
 														description: """
-	Number of seconds after the container has started before liveness probes are initiated.
-	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-	"""
+																		Number of seconds after the container has started before liveness probes are initiated.
+																		More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
 													periodSeconds: {
 														description: """
-	How often (in seconds) to perform the probe.
-	Default to 10 seconds. Minimum value is 1.
-	"""
+																		How often (in seconds) to perform the probe.
+																		Default to 10 seconds. Minimum value is 1.
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
 													successThreshold: {
 														description: """
-	Minimum consecutive successes for the probe to be considered successful after having failed.
-	Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
-	"""
+																		Minimum consecutive successes for the probe to be considered successful after having failed.
+																		Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
@@ -12943,10 +12495,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type: "string"
 																}]
 																description: """
-	Number or name of the port to access on the container.
-	Number must be in the range 1 to 65535.
-	Name must be an IANA_SVC_NAME.
-	"""
+																				Number or name of the port to access on the container.
+																				Number must be in the range 1 to 65535.
+																				Name must be an IANA_SVC_NAME.
+																				"""
 																"x-kubernetes-int-or-string": true
 															}
 														}
@@ -12959,10 +12511,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													timeoutSeconds: {
 														description: """
-	Number of seconds after which the probe times out.
-	Defaults to 1 second. Minimum value is 1.
-	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-	"""
+																		Number of seconds after which the probe times out.
+																		Defaults to 1 second. Minimum value is 1.
+																		More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
@@ -12997,10 +12549,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -13017,10 +12566,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -13035,10 +12581,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type:   "integer"
 																}
 															}
-															required: [
-																"preference",
-																"weight",
-															]
+															required: ["preference", "weight"]
 															type: "object"
 														}
 														type:                     "array"
@@ -13059,10 +12602,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
-																			required: [
-																				"key",
-																				"operator",
-																			]
+																			required: ["key", "operator"]
 																			type: "object"
 																		}
 																		type:                     "array"
@@ -13079,10 +12619,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
-																			required: [
-																				"key",
-																				"operator",
-																			]
+																			required: ["key", "operator"]
 																			type: "object"
 																		}
 																		type:                     "array"
@@ -13122,10 +12659,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
-																						required: [
-																							"key",
-																							"operator",
-																						]
+																						required: ["key", "operator"]
 																						type: "object"
 																					}
 																					type:                     "array"
@@ -13162,10 +12696,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
-																						required: [
-																							"key",
-																							"operator",
-																						]
+																						required: ["key", "operator"]
 																						type: "object"
 																					}
 																					type:                     "array"
@@ -13194,10 +12725,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type:   "integer"
 																}
 															}
-															required: [
-																"podAffinityTerm",
-																"weight",
-															]
+															required: ["podAffinityTerm", "weight"]
 															type: "object"
 														}
 														type:                     "array"
@@ -13219,10 +12747,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -13259,10 +12784,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -13312,10 +12834,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
-																						required: [
-																							"key",
-																							"operator",
-																						]
+																						required: ["key", "operator"]
 																						type: "object"
 																					}
 																					type:                     "array"
@@ -13352,10 +12871,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
-																						required: [
-																							"key",
-																							"operator",
-																						]
+																						required: ["key", "operator"]
 																						type: "object"
 																					}
 																					type:                     "array"
@@ -13384,10 +12900,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type:   "integer"
 																}
 															}
-															required: [
-																"podAffinityTerm",
-																"weight",
-															]
+															required: ["podAffinityTerm", "weight"]
 															type: "object"
 														}
 														type:                     "array"
@@ -13409,10 +12922,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -13449,10 +12959,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -13514,10 +13021,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -13549,11 +13053,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														topologyKey: type:        "string"
 														whenUnsatisfiable: type:  "string"
 													}
-													required: [
-														"maxSkew",
-														"topologyKey",
-														"whenUnsatisfiable",
-													]
+													required: ["maxSkew", "topologyKey", "whenUnsatisfiable"]
 													type: "object"
 												}
 												type: "array"
@@ -13572,31 +13072,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											claims: {
 												description: """
-	Claims lists the names of resources, defined in spec.resourceClaims,
-	that are used by this container.
+																Claims lists the names of resources, defined in spec.resourceClaims,
+																that are used by this container.
 
-	This is an alpha field and requires enabling the
-	DynamicResourceAllocation feature gate.
+																This field depends on the
+																DynamicResourceAllocation feature gate.
 
-	This field is immutable. It can only be set for containers.
-	"""
+																This field is immutable. It can only be set for containers.
+																"""
 												items: {
 													description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
 													properties: {
 														name: {
 															description: """
-	Name must match the name of one entry in pod.spec.resourceClaims of
-	the Pod where this field is used. It makes that resource available
-	inside a container.
-	"""
+																			Name must match the name of one entry in pod.spec.resourceClaims of
+																			the Pod where this field is used. It makes that resource available
+																			inside a container.
+																			"""
 															type: "string"
 														}
 														request: {
 															description: """
-	Request is the name chosen for a request in the referenced claim.
-	If empty, everything from the claim is made available, otherwise
-	only the result of this request.
-	"""
+																			Request is the name chosen for a request in the referenced claim.
+																			If empty, everything from the claim is made available, otherwise
+																			only the result of this request.
+																			"""
 															type: "string"
 														}
 													}
@@ -13618,9 +13118,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													"x-kubernetes-int-or-string": true
 												}
 												description: """
-	Limits describes the maximum amount of compute resources allowed.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																Limits describes the maximum amount of compute resources allowed.
+																More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																"""
 												type: "object"
 											}
 											requests: {
@@ -13634,11 +13134,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													"x-kubernetes-int-or-string": true
 												}
 												description: """
-	Requests describes the minimum amount of compute resources required.
-	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
-	otherwise to an implementation-defined value. Requests cannot exceed Limits.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																Requests describes the minimum amount of compute resources required.
+																If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+																otherwise to an implementation-defined value. Requests cannot exceed Limits.
+																More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																"""
 												type: "object"
 											}
 										}
@@ -13650,12 +13150,45 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type: "object"
 							}
 						}
-						required: ["server"]
+						required: [
+							"server",
+						]
 						type: "object"
 					}
 					status: {
-						description: "Status represents the status of an object"
+						description: "NFSStatus represents the status of Ceph NFS"
 						properties: {
+							cephx: {
+								properties: daemon: {
+									description: "Daemon shows the CephX key status for local Ceph daemons associated with this resources."
+									properties: {
+										keyCephVersion: {
+											description: """
+																KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+																same string format as reported by `CephCluster.status.version.version` to allow them to be
+																compared. E.g., `20.2.0-0`.
+																For all newly-created resources, this field set to the version of Ceph that created the key.
+																The special value "Uninitialized" indicates that keys are being created for the first time.
+																An empty string indicates that the version is unknown, as expected in brownfield deployments.
+																"""
+											type: "string"
+										}
+										keyGeneration: {
+											description: """
+																KeyGeneration represents the CephX key generation for the last successful reconcile.
+																For all newly-created resources, this field is set to `1`.
+																When keys are rotated due to any rotation policy, the generation is incremented or updated to
+																the configured policy generation.
+																Generation `0` indicates that keys existed prior to the implementation of key tracking.
+																"""
+											format: "int32"
+											type:   "integer"
+										}
+									}
+									type: "object"
+								}
+								type: "object"
+							}
 							conditions: {
 								items: {
 									description: "Condition represents a status condition on any Rook-Ceph Custom Resource."
@@ -13694,10 +13227,1034 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						"x-kubernetes-preserve-unknown-fields": true
 					}
 				}
-				required: [
-					"metadata",
-					"spec",
-				]
+				required: ["metadata", "spec"]
+				type: "object"
+			}
+			served:  true
+			storage: true
+			subresources: status: {}
+		}]
+	}
+}, {
+	metadata: name: "cephnvmeofgateways.ceph.rook.io"
+	spec: {
+		group: "ceph.rook.io"
+		names: {
+			kind:     "CephNVMeOFGateway"
+			listKind: "CephNVMeOFGatewayList"
+			plural:   "cephnvmeofgateways"
+			shortNames: [
+				"nvmeof",
+			]
+			singular: "cephnvmeofgateway"
+		}
+		scope: "Namespaced"
+		versions: [{
+			additionalPrinterColumns: [{
+				jsonPath: ".status.phase"
+				name:     "Phase"
+				type:     "string"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
+			}]
+			name: "v1"
+			schema: openAPIV3Schema: {
+				description: "CephNVMeOFGateway represents a Ceph NVMe-oF Gateway"
+				properties: {
+					apiVersion: {
+						description: """
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
+						type: "string"
+					}
+					kind: {
+						description: """
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
+						type: "string"
+					}
+					metadata: type: "object"
+					spec: {
+						description: "NVMeOFGatewaySpec represents the spec of an NVMe-oF gateway"
+						properties: {
+							annotations: {
+								additionalProperties: type: "string"
+								description: "The annotations-related configuration to add/set on each Pod related object."
+								type:        "object"
+							}
+							configMapRef: {
+								description: """
+												ConfigMapRef is the name of the ConfigMap containing nvmeof.conf configuration
+												If not specified, a default configuration will be generated
+												"""
+								minLength: 1
+								type:      "string"
+							}
+							group: {
+								description: "Group is the gateway group name for high availability (ANA group)"
+								minLength:   1
+								type:        "string"
+							}
+							hostNetwork: {
+								description: "Whether host networking is enabled for the gateway. If not set, the network settings from the cluster CR will be applied."
+								type:        "boolean"
+							}
+							image: {
+								description: """
+												Image is the container image to use for the NVMe-oF gateway daemon.
+												For example, quay.io/ceph/nvmeof:1.5
+												"""
+								minLength: 1
+								type:      "string"
+							}
+							instances: {
+								description: "The number of active gateway instances"
+								minimum:     1
+								type:        "integer"
+							}
+							labels: {
+								additionalProperties: type: "string"
+								description: "The labels-related configuration to add/set on each Pod related object."
+								type:        "object"
+							}
+							livenessProbe: {
+								description: """
+												A liveness-probe to verify that gateway has valid run-time state.
+												If LivenessProbe.Disabled is false and LivenessProbe.Probe is nil uses default probe.
+												"""
+								properties: {
+									disabled: {
+										description: "Disabled determines whether probe is disable or not"
+										type:        "boolean"
+									}
+									probe: {
+										description: """
+														Probe describes a health check to be performed against a container to determine whether it is
+														alive or ready to receive traffic.
+														"""
+										properties: {
+											exec: {
+												description: "Exec specifies a command to execute in the container."
+												properties: command: {
+													description: """
+																		Command is the command line to execute inside the container, the working directory for the
+																		command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
+																		not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
+																		a shell, you need to explicitly call out to that shell.
+																		Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+																		"""
+													items: type: "string"
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
+												}
+												type: "object"
+											}
+											failureThreshold: {
+												description: """
+																Minimum consecutive failures for the probe to be considered failed after having succeeded.
+																Defaults to 3. Minimum value is 1.
+																"""
+												format: "int32"
+												type:   "integer"
+											}
+											grpc: {
+												description: "GRPC specifies a GRPC HealthCheckRequest."
+												properties: {
+													port: {
+														description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
+														format:      "int32"
+														type:        "integer"
+													}
+													service: {
+														default: ""
+														description: """
+																		Service is the name of the service to place in the gRPC HealthCheckRequest
+																		(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+
+																		If this is not specified, the default behavior is defined by gRPC.
+																		"""
+														type: "string"
+													}
+												}
+												required: ["port"]
+												type: "object"
+											}
+											httpGet: {
+												description: "HTTPGet specifies an HTTP GET request to perform."
+												properties: {
+													host: {
+														description: """
+																		Host name to connect to, defaults to the pod IP. You probably want to set
+																		"Host" in httpHeaders instead.
+																		"""
+														type: "string"
+													}
+													httpHeaders: {
+														description: "Custom headers to set in the request. HTTP allows repeated headers."
+														items: {
+															description: "HTTPHeader describes a custom header to be used in HTTP probes"
+															properties: {
+																name: {
+																	description: """
+																					The header field name.
+																					This will be canonicalized upon output, so case-variant names will be understood as the same header.
+																					"""
+																	type: "string"
+																}
+																value: {
+																	description: "The header field value"
+																	type:        "string"
+																}
+															}
+															required: ["name", "value"]
+															type: "object"
+														}
+														type:                     "array"
+														"x-kubernetes-list-type": "atomic"
+													}
+													path: {
+														description: "Path to access on the HTTP server."
+														type:        "string"
+													}
+													port: {
+														anyOf: [{
+															type: "integer"
+														}, {
+															type: "string"
+														}]
+														description: """
+																		Name or number of the port to access on the container.
+																		Number must be in the range 1 to 65535.
+																		Name must be an IANA_SVC_NAME.
+																		"""
+														"x-kubernetes-int-or-string": true
+													}
+													scheme: {
+														description: """
+																		Scheme to use for connecting to the host.
+																		Defaults to HTTP.
+																		"""
+														type: "string"
+													}
+												}
+												required: ["port"]
+												type: "object"
+											}
+											initialDelaySeconds: {
+												description: """
+																Number of seconds after the container has started before liveness probes are initiated.
+																More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+																"""
+												format: "int32"
+												type:   "integer"
+											}
+											periodSeconds: {
+												description: """
+																How often (in seconds) to perform the probe.
+																Default to 10 seconds. Minimum value is 1.
+																"""
+												format: "int32"
+												type:   "integer"
+											}
+											successThreshold: {
+												description: """
+																Minimum consecutive successes for the probe to be considered successful after having failed.
+																Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+																"""
+												format: "int32"
+												type:   "integer"
+											}
+											tcpSocket: {
+												description: "TCPSocket specifies a connection to a TCP port."
+												properties: {
+													host: {
+														description: "Optional: Host name to connect to, defaults to the pod IP."
+														type:        "string"
+													}
+													port: {
+														anyOf: [{
+															type: "integer"
+														}, {
+															type: "string"
+														}]
+														description: """
+																		Number or name of the port to access on the container.
+																		Number must be in the range 1 to 65535.
+																		Name must be an IANA_SVC_NAME.
+																		"""
+														"x-kubernetes-int-or-string": true
+													}
+												}
+												required: ["port"]
+												type: "object"
+											}
+											terminationGracePeriodSeconds: {
+												format: "int64"
+												type:   "integer"
+											}
+											timeoutSeconds: {
+												description: """
+																Number of seconds after which the probe times out.
+																Defaults to 1 second. Minimum value is 1.
+																More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+																"""
+												format: "int32"
+												type:   "integer"
+											}
+										}
+										type: "object"
+									}
+								}
+								type: "object"
+							}
+							nvmeofConfig: {
+								additionalProperties: {
+									additionalProperties: type: "string"
+									type: "object"
+								}
+								description: """
+												NVMeOFConfig is a map of section names to key-value pairs for nvmeof.conf configuration
+												This allows users to override or add configuration options without needing to manage a ConfigMap
+												"""
+								type: "object"
+							}
+							placement: {
+								properties: {
+									nodeAffinity: {
+										properties: {
+											preferredDuringSchedulingIgnoredDuringExecution: {
+												items: {
+													properties: {
+														preference: {
+															properties: {
+																matchExpressions: {
+																	items: {
+																		properties: {
+																			key: type:      "string"
+																			operator: type: "string"
+																			values: {
+																				items: type: "string"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
+																			}
+																		}
+																		required: ["key", "operator"]
+																		type: "object"
+																	}
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
+																}
+																matchFields: {
+																	items: {
+																		properties: {
+																			key: type:      "string"
+																			operator: type: "string"
+																			values: {
+																				items: type: "string"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
+																			}
+																		}
+																		required: ["key", "operator"]
+																		type: "object"
+																	}
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
+																}
+															}
+															type:                    "object"
+															"x-kubernetes-map-type": "atomic"
+														}
+														weight: {
+															format: "int32"
+															type:   "integer"
+														}
+													}
+													required: ["preference", "weight"]
+													type: "object"
+												}
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
+											}
+											requiredDuringSchedulingIgnoredDuringExecution: {
+												properties: nodeSelectorTerms: {
+													items: {
+														properties: {
+															matchExpressions: {
+																items: {
+																	properties: {
+																		key: type:      "string"
+																		operator: type: "string"
+																		values: {
+																			items: type: "string"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
+																		}
+																	}
+																	required: ["key", "operator"]
+																	type: "object"
+																}
+																type:                     "array"
+																"x-kubernetes-list-type": "atomic"
+															}
+															matchFields: {
+																items: {
+																	properties: {
+																		key: type:      "string"
+																		operator: type: "string"
+																		values: {
+																			items: type: "string"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
+																		}
+																	}
+																	required: ["key", "operator"]
+																	type: "object"
+																}
+																type:                     "array"
+																"x-kubernetes-list-type": "atomic"
+															}
+														}
+														type:                    "object"
+														"x-kubernetes-map-type": "atomic"
+													}
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
+												}
+												required: ["nodeSelectorTerms"]
+												type:                    "object"
+												"x-kubernetes-map-type": "atomic"
+											}
+										}
+										type: "object"
+									}
+									podAffinity: {
+										properties: {
+											preferredDuringSchedulingIgnoredDuringExecution: {
+												items: {
+													properties: {
+														podAffinityTerm: {
+															properties: {
+																labelSelector: {
+																	properties: {
+																		matchExpressions: {
+																			items: {
+																				properties: {
+																					key: type:      "string"
+																					operator: type: "string"
+																					values: {
+																						items: type: "string"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
+																					}
+																				}
+																				required: ["key", "operator"]
+																				type: "object"
+																			}
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
+																		}
+																		matchLabels: {
+																			additionalProperties: type: "string"
+																			type: "object"
+																		}
+																	}
+																	type:                    "object"
+																	"x-kubernetes-map-type": "atomic"
+																}
+																matchLabelKeys: {
+																	items: type: "string"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
+																}
+																mismatchLabelKeys: {
+																	items: type: "string"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
+																}
+																namespaceSelector: {
+																	properties: {
+																		matchExpressions: {
+																			items: {
+																				properties: {
+																					key: type:      "string"
+																					operator: type: "string"
+																					values: {
+																						items: type: "string"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
+																					}
+																				}
+																				required: ["key", "operator"]
+																				type: "object"
+																			}
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
+																		}
+																		matchLabels: {
+																			additionalProperties: type: "string"
+																			type: "object"
+																		}
+																	}
+																	type:                    "object"
+																	"x-kubernetes-map-type": "atomic"
+																}
+																namespaces: {
+																	items: type: "string"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
+																}
+																topologyKey: type: "string"
+															}
+															required: ["topologyKey"]
+															type: "object"
+														}
+														weight: {
+															format: "int32"
+															type:   "integer"
+														}
+													}
+													required: ["podAffinityTerm", "weight"]
+													type: "object"
+												}
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
+											}
+											requiredDuringSchedulingIgnoredDuringExecution: {
+												items: {
+													properties: {
+														labelSelector: {
+															properties: {
+																matchExpressions: {
+																	items: {
+																		properties: {
+																			key: type:      "string"
+																			operator: type: "string"
+																			values: {
+																				items: type: "string"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
+																			}
+																		}
+																		required: ["key", "operator"]
+																		type: "object"
+																	}
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
+																}
+																matchLabels: {
+																	additionalProperties: type: "string"
+																	type: "object"
+																}
+															}
+															type:                    "object"
+															"x-kubernetes-map-type": "atomic"
+														}
+														matchLabelKeys: {
+															items: type: "string"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
+														}
+														mismatchLabelKeys: {
+															items: type: "string"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
+														}
+														namespaceSelector: {
+															properties: {
+																matchExpressions: {
+																	items: {
+																		properties: {
+																			key: type:      "string"
+																			operator: type: "string"
+																			values: {
+																				items: type: "string"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
+																			}
+																		}
+																		required: ["key", "operator"]
+																		type: "object"
+																	}
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
+																}
+																matchLabels: {
+																	additionalProperties: type: "string"
+																	type: "object"
+																}
+															}
+															type:                    "object"
+															"x-kubernetes-map-type": "atomic"
+														}
+														namespaces: {
+															items: type: "string"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
+														}
+														topologyKey: type: "string"
+													}
+													required: ["topologyKey"]
+													type: "object"
+												}
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
+											}
+										}
+										type: "object"
+									}
+									podAntiAffinity: {
+										properties: {
+											preferredDuringSchedulingIgnoredDuringExecution: {
+												items: {
+													properties: {
+														podAffinityTerm: {
+															properties: {
+																labelSelector: {
+																	properties: {
+																		matchExpressions: {
+																			items: {
+																				properties: {
+																					key: type:      "string"
+																					operator: type: "string"
+																					values: {
+																						items: type: "string"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
+																					}
+																				}
+																				required: ["key", "operator"]
+																				type: "object"
+																			}
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
+																		}
+																		matchLabels: {
+																			additionalProperties: type: "string"
+																			type: "object"
+																		}
+																	}
+																	type:                    "object"
+																	"x-kubernetes-map-type": "atomic"
+																}
+																matchLabelKeys: {
+																	items: type: "string"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
+																}
+																mismatchLabelKeys: {
+																	items: type: "string"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
+																}
+																namespaceSelector: {
+																	properties: {
+																		matchExpressions: {
+																			items: {
+																				properties: {
+																					key: type:      "string"
+																					operator: type: "string"
+																					values: {
+																						items: type: "string"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
+																					}
+																				}
+																				required: ["key", "operator"]
+																				type: "object"
+																			}
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
+																		}
+																		matchLabels: {
+																			additionalProperties: type: "string"
+																			type: "object"
+																		}
+																	}
+																	type:                    "object"
+																	"x-kubernetes-map-type": "atomic"
+																}
+																namespaces: {
+																	items: type: "string"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
+																}
+																topologyKey: type: "string"
+															}
+															required: ["topologyKey"]
+															type: "object"
+														}
+														weight: {
+															format: "int32"
+															type:   "integer"
+														}
+													}
+													required: ["podAffinityTerm", "weight"]
+													type: "object"
+												}
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
+											}
+											requiredDuringSchedulingIgnoredDuringExecution: {
+												items: {
+													properties: {
+														labelSelector: {
+															properties: {
+																matchExpressions: {
+																	items: {
+																		properties: {
+																			key: type:      "string"
+																			operator: type: "string"
+																			values: {
+																				items: type: "string"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
+																			}
+																		}
+																		required: ["key", "operator"]
+																		type: "object"
+																	}
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
+																}
+																matchLabels: {
+																	additionalProperties: type: "string"
+																	type: "object"
+																}
+															}
+															type:                    "object"
+															"x-kubernetes-map-type": "atomic"
+														}
+														matchLabelKeys: {
+															items: type: "string"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
+														}
+														mismatchLabelKeys: {
+															items: type: "string"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
+														}
+														namespaceSelector: {
+															properties: {
+																matchExpressions: {
+																	items: {
+																		properties: {
+																			key: type:      "string"
+																			operator: type: "string"
+																			values: {
+																				items: type: "string"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
+																			}
+																		}
+																		required: ["key", "operator"]
+																		type: "object"
+																	}
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
+																}
+																matchLabels: {
+																	additionalProperties: type: "string"
+																	type: "object"
+																}
+															}
+															type:                    "object"
+															"x-kubernetes-map-type": "atomic"
+														}
+														namespaces: {
+															items: type: "string"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
+														}
+														topologyKey: type: "string"
+													}
+													required: ["topologyKey"]
+													type: "object"
+												}
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
+											}
+										}
+										type: "object"
+									}
+									tolerations: {
+										items: {
+											properties: {
+												effect: type:   "string"
+												key: type:      "string"
+												operator: type: "string"
+												tolerationSeconds: {
+													format: "int64"
+													type:   "integer"
+												}
+												value: type: "string"
+											}
+											type: "object"
+										}
+										type: "array"
+									}
+									topologySpreadConstraints: {
+										items: {
+											properties: {
+												labelSelector: {
+													properties: {
+														matchExpressions: {
+															items: {
+																properties: {
+																	key: type:      "string"
+																	operator: type: "string"
+																	values: {
+																		items: type: "string"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
+																	}
+																}
+																required: ["key", "operator"]
+																type: "object"
+															}
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
+														}
+														matchLabels: {
+															additionalProperties: type: "string"
+															type: "object"
+														}
+													}
+													type:                    "object"
+													"x-kubernetes-map-type": "atomic"
+												}
+												matchLabelKeys: {
+													items: type: "string"
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
+												}
+												maxSkew: {
+													format: "int32"
+													type:   "integer"
+												}
+												minDomains: {
+													format: "int32"
+													type:   "integer"
+												}
+												nodeAffinityPolicy: type: "string"
+												nodeTaintsPolicy: type:   "string"
+												topologyKey: type:        "string"
+												whenUnsatisfiable: type:  "string"
+											}
+											required: ["maxSkew", "topologyKey", "whenUnsatisfiable"]
+											type: "object"
+										}
+										type: "array"
+									}
+								}
+								type: "object"
+							}
+							pool: {
+								description: "Pool is the RADOS pool where NVMe-oF configuration is stored"
+								minLength:   1
+								type:        "string"
+							}
+							ports: {
+								description: "Ports configuration for the NVMe-oF gateway"
+								properties: {
+									discoveryPort: {
+										description: "DiscoveryPort is the port for discovery service (default: 8009)"
+										format:      "int32"
+										maximum:     65535
+										minimum:     1
+										type:        "integer"
+									}
+									gatewayPort: {
+										description: "GatewayPort is the port for the gateway service (default: 5500)"
+										format:      "int32"
+										maximum:     65535
+										minimum:     1
+										type:        "integer"
+									}
+									ioPort: {
+										description: "IOPort is the port for NVMe-oF IO traffic (default: 4420)"
+										format:      "int32"
+										maximum:     65535
+										minimum:     1
+										type:        "integer"
+									}
+									monitorPort: {
+										description: "MonitorPort is the port for the monitor service (default: 5499)"
+										format:      "int32"
+										maximum:     65535
+										minimum:     1
+										type:        "integer"
+									}
+								}
+								type: "object"
+							}
+							priorityClassName: {
+								description: "PriorityClassName sets the priority class on the pods"
+								type:        "string"
+							}
+							resources: {
+								description: "Resources set resource requests and limits"
+								properties: {
+									claims: {
+										description: """
+														Claims lists the names of resources, defined in spec.resourceClaims,
+														that are used by this container.
+
+														This field depends on the
+														DynamicResourceAllocation feature gate.
+
+														This field is immutable. It can only be set for containers.
+														"""
+										items: {
+											description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
+											properties: {
+												name: {
+													description: """
+																	Name must match the name of one entry in pod.spec.resourceClaims of
+																	the Pod where this field is used. It makes that resource available
+																	inside a container.
+																	"""
+													type: "string"
+												}
+												request: {
+													description: """
+																	Request is the name chosen for a request in the referenced claim.
+																	If empty, everything from the claim is made available, otherwise
+																	only the result of this request.
+																	"""
+													type: "string"
+												}
+											}
+											required: ["name"]
+											type: "object"
+										}
+										type: "array"
+										"x-kubernetes-list-map-keys": ["name"]
+										"x-kubernetes-list-type": "map"
+									}
+									limits: {
+										additionalProperties: {
+											anyOf: [{
+												type: "integer"
+											}, {
+												type: "string"
+											}]
+											pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+											"x-kubernetes-int-or-string": true
+										}
+										description: """
+														Limits describes the maximum amount of compute resources allowed.
+														More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+														"""
+										type: "object"
+									}
+									requests: {
+										additionalProperties: {
+											anyOf: [{
+												type: "integer"
+											}, {
+												type: "string"
+											}]
+											pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+											"x-kubernetes-int-or-string": true
+										}
+										description: """
+														Requests describes the minimum amount of compute resources required.
+														If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+														otherwise to an implementation-defined value. Requests cannot exceed Limits.
+														More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+														"""
+										type: "object"
+									}
+								}
+								type: "object"
+							}
+						}
+						required: ["group", "image", "instances", "pool"]
+						type: "object"
+					}
+					status: {
+						description: "NVMeOFGatewayStatus represents the status of Ceph NVMe-oF Gateway"
+						properties: {
+							cephx: {
+								properties: daemon: {
+									description: "Daemon shows the CephX key status for local Ceph daemons associated with this resources."
+									properties: {
+										keyCephVersion: {
+											description: """
+																KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+																same string format as reported by `CephCluster.status.version.version` to allow them to be
+																compared. E.g., `20.2.0-0`.
+																For all newly-created resources, this field set to the version of Ceph that created the key.
+																The special value "Uninitialized" indicates that keys are being created for the first time.
+																An empty string indicates that the version is unknown, as expected in brownfield deployments.
+																"""
+											type: "string"
+										}
+										keyGeneration: {
+											description: """
+																KeyGeneration represents the CephX key generation for the last successful reconcile.
+																For all newly-created resources, this field is set to `1`.
+																When keys are rotated due to any rotation policy, the generation is incremented or updated to
+																the configured policy generation.
+																Generation `0` indicates that keys existed prior to the implementation of key tracking.
+																"""
+											format: "int32"
+											type:   "integer"
+										}
+									}
+									type: "object"
+								}
+								type: "object"
+							}
+							conditions: {
+								items: {
+									description: "Condition represents a status condition on any Rook-Ceph Custom Resource."
+									properties: {
+										lastHeartbeatTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										lastTransitionTime: {
+											format: "date-time"
+											type:   "string"
+										}
+										message: type: "string"
+										reason: {
+											description: "ConditionReason is a reason for a condition"
+											type:        "string"
+										}
+										status: type: "string"
+										type: {
+											description: "ConditionType represent a resource's status"
+											type:        "string"
+										}
+									}
+									type: "object"
+								}
+								type: "array"
+							}
+							observedGeneration: {
+								description: "ObservedGeneration is the latest generation observed by the controller."
+								format:      "int64"
+								type:        "integer"
+							}
+							phase: type: "string"
+						}
+						type: "object"
+					}
+				}
+				required: ["metadata", "spec"]
 				type: "object"
 			}
 			served:  true
@@ -13713,32 +14270,43 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephObjectRealm"
 			listKind: "CephObjectRealmList"
 			plural:   "cephobjectrealms"
-			shortNames: ["cephor"]
+			shortNames: [
+				"cephor",
+			]
 			singular: "cephobjectrealm"
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
+			additionalPrinterColumns: [{
+				jsonPath: ".status.phase"
+				name:     "Phase"
+				type:     "string"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
+			}]
 			name: "v1"
 			schema: openAPIV3Schema: {
 				description: "CephObjectRealm represents a Ceph Object Store Gateway Realm"
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
 						type: "string"
 					}
 					metadata: type: "object"
@@ -13802,7 +14370,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						"x-kubernetes-preserve-unknown-fields": true
 					}
 				}
-				required: ["metadata"]
+				required: [
+					"metadata",
+				]
 				type: "object"
 			}
 			served:  true
@@ -13818,10 +14388,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephObjectStore"
 			listKind: "CephObjectStoreList"
 			plural:   "cephobjectstores"
-			shortNames: ["cephos"]
+			shortNames: [
+				"cephos",
+			]
 			singular: "cephobjectstore"
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.phase"
@@ -13846,21 +14418,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
 						type: "string"
 					}
 					metadata: type: "object"
@@ -13869,13 +14441,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						properties: {
 							allowUsersInNamespaces: {
 								description: """
-	The list of allowed namespaces in addition to the object store namespace
-	where ceph object store users may be created. Specify "*" to allow all
-	namespaces, otherwise list individual namespaces that are to be allowed.
-	This is useful for applications that need object store credentials
-	to be created in their own namespace, where neither OBCs nor COSI
-	is being used to create buckets. The default is empty.
-	"""
+												The list of allowed namespaces in addition to the object store namespace
+												where ceph object store users may be created. Specify "*" to allow all
+												namespaces, otherwise list individual namespaces that are to be allowed.
+												This is useful for applications that need object store credentials
+												to be created in their own namespace, where neither OBCs nor COSI
+												is being used to create buckets. The default is empty.
+												"""
 								items: type: "string"
 								type: "array"
 							}
@@ -13913,11 +14485,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											type:        "string"
 										}
 									}
-									required: [
-										"acceptedRoles",
-										"serviceUserSecretName",
-										"url",
-									]
+									required: ["acceptedRoles", "serviceUserSecretName", "url"]
 									type: "object"
 								}
 								type: "object"
@@ -13932,17 +14500,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									compressionMode: {
 										description: """
-	DEPRECATED: use Parameters instead, e.g., Parameters["compression_mode"] = "force"
-	The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)
-	Do NOT set a default value for kubebuilder as this will override the Parameters
-	"""
-										enum: [
-											"none",
-											"passive",
-											"aggressive",
-											"force",
-											"",
-										]
+														DEPRECATED: use Parameters instead, e.g., Parameters["compression_mode"] = "force"
+														The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)
+														Do NOT set a default value for kubebuilder as this will override the Parameters
+														"""
+										enum: ["none", "passive", "aggressive", "force", ""]
 										nullable: true
 										type:     "string"
 									}
@@ -13958,6 +14520,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									enableCrushUpdates: {
 										description: "Allow rook operator to change the pool CRUSH tunables once the pool is created"
+										nullable:    true
 										type:        "boolean"
 									}
 									enableRBDStats: {
@@ -13969,37 +14532,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											algorithm: {
 												description: """
-	The algorithm for erasure coding.
-	If absent, defaults to the plugin specified in osd_pool_default_erasure_code_profile.
-	"""
-												enum: [
-													"isa",
-													"jerasure",
-												]
+																The algorithm for erasure coding.
+																If absent, defaults to the plugin specified in osd_pool_default_erasure_code_profile.
+																"""
+												enum: ["isa", "jerasure"]
 												type: "string"
 											}
 											codingChunks: {
 												description: """
-	Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
-	This is the number of OSDs that can be lost simultaneously before data cannot be recovered.
-	"""
+																Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+																This is the number of OSDs that can be lost simultaneously before data cannot be recovered.
+																"""
 												minimum: 0
 												type:    "integer"
 											}
 											dataChunks: {
 												description: """
-	Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
-	The number of chunks required to recover an object when any single OSD is lost is the same
-	as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery.
-	"""
+																Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+																The number of chunks required to recover an object when any single OSD is lost is the same
+																as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery.
+																"""
 												minimum: 0
 												type:    "integer"
 											}
 										}
-										required: [
-											"codingChunks",
-											"dataChunks",
-										]
+										required: ["codingChunks", "dataChunks"]
 										type: "object"
 									}
 									failureDomain: {
@@ -14015,11 +14572,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											mode: {
 												description: "Mode is the mirroring mode: pool, image or init-only."
-												enum: [
-													"pool",
-													"image",
-													"init-only",
-												]
+												enum: ["pool", "image", "init-only"]
 												type: "string"
 											}
 											peers: {
@@ -14070,9 +14623,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											maxBytes: {
 												description: """
-	MaxBytes represents the quota in bytes
-	Deprecated in favor of MaxSize
-	"""
+																MaxBytes represents the quota in bytes
+																Deprecated in favor of MaxSize
+																"""
 												format: "int64"
 												type:   "integer"
 											}
@@ -14107,10 +14660,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:        "string"
 													}
 												}
-												required: [
-													"primaryDeviceClass",
-													"secondaryDeviceClass",
-												]
+												required: ["primaryDeviceClass", "secondaryDeviceClass"]
 												type: "object"
 											}
 											replicasPerFailureDomain: {
@@ -14163,11 +14713,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							defaultRealm: {
 								description: """
-	Set this realm as the default in Ceph. Only one realm should be default.
-	Do not set this true on more than one CephObjectStore.
-	This may not be set when zone is also specified; in this case, the realm
-	referenced by the zone's zonegroup should configure defaulting behavior.
-	"""
+												Set this realm as the default in Ceph. Only one realm should be default.
+												Do not set this true on more than one CephObjectStore.
+												This may not be set when zone is also specified; in this case, the realm
+												referenced by the zone's zonegroup should configure defaulting behavior.
+												"""
 								type: "boolean"
 							}
 							gateway: {
@@ -14176,24 +14726,24 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								properties: {
 									additionalVolumeMounts: {
 										description: """
-	AdditionalVolumeMounts allows additional volumes to be mounted to the RGW pod.
-	The root directory for each additional volume mount is `/var/rgw`.
-	Example: for an additional mount at subPath `ldap`, mounted from a secret that has key
-	`bindpass.secret`, the file would reside at `/var/rgw/ldap/bindpass.secret`.
-	"""
+														AdditionalVolumeMounts allows additional volumes to be mounted to the RGW pod.
+														The root directory for each additional volume mount is `/var/rgw`.
+														Example: for an additional mount at subPath `ldap`, mounted from a secret that has key
+														`bindpass.secret`, the file would reside at `/var/rgw/ldap/bindpass.secret`.
+														"""
 										items: {
 											description: """
-	AdditionalVolumeMount represents the source from where additional files in pod containers
-	should come from and what subdirectory they are made available in.
-	"""
+															AdditionalVolumeMount represents the source from where additional files in pod containers
+															should come from and what subdirectory they are made available in.
+															"""
 											properties: {
 												subPath: {
 													description: """
-	SubPath defines the sub-path (subdirectory) of the directory root where the volumeSource will
-	be mounted. All files/keys in the volume source's volume will be mounted to the subdirectory.
-	This is not the same as the Kubernetes `subPath` volume mount option.
-	Each subPath definition must be unique and must not contain ':'.
-	"""
+																	SubPath defines the sub-path (subdirectory) of the directory root where the volumeSource will
+																	be mounted. All files/keys in the volume source's volume will be mounted to the subdirectory.
+																	This is not the same as the Kubernetes `subPath` volume mount option.
+																	Each subPath definition must be unique and must not contain ':'.
+																	"""
 													minLength: 1
 													pattern:   "^[^:]+$"
 													type:      "string"
@@ -14216,10 +14766,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			}
 																			path: type: "string"
 																		}
-																		required: [
-																			"key",
-																			"path",
-																		]
+																		required: ["key", "path"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -14289,10 +14836,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
-																									required: [
-																										"key",
-																										"operator",
-																									]
+																									required: ["key", "operator"]
 																									type: "object"
 																								}
 																								type:                     "array"
@@ -14326,10 +14870,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								}
 																								path: type: "string"
 																							}
-																							required: [
-																								"key",
-																								"path",
-																							]
+																							required: ["key", "path"]
 																							type: "object"
 																						}
 																						type:                     "array"
@@ -14389,6 +14930,25 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				}
 																				type: "object"
 																			}
+																			podCertificate: {
+																				properties: {
+																					certificateChainPath: type: "string"
+																					credentialBundlePath: type: "string"
+																					keyPath: type:              "string"
+																					keyType: type:              "string"
+																					maxExpirationSeconds: {
+																						format: "int32"
+																						type:   "integer"
+																					}
+																					signerName: type: "string"
+																					userAnnotations: {
+																						additionalProperties: type: "string"
+																						type: "object"
+																					}
+																				}
+																				required: ["keyType", "signerName"]
+																				type: "object"
+																			}
 																			secret: {
 																				properties: {
 																					items: {
@@ -14401,10 +14961,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								}
 																								path: type: "string"
 																							}
-																							required: [
-																								"key",
-																								"path",
-																							]
+																							required: ["key", "path"]
 																							type: "object"
 																						}
 																						type:                     "array"
@@ -14456,10 +15013,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			}
 																			path: type: "string"
 																		}
-																		required: [
-																			"key",
-																			"path",
-																		]
+																		required: ["key", "path"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -14474,10 +15028,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type: "object"
 												}
 											}
-											required: [
-												"subPath",
-												"volumeSource",
-											]
+											required: ["subPath", "volumeSource"]
 											type: "object"
 										}
 										type: "array"
@@ -14502,25 +15053,25 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									disableMultisiteSyncTraffic: {
 										description: """
-	DisableMultisiteSyncTraffic, when true, prevents this object store's gateways from
-	transmitting multisite replication data. Note that this value does not affect whether
-	gateways receive multisite replication traffic: see ObjectZone.spec.customEndpoints for that.
-	If false or unset, this object store's gateways will be able to transmit multisite
-	replication data.
-	"""
+														DisableMultisiteSyncTraffic, when true, prevents this object store's gateways from
+														transmitting multisite replication data. Note that this value does not affect whether
+														gateways receive multisite replication traffic: see ObjectZone.spec.customEndpoints for that.
+														If false or unset, this object store's gateways will be able to transmit multisite
+														replication data.
+														"""
 										type: "boolean"
 									}
 									externalRgwEndpoints: {
 										description: """
-	ExternalRgwEndpoints points to external RGW endpoint(s). Multiple endpoints can be given, but
-	for stability of ObjectBucketClaims, we highly recommend that users give only a single
-	external RGW endpoint that is a load balancer that sends requests to the multiple RGWs.
-	"""
+														ExternalRgwEndpoints points to external RGW endpoint(s). Multiple endpoints can be given, but
+														for stability of ObjectBucketClaims, we highly recommend that users give only a single
+														external RGW endpoint that is a load balancer that sends requests to the multiple RGWs.
+														"""
 										items: {
 											description: """
-	EndpointAddress is a tuple that describes a single IP address or host name. This is a subset of
-	Kubernetes's v1.EndpointAddress.
-	"""
+															EndpointAddress is a tuple that describes a single IP address or host name. This is a subset of
+															Kubernetes's v1.EndpointAddress.
+															"""
 											properties: {
 												hostname: {
 													description: "The DNS-addressable Hostname of this endpoint. This field will be preferred over IP if both are given."
@@ -14564,31 +15115,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											properties: {
 												claims: {
 													description: """
-	Claims lists the names of resources, defined in spec.resourceClaims,
-	that are used by this container.
+																		Claims lists the names of resources, defined in spec.resourceClaims,
+																		that are used by this container.
 
-	This is an alpha field and requires enabling the
-	DynamicResourceAllocation feature gate.
+																		This field depends on the
+																		DynamicResourceAllocation feature gate.
 
-	This field is immutable. It can only be set for containers.
-	"""
+																		This field is immutable. It can only be set for containers.
+																		"""
 													items: {
 														description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
 														properties: {
 															name: {
 																description: """
-	Name must match the name of one entry in pod.spec.resourceClaims of
-	the Pod where this field is used. It makes that resource available
-	inside a container.
-	"""
+																					Name must match the name of one entry in pod.spec.resourceClaims of
+																					the Pod where this field is used. It makes that resource available
+																					inside a container.
+																					"""
 																type: "string"
 															}
 															request: {
 																description: """
-	Request is the name chosen for a request in the referenced claim.
-	If empty, everything from the claim is made available, otherwise
-	only the result of this request.
-	"""
+																					Request is the name chosen for a request in the referenced claim.
+																					If empty, everything from the claim is made available, otherwise
+																					only the result of this request.
+																					"""
 																type: "string"
 															}
 														}
@@ -14610,9 +15161,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														"x-kubernetes-int-or-string": true
 													}
 													description: """
-	Limits describes the maximum amount of compute resources allowed.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																		Limits describes the maximum amount of compute resources allowed.
+																		More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																		"""
 													type: "object"
 												}
 												requests: {
@@ -14626,11 +15177,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														"x-kubernetes-int-or-string": true
 													}
 													description: """
-	Requests describes the minimum amount of compute resources required.
-	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
-	otherwise to an implementation-defined value. Requests cannot exceed Limits.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																		Requests describes the minimum amount of compute resources required.
+																		If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+																		otherwise to an implementation-defined value. Requests cannot exceed Limits.
+																		More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																		"""
 													type: "object"
 												}
 											}
@@ -14659,10 +15210,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -14679,10 +15227,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -14697,10 +15242,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type:   "integer"
 																}
 															}
-															required: [
-																"preference",
-																"weight",
-															]
+															required: ["preference", "weight"]
 															type: "object"
 														}
 														type:                     "array"
@@ -14721,10 +15263,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
-																			required: [
-																				"key",
-																				"operator",
-																			]
+																			required: ["key", "operator"]
 																			type: "object"
 																		}
 																		type:                     "array"
@@ -14741,10 +15280,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
-																			required: [
-																				"key",
-																				"operator",
-																			]
+																			required: ["key", "operator"]
 																			type: "object"
 																		}
 																		type:                     "array"
@@ -14784,10 +15320,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
-																						required: [
-																							"key",
-																							"operator",
-																						]
+																						required: ["key", "operator"]
 																						type: "object"
 																					}
 																					type:                     "array"
@@ -14824,10 +15357,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
-																						required: [
-																							"key",
-																							"operator",
-																						]
+																						required: ["key", "operator"]
 																						type: "object"
 																					}
 																					type:                     "array"
@@ -14856,10 +15386,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type:   "integer"
 																}
 															}
-															required: [
-																"podAffinityTerm",
-																"weight",
-															]
+															required: ["podAffinityTerm", "weight"]
 															type: "object"
 														}
 														type:                     "array"
@@ -14881,10 +15408,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -14921,10 +15445,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -14974,10 +15495,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
-																						required: [
-																							"key",
-																							"operator",
-																						]
+																						required: ["key", "operator"]
 																						type: "object"
 																					}
 																					type:                     "array"
@@ -15014,10 +15532,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
-																						required: [
-																							"key",
-																							"operator",
-																						]
+																						required: ["key", "operator"]
 																						type: "object"
 																					}
 																					type:                     "array"
@@ -15046,10 +15561,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type:   "integer"
 																}
 															}
-															required: [
-																"podAffinityTerm",
-																"weight",
-															]
+															required: ["podAffinityTerm", "weight"]
 															type: "object"
 														}
 														type:                     "array"
@@ -15071,10 +15583,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -15111,10 +15620,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -15176,10 +15682,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -15211,11 +15714,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														topologyKey: type:        "string"
 														whenUnsatisfiable: type:  "string"
 													}
-													required: [
-														"maxSkew",
-														"topologyKey",
-														"whenUnsatisfiable",
-													]
+													required: ["maxSkew", "topologyKey", "whenUnsatisfiable"]
 													type: "object"
 												}
 												type: "array"
@@ -15235,21 +15734,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									readAffinity: {
 										description: """
-	ReadAffinity defines the RGW read affinity policy to optimize the read requests for the RGW clients
-	Note: Only supported from Ceph Tentacle (v20)
-	"""
+														ReadAffinity defines the RGW read affinity policy to optimize the read requests for the RGW clients
+														Note: Only supported from Ceph Tentacle (v20)
+														"""
 										properties: type: {
 											description: """
-	Type defines the RGW ReadAffinity type
-	localize: read from the nearest OSD based on crush location of the RGW client
-	balance: picks a random OSD from the PG's active set
-	default: read from the primary OSD
-	"""
-											enum: [
-												"localize",
-												"balance",
-												"default",
-											]
+																Type defines the RGW ReadAffinity type
+																localize: read from the nearest OSD based on crush location of the RGW client
+																balance: picks a random OSD from the PG's active set
+																default: read from the primary OSD
+																"""
+											enum: ["localize", "balance", "default"]
 											type: "string"
 										}
 										required: ["type"]
@@ -15261,31 +15756,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											claims: {
 												description: """
-	Claims lists the names of resources, defined in spec.resourceClaims,
-	that are used by this container.
+																Claims lists the names of resources, defined in spec.resourceClaims,
+																that are used by this container.
 
-	This is an alpha field and requires enabling the
-	DynamicResourceAllocation feature gate.
+																This field depends on the
+																DynamicResourceAllocation feature gate.
 
-	This field is immutable. It can only be set for containers.
-	"""
+																This field is immutable. It can only be set for containers.
+																"""
 												items: {
 													description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
 													properties: {
 														name: {
 															description: """
-	Name must match the name of one entry in pod.spec.resourceClaims of
-	the Pod where this field is used. It makes that resource available
-	inside a container.
-	"""
+																			Name must match the name of one entry in pod.spec.resourceClaims of
+																			the Pod where this field is used. It makes that resource available
+																			inside a container.
+																			"""
 															type: "string"
 														}
 														request: {
 															description: """
-	Request is the name chosen for a request in the referenced claim.
-	If empty, everything from the claim is made available, otherwise
-	only the result of this request.
-	"""
+																			Request is the name chosen for a request in the referenced claim.
+																			If empty, everything from the claim is made available, otherwise
+																			only the result of this request.
+																			"""
 															type: "string"
 														}
 													}
@@ -15307,9 +15802,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													"x-kubernetes-int-or-string": true
 												}
 												description: """
-	Limits describes the maximum amount of compute resources allowed.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																Limits describes the maximum amount of compute resources allowed.
+																More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																"""
 												type: "object"
 											}
 											requests: {
@@ -15323,11 +15818,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													"x-kubernetes-int-or-string": true
 												}
 												description: """
-	Requests describes the minimum amount of compute resources required.
-	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
-	otherwise to an implementation-defined value. Requests cannot exceed Limits.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+																Requests describes the minimum amount of compute resources required.
+																If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+																otherwise to an implementation-defined value. Requests cannot exceed Limits.
+																More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																"""
 												type: "object"
 											}
 										}
@@ -15337,22 +15832,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									rgwCommandFlags: {
 										additionalProperties: type: "string"
 										description: """
-	RgwCommandFlags sets Ceph RGW config values for the gateway clients that serve this object
-	store. Values are modified at RGW startup, resulting in RGW pod restarts.
-	This feature is intended for advanced users. It allows breaking configurations to be easily
-	applied. Use with caution.
-	"""
+														RgwCommandFlags sets Ceph RGW config values for the gateway clients that serve this object
+														store. Values are modified at RGW startup, resulting in RGW pod restarts.
+														This feature is intended for advanced users. It allows breaking configurations to be easily
+														applied. Use with caution.
+														"""
 										nullable: true
 										type:     "object"
 									}
 									rgwConfig: {
 										additionalProperties: type: "string"
 										description: """
-	RgwConfig sets Ceph RGW config values for the gateway clients that serve this object store.
-	Values are modified at runtime without RGW restart.
-	This feature is intended for advanced users. It allows breaking configurations to be easily
-	applied. Use with caution.
-	"""
+														RgwConfig sets Ceph RGW config values for the gateway clients that serve this object store.
+														Values are modified at runtime without RGW restart.
+														This feature is intended for advanced users. It allows breaking configurations to be easily
+														applied. Use with caution.
+														"""
 										nullable: true
 										type:     "object"
 									}
@@ -15367,12 +15862,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												name: {
 													default: ""
 													description: """
-	Name of the referent.
-	This field is effectively required, but due to backwards compatibility is
-	allowed to be empty. Instances of this type with an empty value here are
-	almost certainly wrong.
-	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-	"""
+																	Name of the referent.
+																	This field is effectively required, but due to backwards compatibility is
+																	allowed to be empty. Instances of this type with an empty value here are
+																	almost certainly wrong.
+																	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																	"""
 													type: "string"
 												}
 												optional: {
@@ -15385,11 +15880,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											"x-kubernetes-map-type": "atomic"
 										}
 										description: """
-	RgwConfigFromSecret works exactly like RgwConfig but takes config value from Secret Key reference.
-	Values are modified at runtime without RGW restart.
-	This feature is intended for advanced users. It allows breaking configurations to be easily
-	applied. Use with caution.
-	"""
+														RgwConfigFromSecret works exactly like RgwConfig but takes config value from Secret Key reference.
+														Values are modified at runtime without RGW restart.
+														This feature is intended for advanced users. It allows breaking configurations to be easily
+														applied. Use with caution.
+														"""
 										nullable: true
 										type:     "object"
 									}
@@ -15407,10 +15902,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: annotations: {
 											additionalProperties: type: "string"
 											description: """
-	The annotations-related configuration to add/set on each rgw service.
-	nullable
-	optional
-	"""
+																The annotations-related configuration to add/set on each rgw service.
+																nullable
+																optional
+																"""
 											type: "object"
 										}
 										type: "object"
@@ -15436,20 +15931,20 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											probe: {
 												description: """
-	Probe describes a health check to be performed against a container to determine whether it is
-	alive or ready to receive traffic.
-	"""
+																Probe describes a health check to be performed against a container to determine whether it is
+																alive or ready to receive traffic.
+																"""
 												properties: {
 													exec: {
 														description: "Exec specifies a command to execute in the container."
 														properties: command: {
 															description: """
-	Command is the command line to execute inside the container, the working directory for the
-	command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
-	not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
-	a shell, you need to explicitly call out to that shell.
-	Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
-	"""
+																				Command is the command line to execute inside the container, the working directory for the
+																				command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
+																				not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
+																				a shell, you need to explicitly call out to that shell.
+																				Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+																				"""
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
@@ -15458,9 +15953,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													failureThreshold: {
 														description: """
-	Minimum consecutive failures for the probe to be considered failed after having succeeded.
-	Defaults to 3. Minimum value is 1.
-	"""
+																		Minimum consecutive failures for the probe to be considered failed after having succeeded.
+																		Defaults to 3. Minimum value is 1.
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
@@ -15475,11 +15970,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															service: {
 																default: ""
 																description: """
-	Service is the name of the service to place in the gRPC HealthCheckRequest
-	(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+																				Service is the name of the service to place in the gRPC HealthCheckRequest
+																				(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
 
-	If this is not specified, the default behavior is defined by gRPC.
-	"""
+																				If this is not specified, the default behavior is defined by gRPC.
+																				"""
 																type: "string"
 															}
 														}
@@ -15491,9 +15986,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														properties: {
 															host: {
 																description: """
-	Host name to connect to, defaults to the pod IP. You probably want to set
-	"Host" in httpHeaders instead.
-	"""
+																				Host name to connect to, defaults to the pod IP. You probably want to set
+																				"Host" in httpHeaders instead.
+																				"""
 																type: "string"
 															}
 															httpHeaders: {
@@ -15503,9 +15998,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	properties: {
 																		name: {
 																			description: """
-	The header field name.
-	This will be canonicalized upon output, so case-variant names will be understood as the same header.
-	"""
+																							The header field name.
+																							This will be canonicalized upon output, so case-variant names will be understood as the same header.
+																							"""
 																			type: "string"
 																		}
 																		value: {
@@ -15513,10 +16008,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			type:        "string"
 																		}
 																	}
-																	required: [
-																		"name",
-																		"value",
-																	]
+																	required: ["name", "value"]
 																	type: "object"
 																}
 																type:                     "array"
@@ -15533,17 +16025,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type: "string"
 																}]
 																description: """
-	Name or number of the port to access on the container.
-	Number must be in the range 1 to 65535.
-	Name must be an IANA_SVC_NAME.
-	"""
+																				Name or number of the port to access on the container.
+																				Number must be in the range 1 to 65535.
+																				Name must be an IANA_SVC_NAME.
+																				"""
 																"x-kubernetes-int-or-string": true
 															}
 															scheme: {
 																description: """
-	Scheme to use for connecting to the host.
-	Defaults to HTTP.
-	"""
+																				Scheme to use for connecting to the host.
+																				Defaults to HTTP.
+																				"""
 																type: "string"
 															}
 														}
@@ -15552,25 +16044,25 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													initialDelaySeconds: {
 														description: """
-	Number of seconds after the container has started before liveness probes are initiated.
-	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-	"""
+																		Number of seconds after the container has started before liveness probes are initiated.
+																		More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
 													periodSeconds: {
 														description: """
-	How often (in seconds) to perform the probe.
-	Default to 10 seconds. Minimum value is 1.
-	"""
+																		How often (in seconds) to perform the probe.
+																		Default to 10 seconds. Minimum value is 1.
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
 													successThreshold: {
 														description: """
-	Minimum consecutive successes for the probe to be considered successful after having failed.
-	Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
-	"""
+																		Minimum consecutive successes for the probe to be considered successful after having failed.
+																		Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
@@ -15588,10 +16080,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type: "string"
 																}]
 																description: """
-	Number or name of the port to access on the container.
-	Number must be in the range 1 to 65535.
-	Name must be an IANA_SVC_NAME.
-	"""
+																				Number or name of the port to access on the container.
+																				Number must be in the range 1 to 65535.
+																				Name must be an IANA_SVC_NAME.
+																				"""
 																"x-kubernetes-int-or-string": true
 															}
 														}
@@ -15604,10 +16096,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													timeoutSeconds: {
 														description: """
-	Number of seconds after which the probe times out.
-	Defaults to 1 second. Minimum value is 1.
-	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-	"""
+																		Number of seconds after which the probe times out.
+																		Defaults to 1 second. Minimum value is 1.
+																		More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
@@ -15627,20 +16119,20 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											probe: {
 												description: """
-	Probe describes a health check to be performed against a container to determine whether it is
-	alive or ready to receive traffic.
-	"""
+																Probe describes a health check to be performed against a container to determine whether it is
+																alive or ready to receive traffic.
+																"""
 												properties: {
 													exec: {
 														description: "Exec specifies a command to execute in the container."
 														properties: command: {
 															description: """
-	Command is the command line to execute inside the container, the working directory for the
-	command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
-	not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
-	a shell, you need to explicitly call out to that shell.
-	Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
-	"""
+																				Command is the command line to execute inside the container, the working directory for the
+																				command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
+																				not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
+																				a shell, you need to explicitly call out to that shell.
+																				Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+																				"""
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
@@ -15649,9 +16141,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													failureThreshold: {
 														description: """
-	Minimum consecutive failures for the probe to be considered failed after having succeeded.
-	Defaults to 3. Minimum value is 1.
-	"""
+																		Minimum consecutive failures for the probe to be considered failed after having succeeded.
+																		Defaults to 3. Minimum value is 1.
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
@@ -15666,11 +16158,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															service: {
 																default: ""
 																description: """
-	Service is the name of the service to place in the gRPC HealthCheckRequest
-	(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+																				Service is the name of the service to place in the gRPC HealthCheckRequest
+																				(see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
 
-	If this is not specified, the default behavior is defined by gRPC.
-	"""
+																				If this is not specified, the default behavior is defined by gRPC.
+																				"""
 																type: "string"
 															}
 														}
@@ -15682,9 +16174,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														properties: {
 															host: {
 																description: """
-	Host name to connect to, defaults to the pod IP. You probably want to set
-	"Host" in httpHeaders instead.
-	"""
+																				Host name to connect to, defaults to the pod IP. You probably want to set
+																				"Host" in httpHeaders instead.
+																				"""
 																type: "string"
 															}
 															httpHeaders: {
@@ -15694,9 +16186,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	properties: {
 																		name: {
 																			description: """
-	The header field name.
-	This will be canonicalized upon output, so case-variant names will be understood as the same header.
-	"""
+																							The header field name.
+																							This will be canonicalized upon output, so case-variant names will be understood as the same header.
+																							"""
 																			type: "string"
 																		}
 																		value: {
@@ -15704,10 +16196,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			type:        "string"
 																		}
 																	}
-																	required: [
-																		"name",
-																		"value",
-																	]
+																	required: ["name", "value"]
 																	type: "object"
 																}
 																type:                     "array"
@@ -15724,17 +16213,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type: "string"
 																}]
 																description: """
-	Name or number of the port to access on the container.
-	Number must be in the range 1 to 65535.
-	Name must be an IANA_SVC_NAME.
-	"""
+																				Name or number of the port to access on the container.
+																				Number must be in the range 1 to 65535.
+																				Name must be an IANA_SVC_NAME.
+																				"""
 																"x-kubernetes-int-or-string": true
 															}
 															scheme: {
 																description: """
-	Scheme to use for connecting to the host.
-	Defaults to HTTP.
-	"""
+																				Scheme to use for connecting to the host.
+																				Defaults to HTTP.
+																				"""
 																type: "string"
 															}
 														}
@@ -15743,25 +16232,25 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													initialDelaySeconds: {
 														description: """
-	Number of seconds after the container has started before liveness probes are initiated.
-	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-	"""
+																		Number of seconds after the container has started before liveness probes are initiated.
+																		More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
 													periodSeconds: {
 														description: """
-	How often (in seconds) to perform the probe.
-	Default to 10 seconds. Minimum value is 1.
-	"""
+																		How often (in seconds) to perform the probe.
+																		Default to 10 seconds. Minimum value is 1.
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
 													successThreshold: {
 														description: """
-	Minimum consecutive successes for the probe to be considered successful after having failed.
-	Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
-	"""
+																		Minimum consecutive successes for the probe to be considered successful after having failed.
+																		Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
@@ -15779,10 +16268,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type: "string"
 																}]
 																description: """
-	Number or name of the port to access on the container.
-	Number must be in the range 1 to 65535.
-	Name must be an IANA_SVC_NAME.
-	"""
+																				Number or name of the port to access on the container.
+																				Number must be in the range 1 to 65535.
+																				Name must be an IANA_SVC_NAME.
+																				"""
 																"x-kubernetes-int-or-string": true
 															}
 														}
@@ -15795,10 +16284,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													timeoutSeconds: {
 														description: """
-	Number of seconds after which the probe times out.
-	Defaults to 1 second. Minimum value is 1.
-	More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
-	"""
+																		Number of seconds after which the probe times out.
+																		Defaults to 1 second. Minimum value is 1.
+																		More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+																		"""
 														format: "int32"
 														type:   "integer"
 													}
@@ -15813,29 +16302,29 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							hosting: {
 								description: """
-	Hosting settings for the object store.
-	A common use case for hosting configuration is to inform Rook of endpoints that support DNS
-	wildcards, which in turn allows virtual host-style bucket addressing.
-	"""
+												Hosting settings for the object store.
+												A common use case for hosting configuration is to inform Rook of endpoints that support DNS
+												wildcards, which in turn allows virtual host-style bucket addressing.
+												"""
 								nullable: true
 								properties: {
 									advertiseEndpoint: {
 										description: """
-	AdvertiseEndpoint is the default endpoint Rook will return for resources dependent on this
-	object store. This endpoint will be returned to CephObjectStoreUsers, Object Bucket Claims,
-	and COSI Buckets/Accesses.
-	By default, Rook returns the endpoint for the object store's Kubernetes service using HTTPS
-	with `gateway.securePort` if it is defined (otherwise, HTTP with `gateway.port`).
-	"""
+														AdvertiseEndpoint is the default endpoint Rook will return for resources dependent on this
+														object store. This endpoint will be returned to CephObjectStoreUsers, Object Bucket Claims,
+														and COSI Buckets/Accesses.
+														By default, Rook returns the endpoint for the object store's Kubernetes service using HTTPS
+														with `gateway.securePort` if it is defined (otherwise, HTTP with `gateway.port`).
+														"""
 										nullable: true
 										properties: {
 											dnsName: {
 												description: """
-	DnsName is the DNS name (in RFC-1123 format) of the endpoint.
-	If the DNS name corresponds to an endpoint with DNS wildcard support, do not include the
-	wildcard itself in the list of hostnames.
-	E.g., use "mystore.example.com" instead of "*.mystore.example.com".
-	"""
+																DnsName is the DNS name (in RFC-1123 format) of the endpoint.
+																If the DNS name corresponds to an endpoint with DNS wildcard support, do not include the
+																wildcard itself in the list of hostnames.
+																E.g., use "mystore.example.com" instead of "*.mystore.example.com".
+																"""
 												minLength: 1
 												type:      "string"
 											}
@@ -15851,25 +16340,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "boolean"
 											}
 										}
-										required: [
-											"dnsName",
-											"port",
-											"useTls",
-										]
+										required: ["dnsName", "port", "useTls"]
 										type: "object"
 									}
 									dnsNames: {
 										description: """
-	A list of DNS host names on which object store gateways will accept client S3 connections.
-	When specified, object store gateways will reject client S3 connections to hostnames that are
-	not present in this list, so include all endpoints.
-	The object store's advertiseEndpoint and Kubernetes service endpoint, plus CephObjectZone
-	`customEndpoints` are automatically added to the list but may be set here again if desired.
-	Each DNS name must be valid according RFC-1123.
-	If the DNS name corresponds to an endpoint with DNS wildcard support, do not include the
-	wildcard itself in the list of hostnames.
-	E.g., use "mystore.example.com" instead of "*.mystore.example.com".
-	"""
+														A list of DNS host names on which object store gateways will accept client S3 connections.
+														When specified, object store gateways will reject client S3 connections to hostnames that are
+														not present in this list, so include all endpoints.
+														The object store's advertiseEndpoint and Kubernetes service endpoint, plus CephObjectZone
+														`customEndpoints` are automatically added to the list but may be set here again if desired.
+														Each DNS name must be valid according RFC-1123.
+														If the DNS name corresponds to an endpoint with DNS wildcard support, do not include the
+														wildcard itself in the list of hostnames.
+														E.g., use "mystore.example.com" instead of "*.mystore.example.com".
+														"""
 										items: type: "string"
 										type: "array"
 									}
@@ -15886,17 +16371,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									compressionMode: {
 										description: """
-	DEPRECATED: use Parameters instead, e.g., Parameters["compression_mode"] = "force"
-	The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)
-	Do NOT set a default value for kubebuilder as this will override the Parameters
-	"""
-										enum: [
-											"none",
-											"passive",
-											"aggressive",
-											"force",
-											"",
-										]
+														DEPRECATED: use Parameters instead, e.g., Parameters["compression_mode"] = "force"
+														The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)
+														Do NOT set a default value for kubebuilder as this will override the Parameters
+														"""
+										enum: ["none", "passive", "aggressive", "force", ""]
 										nullable: true
 										type:     "string"
 									}
@@ -15912,6 +16391,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									enableCrushUpdates: {
 										description: "Allow rook operator to change the pool CRUSH tunables once the pool is created"
+										nullable:    true
 										type:        "boolean"
 									}
 									enableRBDStats: {
@@ -15923,37 +16403,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											algorithm: {
 												description: """
-	The algorithm for erasure coding.
-	If absent, defaults to the plugin specified in osd_pool_default_erasure_code_profile.
-	"""
-												enum: [
-													"isa",
-													"jerasure",
-												]
+																The algorithm for erasure coding.
+																If absent, defaults to the plugin specified in osd_pool_default_erasure_code_profile.
+																"""
+												enum: ["isa", "jerasure"]
 												type: "string"
 											}
 											codingChunks: {
 												description: """
-	Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
-	This is the number of OSDs that can be lost simultaneously before data cannot be recovered.
-	"""
+																Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+																This is the number of OSDs that can be lost simultaneously before data cannot be recovered.
+																"""
 												minimum: 0
 												type:    "integer"
 											}
 											dataChunks: {
 												description: """
-	Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
-	The number of chunks required to recover an object when any single OSD is lost is the same
-	as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery.
-	"""
+																Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+																The number of chunks required to recover an object when any single OSD is lost is the same
+																as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery.
+																"""
 												minimum: 0
 												type:    "integer"
 											}
 										}
-										required: [
-											"codingChunks",
-											"dataChunks",
-										]
+										required: ["codingChunks", "dataChunks"]
 										type: "object"
 									}
 									failureDomain: {
@@ -15969,11 +16443,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											mode: {
 												description: "Mode is the mirroring mode: pool, image or init-only."
-												enum: [
-													"pool",
-													"image",
-													"init-only",
-												]
+												enum: ["pool", "image", "init-only"]
 												type: "string"
 											}
 											peers: {
@@ -16024,9 +16494,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											maxBytes: {
 												description: """
-	MaxBytes represents the quota in bytes
-	Deprecated in favor of MaxSize
-	"""
+																MaxBytes represents the quota in bytes
+																Deprecated in favor of MaxSize
+																"""
 												format: "int64"
 												type:   "integer"
 											}
@@ -16061,10 +16531,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:        "string"
 													}
 												}
-												required: [
-													"primaryDeviceClass",
-													"secondaryDeviceClass",
-												]
+												required: ["primaryDeviceClass", "secondaryDeviceClass"]
 												type: "object"
 											}
 											replicasPerFailureDomain: {
@@ -16124,22 +16591,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								properties: {
 									enableAPIs: {
 										description: """
-	Represents RGW 'rgw_enable_apis' config option. See: https://docs.ceph.com/en/reef/radosgw/config-ref/#confval-rgw_enable_apis
-	If no value provided then all APIs will be enabled: s3, s3website, swift, swift_auth, admin, sts, iam, notifications
-	If enabled APIs are set, all remaining APIs will be disabled.
-	This option overrides S3.Enabled value.
-	"""
+														Represents RGW 'rgw_enable_apis' config option. See: https://docs.ceph.com/en/reef/radosgw/config-ref/#confval-rgw_enable_apis
+														If no value provided then all APIs will be enabled: s3, s3website, swift, swift_auth, admin, sts, iam, notifications
+														If enabled APIs are set, all remaining APIs will be disabled.
+														This option overrides S3.Enabled value.
+														"""
 										items: {
-											enum: [
-												"s3",
-												"s3website",
-												"swift",
-												"swift_auth",
-												"admin",
-												"sts",
-												"iam",
-												"notifications",
-											]
+											enum: ["s3", "s3website", "swift", "swift_auth", "admin", "sts", "iam", "notifications"]
 											type: "string"
 										}
 										nullable: true
@@ -16156,9 +16614,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											enabled: {
 												description: """
-	Deprecated: use protocol.enableAPIs instead.
-	Whether to enable S3. This defaults to true (even if protocols.s3 is not present in the CRD). This maintains backwards compatibility – by default S3 is enabled.
-	"""
+																Deprecated: use protocol.enableAPIs instead.
+																Whether to enable S3. This defaults to true (even if protocols.s3 is not present in the CRD). This maintains backwards compatibility – by default S3 is enabled.
+																"""
 												nullable: true
 												type:     "boolean"
 											}
@@ -16271,41 +16729,48 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									poolPlacements: {
 										description: """
-	PoolPlacements control which Pools are associated with a particular RGW bucket.
-	Once PoolPlacements are defined, RGW client will be able to associate pool
-	with ObjectStore bucket by providing "<LocationConstraint>" during s3 bucket creation
-	or "X-Storage-Policy" header during swift container creation.
-	See: https://docs.ceph.com/en/latest/radosgw/placement/#placement-targets
-	PoolPlacement with name: "default" will be used as a default pool if no option
-	is provided during bucket creation.
-	If default placement is not provided, spec.sharedPools.dataPoolName and spec.sharedPools.MetadataPoolName will be used as default pools.
-	If spec.sharedPools are also empty, then RGW pools (spec.dataPool and spec.metadataPool) will be used as defaults.
-	"""
+														PoolPlacements control which Pools are associated with a particular RGW bucket.
+														Once PoolPlacements are defined, RGW client will be able to associate pool
+														with ObjectStore bucket by providing "<LocationConstraint>" during s3 bucket creation
+														or "X-Storage-Policy" header during swift container creation.
+														See: https://docs.ceph.com/en/latest/radosgw/placement/#placement-targets
+														PoolPlacement with name: "default" will be used as a default pool if no option
+														is provided during bucket creation.
+														If default placement is not provided, spec.sharedPools.dataPoolName and spec.sharedPools.MetadataPoolName will be used as default pools.
+														If spec.sharedPools are also empty, then RGW pools (spec.dataPool and spec.metadataPool) will be used as defaults.
+														"""
 										items: {
 											properties: {
 												dataNonECPoolName: {
 													description: """
-	The data pool used to store ObjectStore data that cannot use erasure coding (ex: multi-part uploads).
-	If dataPoolName is not erasure coded, then there is no need for dataNonECPoolName.
-	"""
+																	The data pool used to store ObjectStore data that cannot use erasure coding (ex: multi-part uploads).
+																	If dataPoolName is not erasure coded, then there is no need for dataNonECPoolName.
+																	WARNING: Do not change this field after creation. Pool names are used in RADOS namespaces and renaming leads to data loss.
+																	"""
 													type: "string"
 												}
 												dataPoolName: {
-													description: "The data pool used to store ObjectStore objects data."
-													minLength:   1
-													type:        "string"
+													description: """
+																	The data pool used to store ObjectStore objects data.
+																	WARNING: Do not change this field after creation. Pool names are used in RADOS namespaces and renaming leads to data loss.
+																	"""
+													minLength: 1
+													type:      "string"
 												}
 												default: {
 													description: """
-	Sets given placement as default. Only one placement in the list can be marked as default.
-	Default is false.
-	"""
+																	Sets given placement as default. Only one placement in the list can be marked as default.
+																	Default is false.
+																	"""
 													type: "boolean"
 												}
 												metadataPoolName: {
-													description: "The metadata pool used to store ObjectStore bucket index."
-													minLength:   1
-													type:        "string"
+													description: """
+																	The metadata pool used to store ObjectStore bucket index.
+																	WARNING: Do not change this field after creation. Pool names are used in RADOS namespaces and renaming leads to data loss.
+																	"""
+													minLength: 1
+													type:      "string"
 												}
 												name: {
 													description: "Pool placement name. Name can be arbitrary. Placement with name \"default\" will be used as default."
@@ -16315,44 +16780,41 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												}
 												storageClasses: {
 													description: """
-	StorageClasses can be selected by user to override dataPoolName during object creation.
-	Each placement has default STANDARD StorageClass pointing to dataPoolName.
-	This list allows defining additional StorageClasses on top of default STANDARD storage class.
-	"""
+																	StorageClasses can be selected by user to override dataPoolName during object creation.
+																	Each placement has default STANDARD StorageClass pointing to dataPoolName.
+																	This list allows defining additional StorageClasses on top of default STANDARD storage class.
+																	"""
 													items: {
 														properties: {
 															dataPoolName: {
-																description: "DataPoolName is the data pool used to store ObjectStore objects data."
-																minLength:   1
-																type:        "string"
+																description: """
+																				DataPoolName is the data pool used to store ObjectStore objects data.
+																				WARNING: Do not change this field after creation. Pool names are used in RADOS namespaces and renaming leads to data loss.
+																				"""
+																minLength: 1
+																type:      "string"
 															}
 															name: {
 																description: """
-	Name is the StorageClass name. Ceph allows arbitrary name for StorageClasses,
-	however most clients/libs insist on AWS names so it is recommended to use
-	one of the valid x-amz-storage-class values for better compatibility:
-	REDUCED_REDUNDANCY | STANDARD_IA | ONEZONE_IA | INTELLIGENT_TIERING | GLACIER | DEEP_ARCHIVE | OUTPOSTS | GLACIER_IR | SNOW | EXPRESS_ONEZONE
-	See AWS docs: https://aws.amazon.com/de/s3/storage-classes/
-	"""
+																				Name is the StorageClass name. Ceph allows arbitrary name for StorageClasses,
+																				however most clients/libs insist on AWS names so it is recommended to use
+																				one of the valid x-amz-storage-class values for better compatibility:
+																				REDUCED_REDUNDANCY | STANDARD_IA | ONEZONE_IA | INTELLIGENT_TIERING | GLACIER | DEEP_ARCHIVE | OUTPOSTS | GLACIER_IR | SNOW | EXPRESS_ONEZONE
+																				See AWS docs: https://aws.amazon.com/de/s3/storage-classes/
+																				"""
 																minLength: 1
 																pattern:   "^[a-zA-Z0-9._/-]+$"
 																type:      "string"
 															}
 														}
-														required: [
-															"dataPoolName",
-															"name",
-														]
+														required: ["dataPoolName", "name"]
 														type: "object"
 													}
-													type: "array"
+													maxItems: 10
+													type:     "array"
 												}
 											}
-											required: [
-												"dataPoolName",
-												"metadataPoolName",
-												"name",
-											]
+											required: ["dataPoolName", "metadataPoolName", "name"]
 											type: "object"
 										}
 										type: "array"
@@ -16390,23 +16852,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									properties: {
 										keyCephVersion: {
 											description: """
-	KeyCephVersion reports the Ceph version that created the current generation's keys. This is
-	same string format as reported by `CephCluster.status.version.version` to allow them to be
-	compared. E.g., `20.2.0-0`.
-	For all newly-created resources, this field set to the version of Ceph that created the key.
-	The special value "Uninitialized" indicates that keys are being created for the first time.
-	An empty string indicates that the version is unknown, as expected in brownfield deployments.
-	"""
+																KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+																same string format as reported by `CephCluster.status.version.version` to allow them to be
+																compared. E.g., `20.2.0-0`.
+																For all newly-created resources, this field set to the version of Ceph that created the key.
+																The special value "Uninitialized" indicates that keys are being created for the first time.
+																An empty string indicates that the version is unknown, as expected in brownfield deployments.
+																"""
 											type: "string"
 										}
 										keyGeneration: {
 											description: """
-	KeyGeneration represents the CephX key generation for the last successful reconcile.
-	For all newly-created resources, this field is set to `1`.
-	When keys are rotated due to any rotation policy, the generation is incremented or updated to
-	the configured policy generation.
-	Generation `0` indicates that keys existed prior to the implementation of key tracking.
-	"""
+																KeyGeneration represents the CephX key generation for the last successful reconcile.
+																For all newly-created resources, this field is set to `1`.
+																When keys are rotated due to any rotation policy, the generation is incremented or updated to
+																the configured policy generation.
+																Generation `0` indicates that keys existed prior to the implementation of key tracking.
+																"""
 											format: "int32"
 											type:   "integer"
 										}
@@ -16472,20 +16934,29 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								description: "ConditionType represent a resource's status"
 								type:        "string"
 							}
+							replicas: {
+								format: "int32"
+								type:   "integer"
+							}
+							selector: type: "string"
 						}
 						type:                                   "object"
 						"x-kubernetes-preserve-unknown-fields": true
 					}
 				}
-				required: [
-					"metadata",
-					"spec",
-				]
+				required: ["metadata", "spec"]
 				type: "object"
 			}
 			served:  true
 			storage: true
-			subresources: status: {}
+			subresources: {
+				scale: {
+					labelSelectorPath:  ".status.selector"
+					specReplicasPath:   ".spec.gateway.instances"
+					statusReplicasPath: ".status.replicas"
+				}
+				status: {}
+			}
 		}]
 	}
 }, {
@@ -16496,14 +16967,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephObjectStoreUser"
 			listKind: "CephObjectStoreUserList"
 			plural:   "cephobjectstoreusers"
-			shortNames: [
-				"rcou",
-				"objectuser",
-				"cephosu",
-			]
+			shortNames: ["rcou", "objectuser", "cephosu"]
 			singular: "cephobjectstoreuser"
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.phase"
@@ -16520,21 +16987,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
 						type: "string"
 					}
 					metadata: type: "object"
@@ -16547,162 +17014,82 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								properties: {
 									"amz-cache": {
 										description: "Add capabilities for user to send request to RGW Cache API header. Documented in https://docs.ceph.com/en/latest/radosgw/rgw-cache/#cache-api"
-										enum: [
-											"*",
-											"read",
-											"write",
-											"read, write",
-										]
+										enum: ["*", "read", "write", "read, write"]
 										type: "string"
 									}
 									bilog: {
 										description: "Add capabilities for user to change bucket index logging. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
-										enum: [
-											"*",
-											"read",
-											"write",
-											"read, write",
-										]
+										enum: ["*", "read", "write", "read, write"]
 										type: "string"
 									}
 									bucket: {
 										description: "Admin capabilities to read/write Ceph object store buckets. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
-										enum: [
-											"*",
-											"read",
-											"write",
-											"read, write",
-										]
+										enum: ["*", "read", "write", "read, write"]
 										type: "string"
 									}
 									buckets: {
 										description: "Admin capabilities to read/write Ceph object store buckets. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
-										enum: [
-											"*",
-											"read",
-											"write",
-											"read, write",
-										]
+										enum: ["*", "read", "write", "read, write"]
 										type: "string"
 									}
 									datalog: {
 										description: "Add capabilities for user to change data logging. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
-										enum: [
-											"*",
-											"read",
-											"write",
-											"read, write",
-										]
+										enum: ["*", "read", "write", "read, write"]
 										type: "string"
 									}
 									info: {
 										description: "Admin capabilities to read/write information about the user. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
-										enum: [
-											"*",
-											"read",
-											"write",
-											"read, write",
-										]
+										enum: ["*", "read", "write", "read, write"]
 										type: "string"
 									}
 									mdlog: {
 										description: "Add capabilities for user to change metadata logging. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
-										enum: [
-											"*",
-											"read",
-											"write",
-											"read, write",
-										]
+										enum: ["*", "read", "write", "read, write"]
 										type: "string"
 									}
 									metadata: {
 										description: "Admin capabilities to read/write Ceph object store metadata. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
-										enum: [
-											"*",
-											"read",
-											"write",
-											"read, write",
-										]
+										enum: ["*", "read", "write", "read, write"]
 										type: "string"
 									}
 									"oidc-provider": {
 										description: "Add capabilities for user to change oidc provider. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
-										enum: [
-											"*",
-											"read",
-											"write",
-											"read, write",
-										]
+										enum: ["*", "read", "write", "read, write"]
 										type: "string"
 									}
 									ratelimit: {
 										description: "Add capabilities for user to set rate limiter for user and bucket. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
-										enum: [
-											"*",
-											"read",
-											"write",
-											"read, write",
-										]
+										enum: ["*", "read", "write", "read, write"]
 										type: "string"
 									}
 									roles: {
 										description: "Admin capabilities to read/write roles for user. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
-										enum: [
-											"*",
-											"read",
-											"write",
-											"read, write",
-										]
+										enum: ["*", "read", "write", "read, write"]
 										type: "string"
 									}
 									usage: {
 										description: "Admin capabilities to read/write Ceph object store usage. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
-										enum: [
-											"*",
-											"read",
-											"write",
-											"read, write",
-										]
+										enum: ["*", "read", "write", "read, write"]
 										type: "string"
 									}
 									user: {
 										description: "Admin capabilities to read/write Ceph object store users. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
-										enum: [
-											"*",
-											"read",
-											"write",
-											"read, write",
-										]
+										enum: ["*", "read", "write", "read, write"]
 										type: "string"
 									}
 									"user-policy": {
 										description: "Add capabilities for user to change user policies. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
-										enum: [
-											"*",
-											"read",
-											"write",
-											"read, write",
-										]
+										enum: ["*", "read", "write", "read, write"]
 										type: "string"
 									}
 									users: {
 										description: "Admin capabilities to read/write Ceph object store users. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
-										enum: [
-											"*",
-											"read",
-											"write",
-											"read, write",
-										]
+										enum: ["*", "read", "write", "read, write"]
 										type: "string"
 									}
 									zone: {
 										description: "Admin capabilities to read/write Ceph object store zones. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities"
-										enum: [
-											"*",
-											"read",
-											"write",
-											"read, write",
-										]
+										enum: ["*", "read", "write", "read, write"]
 										type: "string"
 									}
 								}
@@ -16713,19 +17100,19 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type:        "string"
 							}
 							displayName: {
-								description: "The display name for the ceph users"
+								description: "The display name for the ceph user."
 								type:        "string"
 							}
 							keys: {
 								description: """
-	Allows specifying credentials for the user. If not provided, the operator
-	will generate them.
-	"""
+												Allows specifying credentials for the user. If not provided, the operator
+												will generate them.
+												"""
 								items: {
 									description: """
-	ObjectUserKey defines a set of rgw user access credentials to be retrieved
-	from secret resources.
-	"""
+													ObjectUserKey defines a set of rgw user access credentials to be retrieved
+													from secret resources.
+													"""
 									properties: {
 										accessKeyRef: {
 											description: "Secret key selector for the access_key (commonly referred to as AWS_ACCESS_KEY_ID)."
@@ -16737,12 +17124,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												name: {
 													default: ""
 													description: """
-	Name of the referent.
-	This field is effectively required, but due to backwards compatibility is
-	allowed to be empty. Instances of this type with an empty value here are
-	almost certainly wrong.
-	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-	"""
+																	Name of the referent.
+																	This field is effectively required, but due to backwards compatibility is
+																	allowed to be empty. Instances of this type with an empty value here are
+																	almost certainly wrong.
+																	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																	"""
 													type: "string"
 												}
 												optional: {
@@ -16764,12 +17151,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												name: {
 													default: ""
 													description: """
-	Name of the referent.
-	This field is effectively required, but due to backwards compatibility is
-	allowed to be empty. Instances of this type with an empty value here are
-	almost certainly wrong.
-	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-	"""
+																	Name of the referent.
+																	This field is effectively required, but due to backwards compatibility is
+																	allowed to be empty. Instances of this type with an empty value here are
+																	almost certainly wrong.
+																	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																	"""
 													type: "string"
 												}
 												optional: {
@@ -16785,6 +17172,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									type: "object"
 								}
 								type: "array"
+							}
+							opMask: {
+								description: "The op-mask of the user."
+								items: {
+									description: "Internally, RGW labels \"operations\" on persistent state as `RGW_OP_TYPE_READ` (`read`), `RGW_OP_TYPE_WRITE` (`write`), or `RGW_OP_TYPE_DELETE` (`delete`). All RGW users have an \"operation mask\", which does not function as mask or filter as is typically implied by the word \"mask\", but as a set of allowed or permissible \"operation\" types the user is able to perform. The \"operation mask\" is applied regardless of the bucket or IAM policy. For example, in order for an RGW user to be able to read an object from a bucket, that user must have **both** the `read` \"op mask\" bit and an IAM/bucket policy that allows `s3:GetObject`. The default operations allowed are `read`, `write`, and `delete`. Setting the value to `[]` (an empty YAML sequence) causes all \"operations\" in the mask to be removed, meaning that the user will not be able to perform any operations. These operation masks are supported: `read`, `write`, `delete`"
+									enum: ["read", "write", "delete"]
+									type: "string"
+								}
+								maxItems:                 3
+								minItems:                 0
+								type:                     "array"
+								"x-kubernetes-list-type": "set"
 							}
 							quotas: {
 								description: "ObjectUserQuotaSpec can be used to set quotas for the object store user to limit their usage. See the [Ceph docs](https://docs.ceph.com/en/latest/radosgw/admin/?#quota-management) for more"
@@ -16808,9 +17207,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											type: "string"
 										}]
 										description: """
-	Maximum size limit of all objects across all the user's buckets
-	See https://pkg.go.dev/k8s.io/apimachinery/pkg/api/resource#Quantity for more info.
-	"""
+														Maximum size limit of all objects across all the user's buckets
+														See https://pkg.go.dev/k8s.io/apimachinery/pkg/api/resource#Quantity for more info.
+														"""
 										nullable:                     true
 										pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 										"x-kubernetes-int-or-string": true
@@ -16847,10 +17246,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										resourceVersion: type: "string"
 										uid: {
 											description: """
-	UID is a type that holds unique ID values, including UUIDs.  Because we
-	don't ONLY use UUIDs, this is an alias to string.  Being a type captures
-	intent and helps make sure that UIDs and names do not get conflated.
-	"""
+															UID is a type that holds unique ID values, including UUIDs.  Because we
+															don't ONLY use UUIDs, this is an alias to string.  Being a type captures
+															intent and helps make sure that UIDs and names do not get conflated.
+															"""
 											type: "string"
 										}
 									}
@@ -16871,10 +17270,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						"x-kubernetes-preserve-unknown-fields": true
 					}
 				}
-				required: [
-					"metadata",
-					"spec",
-				]
+				required: ["metadata", "spec"]
 				type: "object"
 			}
 			served:  true
@@ -16890,10 +17286,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephObjectZoneGroup"
 			listKind: "CephObjectZoneGroupList"
 			plural:   "cephobjectzonegroups"
-			shortNames: ["cephozg"]
+			shortNames: [
+				"cephozg",
+			]
 			singular: "cephobjectzonegroup"
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.phase"
@@ -16910,31 +17308,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
 						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
 						description: "ObjectZoneGroupSpec represent the spec of an ObjectZoneGroup"
 						properties: realm: {
-							description: "The display name for the ceph users"
+							description: "The name of the realm the zone group is a member of."
 							type:        "string"
 						}
-						required: ["realm"]
+						required: [
+							"realm",
+						]
 						type: "object"
 					}
 					status: {
@@ -16978,10 +17378,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						"x-kubernetes-preserve-unknown-fields": true
 					}
 				}
-				required: [
-					"metadata",
-					"spec",
-				]
+				required: ["metadata", "spec"]
 				type: "object"
 			}
 			served:  true
@@ -16997,10 +17394,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephObjectZone"
 			listKind: "CephObjectZoneList"
 			plural:   "cephobjectzones"
-			shortNames: ["cephoz"]
+			shortNames: [
+				"cephoz",
+			]
 			singular: "cephobjectzone"
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.phase"
@@ -17017,21 +17416,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
 						type: "string"
 					}
 					metadata: type: "object"
@@ -17040,17 +17439,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						properties: {
 							customEndpoints: {
 								description: """
-	If this zone cannot be accessed from other peer Ceph clusters via the ClusterIP Service
-	endpoint created by Rook, you must set this to the externally reachable endpoint(s). You may
-	include the port in the definition. For example: "https://my-object-store.my-domain.net:443".
-	In many cases, you should set this to the endpoint of the ingress resource that makes the
-	CephObjectStore associated with this CephObjectStoreZone reachable to peer clusters.
-	The list can have one or more endpoints pointing to different RGW servers in the zone.
+												If this zone cannot be accessed from other peer Ceph clusters via the ClusterIP Service
+												endpoint created by Rook, you must set this to the externally reachable endpoint(s). You may
+												include the port in the definition. For example: "https://my-object-store.my-domain.net:443".
+												In many cases, you should set this to the endpoint of the ingress resource that makes the
+												CephObjectStore associated with this CephObjectStoreZone reachable to peer clusters.
+												The list can have one or more endpoints pointing to different RGW servers in the zone.
 
-	If a CephObjectStore endpoint is omitted from this list, that object store's gateways will
-	not receive multisite replication data
-	(see CephObjectStore.spec.gateway.disableMultisiteSyncTraffic).
-	"""
+												If a CephObjectStore endpoint is omitted from this list, that object store's gateways will
+												not receive multisite replication data
+												(see CephObjectStore.spec.gateway.disableMultisiteSyncTraffic).
+												"""
 								items: type: "string"
 								nullable: true
 								type:     "array"
@@ -17065,17 +17464,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									compressionMode: {
 										description: """
-	DEPRECATED: use Parameters instead, e.g., Parameters["compression_mode"] = "force"
-	The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)
-	Do NOT set a default value for kubebuilder as this will override the Parameters
-	"""
-										enum: [
-											"none",
-											"passive",
-											"aggressive",
-											"force",
-											"",
-										]
+														DEPRECATED: use Parameters instead, e.g., Parameters["compression_mode"] = "force"
+														The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)
+														Do NOT set a default value for kubebuilder as this will override the Parameters
+														"""
+										enum: ["none", "passive", "aggressive", "force", ""]
 										nullable: true
 										type:     "string"
 									}
@@ -17091,6 +17484,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									enableCrushUpdates: {
 										description: "Allow rook operator to change the pool CRUSH tunables once the pool is created"
+										nullable:    true
 										type:        "boolean"
 									}
 									enableRBDStats: {
@@ -17102,37 +17496,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											algorithm: {
 												description: """
-	The algorithm for erasure coding.
-	If absent, defaults to the plugin specified in osd_pool_default_erasure_code_profile.
-	"""
-												enum: [
-													"isa",
-													"jerasure",
-												]
+																The algorithm for erasure coding.
+																If absent, defaults to the plugin specified in osd_pool_default_erasure_code_profile.
+																"""
+												enum: ["isa", "jerasure"]
 												type: "string"
 											}
 											codingChunks: {
 												description: """
-	Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
-	This is the number of OSDs that can be lost simultaneously before data cannot be recovered.
-	"""
+																Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+																This is the number of OSDs that can be lost simultaneously before data cannot be recovered.
+																"""
 												minimum: 0
 												type:    "integer"
 											}
 											dataChunks: {
 												description: """
-	Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
-	The number of chunks required to recover an object when any single OSD is lost is the same
-	as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery.
-	"""
+																Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+																The number of chunks required to recover an object when any single OSD is lost is the same
+																as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery.
+																"""
 												minimum: 0
 												type:    "integer"
 											}
 										}
-										required: [
-											"codingChunks",
-											"dataChunks",
-										]
+										required: ["codingChunks", "dataChunks"]
 										type: "object"
 									}
 									failureDomain: {
@@ -17148,11 +17536,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											mode: {
 												description: "Mode is the mirroring mode: pool, image or init-only."
-												enum: [
-													"pool",
-													"image",
-													"init-only",
-												]
+												enum: ["pool", "image", "init-only"]
 												type: "string"
 											}
 											peers: {
@@ -17203,9 +17587,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											maxBytes: {
 												description: """
-	MaxBytes represents the quota in bytes
-	Deprecated in favor of MaxSize
-	"""
+																MaxBytes represents the quota in bytes
+																Deprecated in favor of MaxSize
+																"""
 												format: "int64"
 												type:   "integer"
 											}
@@ -17240,10 +17624,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:        "string"
 													}
 												}
-												required: [
-													"primaryDeviceClass",
-													"secondaryDeviceClass",
-												]
+												required: ["primaryDeviceClass", "secondaryDeviceClass"]
 												type: "object"
 											}
 											replicasPerFailureDomain: {
@@ -17304,17 +17685,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									compressionMode: {
 										description: """
-	DEPRECATED: use Parameters instead, e.g., Parameters["compression_mode"] = "force"
-	The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)
-	Do NOT set a default value for kubebuilder as this will override the Parameters
-	"""
-										enum: [
-											"none",
-											"passive",
-											"aggressive",
-											"force",
-											"",
-										]
+														DEPRECATED: use Parameters instead, e.g., Parameters["compression_mode"] = "force"
+														The inline compression mode in Bluestore OSD to set to (options are: none, passive, aggressive, force)
+														Do NOT set a default value for kubebuilder as this will override the Parameters
+														"""
+										enum: ["none", "passive", "aggressive", "force", ""]
 										nullable: true
 										type:     "string"
 									}
@@ -17330,6 +17705,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									enableCrushUpdates: {
 										description: "Allow rook operator to change the pool CRUSH tunables once the pool is created"
+										nullable:    true
 										type:        "boolean"
 									}
 									enableRBDStats: {
@@ -17341,37 +17717,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											algorithm: {
 												description: """
-	The algorithm for erasure coding.
-	If absent, defaults to the plugin specified in osd_pool_default_erasure_code_profile.
-	"""
-												enum: [
-													"isa",
-													"jerasure",
-												]
+																The algorithm for erasure coding.
+																If absent, defaults to the plugin specified in osd_pool_default_erasure_code_profile.
+																"""
+												enum: ["isa", "jerasure"]
 												type: "string"
 											}
 											codingChunks: {
 												description: """
-	Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
-	This is the number of OSDs that can be lost simultaneously before data cannot be recovered.
-	"""
+																Number of coding chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+																This is the number of OSDs that can be lost simultaneously before data cannot be recovered.
+																"""
 												minimum: 0
 												type:    "integer"
 											}
 											dataChunks: {
 												description: """
-	Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
-	The number of chunks required to recover an object when any single OSD is lost is the same
-	as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery.
-	"""
+																Number of data chunks per object in an erasure coded storage pool (required for erasure-coded pool type).
+																The number of chunks required to recover an object when any single OSD is lost is the same
+																as dataChunks so be aware that the larger the number of data chunks, the higher the cost of recovery.
+																"""
 												minimum: 0
 												type:    "integer"
 											}
 										}
-										required: [
-											"codingChunks",
-											"dataChunks",
-										]
+										required: ["codingChunks", "dataChunks"]
 										type: "object"
 									}
 									failureDomain: {
@@ -17387,11 +17757,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											mode: {
 												description: "Mode is the mirroring mode: pool, image or init-only."
-												enum: [
-													"pool",
-													"image",
-													"init-only",
-												]
+												enum: ["pool", "image", "init-only"]
 												type: "string"
 											}
 											peers: {
@@ -17442,9 +17808,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											maxBytes: {
 												description: """
-	MaxBytes represents the quota in bytes
-	Deprecated in favor of MaxSize
-	"""
+																MaxBytes represents the quota in bytes
+																Deprecated in favor of MaxSize
+																"""
 												format: "int64"
 												type:   "integer"
 											}
@@ -17479,10 +17845,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:        "string"
 													}
 												}
-												required: [
-													"primaryDeviceClass",
-													"secondaryDeviceClass",
-												]
+												required: ["primaryDeviceClass", "secondaryDeviceClass"]
 												type: "object"
 											}
 											replicasPerFailureDomain: {
@@ -17560,41 +17923,48 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									poolPlacements: {
 										description: """
-	PoolPlacements control which Pools are associated with a particular RGW bucket.
-	Once PoolPlacements are defined, RGW client will be able to associate pool
-	with ObjectStore bucket by providing "<LocationConstraint>" during s3 bucket creation
-	or "X-Storage-Policy" header during swift container creation.
-	See: https://docs.ceph.com/en/latest/radosgw/placement/#placement-targets
-	PoolPlacement with name: "default" will be used as a default pool if no option
-	is provided during bucket creation.
-	If default placement is not provided, spec.sharedPools.dataPoolName and spec.sharedPools.MetadataPoolName will be used as default pools.
-	If spec.sharedPools are also empty, then RGW pools (spec.dataPool and spec.metadataPool) will be used as defaults.
-	"""
+														PoolPlacements control which Pools are associated with a particular RGW bucket.
+														Once PoolPlacements are defined, RGW client will be able to associate pool
+														with ObjectStore bucket by providing "<LocationConstraint>" during s3 bucket creation
+														or "X-Storage-Policy" header during swift container creation.
+														See: https://docs.ceph.com/en/latest/radosgw/placement/#placement-targets
+														PoolPlacement with name: "default" will be used as a default pool if no option
+														is provided during bucket creation.
+														If default placement is not provided, spec.sharedPools.dataPoolName and spec.sharedPools.MetadataPoolName will be used as default pools.
+														If spec.sharedPools are also empty, then RGW pools (spec.dataPool and spec.metadataPool) will be used as defaults.
+														"""
 										items: {
 											properties: {
 												dataNonECPoolName: {
 													description: """
-	The data pool used to store ObjectStore data that cannot use erasure coding (ex: multi-part uploads).
-	If dataPoolName is not erasure coded, then there is no need for dataNonECPoolName.
-	"""
+																	The data pool used to store ObjectStore data that cannot use erasure coding (ex: multi-part uploads).
+																	If dataPoolName is not erasure coded, then there is no need for dataNonECPoolName.
+																	WARNING: Do not change this field after creation. Pool names are used in RADOS namespaces and renaming leads to data loss.
+																	"""
 													type: "string"
 												}
 												dataPoolName: {
-													description: "The data pool used to store ObjectStore objects data."
-													minLength:   1
-													type:        "string"
+													description: """
+																	The data pool used to store ObjectStore objects data.
+																	WARNING: Do not change this field after creation. Pool names are used in RADOS namespaces and renaming leads to data loss.
+																	"""
+													minLength: 1
+													type:      "string"
 												}
 												default: {
 													description: """
-	Sets given placement as default. Only one placement in the list can be marked as default.
-	Default is false.
-	"""
+																	Sets given placement as default. Only one placement in the list can be marked as default.
+																	Default is false.
+																	"""
 													type: "boolean"
 												}
 												metadataPoolName: {
-													description: "The metadata pool used to store ObjectStore bucket index."
-													minLength:   1
-													type:        "string"
+													description: """
+																	The metadata pool used to store ObjectStore bucket index.
+																	WARNING: Do not change this field after creation. Pool names are used in RADOS namespaces and renaming leads to data loss.
+																	"""
+													minLength: 1
+													type:      "string"
 												}
 												name: {
 													description: "Pool placement name. Name can be arbitrary. Placement with name \"default\" will be used as default."
@@ -17604,44 +17974,41 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												}
 												storageClasses: {
 													description: """
-	StorageClasses can be selected by user to override dataPoolName during object creation.
-	Each placement has default STANDARD StorageClass pointing to dataPoolName.
-	This list allows defining additional StorageClasses on top of default STANDARD storage class.
-	"""
+																	StorageClasses can be selected by user to override dataPoolName during object creation.
+																	Each placement has default STANDARD StorageClass pointing to dataPoolName.
+																	This list allows defining additional StorageClasses on top of default STANDARD storage class.
+																	"""
 													items: {
 														properties: {
 															dataPoolName: {
-																description: "DataPoolName is the data pool used to store ObjectStore objects data."
-																minLength:   1
-																type:        "string"
+																description: """
+																				DataPoolName is the data pool used to store ObjectStore objects data.
+																				WARNING: Do not change this field after creation. Pool names are used in RADOS namespaces and renaming leads to data loss.
+																				"""
+																minLength: 1
+																type:      "string"
 															}
 															name: {
 																description: """
-	Name is the StorageClass name. Ceph allows arbitrary name for StorageClasses,
-	however most clients/libs insist on AWS names so it is recommended to use
-	one of the valid x-amz-storage-class values for better compatibility:
-	REDUCED_REDUNDANCY | STANDARD_IA | ONEZONE_IA | INTELLIGENT_TIERING | GLACIER | DEEP_ARCHIVE | OUTPOSTS | GLACIER_IR | SNOW | EXPRESS_ONEZONE
-	See AWS docs: https://aws.amazon.com/de/s3/storage-classes/
-	"""
+																				Name is the StorageClass name. Ceph allows arbitrary name for StorageClasses,
+																				however most clients/libs insist on AWS names so it is recommended to use
+																				one of the valid x-amz-storage-class values for better compatibility:
+																				REDUCED_REDUNDANCY | STANDARD_IA | ONEZONE_IA | INTELLIGENT_TIERING | GLACIER | DEEP_ARCHIVE | OUTPOSTS | GLACIER_IR | SNOW | EXPRESS_ONEZONE
+																				See AWS docs: https://aws.amazon.com/de/s3/storage-classes/
+																				"""
 																minLength: 1
 																pattern:   "^[a-zA-Z0-9._/-]+$"
 																type:      "string"
 															}
 														}
-														required: [
-															"dataPoolName",
-															"name",
-														]
+														required: ["dataPoolName", "name"]
 														type: "object"
 													}
-													type: "array"
+													maxItems: 10
+													type:     "array"
 												}
 											}
-											required: [
-												"dataPoolName",
-												"metadataPoolName",
-												"name",
-											]
+											required: ["dataPoolName", "metadataPoolName", "name"]
 											type: "object"
 										}
 										type: "array"
@@ -17654,7 +18021,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type: "object"
 							}
 							zoneGroup: {
-								description: "The display name for the ceph users"
+								description: "The name of the zone group the zone is a member of."
 								type:        "string"
 							}
 						}
@@ -17702,10 +18069,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						"x-kubernetes-preserve-unknown-fields": true
 					}
 				}
-				required: [
-					"metadata",
-					"spec",
-				]
+				required: ["metadata", "spec"]
 				type: "object"
 			}
 			served:  true
@@ -17721,10 +18085,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "CephRBDMirror"
 			listKind: "CephRBDMirrorList"
 			plural:   "cephrbdmirrors"
-			shortNames: ["cephrbdm"]
+			shortNames: [
+				"cephrbdm",
+			]
 			singular: "cephrbdmirror"
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.phase"
@@ -17741,21 +18107,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				properties: {
 					apiVersion: {
 						description: """
-	APIVersion defines the versioned schema of this representation of an object.
-	Servers should convert recognized schemas to the latest internal value, and
-	may reject unrecognized values.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-	"""
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
 						type: "string"
 					}
 					kind: {
 						description: """
-	Kind is a string value representing the REST resource this object represents.
-	Servers may infer this from the endpoint the client submits requests to.
-	Cannot be updated.
-	In CamelCase.
-	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	"""
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
 						type: "string"
 					}
 					metadata: type: "object"
@@ -17812,10 +18178,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -17832,10 +18195,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -17850,10 +18210,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:   "integer"
 														}
 													}
-													required: [
-														"preference",
-														"weight",
-													]
+													required: ["preference", "weight"]
 													type: "object"
 												}
 												type:                     "array"
@@ -17874,10 +18231,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																	}
-																	required: [
-																		"key",
-																		"operator",
-																	]
+																	required: ["key", "operator"]
 																	type: "object"
 																}
 																type:                     "array"
@@ -17894,10 +18248,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																	}
-																	required: [
-																		"key",
-																		"operator",
-																	]
+																	required: ["key", "operator"]
 																	type: "object"
 																}
 																type:                     "array"
@@ -17937,10 +18288,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -17977,10 +18325,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -18009,10 +18354,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:   "integer"
 														}
 													}
-													required: [
-														"podAffinityTerm",
-														"weight",
-													]
+													required: ["podAffinityTerm", "weight"]
 													type: "object"
 												}
 												type:                     "array"
@@ -18034,10 +18376,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -18074,10 +18413,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -18127,10 +18463,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -18167,10 +18500,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"x-kubernetes-list-type": "atomic"
 																					}
 																				}
-																				required: [
-																					"key",
-																					"operator",
-																				]
+																				required: ["key", "operator"]
 																				type: "object"
 																			}
 																			type:                     "array"
@@ -18199,10 +18529,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:   "integer"
 														}
 													}
-													required: [
-														"podAffinityTerm",
-														"weight",
-													]
+													required: ["podAffinityTerm", "weight"]
 													type: "object"
 												}
 												type:                     "array"
@@ -18224,10 +18551,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -18264,10 +18588,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
-																		required: [
-																			"key",
-																			"operator",
-																		]
+																		required: ["key", "operator"]
 																		type: "object"
 																	}
 																	type:                     "array"
@@ -18329,10 +18650,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		"x-kubernetes-list-type": "atomic"
 																	}
 																}
-																required: [
-																	"key",
-																	"operator",
-																]
+																required: ["key", "operator"]
 																type: "object"
 															}
 															type:                     "array"
@@ -18364,11 +18682,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												topologyKey: type:        "string"
 												whenUnsatisfiable: type:  "string"
 											}
-											required: [
-												"maxSkew",
-												"topologyKey",
-												"whenUnsatisfiable",
-											]
+											required: ["maxSkew", "topologyKey", "whenUnsatisfiable"]
 											type: "object"
 										}
 										type: "array"
@@ -18387,31 +18701,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								properties: {
 									claims: {
 										description: """
-	Claims lists the names of resources, defined in spec.resourceClaims,
-	that are used by this container.
+														Claims lists the names of resources, defined in spec.resourceClaims,
+														that are used by this container.
 
-	This is an alpha field and requires enabling the
-	DynamicResourceAllocation feature gate.
+														This field depends on the
+														DynamicResourceAllocation feature gate.
 
-	This field is immutable. It can only be set for containers.
-	"""
+														This field is immutable. It can only be set for containers.
+														"""
 										items: {
 											description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
 											properties: {
 												name: {
 													description: """
-	Name must match the name of one entry in pod.spec.resourceClaims of
-	the Pod where this field is used. It makes that resource available
-	inside a container.
-	"""
+																	Name must match the name of one entry in pod.spec.resourceClaims of
+																	the Pod where this field is used. It makes that resource available
+																	inside a container.
+																	"""
 													type: "string"
 												}
 												request: {
 													description: """
-	Request is the name chosen for a request in the referenced claim.
-	If empty, everything from the claim is made available, otherwise
-	only the result of this request.
-	"""
+																	Request is the name chosen for a request in the referenced claim.
+																	If empty, everything from the claim is made available, otherwise
+																	only the result of this request.
+																	"""
 													type: "string"
 												}
 											}
@@ -18433,9 +18747,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											"x-kubernetes-int-or-string": true
 										}
 										description: """
-	Limits describes the maximum amount of compute resources allowed.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+														Limits describes the maximum amount of compute resources allowed.
+														More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+														"""
 										type: "object"
 									}
 									requests: {
@@ -18449,11 +18763,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											"x-kubernetes-int-or-string": true
 										}
 										description: """
-	Requests describes the minimum amount of compute resources required.
-	If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
-	otherwise to an implementation-defined value. Requests cannot exceed Limits.
-	More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-	"""
+														Requests describes the minimum amount of compute resources required.
+														If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+														otherwise to an implementation-defined value. Requests cannot exceed Limits.
+														More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+														"""
 										type: "object"
 									}
 								}
@@ -18461,7 +18775,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								"x-kubernetes-preserve-unknown-fields": true
 							}
 						}
-						required: ["count"]
+						required: [
+							"count",
+						]
 						type: "object"
 					}
 					status: {
@@ -18473,23 +18789,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									properties: {
 										keyCephVersion: {
 											description: """
-	KeyCephVersion reports the Ceph version that created the current generation's keys. This is
-	same string format as reported by `CephCluster.status.version.version` to allow them to be
-	compared. E.g., `20.2.0-0`.
-	For all newly-created resources, this field set to the version of Ceph that created the key.
-	The special value "Uninitialized" indicates that keys are being created for the first time.
-	An empty string indicates that the version is unknown, as expected in brownfield deployments.
-	"""
+																KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+																same string format as reported by `CephCluster.status.version.version` to allow them to be
+																compared. E.g., `20.2.0-0`.
+																For all newly-created resources, this field set to the version of Ceph that created the key.
+																The special value "Uninitialized" indicates that keys are being created for the first time.
+																An empty string indicates that the version is unknown, as expected in brownfield deployments.
+																"""
 											type: "string"
 										}
 										keyGeneration: {
 											description: """
-	KeyGeneration represents the CephX key generation for the last successful reconcile.
-	For all newly-created resources, this field is set to `1`.
-	When keys are rotated due to any rotation policy, the generation is incremented or updated to
-	the configured policy generation.
-	Generation `0` indicates that keys existed prior to the implementation of key tracking.
-	"""
+																KeyGeneration represents the CephX key generation for the last successful reconcile.
+																For all newly-created resources, this field is set to `1`.
+																When keys are rotated due to any rotation policy, the generation is incremented or updated to
+																the configured policy generation.
+																Generation `0` indicates that keys existed prior to the implementation of key tracking.
+																"""
 											format: "int32"
 											type:   "integer"
 										}
@@ -18536,10 +18852,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						"x-kubernetes-preserve-unknown-fields": true
 					}
 				}
-				required: [
-					"metadata",
-					"spec",
-				]
+				required: ["metadata", "spec"]
 				type: "object"
 			}
 			served:  true
@@ -18561,7 +18874,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				"obcs",
 			]
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
 			name:    "v1alpha1"
 			served:  true
@@ -18606,7 +18919,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				"obs",
 			]
 		}
-		scope: apiextensionsv1.#ClusterScoped
+		scope: "Cluster"
 		versions: [{
 			name:    "v1alpha1"
 			served:  true

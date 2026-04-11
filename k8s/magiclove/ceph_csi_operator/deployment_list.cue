@@ -38,6 +38,9 @@ import (
 					}, {
 						name:  "WATCH_NAMESPACE"
 						value: "rook-ceph"
+					}, {
+						name:  "KUBERNETES_CLUSTER_DOMAIN"
+						value: "cluster.local"
 					}]
 					ports: [{
 						name:          "http-metrics"

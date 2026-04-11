@@ -19,7 +19,7 @@ import (
 	rules: [{
 		apiGroups: [v1.#GroupName]
 		resources: ["secrets"]
-		verbs: ["get", "list"]
+		verbs: ["get", "list", "watch"]
 	}, {
 		apiGroups: [v1.#GroupName]
 		resources: ["configmaps"]
@@ -112,6 +112,10 @@ import (
 		apiGroups: ["authentication.k8s.io"]
 		resources: ["tokenreviews"]
 		verbs: ["create"]
+	}, {
+		apiGroups: ["storage.k8s.io"]
+		resources: ["volumeattributesclasses"]
+		verbs: ["get", "list", "watch"]
 	}]
 }, {
 	metadata: name: "ceph-csi-operator-cephfs-nodeplugin"
@@ -122,7 +126,7 @@ import (
 	}, {
 		apiGroups: [v1.#GroupName]
 		resources: ["secrets"]
-		verbs: ["get"]
+		verbs: ["get", "list", "watch"]
 	}, {
 		apiGroups: [v1.#GroupName]
 		resources: ["configmaps"]
@@ -143,6 +147,10 @@ import (
 		apiGroups: [v1.#GroupName]
 		resources: ["persistentvolumes", "persistentvolumeclaims"]
 		verbs: ["get"]
+	}, {
+		apiGroups: ["authentication.k8s.io"]
+		resources: ["tokenreviews"]
+		verbs: ["create"]
 	}]
 }, {
 	metadata: name: "ceph-csi-operator-nfs-ctrlplugin"
@@ -206,6 +214,10 @@ import (
 		apiGroups: ["storage.k8s.io"]
 		resources: ["volumeattachments/status"]
 		verbs: ["patch"]
+	}, {
+		apiGroups: ["storage.k8s.io"]
+		resources: ["volumeattributesclasses"]
+		verbs: ["get", "list", "watch"]
 	}]
 }, {
 	metadata: name: "ceph-csi-operator-nfs-nodeplugin"
@@ -328,13 +340,17 @@ import (
 		apiGroups: ["cbt.storage.k8s.io"]
 		resources: ["snapshotmetadataservices"]
 		verbs: ["get", "list"]
+	}, {
+		apiGroups: ["storage.k8s.io"]
+		resources: ["volumeattributesclasses"]
+		verbs: ["get", "list", "watch"]
 	}]
 }, {
 	metadata: name: "ceph-csi-operator-rbd-nodeplugin"
 	rules: [{
 		apiGroups: [v1.#GroupName]
 		resources: ["secrets"]
-		verbs: ["get", "list"]
+		verbs: ["get", "list", "watch"]
 	}, {
 		apiGroups: [v1.#GroupName]
 		resources: ["persistentvolumes"]

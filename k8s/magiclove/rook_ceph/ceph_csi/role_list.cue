@@ -38,6 +38,25 @@ import (
 		verbs: ["update"]
 	}]
 }, {
+	metadata: name: "ceph-csi-operator-cephfs-nodeplugin"
+	rules: [{
+		apiGroups: ["csiaddons.openshift.io"]
+		resources: ["csiaddonsnodes"]
+		verbs: ["get", "watch", "list", "create", "update", "delete"]
+	}, {
+		apiGroups: [v1.#GroupName]
+		resources: ["pods"]
+		verbs: ["get"]
+	}, {
+		apiGroups: ["apps"]
+		resources: ["replicasets"]
+		verbs: ["get"]
+	}, {
+		apiGroups: ["apps"]
+		resources: ["deployments/finalizers", "daemonsets/finalizers"]
+		verbs: ["update"]
+	}]
+}, {
 	metadata: name: "ceph-csi-operator-rbd-ctrlplugin"
 	rules: [{
 		apiGroups: ["coordination.k8s.io"]

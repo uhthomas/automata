@@ -24,6 +24,18 @@ import rbacv1 "k8s.io/api/rbac/v1"
 		namespace: #Namespace
 	}]
 }, {
+	metadata: name: "ceph-csi-operator-cephfs-nodeplugin"
+	roleRef: {
+		apiGroup: "rbac.authorization.k8s.io"
+		kind:     "Role"
+		name:     "ceph-csi-operator-cephfs-nodeplugin"
+	}
+	subjects: [{
+		kind:      "ServiceAccount"
+		name:      "ceph-csi-operator-cephfs-nodeplugin-sa"
+		namespace: #Namespace
+	}]
+}, {
 	metadata: name: "ceph-csi-operator-rbd-ctrlplugin"
 	roleRef: {
 		apiGroup: "rbac.authorization.k8s.io"

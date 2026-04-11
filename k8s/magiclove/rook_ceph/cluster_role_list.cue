@@ -170,6 +170,10 @@ import (
 		apiGroups: ["authentication.k8s.io"]
 		resources: ["tokenreviews"]
 		verbs: ["create"]
+	}, {
+		apiGroups: ["events.k8s.io"]
+		resources: ["events"]
+		verbs: ["create", "patch", "update"]
 	}]
 }, {
 	metadata: name: "rbd-external-provisioner-runner"
@@ -273,6 +277,10 @@ import (
 		apiGroups: ["authentication.k8s.io"]
 		resources: ["tokenreviews"]
 		verbs: ["create"]
+	}, {
+		apiGroups: ["events.k8s.io"]
+		resources: ["events"]
+		verbs: ["create", "patch", "update"]
 	}]
 }, {
 	metadata: {
@@ -299,7 +307,7 @@ import (
 	}
 	rules: [{
 		apiGroups: [v1.#GroupName]
-		resources: ["pods", "nodes", "nodes/proxy", "secrets", "configmaps"]
+		resources: ["pods", "nodes", "secrets", "configmaps"]
 		verbs: ["get", "list", "watch"]
 	}, {
 		apiGroups: [v1.#GroupName, "discovery.k8s.io"]
@@ -333,6 +341,7 @@ import (
 			"cephfilesystemsubvolumegroups",
 			"cephblockpoolradosnamespaces",
 			"cephcosidrivers",
+			"cephnvmeofgateways",
 		]
 		verbs: ["get", "list", "watch", "update"]
 	}, {
@@ -354,6 +363,7 @@ import (
 			"cephfilesystemmirrors/status",
 			"cephfilesystemsubvolumegroups/status",
 			"cephblockpoolradosnamespaces/status",
+			"cephnvmeofgateways/status",
 		]
 		verbs: ["update"]
 	}, {
@@ -375,6 +385,7 @@ import (
 			"cephfilesystemmirrors/finalizers",
 			"cephfilesystemsubvolumegroups/finalizers",
 			"cephblockpoolradosnamespaces/finalizers",
+			"cephnvmeofgateways/finalizers",
 		]
 		verbs: ["update"]
 	}, {
@@ -401,6 +412,11 @@ import (
 		apiGroups: ["k8s.cni.cncf.io"]
 		resources: ["network-attachment-definitions"]
 		verbs: ["get"]
+	}, {
+		// controller-runtime records events in events.k8s.io API group
+		apiGroups: ["events.k8s.io"]
+		resources: ["events"]
+		verbs: ["create", "patch", "update"]
 	}]
 }, {
 	metadata: {
@@ -413,7 +429,7 @@ import (
 	}
 	rules: [{
 		apiGroups: [v1.#GroupName]
-		resources: ["configmaps", "nodes", "nodes/proxy", "persistentvolumes"]
+		resources: ["configmaps", "nodes", "persistentvolumes"]
 		verbs: ["get", "list", "watch"]
 	}, {
 		apiGroups: [v1.#GroupName]
@@ -423,6 +439,10 @@ import (
 		apiGroups: [storagev1.#GroupName]
 		resources: ["storageclasses"]
 		verbs: ["get", "list", "watch"]
+	}, {
+		apiGroups: ["events.k8s.io"]
+		resources: ["events"]
+		verbs: ["create", "patch", "update"]
 	}]
 }, {
 	metadata: name: "rook-ceph-mgr-system"

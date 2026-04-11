@@ -8,7 +8,7 @@ import (
 
 #Name:      "ceph-csi-operator"
 #Namespace: #Name
-#Version:   "0.4.0"
+#Version:   "0.6.0"
 
 #List: v1.#List & {
 	apiVersion: "v1"
