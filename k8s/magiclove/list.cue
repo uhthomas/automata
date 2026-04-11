@@ -32,7 +32,6 @@ import (
 	// "github.com/uhthomas/automata/k8s/magiclove/minecraft"
 	"github.com/uhthomas/automata/k8s/magiclove/mosquitto"
 	"github.com/uhthomas/automata/k8s/magiclove/node_exporter"
-	// "github.com/uhthomas/automata/k8s/magiclove/node_feature_discovery"
 	"github.com/uhthomas/automata/k8s/magiclove/nvidia_device_plugin"
 	"github.com/uhthomas/automata/k8s/magiclove/onepassword_connect"
 	"github.com/uhthomas/automata/k8s/magiclove/ping_exporter"
@@ -113,7 +112,6 @@ _items: [
 	// minecraft.#List.items,
 	mosquitto.#List.items,
 	node_exporter.#List.items,
-	// node_feature_discovery.#List.items,
 	nvidia_device_plugin.#List.items,
 	onepassword_connect.#List.items,
 	ping_exporter.#List.items,
