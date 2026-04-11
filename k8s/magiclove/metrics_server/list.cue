@@ -8,7 +8,7 @@ import (
 
 #Name:      "metrics-server"
 #Namespace: #Name
-#Version:   "0.6.3"
+#Version:   "0.8.1"
 
 #List: v1.#List & {
 	apiVersion: "v1"

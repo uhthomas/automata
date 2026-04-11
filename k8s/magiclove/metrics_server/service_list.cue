@@ -14,9 +14,10 @@ import "k8s.io/api/core/v1"
 #ServiceList: items: [{
 	spec: {
 		ports: [{
-			name:       "https"
-			port:       443
-			targetPort: "https"
+			name:        "https"
+			port:        443
+			targetPort:  "https"
+			appProtocol: "https"
 		}]
 		selector: "app.kubernetes.io/name": "metrics-server"
 	}

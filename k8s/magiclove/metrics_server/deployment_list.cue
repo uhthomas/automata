@@ -30,7 +30,7 @@ import (
 					image: "registry.k8s.io/metrics-server/metrics-server:v0.6.3"
 					args: [
 						"--cert-dir=/tmp",
-						"--secure-port=4443",
+						"--secure-port=10250",
 						"--kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname",
 						"--kubelet-use-node-status-port",
 						"--metric-resolution=15s",
@@ -38,7 +38,7 @@ import (
 					]
 					ports: [{
 						name:          "https"
-						containerPort: 4443
+						containerPort: 10250
 					}]
 					resources: requests: {
 						(v1.#ResourceCPU):    "100m"
