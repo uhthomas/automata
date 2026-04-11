@@ -86,7 +86,6 @@ import (
 						"--containerd-registry-config-path=/etc/cri/conf.d/hosts",
 						"--bootstrap-kind=dns",
 						"--dns-bootstrap-domain=\(#Name)-bootstrap.\(#Namespace).svc.cluster.local.",
-						"--resolve-latest-tag=true",
 						"--containerd-content-path=/var/lib/containerd/io.containerd.content.v1.content",
 						"--debug-web-enabled=true",
 					]

@@ -12,12 +12,12 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=github-releases depName=spegel-org/spegel extractVersion=^v(?<version>.*)$
-#Version: "0.4.0"
+#Version: "0.6.0"
 
 _image: tools.#Image & {
 	name:   "ghcr.io/spegel-org/spegel"
 	tag:    #Version
-	digest: "sha256:a86089ae74c4f9c98ec86c366d196f7a03044c38af09e6582b0661d42a324226"
+	digest: "sha256:82f5dd969ed74e3a9cfd6284045099a161778a0d85f9e01a234a62f15eb9d696"
 }
 
 #List: v1.#List & {
