@@ -17,57 +17,6 @@ import (
 }
 
 #WireguardPeerList: items: [{
-	let wireguardPublicKey = "HYaxdQdzxdEaDjszE1JSvpZ1MQRkz8UGmuiVSnjjYUE="
-
-	metadata: name: hex.Encode(md5.Sum(wireguardPublicKey))
-	spec: {
-		publicKey:    wireguardPublicKey
-		wireguardRef: "main"
-		egressNetworkPolicies: [{
-			action: wirguardv1alpha1.#EgressNetworkPolicyActionAccept
-			to: {
-				// Envoy Gateway LB
-				ip:   "192.168.135.27"
-				port: 443
-			}
-			protocol: wirguardv1alpha1.#EgressNetworkPolicyProtocolTCP
-		}]
-	}
-}, {
-	let wireguardPublicKey = "LsShAsakY3T4z06vjfAvW4B2TfCzFiQyi2YFe581kQ8="
-
-	metadata: name: hex.Encode(md5.Sum(wireguardPublicKey))
-	spec: {
-		publicKey:    wireguardPublicKey
-		wireguardRef: "main"
-		egressNetworkPolicies: [{
-			action: wirguardv1alpha1.#EgressNetworkPolicyActionAccept
-			to: {
-				// Envoy Gateway LB
-				ip:   "192.168.135.27"
-				port: 443
-			}
-			protocol: wirguardv1alpha1.#EgressNetworkPolicyProtocolTCP
-		}]
-	}
-}, {
-	let wireguardPublicKey = "GKwcHDNEzMpqG3nMCmbMt9f17X9wo0N8AqDCVsgMZQE="
-
-	metadata: name: hex.Encode(md5.Sum(wireguardPublicKey))
-	spec: {
-		publicKey:    wireguardPublicKey
-		wireguardRef: "main"
-		egressNetworkPolicies: [{
-			action: wirguardv1alpha1.#EgressNetworkPolicyActionAccept
-			to: {
-				// Envoy Gateway LB
-				ip:   "192.168.135.27"
-				port: 443
-			}
-			protocol: wirguardv1alpha1.#EgressNetworkPolicyProtocolTCP
-		}]
-	}
-}, {
 	let wireguardPublicKey = "2ZVBIjoV9PsaUB8JGod4qqI9uZJ9z+sYVHlxLlwLUSM="
 
 	metadata: name: hex.Encode(md5.Sum(wireguardPublicKey))

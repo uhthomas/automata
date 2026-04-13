@@ -24,7 +24,7 @@ import (
 		verbs: ["*"]
 	}, {
 		apiGroups: [v1.#GroupName]
-		resources: ["configmaps/status", "pods", "nodes", "nodes/proxy", "nodes/metrics", "namespaces"]
+		resources: ["configmaps/status", "pods", "nodes", "nodes/metrics", "namespaces"]
 		verbs: ["get", "list", "watch"]
 	}, {
 		apiGroups: ["apps"]
@@ -57,6 +57,10 @@ import (
 	}, {
 		apiGroups: ["networking.k8s.io"]
 		resources: ["ingresses", "ingresses/finalizers"]
+		verbs: ["*"]
+	}, {
+		apiGroups: ["gateway.networking.k8s.io"]
+		resources: ["httproutes", "httproutes/finalizers"]
 		verbs: ["*"]
 	}, {
 		apiGroups: ["apiextensions.k8s.io"]
@@ -129,6 +133,15 @@ import (
 			"vmanomalies",
 			"vmanomalies/finalizers",
 			"vmanomalies/status",
+			"vmdistributed",
+			"vmdistributed/finalizers",
+			"vmdistributed/status",
+			"vtclusters",
+			"vtclusters/finalizers",
+			"vtclusters/status",
+			"vtsingles",
+			"vtsingles/finalizers",
+			"vtsingles/status",
 		]
 		verbs: ["*"]
 	}]

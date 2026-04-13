@@ -296,11 +296,12 @@ replace (
 	k8s.io/sample-controller => k8s.io/sample-controller v0.34.0
 )
 
-// https://github.com/rook/rook/blob/4af3f3784bd822eda9ef7c04b7310c070e5c141b/pkg/apis/go.mod#L108-L109
+// https://github.com/rook/rook/blob/4b80a90cb8a0e4d71279cc10562463dd1670a82c/go.mod#L5-L13
 replace (
-	github.com/kubernetes-incubator/external-storage => github.com/libopenstorage/external-storage v0.20.4-rc1
-	github.com/portworx/sched-ops => github.com/portworx/sched-ops v0.20.4-openstorage-rc3
+	github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.4.1
+	github.com/kubernetes-incubator/external-storage => github.com/libopenstorage/external-storage v0.20.4-openstorage-rc3
 )
+
 
 exclude github.com/kubernetes-incubator/external-storage v0.20.4-openstorage-rc2
 

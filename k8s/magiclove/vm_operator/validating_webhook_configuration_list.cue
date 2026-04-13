@@ -320,5 +320,27 @@ import (
 		failurePolicy: admissionregistrationv1.#Fail
 		sideEffects:   admissionregistrationv1.#SideEffectClassNone
 		admissionReviewVersions: ["v1"]
+	}, {
+		name: "vmdistributed.operator.victoriametrics.com"
+		clientConfig: service: {
+			namespace: #Namespace
+			name:      "\(#Name)-webhook"
+			path:      "/validate-operator-victoriametrics-com-v1alpha1-vmdistributed"
+			port:      9443
+		}
+		rules: [{
+			apiGroups: ["operator.victoriametrics.com"]
+			apiVersions: ["v1alpha1"]
+			operations: ["CREATE", "UPDATE"]
+			resources: ["vmdistributed"]
+		}]
+		failurePolicy: admissionregistrationv1.#Fail
+		sideEffects:   admissionregistrationv1.#SideEffectClassNone
+		admissionReviewVersions: ["v1"]
+		objectSelector: matchExpressions: [{
+			key:      "app.kubernetes.io/name"
+			operator: "NotIn"
+			values: ["victoria-metrics-operator"]
+		}]
 	}]
 }]
