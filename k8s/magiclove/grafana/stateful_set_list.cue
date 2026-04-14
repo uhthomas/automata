@@ -45,6 +45,18 @@ import (
 							name: "grafana"
 							key:  "password"
 						}
+					}, {
+						name: "GF_AUTH_GENERIC_OAUTH_CLIENT_ID"
+						valueFrom: secretKeyRef: {
+							name: "grafana-kanidm-oauth2-credentials"
+							key:  "CLIENT_ID"
+						}
+					}, {
+						name: "GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET"
+						valueFrom: secretKeyRef: {
+							name: "grafana-kanidm-oauth2-credentials"
+							key:  "CLIENT_SECRET"
+						}
 					}]
 					volumeMounts: [{
 						name:      "config"

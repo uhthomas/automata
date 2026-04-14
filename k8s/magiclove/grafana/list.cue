@@ -36,6 +36,7 @@ _items: [
 	#GrafanaDashboardList.items,
 	#GrafanaDatasourceList.items,
 	#GrafanaList.items,
+	#KanidmOAuth2ClientList.items,
 	#HTTPRouteList.items,
 	#NamespaceList.items,
 	#PersistentVolumeClaimList.items,

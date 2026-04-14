@@ -19,6 +19,9 @@ import "k8s.io/api/core/v1"
 		[grafana_net]
 		url = https://grafana.net
 
+		[server]
+		root_url = https://grafana-magiclove.hipparcos.net
+
 		[log]
 		mode = console
 
@@ -30,12 +33,19 @@ import "k8s.io/api/core/v1"
 		[database]
 		path = /var/lib/grafana/database/grafana.db
 
-		[auth.anonymous]
-		enabled = true
-		org_role = Admin
+		[auth]
+		oauth_auto_login = true
 
-		[log]
-		mode = console
+		[auth.generic_oauth]
+		enabled = true
+		name = Kanidm
+		allow_sign_up = true
+		scopes = openid profile email groups
+		auth_url = https://kanidm-magiclove.hipparcos.net/ui/oauth2
+		token_url = https://kanidm-magiclove.hipparcos.net/oauth2/token
+		api_url = https://kanidm-magiclove.hipparcos.net/oauth2/openid/grafana/userinfo
+		use_pkce = true
+		role_attribute_path = contains(groups[*], 'admins') && 'Admin' || 'Viewer'
 
 		"""
 }]
