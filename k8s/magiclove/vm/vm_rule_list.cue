@@ -1374,18 +1374,6 @@ import operatorv1beta1 "github.com/VictoriaMetrics/operator/api/operator/v1beta1
 			for:  "15m"
 			labels: severity: "critical"
 		}, {
-			alert: "TooManyLogs"
-			annotations: {
-				description: """
-					The job \\"{{ $labels.job }}\\" ({{ $labels.instance }}) generated {{ $value }} log messages with the level higher than info for the last 5 minutes. Check the logs for the given target. Check also the \\"location\\" label at the vm_log_messages_total metric if -loggerLevel command-line flag is set to value other than INFO. This label contains code locations responsible for generating log messages suppressed by -loggerLevel.
-
-					"""
-				summary: "Too many logs are generated for job \"{{ $labels.job }}\" ({{ $labels.instance }})"
-			}
-			expr: "sum(increase(vm_log_messages_total{level!=\"info\"}[5m])) without(app_version,location,is_printed) > 0"
-			for:  "15m"
-			labels: severity: "warning"
-		}, {
 			alert: "TooManyTSIDMisses"
 			annotations: {
 				description: """
