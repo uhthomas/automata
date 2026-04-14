@@ -50,6 +50,7 @@ import (
 		extraArgs: {
 			"external.url":                  "https://vmalert-magiclove.hipparcos.net"
 			"remoteWrite.disablePathAppend": "true"
+			"vmalert.proxyURL":              "http://vmsingle-vm:8429"
 		}
 	}
 }]

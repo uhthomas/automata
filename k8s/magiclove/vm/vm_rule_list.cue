@@ -630,10 +630,6 @@ import operatorv1beta1 "github.com/VictoriaMetrics/operator/api/operator/v1beta1
 			labels: quantile: "0.99"
 			record: "cluster_quantile:scheduler_scheduling_attempt_duration_seconds:histogram_quantile"
 		}, {
-			expr: "histogram_quantile(0.99, sum(rate(scheduler_scheduling_algorithm_duration_seconds_bucket{job=\"kube-scheduler\"}[5m])) without(instance,pod))"
-			labels: quantile: "0.99"
-			record: "cluster_quantile:scheduler_scheduling_algorithm_duration_seconds:histogram_quantile"
-		}, {
 			expr: "histogram_quantile(0.99, sum(rate(scheduler_pod_scheduling_sli_duration_seconds_bucket{job=\"kube-scheduler\"}[5m])) without(instance,pod))"
 			labels: quantile: "0.99"
 			record: "cluster_quantile:scheduler_pod_scheduling_sli_duration_seconds:histogram_quantile"
@@ -642,10 +638,6 @@ import operatorv1beta1 "github.com/VictoriaMetrics/operator/api/operator/v1beta1
 			labels: quantile: "0.9"
 			record: "cluster_quantile:scheduler_scheduling_attempt_duration_seconds:histogram_quantile"
 		}, {
-			expr: "histogram_quantile(0.9, sum(rate(scheduler_scheduling_algorithm_duration_seconds_bucket{job=\"kube-scheduler\"}[5m])) without(instance,pod))"
-			labels: quantile: "0.9"
-			record: "cluster_quantile:scheduler_scheduling_algorithm_duration_seconds:histogram_quantile"
-		}, {
 			expr: "histogram_quantile(0.9, sum(rate(scheduler_pod_scheduling_sli_duration_seconds_bucket{job=\"kube-scheduler\"}[5m])) without(instance,pod))"
 			labels: quantile: "0.9"
 			record: "cluster_quantile:scheduler_pod_scheduling_sli_duration_seconds:histogram_quantile"
@@ -653,10 +645,6 @@ import operatorv1beta1 "github.com/VictoriaMetrics/operator/api/operator/v1beta1
 			expr: "histogram_quantile(0.5, sum(rate(scheduler_scheduling_attempt_duration_seconds_bucket{job=\"kube-scheduler\"}[5m])) without(instance,pod))"
 			labels: quantile: "0.5"
 			record: "cluster_quantile:scheduler_scheduling_attempt_duration_seconds:histogram_quantile"
-		}, {
-			expr: "histogram_quantile(0.5, sum(rate(scheduler_scheduling_algorithm_duration_seconds_bucket{job=\"kube-scheduler\"}[5m])) without(instance,pod))"
-			labels: quantile: "0.5"
-			record: "cluster_quantile:scheduler_scheduling_algorithm_duration_seconds:histogram_quantile"
 		}, {
 			expr: "histogram_quantile(0.5, sum(rate(scheduler_pod_scheduling_sli_duration_seconds_bucket{job=\"kube-scheduler\"}[5m])) without(instance,pod))"
 			labels: quantile: "0.5"
