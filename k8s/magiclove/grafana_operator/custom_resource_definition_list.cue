@@ -16,87 +16,155 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 	spec: {
 		group: "grafana.integreatly.org"
 		names: {
+			categories: [
+				"grafana-operator",
+			]
 			kind:     "GrafanaAlertRuleGroup"
 			listKind: "GrafanaAlertRuleGroupList"
 			plural:   "grafanaalertrulegroups"
 			singular: "grafanaalertrulegroup"
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
+			additionalPrinterColumns: [{
+				format:   "date-time"
+				jsonPath: ".status.lastResync"
+				name:     "Last resync"
+				type:     "date"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
+			}]
 			name: "v1beta1"
 			schema: openAPIV3Schema: {
 				description: "GrafanaAlertRuleGroup is the Schema for the grafanaalertrulegroups API"
 				properties: {
 					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources"
-						type:        "string"
+						description: """
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
+						type: "string"
 					}
 					kind: {
-						description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"
-						type:        "string"
+						description: """
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
+						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
 						description: "GrafanaAlertRuleGroupSpec defines the desired state of GrafanaAlertRuleGroup"
 						properties: {
-							allowCrossNamespaceImport: type: "boolean"
+							allowCrossNamespaceImport: {
+								default:     false
+								description: "Allow the Operator to match this resource with Grafanas outside the current namespace"
+								type:        "boolean"
+							}
+							editable: {
+								description: "Whether to enable or disable editing of the alert rule group in Grafana UI"
+								type:        "boolean"
+								"x-kubernetes-validations": [{
+									message: "Value is immutable"
+									rule:    "self == oldSelf"
+								}]
+							}
 							folderRef: {
 								description: "Match GrafanaFolders CRs to infer the uid"
 								type:        "string"
+								"x-kubernetes-validations": [{
+									message: "Value is immutable"
+									rule:    "self == oldSelf"
+								}]
 							}
 							folderUID: {
-								description: "UID of the folder containing this rule group Overrides the FolderSelector"
-								type:        "string"
+								description: """
+												UID of the folder containing this rule group
+												Overrides the FolderSelector
+												"""
+								type: "string"
+								"x-kubernetes-validations": [{
+									message: "Value is immutable"
+									rule:    "self == oldSelf"
+								}]
 							}
 							instanceSelector: {
-								description: "selects Grafanas for import"
+								description: "Selects Grafana instances for import"
 								properties: {
 									matchExpressions: {
 										description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 										items: {
-											description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+											description: """
+															A label selector requirement is a selector that contains values, a key, and an operator that
+															relates the key and values.
+															"""
 											properties: {
 												key: {
 													description: "key is the label key that the selector applies to."
 													type:        "string"
 												}
 												operator: {
-													description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
-													type:        "string"
+													description: """
+																	operator represents a key's relationship to a set of values.
+																	Valid operators are In, NotIn, Exists and DoesNotExist.
+																	"""
+													type: "string"
 												}
 												values: {
-													description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+													description: """
+																	values is an array of string values. If the operator is In or NotIn,
+																	the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																	the values array must be empty. This array is replaced during a strategic
+																	merge patch.
+																	"""
 													items: type: "string"
-													type: "array"
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
 												}
 											}
-											required: [
-												"key",
-												"operator",
-											]
+											required: ["key", "operator"]
 											type: "object"
 										}
-										type: "array"
+										type:                     "array"
+										"x-kubernetes-list-type": "atomic"
 									}
 									matchLabels: {
 										additionalProperties: type: "string"
-										description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
-										type:        "object"
+										description: """
+														matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+														map is equivalent to an element of matchExpressions, whose key field is "key", the
+														operator is "In", and the values array contains only "value". The requirements are ANDed.
+														"""
+										type: "object"
 									}
 								}
 								type:                    "object"
 								"x-kubernetes-map-type": "atomic"
+								"x-kubernetes-validations": [{
+									message: "spec.instanceSelector is immutable"
+									rule:    "self == oldSelf"
+								}]
 							}
 							interval: {
 								format:  "duration"
 								pattern: "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
 								type:    "string"
 							}
+							name: {
+								description: "Name of the alert rule group. If not specified, the resource name will be used."
+								type:        "string"
+							}
 							resyncPeriod: {
-								default: "10m"
-								format:  "duration"
-								pattern: "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
-								type:    "string"
+								description: "How often the resource is synced, defaults to 10m0s if not set"
+								pattern:     "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
+								type:        "string"
 							}
 							rules: {
 								items: {
@@ -107,6 +175,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											type: "object"
 										}
 										condition: type: "string"
+										dashboardUid: {
+											description: "Deprecated: The field is not used, use rules[].annotations.__dashboardUid__"
+											type:        "string"
+										}
 										data: {
 											items: {
 												properties: {
@@ -119,8 +191,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														"x-kubernetes-preserve-unknown-fields": true
 													}
 													queryType: {
-														description: "QueryType is an optional identifier for the type of query. It can be used to distinguish different types of queries."
-														type:        "string"
+														description: """
+																		QueryType is an optional identifier for the type of query.
+																		It can be used to distinguish different types of queries.
+																		"""
+														type: "string"
 													}
 													refId: {
 														description: "RefID is the unique identifier of the query, set by the frontend call."
@@ -148,30 +223,93 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											type: "array"
 										}
 										execErrState: {
-											enum: [
-												"OK",
-												"Alerting",
-												"Error",
-											]
+											enum: ["OK", "Alerting", "Error", "KeepLast"]
 											type: "string"
 										}
 										for: {
+											default: "0s"
+											pattern: "^([0-9]+(\\.[0-9]+)?(s|m|h|d|w))+$"
+											type:    "string"
+										}
+										isPaused: type: "boolean"
+										keepFiringFor: {
 											format:  "duration"
 											pattern: "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
 											type:    "string"
 										}
-										isPaused: type: "boolean"
 										labels: {
 											additionalProperties: type: "string"
 											type: "object"
 										}
+										missingSeriesEvalsToResolve: {
+											description: "The number of missing series evaluations that must occur before the rule is considered to be resolved."
+											format:      "int64"
+											type:        "integer"
+										}
 										noDataState: {
-											enum: [
-												"Alerting",
-												"NoData",
-												"OK",
-											]
+											enum: ["Alerting", "NoData", "OK", "KeepLast"]
 											type: "string"
+										}
+										notificationSettings: {
+											properties: {
+												active_time_intervals: {
+													description: "ActiveTimeIntervals defines the time intervals during which notifications should NOT be muted."
+													items: type: "string"
+													type: "array"
+												}
+												group_by: {
+													description: "GroupBy defines the labels by which incoming alerts are grouped together."
+													items: type: "string"
+													type: "array"
+												}
+												group_interval: {
+													description: """
+																	GroupInterval defines how long to wait before sending a notification about new alerts added
+																	to a group for which an initial notification has already been sent. (e.g. 5m)
+																	"""
+													type: "string"
+												}
+												group_wait: {
+													description: "GroupWait defines how long to initially wait to send a notification for a group of alerts. (e.g. 30s)"
+													type:        "string"
+												}
+												mute_time_intervals: {
+													description: """
+																	MuteTimeIntervals defines the time intervals during which notifications should be muted.
+																	These must match the name of a mute time interval defined in the Alertmanager configuration.
+																	"""
+													items: type: "string"
+													type: "array"
+												}
+												receiver: {
+													description: "Receiver is the name of the receiver to send notifications to."
+													minLength:   1
+													type:        "string"
+												}
+												repeat_interval: {
+													description: """
+																	RepeatInterval defines how long to wait before sending a notification again if it has already
+																	been sent successfully for an alert. (e.g. 4h)
+																	Should not be less than GroupInterval.
+																	"""
+													type: "string"
+												}
+											}
+											required: ["receiver"]
+											type: "object"
+										}
+										panelId: {
+											description: "Deprecated: The field is not used, use rules[].annotations.__panelId__"
+											type:        "integer"
+										}
+										record: {
+											properties: {
+												from: type:                "string"
+												metric: type:              "string"
+												targetDatasourceUid: type: "string"
+											}
+											required: ["from", "metric"]
+											type: "object"
 										}
 										title: {
 											example:   "Always firing"
@@ -180,99 +318,568 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											type:      "string"
 										}
 										uid: {
-											pattern: "^[a-zA-Z0-9-_]+$"
-											type:    "string"
+											description: "UID of the alert rule. Can be any string consisting of alphanumeric characters, - and _ with a maximum length of 40"
+											maxLength:   40
+											pattern:     "^[a-zA-Z0-9-_]+$"
+											type:        "string"
 										}
 									}
-									required: [
-										"condition",
-										"data",
-										"execErrState",
-										"for",
-										"noDataState",
-										"title",
-										"uid",
-									]
+									required: ["condition", "data", "execErrState", "for", "noDataState", "title", "uid"]
+									type: "object"
+								}
+								minItems: 1
+								type:     "array"
+							}
+							suspend: {
+								description: "Suspend pauses synchronizing attempts and tells the operator to ignore changes"
+								type:        "boolean"
+							}
+						}
+						required: ["instanceSelector", "interval", "rules"]
+						type: "object"
+						"x-kubernetes-validations": [{
+							message: "Only one of FolderUID or FolderRef can be set and one must be defined"
+							rule:    "(has(self.folderUID) && !(has(self.folderRef))) || (has(self.folderRef) && !(has(self.folderUID)))"
+						}, {
+							message: "spec.editable is immutable"
+							rule:    "((!has(oldSelf.editable) && !has(self.editable)) || (has(oldSelf.editable) && has(self.editable)))"
+						}, {
+							message: "spec.folderUID is immutable"
+							rule:    "((!has(oldSelf.folderUID) && !has(self.folderUID)) || (has(oldSelf.folderUID) && has(self.folderUID)))"
+						}, {
+							message: "spec.folderRef is immutable"
+							rule:    "((!has(oldSelf.folderRef) && !has(self.folderRef)) || (has(oldSelf.folderRef) && has(self.folderRef)))"
+						}, {
+							message: "disabling spec.allowCrossNamespaceImport requires a recreate to ensure desired state"
+							rule:    "!oldSelf.allowCrossNamespaceImport || (oldSelf.allowCrossNamespaceImport && self.allowCrossNamespaceImport)"
+						}]
+					}
+					status: {
+						description: "The most recent observed state of a Grafana resource"
+						properties: {
+							conditions: {
+								description: "Results when synchronizing resource with Grafana instances"
+								items: {
+									description: "Condition contains details for one aspect of the current state of this API Resource."
+									properties: {
+										lastTransitionTime: {
+											description: """
+															lastTransitionTime is the last time the condition transitioned from one status to another.
+															This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+															"""
+											format: "date-time"
+											type:   "string"
+										}
+										message: {
+											description: """
+															message is a human readable message indicating details about the transition.
+															This may be an empty string.
+															"""
+											maxLength: 32768
+											type:      "string"
+										}
+										observedGeneration: {
+											description: """
+															observedGeneration represents the .metadata.generation that the condition was set based upon.
+															For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+															with respect to the current state of the instance.
+															"""
+											format:  "int64"
+											minimum: 0
+											type:    "integer"
+										}
+										reason: {
+											description: """
+															reason contains a programmatic identifier indicating the reason for the condition's last transition.
+															Producers of specific condition types may define expected values and meanings for this field,
+															and whether the values are considered a guaranteed API.
+															The value should be a CamelCase string.
+															This field may not be empty.
+															"""
+											maxLength: 1024
+											minLength: 1
+											pattern:   "^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$"
+											type:      "string"
+										}
+										status: {
+											description: "status of the condition, one of True, False, Unknown."
+											enum: ["True", "False", "Unknown"]
+											type: "string"
+										}
+										type: {
+											description: "type of condition in CamelCase or in foo.example.com/CamelCase."
+											maxLength:   316
+											pattern:     "^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"
+											type:        "string"
+										}
+									}
+									required: ["lastTransitionTime", "message", "reason", "status", "type"]
 									type: "object"
 								}
 								type: "array"
 							}
-						}
-						required: [
-							"instanceSelector",
-							"interval",
-							"rules",
-						]
-						type: "object"
-						"x-kubernetes-validations": [{
-							message: "Only one of FolderUID or FolderRef can be set"
-							rule:    "(has(self.folderUID) && !(has(self.folderRef))) || (has(self.folderRef) && !(has(self.folderUID)))"
-						}]
-					}
-					status: {
-						description: "GrafanaAlertRuleGroupStatus defines the observed state of GrafanaAlertRuleGroup"
-						properties: conditions: {
-							items: {
-								description: """
-		Condition contains details for one aspect of the current state of this API Resource. --- This struct is intended for direct use as an array at the field path .status.conditions.  For example,
-		 type FooStatus struct{ // Represents the observations of a foo's current state. // Known .status.conditions.type are: \"Available\", \"Progressing\", and \"Degraded\" // +patchMergeKey=type // +patchStrategy=merge // +listType=map // +listMapKey=type Conditions []metav1.Condition `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"`
-		 // other fields }
-		"""
-								properties: {
-									lastTransitionTime: {
-										description: "lastTransitionTime is the last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable."
-										format:      "date-time"
-										type:        "string"
-									}
-									message: {
-										description: "message is a human readable message indicating details about the transition. This may be an empty string."
-										maxLength:   32768
-										type:        "string"
-									}
-									observedGeneration: {
-										description: "observedGeneration represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance."
-										format:      "int64"
-										minimum:     0
-										type:        "integer"
-									}
-									reason: {
-										description: "reason contains a programmatic identifier indicating the reason for the condition's last transition. Producers of specific condition types may define expected values and meanings for this field, and whether the values are considered a guaranteed API. The value should be a CamelCase string. This field may not be empty."
-										maxLength:   1024
-										minLength:   1
-										pattern:     "^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$"
-										type:        "string"
-									}
-									status: {
-										description: "status of the condition, one of True, False, Unknown."
-										enum: [
-											"True",
-											"False",
-											"Unknown",
-										]
-										type: "string"
-									}
-									type: {
-										description: "type of condition in CamelCase or in foo.example.com/CamelCase. --- Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important. The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)"
-										maxLength:   316
-										pattern:     "^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"
-										type:        "string"
-									}
-								}
-								required: [
-									"lastTransitionTime",
-									"message",
-									"reason",
-									"status",
-									"type",
-								]
-								type: "object"
+							lastResync: {
+								description: "Last time the resource was synchronized with Grafana instances"
+								format:      "date-time"
+								type:        "string"
 							}
-							type: "array"
 						}
-						required: ["conditions"]
 						type: "object"
 					}
 				}
+				required: [
+					"spec",
+				]
+				type: "object"
+			}
+			served:  true
+			storage: true
+			subresources: status: {}
+		}]
+	}
+}, {
+	metadata: name: "grafanacontactpoints.grafana.integreatly.org"
+	spec: {
+		group: "grafana.integreatly.org"
+		names: {
+			categories: [
+				"grafana-operator",
+			]
+			kind:     "GrafanaContactPoint"
+			listKind: "GrafanaContactPointList"
+			plural:   "grafanacontactpoints"
+			singular: "grafanacontactpoint"
+		}
+		scope: "Namespaced"
+		versions: [{
+			additionalPrinterColumns: [{
+				format:   "date-time"
+				jsonPath: ".status.lastResync"
+				name:     "Last resync"
+				type:     "date"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
+			}]
+			name: "v1beta1"
+			schema: openAPIV3Schema: {
+				description: "GrafanaContactPoint is the Schema for the grafanacontactpoints API"
+				properties: {
+					apiVersion: {
+						description: """
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
+						type: "string"
+					}
+					kind: {
+						description: """
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
+						type: "string"
+					}
+					metadata: type: "object"
+					spec: {
+						description: "GrafanaContactPointSpec defines the desired state of GrafanaContactPoint"
+						properties: {
+							allowCrossNamespaceImport: {
+								default:     false
+								description: "Allow the Operator to match this resource with Grafanas outside the current namespace"
+								type:        "boolean"
+							}
+							disableResolveMessage: {
+								description: """
+												Deprecated: define the receiver under .spec.receivers[]
+												Will be removed in a later version
+												"""
+								type: "boolean"
+							}
+							editable: {
+								description: "Whether to enable or disable editing of the contact point in Grafana UI"
+								type:        "boolean"
+								"x-kubernetes-validations": [{
+									message: "spec.editable is immutable"
+									rule:    "self == oldSelf"
+								}]
+							}
+							instanceSelector: {
+								description: "Selects Grafana instances for import"
+								properties: {
+									matchExpressions: {
+										description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+										items: {
+											description: """
+															A label selector requirement is a selector that contains values, a key, and an operator that
+															relates the key and values.
+															"""
+											properties: {
+												key: {
+													description: "key is the label key that the selector applies to."
+													type:        "string"
+												}
+												operator: {
+													description: """
+																	operator represents a key's relationship to a set of values.
+																	Valid operators are In, NotIn, Exists and DoesNotExist.
+																	"""
+													type: "string"
+												}
+												values: {
+													description: """
+																	values is an array of string values. If the operator is In or NotIn,
+																	the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																	the values array must be empty. This array is replaced during a strategic
+																	merge patch.
+																	"""
+													items: type: "string"
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
+												}
+											}
+											required: ["key", "operator"]
+											type: "object"
+										}
+										type:                     "array"
+										"x-kubernetes-list-type": "atomic"
+									}
+									matchLabels: {
+										additionalProperties: type: "string"
+										description: """
+														matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+														map is equivalent to an element of matchExpressions, whose key field is "key", the
+														operator is "In", and the values array contains only "value". The requirements are ANDed.
+														"""
+										type: "object"
+									}
+								}
+								type:                    "object"
+								"x-kubernetes-map-type": "atomic"
+								"x-kubernetes-validations": [{
+									message: "spec.instanceSelector is immutable"
+									rule:    "self == oldSelf"
+								}]
+							}
+							name: {
+								description: """
+												Receivers are grouped under the same ContactPoint using the Name
+												Defaults to the name of the CR
+												"""
+								type: "string"
+								"x-kubernetes-validations": [{
+									message: "spec.name is immutable"
+									rule:    "self == oldSelf"
+								}]
+							}
+							receivers: {
+								description: "List of receivers that Grafana will fan out notifications to"
+								items: {
+									description: "Represents an integration to external services that receive Grafana notifications"
+									properties: {
+										disableResolveMessage: type:                      "boolean"
+										settings: "x-kubernetes-preserve-unknown-fields": true
+										type: {
+											minLength: 1
+											type:      "string"
+										}
+										uid: {
+											description: "Manually specify the UID the Contact Point is created with. Can be any string consisting of alphanumeric characters, - and _ with a maximum length of 40"
+											maxLength:   40
+											pattern:     "^[a-zA-Z0-9-_]+$"
+											type:        "string"
+										}
+										valuesFrom: {
+											items: {
+												properties: {
+													targetPath: type: "string"
+													valueFrom: {
+														properties: {
+															configMapKeyRef: {
+																description: "Selects a key of a ConfigMap."
+																properties: {
+																	key: {
+																		description: "The key to select."
+																		type:        "string"
+																	}
+																	name: {
+																		default: ""
+																		description: """
+																						Name of the referent.
+																						This field is effectively required, but due to backwards compatibility is
+																						allowed to be empty. Instances of this type with an empty value here are
+																						almost certainly wrong.
+																						More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																						"""
+																		type: "string"
+																	}
+																	optional: {
+																		description: "Specify whether the ConfigMap or its key must be defined"
+																		type:        "boolean"
+																	}
+																}
+																required: ["key"]
+																type:                    "object"
+																"x-kubernetes-map-type": "atomic"
+															}
+															secretKeyRef: {
+																description: "Selects a key of a Secret."
+																properties: {
+																	key: {
+																		description: "The key of the secret to select from.  Must be a valid secret key."
+																		type:        "string"
+																	}
+																	name: {
+																		default: ""
+																		description: """
+																						Name of the referent.
+																						This field is effectively required, but due to backwards compatibility is
+																						allowed to be empty. Instances of this type with an empty value here are
+																						almost certainly wrong.
+																						More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																						"""
+																		type: "string"
+																	}
+																	optional: {
+																		description: "Specify whether the Secret or its key must be defined"
+																		type:        "boolean"
+																	}
+																}
+																required: ["key"]
+																type:                    "object"
+																"x-kubernetes-map-type": "atomic"
+															}
+														}
+														type: "object"
+														"x-kubernetes-validations": [{
+															message: "Either configMapKeyRef or secretKeyRef must be set"
+															rule:    "(has(self.configMapKeyRef) && !has(self.secretKeyRef)) || (!has(self.configMapKeyRef) && has(self.secretKeyRef))"
+														}]
+													}
+												}
+												required: ["targetPath", "valueFrom"]
+												type: "object"
+											}
+											maxItems: 99
+											type:     "array"
+										}
+									}
+									required: ["settings", "type"]
+									type: "object"
+								}
+								maxItems: 99
+								type:     "array"
+							}
+							resyncPeriod: {
+								description: "How often the resource is synced, defaults to 10m0s if not set"
+								pattern:     "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
+								type:        "string"
+							}
+							settings: {
+								description: """
+												Deprecated: define the receiver under .spec.receivers[]
+												Will be removed in a later version
+												"""
+								"x-kubernetes-preserve-unknown-fields": true
+							}
+							suspend: {
+								description: "Suspend pauses synchronizing attempts and tells the operator to ignore changes"
+								type:        "boolean"
+							}
+							type: {
+								description: """
+												Deprecated: define the receiver under .spec.receivers[]
+												Will be removed in a later version
+												"""
+								minLength: 1
+								type:      "string"
+							}
+							uid: {
+								description: """
+												Deprecated: define the receiver under .spec.receivers[]
+												Manually specify the UID the Contact Point is created with. Can be any string consisting of alphanumeric characters, - and _ with a maximum length of 40
+												"""
+								maxLength: 40
+								pattern:   "^[a-zA-Z0-9-_]+$"
+								type:      "string"
+								"x-kubernetes-validations": [{
+									message: "spec.uid is immutable"
+									rule:    "self == oldSelf"
+								}]
+							}
+							valuesFrom: {
+								description: """
+												Deprecated: define the receiver under .spec.receivers[]
+												Will be removed in a later version
+												"""
+								items: {
+									properties: {
+										targetPath: type: "string"
+										valueFrom: {
+											properties: {
+												configMapKeyRef: {
+													description: "Selects a key of a ConfigMap."
+													properties: {
+														key: {
+															description: "The key to select."
+															type:        "string"
+														}
+														name: {
+															default: ""
+															description: """
+																			Name of the referent.
+																			This field is effectively required, but due to backwards compatibility is
+																			allowed to be empty. Instances of this type with an empty value here are
+																			almost certainly wrong.
+																			More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																			"""
+															type: "string"
+														}
+														optional: {
+															description: "Specify whether the ConfigMap or its key must be defined"
+															type:        "boolean"
+														}
+													}
+													required: ["key"]
+													type:                    "object"
+													"x-kubernetes-map-type": "atomic"
+												}
+												secretKeyRef: {
+													description: "Selects a key of a Secret."
+													properties: {
+														key: {
+															description: "The key of the secret to select from.  Must be a valid secret key."
+															type:        "string"
+														}
+														name: {
+															default: ""
+															description: """
+																			Name of the referent.
+																			This field is effectively required, but due to backwards compatibility is
+																			allowed to be empty. Instances of this type with an empty value here are
+																			almost certainly wrong.
+																			More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																			"""
+															type: "string"
+														}
+														optional: {
+															description: "Specify whether the Secret or its key must be defined"
+															type:        "boolean"
+														}
+													}
+													required: ["key"]
+													type:                    "object"
+													"x-kubernetes-map-type": "atomic"
+												}
+											}
+											type: "object"
+											"x-kubernetes-validations": [{
+												message: "Either configMapKeyRef or secretKeyRef must be set"
+												rule:    "(has(self.configMapKeyRef) && !has(self.secretKeyRef)) || (!has(self.configMapKeyRef) && has(self.secretKeyRef))"
+											}]
+										}
+									}
+									required: ["targetPath", "valueFrom"]
+									type: "object"
+								}
+								maxItems: 99
+								type:     "array"
+							}
+						}
+						required: ["instanceSelector"]
+						type: "object"
+						"x-kubernetes-validations": [{
+							message: "spec.name is immutable"
+							rule:    "((!has(oldSelf.name) && !has(self.name)) || (has(oldSelf.name) && has(self.name)))"
+						}, {
+							message: "spec.editable is immutable"
+							rule:    "((!has(oldSelf.editable) && !has(self.editable)) || (has(oldSelf.editable) && has(self.editable)))"
+						}, {
+							message: "disabling spec.allowCrossNamespaceImport requires a recreate to ensure desired state"
+							rule:    "!oldSelf.allowCrossNamespaceImport || (oldSelf.allowCrossNamespaceImport && self.allowCrossNamespaceImport)"
+						}]
+					}
+					status: {
+						description: "The most recent observed state of a Grafana resource"
+						properties: {
+							conditions: {
+								description: "Results when synchronizing resource with Grafana instances"
+								items: {
+									description: "Condition contains details for one aspect of the current state of this API Resource."
+									properties: {
+										lastTransitionTime: {
+											description: """
+															lastTransitionTime is the last time the condition transitioned from one status to another.
+															This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+															"""
+											format: "date-time"
+											type:   "string"
+										}
+										message: {
+											description: """
+															message is a human readable message indicating details about the transition.
+															This may be an empty string.
+															"""
+											maxLength: 32768
+											type:      "string"
+										}
+										observedGeneration: {
+											description: """
+															observedGeneration represents the .metadata.generation that the condition was set based upon.
+															For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+															with respect to the current state of the instance.
+															"""
+											format:  "int64"
+											minimum: 0
+											type:    "integer"
+										}
+										reason: {
+											description: """
+															reason contains a programmatic identifier indicating the reason for the condition's last transition.
+															Producers of specific condition types may define expected values and meanings for this field,
+															and whether the values are considered a guaranteed API.
+															The value should be a CamelCase string.
+															This field may not be empty.
+															"""
+											maxLength: 1024
+											minLength: 1
+											pattern:   "^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$"
+											type:      "string"
+										}
+										status: {
+											description: "status of the condition, one of True, False, Unknown."
+											enum: ["True", "False", "Unknown"]
+											type: "string"
+										}
+										type: {
+											description: "type of condition in CamelCase or in foo.example.com/CamelCase."
+											maxLength:   316
+											pattern:     "^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"
+											type:        "string"
+										}
+									}
+									required: ["lastTransitionTime", "message", "reason", "status", "type"]
+									type: "object"
+								}
+								type: "array"
+							}
+							lastResync: {
+								description: "Last time the resource was synchronized with Grafana instances"
+								format:      "date-time"
+								type:        "string"
+							}
+						}
+						type: "object"
+					}
+				}
+				required: [
+					"spec",
+				]
 				type: "object"
 			}
 			served:  true
@@ -285,12 +892,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 	spec: {
 		group: "grafana.integreatly.org"
 		names: {
+			categories: [
+				"grafana-operator",
+			]
 			kind:     "GrafanaDashboard"
 			listKind: "GrafanaDashboardList"
 			plural:   "grafanadashboards"
 			singular: "grafanadashboard"
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.NoMatchingInstances"
@@ -311,31 +921,50 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				description: "GrafanaDashboard is the Schema for the grafanadashboards API"
 				properties: {
 					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources"
-						type:        "string"
+						description: """
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
+						type: "string"
 					}
 					kind: {
-						description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"
-						type:        "string"
+						description: """
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
+						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
 						description: "GrafanaDashboardSpec defines the desired state of GrafanaDashboard"
 						properties: {
 							allowCrossNamespaceImport: {
-								description: "allow to import this resources from an operator in a different namespace"
+								default:     false
+								description: "Allow the Operator to match this resource with Grafanas outside the current namespace"
 								type:        "boolean"
 							}
 							configMapRef: {
-								description: "dashboard from configmap"
+								description: "model from configmap"
 								properties: {
 									key: {
 										description: "The key to select."
 										type:        "string"
 									}
 									name: {
-										description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-										type:        "string"
+										default: ""
+										description: """
+														Name of the referent.
+														This field is effectively required, but due to backwards compatibility is
+														allowed to be empty. Instances of this type with an empty value here are
+														almost certainly wrong.
+														More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+														"""
+										type: "string"
 									}
 									optional: {
 										description: "Specify whether the ConfigMap or its key must be defined"
@@ -347,20 +976,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								"x-kubernetes-map-type": "atomic"
 							}
 							contentCacheDuration: {
-								description: "Cache duration for dashboards fetched from URLs"
+								description: "Cache duration for models fetched from URLs"
 								type:        "string"
 							}
 							datasources: {
 								description: "maps required data sources to existing ones"
 								items: {
+									description: """
+													GrafanaResourceDatasource is used to set the datasource name of any templated datasources in
+													content definitions (e.g., dashboard JSON).
+													"""
 									properties: {
 										datasourceName: type: "string"
 										inputName: type:      "string"
 									}
-									required: [
-										"datasourceName",
-										"inputName",
-									]
+									required: ["datasourceName", "inputName"]
 									type: "object"
 								}
 								type: "array"
@@ -377,8 +1007,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "string"
 												}
 												name: {
-													description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-													type:        "string"
+													default: ""
+													description: """
+																	Name of the referent.
+																	This field is effectively required, but due to backwards compatibility is
+																	allowed to be empty. Instances of this type with an empty value here are
+																	almost certainly wrong.
+																	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																	"""
+													type: "string"
 												}
 												optional: {
 													description: "Specify whether the ConfigMap or its key must be defined"
@@ -397,8 +1034,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "string"
 												}
 												name: {
-													description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-													type:        "string"
+													default: ""
+													description: """
+																	Name of the referent.
+																	This field is effectively required, but due to backwards compatibility is
+																	allowed to be empty. Instances of this type with an empty value here are
+																	almost certainly wrong.
+																	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																	"""
+													type: "string"
 												}
 												optional: {
 													description: "Specify whether the Secret or its key must be defined"
@@ -420,7 +1064,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									properties: {
 										name: type: "string"
 										value: {
-											description: "Inline evn value"
+											description: "Inline env value"
 											type:        "string"
 										}
 										valueFrom: {
@@ -434,8 +1078,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:        "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-															type:        "string"
+															default: ""
+															description: """
+																			Name of the referent.
+																			This field is effectively required, but due to backwards compatibility is
+																			allowed to be empty. Instances of this type with an empty value here are
+																			almost certainly wrong.
+																			More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																			"""
+															type: "string"
 														}
 														optional: {
 															description: "Specify whether the ConfigMap or its key must be defined"
@@ -454,8 +1105,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:        "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-															type:        "string"
+															default: ""
+															description: """
+																			Name of the referent.
+																			This field is effectively required, but due to backwards compatibility is
+																			allowed to be empty. Instances of this type with an empty value here are
+																			almost certainly wrong.
+																			More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																			"""
+															type: "string"
 														}
 														optional: {
 															description: "Specify whether the Secret or its key must be defined"
@@ -479,6 +1137,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								description: "folder assignment for dashboard"
 								type:        "string"
 							}
+							folderRef: {
+								description: "Name of a `GrafanaFolder` resource in the same namespace"
+								type:        "string"
+							}
+							folderUID: {
+								description: "UID of the target folder for this dashboard"
+								type:        "string"
+							}
 							grafanaCom: {
 								description: "grafana.com/dashboards"
 								properties: {
@@ -489,51 +1155,69 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type: "object"
 							}
 							gzipJson: {
-								description: "GzipJson the dashboard's JSON compressed with Gzip. Base64-encoded when in YAML."
+								description: "GzipJson the model's JSON compressed with Gzip. Base64-encoded when in YAML."
 								format:      "byte"
 								type:        "string"
 							}
 							instanceSelector: {
-								description: "selects Grafanas for import"
+								description: "Selects Grafana instances for import"
 								properties: {
 									matchExpressions: {
 										description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 										items: {
-											description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+											description: """
+															A label selector requirement is a selector that contains values, a key, and an operator that
+															relates the key and values.
+															"""
 											properties: {
 												key: {
 													description: "key is the label key that the selector applies to."
 													type:        "string"
 												}
 												operator: {
-													description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
-													type:        "string"
+													description: """
+																	operator represents a key's relationship to a set of values.
+																	Valid operators are In, NotIn, Exists and DoesNotExist.
+																	"""
+													type: "string"
 												}
 												values: {
-													description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+													description: """
+																	values is an array of string values. If the operator is In or NotIn,
+																	the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																	the values array must be empty. This array is replaced during a strategic
+																	merge patch.
+																	"""
 													items: type: "string"
-													type: "array"
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
 												}
 											}
-											required: [
-												"key",
-												"operator",
-											]
+											required: ["key", "operator"]
 											type: "object"
 										}
-										type: "array"
+										type:                     "array"
+										"x-kubernetes-list-type": "atomic"
 									}
 									matchLabels: {
 										additionalProperties: type: "string"
-										description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
-										type:        "object"
+										description: """
+														matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+														map is equivalent to an element of matchExpressions, whose key field is "key", the
+														operator is "In", and the values array contains only "value". The requirements are ANDed.
+														"""
+										type: "object"
 									}
 								}
 								type:                    "object"
 								"x-kubernetes-map-type": "atomic"
+								"x-kubernetes-validations": [{
+									message: "spec.instanceSelector is immutable"
+									rule:    "self == oldSelf"
+								}]
 							}
 							json: {
-								description: "dashboard json"
+								description: "model json"
 								type:        "string"
 							}
 							jsonnet: {
@@ -553,38 +1237,133 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: "array"
 									}
 								}
-								required: [
-									"fileName",
-									"gzipJsonnetProject",
-								]
+								required: ["fileName", "gzipJsonnetProject"]
 								type: "object"
 							}
 							plugins: {
 								description: "plugins"
 								items: {
 									properties: {
-										name: type:    "string"
-										version: type: "string"
+										name: {
+											minLength: 1
+											type:      "string"
+										}
+										version: {
+											pattern: "^((0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?|latest)$"
+											type:    "string"
+										}
 									}
-									required: [
-										"name",
-										"version",
-									]
+									required: ["name", "version"]
 									type: "object"
 								}
 								type: "array"
 							}
 							resyncPeriod: {
-								description: "how often the dashboard is refreshed, defaults to 5m if not set"
+								description: "How often the resource is synced, defaults to 10m0s if not set"
+								pattern:     "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
 								type:        "string"
 							}
+							suspend: {
+								description: "Suspend pauses synchronizing attempts and tells the operator to ignore changes"
+								type:        "boolean"
+							}
+							uid: {
+								description: """
+												Manually specify the uid, overwrites uids already present in the json model.
+												Can be any string consisting of alphanumeric characters, - and _ with a maximum length of 40.
+												"""
+								maxLength: 40
+								pattern:   "^[a-zA-Z0-9-_]+$"
+								type:      "string"
+								"x-kubernetes-validations": [{
+									message: "spec.uid is immutable"
+									rule:    "self == oldSelf"
+								}]
+							}
 							url: {
-								description: "dashboard url"
+								description: "model url"
+								pattern:     "^https?://.+$"
 								type:        "string"
+							}
+							urlAuthorization: {
+								description: "authorization options for model from url"
+								properties: basicAuth: {
+									properties: {
+										password: {
+											description: "SecretKeySelector selects a key of a Secret."
+											properties: {
+												key: {
+													description: "The key of the secret to select from.  Must be a valid secret key."
+													type:        "string"
+												}
+												name: {
+													default: ""
+													description: """
+																		Name of the referent.
+																		This field is effectively required, but due to backwards compatibility is
+																		allowed to be empty. Instances of this type with an empty value here are
+																		almost certainly wrong.
+																		More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																		"""
+													type: "string"
+												}
+												optional: {
+													description: "Specify whether the Secret or its key must be defined"
+													type:        "boolean"
+												}
+											}
+											required: ["key"]
+											type:                    "object"
+											"x-kubernetes-map-type": "atomic"
+										}
+										username: {
+											description: "SecretKeySelector selects a key of a Secret."
+											properties: {
+												key: {
+													description: "The key of the secret to select from.  Must be a valid secret key."
+													type:        "string"
+												}
+												name: {
+													default: ""
+													description: """
+																		Name of the referent.
+																		This field is effectively required, but due to backwards compatibility is
+																		allowed to be empty. Instances of this type with an empty value here are
+																		almost certainly wrong.
+																		More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																		"""
+													type: "string"
+												}
+												optional: {
+													description: "Specify whether the Secret or its key must be defined"
+													type:        "boolean"
+												}
+											}
+											required: ["key"]
+											type:                    "object"
+											"x-kubernetes-map-type": "atomic"
+										}
+									}
+									type: "object"
+								}
+								type: "object"
 							}
 						}
 						required: ["instanceSelector"]
 						type: "object"
+						"x-kubernetes-validations": [{
+							message: "Only one of folderUID or folderRef can be declared at the same time"
+							rule:    "(has(self.folderUID) && !(has(self.folderRef))) || (has(self.folderRef) && !(has(self.folderUID))) || !(has(self.folderRef) && (has(self.folderUID)))"
+						}, {
+							message: "folder field cannot be set when folderUID or folderRef is already declared"
+							rule:    "(has(self.folder) && !(has(self.folderRef) || has(self.folderUID))) || !(has(self.folder))"
+						}, {
+							message: "spec.uid is immutable"
+							rule:    "((!has(oldSelf.uid) && !has(self.uid)) || (has(oldSelf.uid) && has(self.uid)))"
+						}, {
+							message: "disabling spec.allowCrossNamespaceImport requires a recreate to ensure desired state"
+							rule:    "!oldSelf.allowCrossNamespaceImport || (oldSelf.allowCrossNamespaceImport && self.allowCrossNamespaceImport)"
+						}]
 					}
 					status: {
 						description: "GrafanaDashboardStatus defines the observed state of GrafanaDashboard"
@@ -592,6 +1371,67 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							NoMatchingInstances: {
 								description: "The dashboard instanceSelector can't find matching grafana instances"
 								type:        "boolean"
+							}
+							conditions: {
+								description: "Results when synchronizing resource with Grafana instances"
+								items: {
+									description: "Condition contains details for one aspect of the current state of this API Resource."
+									properties: {
+										lastTransitionTime: {
+											description: """
+															lastTransitionTime is the last time the condition transitioned from one status to another.
+															This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+															"""
+											format: "date-time"
+											type:   "string"
+										}
+										message: {
+											description: """
+															message is a human readable message indicating details about the transition.
+															This may be an empty string.
+															"""
+											maxLength: 32768
+											type:      "string"
+										}
+										observedGeneration: {
+											description: """
+															observedGeneration represents the .metadata.generation that the condition was set based upon.
+															For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+															with respect to the current state of the instance.
+															"""
+											format:  "int64"
+											minimum: 0
+											type:    "integer"
+										}
+										reason: {
+											description: """
+															reason contains a programmatic identifier indicating the reason for the condition's last transition.
+															Producers of specific condition types may define expected values and meanings for this field,
+															and whether the values are considered a guaranteed API.
+															The value should be a CamelCase string.
+															This field may not be empty.
+															"""
+											maxLength: 1024
+											minLength: 1
+											pattern:   "^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$"
+											type:      "string"
+										}
+										status: {
+											description: "status of the condition, one of True, False, Unknown."
+											enum: ["True", "False", "Unknown"]
+											type: "string"
+										}
+										type: {
+											description: "type of condition in CamelCase or in foo.example.com/CamelCase."
+											maxLength:   316
+											pattern:     "^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"
+											type:        "string"
+										}
+									}
+									required: ["lastTransitionTime", "message", "reason", "status", "type"]
+									type: "object"
+								}
+								type: "array"
 							}
 							contentCache: {
 								format: "byte"
@@ -604,7 +1444,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							contentUrl: type: "string"
 							hash: type:       "string"
 							lastResync: {
-								description: "Last time the dashboard was resynced"
+								description: "Last time the resource was synchronized with Grafana instances"
 								format:      "date-time"
 								type:        "string"
 							}
@@ -613,6 +1453,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						type: "object"
 					}
 				}
+				required: [
+					"spec",
+				]
 				type: "object"
 			}
 			served:  true
@@ -625,12 +1468,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 	spec: {
 		group: "grafana.integreatly.org"
 		names: {
+			categories: [
+				"grafana-operator",
+			]
 			kind:     "GrafanaDatasource"
 			listKind: "GrafanaDatasourceList"
 			plural:   "grafanadatasources"
 			singular: "grafanadatasource"
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
 			additionalPrinterColumns: [{
 				jsonPath: ".status.NoMatchingInstances"
@@ -651,19 +1497,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				description: "GrafanaDatasource is the Schema for the grafanadatasources API"
 				properties: {
 					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources"
-						type:        "string"
+						description: """
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
+						type: "string"
 					}
 					kind: {
-						description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"
-						type:        "string"
+						description: """
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
+						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
 						description: "GrafanaDatasourceSpec defines the desired state of GrafanaDatasource"
 						properties: {
 							allowCrossNamespaceImport: {
-								description: "allow to import this resources from an operator in a different namespace"
+								default:     false
+								description: "Allow the Operator to match this resource with Grafanas outside the current namespace"
 								type:        "boolean"
 							}
 							datasource: {
@@ -672,85 +1530,132 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									basicAuth: type:     "boolean"
 									basicAuthUser: type: "string"
 									database: type:      "string"
-									editable: type:      "boolean"
-									isDefault: type:     "boolean"
+									editable: {
+										description: "Whether to enable/disable editing of the datasource in Grafana UI"
+										type:        "boolean"
+									}
+									isDefault: type: "boolean"
 									jsonData: {
 										type:                                   "object"
 										"x-kubernetes-preserve-unknown-fields": true
 									}
 									name: type: "string"
 									orgId: {
-										format: "int64"
-										type:   "integer"
+										description: "Deprecated field, it has no effect"
+										format:      "int64"
+										type:        "integer"
 									}
 									secureJsonData: {
 										type:                                   "object"
 										"x-kubernetes-preserve-unknown-fields": true
 									}
 									type: type: "string"
-									uid: type:  "string"
+									uid: {
+										description: "Deprecated field, use spec.uid instead"
+										type:        "string"
+									}
 									url: type:  "string"
 									user: type: "string"
 								}
 								type: "object"
 							}
 							instanceSelector: {
-								description: "selects Grafana instances for import"
+								description: "Selects Grafana instances for import"
 								properties: {
 									matchExpressions: {
 										description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 										items: {
-											description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+											description: """
+															A label selector requirement is a selector that contains values, a key, and an operator that
+															relates the key and values.
+															"""
 											properties: {
 												key: {
 													description: "key is the label key that the selector applies to."
 													type:        "string"
 												}
 												operator: {
-													description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
-													type:        "string"
+													description: """
+																	operator represents a key's relationship to a set of values.
+																	Valid operators are In, NotIn, Exists and DoesNotExist.
+																	"""
+													type: "string"
 												}
 												values: {
-													description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+													description: """
+																	values is an array of string values. If the operator is In or NotIn,
+																	the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																	the values array must be empty. This array is replaced during a strategic
+																	merge patch.
+																	"""
 													items: type: "string"
-													type: "array"
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
 												}
 											}
-											required: [
-												"key",
-												"operator",
-											]
+											required: ["key", "operator"]
 											type: "object"
 										}
-										type: "array"
+										type:                     "array"
+										"x-kubernetes-list-type": "atomic"
 									}
 									matchLabels: {
 										additionalProperties: type: "string"
-										description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
-										type:        "object"
+										description: """
+														matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+														map is equivalent to an element of matchExpressions, whose key field is "key", the
+														operator is "In", and the values array contains only "value". The requirements are ANDed.
+														"""
+										type: "object"
 									}
 								}
 								type:                    "object"
 								"x-kubernetes-map-type": "atomic"
+								"x-kubernetes-validations": [{
+									message: "spec.instanceSelector is immutable"
+									rule:    "self == oldSelf"
+								}]
 							}
 							plugins: {
 								description: "plugins"
 								items: {
 									properties: {
-										name: type:    "string"
-										version: type: "string"
+										name: {
+											minLength: 1
+											type:      "string"
+										}
+										version: {
+											pattern: "^((0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?|latest)$"
+											type:    "string"
+										}
 									}
-									required: [
-										"name",
-										"version",
-									]
+									required: ["name", "version"]
 									type: "object"
 								}
 								type: "array"
 							}
 							resyncPeriod: {
-								description: "how often the datasource is refreshed, defaults to 5m if not set"
+								description: "How often the resource is synced, defaults to 10m0s if not set"
+								pattern:     "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
 								type:        "string"
+							}
+							suspend: {
+								description: "Suspend pauses synchronizing attempts and tells the operator to ignore changes"
+								type:        "boolean"
+							}
+							uid: {
+								description: """
+												The UID, for the datasource, fallback to the deprecated spec.datasource.uid
+												and metadata.uid. Can be any string consisting of alphanumeric characters,
+												- and _ with a maximum length of 40 +optional
+												"""
+								maxLength: 40
+								pattern:   "^[a-zA-Z0-9-_]+$"
+								type:      "string"
+								"x-kubernetes-validations": [{
+									message: "spec.uid is immutable"
+									rule:    "self == oldSelf"
+								}]
 							}
 							valuesFrom: {
 								description: "environments variables from secrets or config maps"
@@ -767,8 +1672,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:        "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-															type:        "string"
+															default: ""
+															description: """
+																			Name of the referent.
+																			This field is effectively required, but due to backwards compatibility is
+																			allowed to be empty. Instances of this type with an empty value here are
+																			almost certainly wrong.
+																			More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																			"""
+															type: "string"
 														}
 														optional: {
 															description: "Specify whether the ConfigMap or its key must be defined"
@@ -787,8 +1699,621 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:        "string"
 														}
 														name: {
-															description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
+															default: ""
+															description: """
+																			Name of the referent.
+																			This field is effectively required, but due to backwards compatibility is
+																			allowed to be empty. Instances of this type with an empty value here are
+																			almost certainly wrong.
+																			More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																			"""
+															type: "string"
+														}
+														optional: {
+															description: "Specify whether the Secret or its key must be defined"
+															type:        "boolean"
+														}
+													}
+													required: ["key"]
+													type:                    "object"
+													"x-kubernetes-map-type": "atomic"
+												}
+											}
+											type: "object"
+											"x-kubernetes-validations": [{
+												message: "Either configMapKeyRef or secretKeyRef must be set"
+												rule:    "(has(self.configMapKeyRef) && !has(self.secretKeyRef)) || (!has(self.configMapKeyRef) && has(self.secretKeyRef))"
+											}]
+										}
+									}
+									required: ["targetPath", "valueFrom"]
+									type: "object"
+								}
+								maxItems: 99
+								type:     "array"
+							}
+						}
+						required: ["datasource", "instanceSelector"]
+						type: "object"
+						"x-kubernetes-validations": [{
+							message: "spec.uid is immutable"
+							rule:    "((!has(oldSelf.uid) && !has(self.uid)) || (has(oldSelf.uid) && has(self.uid)))"
+						}, {
+							message: "disabling spec.allowCrossNamespaceImport requires a recreate to ensure desired state"
+							rule:    "!oldSelf.allowCrossNamespaceImport || (oldSelf.allowCrossNamespaceImport && self.allowCrossNamespaceImport)"
+						}]
+					}
+					status: {
+						description: "GrafanaDatasourceStatus defines the observed state of GrafanaDatasource"
+						properties: {
+							NoMatchingInstances: {
+								description: "The datasource instanceSelector can't find matching grafana instances"
+								type:        "boolean"
+							}
+							conditions: {
+								description: "Results when synchronizing resource with Grafana instances"
+								items: {
+									description: "Condition contains details for one aspect of the current state of this API Resource."
+									properties: {
+										lastTransitionTime: {
+											description: """
+															lastTransitionTime is the last time the condition transitioned from one status to another.
+															This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+															"""
+											format: "date-time"
+											type:   "string"
+										}
+										message: {
+											description: """
+															message is a human readable message indicating details about the transition.
+															This may be an empty string.
+															"""
+											maxLength: 32768
+											type:      "string"
+										}
+										observedGeneration: {
+											description: """
+															observedGeneration represents the .metadata.generation that the condition was set based upon.
+															For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+															with respect to the current state of the instance.
+															"""
+											format:  "int64"
+											minimum: 0
+											type:    "integer"
+										}
+										reason: {
+											description: """
+															reason contains a programmatic identifier indicating the reason for the condition's last transition.
+															Producers of specific condition types may define expected values and meanings for this field,
+															and whether the values are considered a guaranteed API.
+															The value should be a CamelCase string.
+															This field may not be empty.
+															"""
+											maxLength: 1024
+											minLength: 1
+											pattern:   "^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$"
+											type:      "string"
+										}
+										status: {
+											description: "status of the condition, one of True, False, Unknown."
+											enum: ["True", "False", "Unknown"]
+											type: "string"
+										}
+										type: {
+											description: "type of condition in CamelCase or in foo.example.com/CamelCase."
+											maxLength:   316
+											pattern:     "^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"
+											type:        "string"
+										}
+									}
+									required: ["lastTransitionTime", "message", "reason", "status", "type"]
+									type: "object"
+								}
+								type: "array"
+							}
+							hash: type: "string"
+							lastMessage: {
+								description: "Deprecated: Check status.conditions or operator logs"
+								type:        "string"
+							}
+							lastResync: {
+								description: "Last time the resource was synchronized with Grafana instances"
+								format:      "date-time"
+								type:        "string"
+							}
+							uid: type: "string"
+						}
+						type: "object"
+					}
+				}
+				required: [
+					"spec",
+				]
+				type: "object"
+			}
+			served:  true
+			storage: true
+			subresources: status: {}
+		}]
+	}
+}, {
+	metadata: name: "grafanafolders.grafana.integreatly.org"
+	spec: {
+		group: "grafana.integreatly.org"
+		names: {
+			categories: [
+				"grafana-operator",
+			]
+			kind:     "GrafanaFolder"
+			listKind: "GrafanaFolderList"
+			plural:   "grafanafolders"
+			singular: "grafanafolder"
+		}
+		scope: "Namespaced"
+		versions: [{
+			additionalPrinterColumns: [{
+				jsonPath: ".status.NoMatchingInstances"
+				name:     "No matching instances"
+				type:     "boolean"
+			}, {
+				format:   "date-time"
+				jsonPath: ".status.lastResync"
+				name:     "Last resync"
+				type:     "date"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
+			}]
+			name: "v1beta1"
+			schema: openAPIV3Schema: {
+				description: "GrafanaFolder is the Schema for the grafanafolders API"
+				properties: {
+					apiVersion: {
+						description: """
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
+						type: "string"
+					}
+					kind: {
+						description: """
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
+						type: "string"
+					}
+					metadata: type: "object"
+					spec: {
+						description: "GrafanaFolderSpec defines the desired state of GrafanaFolder"
+						properties: {
+							allowCrossNamespaceImport: {
+								default:     false
+								description: "Allow the Operator to match this resource with Grafanas outside the current namespace"
+								type:        "boolean"
+							}
+							instanceSelector: {
+								description: "Selects Grafana instances for import"
+								properties: {
+									matchExpressions: {
+										description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+										items: {
+											description: """
+															A label selector requirement is a selector that contains values, a key, and an operator that
+															relates the key and values.
+															"""
+											properties: {
+												key: {
+													description: "key is the label key that the selector applies to."
+													type:        "string"
+												}
+												operator: {
+													description: """
+																	operator represents a key's relationship to a set of values.
+																	Valid operators are In, NotIn, Exists and DoesNotExist.
+																	"""
+													type: "string"
+												}
+												values: {
+													description: """
+																	values is an array of string values. If the operator is In or NotIn,
+																	the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																	the values array must be empty. This array is replaced during a strategic
+																	merge patch.
+																	"""
+													items: type: "string"
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
+												}
+											}
+											required: ["key", "operator"]
+											type: "object"
+										}
+										type:                     "array"
+										"x-kubernetes-list-type": "atomic"
+									}
+									matchLabels: {
+										additionalProperties: type: "string"
+										description: """
+														matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+														map is equivalent to an element of matchExpressions, whose key field is "key", the
+														operator is "In", and the values array contains only "value". The requirements are ANDed.
+														"""
+										type: "object"
+									}
+								}
+								type:                    "object"
+								"x-kubernetes-map-type": "atomic"
+								"x-kubernetes-validations": [{
+									message: "spec.instanceSelector is immutable"
+									rule:    "self == oldSelf"
+								}]
+							}
+							parentFolderRef: {
+								description: "Reference to an existing GrafanaFolder CR in the same namespace"
+								type:        "string"
+							}
+							parentFolderUID: {
+								description: "UID of the folder in which the current folder should be created"
+								type:        "string"
+							}
+							permissions: {
+								description: "Raw json with folder permissions, potentially exported from Grafana"
+								type:        "string"
+							}
+							resyncPeriod: {
+								description: "How often the resource is synced, defaults to 10m0s if not set"
+								pattern:     "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
+								type:        "string"
+							}
+							suspend: {
+								description: "Suspend pauses synchronizing attempts and tells the operator to ignore changes"
+								type:        "boolean"
+							}
+							title: {
+								description: "Display name of the folder in Grafana"
+								type:        "string"
+							}
+							uid: {
+								description: "Manually specify the UID the Folder is created with. Can be any string consisting of alphanumeric characters, - and _ with a maximum length of 40"
+								maxLength:   40
+								pattern:     "^[a-zA-Z0-9-_]+$"
+								type:        "string"
+								"x-kubernetes-validations": [{
+									message: "spec.uid is immutable"
+									rule:    "self == oldSelf"
+								}]
+							}
+						}
+						required: ["instanceSelector"]
+						type: "object"
+						"x-kubernetes-validations": [{
+							message: "Only one of parentFolderUID or parentFolderRef can be set"
+							rule:    "(has(self.parentFolderUID) && !(has(self.parentFolderRef))) || (has(self.parentFolderRef) && !(has(self.parentFolderUID))) || !(has(self.parentFolderRef) && (has(self.parentFolderUID)))"
+						}, {
+							message: "spec.uid is immutable"
+							rule:    "((!has(oldSelf.uid) && !has(self.uid)) || (has(oldSelf.uid) && has(self.uid)))"
+						}, {
+							message: "disabling spec.allowCrossNamespaceImport requires a recreate to ensure desired state"
+							rule:    "!oldSelf.allowCrossNamespaceImport || (oldSelf.allowCrossNamespaceImport && self.allowCrossNamespaceImport)"
+						}]
+					}
+					status: {
+						description: "GrafanaFolderStatus defines the observed state of GrafanaFolder"
+						properties: {
+							NoMatchingInstances: {
+								description: "The folder instanceSelector can't find matching grafana instances"
+								type:        "boolean"
+							}
+							conditions: {
+								description: "Results when synchronizing resource with Grafana instances"
+								items: {
+									description: "Condition contains details for one aspect of the current state of this API Resource."
+									properties: {
+										lastTransitionTime: {
+											description: """
+															lastTransitionTime is the last time the condition transitioned from one status to another.
+															This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+															"""
+											format: "date-time"
+											type:   "string"
+										}
+										message: {
+											description: """
+															message is a human readable message indicating details about the transition.
+															This may be an empty string.
+															"""
+											maxLength: 32768
+											type:      "string"
+										}
+										observedGeneration: {
+											description: """
+															observedGeneration represents the .metadata.generation that the condition was set based upon.
+															For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+															with respect to the current state of the instance.
+															"""
+											format:  "int64"
+											minimum: 0
+											type:    "integer"
+										}
+										reason: {
+											description: """
+															reason contains a programmatic identifier indicating the reason for the condition's last transition.
+															Producers of specific condition types may define expected values and meanings for this field,
+															and whether the values are considered a guaranteed API.
+															The value should be a CamelCase string.
+															This field may not be empty.
+															"""
+											maxLength: 1024
+											minLength: 1
+											pattern:   "^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$"
+											type:      "string"
+										}
+										status: {
+											description: "status of the condition, one of True, False, Unknown."
+											enum: ["True", "False", "Unknown"]
+											type: "string"
+										}
+										type: {
+											description: "type of condition in CamelCase or in foo.example.com/CamelCase."
+											maxLength:   316
+											pattern:     "^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"
+											type:        "string"
+										}
+									}
+									required: ["lastTransitionTime", "message", "reason", "status", "type"]
+									type: "object"
+								}
+								type: "array"
+							}
+							hash: type: "string"
+							lastResync: {
+								description: "Last time the resource was synchronized with Grafana instances"
+								format:      "date-time"
+								type:        "string"
+							}
+						}
+						type: "object"
+					}
+				}
+				required: [
+					"spec",
+				]
+				type: "object"
+			}
+			served:  true
+			storage: true
+			subresources: status: {}
+		}]
+	}
+}, {
+	metadata: name: "grafanalibrarypanels.grafana.integreatly.org"
+	spec: {
+		group: "grafana.integreatly.org"
+		names: {
+			categories: [
+				"grafana-operator",
+			]
+			kind:     "GrafanaLibraryPanel"
+			listKind: "GrafanaLibraryPanelList"
+			plural:   "grafanalibrarypanels"
+			singular: "grafanalibrarypanel"
+		}
+		scope: "Namespaced"
+		versions: [{
+			additionalPrinterColumns: [{
+				format:   "date-time"
+				jsonPath: ".status.lastResync"
+				name:     "Last resync"
+				type:     "date"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
+			}]
+			name: "v1beta1"
+			schema: openAPIV3Schema: {
+				description: "GrafanaLibraryPanel is the Schema for the grafanalibrarypanels API"
+				properties: {
+					apiVersion: {
+						description: """
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
+						type: "string"
+					}
+					kind: {
+						description: """
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
+						type: "string"
+					}
+					metadata: type: "object"
+					spec: {
+						description: "GrafanaLibraryPanelSpec defines the desired state of GrafanaLibraryPanel"
+						properties: {
+							allowCrossNamespaceImport: {
+								default:     false
+								description: "Allow the Operator to match this resource with Grafanas outside the current namespace"
+								type:        "boolean"
+							}
+							configMapRef: {
+								description: "model from configmap"
+								properties: {
+									key: {
+										description: "The key to select."
+										type:        "string"
+									}
+									name: {
+										default: ""
+										description: """
+														Name of the referent.
+														This field is effectively required, but due to backwards compatibility is
+														allowed to be empty. Instances of this type with an empty value here are
+														almost certainly wrong.
+														More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+														"""
+										type: "string"
+									}
+									optional: {
+										description: "Specify whether the ConfigMap or its key must be defined"
+										type:        "boolean"
+									}
+								}
+								required: ["key"]
+								type:                    "object"
+								"x-kubernetes-map-type": "atomic"
+							}
+							contentCacheDuration: {
+								description: "Cache duration for models fetched from URLs"
+								type:        "string"
+							}
+							datasources: {
+								description: "maps required data sources to existing ones"
+								items: {
+									description: """
+													GrafanaResourceDatasource is used to set the datasource name of any templated datasources in
+													content definitions (e.g., dashboard JSON).
+													"""
+									properties: {
+										datasourceName: type: "string"
+										inputName: type:      "string"
+									}
+									required: ["datasourceName", "inputName"]
+									type: "object"
+								}
+								type: "array"
+							}
+							envFrom: {
+								description: "environments variables from secrets or config maps"
+								items: {
+									properties: {
+										configMapKeyRef: {
+											description: "Selects a key of a ConfigMap."
+											properties: {
+												key: {
+													description: "The key to select."
+													type:        "string"
+												}
+												name: {
+													default: ""
+													description: """
+																	Name of the referent.
+																	This field is effectively required, but due to backwards compatibility is
+																	allowed to be empty. Instances of this type with an empty value here are
+																	almost certainly wrong.
+																	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																	"""
+													type: "string"
+												}
+												optional: {
+													description: "Specify whether the ConfigMap or its key must be defined"
+													type:        "boolean"
+												}
+											}
+											required: ["key"]
+											type:                    "object"
+											"x-kubernetes-map-type": "atomic"
+										}
+										secretKeyRef: {
+											description: "Selects a key of a Secret."
+											properties: {
+												key: {
+													description: "The key of the secret to select from.  Must be a valid secret key."
+													type:        "string"
+												}
+												name: {
+													default: ""
+													description: """
+																	Name of the referent.
+																	This field is effectively required, but due to backwards compatibility is
+																	allowed to be empty. Instances of this type with an empty value here are
+																	almost certainly wrong.
+																	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																	"""
+													type: "string"
+												}
+												optional: {
+													description: "Specify whether the Secret or its key must be defined"
+													type:        "boolean"
+												}
+											}
+											required: ["key"]
+											type:                    "object"
+											"x-kubernetes-map-type": "atomic"
+										}
+									}
+									type: "object"
+								}
+								type: "array"
+							}
+							envs: {
+								description: "environments variables as a map"
+								items: {
+									properties: {
+										name: type: "string"
+										value: {
+											description: "Inline env value"
+											type:        "string"
+										}
+										valueFrom: {
+											description: "Reference on value source, might be the reference on a secret or config map"
+											properties: {
+												configMapKeyRef: {
+													description: "Selects a key of a ConfigMap."
+													properties: {
+														key: {
+															description: "The key to select."
 															type:        "string"
+														}
+														name: {
+															default: ""
+															description: """
+																			Name of the referent.
+																			This field is effectively required, but due to backwards compatibility is
+																			allowed to be empty. Instances of this type with an empty value here are
+																			almost certainly wrong.
+																			More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																			"""
+															type: "string"
+														}
+														optional: {
+															description: "Specify whether the ConfigMap or its key must be defined"
+															type:        "boolean"
+														}
+													}
+													required: ["key"]
+													type:                    "object"
+													"x-kubernetes-map-type": "atomic"
+												}
+												secretKeyRef: {
+													description: "Selects a key of a Secret."
+													properties: {
+														key: {
+															description: "The key of the secret to select from.  Must be a valid secret key."
+															type:        "string"
+														}
+														name: {
+															default: ""
+															description: """
+																			Name of the referent.
+																			This field is effectively required, but due to backwards compatibility is
+																			allowed to be empty. Instances of this type with an empty value here are
+																			almost certainly wrong.
+																			More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																			"""
+															type: "string"
 														}
 														optional: {
 															description: "Specify whether the Secret or its key must be defined"
@@ -803,32 +2328,312 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											type: "object"
 										}
 									}
-									required: [
-										"targetPath",
-										"valueFrom",
-									]
+									required: ["name"]
 									type: "object"
 								}
 								type: "array"
 							}
-						}
-						required: [
-							"datasource",
-							"instanceSelector",
-						]
-						type: "object"
-					}
-					status: {
-						description: "GrafanaDatasourceStatus defines the observed state of GrafanaDatasource"
-						properties: {
-							NoMatchingInstances: {
-								description: "The datasource instanceSelector can't find matching grafana instances"
+							folderRef: {
+								description: "Name of a `GrafanaFolder` resource in the same namespace"
+								type:        "string"
+							}
+							folderUID: {
+								description: "UID of the target folder for this dashboard"
+								type:        "string"
+							}
+							grafanaCom: {
+								description: "grafana.com/dashboards"
+								properties: {
+									id: type:       "integer"
+									revision: type: "integer"
+								}
+								required: ["id"]
+								type: "object"
+							}
+							gzipJson: {
+								description: "GzipJson the model's JSON compressed with Gzip. Base64-encoded when in YAML."
+								format:      "byte"
+								type:        "string"
+							}
+							instanceSelector: {
+								description: "Selects Grafana instances for import"
+								properties: {
+									matchExpressions: {
+										description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+										items: {
+											description: """
+															A label selector requirement is a selector that contains values, a key, and an operator that
+															relates the key and values.
+															"""
+											properties: {
+												key: {
+													description: "key is the label key that the selector applies to."
+													type:        "string"
+												}
+												operator: {
+													description: """
+																	operator represents a key's relationship to a set of values.
+																	Valid operators are In, NotIn, Exists and DoesNotExist.
+																	"""
+													type: "string"
+												}
+												values: {
+													description: """
+																	values is an array of string values. If the operator is In or NotIn,
+																	the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																	the values array must be empty. This array is replaced during a strategic
+																	merge patch.
+																	"""
+													items: type: "string"
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
+												}
+											}
+											required: ["key", "operator"]
+											type: "object"
+										}
+										type:                     "array"
+										"x-kubernetes-list-type": "atomic"
+									}
+									matchLabels: {
+										additionalProperties: type: "string"
+										description: """
+														matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+														map is equivalent to an element of matchExpressions, whose key field is "key", the
+														operator is "In", and the values array contains only "value". The requirements are ANDed.
+														"""
+										type: "object"
+									}
+								}
+								type:                    "object"
+								"x-kubernetes-map-type": "atomic"
+								"x-kubernetes-validations": [{
+									message: "spec.instanceSelector is immutable"
+									rule:    "self == oldSelf"
+								}]
+							}
+							json: {
+								description: "model json"
+								type:        "string"
+							}
+							jsonnet: {
+								description: "Jsonnet"
+								type:        "string"
+							}
+							jsonnetLib: {
+								description: "Jsonnet project build"
+								properties: {
+									fileName: type: "string"
+									gzipJsonnetProject: {
+										format: "byte"
+										type:   "string"
+									}
+									jPath: {
+										items: type: "string"
+										type: "array"
+									}
+								}
+								required: ["fileName", "gzipJsonnetProject"]
+								type: "object"
+							}
+							plugins: {
+								description: "plugins"
+								items: {
+									properties: {
+										name: {
+											minLength: 1
+											type:      "string"
+										}
+										version: {
+											pattern: "^((0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?|latest)$"
+											type:    "string"
+										}
+									}
+									required: ["name", "version"]
+									type: "object"
+								}
+								type: "array"
+							}
+							resyncPeriod: {
+								description: "How often the resource is synced, defaults to 10m0s if not set"
+								pattern:     "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
+								type:        "string"
+							}
+							suspend: {
+								description: "Suspend pauses synchronizing attempts and tells the operator to ignore changes"
 								type:        "boolean"
 							}
-							hash: type:        "string"
-							lastMessage: type: "string"
+							uid: {
+								description: """
+												Manually specify the uid, overwrites uids already present in the json model.
+												Can be any string consisting of alphanumeric characters, - and _ with a maximum length of 40.
+												"""
+								maxLength: 40
+								pattern:   "^[a-zA-Z0-9-_]+$"
+								type:      "string"
+								"x-kubernetes-validations": [{
+									message: "spec.uid is immutable"
+									rule:    "self == oldSelf"
+								}]
+							}
+							url: {
+								description: "model url"
+								pattern:     "^https?://.+$"
+								type:        "string"
+							}
+							urlAuthorization: {
+								description: "authorization options for model from url"
+								properties: basicAuth: {
+									properties: {
+										password: {
+											description: "SecretKeySelector selects a key of a Secret."
+											properties: {
+												key: {
+													description: "The key of the secret to select from.  Must be a valid secret key."
+													type:        "string"
+												}
+												name: {
+													default: ""
+													description: """
+																		Name of the referent.
+																		This field is effectively required, but due to backwards compatibility is
+																		allowed to be empty. Instances of this type with an empty value here are
+																		almost certainly wrong.
+																		More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																		"""
+													type: "string"
+												}
+												optional: {
+													description: "Specify whether the Secret or its key must be defined"
+													type:        "boolean"
+												}
+											}
+											required: ["key"]
+											type:                    "object"
+											"x-kubernetes-map-type": "atomic"
+										}
+										username: {
+											description: "SecretKeySelector selects a key of a Secret."
+											properties: {
+												key: {
+													description: "The key of the secret to select from.  Must be a valid secret key."
+													type:        "string"
+												}
+												name: {
+													default: ""
+													description: """
+																		Name of the referent.
+																		This field is effectively required, but due to backwards compatibility is
+																		allowed to be empty. Instances of this type with an empty value here are
+																		almost certainly wrong.
+																		More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																		"""
+													type: "string"
+												}
+												optional: {
+													description: "Specify whether the Secret or its key must be defined"
+													type:        "boolean"
+												}
+											}
+											required: ["key"]
+											type:                    "object"
+											"x-kubernetes-map-type": "atomic"
+										}
+									}
+									type: "object"
+								}
+								type: "object"
+							}
+						}
+						required: ["instanceSelector"]
+						type: "object"
+						"x-kubernetes-validations": [{
+							message: "Only one of folderUID or folderRef can be declared at the same time"
+							rule:    "(has(self.folderUID) && !(has(self.folderRef))) || (has(self.folderRef) && !(has(self.folderUID))) || !(has(self.folderRef) && (has(self.folderUID)))"
+						}, {
+							message: "spec.uid is immutable"
+							rule:    "((!has(oldSelf.uid) && !has(self.uid)) || (has(oldSelf.uid) && has(self.uid)))"
+						}, {
+							message: "disabling spec.allowCrossNamespaceImport requires a recreate to ensure desired state"
+							rule:    "!oldSelf.allowCrossNamespaceImport || (oldSelf.allowCrossNamespaceImport && self.allowCrossNamespaceImport)"
+						}]
+					}
+					status: {
+						description: "GrafanaLibraryPanelStatus defines the observed state of GrafanaLibraryPanel"
+						properties: {
+							conditions: {
+								description: "Results when synchronizing resource with Grafana instances"
+								items: {
+									description: "Condition contains details for one aspect of the current state of this API Resource."
+									properties: {
+										lastTransitionTime: {
+											description: """
+															lastTransitionTime is the last time the condition transitioned from one status to another.
+															This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+															"""
+											format: "date-time"
+											type:   "string"
+										}
+										message: {
+											description: """
+															message is a human readable message indicating details about the transition.
+															This may be an empty string.
+															"""
+											maxLength: 32768
+											type:      "string"
+										}
+										observedGeneration: {
+											description: """
+															observedGeneration represents the .metadata.generation that the condition was set based upon.
+															For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+															with respect to the current state of the instance.
+															"""
+											format:  "int64"
+											minimum: 0
+											type:    "integer"
+										}
+										reason: {
+											description: """
+															reason contains a programmatic identifier indicating the reason for the condition's last transition.
+															Producers of specific condition types may define expected values and meanings for this field,
+															and whether the values are considered a guaranteed API.
+															The value should be a CamelCase string.
+															This field may not be empty.
+															"""
+											maxLength: 1024
+											minLength: 1
+											pattern:   "^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$"
+											type:      "string"
+										}
+										status: {
+											description: "status of the condition, one of True, False, Unknown."
+											enum: ["True", "False", "Unknown"]
+											type: "string"
+										}
+										type: {
+											description: "type of condition in CamelCase or in foo.example.com/CamelCase."
+											maxLength:   316
+											pattern:     "^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"
+											type:        "string"
+										}
+									}
+									required: ["lastTransitionTime", "message", "reason", "status", "type"]
+									type: "object"
+								}
+								type: "array"
+							}
+							contentCache: {
+								format: "byte"
+								type:   "string"
+							}
+							contentTimestamp: {
+								format: "date-time"
+								type:   "string"
+							}
+							contentUrl: type: "string"
+							hash: type:       "string"
 							lastResync: {
-								description: "Last time the datasource was resynced"
+								description: "Last time the resource was synchronized with Grafana instances"
 								format:      "date-time"
 								type:        "string"
 							}
@@ -837,6 +2642,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						type: "object"
 					}
 				}
+				required: [
+					"spec",
+				]
 				type: "object"
 			}
 			served:  true
@@ -845,21 +2653,29 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 		}]
 	}
 }, {
-	metadata: name: "grafanafolders.grafana.integreatly.org"
+	metadata: name: "grafanamanifests.grafana.integreatly.org"
 	spec: {
 		group: "grafana.integreatly.org"
 		names: {
-			kind:     "GrafanaFolder"
-			listKind: "GrafanaFolderList"
-			plural:   "grafanafolders"
-			singular: "grafanafolder"
+			categories: [
+				"grafana-operator",
+			]
+			kind:     "GrafanaManifest"
+			listKind: "GrafanaManifestList"
+			plural:   "grafanamanifests"
+			singular: "grafanamanifest"
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
 			additionalPrinterColumns: [{
-				jsonPath: ".status.NoMatchingInstances"
-				name:     "No matching instances"
-				type:     "boolean"
+				jsonPath: ".spec.template.kind"
+				name:     "Kind"
+				type:     "string"
+			}, {
+				format:   "date-time"
+				jsonPath: ".status.lastResync"
+				name:     "Last resync"
+				type:     "date"
 			}, {
 				jsonPath: ".metadata.creationTimestamp"
 				name:     "Age"
@@ -867,89 +2683,326 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			}]
 			name: "v1beta1"
 			schema: openAPIV3Schema: {
-				description: "GrafanaFolder is the Schema for the grafanafolders API"
+				description: "GrafanaManifest is the Schema for the grafana manifests"
 				properties: {
 					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources"
-						type:        "string"
+						description: """
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
+						type: "string"
 					}
 					kind: {
-						description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"
-						type:        "string"
+						description: """
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
+						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
-						description: "GrafanaFolderSpec defines the desired state of GrafanaFolder"
+						description: "GrafanaManifestSpec defines the desired state of a GrafanaManifest"
 						properties: {
 							allowCrossNamespaceImport: {
-								description: "allow to import this resources from an operator in a different namespace"
+								default:     false
+								description: "Allow the Operator to match this resource with Grafanas outside the current namespace"
 								type:        "boolean"
 							}
 							instanceSelector: {
-								description: "selects Grafanas for import"
+								description: "Selects Grafana instances for import"
 								properties: {
 									matchExpressions: {
 										description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 										items: {
-											description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+											description: """
+															A label selector requirement is a selector that contains values, a key, and an operator that
+															relates the key and values.
+															"""
 											properties: {
 												key: {
 													description: "key is the label key that the selector applies to."
 													type:        "string"
 												}
 												operator: {
-													description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
-													type:        "string"
+													description: """
+																	operator represents a key's relationship to a set of values.
+																	Valid operators are In, NotIn, Exists and DoesNotExist.
+																	"""
+													type: "string"
 												}
 												values: {
-													description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+													description: """
+																	values is an array of string values. If the operator is In or NotIn,
+																	the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																	the values array must be empty. This array is replaced during a strategic
+																	merge patch.
+																	"""
 													items: type: "string"
-													type: "array"
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
 												}
 											}
-											required: [
-												"key",
-												"operator",
-											]
+											required: ["key", "operator"]
 											type: "object"
 										}
-										type: "array"
+										type:                     "array"
+										"x-kubernetes-list-type": "atomic"
 									}
 									matchLabels: {
 										additionalProperties: type: "string"
-										description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
-										type:        "object"
+										description: """
+														matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+														map is equivalent to an element of matchExpressions, whose key field is "key", the
+														operator is "In", and the values array contains only "value". The requirements are ANDed.
+														"""
+										type: "object"
 									}
 								}
 								type:                    "object"
 								"x-kubernetes-map-type": "atomic"
+								"x-kubernetes-validations": [{
+									message: "spec.instanceSelector is immutable"
+									rule:    "self == oldSelf"
+								}]
 							}
-							permissions: {
-								description: "raw json with folder permissions"
-								type:        "string"
+							patch: {
+								properties: {
+									env: {
+										items: {
+											properties: {
+												name: type: "string"
+												valueFrom: {
+													properties: {
+														configMapKeyRef: {
+															description: "Selects a key of a ConfigMap."
+															properties: {
+																key: {
+																	description: "The key to select."
+																	type:        "string"
+																}
+																name: {
+																	default: ""
+																	description: """
+																					Name of the referent.
+																					This field is effectively required, but due to backwards compatibility is
+																					allowed to be empty. Instances of this type with an empty value here are
+																					almost certainly wrong.
+																					More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																					"""
+																	type: "string"
+																}
+																optional: {
+																	description: "Specify whether the ConfigMap or its key must be defined"
+																	type:        "boolean"
+																}
+															}
+															required: ["key"]
+															type:                    "object"
+															"x-kubernetes-map-type": "atomic"
+														}
+														grafanaRef: {
+															description: "ObjectFieldSelector selects an APIVersioned field of an object."
+															properties: {
+																apiVersion: {
+																	description: "Version of the schema the FieldPath is written in terms of, defaults to \"v1\"."
+																	type:        "string"
+																}
+																fieldPath: {
+																	description: "Path of the field to select in the specified API version."
+																	type:        "string"
+																}
+															}
+															required: ["fieldPath"]
+															type:                    "object"
+															"x-kubernetes-map-type": "atomic"
+														}
+														secretKeyRef: {
+															description: "Selects a key of a Secret."
+															properties: {
+																key: {
+																	description: "The key of the secret to select from.  Must be a valid secret key."
+																	type:        "string"
+																}
+																name: {
+																	default: ""
+																	description: """
+																					Name of the referent.
+																					This field is effectively required, but due to backwards compatibility is
+																					allowed to be empty. Instances of this type with an empty value here are
+																					almost certainly wrong.
+																					More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																					"""
+																	type: "string"
+																}
+																optional: {
+																	description: "Specify whether the Secret or its key must be defined"
+																	type:        "boolean"
+																}
+															}
+															required: ["key"]
+															type:                    "object"
+															"x-kubernetes-map-type": "atomic"
+														}
+													}
+													type: "object"
+												}
+											}
+											required: ["name", "valueFrom"]
+											type: "object"
+										}
+										type: "array"
+									}
+									scripts: {
+										items: type: "string"
+										type: "array"
+									}
+								}
+								required: ["scripts"]
+								type: "object"
 							}
 							resyncPeriod: {
-								description: "how often the folder is synced, defaults to 5m if not set"
+								description: "How often the resource is synced, defaults to 10m0s if not set"
+								pattern:     "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
 								type:        "string"
 							}
-							title: type: "string"
-						}
-						required: ["instanceSelector"]
-						type: "object"
-					}
-					status: {
-						description: "GrafanaFolderStatus defines the observed state of GrafanaFolder"
-						properties: {
-							NoMatchingInstances: {
-								description: "The folder instanceSelector can't find matching grafana instances"
+							suspend: {
+								description: "Suspend pauses synchronizing attempts and tells the operator to ignore changes"
 								type:        "boolean"
 							}
-							hash: {
-								description: "INSERT ADDITIONAL STATUS FIELD - define observed state of cluster Important: Run \"make\" to regenerate code after modifying this file"
-								type:        "string"
+							template: {
+								properties: {
+									apiVersion: {
+										description: "APIVersion defines the versioned schema of this representation of an object."
+										type:        "string"
+									}
+									kind: {
+										description: "Kind is a string value representing the REST resource this object represents."
+										type:        "string"
+										"x-kubernetes-validations": [{
+											message: "Value is immutable"
+											rule:    "self == oldSelf"
+										}]
+									}
+									metadata: {
+										description: """
+														RequiredObjectMeta contains only a [subset of the fields included in k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#objectmeta-v1-meta).
+														It requires `name` to be set
+														"""
+										properties: {
+											annotations: {
+												additionalProperties: type: "string"
+												type: "object"
+											}
+											labels: {
+												additionalProperties: type: "string"
+												type: "object"
+											}
+											name: {
+												type: "string"
+												"x-kubernetes-validations": [{
+													message: "Value is immutable"
+													rule:    "self == oldSelf"
+												}]
+											}
+											namespace: {
+												type: "string"
+												"x-kubernetes-validations": [{
+													message: "Value is immutable"
+													rule:    "self == oldSelf"
+												}]
+											}
+										}
+										required: ["name"]
+										type: "object"
+										"x-kubernetes-validations": [{
+											message: "namespace is immutable"
+											rule:    "((!has(oldSelf.__namespace__) && !has(self.__namespace__)) || (has(oldSelf.__namespace__) && has(self.__namespace__)))"
+										}]
+									}
+									spec: "x-kubernetes-preserve-unknown-fields": true
+								}
+								required: ["apiVersion", "kind", "metadata"]
+								type: "object"
+							}
+						}
+						required: ["instanceSelector", "template"]
+						type: "object"
+						"x-kubernetes-validations": [{
+							message: "disabling spec.allowCrossNamespaceImport requires a recreate to ensure desired state"
+							rule:    "!oldSelf.allowCrossNamespaceImport || (oldSelf.allowCrossNamespaceImport && self.allowCrossNamespaceImport)"
+						}]
+					}
+					status: {
+						description: "GrafanaManifestStatus defines the observed state of GrafanaManifest"
+						properties: {
+							conditions: {
+								description: "Results when synchronizing resource with Grafana instances"
+								items: {
+									description: "Condition contains details for one aspect of the current state of this API Resource."
+									properties: {
+										lastTransitionTime: {
+											description: """
+															lastTransitionTime is the last time the condition transitioned from one status to another.
+															This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+															"""
+											format: "date-time"
+											type:   "string"
+										}
+										message: {
+											description: """
+															message is a human readable message indicating details about the transition.
+															This may be an empty string.
+															"""
+											maxLength: 32768
+											type:      "string"
+										}
+										observedGeneration: {
+											description: """
+															observedGeneration represents the .metadata.generation that the condition was set based upon.
+															For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+															with respect to the current state of the instance.
+															"""
+											format:  "int64"
+											minimum: 0
+											type:    "integer"
+										}
+										reason: {
+											description: """
+															reason contains a programmatic identifier indicating the reason for the condition's last transition.
+															Producers of specific condition types may define expected values and meanings for this field,
+															and whether the values are considered a guaranteed API.
+															The value should be a CamelCase string.
+															This field may not be empty.
+															"""
+											maxLength: 1024
+											minLength: 1
+											pattern:   "^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$"
+											type:      "string"
+										}
+										status: {
+											description: "status of the condition, one of True, False, Unknown."
+											enum: ["True", "False", "Unknown"]
+											type: "string"
+										}
+										type: {
+											description: "type of condition in CamelCase or in foo.example.com/CamelCase."
+											maxLength:   316
+											pattern:     "^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"
+											type:        "string"
+										}
+									}
+									required: ["lastTransitionTime", "message", "reason", "status", "type"]
+									type: "object"
+								}
+								type: "array"
 							}
 							lastResync: {
-								description: "Last time the folder was resynced"
+								description: "Last time the resource was synchronized with Grafana instances"
 								format:      "date-time"
 								type:        "string"
 							}
@@ -957,6 +3010,1205 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						type: "object"
 					}
 				}
+				required: [
+					"spec",
+				]
+				type: "object"
+			}
+			served:  true
+			storage: true
+			subresources: status: {}
+		}]
+	}
+}, {
+	metadata: name: "grafanamutetimings.grafana.integreatly.org"
+	spec: {
+		group: "grafana.integreatly.org"
+		names: {
+			categories: [
+				"grafana-operator",
+			]
+			kind:     "GrafanaMuteTiming"
+			listKind: "GrafanaMuteTimingList"
+			plural:   "grafanamutetimings"
+			singular: "grafanamutetiming"
+		}
+		scope: "Namespaced"
+		versions: [{
+			additionalPrinterColumns: [{
+				format:   "date-time"
+				jsonPath: ".status.lastResync"
+				name:     "Last resync"
+				type:     "date"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
+			}]
+			name: "v1beta1"
+			schema: openAPIV3Schema: {
+				description: "GrafanaMuteTiming is the Schema for the GrafanaMuteTiming API"
+				properties: {
+					apiVersion: {
+						description: """
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
+						type: "string"
+					}
+					kind: {
+						description: """
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
+						type: "string"
+					}
+					metadata: type: "object"
+					spec: {
+						description: "GrafanaMuteTimingSpec defines the desired state of GrafanaMuteTiming"
+						properties: {
+							allowCrossNamespaceImport: {
+								default:     false
+								description: "Allow the Operator to match this resource with Grafanas outside the current namespace"
+								type:        "boolean"
+							}
+							editable: {
+								default:     true
+								description: "Whether to enable or disable editing of the mute timing in Grafana UI"
+								type:        "boolean"
+								"x-kubernetes-validations": [{
+									message: "spec.editable is immutable"
+									rule:    "self == oldSelf"
+								}]
+							}
+							instanceSelector: {
+								description: "Selects Grafana instances for import"
+								properties: {
+									matchExpressions: {
+										description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+										items: {
+											description: """
+															A label selector requirement is a selector that contains values, a key, and an operator that
+															relates the key and values.
+															"""
+											properties: {
+												key: {
+													description: "key is the label key that the selector applies to."
+													type:        "string"
+												}
+												operator: {
+													description: """
+																	operator represents a key's relationship to a set of values.
+																	Valid operators are In, NotIn, Exists and DoesNotExist.
+																	"""
+													type: "string"
+												}
+												values: {
+													description: """
+																	values is an array of string values. If the operator is In or NotIn,
+																	the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																	the values array must be empty. This array is replaced during a strategic
+																	merge patch.
+																	"""
+													items: type: "string"
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
+												}
+											}
+											required: ["key", "operator"]
+											type: "object"
+										}
+										type:                     "array"
+										"x-kubernetes-list-type": "atomic"
+									}
+									matchLabels: {
+										additionalProperties: type: "string"
+										description: """
+														matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+														map is equivalent to an element of matchExpressions, whose key field is "key", the
+														operator is "In", and the values array contains only "value". The requirements are ANDed.
+														"""
+										type: "object"
+									}
+								}
+								type:                    "object"
+								"x-kubernetes-map-type": "atomic"
+								"x-kubernetes-validations": [{
+									message: "spec.instanceSelector is immutable"
+									rule:    "self == oldSelf"
+								}]
+							}
+							name: {
+								description: "A unique name for the mute timing"
+								type:        "string"
+							}
+							resyncPeriod: {
+								description: "How often the resource is synced, defaults to 10m0s if not set"
+								pattern:     "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
+								type:        "string"
+							}
+							suspend: {
+								description: "Suspend pauses synchronizing attempts and tells the operator to ignore changes"
+								type:        "boolean"
+							}
+							time_intervals: {
+								description: "Time intervals for muting"
+								items: {
+									properties: {
+										days_of_month: {
+											description: """
+															The date 1-31 of a month. Negative values can also be used to represent days that begin at the end of the month.
+															For example: -1 for the last day of the month.
+															"""
+											items: type: "string"
+											type: "array"
+										}
+										location: {
+											description: "Depending on the location, the time range is displayed in local time."
+											type:        "string"
+										}
+										months: {
+											description: """
+															The months of the year in either numerical or the full calendar month.
+															For example: 1, may.
+															"""
+											items: type: "string"
+											type: "array"
+										}
+										times: {
+											description: "The time inclusive of the start and exclusive of the end time (in UTC if no location has been selected, otherwise local time)."
+											items: {
+												properties: {
+													end_time: {
+														description: "end time"
+														type:        "string"
+													}
+													start_time: {
+														description: "start time"
+														type:        "string"
+													}
+												}
+												required: ["end_time", "start_time"]
+												type: "object"
+											}
+											type: "array"
+										}
+										weekdays: {
+											description: """
+															The day or range of days of the week.
+															For example: monday, thursday
+															"""
+											items: type: "string"
+											type: "array"
+										}
+										years: {
+											description: """
+															The year or years for the interval.
+															For example: 2021
+															"""
+											items: type: "string"
+											type: "array"
+										}
+									}
+									type: "object"
+								}
+								minItems: 1
+								type:     "array"
+							}
+						}
+						required: ["instanceSelector", "name", "time_intervals"]
+						type: "object"
+						"x-kubernetes-validations": [{
+							message: "disabling spec.allowCrossNamespaceImport requires a recreate to ensure desired state"
+							rule:    "!oldSelf.allowCrossNamespaceImport || (oldSelf.allowCrossNamespaceImport && self.allowCrossNamespaceImport)"
+						}]
+					}
+					status: {
+						description: "The most recent observed state of a Grafana resource"
+						properties: {
+							conditions: {
+								description: "Results when synchronizing resource with Grafana instances"
+								items: {
+									description: "Condition contains details for one aspect of the current state of this API Resource."
+									properties: {
+										lastTransitionTime: {
+											description: """
+															lastTransitionTime is the last time the condition transitioned from one status to another.
+															This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+															"""
+											format: "date-time"
+											type:   "string"
+										}
+										message: {
+											description: """
+															message is a human readable message indicating details about the transition.
+															This may be an empty string.
+															"""
+											maxLength: 32768
+											type:      "string"
+										}
+										observedGeneration: {
+											description: """
+															observedGeneration represents the .metadata.generation that the condition was set based upon.
+															For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+															with respect to the current state of the instance.
+															"""
+											format:  "int64"
+											minimum: 0
+											type:    "integer"
+										}
+										reason: {
+											description: """
+															reason contains a programmatic identifier indicating the reason for the condition's last transition.
+															Producers of specific condition types may define expected values and meanings for this field,
+															and whether the values are considered a guaranteed API.
+															The value should be a CamelCase string.
+															This field may not be empty.
+															"""
+											maxLength: 1024
+											minLength: 1
+											pattern:   "^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$"
+											type:      "string"
+										}
+										status: {
+											description: "status of the condition, one of True, False, Unknown."
+											enum: ["True", "False", "Unknown"]
+											type: "string"
+										}
+										type: {
+											description: "type of condition in CamelCase or in foo.example.com/CamelCase."
+											maxLength:   316
+											pattern:     "^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"
+											type:        "string"
+										}
+									}
+									required: ["lastTransitionTime", "message", "reason", "status", "type"]
+									type: "object"
+								}
+								type: "array"
+							}
+							lastResync: {
+								description: "Last time the resource was synchronized with Grafana instances"
+								format:      "date-time"
+								type:        "string"
+							}
+						}
+						type: "object"
+					}
+				}
+				required: [
+					"spec",
+				]
+				type: "object"
+			}
+			served:  true
+			storage: true
+			subresources: status: {}
+		}]
+	}
+}, {
+	metadata: name: "grafananotificationpolicies.grafana.integreatly.org"
+	spec: {
+		group: "grafana.integreatly.org"
+		names: {
+			categories: [
+				"grafana-operator",
+			]
+			kind:     "GrafanaNotificationPolicy"
+			listKind: "GrafanaNotificationPolicyList"
+			plural:   "grafananotificationpolicies"
+			singular: "grafananotificationpolicy"
+		}
+		scope: "Namespaced"
+		versions: [{
+			additionalPrinterColumns: [{
+				format:   "date-time"
+				jsonPath: ".status.lastResync"
+				name:     "Last resync"
+				type:     "date"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
+			}]
+			name: "v1beta1"
+			schema: openAPIV3Schema: {
+				description: "GrafanaNotificationPolicy is the Schema for the GrafanaNotificationPolicy API"
+				properties: {
+					apiVersion: {
+						description: """
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
+						type: "string"
+					}
+					kind: {
+						description: """
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
+						type: "string"
+					}
+					metadata: type: "object"
+					spec: {
+						description: "GrafanaNotificationPolicySpec defines the desired state of GrafanaNotificationPolicy"
+						properties: {
+							allowCrossNamespaceImport: {
+								default:     false
+								description: "Allow the Operator to match this resource with Grafanas outside the current namespace"
+								type:        "boolean"
+							}
+							editable: {
+								description: "Whether to enable or disable editing of the notification policy in Grafana UI"
+								type:        "boolean"
+								"x-kubernetes-validations": [{
+									message: "Value is immutable"
+									rule:    "self == oldSelf"
+								}]
+							}
+							instanceSelector: {
+								description: "Selects Grafana instances for import"
+								properties: {
+									matchExpressions: {
+										description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+										items: {
+											description: """
+															A label selector requirement is a selector that contains values, a key, and an operator that
+															relates the key and values.
+															"""
+											properties: {
+												key: {
+													description: "key is the label key that the selector applies to."
+													type:        "string"
+												}
+												operator: {
+													description: """
+																	operator represents a key's relationship to a set of values.
+																	Valid operators are In, NotIn, Exists and DoesNotExist.
+																	"""
+													type: "string"
+												}
+												values: {
+													description: """
+																	values is an array of string values. If the operator is In or NotIn,
+																	the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																	the values array must be empty. This array is replaced during a strategic
+																	merge patch.
+																	"""
+													items: type: "string"
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
+												}
+											}
+											required: ["key", "operator"]
+											type: "object"
+										}
+										type:                     "array"
+										"x-kubernetes-list-type": "atomic"
+									}
+									matchLabels: {
+										additionalProperties: type: "string"
+										description: """
+														matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+														map is equivalent to an element of matchExpressions, whose key field is "key", the
+														operator is "In", and the values array contains only "value". The requirements are ANDed.
+														"""
+										type: "object"
+									}
+								}
+								type:                    "object"
+								"x-kubernetes-map-type": "atomic"
+								"x-kubernetes-validations": [{
+									message: "spec.instanceSelector is immutable"
+									rule:    "self == oldSelf"
+								}]
+							}
+							resyncPeriod: {
+								description: "How often the resource is synced, defaults to 10m0s if not set"
+								pattern:     "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
+								type:        "string"
+							}
+							route: {
+								description: "Routes for alerts to match against"
+								properties: {
+									active_time_intervals: {
+										description: "Deprecated: Never worked on the top level route node"
+										items: type: "string"
+										type: "array"
+									}
+									continue: {
+										description: "Deprecated: Never worked on the top level route node"
+										type:        "boolean"
+									}
+									group_by: {
+										description: "group by"
+										items: type: "string"
+										type: "array"
+									}
+									group_interval: {
+										description: "group interval"
+										type:        "string"
+									}
+									group_wait: {
+										description: "group wait"
+										type:        "string"
+									}
+									match_re: {
+										additionalProperties: type: "string"
+										description: "Deprecated: Never worked on the top level route node"
+										type:        "object"
+									}
+									matchers: {
+										description: "Deprecated: Never worked on the top level route node"
+										items: {
+											properties: {
+												isEqual: {
+													description: "is equal"
+													type:        "boolean"
+												}
+												isRegex: {
+													description: "is regex"
+													type:        "boolean"
+												}
+												name: {
+													description: "name"
+													type:        "string"
+												}
+												value: {
+													description: "value"
+													type:        "string"
+												}
+											}
+											required: ["isRegex", "value"]
+											type: "object"
+										}
+										type: "array"
+									}
+									mute_time_intervals: {
+										description: "Deprecated: Never worked on the top level route node"
+										items: type: "string"
+										type: "array"
+									}
+									object_matchers: {
+										description: "Deprecated: Never worked on the top level route node"
+										items: {
+											description: """
+															ObjectMatcher ObjectMatcher is a matcher that can be used to filter alerts.
+
+															swagger:model ObjectMatcher
+															"""
+											items: type: "string"
+											type: "array"
+										}
+										type: "array"
+									}
+									provenance: {
+										description: "Deprecated: Does nothing"
+										type:        "string"
+									}
+									receiver: {
+										description: "receiver"
+										minLength:   1
+										type:        "string"
+									}
+									repeat_interval: {
+										description: "repeat interval"
+										type:        "string"
+									}
+									routeSelector: {
+										description: """
+														selects GrafanaNotificationPolicyRoutes to merge in when specified
+														mutually exclusive with Routes
+														"""
+										properties: {
+											matchExpressions: {
+												description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+												items: {
+													description: """
+																	A label selector requirement is a selector that contains values, a key, and an operator that
+																	relates the key and values.
+																	"""
+													properties: {
+														key: {
+															description: "key is the label key that the selector applies to."
+															type:        "string"
+														}
+														operator: {
+															description: """
+																			operator represents a key's relationship to a set of values.
+																			Valid operators are In, NotIn, Exists and DoesNotExist.
+																			"""
+															type: "string"
+														}
+														values: {
+															description: """
+																			values is an array of string values. If the operator is In or NotIn,
+																			the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																			the values array must be empty. This array is replaced during a strategic
+																			merge patch.
+																			"""
+															items: type: "string"
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
+														}
+													}
+													required: ["key", "operator"]
+													type: "object"
+												}
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
+											}
+											matchLabels: {
+												additionalProperties: type: "string"
+												description: """
+																matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+																map is equivalent to an element of matchExpressions, whose key field is "key", the
+																operator is "In", and the values array contains only "value". The requirements are ANDed.
+																"""
+												type: "object"
+											}
+										}
+										type:                    "object"
+										"x-kubernetes-map-type": "atomic"
+									}
+									routes: {
+										description:                            "routes, mutually exclusive with RouteSelector"
+										"x-kubernetes-preserve-unknown-fields": true
+									}
+								}
+								required: ["receiver"]
+								type: "object"
+								"x-kubernetes-validations": [{
+									message: "continue is invalid on the top level route node"
+									rule:    "!has(self.__continue__)"
+								}, {
+									message: "match_re is invalid on the top level route node"
+									rule:    "!has(self.match_re)"
+								}, {
+									message: "matchers is invalid on the top level route node"
+									rule:    "!has(self.matchers)"
+								}, {
+									message: "object_matchers is invalid on the top level route node"
+									rule:    "!has(self.object_matchers)"
+								}, {
+									message: "mute_time_intervals is invalid on the top level route node"
+									rule:    "!has(self.mute_time_intervals)"
+								}, {
+									message: "active_time_intervals is invalid on the top level route node"
+									rule:    "!has(self.active_time_intervals)"
+								}]
+							}
+							suspend: {
+								description: "Suspend pauses synchronizing attempts and tells the operator to ignore changes"
+								type:        "boolean"
+							}
+						}
+						required: ["instanceSelector", "route"]
+						type: "object"
+						"x-kubernetes-validations": [{
+							message: "spec.editable is immutable"
+							rule:    "((!has(oldSelf.editable) && !has(self.editable)) || (has(oldSelf.editable) && has(self.editable)))"
+						}, {
+							message: "disabling spec.allowCrossNamespaceImport requires a recreate to ensure desired state"
+							rule:    "!oldSelf.allowCrossNamespaceImport || (oldSelf.allowCrossNamespaceImport && self.allowCrossNamespaceImport)"
+						}]
+					}
+					status: {
+						description: "GrafanaNotificationPolicyStatus defines the observed state of GrafanaNotificationPolicy"
+						properties: {
+							conditions: {
+								description: "Results when synchronizing resource with Grafana instances"
+								items: {
+									description: "Condition contains details for one aspect of the current state of this API Resource."
+									properties: {
+										lastTransitionTime: {
+											description: """
+															lastTransitionTime is the last time the condition transitioned from one status to another.
+															This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+															"""
+											format: "date-time"
+											type:   "string"
+										}
+										message: {
+											description: """
+															message is a human readable message indicating details about the transition.
+															This may be an empty string.
+															"""
+											maxLength: 32768
+											type:      "string"
+										}
+										observedGeneration: {
+											description: """
+															observedGeneration represents the .metadata.generation that the condition was set based upon.
+															For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+															with respect to the current state of the instance.
+															"""
+											format:  "int64"
+											minimum: 0
+											type:    "integer"
+										}
+										reason: {
+											description: """
+															reason contains a programmatic identifier indicating the reason for the condition's last transition.
+															Producers of specific condition types may define expected values and meanings for this field,
+															and whether the values are considered a guaranteed API.
+															The value should be a CamelCase string.
+															This field may not be empty.
+															"""
+											maxLength: 1024
+											minLength: 1
+											pattern:   "^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$"
+											type:      "string"
+										}
+										status: {
+											description: "status of the condition, one of True, False, Unknown."
+											enum: ["True", "False", "Unknown"]
+											type: "string"
+										}
+										type: {
+											description: "type of condition in CamelCase or in foo.example.com/CamelCase."
+											maxLength:   316
+											pattern:     "^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"
+											type:        "string"
+										}
+									}
+									required: ["lastTransitionTime", "message", "reason", "status", "type"]
+									type: "object"
+								}
+								type: "array"
+							}
+							discoveredRoutes: {
+								items: type: "string"
+								type: "array"
+							}
+							lastResync: {
+								description: "Last time the resource was synchronized with Grafana instances"
+								format:      "date-time"
+								type:        "string"
+							}
+						}
+						type: "object"
+					}
+				}
+				required: [
+					"spec",
+				]
+				type: "object"
+			}
+			served:  true
+			storage: true
+			subresources: status: {}
+		}]
+	}
+}, {
+	metadata: name: "grafananotificationpolicyroutes.grafana.integreatly.org"
+	spec: {
+		group: "grafana.integreatly.org"
+		names: {
+			categories: [
+				"grafana-operator",
+			]
+			kind:     "GrafanaNotificationPolicyRoute"
+			listKind: "GrafanaNotificationPolicyRouteList"
+			plural:   "grafananotificationpolicyroutes"
+			singular: "grafananotificationpolicyroute"
+		}
+		scope: "Namespaced"
+		versions: [{
+			name: "v1beta1"
+			schema: openAPIV3Schema: {
+				description: "GrafanaNotificationPolicyRoute is the Schema for the grafananotificationpolicyroutes API"
+				properties: {
+					apiVersion: {
+						description: """
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
+						type: "string"
+					}
+					kind: {
+						description: """
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
+						type: "string"
+					}
+					metadata: type: "object"
+					spec: {
+						description: "GrafanaNotificationPolicyRouteSpec defines the desired state of GrafanaNotificationPolicyRoute"
+						properties: {
+							active_time_intervals: {
+								description: "active time intervals"
+								items: type: "string"
+								type: "array"
+							}
+							continue: {
+								description: "continue"
+								type:        "boolean"
+							}
+							group_by: {
+								description: "group by"
+								items: type: "string"
+								type: "array"
+							}
+							group_interval: {
+								description: "group interval"
+								type:        "string"
+							}
+							group_wait: {
+								description: "group wait"
+								type:        "string"
+							}
+							match_re: {
+								additionalProperties: type: "string"
+								description: "match re"
+								type:        "object"
+							}
+							matchers: {
+								description: "matchers"
+								items: {
+									properties: {
+										isEqual: {
+											description: "is equal"
+											type:        "boolean"
+										}
+										isRegex: {
+											description: "is regex"
+											type:        "boolean"
+										}
+										name: {
+											description: "name"
+											type:        "string"
+										}
+										value: {
+											description: "value"
+											type:        "string"
+										}
+									}
+									required: ["isRegex", "value"]
+									type: "object"
+								}
+								type: "array"
+							}
+							mute_time_intervals: {
+								description: "mute time intervals"
+								items: type: "string"
+								type: "array"
+							}
+							object_matchers: {
+								description: "object matchers"
+								items: {
+									description: """
+													ObjectMatcher ObjectMatcher is a matcher that can be used to filter alerts.
+
+													swagger:model ObjectMatcher
+													"""
+									items: type: "string"
+									type: "array"
+								}
+								type: "array"
+							}
+							provenance: {
+								description: "Deprecated: Does nothing"
+								type:        "string"
+							}
+							receiver: {
+								description: "receiver"
+								minLength:   1
+								type:        "string"
+							}
+							repeat_interval: {
+								description: "repeat interval"
+								type:        "string"
+							}
+							routeSelector: {
+								description: """
+												selects GrafanaNotificationPolicyRoutes to merge in when specified
+												mutually exclusive with Routes
+												"""
+								properties: {
+									matchExpressions: {
+										description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+										items: {
+											description: """
+															A label selector requirement is a selector that contains values, a key, and an operator that
+															relates the key and values.
+															"""
+											properties: {
+												key: {
+													description: "key is the label key that the selector applies to."
+													type:        "string"
+												}
+												operator: {
+													description: """
+																	operator represents a key's relationship to a set of values.
+																	Valid operators are In, NotIn, Exists and DoesNotExist.
+																	"""
+													type: "string"
+												}
+												values: {
+													description: """
+																	values is an array of string values. If the operator is In or NotIn,
+																	the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																	the values array must be empty. This array is replaced during a strategic
+																	merge patch.
+																	"""
+													items: type: "string"
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
+												}
+											}
+											required: ["key", "operator"]
+											type: "object"
+										}
+										type:                     "array"
+										"x-kubernetes-list-type": "atomic"
+									}
+									matchLabels: {
+										additionalProperties: type: "string"
+										description: """
+														matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+														map is equivalent to an element of matchExpressions, whose key field is "key", the
+														operator is "In", and the values array contains only "value". The requirements are ANDed.
+														"""
+										type: "object"
+									}
+								}
+								type:                    "object"
+								"x-kubernetes-map-type": "atomic"
+							}
+							routes: {
+								description:                            "routes, mutually exclusive with RouteSelector"
+								"x-kubernetes-preserve-unknown-fields": true
+							}
+						}
+						required: ["receiver"]
+						type: "object"
+					}
+					status: {
+						description: "The most recent observed state of a Grafana resource"
+						properties: {
+							conditions: {
+								description: "Results when synchronizing resource with Grafana instances"
+								items: {
+									description: "Condition contains details for one aspect of the current state of this API Resource."
+									properties: {
+										lastTransitionTime: {
+											description: """
+															lastTransitionTime is the last time the condition transitioned from one status to another.
+															This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+															"""
+											format: "date-time"
+											type:   "string"
+										}
+										message: {
+											description: """
+															message is a human readable message indicating details about the transition.
+															This may be an empty string.
+															"""
+											maxLength: 32768
+											type:      "string"
+										}
+										observedGeneration: {
+											description: """
+															observedGeneration represents the .metadata.generation that the condition was set based upon.
+															For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+															with respect to the current state of the instance.
+															"""
+											format:  "int64"
+											minimum: 0
+											type:    "integer"
+										}
+										reason: {
+											description: """
+															reason contains a programmatic identifier indicating the reason for the condition's last transition.
+															Producers of specific condition types may define expected values and meanings for this field,
+															and whether the values are considered a guaranteed API.
+															The value should be a CamelCase string.
+															This field may not be empty.
+															"""
+											maxLength: 1024
+											minLength: 1
+											pattern:   "^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$"
+											type:      "string"
+										}
+										status: {
+											description: "status of the condition, one of True, False, Unknown."
+											enum: ["True", "False", "Unknown"]
+											type: "string"
+										}
+										type: {
+											description: "type of condition in CamelCase or in foo.example.com/CamelCase."
+											maxLength:   316
+											pattern:     "^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"
+											type:        "string"
+										}
+									}
+									required: ["lastTransitionTime", "message", "reason", "status", "type"]
+									type: "object"
+								}
+								type: "array"
+							}
+							lastResync: {
+								description: "Last time the resource was synchronized with Grafana instances"
+								format:      "date-time"
+								type:        "string"
+							}
+						}
+						type: "object"
+					}
+				}
+				required: [
+					"spec",
+				]
+				type: "object"
+			}
+			served:  true
+			storage: true
+			subresources: status: {}
+		}]
+	}
+}, {
+	metadata: name: "grafananotificationtemplates.grafana.integreatly.org"
+	spec: {
+		group: "grafana.integreatly.org"
+		names: {
+			categories: [
+				"grafana-operator",
+			]
+			kind:     "GrafanaNotificationTemplate"
+			listKind: "GrafanaNotificationTemplateList"
+			plural:   "grafananotificationtemplates"
+			singular: "grafananotificationtemplate"
+		}
+		scope: "Namespaced"
+		versions: [{
+			additionalPrinterColumns: [{
+				format:   "date-time"
+				jsonPath: ".status.lastResync"
+				name:     "Last resync"
+				type:     "date"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
+			}]
+			name: "v1beta1"
+			schema: openAPIV3Schema: {
+				description: "GrafanaNotificationTemplate is the Schema for the GrafanaNotificationTemplate API"
+				properties: {
+					apiVersion: {
+						description: """
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
+						type: "string"
+					}
+					kind: {
+						description: """
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
+						type: "string"
+					}
+					metadata: type: "object"
+					spec: {
+						description: "GrafanaNotificationTemplateSpec defines the desired state of GrafanaNotificationTemplate"
+						properties: {
+							allowCrossNamespaceImport: {
+								default:     false
+								description: "Allow the Operator to match this resource with Grafanas outside the current namespace"
+								type:        "boolean"
+							}
+							editable: {
+								description: "Whether to enable or disable editing of the notification template in Grafana UI"
+								type:        "boolean"
+								"x-kubernetes-validations": [{
+									message: "spec.editable is immutable"
+									rule:    "self == oldSelf"
+								}]
+							}
+							instanceSelector: {
+								description: "Selects Grafana instances for import"
+								properties: {
+									matchExpressions: {
+										description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+										items: {
+											description: """
+															A label selector requirement is a selector that contains values, a key, and an operator that
+															relates the key and values.
+															"""
+											properties: {
+												key: {
+													description: "key is the label key that the selector applies to."
+													type:        "string"
+												}
+												operator: {
+													description: """
+																	operator represents a key's relationship to a set of values.
+																	Valid operators are In, NotIn, Exists and DoesNotExist.
+																	"""
+													type: "string"
+												}
+												values: {
+													description: """
+																	values is an array of string values. If the operator is In or NotIn,
+																	the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																	the values array must be empty. This array is replaced during a strategic
+																	merge patch.
+																	"""
+													items: type: "string"
+													type:                     "array"
+													"x-kubernetes-list-type": "atomic"
+												}
+											}
+											required: ["key", "operator"]
+											type: "object"
+										}
+										type:                     "array"
+										"x-kubernetes-list-type": "atomic"
+									}
+									matchLabels: {
+										additionalProperties: type: "string"
+										description: """
+														matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+														map is equivalent to an element of matchExpressions, whose key field is "key", the
+														operator is "In", and the values array contains only "value". The requirements are ANDed.
+														"""
+										type: "object"
+									}
+								}
+								type:                    "object"
+								"x-kubernetes-map-type": "atomic"
+								"x-kubernetes-validations": [{
+									message: "spec.instanceSelector is immutable"
+									rule:    "self == oldSelf"
+								}]
+							}
+							name: {
+								description: "Template name"
+								type:        "string"
+							}
+							resyncPeriod: {
+								description: "How often the resource is synced, defaults to 10m0s if not set"
+								pattern:     "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
+								type:        "string"
+							}
+							suspend: {
+								description: "Suspend pauses synchronizing attempts and tells the operator to ignore changes"
+								type:        "boolean"
+							}
+							template: {
+								description: "Template content"
+								type:        "string"
+							}
+						}
+						required: ["instanceSelector", "name"]
+						type: "object"
+						"x-kubernetes-validations": [{
+							message: "spec.editable is immutable"
+							rule:    "((!has(oldSelf.editable) && !has(self.editable)) || (has(oldSelf.editable) && has(self.editable)))"
+						}, {
+							message: "disabling spec.allowCrossNamespaceImport requires a recreate to ensure desired state"
+							rule:    "!oldSelf.allowCrossNamespaceImport || (oldSelf.allowCrossNamespaceImport && self.allowCrossNamespaceImport)"
+						}]
+					}
+					status: {
+						description: "The most recent observed state of a Grafana resource"
+						properties: {
+							conditions: {
+								description: "Results when synchronizing resource with Grafana instances"
+								items: {
+									description: "Condition contains details for one aspect of the current state of this API Resource."
+									properties: {
+										lastTransitionTime: {
+											description: """
+															lastTransitionTime is the last time the condition transitioned from one status to another.
+															This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+															"""
+											format: "date-time"
+											type:   "string"
+										}
+										message: {
+											description: """
+															message is a human readable message indicating details about the transition.
+															This may be an empty string.
+															"""
+											maxLength: 32768
+											type:      "string"
+										}
+										observedGeneration: {
+											description: """
+															observedGeneration represents the .metadata.generation that the condition was set based upon.
+															For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+															with respect to the current state of the instance.
+															"""
+											format:  "int64"
+											minimum: 0
+											type:    "integer"
+										}
+										reason: {
+											description: """
+															reason contains a programmatic identifier indicating the reason for the condition's last transition.
+															Producers of specific condition types may define expected values and meanings for this field,
+															and whether the values are considered a guaranteed API.
+															The value should be a CamelCase string.
+															This field may not be empty.
+															"""
+											maxLength: 1024
+											minLength: 1
+											pattern:   "^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$"
+											type:      "string"
+										}
+										status: {
+											description: "status of the condition, one of True, False, Unknown."
+											enum: ["True", "False", "Unknown"]
+											type: "string"
+										}
+										type: {
+											description: "type of condition in CamelCase or in foo.example.com/CamelCase."
+											maxLength:   316
+											pattern:     "^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"
+											type:        "string"
+										}
+									}
+									required: ["lastTransitionTime", "message", "reason", "status", "type"]
+									type: "object"
+								}
+								type: "array"
+							}
+							lastResync: {
+								description: "Last time the resource was synchronized with Grafana instances"
+								format:      "date-time"
+								type:        "string"
+							}
+						}
+						type: "object"
+					}
+				}
+				required: [
+					"spec",
+				]
 				type: "object"
 			}
 			served:  true
@@ -969,14 +4221,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 	spec: {
 		group: "grafana.integreatly.org"
 		names: {
+			categories: [
+				"grafana-operator",
+			]
 			kind:     "Grafana"
 			listKind: "GrafanaList"
 			plural:   "grafanas"
 			singular: "grafana"
 		}
-		scope: apiextensionsv1.#NamespaceScoped
+		scope: "Namespaced"
 		versions: [{
 			additionalPrinterColumns: [{
+				jsonPath: ".status.version"
+				name:     "Version"
+				type:     "string"
+			}, {
 				jsonPath: ".status.stage"
 				name:     "Stage"
 				type:     "string"
@@ -994,12 +4253,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				description: "Grafana is the Schema for the grafanas API"
 				properties: {
 					apiVersion: {
-						description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources"
-						type:        "string"
+						description: """
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
+						type: "string"
 					}
 					kind: {
-						description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"
-						type:        "string"
+						description: """
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
+						type: "string"
 					}
 					metadata: type: "object"
 					spec: {
@@ -1008,6 +4278,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							client: {
 								description: "Client defines how the grafana-operator talks to the grafana instance."
 								properties: {
+									headers: {
+										additionalProperties: type: "string"
+										description: "Custom HTTP headers to use when interacting with this Grafana."
+										type:        "object"
+									}
 									preferIngress: {
 										description: "If the operator should send it's request through the grafana instances ingress object instead of through the service."
 										nullable:    true
@@ -1016,6 +4291,42 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									timeout: {
 										nullable: true
 										type:     "integer"
+									}
+									tls: {
+										description: "TLS Configuration used to talk with the grafana instance."
+										properties: {
+											certSecretRef: {
+												description: "Use a secret as a reference to give TLS Certificate information"
+												properties: {
+													name: {
+														description: "name is unique within a namespace to reference a secret resource."
+														type:        "string"
+													}
+													namespace: {
+														description: "namespace defines the space within which the secret name must be unique."
+														type:        "string"
+													}
+												}
+												type:                    "object"
+												"x-kubernetes-map-type": "atomic"
+											}
+											insecureSkipVerify: {
+												description: "Disable the CA check of the server"
+												type:        "boolean"
+											}
+										}
+										type: "object"
+										"x-kubernetes-validations": [{
+											message: "insecureSkipVerify and certSecretRef cannot be set at the same time"
+											rule:    "(has(self.insecureSkipVerify) && !(has(self.certSecretRef))) || (has(self.certSecretRef) && !(has(self.insecureSkipVerify)))"
+										}]
+									}
+									useKubeAuth: {
+										description: """
+														Use Kubernetes Serviceaccount as authentication
+														Requires configuring [auth.jwt] in the instance
+														"""
+										type: "boolean"
 									}
 								}
 								type: "object"
@@ -1033,7 +4344,6 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								description: "Deployment sets how the deployment object should look like with your grafana instance, contains a number of defaults."
 								properties: {
 									metadata: {
-										description: "ObjectMeta contains only a [subset of the fields included in k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#objectmeta-v1-meta)."
 										properties: {
 											annotations: {
 												additionalProperties: type: "string"
@@ -1066,49 +4376,35 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:   "integer"
 											}
 											selector: {
-												description: "A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed. An empty label selector matches all objects. A null label selector matches no objects."
 												properties: {
 													matchExpressions: {
-														description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 														items: {
-															description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
 															properties: {
-																key: {
-																	description: "key is the label key that the selector applies to."
-																	type:        "string"
-																}
-																operator: {
-																	description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
-																	type:        "string"
-																}
+																key: type:      "string"
+																operator: type: "string"
 																values: {
-																	description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
 																	items: type: "string"
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 															}
-															required: [
-																"key",
-																"operator",
-															]
+															required: ["key", "operator"]
 															type: "object"
 														}
-														type: "array"
+														type:                     "array"
+														"x-kubernetes-list-type": "atomic"
 													}
 													matchLabels: {
 														additionalProperties: type: "string"
-														description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
-														type:        "object"
+														type: "object"
 													}
 												}
 												type:                    "object"
 												"x-kubernetes-map-type": "atomic"
 											}
 											strategy: {
-												description: "DeploymentStrategy describes how to replace existing pods with new ones."
 												properties: {
 													rollingUpdate: {
-														description: "Rolling update config params. Present only if DeploymentStrategyType = RollingUpdate. --- TODO: Update this to follow our convention for oneOf, whatever we decide it to be."
 														properties: {
 															maxSurge: {
 																anyOf: [{
@@ -1116,7 +4412,6 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																}, {
 																	type: "string"
 																}]
-																description:                  "The maximum number of pods that can be scheduled above the desired number of pods. Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%). This can not be 0 if MaxUnavailable is 0. Absolute number is calculated from percentage by rounding up. Defaults to 25%. Example: when this is set to 30%, the new ReplicaSet can be scaled up immediately when the rolling update starts, such that the total number of old and new pods do not exceed 130% of desired pods. Once old pods have been killed, new ReplicaSet can be scaled up further, ensuring that total number of pods running at any time during the update is at most 130% of desired pods."
 																"x-kubernetes-int-or-string": true
 															}
 															maxUnavailable: {
@@ -1125,23 +4420,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																}, {
 																	type: "string"
 																}]
-																description:                  "The maximum number of pods that can be unavailable during the update. Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%). Absolute number is calculated from percentage by rounding down. This can not be 0 if MaxSurge is 0. Defaults to 25%. Example: when this is set to 30%, the old ReplicaSet can be scaled down to 70% of desired pods immediately when the rolling update starts. Once new pods are ready, old ReplicaSet can be scaled down further, followed by scaling up the new ReplicaSet, ensuring that the total number of pods available at all times during the update is at least 70% of desired pods."
 																"x-kubernetes-int-or-string": true
 															}
 														}
 														type: "object"
 													}
-													type: {
-														description: "Type of deployment. Can be \"Recreate\" or \"RollingUpdate\". Default is RollingUpdate."
-														type:        "string"
-													}
+													type: type: "string"
 												}
 												type: "object"
 											}
 											template: {
 												properties: {
 													metadata: {
-														description: "Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata"
 														properties: {
 															annotations: {
 																additionalProperties: type: "string"
@@ -1155,164 +4445,113 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type: "object"
 													}
 													spec: {
-														description: "Specification of the desired behavior of the pod. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status"
 														properties: {
 															activeDeadlineSeconds: {
 																format: "int64"
 																type:   "integer"
 															}
 															affinity: {
-																description: "If specified, the pod's scheduling constraints"
 																properties: {
 																	nodeAffinity: {
-																		description: "Describes node affinity scheduling rules for the pod."
 																		properties: {
 																			preferredDuringSchedulingIgnoredDuringExecution: {
-																				description: "The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified by this field, but it may choose a node that violates one or more of the expressions. The node that is most preferred is the one with the greatest sum of weights, i.e. for each node that meets all of the scheduling requirements (resource request, requiredDuringScheduling affinity expressions, etc.), compute a sum by iterating through the elements of this field and adding \"weight\" to the sum if the node matches the corresponding matchExpressions; the node(s) with the highest sum are the most preferred."
 																				items: {
-																					description: "An empty preferred scheduling term matches all objects with implicit weight 0 (i.e. it's a no-op). A null preferred scheduling term matches no objects (i.e. is also a no-op)."
 																					properties: {
 																						preference: {
-																							description: "A node selector term, associated with the corresponding weight."
 																							properties: {
 																								matchExpressions: {
-																									description: "A list of node selector requirements by node's labels."
 																									items: {
-																										description: "A node selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
 																										properties: {
-																											key: {
-																												description: "The label key that the selector applies to."
-																												type:        "string"
-																											}
-																											operator: {
-																												description: "Represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt."
-																												type:        "string"
-																											}
+																											key: type:      "string"
+																											operator: type: "string"
 																											values: {
-																												description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer. This array is replaced during a strategic merge patch."
 																												items: type: "string"
-																												type: "array"
+																												type:                     "array"
+																												"x-kubernetes-list-type": "atomic"
 																											}
 																										}
-																										required: [
-																											"key",
-																											"operator",
-																										]
+																										required: ["key", "operator"]
 																										type: "object"
 																									}
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
 																								matchFields: {
-																									description: "A list of node selector requirements by node's fields."
 																									items: {
-																										description: "A node selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
 																										properties: {
-																											key: {
-																												description: "The label key that the selector applies to."
-																												type:        "string"
-																											}
-																											operator: {
-																												description: "Represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt."
-																												type:        "string"
-																											}
+																											key: type:      "string"
+																											operator: type: "string"
 																											values: {
-																												description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer. This array is replaced during a strategic merge patch."
 																												items: type: "string"
-																												type: "array"
+																												type:                     "array"
+																												"x-kubernetes-list-type": "atomic"
 																											}
 																										}
-																										required: [
-																											"key",
-																											"operator",
-																										]
+																										required: ["key", "operator"]
 																										type: "object"
 																									}
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
 																							}
 																							type:                    "object"
 																							"x-kubernetes-map-type": "atomic"
 																						}
 																						weight: {
-																							description: "Weight associated with matching the corresponding nodeSelectorTerm, in the range 1-100."
-																							format:      "int32"
-																							type:        "integer"
+																							format: "int32"
+																							type:   "integer"
 																						}
 																					}
-																					required: [
-																						"preference",
-																						"weight",
-																					]
+																					required: ["preference", "weight"]
 																					type: "object"
 																				}
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																			requiredDuringSchedulingIgnoredDuringExecution: {
-																				description: "If the affinity requirements specified by this field are not met at scheduling time, the pod will not be scheduled onto the node. If the affinity requirements specified by this field cease to be met at some point during pod execution (e.g. due to an update), the system may or may not try to eventually evict the pod from its node."
 																				properties: nodeSelectorTerms: {
-																					description: "Required. A list of node selector terms. The terms are ORed."
 																					items: {
-																						description: "A null or empty node selector term matches no objects. The requirements of them are ANDed. The TopologySelectorTerm type implements a subset of the NodeSelectorTerm."
 																						properties: {
 																							matchExpressions: {
-																								description: "A list of node selector requirements by node's labels."
 																								items: {
-																									description: "A node selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
 																									properties: {
-																										key: {
-																											description: "The label key that the selector applies to."
-																											type:        "string"
-																										}
-																										operator: {
-																											description: "Represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt."
-																											type:        "string"
-																										}
+																										key: type:      "string"
+																										operator: type: "string"
 																										values: {
-																											description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer. This array is replaced during a strategic merge patch."
 																											items: type: "string"
-																											type: "array"
+																											type:                     "array"
+																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
-																									required: [
-																										"key",
-																										"operator",
-																									]
+																									required: ["key", "operator"]
 																									type: "object"
 																								}
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																							matchFields: {
-																								description: "A list of node selector requirements by node's fields."
 																								items: {
-																									description: "A node selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
 																									properties: {
-																										key: {
-																											description: "The label key that the selector applies to."
-																											type:        "string"
-																										}
-																										operator: {
-																											description: "Represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt."
-																											type:        "string"
-																										}
+																										key: type:      "string"
+																										operator: type: "string"
 																										values: {
-																											description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer. This array is replaced during a strategic merge patch."
 																											items: type: "string"
-																											type: "array"
+																											type:                     "array"
+																											"x-kubernetes-list-type": "atomic"
 																										}
 																									}
-																									required: [
-																										"key",
-																										"operator",
-																									]
+																									required: ["key", "operator"]
 																									type: "object"
 																								}
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
 																						type:                    "object"
 																						"x-kubernetes-map-type": "atomic"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																				required: ["nodeSelectorTerms"]
 																				type:                    "object"
@@ -1322,483 +4561,351 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type: "object"
 																	}
 																	podAffinity: {
-																		description: "Describes pod affinity scheduling rules (e.g. co-locate this pod in the same node, zone, etc. as some other pod(s))."
 																		properties: {
 																			preferredDuringSchedulingIgnoredDuringExecution: {
-																				description: "The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified by this field, but it may choose a node that violates one or more of the expressions. The node that is most preferred is the one with the greatest sum of weights, i.e. for each node that meets all of the scheduling requirements (resource request, requiredDuringScheduling affinity expressions, etc.), compute a sum by iterating through the elements of this field and adding \"weight\" to the sum if the node has pods which matches the corresponding podAffinityTerm; the node(s) with the highest sum are the most preferred."
 																				items: {
-																					description: "The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most preferred node(s)"
 																					properties: {
 																						podAffinityTerm: {
-																							description: "Required. A pod affinity term, associated with the corresponding weight."
 																							properties: {
 																								labelSelector: {
-																									description: "A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods."
 																									properties: {
 																										matchExpressions: {
-																											description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																											items: {
-																												description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
 																												properties: {
-																													key: {
-																														description: "key is the label key that the selector applies to."
-																														type:        "string"
-																													}
-																													operator: {
-																														description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
-																														type:        "string"
-																													}
+																													key: type:      "string"
+																													operator: type: "string"
 																													values: {
-																														description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
 																														items: type: "string"
-																														type: "array"
+																														type:                     "array"
+																														"x-kubernetes-list-type": "atomic"
 																													}
 																												}
-																												required: [
-																													"key",
-																													"operator",
-																												]
+																												required: ["key", "operator"]
 																												type: "object"
 																											}
-																											type: "array"
+																											type:                     "array"
+																											"x-kubernetes-list-type": "atomic"
 																										}
 																										matchLabels: {
 																											additionalProperties: type: "string"
-																											description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
-																											type:        "object"
+																											type: "object"
 																										}
 																									}
 																									type:                    "object"
 																									"x-kubernetes-map-type": "atomic"
 																								}
 																								matchLabelKeys: {
-																									description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key in (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. Also, MatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate."
 																									items: type: "string"
 																									type:                     "array"
 																									"x-kubernetes-list-type": "atomic"
 																								}
 																								mismatchLabelKeys: {
-																									description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key notin (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MismatchLabelKeys and LabelSelector. Also, MismatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate."
 																									items: type: "string"
 																									type:                     "array"
 																									"x-kubernetes-list-type": "atomic"
 																								}
 																								namespaceSelector: {
-																									description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
 																									properties: {
 																										matchExpressions: {
-																											description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																											items: {
-																												description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
 																												properties: {
-																													key: {
-																														description: "key is the label key that the selector applies to."
-																														type:        "string"
-																													}
-																													operator: {
-																														description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
-																														type:        "string"
-																													}
+																													key: type:      "string"
+																													operator: type: "string"
 																													values: {
-																														description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
 																														items: type: "string"
-																														type: "array"
+																														type:                     "array"
+																														"x-kubernetes-list-type": "atomic"
 																													}
 																												}
-																												required: [
-																													"key",
-																													"operator",
-																												]
+																												required: ["key", "operator"]
 																												type: "object"
 																											}
-																											type: "array"
+																											type:                     "array"
+																											"x-kubernetes-list-type": "atomic"
 																										}
 																										matchLabels: {
 																											additionalProperties: type: "string"
-																											description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
-																											type:        "object"
+																											type: "object"
 																										}
 																									}
 																									type:                    "object"
 																									"x-kubernetes-map-type": "atomic"
 																								}
 																								namespaces: {
-																									description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																									items: type: "string"
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
-																								topologyKey: {
-																									description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching the labelSelector in the specified namespaces, where co-located is defined as running on a node whose value of the label with key topologyKey matches that of any node on which any of the selected pods is running. Empty topologyKey is not allowed."
-																									type:        "string"
-																								}
+																								topologyKey: type: "string"
 																							}
 																							required: ["topologyKey"]
 																							type: "object"
 																						}
 																						weight: {
-																							description: "weight associated with matching the corresponding podAffinityTerm, in the range 1-100."
-																							format:      "int32"
-																							type:        "integer"
+																							format: "int32"
+																							type:   "integer"
 																						}
 																					}
-																					required: [
-																						"podAffinityTerm",
-																						"weight",
-																					]
+																					required: ["podAffinityTerm", "weight"]
 																					type: "object"
 																				}
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																			requiredDuringSchedulingIgnoredDuringExecution: {
-																				description: "If the affinity requirements specified by this field are not met at scheduling time, the pod will not be scheduled onto the node. If the affinity requirements specified by this field cease to be met at some point during pod execution (e.g. due to a pod label update), the system may or may not try to eventually evict the pod from its node. When there are multiple elements, the lists of nodes corresponding to each podAffinityTerm are intersected, i.e. all terms must be satisfied."
 																				items: {
-																					description: "Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) that this pod should be co-located (affinity) or not co-located (anti-affinity) with, where co-located is defined as running on a node whose value of the label with key <topologyKey> matches that of any node on which a pod of the set of pods is running"
 																					properties: {
 																						labelSelector: {
-																							description: "A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods."
 																							properties: {
 																								matchExpressions: {
-																									description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																									items: {
-																										description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
 																										properties: {
-																											key: {
-																												description: "key is the label key that the selector applies to."
-																												type:        "string"
-																											}
-																											operator: {
-																												description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
-																												type:        "string"
-																											}
+																											key: type:      "string"
+																											operator: type: "string"
 																											values: {
-																												description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
 																												items: type: "string"
-																												type: "array"
+																												type:                     "array"
+																												"x-kubernetes-list-type": "atomic"
 																											}
 																										}
-																										required: [
-																											"key",
-																											"operator",
-																										]
+																										required: ["key", "operator"]
 																										type: "object"
 																									}
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
 																								matchLabels: {
 																									additionalProperties: type: "string"
-																									description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
-																									type:        "object"
+																									type: "object"
 																								}
 																							}
 																							type:                    "object"
 																							"x-kubernetes-map-type": "atomic"
 																						}
 																						matchLabelKeys: {
-																							description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key in (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. Also, MatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate."
 																							items: type: "string"
 																							type:                     "array"
 																							"x-kubernetes-list-type": "atomic"
 																						}
 																						mismatchLabelKeys: {
-																							description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key notin (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MismatchLabelKeys and LabelSelector. Also, MismatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate."
 																							items: type: "string"
 																							type:                     "array"
 																							"x-kubernetes-list-type": "atomic"
 																						}
 																						namespaceSelector: {
-																							description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
 																							properties: {
 																								matchExpressions: {
-																									description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																									items: {
-																										description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
 																										properties: {
-																											key: {
-																												description: "key is the label key that the selector applies to."
-																												type:        "string"
-																											}
-																											operator: {
-																												description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
-																												type:        "string"
-																											}
+																											key: type:      "string"
+																											operator: type: "string"
 																											values: {
-																												description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
 																												items: type: "string"
-																												type: "array"
+																												type:                     "array"
+																												"x-kubernetes-list-type": "atomic"
 																											}
 																										}
-																										required: [
-																											"key",
-																											"operator",
-																										]
+																										required: ["key", "operator"]
 																										type: "object"
 																									}
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
 																								matchLabels: {
 																									additionalProperties: type: "string"
-																									description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
-																									type:        "object"
+																									type: "object"
 																								}
 																							}
 																							type:                    "object"
 																							"x-kubernetes-map-type": "atomic"
 																						}
 																						namespaces: {
-																							description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																							items: type: "string"
-																							type: "array"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
-																						topologyKey: {
-																							description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching the labelSelector in the specified namespaces, where co-located is defined as running on a node whose value of the label with key topologyKey matches that of any node on which any of the selected pods is running. Empty topologyKey is not allowed."
-																							type:        "string"
-																						}
+																						topologyKey: type: "string"
 																					}
 																					required: ["topologyKey"]
 																					type: "object"
 																				}
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		type: "object"
 																	}
 																	podAntiAffinity: {
-																		description: "Describes pod anti-affinity scheduling rules (e.g. avoid putting this pod in the same node, zone, etc. as some other pod(s))."
 																		properties: {
 																			preferredDuringSchedulingIgnoredDuringExecution: {
-																				description: "The scheduler will prefer to schedule pods to nodes that satisfy the anti-affinity expressions specified by this field, but it may choose a node that violates one or more of the expressions. The node that is most preferred is the one with the greatest sum of weights, i.e. for each node that meets all of the scheduling requirements (resource request, requiredDuringScheduling anti-affinity expressions, etc.), compute a sum by iterating through the elements of this field and adding \"weight\" to the sum if the node has pods which matches the corresponding podAffinityTerm; the node(s) with the highest sum are the most preferred."
 																				items: {
-																					description: "The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most preferred node(s)"
 																					properties: {
 																						podAffinityTerm: {
-																							description: "Required. A pod affinity term, associated with the corresponding weight."
 																							properties: {
 																								labelSelector: {
-																									description: "A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods."
 																									properties: {
 																										matchExpressions: {
-																											description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																											items: {
-																												description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
 																												properties: {
-																													key: {
-																														description: "key is the label key that the selector applies to."
-																														type:        "string"
-																													}
-																													operator: {
-																														description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
-																														type:        "string"
-																													}
+																													key: type:      "string"
+																													operator: type: "string"
 																													values: {
-																														description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
 																														items: type: "string"
-																														type: "array"
+																														type:                     "array"
+																														"x-kubernetes-list-type": "atomic"
 																													}
 																												}
-																												required: [
-																													"key",
-																													"operator",
-																												]
+																												required: ["key", "operator"]
 																												type: "object"
 																											}
-																											type: "array"
+																											type:                     "array"
+																											"x-kubernetes-list-type": "atomic"
 																										}
 																										matchLabels: {
 																											additionalProperties: type: "string"
-																											description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
-																											type:        "object"
+																											type: "object"
 																										}
 																									}
 																									type:                    "object"
 																									"x-kubernetes-map-type": "atomic"
 																								}
 																								matchLabelKeys: {
-																									description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key in (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. Also, MatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate."
 																									items: type: "string"
 																									type:                     "array"
 																									"x-kubernetes-list-type": "atomic"
 																								}
 																								mismatchLabelKeys: {
-																									description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key notin (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MismatchLabelKeys and LabelSelector. Also, MismatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate."
 																									items: type: "string"
 																									type:                     "array"
 																									"x-kubernetes-list-type": "atomic"
 																								}
 																								namespaceSelector: {
-																									description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
 																									properties: {
 																										matchExpressions: {
-																											description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																											items: {
-																												description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
 																												properties: {
-																													key: {
-																														description: "key is the label key that the selector applies to."
-																														type:        "string"
-																													}
-																													operator: {
-																														description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
-																														type:        "string"
-																													}
+																													key: type:      "string"
+																													operator: type: "string"
 																													values: {
-																														description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
 																														items: type: "string"
-																														type: "array"
+																														type:                     "array"
+																														"x-kubernetes-list-type": "atomic"
 																													}
 																												}
-																												required: [
-																													"key",
-																													"operator",
-																												]
+																												required: ["key", "operator"]
 																												type: "object"
 																											}
-																											type: "array"
+																											type:                     "array"
+																											"x-kubernetes-list-type": "atomic"
 																										}
 																										matchLabels: {
 																											additionalProperties: type: "string"
-																											description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
-																											type:        "object"
+																											type: "object"
 																										}
 																									}
 																									type:                    "object"
 																									"x-kubernetes-map-type": "atomic"
 																								}
 																								namespaces: {
-																									description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																									items: type: "string"
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
-																								topologyKey: {
-																									description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching the labelSelector in the specified namespaces, where co-located is defined as running on a node whose value of the label with key topologyKey matches that of any node on which any of the selected pods is running. Empty topologyKey is not allowed."
-																									type:        "string"
-																								}
+																								topologyKey: type: "string"
 																							}
 																							required: ["topologyKey"]
 																							type: "object"
 																						}
 																						weight: {
-																							description: "weight associated with matching the corresponding podAffinityTerm, in the range 1-100."
-																							format:      "int32"
-																							type:        "integer"
+																							format: "int32"
+																							type:   "integer"
 																						}
 																					}
-																					required: [
-																						"podAffinityTerm",
-																						"weight",
-																					]
+																					required: ["podAffinityTerm", "weight"]
 																					type: "object"
 																				}
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																			requiredDuringSchedulingIgnoredDuringExecution: {
-																				description: "If the anti-affinity requirements specified by this field are not met at scheduling time, the pod will not be scheduled onto the node. If the anti-affinity requirements specified by this field cease to be met at some point during pod execution (e.g. due to a pod label update), the system may or may not try to eventually evict the pod from its node. When there are multiple elements, the lists of nodes corresponding to each podAffinityTerm are intersected, i.e. all terms must be satisfied."
 																				items: {
-																					description: "Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) that this pod should be co-located (affinity) or not co-located (anti-affinity) with, where co-located is defined as running on a node whose value of the label with key <topologyKey> matches that of any node on which a pod of the set of pods is running"
 																					properties: {
 																						labelSelector: {
-																							description: "A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods."
 																							properties: {
 																								matchExpressions: {
-																									description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																									items: {
-																										description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
 																										properties: {
-																											key: {
-																												description: "key is the label key that the selector applies to."
-																												type:        "string"
-																											}
-																											operator: {
-																												description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
-																												type:        "string"
-																											}
+																											key: type:      "string"
+																											operator: type: "string"
 																											values: {
-																												description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
 																												items: type: "string"
-																												type: "array"
+																												type:                     "array"
+																												"x-kubernetes-list-type": "atomic"
 																											}
 																										}
-																										required: [
-																											"key",
-																											"operator",
-																										]
+																										required: ["key", "operator"]
 																										type: "object"
 																									}
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
 																								matchLabels: {
 																									additionalProperties: type: "string"
-																									description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
-																									type:        "object"
+																									type: "object"
 																								}
 																							}
 																							type:                    "object"
 																							"x-kubernetes-map-type": "atomic"
 																						}
 																						matchLabelKeys: {
-																							description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key in (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. Also, MatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate."
 																							items: type: "string"
 																							type:                     "array"
 																							"x-kubernetes-list-type": "atomic"
 																						}
 																						mismatchLabelKeys: {
-																							description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `LabelSelector` as `key notin (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both MismatchLabelKeys and LabelSelector. Also, MismatchLabelKeys cannot be set when LabelSelector isn't set. This is an alpha field and requires enabling MatchLabelKeysInPodAffinity feature gate."
 																							items: type: "string"
 																							type:                     "array"
 																							"x-kubernetes-list-type": "atomic"
 																						}
 																						namespaceSelector: {
-																							description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
 																							properties: {
 																								matchExpressions: {
-																									description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																									items: {
-																										description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
 																										properties: {
-																											key: {
-																												description: "key is the label key that the selector applies to."
-																												type:        "string"
-																											}
-																											operator: {
-																												description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
-																												type:        "string"
-																											}
+																											key: type:      "string"
+																											operator: type: "string"
 																											values: {
-																												description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
 																												items: type: "string"
-																												type: "array"
+																												type:                     "array"
+																												"x-kubernetes-list-type": "atomic"
 																											}
 																										}
-																										required: [
-																											"key",
-																											"operator",
-																										]
+																										required: ["key", "operator"]
 																										type: "object"
 																									}
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
 																								matchLabels: {
 																									additionalProperties: type: "string"
-																									description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
-																									type:        "object"
+																									type: "object"
 																								}
 																							}
 																							type:                    "object"
 																							"x-kubernetes-map-type": "atomic"
 																						}
 																						namespaces: {
-																							description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
 																							items: type: "string"
-																							type: "array"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
-																						topologyKey: {
-																							description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching the labelSelector in the specified namespaces, where co-located is defined as running on a node whose value of the label with key topologyKey matches that of any node on which any of the selected pods is running. Empty topologyKey is not allowed."
-																							type:        "string"
-																						}
+																						topologyKey: type: "string"
 																					}
 																					required: ["topologyKey"]
 																					type: "object"
 																				}
-																				type: "array"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "atomic"
 																			}
 																		}
 																		type: "object"
@@ -1806,117 +4913,89 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																}
 																type: "object"
 															}
-															automountServiceAccountToken: {
-																description: "AutomountServiceAccountToken indicates whether a service account token should be automatically mounted."
-																type:        "boolean"
-															}
+															automountServiceAccountToken: type: "boolean"
 															containers: {
 																items: {
-																	description: "A single application container that you want to run within a pod."
 																	properties: {
 																		args: {
-																			description: "Arguments to the entrypoint. The container image's CMD is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. \"$$(VAR_NAME)\" will produce the string literal \"$(VAR_NAME)\". Escaped references will never be expanded, regardless of whether the variable exists or not. Cannot be updated. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell"
 																			items: type: "string"
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		command: {
-																			description: "Entrypoint array. Not executed within a shell. The container image's ENTRYPOINT is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. \"$$(VAR_NAME)\" will produce the string literal \"$(VAR_NAME)\". Escaped references will never be expanded, regardless of whether the variable exists or not. Cannot be updated. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell"
 																			items: type: "string"
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		env: {
-																			description: "List of environment variables to set in the container. Cannot be updated."
 																			items: {
-																				description: "EnvVar represents an environment variable present in a Container."
 																				properties: {
-																					name: {
-																						description: "Name of the environment variable. Must be a C_IDENTIFIER."
-																						type:        "string"
-																					}
-																					value: {
-																						description: "Variable references $(VAR_NAME) are expanded using the previously defined environment variables in the container and any service environment variables. If a variable cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. \"$$(VAR_NAME)\" will produce the string literal \"$(VAR_NAME)\". Escaped references will never be expanded, regardless of whether the variable exists or not. Defaults to \"\"."
-																						type:        "string"
-																					}
+																					name: type:  "string"
+																					value: type: "string"
 																					valueFrom: {
-																						description: "Source for the environment variable's value. Cannot be used if value is not empty."
 																						properties: {
 																							configMapKeyRef: {
-																								description: "Selects a key of a ConfigMap."
 																								properties: {
-																									key: {
-																										description: "The key to select."
-																										type:        "string"
-																									}
+																									key: type: "string"
 																									name: {
-																										description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																										type:        "string"
+																										default: ""
+																										type:    "string"
 																									}
-																									optional: {
-																										description: "Specify whether the ConfigMap or its key must be defined"
-																										type:        "boolean"
-																									}
+																									optional: type: "boolean"
 																								}
 																								required: ["key"]
 																								type:                    "object"
 																								"x-kubernetes-map-type": "atomic"
 																							}
 																							fieldRef: {
-																								description: "Selects a field of the pod: supports metadata.name, metadata.namespace, `metadata.labels['<KEY>']`, `metadata.annotations['<KEY>']`, spec.nodeName, spec.serviceAccountName, status.hostIP, status.podIP, status.podIPs."
 																								properties: {
-																									apiVersion: {
-																										description: "Version of the schema the FieldPath is written in terms of, defaults to \"v1\"."
-																										type:        "string"
-																									}
-																									fieldPath: {
-																										description: "Path of the field to select in the specified API version."
-																										type:        "string"
-																									}
+																									apiVersion: type: "string"
+																									fieldPath: type:  "string"
 																								}
 																								required: ["fieldPath"]
 																								type:                    "object"
 																								"x-kubernetes-map-type": "atomic"
 																							}
-																							resourceFieldRef: {
-																								description: "Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, limits.ephemeral-storage, requests.cpu, requests.memory and requests.ephemeral-storage) are currently supported."
+																							fileKeyRef: {
 																								properties: {
-																									containerName: {
-																										description: "Container name: required for volumes, optional for env vars"
-																										type:        "string"
+																									key: type: "string"
+																									optional: {
+																										default: false
+																										type:    "boolean"
 																									}
+																									path: type:       "string"
+																									volumeName: type: "string"
+																								}
+																								required: ["key", "path", "volumeName"]
+																								type:                    "object"
+																								"x-kubernetes-map-type": "atomic"
+																							}
+																							resourceFieldRef: {
+																								properties: {
+																									containerName: type: "string"
 																									divisor: {
 																										anyOf: [{
 																											type: "integer"
 																										}, {
 																											type: "string"
 																										}]
-																										description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
 																										pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																										"x-kubernetes-int-or-string": true
 																									}
-																									resource: {
-																										description: "Required: resource to select"
-																										type:        "string"
-																									}
+																									resource: type: "string"
 																								}
 																								required: ["resource"]
 																								type:                    "object"
 																								"x-kubernetes-map-type": "atomic"
 																							}
 																							secretKeyRef: {
-																								description: "Selects a key of a secret in the pod's namespace"
 																								properties: {
-																									key: {
-																										description: "The key of the secret to select from.  Must be a valid secret key."
-																										type:        "string"
-																									}
+																									key: type: "string"
 																									name: {
-																										description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																										type:        "string"
+																										default: ""
+																										type:    "string"
 																									}
-																									optional: {
-																										description: "Specify whether the Secret or its key must be defined"
-																										type:        "boolean"
-																									}
+																									optional: type: "boolean"
 																								}
 																								required: ["key"]
 																								type:                    "object"
@@ -1930,42 +5009,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type: "object"
 																			}
 																			type: "array"
+																			"x-kubernetes-list-map-keys": ["name"]
+																			"x-kubernetes-list-type": "map"
 																		}
 																		envFrom: {
-																			description: "List of sources to populate environment variables in the container. The keys defined within a source must be a C_IDENTIFIER. All invalid keys will be reported as an event when the container is starting. When a key exists in multiple sources, the value associated with the last source will take precedence. Values defined by an Env with a duplicate key will take precedence. Cannot be updated."
 																			items: {
-																				description: "EnvFromSource represents the source of a set of ConfigMaps"
 																				properties: {
 																					configMapRef: {
-																						description: "The ConfigMap to select from"
 																						properties: {
 																							name: {
-																								description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																								type:        "string"
+																								default: ""
+																								type:    "string"
 																							}
-																							optional: {
-																								description: "Specify whether the ConfigMap must be defined"
-																								type:        "boolean"
-																							}
+																							optional: type: "boolean"
 																						}
 																						type:                    "object"
 																						"x-kubernetes-map-type": "atomic"
 																					}
-																					prefix: {
-																						description: "An optional identifier to prepend to each key in the ConfigMap. Must be a C_IDENTIFIER."
-																						type:        "string"
-																					}
+																					prefix: type: "string"
 																					secretRef: {
-																						description: "The Secret to select from"
 																						properties: {
 																							name: {
-																								description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																								type:        "string"
+																								default: ""
+																								type:    "string"
 																							}
-																							optional: {
-																								description: "Specify whether the Secret must be defined"
-																								type:        "boolean"
-																							}
+																							optional: type: "boolean"
 																						}
 																						type:                    "object"
 																						"x-kubernetes-map-type": "atomic"
@@ -1973,105 +5041,69 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				}
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
-																		image: {
-																			description: "Container image name. More info: https://kubernetes.io/docs/concepts/containers/images This field is optional to allow higher level config management to default or override container images in workload controllers like Deployments and StatefulSets."
-																			type:        "string"
-																		}
-																		imagePullPolicy: {
-																			description: "Image pull policy. One of Always, Never, IfNotPresent. Defaults to Always if :latest tag is specified, or IfNotPresent otherwise. Cannot be updated. More info: https://kubernetes.io/docs/concepts/containers/images#updating-images"
-																			type:        "string"
-																		}
+																		image: type:           "string"
+																		imagePullPolicy: type: "string"
 																		lifecycle: {
-																			description: "Actions that the management system should take in response to container lifecycle events. Cannot be updated."
 																			properties: {
 																				postStart: {
-																					description: "PostStart is called immediately after a container is created. If the handler fails, the container is terminated and restarted according to its restart policy. Other management of the container blocks until the hook completes. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks"
 																					properties: {
 																						exec: {
-																							description: "Exec specifies the action to take."
 																							properties: command: {
-																								description: "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																							type: "object"
 																						}
 																						httpGet: {
-																							description: "HTTPGet specifies the http request to perform."
 																							properties: {
-																								host: {
-																									description: "Host name to connect to, defaults to the pod IP. You probably want to set \"Host\" in httpHeaders instead."
-																									type:        "string"
-																								}
+																								host: type: "string"
 																								httpHeaders: {
-																									description: "Custom headers to set in the request. HTTP allows repeated headers."
 																									items: {
-																										description: "HTTPHeader describes a custom header to be used in HTTP probes"
 																										properties: {
-																											name: {
-																												description: "The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header."
-																												type:        "string"
-																											}
-																											value: {
-																												description: "The header field value"
-																												type:        "string"
-																											}
+																											name: type:  "string"
+																											value: type: "string"
 																										}
-																										required: [
-																											"name",
-																											"value",
-																										]
+																										required: ["name", "value"]
 																										type: "object"
 																									}
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
-																								path: {
-																									description: "Path to access on the HTTP server."
-																									type:        "string"
-																								}
+																								path: type: "string"
 																								port: {
 																									anyOf: [{
 																										type: "integer"
 																									}, {
 																										type: "string"
 																									}]
-																									description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																									"x-kubernetes-int-or-string": true
 																								}
-																								scheme: {
-																									description: "Scheme to use for connecting to the host. Defaults to HTTP."
-																									type:        "string"
-																								}
+																								scheme: type: "string"
 																							}
 																							required: ["port"]
 																							type: "object"
 																						}
 																						sleep: {
-																							description: "Sleep represents the duration that the container should sleep before being terminated."
 																							properties: seconds: {
-																								description: "Seconds is the number of seconds to sleep."
-																								format:      "int64"
-																								type:        "integer"
+																								format: "int64"
+																								type:   "integer"
 																							}
 																							required: ["seconds"]
 																							type: "object"
 																						}
 																						tcpSocket: {
-																							description: "Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept for the backward compatibility. There are no validation of this field and lifecycle hooks will fail in runtime when tcp handler is specified."
 																							properties: {
-																								host: {
-																									description: "Optional: Host name to connect to, defaults to the pod IP."
-																									type:        "string"
-																								}
+																								host: type: "string"
 																								port: {
 																									anyOf: [{
 																										type: "integer"
 																									}, {
 																										type: "string"
 																									}]
-																									description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																									"x-kubernetes-int-or-string": true
 																								}
 																							}
@@ -2082,91 +5114,61 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type: "object"
 																				}
 																				preStop: {
-																					description: "PreStop is called immediately before a container is terminated due to an API request or management event such as liveness/startup probe failure, preemption, resource contention, etc. The handler is not called if the container crashes or exits. The Pod's termination grace period countdown begins before the PreStop hook is executed. Regardless of the outcome of the handler, the container will eventually terminate within the Pod's termination grace period (unless delayed by finalizers). Other management of the container blocks until the hook completes or until the termination grace period is reached. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks"
 																					properties: {
 																						exec: {
-																							description: "Exec specifies the action to take."
 																							properties: command: {
-																								description: "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																							type: "object"
 																						}
 																						httpGet: {
-																							description: "HTTPGet specifies the http request to perform."
 																							properties: {
-																								host: {
-																									description: "Host name to connect to, defaults to the pod IP. You probably want to set \"Host\" in httpHeaders instead."
-																									type:        "string"
-																								}
+																								host: type: "string"
 																								httpHeaders: {
-																									description: "Custom headers to set in the request. HTTP allows repeated headers."
 																									items: {
-																										description: "HTTPHeader describes a custom header to be used in HTTP probes"
 																										properties: {
-																											name: {
-																												description: "The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header."
-																												type:        "string"
-																											}
-																											value: {
-																												description: "The header field value"
-																												type:        "string"
-																											}
+																											name: type:  "string"
+																											value: type: "string"
 																										}
-																										required: [
-																											"name",
-																											"value",
-																										]
+																										required: ["name", "value"]
 																										type: "object"
 																									}
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
-																								path: {
-																									description: "Path to access on the HTTP server."
-																									type:        "string"
-																								}
+																								path: type: "string"
 																								port: {
 																									anyOf: [{
 																										type: "integer"
 																									}, {
 																										type: "string"
 																									}]
-																									description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																									"x-kubernetes-int-or-string": true
 																								}
-																								scheme: {
-																									description: "Scheme to use for connecting to the host. Defaults to HTTP."
-																									type:        "string"
-																								}
+																								scheme: type: "string"
 																							}
 																							required: ["port"]
 																							type: "object"
 																						}
 																						sleep: {
-																							description: "Sleep represents the duration that the container should sleep before being terminated."
 																							properties: seconds: {
-																								description: "Seconds is the number of seconds to sleep."
-																								format:      "int64"
-																								type:        "integer"
+																								format: "int64"
+																								type:   "integer"
 																							}
 																							required: ["seconds"]
 																							type: "object"
 																						}
 																						tcpSocket: {
-																							description: "Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept for the backward compatibility. There are no validation of this field and lifecycle hooks will fail in runtime when tcp handler is specified."
 																							properties: {
-																								host: {
-																									description: "Optional: Host name to connect to, defaults to the pod IP."
-																									type:        "string"
-																								}
+																								host: type: "string"
 																								port: {
 																									anyOf: [{
 																										type: "integer"
 																									}, {
 																										type: "string"
 																									}]
-																									description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																									"x-kubernetes-int-or-string": true
 																								}
 																							}
@@ -2176,124 +5178,88 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					}
 																					type: "object"
 																				}
+																				stopSignal: type: "string"
 																			}
 																			type: "object"
 																		}
 																		livenessProbe: {
-																			description: "Periodic probe of container liveness. Container will be restarted if the probe fails. Cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
 																			properties: {
 																				exec: {
-																					description: "Exec specifies the action to take."
 																					properties: command: {
-																						description: "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					type: "object"
 																				}
 																				failureThreshold: {
-																					description: "Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				grpc: {
-																					description: "GRPC specifies an action involving a GRPC port."
 																					properties: {
 																						port: {
-																							description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
-																							format:      "int32"
-																							type:        "integer"
+																							format: "int32"
+																							type:   "integer"
 																						}
 																						service: {
-																							description: """
-		Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
-		 If this is not specified, the default behavior is defined by gRPC.
-		"""
-																							type: "string"
+																							default: ""
+																							type:    "string"
 																						}
 																					}
 																					required: ["port"]
 																					type: "object"
 																				}
 																				httpGet: {
-																					description: "HTTPGet specifies the http request to perform."
 																					properties: {
-																						host: {
-																							description: "Host name to connect to, defaults to the pod IP. You probably want to set \"Host\" in httpHeaders instead."
-																							type:        "string"
-																						}
+																						host: type: "string"
 																						httpHeaders: {
-																							description: "Custom headers to set in the request. HTTP allows repeated headers."
 																							items: {
-																								description: "HTTPHeader describes a custom header to be used in HTTP probes"
 																								properties: {
-																									name: {
-																										description: "The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header."
-																										type:        "string"
-																									}
-																									value: {
-																										description: "The header field value"
-																										type:        "string"
-																									}
+																									name: type:  "string"
+																									value: type: "string"
 																								}
-																								required: [
-																									"name",
-																									"value",
-																								]
+																								required: ["name", "value"]
 																								type: "object"
 																							}
-																							type: "array"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
-																						path: {
-																							description: "Path to access on the HTTP server."
-																							type:        "string"
-																						}
+																						path: type: "string"
 																						port: {
 																							anyOf: [{
 																								type: "integer"
 																							}, {
 																								type: "string"
 																							}]
-																							description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																							"x-kubernetes-int-or-string": true
 																						}
-																						scheme: {
-																							description: "Scheme to use for connecting to the host. Defaults to HTTP."
-																							type:        "string"
-																						}
+																						scheme: type: "string"
 																					}
 																					required: ["port"]
 																					type: "object"
 																				}
 																				initialDelaySeconds: {
-																					description: "Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				periodSeconds: {
-																					description: "How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				successThreshold: {
-																					description: "Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				tcpSocket: {
-																					description: "TCPSocket specifies an action involving a TCP port."
 																					properties: {
-																						host: {
-																							description: "Optional: Host name to connect to, defaults to the pod IP."
-																							type:        "string"
-																						}
+																						host: type: "string"
 																						port: {
 																							anyOf: [{
 																								type: "integer"
 																							}, {
 																								type: "string"
 																							}]
-																							description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																							"x-kubernetes-int-or-string": true
 																						}
 																					}
@@ -2301,176 +5267,120 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type: "object"
 																				}
 																				terminationGracePeriodSeconds: {
-																					description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset."
-																					format:      "int64"
-																					type:        "integer"
+																					format: "int64"
+																					type:   "integer"
 																				}
 																				timeoutSeconds: {
-																					description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																			}
 																			type: "object"
 																		}
-																		name: {
-																			description: "Name of the container specified as a DNS_LABEL. Each container in a pod must have a unique name (DNS_LABEL). Cannot be updated."
-																			type:        "string"
-																		}
+																		name: type: "string"
 																		ports: {
-																			description: "List of ports to expose from the container. Not specifying a port here DOES NOT prevent that port from being exposed. Any port which is listening on the default \"0.0.0.0\" address inside a container will be accessible from the network. Modifying this array with strategic merge patch may corrupt the data. For more information See https://github.com/kubernetes/kubernetes/issues/108255. Cannot be updated."
 																			items: {
-																				description: "ContainerPort represents a network port in a single container."
 																				properties: {
 																					containerPort: {
-																						description: "Number of port to expose on the pod's IP address. This must be a valid port number, 0 < x < 65536."
-																						format:      "int32"
-																						type:        "integer"
+																						format: "int32"
+																						type:   "integer"
 																					}
-																					hostIP: {
-																						description: "What host IP to bind the external port to."
-																						type:        "string"
-																					}
+																					hostIP: type: "string"
 																					hostPort: {
-																						description: "Number of port to expose on the host. If specified, this must be a valid port number, 0 < x < 65536. If HostNetwork is specified, this must match ContainerPort. Most containers do not need this."
-																						format:      "int32"
-																						type:        "integer"
+																						format: "int32"
+																						type:   "integer"
 																					}
-																					name: {
-																						description: "If specified, this must be an IANA_SVC_NAME and unique within the pod. Each named port in a pod must have a unique name. Name for the port that can be referred to by services."
-																						type:        "string"
-																					}
+																					name: type: "string"
 																					protocol: {
-																						default:     "TCP"
-																						description: "Protocol for port. Must be UDP, TCP, or SCTP. Defaults to \"TCP\"."
-																						type:        "string"
+																						default: "TCP"
+																						type:    "string"
 																					}
 																				}
 																				required: ["containerPort"]
 																				type: "object"
 																			}
 																			type: "array"
-																			"x-kubernetes-list-map-keys": [
-																				"containerPort",
-																				"protocol",
-																			]
+																			"x-kubernetes-list-map-keys": ["containerPort", "protocol"]
 																			"x-kubernetes-list-type": "map"
 																		}
 																		readinessProbe: {
-																			description: "Periodic probe of container service readiness. Container will be removed from service endpoints if the probe fails. Cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
 																			properties: {
 																				exec: {
-																					description: "Exec specifies the action to take."
 																					properties: command: {
-																						description: "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					type: "object"
 																				}
 																				failureThreshold: {
-																					description: "Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				grpc: {
-																					description: "GRPC specifies an action involving a GRPC port."
 																					properties: {
 																						port: {
-																							description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
-																							format:      "int32"
-																							type:        "integer"
+																							format: "int32"
+																							type:   "integer"
 																						}
 																						service: {
-																							description: """
-		Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
-		 If this is not specified, the default behavior is defined by gRPC.
-		"""
-																							type: "string"
+																							default: ""
+																							type:    "string"
 																						}
 																					}
 																					required: ["port"]
 																					type: "object"
 																				}
 																				httpGet: {
-																					description: "HTTPGet specifies the http request to perform."
 																					properties: {
-																						host: {
-																							description: "Host name to connect to, defaults to the pod IP. You probably want to set \"Host\" in httpHeaders instead."
-																							type:        "string"
-																						}
+																						host: type: "string"
 																						httpHeaders: {
-																							description: "Custom headers to set in the request. HTTP allows repeated headers."
 																							items: {
-																								description: "HTTPHeader describes a custom header to be used in HTTP probes"
 																								properties: {
-																									name: {
-																										description: "The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header."
-																										type:        "string"
-																									}
-																									value: {
-																										description: "The header field value"
-																										type:        "string"
-																									}
+																									name: type:  "string"
+																									value: type: "string"
 																								}
-																								required: [
-																									"name",
-																									"value",
-																								]
+																								required: ["name", "value"]
 																								type: "object"
 																							}
-																							type: "array"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
-																						path: {
-																							description: "Path to access on the HTTP server."
-																							type:        "string"
-																						}
+																						path: type: "string"
 																						port: {
 																							anyOf: [{
 																								type: "integer"
 																							}, {
 																								type: "string"
 																							}]
-																							description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																							"x-kubernetes-int-or-string": true
 																						}
-																						scheme: {
-																							description: "Scheme to use for connecting to the host. Defaults to HTTP."
-																							type:        "string"
-																						}
+																						scheme: type: "string"
 																					}
 																					required: ["port"]
 																					type: "object"
 																				}
 																				initialDelaySeconds: {
-																					description: "Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				periodSeconds: {
-																					description: "How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				successThreshold: {
-																					description: "Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				tcpSocket: {
-																					description: "TCPSocket specifies an action involving a TCP port."
 																					properties: {
-																						host: {
-																							description: "Optional: Host name to connect to, defaults to the pod IP."
-																							type:        "string"
-																						}
+																						host: type: "string"
 																						port: {
 																							anyOf: [{
 																								type: "integer"
 																							}, {
 																								type: "string"
 																							}]
-																							description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																							"x-kubernetes-int-or-string": true
 																						}
 																					}
@@ -2478,55 +5388,35 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type: "object"
 																				}
 																				terminationGracePeriodSeconds: {
-																					description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset."
-																					format:      "int64"
-																					type:        "integer"
+																					format: "int64"
+																					type:   "integer"
 																				}
 																				timeoutSeconds: {
-																					description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																			}
 																			type: "object"
 																		}
 																		resizePolicy: {
-																			description: "Resources resize policy for the container."
 																			items: {
-																				description: "ContainerResizePolicy represents resource resize policy for the container."
 																				properties: {
-																					resourceName: {
-																						description: "Name of the resource to which this resource resize policy applies. Supported values: cpu, memory."
-																						type:        "string"
-																					}
-																					restartPolicy: {
-																						description: "Restart policy to apply when specified resource is resized. If not specified, it defaults to NotRequired."
-																						type:        "string"
-																					}
+																					resourceName: type:  "string"
+																					restartPolicy: type: "string"
 																				}
-																				required: [
-																					"resourceName",
-																					"restartPolicy",
-																				]
+																				required: ["resourceName", "restartPolicy"]
 																				type: "object"
 																			}
 																			type:                     "array"
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																		resources: {
-																			description: "Compute Resources required by this container. Cannot be updated. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 																			properties: {
 																				claims: {
-																					description: """
-		Claims lists the names of resources, defined in spec.resourceClaims, that are used by this container.
-		 This is an alpha field and requires enabling the DynamicResourceAllocation feature gate.
-		 This field is immutable. It can only be set for containers.
-		"""
 																					items: {
-																						description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
-																						properties: name: {
-																							description: "Name must match the name of one entry in pod.spec.resourceClaims of the Pod where this field is used. It makes that resource available inside a container."
-																							type:        "string"
+																						properties: {
+																							name: type:    "string"
+																							request: type: "string"
 																						}
 																						required: ["name"]
 																						type: "object"
@@ -2545,8 +5435,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																						"x-kubernetes-int-or-string": true
 																					}
-																					description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
-																					type:        "object"
+																					type: "object"
 																				}
 																				requests: {
 																					additionalProperties: {
@@ -2558,130 +5447,99 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																						"x-kubernetes-int-or-string": true
 																					}
-																					description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. Requests cannot exceed Limits. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
-																					type:        "object"
+																					type: "object"
 																				}
 																			}
 																			type: "object"
 																		}
-																		restartPolicy: {
-																			description: "RestartPolicy defines the restart behavior of individual containers in a pod. This field may only be set for init containers, and the only allowed value is \"Always\". For non-init containers or when this field is not specified, the restart behavior is defined by the Pod's restart policy and the container type. Setting the RestartPolicy as \"Always\" for the init container will have the following effect: this init container will be continually restarted on exit until all regular containers have terminated. Once all regular containers have completed, all init containers with restartPolicy \"Always\" will be shut down. This lifecycle differs from normal init containers and is often referred to as a \"sidecar\" container. Although this init container still starts in the init container sequence, it does not wait for the container to complete before proceeding to the next init container. Instead, the next init container starts immediately after this init container is started, or after any startupProbe has successfully completed."
-																			type:        "string"
+																		restartPolicy: type: "string"
+																		restartPolicyRules: {
+																			items: {
+																				properties: {
+																					action: type: "string"
+																					exitCodes: {
+																						properties: {
+																							operator: type: "string"
+																							values: {
+																								items: {
+																									format: "int32"
+																									type:   "integer"
+																								}
+																								type:                     "array"
+																								"x-kubernetes-list-type": "set"
+																							}
+																						}
+																						required: ["operator"]
+																						type: "object"
+																					}
+																				}
+																				required: ["action"]
+																				type: "object"
+																			}
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		securityContext: {
-																			description: "SecurityContext defines the security options the container should be run with. If set, the fields of SecurityContext override the equivalent fields of PodSecurityContext. More info: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/"
 																			properties: {
-																				allowPrivilegeEscalation: {
-																					description: "AllowPrivilegeEscalation controls whether a process can gain more privileges than its parent process. This bool directly controls if the no_new_privs flag will be set on the container process. AllowPrivilegeEscalation is true always when the container is: 1) run as Privileged 2) has CAP_SYS_ADMIN Note that this field cannot be set when spec.os.name is windows."
-																					type:        "boolean"
+																				allowPrivilegeEscalation: type: "boolean"
+																				appArmorProfile: {
+																					properties: {
+																						localhostProfile: type: "string"
+																						type: type:             "string"
+																					}
+																					required: ["type"]
+																					type: "object"
 																				}
 																				capabilities: {
-																					description: "The capabilities to add/drop when running containers. Defaults to the default set of capabilities granted by the container runtime. Note that this field cannot be set when spec.os.name is windows."
 																					properties: {
 																						add: {
-																							description: "Added capabilities"
-																							items: {
-																								description: "Capability represent POSIX capabilities type"
-																								type:        "string"
-																							}
-																							type: "array"
+																							items: type: "string"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
 																						drop: {
-																							description: "Removed capabilities"
-																							items: {
-																								description: "Capability represent POSIX capabilities type"
-																								type:        "string"
-																							}
-																							type: "array"
+																							items: type: "string"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
 																					}
 																					type: "object"
 																				}
-																				privileged: {
-																					description: "Run container in privileged mode. Processes in privileged containers are essentially equivalent to root on the host. Defaults to false. Note that this field cannot be set when spec.os.name is windows."
-																					type:        "boolean"
-																				}
-																				procMount: {
-																					description: "procMount denotes the type of proc mount to use for the containers. The default is DefaultProcMount which uses the container runtime defaults for readonly paths and masked paths. This requires the ProcMountType feature flag to be enabled. Note that this field cannot be set when spec.os.name is windows."
-																					type:        "string"
-																				}
-																				readOnlyRootFilesystem: {
-																					description: "Whether this container has a read-only root filesystem. Default is false. Note that this field cannot be set when spec.os.name is windows."
-																					type:        "boolean"
-																				}
+																				privileged: type:             "boolean"
+																				procMount: type:              "string"
+																				readOnlyRootFilesystem: type: "boolean"
 																				runAsGroup: {
-																					description: "The GID to run the entrypoint of the container process. Uses runtime default if unset. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is windows."
-																					format:      "int64"
-																					type:        "integer"
+																					format: "int64"
+																					type:   "integer"
 																				}
-																				runAsNonRoot: {
-																					description: "Indicates that the container must run as a non-root user. If true, the Kubelet will validate the image at runtime to ensure that it does not run as UID 0 (root) and fail to start the container if it does. If unset or false, no such validation will be performed. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence."
-																					type:        "boolean"
-																				}
+																				runAsNonRoot: type: "boolean"
 																				runAsUser: {
-																					description: "The UID to run the entrypoint of the container process. Defaults to user specified in image metadata if unspecified. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is windows."
-																					format:      "int64"
-																					type:        "integer"
+																					format: "int64"
+																					type:   "integer"
 																				}
 																				seLinuxOptions: {
-																					description: "The SELinux context to be applied to the container. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is windows."
 																					properties: {
-																						level: {
-																							description: "Level is SELinux level label that applies to the container."
-																							type:        "string"
-																						}
-																						role: {
-																							description: "Role is a SELinux role label that applies to the container."
-																							type:        "string"
-																						}
-																						type: {
-																							description: "Type is a SELinux type label that applies to the container."
-																							type:        "string"
-																						}
-																						user: {
-																							description: "User is a SELinux user label that applies to the container."
-																							type:        "string"
-																						}
+																						level: type: "string"
+																						role: type:  "string"
+																						type: type:  "string"
+																						user: type:  "string"
 																					}
 																					type: "object"
 																				}
 																				seccompProfile: {
-																					description: "The seccomp options to use by this container. If seccomp options are provided at both the pod & container level, the container options override the pod options. Note that this field cannot be set when spec.os.name is windows."
 																					properties: {
-																						localhostProfile: {
-																							description: "localhostProfile indicates a profile defined in a file on the node should be used. The profile must be preconfigured on the node to work. Must be a descending path, relative to the kubelet's configured seccomp profile location. Must be set if type is \"Localhost\". Must NOT be set for any other type."
-																							type:        "string"
-																						}
-																						type: {
-																							description: """
-		type indicates which kind of seccomp profile will be applied. Valid options are:
-		 Localhost - a profile defined in a file on the node should be used. RuntimeDefault - the container runtime default profile should be used. Unconfined - no profile should be applied.
-		"""
-																							type: "string"
-																						}
+																						localhostProfile: type: "string"
+																						type: type:             "string"
 																					}
 																					required: ["type"]
 																					type: "object"
 																				}
 																				windowsOptions: {
-																					description: "The Windows specific settings applied to all containers. If unspecified, the options from the PodSecurityContext will be used. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is linux."
 																					properties: {
-																						gmsaCredentialSpec: {
-																							description: "GMSACredentialSpec is where the GMSA admission webhook (https://github.com/kubernetes-sigs/windows-gmsa) inlines the contents of the GMSA credential spec named by the GMSACredentialSpecName field."
-																							type:        "string"
-																						}
-																						gmsaCredentialSpecName: {
-																							description: "GMSACredentialSpecName is the name of the GMSA credential spec to use."
-																							type:        "string"
-																						}
-																						hostProcess: {
-																							description: "HostProcess determines if a container should be run as a 'Host Process' container. All of a Pod's containers must have the same effective HostProcess value (it is not allowed to have a mix of HostProcess containers and non-HostProcess containers). In addition, if HostProcess is true then HostNetwork must also be set to true."
-																							type:        "boolean"
-																						}
-																						runAsUserName: {
-																							description: "The UserName in Windows to run the entrypoint of the container process. Defaults to the user specified in image metadata if unspecified. May also be set in PodSecurityContext. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence."
-																							type:        "string"
-																						}
+																						gmsaCredentialSpec: type:     "string"
+																						gmsaCredentialSpecName: type: "string"
+																						hostProcess: type:            "boolean"
+																						runAsUserName: type:          "string"
 																					}
 																					type: "object"
 																				}
@@ -2689,120 +5547,83 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			type: "object"
 																		}
 																		startupProbe: {
-																			description: "StartupProbe indicates that the Pod has successfully initialized. If specified, no other probes are executed until this completes successfully. If this probe fails, the Pod will be restarted, just as if the livenessProbe failed. This can be used to provide different probe parameters at the beginning of a Pod's lifecycle, when it might take a long time to load data or warm a cache, than during steady-state operation. This cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
 																			properties: {
 																				exec: {
-																					description: "Exec specifies the action to take."
 																					properties: command: {
-																						description: "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					type: "object"
 																				}
 																				failureThreshold: {
-																					description: "Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				grpc: {
-																					description: "GRPC specifies an action involving a GRPC port."
 																					properties: {
 																						port: {
-																							description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
-																							format:      "int32"
-																							type:        "integer"
+																							format: "int32"
+																							type:   "integer"
 																						}
 																						service: {
-																							description: """
-		Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
-		 If this is not specified, the default behavior is defined by gRPC.
-		"""
-																							type: "string"
+																							default: ""
+																							type:    "string"
 																						}
 																					}
 																					required: ["port"]
 																					type: "object"
 																				}
 																				httpGet: {
-																					description: "HTTPGet specifies the http request to perform."
 																					properties: {
-																						host: {
-																							description: "Host name to connect to, defaults to the pod IP. You probably want to set \"Host\" in httpHeaders instead."
-																							type:        "string"
-																						}
+																						host: type: "string"
 																						httpHeaders: {
-																							description: "Custom headers to set in the request. HTTP allows repeated headers."
 																							items: {
-																								description: "HTTPHeader describes a custom header to be used in HTTP probes"
 																								properties: {
-																									name: {
-																										description: "The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header."
-																										type:        "string"
-																									}
-																									value: {
-																										description: "The header field value"
-																										type:        "string"
-																									}
+																									name: type:  "string"
+																									value: type: "string"
 																								}
-																								required: [
-																									"name",
-																									"value",
-																								]
+																								required: ["name", "value"]
 																								type: "object"
 																							}
-																							type: "array"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
-																						path: {
-																							description: "Path to access on the HTTP server."
-																							type:        "string"
-																						}
+																						path: type: "string"
 																						port: {
 																							anyOf: [{
 																								type: "integer"
 																							}, {
 																								type: "string"
 																							}]
-																							description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																							"x-kubernetes-int-or-string": true
 																						}
-																						scheme: {
-																							description: "Scheme to use for connecting to the host. Defaults to HTTP."
-																							type:        "string"
-																						}
+																						scheme: type: "string"
 																					}
 																					required: ["port"]
 																					type: "object"
 																				}
 																				initialDelaySeconds: {
-																					description: "Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				periodSeconds: {
-																					description: "How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				successThreshold: {
-																					description: "Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				tcpSocket: {
-																					description: "TCPSocket specifies an action involving a TCP port."
 																					properties: {
-																						host: {
-																							description: "Optional: Host name to connect to, defaults to the pod IP."
-																							type:        "string"
-																						}
+																						host: type: "string"
 																						port: {
 																							anyOf: [{
 																								type: "integer"
 																							}, {
 																								type: "string"
 																							}]
-																							description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																							"x-kubernetes-int-or-string": true
 																						}
 																					}
@@ -2810,102 +5631,53 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type: "object"
 																				}
 																				terminationGracePeriodSeconds: {
-																					description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset."
-																					format:      "int64"
-																					type:        "integer"
+																					format: "int64"
+																					type:   "integer"
 																				}
 																				timeoutSeconds: {
-																					description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																			}
 																			type: "object"
 																		}
-																		stdin: {
-																			description: "Whether this container should allocate a buffer for stdin in the container runtime. If this is not set, reads from stdin in the container will always result in EOF. Default is false."
-																			type:        "boolean"
-																		}
-																		stdinOnce: {
-																			description: "Whether the container runtime should close the stdin channel after it has been opened by a single attach. When stdin is true the stdin stream will remain open across multiple attach sessions. If stdinOnce is set to true, stdin is opened on container start, is empty until the first client attaches to stdin, and then remains open and accepts data until the client disconnects, at which time stdin is closed and remains closed until the container is restarted. If this flag is false, a container processes that reads from stdin will never receive an EOF. Default is false"
-																			type:        "boolean"
-																		}
-																		terminationMessagePath: {
-																			description: "Optional: Path at which the file to which the container's termination message will be written is mounted into the container's filesystem. Message written is intended to be brief final status, such as an assertion failure message. Will be truncated by the node if greater than 4096 bytes. The total message length across all containers will be limited to 12kb. Defaults to /dev/termination-log. Cannot be updated."
-																			type:        "string"
-																		}
-																		terminationMessagePolicy: {
-																			description: "Indicate how the termination message should be populated. File will use the contents of terminationMessagePath to populate the container status message on both success and failure. FallbackToLogsOnError will use the last chunk of container log output if the termination message file is empty and the container exited with an error. The log output is limited to 2048 bytes or 80 lines, whichever is smaller. Defaults to File. Cannot be updated."
-																			type:        "string"
-																		}
-																		tty: {
-																			description: "Whether this container should allocate a TTY for itself, also requires 'stdin' to be true. Default is false."
-																			type:        "boolean"
-																		}
+																		stdin: type:                    "boolean"
+																		stdinOnce: type:                "boolean"
+																		terminationMessagePath: type:   "string"
+																		terminationMessagePolicy: type: "string"
+																		tty: type:                      "boolean"
 																		volumeDevices: {
-																			description: "volumeDevices is the list of block devices to be used by the container."
 																			items: {
-																				description: "volumeDevice describes a mapping of a raw block device within a container."
 																				properties: {
-																					devicePath: {
-																						description: "devicePath is the path inside of the container that the device will be mapped to."
-																						type:        "string"
-																					}
-																					name: {
-																						description: "name must match the name of a persistentVolumeClaim in the pod"
-																						type:        "string"
-																					}
+																					devicePath: type: "string"
+																					name: type:       "string"
 																				}
-																				required: [
-																					"devicePath",
-																					"name",
-																				]
+																				required: ["devicePath", "name"]
 																				type: "object"
 																			}
 																			type: "array"
+																			"x-kubernetes-list-map-keys": ["devicePath"]
+																			"x-kubernetes-list-type": "map"
 																		}
 																		volumeMounts: {
-																			description: "Pod volumes to mount into the container's filesystem. Cannot be updated."
 																			items: {
-																				description: "VolumeMount describes a mounting of a Volume within a container."
 																				properties: {
-																					mountPath: {
-																						description: "Path within the container at which the volume should be mounted.  Must not contain ':'."
-																						type:        "string"
-																					}
-																					mountPropagation: {
-																						description: "mountPropagation determines how mounts are propagated from the host to container and the other way around. When not set, MountPropagationNone is used. This field is beta in 1.10."
-																						type:        "string"
-																					}
-																					name: {
-																						description: "This must match the Name of a Volume."
-																						type:        "string"
-																					}
-																					readOnly: {
-																						description: "Mounted read-only if true, read-write otherwise (false or unspecified). Defaults to false."
-																						type:        "boolean"
-																					}
-																					subPath: {
-																						description: "Path within the volume from which the container's volume should be mounted. Defaults to \"\" (volume's root)."
-																						type:        "string"
-																					}
-																					subPathExpr: {
-																						description: "Expanded path within the volume from which the container's volume should be mounted. Behaves similarly to SubPath but environment variable references $(VAR_NAME) are expanded using the container's environment. Defaults to \"\" (volume's root). SubPathExpr and SubPath are mutually exclusive."
-																						type:        "string"
-																					}
+																					mountPath: type:         "string"
+																					mountPropagation: type:  "string"
+																					name: type:              "string"
+																					readOnly: type:          "boolean"
+																					recursiveReadOnly: type: "string"
+																					subPath: type:           "string"
+																					subPathExpr: type:       "string"
 																				}
-																				required: [
-																					"mountPath",
-																					"name",
-																				]
+																				required: ["mountPath", "name"]
 																				type: "object"
 																			}
 																			type: "array"
+																			"x-kubernetes-list-map-keys": ["mountPath"]
+																			"x-kubernetes-list-type": "map"
 																		}
-																		workingDir: {
-																			description: "Container's working directory. If not specified, the container runtime's default will be used, which might be configured in the container image. Cannot be updated."
-																			type:        "string"
-																		}
+																		workingDir: type: "string"
 																	}
 																	required: ["name"]
 																	type: "object"
@@ -2913,154 +5685,115 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type: "array"
 															}
 															dnsConfig: {
-																description: "Specifies the DNS parameters of a pod. Parameters specified here will be merged to the generated DNS configuration based on DNSPolicy."
 																properties: {
 																	nameservers: {
-																		description: "A list of DNS name server IP addresses. This will be appended to the base nameservers generated from DNSPolicy. Duplicated nameservers will be removed."
 																		items: type: "string"
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																	options: {
-																		description: "A list of DNS resolver options. This will be merged with the base options generated from DNSPolicy. Duplicated entries will be removed. Resolution options given in Options will override those that appear in the base DNSPolicy."
 																		items: {
-																			description: "PodDNSConfigOption defines DNS resolver options of a pod."
 																			properties: {
-																				name: {
-																					description: "Required."
-																					type:        "string"
-																				}
+																				name: type:  "string"
 																				value: type: "string"
 																			}
 																			type: "object"
 																		}
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																	searches: {
-																		description: "A list of DNS search domains for host-name lookup. This will be appended to the base search paths generated from DNSPolicy. Duplicated search paths will be removed."
 																		items: type: "string"
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																}
 																type: "object"
 															}
-															dnsPolicy: {
-																description: "DNSPolicy defines how a pod's DNS will be configured."
-																type:        "string"
-															}
-															enableServiceLinks: {
-																description: "EnableServiceLinks indicates whether information about services should be injected into pod's environment variables, matching the syntax of Docker links. Optional: Defaults to true."
-																type:        "boolean"
-															}
+															dnsPolicy: type:          "string"
+															enableServiceLinks: type: "boolean"
 															ephemeralContainers: {
 																items: {
-																	description: """
-		An EphemeralContainer is a temporary container that you may add to an existing Pod for user-initiated activities such as debugging. Ephemeral containers have no resource or scheduling guarantees, and they will not be restarted when they exit or when a Pod is removed or restarted. The kubelet may evict a Pod if an ephemeral container causes the Pod to exceed its resource allocation.
-		 To add an ephemeral container, use the ephemeralcontainers subresource of an existing Pod. Ephemeral containers may not be removed or restarted.
-		"""
 																	properties: {
 																		args: {
-																			description: "Arguments to the entrypoint. The image's CMD is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. \"$$(VAR_NAME)\" will produce the string literal \"$(VAR_NAME)\". Escaped references will never be expanded, regardless of whether the variable exists or not. Cannot be updated. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell"
 																			items: type: "string"
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		command: {
-																			description: "Entrypoint array. Not executed within a shell. The image's ENTRYPOINT is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. \"$$(VAR_NAME)\" will produce the string literal \"$(VAR_NAME)\". Escaped references will never be expanded, regardless of whether the variable exists or not. Cannot be updated. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell"
 																			items: type: "string"
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		env: {
-																			description: "List of environment variables to set in the container. Cannot be updated."
 																			items: {
-																				description: "EnvVar represents an environment variable present in a Container."
 																				properties: {
-																					name: {
-																						description: "Name of the environment variable. Must be a C_IDENTIFIER."
-																						type:        "string"
-																					}
-																					value: {
-																						description: "Variable references $(VAR_NAME) are expanded using the previously defined environment variables in the container and any service environment variables. If a variable cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. \"$$(VAR_NAME)\" will produce the string literal \"$(VAR_NAME)\". Escaped references will never be expanded, regardless of whether the variable exists or not. Defaults to \"\"."
-																						type:        "string"
-																					}
+																					name: type:  "string"
+																					value: type: "string"
 																					valueFrom: {
-																						description: "Source for the environment variable's value. Cannot be used if value is not empty."
 																						properties: {
 																							configMapKeyRef: {
-																								description: "Selects a key of a ConfigMap."
 																								properties: {
-																									key: {
-																										description: "The key to select."
-																										type:        "string"
-																									}
+																									key: type: "string"
 																									name: {
-																										description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																										type:        "string"
+																										default: ""
+																										type:    "string"
 																									}
-																									optional: {
-																										description: "Specify whether the ConfigMap or its key must be defined"
-																										type:        "boolean"
-																									}
+																									optional: type: "boolean"
 																								}
 																								required: ["key"]
 																								type:                    "object"
 																								"x-kubernetes-map-type": "atomic"
 																							}
 																							fieldRef: {
-																								description: "Selects a field of the pod: supports metadata.name, metadata.namespace, `metadata.labels['<KEY>']`, `metadata.annotations['<KEY>']`, spec.nodeName, spec.serviceAccountName, status.hostIP, status.podIP, status.podIPs."
 																								properties: {
-																									apiVersion: {
-																										description: "Version of the schema the FieldPath is written in terms of, defaults to \"v1\"."
-																										type:        "string"
-																									}
-																									fieldPath: {
-																										description: "Path of the field to select in the specified API version."
-																										type:        "string"
-																									}
+																									apiVersion: type: "string"
+																									fieldPath: type:  "string"
 																								}
 																								required: ["fieldPath"]
 																								type:                    "object"
 																								"x-kubernetes-map-type": "atomic"
 																							}
-																							resourceFieldRef: {
-																								description: "Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, limits.ephemeral-storage, requests.cpu, requests.memory and requests.ephemeral-storage) are currently supported."
+																							fileKeyRef: {
 																								properties: {
-																									containerName: {
-																										description: "Container name: required for volumes, optional for env vars"
-																										type:        "string"
+																									key: type: "string"
+																									optional: {
+																										default: false
+																										type:    "boolean"
 																									}
+																									path: type:       "string"
+																									volumeName: type: "string"
+																								}
+																								required: ["key", "path", "volumeName"]
+																								type:                    "object"
+																								"x-kubernetes-map-type": "atomic"
+																							}
+																							resourceFieldRef: {
+																								properties: {
+																									containerName: type: "string"
 																									divisor: {
 																										anyOf: [{
 																											type: "integer"
 																										}, {
 																											type: "string"
 																										}]
-																										description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
 																										pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																										"x-kubernetes-int-or-string": true
 																									}
-																									resource: {
-																										description: "Required: resource to select"
-																										type:        "string"
-																									}
+																									resource: type: "string"
 																								}
 																								required: ["resource"]
 																								type:                    "object"
 																								"x-kubernetes-map-type": "atomic"
 																							}
 																							secretKeyRef: {
-																								description: "Selects a key of a secret in the pod's namespace"
 																								properties: {
-																									key: {
-																										description: "The key of the secret to select from.  Must be a valid secret key."
-																										type:        "string"
-																									}
+																									key: type: "string"
 																									name: {
-																										description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																										type:        "string"
+																										default: ""
+																										type:    "string"
 																									}
-																									optional: {
-																										description: "Specify whether the Secret or its key must be defined"
-																										type:        "boolean"
-																									}
+																									optional: type: "boolean"
 																								}
 																								required: ["key"]
 																								type:                    "object"
@@ -3074,42 +5807,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type: "object"
 																			}
 																			type: "array"
+																			"x-kubernetes-list-map-keys": ["name"]
+																			"x-kubernetes-list-type": "map"
 																		}
 																		envFrom: {
-																			description: "List of sources to populate environment variables in the container. The keys defined within a source must be a C_IDENTIFIER. All invalid keys will be reported as an event when the container is starting. When a key exists in multiple sources, the value associated with the last source will take precedence. Values defined by an Env with a duplicate key will take precedence. Cannot be updated."
 																			items: {
-																				description: "EnvFromSource represents the source of a set of ConfigMaps"
 																				properties: {
 																					configMapRef: {
-																						description: "The ConfigMap to select from"
 																						properties: {
 																							name: {
-																								description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																								type:        "string"
+																								default: ""
+																								type:    "string"
 																							}
-																							optional: {
-																								description: "Specify whether the ConfigMap must be defined"
-																								type:        "boolean"
-																							}
+																							optional: type: "boolean"
 																						}
 																						type:                    "object"
 																						"x-kubernetes-map-type": "atomic"
 																					}
-																					prefix: {
-																						description: "An optional identifier to prepend to each key in the ConfigMap. Must be a C_IDENTIFIER."
-																						type:        "string"
-																					}
+																					prefix: type: "string"
 																					secretRef: {
-																						description: "The Secret to select from"
 																						properties: {
 																							name: {
-																								description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																								type:        "string"
+																								default: ""
+																								type:    "string"
 																							}
-																							optional: {
-																								description: "Specify whether the Secret must be defined"
-																								type:        "boolean"
-																							}
+																							optional: type: "boolean"
 																						}
 																						type:                    "object"
 																						"x-kubernetes-map-type": "atomic"
@@ -3117,105 +5839,69 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				}
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
-																		image: {
-																			description: "Container image name. More info: https://kubernetes.io/docs/concepts/containers/images"
-																			type:        "string"
-																		}
-																		imagePullPolicy: {
-																			description: "Image pull policy. One of Always, Never, IfNotPresent. Defaults to Always if :latest tag is specified, or IfNotPresent otherwise. Cannot be updated. More info: https://kubernetes.io/docs/concepts/containers/images#updating-images"
-																			type:        "string"
-																		}
+																		image: type:           "string"
+																		imagePullPolicy: type: "string"
 																		lifecycle: {
-																			description: "Lifecycle is not allowed for ephemeral containers."
 																			properties: {
 																				postStart: {
-																					description: "PostStart is called immediately after a container is created. If the handler fails, the container is terminated and restarted according to its restart policy. Other management of the container blocks until the hook completes. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks"
 																					properties: {
 																						exec: {
-																							description: "Exec specifies the action to take."
 																							properties: command: {
-																								description: "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																							type: "object"
 																						}
 																						httpGet: {
-																							description: "HTTPGet specifies the http request to perform."
 																							properties: {
-																								host: {
-																									description: "Host name to connect to, defaults to the pod IP. You probably want to set \"Host\" in httpHeaders instead."
-																									type:        "string"
-																								}
+																								host: type: "string"
 																								httpHeaders: {
-																									description: "Custom headers to set in the request. HTTP allows repeated headers."
 																									items: {
-																										description: "HTTPHeader describes a custom header to be used in HTTP probes"
 																										properties: {
-																											name: {
-																												description: "The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header."
-																												type:        "string"
-																											}
-																											value: {
-																												description: "The header field value"
-																												type:        "string"
-																											}
+																											name: type:  "string"
+																											value: type: "string"
 																										}
-																										required: [
-																											"name",
-																											"value",
-																										]
+																										required: ["name", "value"]
 																										type: "object"
 																									}
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
-																								path: {
-																									description: "Path to access on the HTTP server."
-																									type:        "string"
-																								}
+																								path: type: "string"
 																								port: {
 																									anyOf: [{
 																										type: "integer"
 																									}, {
 																										type: "string"
 																									}]
-																									description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																									"x-kubernetes-int-or-string": true
 																								}
-																								scheme: {
-																									description: "Scheme to use for connecting to the host. Defaults to HTTP."
-																									type:        "string"
-																								}
+																								scheme: type: "string"
 																							}
 																							required: ["port"]
 																							type: "object"
 																						}
 																						sleep: {
-																							description: "Sleep represents the duration that the container should sleep before being terminated."
 																							properties: seconds: {
-																								description: "Seconds is the number of seconds to sleep."
-																								format:      "int64"
-																								type:        "integer"
+																								format: "int64"
+																								type:   "integer"
 																							}
 																							required: ["seconds"]
 																							type: "object"
 																						}
 																						tcpSocket: {
-																							description: "Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept for the backward compatibility. There are no validation of this field and lifecycle hooks will fail in runtime when tcp handler is specified."
 																							properties: {
-																								host: {
-																									description: "Optional: Host name to connect to, defaults to the pod IP."
-																									type:        "string"
-																								}
+																								host: type: "string"
 																								port: {
 																									anyOf: [{
 																										type: "integer"
 																									}, {
 																										type: "string"
 																									}]
-																									description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																									"x-kubernetes-int-or-string": true
 																								}
 																							}
@@ -3226,91 +5912,61 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type: "object"
 																				}
 																				preStop: {
-																					description: "PreStop is called immediately before a container is terminated due to an API request or management event such as liveness/startup probe failure, preemption, resource contention, etc. The handler is not called if the container crashes or exits. The Pod's termination grace period countdown begins before the PreStop hook is executed. Regardless of the outcome of the handler, the container will eventually terminate within the Pod's termination grace period (unless delayed by finalizers). Other management of the container blocks until the hook completes or until the termination grace period is reached. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks"
 																					properties: {
 																						exec: {
-																							description: "Exec specifies the action to take."
 																							properties: command: {
-																								description: "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																							type: "object"
 																						}
 																						httpGet: {
-																							description: "HTTPGet specifies the http request to perform."
 																							properties: {
-																								host: {
-																									description: "Host name to connect to, defaults to the pod IP. You probably want to set \"Host\" in httpHeaders instead."
-																									type:        "string"
-																								}
+																								host: type: "string"
 																								httpHeaders: {
-																									description: "Custom headers to set in the request. HTTP allows repeated headers."
 																									items: {
-																										description: "HTTPHeader describes a custom header to be used in HTTP probes"
 																										properties: {
-																											name: {
-																												description: "The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header."
-																												type:        "string"
-																											}
-																											value: {
-																												description: "The header field value"
-																												type:        "string"
-																											}
+																											name: type:  "string"
+																											value: type: "string"
 																										}
-																										required: [
-																											"name",
-																											"value",
-																										]
+																										required: ["name", "value"]
 																										type: "object"
 																									}
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
-																								path: {
-																									description: "Path to access on the HTTP server."
-																									type:        "string"
-																								}
+																								path: type: "string"
 																								port: {
 																									anyOf: [{
 																										type: "integer"
 																									}, {
 																										type: "string"
 																									}]
-																									description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																									"x-kubernetes-int-or-string": true
 																								}
-																								scheme: {
-																									description: "Scheme to use for connecting to the host. Defaults to HTTP."
-																									type:        "string"
-																								}
+																								scheme: type: "string"
 																							}
 																							required: ["port"]
 																							type: "object"
 																						}
 																						sleep: {
-																							description: "Sleep represents the duration that the container should sleep before being terminated."
 																							properties: seconds: {
-																								description: "Seconds is the number of seconds to sleep."
-																								format:      "int64"
-																								type:        "integer"
+																								format: "int64"
+																								type:   "integer"
 																							}
 																							required: ["seconds"]
 																							type: "object"
 																						}
 																						tcpSocket: {
-																							description: "Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept for the backward compatibility. There are no validation of this field and lifecycle hooks will fail in runtime when tcp handler is specified."
 																							properties: {
-																								host: {
-																									description: "Optional: Host name to connect to, defaults to the pod IP."
-																									type:        "string"
-																								}
+																								host: type: "string"
 																								port: {
 																									anyOf: [{
 																										type: "integer"
 																									}, {
 																										type: "string"
 																									}]
-																									description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																									"x-kubernetes-int-or-string": true
 																								}
 																							}
@@ -3320,124 +5976,88 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					}
 																					type: "object"
 																				}
+																				stopSignal: type: "string"
 																			}
 																			type: "object"
 																		}
 																		livenessProbe: {
-																			description: "Probes are not allowed for ephemeral containers."
 																			properties: {
 																				exec: {
-																					description: "Exec specifies the action to take."
 																					properties: command: {
-																						description: "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					type: "object"
 																				}
 																				failureThreshold: {
-																					description: "Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				grpc: {
-																					description: "GRPC specifies an action involving a GRPC port."
 																					properties: {
 																						port: {
-																							description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
-																							format:      "int32"
-																							type:        "integer"
+																							format: "int32"
+																							type:   "integer"
 																						}
 																						service: {
-																							description: """
-		Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
-		 If this is not specified, the default behavior is defined by gRPC.
-		"""
-																							type: "string"
+																							default: ""
+																							type:    "string"
 																						}
 																					}
 																					required: ["port"]
 																					type: "object"
 																				}
 																				httpGet: {
-																					description: "HTTPGet specifies the http request to perform."
 																					properties: {
-																						host: {
-																							description: "Host name to connect to, defaults to the pod IP. You probably want to set \"Host\" in httpHeaders instead."
-																							type:        "string"
-																						}
+																						host: type: "string"
 																						httpHeaders: {
-																							description: "Custom headers to set in the request. HTTP allows repeated headers."
 																							items: {
-																								description: "HTTPHeader describes a custom header to be used in HTTP probes"
 																								properties: {
-																									name: {
-																										description: "The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header."
-																										type:        "string"
-																									}
-																									value: {
-																										description: "The header field value"
-																										type:        "string"
-																									}
+																									name: type:  "string"
+																									value: type: "string"
 																								}
-																								required: [
-																									"name",
-																									"value",
-																								]
+																								required: ["name", "value"]
 																								type: "object"
 																							}
-																							type: "array"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
-																						path: {
-																							description: "Path to access on the HTTP server."
-																							type:        "string"
-																						}
+																						path: type: "string"
 																						port: {
 																							anyOf: [{
 																								type: "integer"
 																							}, {
 																								type: "string"
 																							}]
-																							description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																							"x-kubernetes-int-or-string": true
 																						}
-																						scheme: {
-																							description: "Scheme to use for connecting to the host. Defaults to HTTP."
-																							type:        "string"
-																						}
+																						scheme: type: "string"
 																					}
 																					required: ["port"]
 																					type: "object"
 																				}
 																				initialDelaySeconds: {
-																					description: "Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				periodSeconds: {
-																					description: "How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				successThreshold: {
-																					description: "Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				tcpSocket: {
-																					description: "TCPSocket specifies an action involving a TCP port."
 																					properties: {
-																						host: {
-																							description: "Optional: Host name to connect to, defaults to the pod IP."
-																							type:        "string"
-																						}
+																						host: type: "string"
 																						port: {
 																							anyOf: [{
 																								type: "integer"
 																							}, {
 																								type: "string"
 																							}]
-																							description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																							"x-kubernetes-int-or-string": true
 																						}
 																					}
@@ -3445,176 +6065,120 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type: "object"
 																				}
 																				terminationGracePeriodSeconds: {
-																					description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset."
-																					format:      "int64"
-																					type:        "integer"
+																					format: "int64"
+																					type:   "integer"
 																				}
 																				timeoutSeconds: {
-																					description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																			}
 																			type: "object"
 																		}
-																		name: {
-																			description: "Name of the ephemeral container specified as a DNS_LABEL. This name must be unique among all containers, init containers and ephemeral containers."
-																			type:        "string"
-																		}
+																		name: type: "string"
 																		ports: {
-																			description: "Ports are not allowed for ephemeral containers."
 																			items: {
-																				description: "ContainerPort represents a network port in a single container."
 																				properties: {
 																					containerPort: {
-																						description: "Number of port to expose on the pod's IP address. This must be a valid port number, 0 < x < 65536."
-																						format:      "int32"
-																						type:        "integer"
+																						format: "int32"
+																						type:   "integer"
 																					}
-																					hostIP: {
-																						description: "What host IP to bind the external port to."
-																						type:        "string"
-																					}
+																					hostIP: type: "string"
 																					hostPort: {
-																						description: "Number of port to expose on the host. If specified, this must be a valid port number, 0 < x < 65536. If HostNetwork is specified, this must match ContainerPort. Most containers do not need this."
-																						format:      "int32"
-																						type:        "integer"
+																						format: "int32"
+																						type:   "integer"
 																					}
-																					name: {
-																						description: "If specified, this must be an IANA_SVC_NAME and unique within the pod. Each named port in a pod must have a unique name. Name for the port that can be referred to by services."
-																						type:        "string"
-																					}
+																					name: type: "string"
 																					protocol: {
-																						default:     "TCP"
-																						description: "Protocol for port. Must be UDP, TCP, or SCTP. Defaults to \"TCP\"."
-																						type:        "string"
+																						default: "TCP"
+																						type:    "string"
 																					}
 																				}
 																				required: ["containerPort"]
 																				type: "object"
 																			}
 																			type: "array"
-																			"x-kubernetes-list-map-keys": [
-																				"containerPort",
-																				"protocol",
-																			]
+																			"x-kubernetes-list-map-keys": ["containerPort", "protocol"]
 																			"x-kubernetes-list-type": "map"
 																		}
 																		readinessProbe: {
-																			description: "Probes are not allowed for ephemeral containers."
 																			properties: {
 																				exec: {
-																					description: "Exec specifies the action to take."
 																					properties: command: {
-																						description: "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					type: "object"
 																				}
 																				failureThreshold: {
-																					description: "Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				grpc: {
-																					description: "GRPC specifies an action involving a GRPC port."
 																					properties: {
 																						port: {
-																							description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
-																							format:      "int32"
-																							type:        "integer"
+																							format: "int32"
+																							type:   "integer"
 																						}
 																						service: {
-																							description: """
-		Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
-		 If this is not specified, the default behavior is defined by gRPC.
-		"""
-																							type: "string"
+																							default: ""
+																							type:    "string"
 																						}
 																					}
 																					required: ["port"]
 																					type: "object"
 																				}
 																				httpGet: {
-																					description: "HTTPGet specifies the http request to perform."
 																					properties: {
-																						host: {
-																							description: "Host name to connect to, defaults to the pod IP. You probably want to set \"Host\" in httpHeaders instead."
-																							type:        "string"
-																						}
+																						host: type: "string"
 																						httpHeaders: {
-																							description: "Custom headers to set in the request. HTTP allows repeated headers."
 																							items: {
-																								description: "HTTPHeader describes a custom header to be used in HTTP probes"
 																								properties: {
-																									name: {
-																										description: "The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header."
-																										type:        "string"
-																									}
-																									value: {
-																										description: "The header field value"
-																										type:        "string"
-																									}
+																									name: type:  "string"
+																									value: type: "string"
 																								}
-																								required: [
-																									"name",
-																									"value",
-																								]
+																								required: ["name", "value"]
 																								type: "object"
 																							}
-																							type: "array"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
-																						path: {
-																							description: "Path to access on the HTTP server."
-																							type:        "string"
-																						}
+																						path: type: "string"
 																						port: {
 																							anyOf: [{
 																								type: "integer"
 																							}, {
 																								type: "string"
 																							}]
-																							description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																							"x-kubernetes-int-or-string": true
 																						}
-																						scheme: {
-																							description: "Scheme to use for connecting to the host. Defaults to HTTP."
-																							type:        "string"
-																						}
+																						scheme: type: "string"
 																					}
 																					required: ["port"]
 																					type: "object"
 																				}
 																				initialDelaySeconds: {
-																					description: "Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				periodSeconds: {
-																					description: "How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				successThreshold: {
-																					description: "Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				tcpSocket: {
-																					description: "TCPSocket specifies an action involving a TCP port."
 																					properties: {
-																						host: {
-																							description: "Optional: Host name to connect to, defaults to the pod IP."
-																							type:        "string"
-																						}
+																						host: type: "string"
 																						port: {
 																							anyOf: [{
 																								type: "integer"
 																							}, {
 																								type: "string"
 																							}]
-																							description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																							"x-kubernetes-int-or-string": true
 																						}
 																					}
@@ -3622,55 +6186,35 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type: "object"
 																				}
 																				terminationGracePeriodSeconds: {
-																					description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset."
-																					format:      "int64"
-																					type:        "integer"
+																					format: "int64"
+																					type:   "integer"
 																				}
 																				timeoutSeconds: {
-																					description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																			}
 																			type: "object"
 																		}
 																		resizePolicy: {
-																			description: "Resources resize policy for the container."
 																			items: {
-																				description: "ContainerResizePolicy represents resource resize policy for the container."
 																				properties: {
-																					resourceName: {
-																						description: "Name of the resource to which this resource resize policy applies. Supported values: cpu, memory."
-																						type:        "string"
-																					}
-																					restartPolicy: {
-																						description: "Restart policy to apply when specified resource is resized. If not specified, it defaults to NotRequired."
-																						type:        "string"
-																					}
+																					resourceName: type:  "string"
+																					restartPolicy: type: "string"
 																				}
-																				required: [
-																					"resourceName",
-																					"restartPolicy",
-																				]
+																				required: ["resourceName", "restartPolicy"]
 																				type: "object"
 																			}
 																			type:                     "array"
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																		resources: {
-																			description: "Resources are not allowed for ephemeral containers. Ephemeral containers use spare resources already allocated to the pod."
 																			properties: {
 																				claims: {
-																					description: """
-		Claims lists the names of resources, defined in spec.resourceClaims, that are used by this container.
-		 This is an alpha field and requires enabling the DynamicResourceAllocation feature gate.
-		 This field is immutable. It can only be set for containers.
-		"""
 																					items: {
-																						description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
-																						properties: name: {
-																							description: "Name must match the name of one entry in pod.spec.resourceClaims of the Pod where this field is used. It makes that resource available inside a container."
-																							type:        "string"
+																						properties: {
+																							name: type:    "string"
+																							request: type: "string"
 																						}
 																						required: ["name"]
 																						type: "object"
@@ -3689,8 +6233,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																						"x-kubernetes-int-or-string": true
 																					}
-																					description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
-																					type:        "object"
+																					type: "object"
 																				}
 																				requests: {
 																					additionalProperties: {
@@ -3702,130 +6245,99 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																						"x-kubernetes-int-or-string": true
 																					}
-																					description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. Requests cannot exceed Limits. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
-																					type:        "object"
+																					type: "object"
 																				}
 																			}
 																			type: "object"
 																		}
-																		restartPolicy: {
-																			description: "Restart policy for the container to manage the restart behavior of each container within a pod. This may only be set for init containers. You cannot set this field on ephemeral containers."
-																			type:        "string"
+																		restartPolicy: type: "string"
+																		restartPolicyRules: {
+																			items: {
+																				properties: {
+																					action: type: "string"
+																					exitCodes: {
+																						properties: {
+																							operator: type: "string"
+																							values: {
+																								items: {
+																									format: "int32"
+																									type:   "integer"
+																								}
+																								type:                     "array"
+																								"x-kubernetes-list-type": "set"
+																							}
+																						}
+																						required: ["operator"]
+																						type: "object"
+																					}
+																				}
+																				required: ["action"]
+																				type: "object"
+																			}
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		securityContext: {
-																			description: "Optional: SecurityContext defines the security options the ephemeral container should be run with. If set, the fields of SecurityContext override the equivalent fields of PodSecurityContext."
 																			properties: {
-																				allowPrivilegeEscalation: {
-																					description: "AllowPrivilegeEscalation controls whether a process can gain more privileges than its parent process. This bool directly controls if the no_new_privs flag will be set on the container process. AllowPrivilegeEscalation is true always when the container is: 1) run as Privileged 2) has CAP_SYS_ADMIN Note that this field cannot be set when spec.os.name is windows."
-																					type:        "boolean"
+																				allowPrivilegeEscalation: type: "boolean"
+																				appArmorProfile: {
+																					properties: {
+																						localhostProfile: type: "string"
+																						type: type:             "string"
+																					}
+																					required: ["type"]
+																					type: "object"
 																				}
 																				capabilities: {
-																					description: "The capabilities to add/drop when running containers. Defaults to the default set of capabilities granted by the container runtime. Note that this field cannot be set when spec.os.name is windows."
 																					properties: {
 																						add: {
-																							description: "Added capabilities"
-																							items: {
-																								description: "Capability represent POSIX capabilities type"
-																								type:        "string"
-																							}
-																							type: "array"
+																							items: type: "string"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
 																						drop: {
-																							description: "Removed capabilities"
-																							items: {
-																								description: "Capability represent POSIX capabilities type"
-																								type:        "string"
-																							}
-																							type: "array"
+																							items: type: "string"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
 																					}
 																					type: "object"
 																				}
-																				privileged: {
-																					description: "Run container in privileged mode. Processes in privileged containers are essentially equivalent to root on the host. Defaults to false. Note that this field cannot be set when spec.os.name is windows."
-																					type:        "boolean"
-																				}
-																				procMount: {
-																					description: "procMount denotes the type of proc mount to use for the containers. The default is DefaultProcMount which uses the container runtime defaults for readonly paths and masked paths. This requires the ProcMountType feature flag to be enabled. Note that this field cannot be set when spec.os.name is windows."
-																					type:        "string"
-																				}
-																				readOnlyRootFilesystem: {
-																					description: "Whether this container has a read-only root filesystem. Default is false. Note that this field cannot be set when spec.os.name is windows."
-																					type:        "boolean"
-																				}
+																				privileged: type:             "boolean"
+																				procMount: type:              "string"
+																				readOnlyRootFilesystem: type: "boolean"
 																				runAsGroup: {
-																					description: "The GID to run the entrypoint of the container process. Uses runtime default if unset. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is windows."
-																					format:      "int64"
-																					type:        "integer"
+																					format: "int64"
+																					type:   "integer"
 																				}
-																				runAsNonRoot: {
-																					description: "Indicates that the container must run as a non-root user. If true, the Kubelet will validate the image at runtime to ensure that it does not run as UID 0 (root) and fail to start the container if it does. If unset or false, no such validation will be performed. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence."
-																					type:        "boolean"
-																				}
+																				runAsNonRoot: type: "boolean"
 																				runAsUser: {
-																					description: "The UID to run the entrypoint of the container process. Defaults to user specified in image metadata if unspecified. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is windows."
-																					format:      "int64"
-																					type:        "integer"
+																					format: "int64"
+																					type:   "integer"
 																				}
 																				seLinuxOptions: {
-																					description: "The SELinux context to be applied to the container. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is windows."
 																					properties: {
-																						level: {
-																							description: "Level is SELinux level label that applies to the container."
-																							type:        "string"
-																						}
-																						role: {
-																							description: "Role is a SELinux role label that applies to the container."
-																							type:        "string"
-																						}
-																						type: {
-																							description: "Type is a SELinux type label that applies to the container."
-																							type:        "string"
-																						}
-																						user: {
-																							description: "User is a SELinux user label that applies to the container."
-																							type:        "string"
-																						}
+																						level: type: "string"
+																						role: type:  "string"
+																						type: type:  "string"
+																						user: type:  "string"
 																					}
 																					type: "object"
 																				}
 																				seccompProfile: {
-																					description: "The seccomp options to use by this container. If seccomp options are provided at both the pod & container level, the container options override the pod options. Note that this field cannot be set when spec.os.name is windows."
 																					properties: {
-																						localhostProfile: {
-																							description: "localhostProfile indicates a profile defined in a file on the node should be used. The profile must be preconfigured on the node to work. Must be a descending path, relative to the kubelet's configured seccomp profile location. Must be set if type is \"Localhost\". Must NOT be set for any other type."
-																							type:        "string"
-																						}
-																						type: {
-																							description: """
-		type indicates which kind of seccomp profile will be applied. Valid options are:
-		 Localhost - a profile defined in a file on the node should be used. RuntimeDefault - the container runtime default profile should be used. Unconfined - no profile should be applied.
-		"""
-																							type: "string"
-																						}
+																						localhostProfile: type: "string"
+																						type: type:             "string"
 																					}
 																					required: ["type"]
 																					type: "object"
 																				}
 																				windowsOptions: {
-																					description: "The Windows specific settings applied to all containers. If unspecified, the options from the PodSecurityContext will be used. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is linux."
 																					properties: {
-																						gmsaCredentialSpec: {
-																							description: "GMSACredentialSpec is where the GMSA admission webhook (https://github.com/kubernetes-sigs/windows-gmsa) inlines the contents of the GMSA credential spec named by the GMSACredentialSpecName field."
-																							type:        "string"
-																						}
-																						gmsaCredentialSpecName: {
-																							description: "GMSACredentialSpecName is the name of the GMSA credential spec to use."
-																							type:        "string"
-																						}
-																						hostProcess: {
-																							description: "HostProcess determines if a container should be run as a 'Host Process' container. All of a Pod's containers must have the same effective HostProcess value (it is not allowed to have a mix of HostProcess containers and non-HostProcess containers). In addition, if HostProcess is true then HostNetwork must also be set to true."
-																							type:        "boolean"
-																						}
-																						runAsUserName: {
-																							description: "The UserName in Windows to run the entrypoint of the container process. Defaults to the user specified in image metadata if unspecified. May also be set in PodSecurityContext. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence."
-																							type:        "string"
-																						}
+																						gmsaCredentialSpec: type:     "string"
+																						gmsaCredentialSpecName: type: "string"
+																						hostProcess: type:            "boolean"
+																						runAsUserName: type:          "string"
 																					}
 																					type: "object"
 																				}
@@ -3833,120 +6345,83 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			type: "object"
 																		}
 																		startupProbe: {
-																			description: "Probes are not allowed for ephemeral containers."
 																			properties: {
 																				exec: {
-																					description: "Exec specifies the action to take."
 																					properties: command: {
-																						description: "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					type: "object"
 																				}
 																				failureThreshold: {
-																					description: "Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				grpc: {
-																					description: "GRPC specifies an action involving a GRPC port."
 																					properties: {
 																						port: {
-																							description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
-																							format:      "int32"
-																							type:        "integer"
+																							format: "int32"
+																							type:   "integer"
 																						}
 																						service: {
-																							description: """
-		Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
-		 If this is not specified, the default behavior is defined by gRPC.
-		"""
-																							type: "string"
+																							default: ""
+																							type:    "string"
 																						}
 																					}
 																					required: ["port"]
 																					type: "object"
 																				}
 																				httpGet: {
-																					description: "HTTPGet specifies the http request to perform."
 																					properties: {
-																						host: {
-																							description: "Host name to connect to, defaults to the pod IP. You probably want to set \"Host\" in httpHeaders instead."
-																							type:        "string"
-																						}
+																						host: type: "string"
 																						httpHeaders: {
-																							description: "Custom headers to set in the request. HTTP allows repeated headers."
 																							items: {
-																								description: "HTTPHeader describes a custom header to be used in HTTP probes"
 																								properties: {
-																									name: {
-																										description: "The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header."
-																										type:        "string"
-																									}
-																									value: {
-																										description: "The header field value"
-																										type:        "string"
-																									}
+																									name: type:  "string"
+																									value: type: "string"
 																								}
-																								required: [
-																									"name",
-																									"value",
-																								]
+																								required: ["name", "value"]
 																								type: "object"
 																							}
-																							type: "array"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
-																						path: {
-																							description: "Path to access on the HTTP server."
-																							type:        "string"
-																						}
+																						path: type: "string"
 																						port: {
 																							anyOf: [{
 																								type: "integer"
 																							}, {
 																								type: "string"
 																							}]
-																							description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																							"x-kubernetes-int-or-string": true
 																						}
-																						scheme: {
-																							description: "Scheme to use for connecting to the host. Defaults to HTTP."
-																							type:        "string"
-																						}
+																						scheme: type: "string"
 																					}
 																					required: ["port"]
 																					type: "object"
 																				}
 																				initialDelaySeconds: {
-																					description: "Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				periodSeconds: {
-																					description: "How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				successThreshold: {
-																					description: "Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				tcpSocket: {
-																					description: "TCPSocket specifies an action involving a TCP port."
 																					properties: {
-																						host: {
-																							description: "Optional: Host name to connect to, defaults to the pod IP."
-																							type:        "string"
-																						}
+																						host: type: "string"
 																						port: {
 																							anyOf: [{
 																								type: "integer"
 																							}, {
 																								type: "string"
 																							}]
-																							description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																							"x-kubernetes-int-or-string": true
 																						}
 																					}
@@ -3954,109 +6429,54 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type: "object"
 																				}
 																				terminationGracePeriodSeconds: {
-																					description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset."
-																					format:      "int64"
-																					type:        "integer"
+																					format: "int64"
+																					type:   "integer"
 																				}
 																				timeoutSeconds: {
-																					description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																			}
 																			type: "object"
 																		}
-																		stdin: {
-																			description: "Whether this container should allocate a buffer for stdin in the container runtime. If this is not set, reads from stdin in the container will always result in EOF. Default is false."
-																			type:        "boolean"
-																		}
-																		stdinOnce: {
-																			description: "Whether the container runtime should close the stdin channel after it has been opened by a single attach. When stdin is true the stdin stream will remain open across multiple attach sessions. If stdinOnce is set to true, stdin is opened on container start, is empty until the first client attaches to stdin, and then remains open and accepts data until the client disconnects, at which time stdin is closed and remains closed until the container is restarted. If this flag is false, a container processes that reads from stdin will never receive an EOF. Default is false"
-																			type:        "boolean"
-																		}
-																		targetContainerName: {
-																			description: """
-		If set, the name of the container from PodSpec that this ephemeral container targets. The ephemeral container will be run in the namespaces (IPC, PID, etc) of this container. If not set then the ephemeral container uses the namespaces configured in the Pod spec.
-		 The container runtime must implement support for this feature. If the runtime does not support namespace targeting then the result of setting this field is undefined.
-		"""
-																			type: "string"
-																		}
-																		terminationMessagePath: {
-																			description: "Optional: Path at which the file to which the container's termination message will be written is mounted into the container's filesystem. Message written is intended to be brief final status, such as an assertion failure message. Will be truncated by the node if greater than 4096 bytes. The total message length across all containers will be limited to 12kb. Defaults to /dev/termination-log. Cannot be updated."
-																			type:        "string"
-																		}
-																		terminationMessagePolicy: {
-																			description: "Indicate how the termination message should be populated. File will use the contents of terminationMessagePath to populate the container status message on both success and failure. FallbackToLogsOnError will use the last chunk of container log output if the termination message file is empty and the container exited with an error. The log output is limited to 2048 bytes or 80 lines, whichever is smaller. Defaults to File. Cannot be updated."
-																			type:        "string"
-																		}
-																		tty: {
-																			description: "Whether this container should allocate a TTY for itself, also requires 'stdin' to be true. Default is false."
-																			type:        "boolean"
-																		}
+																		stdin: type:                    "boolean"
+																		stdinOnce: type:                "boolean"
+																		targetContainerName: type:      "string"
+																		terminationMessagePath: type:   "string"
+																		terminationMessagePolicy: type: "string"
+																		tty: type:                      "boolean"
 																		volumeDevices: {
-																			description: "volumeDevices is the list of block devices to be used by the container."
 																			items: {
-																				description: "volumeDevice describes a mapping of a raw block device within a container."
 																				properties: {
-																					devicePath: {
-																						description: "devicePath is the path inside of the container that the device will be mapped to."
-																						type:        "string"
-																					}
-																					name: {
-																						description: "name must match the name of a persistentVolumeClaim in the pod"
-																						type:        "string"
-																					}
+																					devicePath: type: "string"
+																					name: type:       "string"
 																				}
-																				required: [
-																					"devicePath",
-																					"name",
-																				]
+																				required: ["devicePath", "name"]
 																				type: "object"
 																			}
 																			type: "array"
+																			"x-kubernetes-list-map-keys": ["devicePath"]
+																			"x-kubernetes-list-type": "map"
 																		}
 																		volumeMounts: {
-																			description: "Pod volumes to mount into the container's filesystem. Subpath mounts are not allowed for ephemeral containers. Cannot be updated."
 																			items: {
-																				description: "VolumeMount describes a mounting of a Volume within a container."
 																				properties: {
-																					mountPath: {
-																						description: "Path within the container at which the volume should be mounted.  Must not contain ':'."
-																						type:        "string"
-																					}
-																					mountPropagation: {
-																						description: "mountPropagation determines how mounts are propagated from the host to container and the other way around. When not set, MountPropagationNone is used. This field is beta in 1.10."
-																						type:        "string"
-																					}
-																					name: {
-																						description: "This must match the Name of a Volume."
-																						type:        "string"
-																					}
-																					readOnly: {
-																						description: "Mounted read-only if true, read-write otherwise (false or unspecified). Defaults to false."
-																						type:        "boolean"
-																					}
-																					subPath: {
-																						description: "Path within the volume from which the container's volume should be mounted. Defaults to \"\" (volume's root)."
-																						type:        "string"
-																					}
-																					subPathExpr: {
-																						description: "Expanded path within the volume from which the container's volume should be mounted. Behaves similarly to SubPath but environment variable references $(VAR_NAME) are expanded using the container's environment. Defaults to \"\" (volume's root). SubPathExpr and SubPath are mutually exclusive."
-																						type:        "string"
-																					}
+																					mountPath: type:         "string"
+																					mountPropagation: type:  "string"
+																					name: type:              "string"
+																					readOnly: type:          "boolean"
+																					recursiveReadOnly: type: "string"
+																					subPath: type:           "string"
+																					subPathExpr: type:       "string"
 																				}
-																				required: [
-																					"mountPath",
-																					"name",
-																				]
+																				required: ["mountPath", "name"]
 																				type: "object"
 																			}
 																			type: "array"
+																			"x-kubernetes-list-map-keys": ["mountPath"]
+																			"x-kubernetes-list-type": "map"
 																		}
-																		workingDir: {
-																			description: "Container's working directory. If not specified, the container runtime's default will be used, which might be configured in the container image. Cannot be updated."
-																			type:        "string"
-																		}
+																		workingDir: type: "string"
 																	}
 																	required: ["name"]
 																	type: "object"
@@ -4064,51 +6484,30 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type: "array"
 															}
 															hostAliases: {
-																description: "HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts file if specified. This is only valid for non-hostNetwork pods."
 																items: {
-																	description: "HostAlias holds the mapping between IP and hostnames that will be injected as an entry in the pod's hosts file."
 																	properties: {
 																		hostnames: {
-																			description: "Hostnames for the above IP address."
 																			items: type: "string"
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
-																		ip: {
-																			description: "IP address of the host file entry."
-																			type:        "string"
-																		}
+																		ip: type: "string"
 																	}
+																	required: ["ip"]
 																	type: "object"
 																}
 																type: "array"
 															}
-															hostIPC: {
-																description: "Use the host's ipc namespace. Optional: Default to false."
-																type:        "boolean"
-															}
-															hostNetwork: {
-																description: "Host networking requested for this pod. Use the host's network namespace. If this option is set, the ports that will be used must be specified. Default to false."
-																type:        "boolean"
-															}
-															hostPID: {
-																description: "Use the host's pid namespace. Optional: Default to false."
-																type:        "boolean"
-															}
-															hostUsers: {
-																description: "Use the host's user namespace. Optional: Default to true. If set to true or not present, the pod will be run in the host user namespace, useful for when the pod needs a feature only available to the host user namespace, such as loading a kernel module with CAP_SYS_MODULE. When set to false, a new userns is created for the pod. Setting false is useful for mitigating container breakout vulnerabilities even allowing users to run their containers as root without actually having root privileges on the host. This field is alpha-level and is only honored by servers that enable the UserNamespacesSupport feature."
-																type:        "boolean"
-															}
-															hostname: {
-																description: "Specifies the hostname of the Pod If not specified, the pod's hostname will be set to a system-defined value."
-																type:        "string"
-															}
+															hostIPC: type:     "boolean"
+															hostNetwork: type: "boolean"
+															hostPID: type:     "boolean"
+															hostUsers: type:   "boolean"
+															hostname: type:    "string"
 															imagePullSecrets: {
-																description: "ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this PodSpec. If specified, these secrets will be passed to individual puller implementations for them to use. More info: https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod"
 																items: {
-																	description: "LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace."
 																	properties: name: {
-																		description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																		type:        "string"
+																		default: ""
+																		type:    "string"
 																	}
 																	type:                    "object"
 																	"x-kubernetes-map-type": "atomic"
@@ -4117,111 +6516,86 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															}
 															initContainers: {
 																items: {
-																	description: "A single application container that you want to run within a pod."
 																	properties: {
 																		args: {
-																			description: "Arguments to the entrypoint. The container image's CMD is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. \"$$(VAR_NAME)\" will produce the string literal \"$(VAR_NAME)\". Escaped references will never be expanded, regardless of whether the variable exists or not. Cannot be updated. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell"
 																			items: type: "string"
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		command: {
-																			description: "Entrypoint array. Not executed within a shell. The container image's ENTRYPOINT is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. \"$$(VAR_NAME)\" will produce the string literal \"$(VAR_NAME)\". Escaped references will never be expanded, regardless of whether the variable exists or not. Cannot be updated. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell"
 																			items: type: "string"
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		env: {
-																			description: "List of environment variables to set in the container. Cannot be updated."
 																			items: {
-																				description: "EnvVar represents an environment variable present in a Container."
 																				properties: {
-																					name: {
-																						description: "Name of the environment variable. Must be a C_IDENTIFIER."
-																						type:        "string"
-																					}
-																					value: {
-																						description: "Variable references $(VAR_NAME) are expanded using the previously defined environment variables in the container and any service environment variables. If a variable cannot be resolved, the reference in the input string will be unchanged. Double $$ are reduced to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e. \"$$(VAR_NAME)\" will produce the string literal \"$(VAR_NAME)\". Escaped references will never be expanded, regardless of whether the variable exists or not. Defaults to \"\"."
-																						type:        "string"
-																					}
+																					name: type:  "string"
+																					value: type: "string"
 																					valueFrom: {
-																						description: "Source for the environment variable's value. Cannot be used if value is not empty."
 																						properties: {
 																							configMapKeyRef: {
-																								description: "Selects a key of a ConfigMap."
 																								properties: {
-																									key: {
-																										description: "The key to select."
-																										type:        "string"
-																									}
+																									key: type: "string"
 																									name: {
-																										description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																										type:        "string"
+																										default: ""
+																										type:    "string"
 																									}
-																									optional: {
-																										description: "Specify whether the ConfigMap or its key must be defined"
-																										type:        "boolean"
-																									}
+																									optional: type: "boolean"
 																								}
 																								required: ["key"]
 																								type:                    "object"
 																								"x-kubernetes-map-type": "atomic"
 																							}
 																							fieldRef: {
-																								description: "Selects a field of the pod: supports metadata.name, metadata.namespace, `metadata.labels['<KEY>']`, `metadata.annotations['<KEY>']`, spec.nodeName, spec.serviceAccountName, status.hostIP, status.podIP, status.podIPs."
 																								properties: {
-																									apiVersion: {
-																										description: "Version of the schema the FieldPath is written in terms of, defaults to \"v1\"."
-																										type:        "string"
-																									}
-																									fieldPath: {
-																										description: "Path of the field to select in the specified API version."
-																										type:        "string"
-																									}
+																									apiVersion: type: "string"
+																									fieldPath: type:  "string"
 																								}
 																								required: ["fieldPath"]
 																								type:                    "object"
 																								"x-kubernetes-map-type": "atomic"
 																							}
-																							resourceFieldRef: {
-																								description: "Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, limits.ephemeral-storage, requests.cpu, requests.memory and requests.ephemeral-storage) are currently supported."
+																							fileKeyRef: {
 																								properties: {
-																									containerName: {
-																										description: "Container name: required for volumes, optional for env vars"
-																										type:        "string"
+																									key: type: "string"
+																									optional: {
+																										default: false
+																										type:    "boolean"
 																									}
+																									path: type:       "string"
+																									volumeName: type: "string"
+																								}
+																								required: ["key", "path", "volumeName"]
+																								type:                    "object"
+																								"x-kubernetes-map-type": "atomic"
+																							}
+																							resourceFieldRef: {
+																								properties: {
+																									containerName: type: "string"
 																									divisor: {
 																										anyOf: [{
 																											type: "integer"
 																										}, {
 																											type: "string"
 																										}]
-																										description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
 																										pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																										"x-kubernetes-int-or-string": true
 																									}
-																									resource: {
-																										description: "Required: resource to select"
-																										type:        "string"
-																									}
+																									resource: type: "string"
 																								}
 																								required: ["resource"]
 																								type:                    "object"
 																								"x-kubernetes-map-type": "atomic"
 																							}
 																							secretKeyRef: {
-																								description: "Selects a key of a secret in the pod's namespace"
 																								properties: {
-																									key: {
-																										description: "The key of the secret to select from.  Must be a valid secret key."
-																										type:        "string"
-																									}
+																									key: type: "string"
 																									name: {
-																										description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																										type:        "string"
+																										default: ""
+																										type:    "string"
 																									}
-																									optional: {
-																										description: "Specify whether the Secret or its key must be defined"
-																										type:        "boolean"
-																									}
+																									optional: type: "boolean"
 																								}
 																								required: ["key"]
 																								type:                    "object"
@@ -4235,42 +6609,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type: "object"
 																			}
 																			type: "array"
+																			"x-kubernetes-list-map-keys": ["name"]
+																			"x-kubernetes-list-type": "map"
 																		}
 																		envFrom: {
-																			description: "List of sources to populate environment variables in the container. The keys defined within a source must be a C_IDENTIFIER. All invalid keys will be reported as an event when the container is starting. When a key exists in multiple sources, the value associated with the last source will take precedence. Values defined by an Env with a duplicate key will take precedence. Cannot be updated."
 																			items: {
-																				description: "EnvFromSource represents the source of a set of ConfigMaps"
 																				properties: {
 																					configMapRef: {
-																						description: "The ConfigMap to select from"
 																						properties: {
 																							name: {
-																								description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																								type:        "string"
+																								default: ""
+																								type:    "string"
 																							}
-																							optional: {
-																								description: "Specify whether the ConfigMap must be defined"
-																								type:        "boolean"
-																							}
+																							optional: type: "boolean"
 																						}
 																						type:                    "object"
 																						"x-kubernetes-map-type": "atomic"
 																					}
-																					prefix: {
-																						description: "An optional identifier to prepend to each key in the ConfigMap. Must be a C_IDENTIFIER."
-																						type:        "string"
-																					}
+																					prefix: type: "string"
 																					secretRef: {
-																						description: "The Secret to select from"
 																						properties: {
 																							name: {
-																								description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																								type:        "string"
+																								default: ""
+																								type:    "string"
 																							}
-																							optional: {
-																								description: "Specify whether the Secret must be defined"
-																								type:        "boolean"
-																							}
+																							optional: type: "boolean"
 																						}
 																						type:                    "object"
 																						"x-kubernetes-map-type": "atomic"
@@ -4278,105 +6641,69 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				}
 																				type: "object"
 																			}
-																			type: "array"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
-																		image: {
-																			description: "Container image name. More info: https://kubernetes.io/docs/concepts/containers/images This field is optional to allow higher level config management to default or override container images in workload controllers like Deployments and StatefulSets."
-																			type:        "string"
-																		}
-																		imagePullPolicy: {
-																			description: "Image pull policy. One of Always, Never, IfNotPresent. Defaults to Always if :latest tag is specified, or IfNotPresent otherwise. Cannot be updated. More info: https://kubernetes.io/docs/concepts/containers/images#updating-images"
-																			type:        "string"
-																		}
+																		image: type:           "string"
+																		imagePullPolicy: type: "string"
 																		lifecycle: {
-																			description: "Actions that the management system should take in response to container lifecycle events. Cannot be updated."
 																			properties: {
 																				postStart: {
-																					description: "PostStart is called immediately after a container is created. If the handler fails, the container is terminated and restarted according to its restart policy. Other management of the container blocks until the hook completes. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks"
 																					properties: {
 																						exec: {
-																							description: "Exec specifies the action to take."
 																							properties: command: {
-																								description: "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																							type: "object"
 																						}
 																						httpGet: {
-																							description: "HTTPGet specifies the http request to perform."
 																							properties: {
-																								host: {
-																									description: "Host name to connect to, defaults to the pod IP. You probably want to set \"Host\" in httpHeaders instead."
-																									type:        "string"
-																								}
+																								host: type: "string"
 																								httpHeaders: {
-																									description: "Custom headers to set in the request. HTTP allows repeated headers."
 																									items: {
-																										description: "HTTPHeader describes a custom header to be used in HTTP probes"
 																										properties: {
-																											name: {
-																												description: "The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header."
-																												type:        "string"
-																											}
-																											value: {
-																												description: "The header field value"
-																												type:        "string"
-																											}
+																											name: type:  "string"
+																											value: type: "string"
 																										}
-																										required: [
-																											"name",
-																											"value",
-																										]
+																										required: ["name", "value"]
 																										type: "object"
 																									}
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
-																								path: {
-																									description: "Path to access on the HTTP server."
-																									type:        "string"
-																								}
+																								path: type: "string"
 																								port: {
 																									anyOf: [{
 																										type: "integer"
 																									}, {
 																										type: "string"
 																									}]
-																									description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																									"x-kubernetes-int-or-string": true
 																								}
-																								scheme: {
-																									description: "Scheme to use for connecting to the host. Defaults to HTTP."
-																									type:        "string"
-																								}
+																								scheme: type: "string"
 																							}
 																							required: ["port"]
 																							type: "object"
 																						}
 																						sleep: {
-																							description: "Sleep represents the duration that the container should sleep before being terminated."
 																							properties: seconds: {
-																								description: "Seconds is the number of seconds to sleep."
-																								format:      "int64"
-																								type:        "integer"
+																								format: "int64"
+																								type:   "integer"
 																							}
 																							required: ["seconds"]
 																							type: "object"
 																						}
 																						tcpSocket: {
-																							description: "Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept for the backward compatibility. There are no validation of this field and lifecycle hooks will fail in runtime when tcp handler is specified."
 																							properties: {
-																								host: {
-																									description: "Optional: Host name to connect to, defaults to the pod IP."
-																									type:        "string"
-																								}
+																								host: type: "string"
 																								port: {
 																									anyOf: [{
 																										type: "integer"
 																									}, {
 																										type: "string"
 																									}]
-																									description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																									"x-kubernetes-int-or-string": true
 																								}
 																							}
@@ -4387,91 +6714,61 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type: "object"
 																				}
 																				preStop: {
-																					description: "PreStop is called immediately before a container is terminated due to an API request or management event such as liveness/startup probe failure, preemption, resource contention, etc. The handler is not called if the container crashes or exits. The Pod's termination grace period countdown begins before the PreStop hook is executed. Regardless of the outcome of the handler, the container will eventually terminate within the Pod's termination grace period (unless delayed by finalizers). Other management of the container blocks until the hook completes or until the termination grace period is reached. More info: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks"
 																					properties: {
 																						exec: {
-																							description: "Exec specifies the action to take."
 																							properties: command: {
-																								description: "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																							type: "object"
 																						}
 																						httpGet: {
-																							description: "HTTPGet specifies the http request to perform."
 																							properties: {
-																								host: {
-																									description: "Host name to connect to, defaults to the pod IP. You probably want to set \"Host\" in httpHeaders instead."
-																									type:        "string"
-																								}
+																								host: type: "string"
 																								httpHeaders: {
-																									description: "Custom headers to set in the request. HTTP allows repeated headers."
 																									items: {
-																										description: "HTTPHeader describes a custom header to be used in HTTP probes"
 																										properties: {
-																											name: {
-																												description: "The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header."
-																												type:        "string"
-																											}
-																											value: {
-																												description: "The header field value"
-																												type:        "string"
-																											}
+																											name: type:  "string"
+																											value: type: "string"
 																										}
-																										required: [
-																											"name",
-																											"value",
-																										]
+																										required: ["name", "value"]
 																										type: "object"
 																									}
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
-																								path: {
-																									description: "Path to access on the HTTP server."
-																									type:        "string"
-																								}
+																								path: type: "string"
 																								port: {
 																									anyOf: [{
 																										type: "integer"
 																									}, {
 																										type: "string"
 																									}]
-																									description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																									"x-kubernetes-int-or-string": true
 																								}
-																								scheme: {
-																									description: "Scheme to use for connecting to the host. Defaults to HTTP."
-																									type:        "string"
-																								}
+																								scheme: type: "string"
 																							}
 																							required: ["port"]
 																							type: "object"
 																						}
 																						sleep: {
-																							description: "Sleep represents the duration that the container should sleep before being terminated."
 																							properties: seconds: {
-																								description: "Seconds is the number of seconds to sleep."
-																								format:      "int64"
-																								type:        "integer"
+																								format: "int64"
+																								type:   "integer"
 																							}
 																							required: ["seconds"]
 																							type: "object"
 																						}
 																						tcpSocket: {
-																							description: "Deprecated. TCPSocket is NOT supported as a LifecycleHandler and kept for the backward compatibility. There are no validation of this field and lifecycle hooks will fail in runtime when tcp handler is specified."
 																							properties: {
-																								host: {
-																									description: "Optional: Host name to connect to, defaults to the pod IP."
-																									type:        "string"
-																								}
+																								host: type: "string"
 																								port: {
 																									anyOf: [{
 																										type: "integer"
 																									}, {
 																										type: "string"
 																									}]
-																									description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																									"x-kubernetes-int-or-string": true
 																								}
 																							}
@@ -4481,124 +6778,88 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					}
 																					type: "object"
 																				}
+																				stopSignal: type: "string"
 																			}
 																			type: "object"
 																		}
 																		livenessProbe: {
-																			description: "Periodic probe of container liveness. Container will be restarted if the probe fails. Cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
 																			properties: {
 																				exec: {
-																					description: "Exec specifies the action to take."
 																					properties: command: {
-																						description: "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					type: "object"
 																				}
 																				failureThreshold: {
-																					description: "Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				grpc: {
-																					description: "GRPC specifies an action involving a GRPC port."
 																					properties: {
 																						port: {
-																							description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
-																							format:      "int32"
-																							type:        "integer"
+																							format: "int32"
+																							type:   "integer"
 																						}
 																						service: {
-																							description: """
-		Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
-		 If this is not specified, the default behavior is defined by gRPC.
-		"""
-																							type: "string"
+																							default: ""
+																							type:    "string"
 																						}
 																					}
 																					required: ["port"]
 																					type: "object"
 																				}
 																				httpGet: {
-																					description: "HTTPGet specifies the http request to perform."
 																					properties: {
-																						host: {
-																							description: "Host name to connect to, defaults to the pod IP. You probably want to set \"Host\" in httpHeaders instead."
-																							type:        "string"
-																						}
+																						host: type: "string"
 																						httpHeaders: {
-																							description: "Custom headers to set in the request. HTTP allows repeated headers."
 																							items: {
-																								description: "HTTPHeader describes a custom header to be used in HTTP probes"
 																								properties: {
-																									name: {
-																										description: "The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header."
-																										type:        "string"
-																									}
-																									value: {
-																										description: "The header field value"
-																										type:        "string"
-																									}
+																									name: type:  "string"
+																									value: type: "string"
 																								}
-																								required: [
-																									"name",
-																									"value",
-																								]
+																								required: ["name", "value"]
 																								type: "object"
 																							}
-																							type: "array"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
-																						path: {
-																							description: "Path to access on the HTTP server."
-																							type:        "string"
-																						}
+																						path: type: "string"
 																						port: {
 																							anyOf: [{
 																								type: "integer"
 																							}, {
 																								type: "string"
 																							}]
-																							description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																							"x-kubernetes-int-or-string": true
 																						}
-																						scheme: {
-																							description: "Scheme to use for connecting to the host. Defaults to HTTP."
-																							type:        "string"
-																						}
+																						scheme: type: "string"
 																					}
 																					required: ["port"]
 																					type: "object"
 																				}
 																				initialDelaySeconds: {
-																					description: "Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				periodSeconds: {
-																					description: "How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				successThreshold: {
-																					description: "Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				tcpSocket: {
-																					description: "TCPSocket specifies an action involving a TCP port."
 																					properties: {
-																						host: {
-																							description: "Optional: Host name to connect to, defaults to the pod IP."
-																							type:        "string"
-																						}
+																						host: type: "string"
 																						port: {
 																							anyOf: [{
 																								type: "integer"
 																							}, {
 																								type: "string"
 																							}]
-																							description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																							"x-kubernetes-int-or-string": true
 																						}
 																					}
@@ -4606,176 +6867,120 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type: "object"
 																				}
 																				terminationGracePeriodSeconds: {
-																					description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset."
-																					format:      "int64"
-																					type:        "integer"
+																					format: "int64"
+																					type:   "integer"
 																				}
 																				timeoutSeconds: {
-																					description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																			}
 																			type: "object"
 																		}
-																		name: {
-																			description: "Name of the container specified as a DNS_LABEL. Each container in a pod must have a unique name (DNS_LABEL). Cannot be updated."
-																			type:        "string"
-																		}
+																		name: type: "string"
 																		ports: {
-																			description: "List of ports to expose from the container. Not specifying a port here DOES NOT prevent that port from being exposed. Any port which is listening on the default \"0.0.0.0\" address inside a container will be accessible from the network. Modifying this array with strategic merge patch may corrupt the data. For more information See https://github.com/kubernetes/kubernetes/issues/108255. Cannot be updated."
 																			items: {
-																				description: "ContainerPort represents a network port in a single container."
 																				properties: {
 																					containerPort: {
-																						description: "Number of port to expose on the pod's IP address. This must be a valid port number, 0 < x < 65536."
-																						format:      "int32"
-																						type:        "integer"
+																						format: "int32"
+																						type:   "integer"
 																					}
-																					hostIP: {
-																						description: "What host IP to bind the external port to."
-																						type:        "string"
-																					}
+																					hostIP: type: "string"
 																					hostPort: {
-																						description: "Number of port to expose on the host. If specified, this must be a valid port number, 0 < x < 65536. If HostNetwork is specified, this must match ContainerPort. Most containers do not need this."
-																						format:      "int32"
-																						type:        "integer"
+																						format: "int32"
+																						type:   "integer"
 																					}
-																					name: {
-																						description: "If specified, this must be an IANA_SVC_NAME and unique within the pod. Each named port in a pod must have a unique name. Name for the port that can be referred to by services."
-																						type:        "string"
-																					}
+																					name: type: "string"
 																					protocol: {
-																						default:     "TCP"
-																						description: "Protocol for port. Must be UDP, TCP, or SCTP. Defaults to \"TCP\"."
-																						type:        "string"
+																						default: "TCP"
+																						type:    "string"
 																					}
 																				}
 																				required: ["containerPort"]
 																				type: "object"
 																			}
 																			type: "array"
-																			"x-kubernetes-list-map-keys": [
-																				"containerPort",
-																				"protocol",
-																			]
+																			"x-kubernetes-list-map-keys": ["containerPort", "protocol"]
 																			"x-kubernetes-list-type": "map"
 																		}
 																		readinessProbe: {
-																			description: "Periodic probe of container service readiness. Container will be removed from service endpoints if the probe fails. Cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
 																			properties: {
 																				exec: {
-																					description: "Exec specifies the action to take."
 																					properties: command: {
-																						description: "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					type: "object"
 																				}
 																				failureThreshold: {
-																					description: "Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				grpc: {
-																					description: "GRPC specifies an action involving a GRPC port."
 																					properties: {
 																						port: {
-																							description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
-																							format:      "int32"
-																							type:        "integer"
+																							format: "int32"
+																							type:   "integer"
 																						}
 																						service: {
-																							description: """
-		Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
-		 If this is not specified, the default behavior is defined by gRPC.
-		"""
-																							type: "string"
+																							default: ""
+																							type:    "string"
 																						}
 																					}
 																					required: ["port"]
 																					type: "object"
 																				}
 																				httpGet: {
-																					description: "HTTPGet specifies the http request to perform."
 																					properties: {
-																						host: {
-																							description: "Host name to connect to, defaults to the pod IP. You probably want to set \"Host\" in httpHeaders instead."
-																							type:        "string"
-																						}
+																						host: type: "string"
 																						httpHeaders: {
-																							description: "Custom headers to set in the request. HTTP allows repeated headers."
 																							items: {
-																								description: "HTTPHeader describes a custom header to be used in HTTP probes"
 																								properties: {
-																									name: {
-																										description: "The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header."
-																										type:        "string"
-																									}
-																									value: {
-																										description: "The header field value"
-																										type:        "string"
-																									}
+																									name: type:  "string"
+																									value: type: "string"
 																								}
-																								required: [
-																									"name",
-																									"value",
-																								]
+																								required: ["name", "value"]
 																								type: "object"
 																							}
-																							type: "array"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
-																						path: {
-																							description: "Path to access on the HTTP server."
-																							type:        "string"
-																						}
+																						path: type: "string"
 																						port: {
 																							anyOf: [{
 																								type: "integer"
 																							}, {
 																								type: "string"
 																							}]
-																							description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																							"x-kubernetes-int-or-string": true
 																						}
-																						scheme: {
-																							description: "Scheme to use for connecting to the host. Defaults to HTTP."
-																							type:        "string"
-																						}
+																						scheme: type: "string"
 																					}
 																					required: ["port"]
 																					type: "object"
 																				}
 																				initialDelaySeconds: {
-																					description: "Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				periodSeconds: {
-																					description: "How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				successThreshold: {
-																					description: "Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				tcpSocket: {
-																					description: "TCPSocket specifies an action involving a TCP port."
 																					properties: {
-																						host: {
-																							description: "Optional: Host name to connect to, defaults to the pod IP."
-																							type:        "string"
-																						}
+																						host: type: "string"
 																						port: {
 																							anyOf: [{
 																								type: "integer"
 																							}, {
 																								type: "string"
 																							}]
-																							description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																							"x-kubernetes-int-or-string": true
 																						}
 																					}
@@ -4783,55 +6988,35 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type: "object"
 																				}
 																				terminationGracePeriodSeconds: {
-																					description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset."
-																					format:      "int64"
-																					type:        "integer"
+																					format: "int64"
+																					type:   "integer"
 																				}
 																				timeoutSeconds: {
-																					description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																			}
 																			type: "object"
 																		}
 																		resizePolicy: {
-																			description: "Resources resize policy for the container."
 																			items: {
-																				description: "ContainerResizePolicy represents resource resize policy for the container."
 																				properties: {
-																					resourceName: {
-																						description: "Name of the resource to which this resource resize policy applies. Supported values: cpu, memory."
-																						type:        "string"
-																					}
-																					restartPolicy: {
-																						description: "Restart policy to apply when specified resource is resized. If not specified, it defaults to NotRequired."
-																						type:        "string"
-																					}
+																					resourceName: type:  "string"
+																					restartPolicy: type: "string"
 																				}
-																				required: [
-																					"resourceName",
-																					"restartPolicy",
-																				]
+																				required: ["resourceName", "restartPolicy"]
 																				type: "object"
 																			}
 																			type:                     "array"
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																		resources: {
-																			description: "Compute Resources required by this container. Cannot be updated. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
 																			properties: {
 																				claims: {
-																					description: """
-		Claims lists the names of resources, defined in spec.resourceClaims, that are used by this container.
-		 This is an alpha field and requires enabling the DynamicResourceAllocation feature gate.
-		 This field is immutable. It can only be set for containers.
-		"""
 																					items: {
-																						description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
-																						properties: name: {
-																							description: "Name must match the name of one entry in pod.spec.resourceClaims of the Pod where this field is used. It makes that resource available inside a container."
-																							type:        "string"
+																						properties: {
+																							name: type:    "string"
+																							request: type: "string"
 																						}
 																						required: ["name"]
 																						type: "object"
@@ -4850,8 +7035,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																						"x-kubernetes-int-or-string": true
 																					}
-																					description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
-																					type:        "object"
+																					type: "object"
 																				}
 																				requests: {
 																					additionalProperties: {
@@ -4863,130 +7047,99 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																						"x-kubernetes-int-or-string": true
 																					}
-																					description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. Requests cannot exceed Limits. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
-																					type:        "object"
+																					type: "object"
 																				}
 																			}
 																			type: "object"
 																		}
-																		restartPolicy: {
-																			description: "RestartPolicy defines the restart behavior of individual containers in a pod. This field may only be set for init containers, and the only allowed value is \"Always\". For non-init containers or when this field is not specified, the restart behavior is defined by the Pod's restart policy and the container type. Setting the RestartPolicy as \"Always\" for the init container will have the following effect: this init container will be continually restarted on exit until all regular containers have terminated. Once all regular containers have completed, all init containers with restartPolicy \"Always\" will be shut down. This lifecycle differs from normal init containers and is often referred to as a \"sidecar\" container. Although this init container still starts in the init container sequence, it does not wait for the container to complete before proceeding to the next init container. Instead, the next init container starts immediately after this init container is started, or after any startupProbe has successfully completed."
-																			type:        "string"
+																		restartPolicy: type: "string"
+																		restartPolicyRules: {
+																			items: {
+																				properties: {
+																					action: type: "string"
+																					exitCodes: {
+																						properties: {
+																							operator: type: "string"
+																							values: {
+																								items: {
+																									format: "int32"
+																									type:   "integer"
+																								}
+																								type:                     "array"
+																								"x-kubernetes-list-type": "set"
+																							}
+																						}
+																						required: ["operator"]
+																						type: "object"
+																					}
+																				}
+																				required: ["action"]
+																				type: "object"
+																			}
+																			type:                     "array"
+																			"x-kubernetes-list-type": "atomic"
 																		}
 																		securityContext: {
-																			description: "SecurityContext defines the security options the container should be run with. If set, the fields of SecurityContext override the equivalent fields of PodSecurityContext. More info: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/"
 																			properties: {
-																				allowPrivilegeEscalation: {
-																					description: "AllowPrivilegeEscalation controls whether a process can gain more privileges than its parent process. This bool directly controls if the no_new_privs flag will be set on the container process. AllowPrivilegeEscalation is true always when the container is: 1) run as Privileged 2) has CAP_SYS_ADMIN Note that this field cannot be set when spec.os.name is windows."
-																					type:        "boolean"
+																				allowPrivilegeEscalation: type: "boolean"
+																				appArmorProfile: {
+																					properties: {
+																						localhostProfile: type: "string"
+																						type: type:             "string"
+																					}
+																					required: ["type"]
+																					type: "object"
 																				}
 																				capabilities: {
-																					description: "The capabilities to add/drop when running containers. Defaults to the default set of capabilities granted by the container runtime. Note that this field cannot be set when spec.os.name is windows."
 																					properties: {
 																						add: {
-																							description: "Added capabilities"
-																							items: {
-																								description: "Capability represent POSIX capabilities type"
-																								type:        "string"
-																							}
-																							type: "array"
+																							items: type: "string"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
 																						drop: {
-																							description: "Removed capabilities"
-																							items: {
-																								description: "Capability represent POSIX capabilities type"
-																								type:        "string"
-																							}
-																							type: "array"
+																							items: type: "string"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
 																					}
 																					type: "object"
 																				}
-																				privileged: {
-																					description: "Run container in privileged mode. Processes in privileged containers are essentially equivalent to root on the host. Defaults to false. Note that this field cannot be set when spec.os.name is windows."
-																					type:        "boolean"
-																				}
-																				procMount: {
-																					description: "procMount denotes the type of proc mount to use for the containers. The default is DefaultProcMount which uses the container runtime defaults for readonly paths and masked paths. This requires the ProcMountType feature flag to be enabled. Note that this field cannot be set when spec.os.name is windows."
-																					type:        "string"
-																				}
-																				readOnlyRootFilesystem: {
-																					description: "Whether this container has a read-only root filesystem. Default is false. Note that this field cannot be set when spec.os.name is windows."
-																					type:        "boolean"
-																				}
+																				privileged: type:             "boolean"
+																				procMount: type:              "string"
+																				readOnlyRootFilesystem: type: "boolean"
 																				runAsGroup: {
-																					description: "The GID to run the entrypoint of the container process. Uses runtime default if unset. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is windows."
-																					format:      "int64"
-																					type:        "integer"
+																					format: "int64"
+																					type:   "integer"
 																				}
-																				runAsNonRoot: {
-																					description: "Indicates that the container must run as a non-root user. If true, the Kubelet will validate the image at runtime to ensure that it does not run as UID 0 (root) and fail to start the container if it does. If unset or false, no such validation will be performed. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence."
-																					type:        "boolean"
-																				}
+																				runAsNonRoot: type: "boolean"
 																				runAsUser: {
-																					description: "The UID to run the entrypoint of the container process. Defaults to user specified in image metadata if unspecified. May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is windows."
-																					format:      "int64"
-																					type:        "integer"
+																					format: "int64"
+																					type:   "integer"
 																				}
 																				seLinuxOptions: {
-																					description: "The SELinux context to be applied to the container. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in PodSecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is windows."
 																					properties: {
-																						level: {
-																							description: "Level is SELinux level label that applies to the container."
-																							type:        "string"
-																						}
-																						role: {
-																							description: "Role is a SELinux role label that applies to the container."
-																							type:        "string"
-																						}
-																						type: {
-																							description: "Type is a SELinux type label that applies to the container."
-																							type:        "string"
-																						}
-																						user: {
-																							description: "User is a SELinux user label that applies to the container."
-																							type:        "string"
-																						}
+																						level: type: "string"
+																						role: type:  "string"
+																						type: type:  "string"
+																						user: type:  "string"
 																					}
 																					type: "object"
 																				}
 																				seccompProfile: {
-																					description: "The seccomp options to use by this container. If seccomp options are provided at both the pod & container level, the container options override the pod options. Note that this field cannot be set when spec.os.name is windows."
 																					properties: {
-																						localhostProfile: {
-																							description: "localhostProfile indicates a profile defined in a file on the node should be used. The profile must be preconfigured on the node to work. Must be a descending path, relative to the kubelet's configured seccomp profile location. Must be set if type is \"Localhost\". Must NOT be set for any other type."
-																							type:        "string"
-																						}
-																						type: {
-																							description: """
-		type indicates which kind of seccomp profile will be applied. Valid options are:
-		 Localhost - a profile defined in a file on the node should be used. RuntimeDefault - the container runtime default profile should be used. Unconfined - no profile should be applied.
-		"""
-																							type: "string"
-																						}
+																						localhostProfile: type: "string"
+																						type: type:             "string"
 																					}
 																					required: ["type"]
 																					type: "object"
 																				}
 																				windowsOptions: {
-																					description: "The Windows specific settings applied to all containers. If unspecified, the options from the PodSecurityContext will be used. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is linux."
 																					properties: {
-																						gmsaCredentialSpec: {
-																							description: "GMSACredentialSpec is where the GMSA admission webhook (https://github.com/kubernetes-sigs/windows-gmsa) inlines the contents of the GMSA credential spec named by the GMSACredentialSpecName field."
-																							type:        "string"
-																						}
-																						gmsaCredentialSpecName: {
-																							description: "GMSACredentialSpecName is the name of the GMSA credential spec to use."
-																							type:        "string"
-																						}
-																						hostProcess: {
-																							description: "HostProcess determines if a container should be run as a 'Host Process' container. All of a Pod's containers must have the same effective HostProcess value (it is not allowed to have a mix of HostProcess containers and non-HostProcess containers). In addition, if HostProcess is true then HostNetwork must also be set to true."
-																							type:        "boolean"
-																						}
-																						runAsUserName: {
-																							description: "The UserName in Windows to run the entrypoint of the container process. Defaults to the user specified in image metadata if unspecified. May also be set in PodSecurityContext. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence."
-																							type:        "string"
-																						}
+																						gmsaCredentialSpec: type:     "string"
+																						gmsaCredentialSpecName: type: "string"
+																						hostProcess: type:            "boolean"
+																						runAsUserName: type:          "string"
 																					}
 																					type: "object"
 																				}
@@ -4994,120 +7147,83 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			type: "object"
 																		}
 																		startupProbe: {
-																			description: "StartupProbe indicates that the Pod has successfully initialized. If specified, no other probes are executed until this completes successfully. If this probe fails, the Pod will be restarted, just as if the livenessProbe failed. This can be used to provide different probe parameters at the beginning of a Pod's lifecycle, when it might take a long time to load data or warm a cache, than during steady-state operation. This cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
 																			properties: {
 																				exec: {
-																					description: "Exec specifies the action to take."
 																					properties: command: {
-																						description: "Command is the command line to execute inside the container, the working directory for the command  is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."
 																						items: type: "string"
-																						type: "array"
+																						type:                     "array"
+																						"x-kubernetes-list-type": "atomic"
 																					}
 																					type: "object"
 																				}
 																				failureThreshold: {
-																					description: "Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				grpc: {
-																					description: "GRPC specifies an action involving a GRPC port."
 																					properties: {
 																						port: {
-																							description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
-																							format:      "int32"
-																							type:        "integer"
+																							format: "int32"
+																							type:   "integer"
 																						}
 																						service: {
-																							description: """
-		Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
-		 If this is not specified, the default behavior is defined by gRPC.
-		"""
-																							type: "string"
+																							default: ""
+																							type:    "string"
 																						}
 																					}
 																					required: ["port"]
 																					type: "object"
 																				}
 																				httpGet: {
-																					description: "HTTPGet specifies the http request to perform."
 																					properties: {
-																						host: {
-																							description: "Host name to connect to, defaults to the pod IP. You probably want to set \"Host\" in httpHeaders instead."
-																							type:        "string"
-																						}
+																						host: type: "string"
 																						httpHeaders: {
-																							description: "Custom headers to set in the request. HTTP allows repeated headers."
 																							items: {
-																								description: "HTTPHeader describes a custom header to be used in HTTP probes"
 																								properties: {
-																									name: {
-																										description: "The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header."
-																										type:        "string"
-																									}
-																									value: {
-																										description: "The header field value"
-																										type:        "string"
-																									}
+																									name: type:  "string"
+																									value: type: "string"
 																								}
-																								required: [
-																									"name",
-																									"value",
-																								]
+																								required: ["name", "value"]
 																								type: "object"
 																							}
-																							type: "array"
+																							type:                     "array"
+																							"x-kubernetes-list-type": "atomic"
 																						}
-																						path: {
-																							description: "Path to access on the HTTP server."
-																							type:        "string"
-																						}
+																						path: type: "string"
 																						port: {
 																							anyOf: [{
 																								type: "integer"
 																							}, {
 																								type: "string"
 																							}]
-																							description:                  "Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																							"x-kubernetes-int-or-string": true
 																						}
-																						scheme: {
-																							description: "Scheme to use for connecting to the host. Defaults to HTTP."
-																							type:        "string"
-																						}
+																						scheme: type: "string"
 																					}
 																					required: ["port"]
 																					type: "object"
 																				}
 																				initialDelaySeconds: {
-																					description: "Number of seconds after the container has started before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				periodSeconds: {
-																					description: "How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				successThreshold: {
-																					description: "Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				tcpSocket: {
-																					description: "TCPSocket specifies an action involving a TCP port."
 																					properties: {
-																						host: {
-																							description: "Optional: Host name to connect to, defaults to the pod IP."
-																							type:        "string"
-																						}
+																						host: type: "string"
 																						port: {
 																							anyOf: [{
 																								type: "integer"
 																							}, {
 																								type: "string"
 																							}]
-																							description:                  "Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
 																							"x-kubernetes-int-or-string": true
 																						}
 																					}
@@ -5115,128 +7231,67 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type: "object"
 																				}
 																				terminationGracePeriodSeconds: {
-																					description: "Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate. Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset."
-																					format:      "int64"
-																					type:        "integer"
+																					format: "int64"
+																					type:   "integer"
 																				}
 																				timeoutSeconds: {
-																					description: "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																			}
 																			type: "object"
 																		}
-																		stdin: {
-																			description: "Whether this container should allocate a buffer for stdin in the container runtime. If this is not set, reads from stdin in the container will always result in EOF. Default is false."
-																			type:        "boolean"
-																		}
-																		stdinOnce: {
-																			description: "Whether the container runtime should close the stdin channel after it has been opened by a single attach. When stdin is true the stdin stream will remain open across multiple attach sessions. If stdinOnce is set to true, stdin is opened on container start, is empty until the first client attaches to stdin, and then remains open and accepts data until the client disconnects, at which time stdin is closed and remains closed until the container is restarted. If this flag is false, a container processes that reads from stdin will never receive an EOF. Default is false"
-																			type:        "boolean"
-																		}
-																		terminationMessagePath: {
-																			description: "Optional: Path at which the file to which the container's termination message will be written is mounted into the container's filesystem. Message written is intended to be brief final status, such as an assertion failure message. Will be truncated by the node if greater than 4096 bytes. The total message length across all containers will be limited to 12kb. Defaults to /dev/termination-log. Cannot be updated."
-																			type:        "string"
-																		}
-																		terminationMessagePolicy: {
-																			description: "Indicate how the termination message should be populated. File will use the contents of terminationMessagePath to populate the container status message on both success and failure. FallbackToLogsOnError will use the last chunk of container log output if the termination message file is empty and the container exited with an error. The log output is limited to 2048 bytes or 80 lines, whichever is smaller. Defaults to File. Cannot be updated."
-																			type:        "string"
-																		}
-																		tty: {
-																			description: "Whether this container should allocate a TTY for itself, also requires 'stdin' to be true. Default is false."
-																			type:        "boolean"
-																		}
+																		stdin: type:                    "boolean"
+																		stdinOnce: type:                "boolean"
+																		terminationMessagePath: type:   "string"
+																		terminationMessagePolicy: type: "string"
+																		tty: type:                      "boolean"
 																		volumeDevices: {
-																			description: "volumeDevices is the list of block devices to be used by the container."
 																			items: {
-																				description: "volumeDevice describes a mapping of a raw block device within a container."
 																				properties: {
-																					devicePath: {
-																						description: "devicePath is the path inside of the container that the device will be mapped to."
-																						type:        "string"
-																					}
-																					name: {
-																						description: "name must match the name of a persistentVolumeClaim in the pod"
-																						type:        "string"
-																					}
+																					devicePath: type: "string"
+																					name: type:       "string"
 																				}
-																				required: [
-																					"devicePath",
-																					"name",
-																				]
+																				required: ["devicePath", "name"]
 																				type: "object"
 																			}
 																			type: "array"
+																			"x-kubernetes-list-map-keys": ["devicePath"]
+																			"x-kubernetes-list-type": "map"
 																		}
 																		volumeMounts: {
-																			description: "Pod volumes to mount into the container's filesystem. Cannot be updated."
 																			items: {
-																				description: "VolumeMount describes a mounting of a Volume within a container."
 																				properties: {
-																					mountPath: {
-																						description: "Path within the container at which the volume should be mounted.  Must not contain ':'."
-																						type:        "string"
-																					}
-																					mountPropagation: {
-																						description: "mountPropagation determines how mounts are propagated from the host to container and the other way around. When not set, MountPropagationNone is used. This field is beta in 1.10."
-																						type:        "string"
-																					}
-																					name: {
-																						description: "This must match the Name of a Volume."
-																						type:        "string"
-																					}
-																					readOnly: {
-																						description: "Mounted read-only if true, read-write otherwise (false or unspecified). Defaults to false."
-																						type:        "boolean"
-																					}
-																					subPath: {
-																						description: "Path within the volume from which the container's volume should be mounted. Defaults to \"\" (volume's root)."
-																						type:        "string"
-																					}
-																					subPathExpr: {
-																						description: "Expanded path within the volume from which the container's volume should be mounted. Behaves similarly to SubPath but environment variable references $(VAR_NAME) are expanded using the container's environment. Defaults to \"\" (volume's root). SubPathExpr and SubPath are mutually exclusive."
-																						type:        "string"
-																					}
+																					mountPath: type:         "string"
+																					mountPropagation: type:  "string"
+																					name: type:              "string"
+																					readOnly: type:          "boolean"
+																					recursiveReadOnly: type: "string"
+																					subPath: type:           "string"
+																					subPathExpr: type:       "string"
 																				}
-																				required: [
-																					"mountPath",
-																					"name",
-																				]
+																				required: ["mountPath", "name"]
 																				type: "object"
 																			}
 																			type: "array"
+																			"x-kubernetes-list-map-keys": ["mountPath"]
+																			"x-kubernetes-list-type": "map"
 																		}
-																		workingDir: {
-																			description: "Container's working directory. If not specified, the container runtime's default will be used, which might be configured in the container image. Cannot be updated."
-																			type:        "string"
-																		}
+																		workingDir: type: "string"
 																	}
 																	required: ["name"]
 																	type: "object"
 																}
 																type: "array"
 															}
-															nodeName: {
-																description: "NodeName is a request to schedule this pod onto a specific node. If it is non-empty, the scheduler simply schedules this pod onto that node, assuming that it fits resource requirements."
-																type:        "string"
-															}
+															nodeName: type: "string"
 															nodeSelector: {
 																additionalProperties: type: "string"
-																description:             "NodeSelector is a selector which must be true for the pod to fit on a node. Selector which must match a node's labels for the pod to be scheduled on that node. More info: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/"
 																type:                    "object"
 																"x-kubernetes-map-type": "atomic"
 															}
 															os: {
-																description: """
-		Specifies the OS of the containers in the pod. Some pod and container fields are restricted if this is set.
-		 If the OS field is set to linux, the following fields must be unset: -securityContext.windowsOptions
-		 If the OS field is set to windows, following fields must be unset: - spec.hostPID - spec.hostIPC - spec.hostUsers - spec.securityContext.seLinuxOptions - spec.securityContext.seccompProfile - spec.securityContext.fsGroup - spec.securityContext.fsGroupChangePolicy - spec.securityContext.sysctls - spec.shareProcessNamespace - spec.securityContext.runAsUser - spec.securityContext.runAsGroup - spec.securityContext.supplementalGroups - spec.containers[*].securityContext.seLinuxOptions - spec.containers[*].securityContext.seccompProfile - spec.containers[*].securityContext.capabilities - spec.containers[*].securityContext.readOnlyRootFilesystem - spec.containers[*].securityContext.privileged - spec.containers[*].securityContext.allowPrivilegeEscalation - spec.containers[*].securityContext.procMount - spec.containers[*].securityContext.runAsUser - spec.containers[*].securityContext.runAsGroup
-		"""
-																properties: name: {
-																	description: "Name is the name of the operating system. The currently supported values are linux and windows. Additional value may be defined in future and can be one of: https://github.com/opencontainers/runtime-spec/blob/master/config.md#platform-specific-configuration Clients should expect to handle additional values and treat unrecognized values in this field as os: null"
-																	type:        "string"
-																}
+																properties: name: type: "string"
 																required: ["name"]
 																type: "object"
 															}
@@ -5250,619 +7305,351 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																	"x-kubernetes-int-or-string": true
 																}
-																description: "Overhead represents the resource overhead associated with running a pod for a given RuntimeClass. This field will be autopopulated at admission time by the RuntimeClass admission controller. If the RuntimeClass admission controller is enabled, overhead must not be set in Pod create requests. The RuntimeClass admission controller will reject Pod create requests which have the overhead already set. If RuntimeClass is configured and selected in the PodSpec, Overhead will be set to the value defined in the corresponding RuntimeClass, otherwise it will remain unset and treated as zero. More info: https://git.k8s.io/enhancements/keps/sig-node/688-pod-overhead/README.md"
-																type:        "object"
+																type: "object"
 															}
-															preemptionPolicy: {
-																description: "PreemptionPolicy is the Policy for preempting pods with lower priority. One of Never, PreemptLowerPriority. Defaults to PreemptLowerPriority if unset."
-																type:        "string"
-															}
+															preemptionPolicy: type: "string"
 															priority: {
-																description: "The priority value. Various system components use this field to find the priority of the pod. When Priority Admission Controller is enabled, it prevents users from setting this field. The admission controller populates this field from PriorityClassName. The higher the value, the higher the priority."
-																format:      "int32"
-																type:        "integer"
+																format: "int32"
+																type:   "integer"
 															}
-															priorityClassName: {
-																description: "If specified, indicates the pod's priority. \"system-node-critical\" and \"system-cluster-critical\" are two special keywords which indicate the highest priorities with the former being the highest priority. Any other name must be defined by creating a PriorityClass object with that name. If not specified, the pod priority will be default or zero if there is no default."
-																type:        "string"
-															}
+															priorityClassName: type: "string"
 															readinessGates: {
-																description: "If specified, all readiness gates will be evaluated for pod readiness. A pod is ready when all its containers are ready AND all conditions specified in the readiness gates have status equal to \"True\" More info: https://git.k8s.io/enhancements/keps/sig-network/580-pod-readiness-gates"
 																items: {
-																	description: "PodReadinessGate contains the reference to a pod condition"
-																	properties: conditionType: {
-																		description: "ConditionType refers to a condition in the pod's condition list with matching type."
-																		type:        "string"
-																	}
+																	properties: conditionType: type: "string"
 																	required: ["conditionType"]
 																	type: "object"
 																}
 																type: "array"
 															}
-															restartPolicy: {
-																description: "RestartPolicy describes how the container should be restarted. Only one of the following restart policies may be specified. If none of the following policies is specified, the default one is RestartPolicyAlways."
-																type:        "string"
-															}
-															runtimeClassName: {
-																description: "RuntimeClassName refers to a RuntimeClass object in the node.k8s.io group, which should be used to run this pod.  If no RuntimeClass resource matches the named class, the pod will not be run. If unset or empty, the \"legacy\" RuntimeClass will be used, which is an implicit class with an empty definition that uses the default runtime handler. More info: https://git.k8s.io/enhancements/keps/sig-node/585-runtime-class"
-																type:        "string"
-															}
-															schedulerName: {
-																description: "If specified, the pod will be dispatched by specified scheduler. If not specified, the pod will be dispatched by default scheduler."
-																type:        "string"
-															}
+															restartPolicy: type:    "string"
+															runtimeClassName: type: "string"
+															schedulerName: type:    "string"
 															securityContext: {
-																description: "SecurityContext holds pod-level security attributes and common container settings. Optional: Defaults to empty.  See type description for default values of each field."
 																properties: {
+																	appArmorProfile: {
+																		properties: {
+																			localhostProfile: type: "string"
+																			type: type:             "string"
+																		}
+																		required: ["type"]
+																		type: "object"
+																	}
 																	fsGroup: {
-																		description: """
-		A special supplemental group that applies to all containers in a pod. Some volume types allow the Kubelet to change the ownership of that volume to be owned by the pod:
-		 1. The owning GID will be the FSGroup 2. The setgid bit is set (new files created in the volume will be owned by FSGroup) 3. The permission bits are OR'd with rw-rw----
-		 If unset, the Kubelet will not modify the ownership and permissions of any volume. Note that this field cannot be set when spec.os.name is windows.
-		"""
 																		format: "int64"
 																		type:   "integer"
 																	}
-																	fsGroupChangePolicy: {
-																		description: "fsGroupChangePolicy defines behavior of changing ownership and permission of the volume before being exposed inside Pod. This field will only apply to volume types which support fsGroup based ownership(and permissions). It will have no effect on ephemeral volume types such as: secret, configmaps and emptydir. Valid values are \"OnRootMismatch\" and \"Always\". If not specified, \"Always\" is used. Note that this field cannot be set when spec.os.name is windows."
-																		type:        "string"
-																	}
+																	fsGroupChangePolicy: type: "string"
 																	runAsGroup: {
-																		description: "The GID to run the entrypoint of the container process. Uses runtime default if unset. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container. Note that this field cannot be set when spec.os.name is windows."
-																		format:      "int64"
-																		type:        "integer"
+																		format: "int64"
+																		type:   "integer"
 																	}
-																	runAsNonRoot: {
-																		description: "Indicates that the container must run as a non-root user. If true, the Kubelet will validate the image at runtime to ensure that it does not run as UID 0 (root) and fail to start the container if it does. If unset or false, no such validation will be performed. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence."
-																		type:        "boolean"
-																	}
+																	runAsNonRoot: type: "boolean"
 																	runAsUser: {
-																		description: "The UID to run the entrypoint of the container process. Defaults to user specified in image metadata if unspecified. May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container. Note that this field cannot be set when spec.os.name is windows."
-																		format:      "int64"
-																		type:        "integer"
+																		format: "int64"
+																		type:   "integer"
 																	}
+																	seLinuxChangePolicy: type: "string"
 																	seLinuxOptions: {
-																		description: "The SELinux context to be applied to all containers. If unspecified, the container runtime will allocate a random SELinux context for each container.  May also be set in SecurityContext.  If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence for that container. Note that this field cannot be set when spec.os.name is windows."
 																		properties: {
-																			level: {
-																				description: "Level is SELinux level label that applies to the container."
-																				type:        "string"
-																			}
-																			role: {
-																				description: "Role is a SELinux role label that applies to the container."
-																				type:        "string"
-																			}
-																			type: {
-																				description: "Type is a SELinux type label that applies to the container."
-																				type:        "string"
-																			}
-																			user: {
-																				description: "User is a SELinux user label that applies to the container."
-																				type:        "string"
-																			}
+																			level: type: "string"
+																			role: type:  "string"
+																			type: type:  "string"
+																			user: type:  "string"
 																		}
 																		type: "object"
 																	}
 																	seccompProfile: {
-																		description: "The seccomp options to use by the containers in this pod. Note that this field cannot be set when spec.os.name is windows."
 																		properties: {
-																			localhostProfile: {
-																				description: "localhostProfile indicates a profile defined in a file on the node should be used. The profile must be preconfigured on the node to work. Must be a descending path, relative to the kubelet's configured seccomp profile location. Must be set if type is \"Localhost\". Must NOT be set for any other type."
-																				type:        "string"
-																			}
-																			type: {
-																				description: """
-		type indicates which kind of seccomp profile will be applied. Valid options are:
-		 Localhost - a profile defined in a file on the node should be used. RuntimeDefault - the container runtime default profile should be used. Unconfined - no profile should be applied.
-		"""
-																				type: "string"
-																			}
+																			localhostProfile: type: "string"
+																			type: type:             "string"
 																		}
 																		required: ["type"]
 																		type: "object"
 																	}
 																	supplementalGroups: {
-																		description: "A list of groups applied to the first process run in each container, in addition to the container's primary GID, the fsGroup (if specified), and group memberships defined in the container image for the uid of the container process. If unspecified, no additional groups are added to any container. Note that group memberships defined in the container image for the uid of the container process are still effective, even if they are not included in this list. Note that this field cannot be set when spec.os.name is windows."
 																		items: {
 																			format: "int64"
 																			type:   "integer"
 																		}
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
+																	supplementalGroupsPolicy: type: "string"
 																	sysctls: {
-																		description: "Sysctls hold a list of namespaced sysctls used for the pod. Pods with unsupported sysctls (by the container runtime) might fail to launch. Note that this field cannot be set when spec.os.name is windows."
 																		items: {
-																			description: "Sysctl defines a kernel parameter to be set"
 																			properties: {
-																				name: {
-																					description: "Name of a property to set"
-																					type:        "string"
-																				}
-																				value: {
-																					description: "Value of a property to set"
-																					type:        "string"
-																				}
+																				name: type:  "string"
+																				value: type: "string"
 																			}
-																			required: [
-																				"name",
-																				"value",
-																			]
+																			required: ["name", "value"]
 																			type: "object"
 																		}
-																		type: "array"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
 																	}
 																	windowsOptions: {
-																		description: "The Windows specific settings applied to all containers. If unspecified, the options within a container's SecurityContext will be used. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is linux."
 																		properties: {
-																			gmsaCredentialSpec: {
-																				description: "GMSACredentialSpec is where the GMSA admission webhook (https://github.com/kubernetes-sigs/windows-gmsa) inlines the contents of the GMSA credential spec named by the GMSACredentialSpecName field."
-																				type:        "string"
-																			}
-																			gmsaCredentialSpecName: {
-																				description: "GMSACredentialSpecName is the name of the GMSA credential spec to use."
-																				type:        "string"
-																			}
-																			hostProcess: {
-																				description: "HostProcess determines if a container should be run as a 'Host Process' container. All of a Pod's containers must have the same effective HostProcess value (it is not allowed to have a mix of HostProcess containers and non-HostProcess containers). In addition, if HostProcess is true then HostNetwork must also be set to true."
-																				type:        "boolean"
-																			}
-																			runAsUserName: {
-																				description: "The UserName in Windows to run the entrypoint of the container process. Defaults to the user specified in image metadata if unspecified. May also be set in PodSecurityContext. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence."
-																				type:        "string"
-																			}
+																			gmsaCredentialSpec: type:     "string"
+																			gmsaCredentialSpecName: type: "string"
+																			hostProcess: type:            "boolean"
+																			runAsUserName: type:          "string"
 																		}
 																		type: "object"
 																	}
 																}
 																type: "object"
 															}
-															serviceAccount: {
-																description: "DeprecatedServiceAccount is a depreciated alias for ServiceAccountName. Deprecated: Use serviceAccountName instead."
-																type:        "string"
-															}
-															serviceAccountName: {
-																description: "ServiceAccountName is the name of the ServiceAccount to use to run this pod. More info: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/"
-																type:        "string"
-															}
-															setHostnameAsFQDN: {
-																description: "If true the pod's hostname will be configured as the pod's FQDN, rather than the leaf name (the default). In Linux containers, this means setting the FQDN in the hostname field of the kernel (the nodename field of struct utsname). In Windows containers, this means setting the registry value of hostname for the registry key HKEY_LOCAL_MACHINE\\\\SYSTEM\\\\CurrentControlSet\\\\Services\\\\Tcpip\\\\Parameters to FQDN. If a pod does not have FQDN, this has no effect. Default to false."
-																type:        "boolean"
-															}
-															shareProcessNamespace: {
-																description: "Share a single process namespace between all of the containers in a pod. When this is set containers will be able to view and signal processes from other containers in the same pod, and the first process in each container will not be assigned PID 1. HostPID and ShareProcessNamespace cannot both be set. Optional: Default to false."
-																type:        "boolean"
-															}
-															subdomain: {
-																description: "If specified, the fully qualified Pod hostname will be \"<hostname>.<subdomain>.<pod namespace>.svc.<cluster domain>\". If not specified, the pod will not have a domainname at all."
-																type:        "string"
-															}
+															serviceAccount: type:        "string"
+															serviceAccountName: type:    "string"
+															setHostnameAsFQDN: type:     "boolean"
+															shareProcessNamespace: type: "boolean"
+															subdomain: type:             "string"
 															terminationGracePeriodSeconds: {
 																format: "int64"
 																type:   "integer"
 															}
 															tolerations: {
-																description: "If specified, the pod's tolerations."
 																items: {
-																	description: "The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect> using the matching operator <operator>."
 																	properties: {
-																		effect: {
-																			description: "Effect indicates the taint effect to match. Empty means match all taint effects. When specified, allowed values are NoSchedule, PreferNoSchedule and NoExecute."
-																			type:        "string"
-																		}
-																		key: {
-																			description: "Key is the taint key that the toleration applies to. Empty means match all taint keys. If the key is empty, operator must be Exists; this combination means to match all values and all keys."
-																			type:        "string"
-																		}
-																		operator: {
-																			description: "Operator represents a key's relationship to the value. Valid operators are Exists and Equal. Defaults to Equal. Exists is equivalent to wildcard for value, so that a pod can tolerate all taints of a particular category."
-																			type:        "string"
-																		}
+																		effect: type:   "string"
+																		key: type:      "string"
+																		operator: type: "string"
 																		tolerationSeconds: {
-																			description: "TolerationSeconds represents the period of time the toleration (which must be of effect NoExecute, otherwise this field is ignored) tolerates the taint. By default, it is not set, which means tolerate the taint forever (do not evict). Zero and negative values will be treated as 0 (evict immediately) by the system."
-																			format:      "int64"
-																			type:        "integer"
+																			format: "int64"
+																			type:   "integer"
 																		}
-																		value: {
-																			description: "Value is the taint value the toleration matches to. If the operator is Exists, the value should be empty, otherwise just a regular string."
-																			type:        "string"
-																		}
+																		value: type: "string"
 																	}
 																	type: "object"
 																}
 																type: "array"
 															}
 															topologySpreadConstraints: {
-																description: "TopologySpreadConstraints describes how a group of pods ought to spread across topology domains. Scheduler will schedule pods in a way which abides by the constraints. All topologySpreadConstraints are ANDed."
 																items: {
-																	description: "TopologySpreadConstraint specifies how to spread matching pods among the given topology."
 																	properties: {
 																		labelSelector: {
-																			description: "LabelSelector is used to find matching pods. Pods that match this label selector are counted to determine the number of pods in their corresponding topology domain."
 																			properties: {
 																				matchExpressions: {
-																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																					items: {
-																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
 																						properties: {
-																							key: {
-																								description: "key is the label key that the selector applies to."
-																								type:        "string"
-																							}
-																							operator: {
-																								description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
-																								type:        "string"
-																							}
+																							key: type:      "string"
+																							operator: type: "string"
 																							values: {
-																								description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																						}
-																						required: [
-																							"key",
-																							"operator",
-																						]
+																						required: ["key", "operator"]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																				matchLabels: {
 																					additionalProperties: type: "string"
-																					description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
-																					type:        "object"
+																					type: "object"
 																				}
 																			}
 																			type:                    "object"
 																			"x-kubernetes-map-type": "atomic"
 																		}
 																		matchLabelKeys: {
-																			description: """
-		MatchLabelKeys is a set of pod label keys to select the pods over which spreading will be calculated. The keys are used to lookup values from the incoming pod labels, those key-value labels are ANDed with labelSelector to select the group of existing pods over which spreading will be calculated for the incoming pod. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. MatchLabelKeys cannot be set when LabelSelector isn't set. Keys that don't exist in the incoming pod labels will be ignored. A null or empty list means only match against labelSelector.
-		 This is a beta field and requires the MatchLabelKeysInPodTopologySpread feature gate to be enabled (enabled by default).
-		"""
 																			items: type: "string"
 																			type:                     "array"
 																			"x-kubernetes-list-type": "atomic"
 																		}
 																		maxSkew: {
-																			description: "MaxSkew describes the degree to which pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`, it is the maximum permitted difference between the number of matching pods in the target topology and the global minimum. The global minimum is the minimum number of matching pods in an eligible domain or zero if the number of eligible domains is less than MinDomains. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 2/2/1: In this case, the global minimum is 1. | zone1 | zone2 | zone3 | |  P P  |  P P  |   P   | - if MaxSkew is 1, incoming pod can only be scheduled to zone3 to become 2/2/2; scheduling it onto zone1(zone2) would make the ActualSkew(3-1) on zone1(zone2) violate MaxSkew(1). - if MaxSkew is 2, incoming pod can be scheduled onto any zone. When `whenUnsatisfiable=ScheduleAnyway`, it is used to give higher precedence to topologies that satisfy it. It's a required field. Default value is 1 and 0 is not allowed."
-																			format:      "int32"
-																			type:        "integer"
-																		}
-																		minDomains: {
-																			description: """
-		MinDomains indicates a minimum number of eligible domains. When the number of eligible domains with matching topology keys is less than minDomains, Pod Topology Spread treats \"global minimum\" as 0, and then the calculation of Skew is performed. And when the number of eligible domains with matching topology keys equals or greater than minDomains, this value has no effect on scheduling. As a result, when the number of eligible domains is less than minDomains, scheduler won't schedule more than maxSkew Pods to those domains. If value is nil, the constraint behaves as if MinDomains is equal to 1. Valid values are integers greater than 0. When value is not nil, WhenUnsatisfiable must be DoNotSchedule.
-		 For example, in a 3-zone cluster, MaxSkew is set to 2, MinDomains is set to 5 and pods with the same labelSelector spread as 2/2/2: | zone1 | zone2 | zone3 | |  P P  |  P P  |  P P  | The number of domains is less than 5(MinDomains), so \"global minimum\" is treated as 0. In this situation, new pod with the same labelSelector cannot be scheduled, because computed skew will be 3(3 - 0) if new Pod is scheduled to any of the three zones, it will violate MaxSkew.
-		 This is a beta field and requires the MinDomainsInPodTopologySpread feature gate to be enabled (enabled by default).
-		"""
 																			format: "int32"
 																			type:   "integer"
 																		}
-																		nodeAffinityPolicy: {
-																			description: """
-		NodeAffinityPolicy indicates how we will treat Pod's nodeAffinity/nodeSelector when calculating pod topology spread skew. Options are: - Honor: only nodes matching nodeAffinity/nodeSelector are included in the calculations. - Ignore: nodeAffinity/nodeSelector are ignored. All nodes are included in the calculations.
-		 If this value is nil, the behavior is equivalent to the Honor policy. This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
-		"""
-																			type: "string"
+																		minDomains: {
+																			format: "int32"
+																			type:   "integer"
 																		}
-																		nodeTaintsPolicy: {
-																			description: """
-		NodeTaintsPolicy indicates how we will treat node taints when calculating pod topology spread skew. Options are: - Honor: nodes without taints, along with tainted nodes for which the incoming pod has a toleration, are included. - Ignore: node taints are ignored. All nodes are included.
-		 If this value is nil, the behavior is equivalent to the Ignore policy. This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
-		"""
-																			type: "string"
-																		}
-																		topologyKey: {
-																			description: "TopologyKey is the key of node labels. Nodes that have a label with this key and identical values are considered to be in the same topology. We consider each <key, value> as a \"bucket\", and try to put balanced number of pods into each bucket. We define a domain as a particular instance of a topology. Also, we define an eligible domain as a domain whose nodes meet the requirements of nodeAffinityPolicy and nodeTaintsPolicy. e.g. If TopologyKey is \"kubernetes.io/hostname\", each Node is a domain of that topology. And, if TopologyKey is \"topology.kubernetes.io/zone\", each zone is a domain of that topology. It's a required field."
-																			type:        "string"
-																		}
-																		whenUnsatisfiable: {
-																			description: "WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location, but giving higher precedence to topologies that would help reduce the skew. A constraint is considered \"Unsatisfiable\" for an incoming pod if and only if every possible node assignment for that pod would violate \"MaxSkew\" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field."
-																			type:        "string"
-																		}
+																		nodeAffinityPolicy: type: "string"
+																		nodeTaintsPolicy: type:   "string"
+																		topologyKey: type:        "string"
+																		whenUnsatisfiable: type:  "string"
 																	}
-																	required: [
-																		"maxSkew",
-																		"topologyKey",
-																		"whenUnsatisfiable",
-																	]
+																	required: ["maxSkew", "topologyKey", "whenUnsatisfiable"]
 																	type: "object"
 																}
 																type: "array"
-																"x-kubernetes-list-map-keys": [
-																	"topologyKey",
-																	"whenUnsatisfiable",
-																]
+																"x-kubernetes-list-map-keys": ["topologyKey", "whenUnsatisfiable"]
 																"x-kubernetes-list-type": "map"
 															}
 															volumes: {
 																items: {
-																	description: "Volume represents a named volume in a pod that may be accessed by any container in the pod."
 																	properties: {
 																		awsElasticBlockStore: {
-																			description: "awsElasticBlockStore represents an AWS Disk resource that is attached to a kubelet's host machine and then exposed to the pod. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore"
 																			properties: {
-																				fsType: {
-																					description: "fsType is the filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore TODO: how do we prevent errors in the filesystem from compromising the machine"
-																					type:        "string"
-																				}
+																				fsType: type: "string"
 																				partition: {
-																					description: "partition is the partition in the volume that you want to mount. If omitted, the default is to mount by volume name. Examples: For volume /dev/sda1, you specify the partition as \"1\". Similarly, the volume partition for /dev/sda is \"0\" (or you can leave the property empty)."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
-																				readOnly: {
-																					description: "readOnly value true will force the readOnly setting in VolumeMounts. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore"
-																					type:        "boolean"
-																				}
-																				volumeID: {
-																					description: "volumeID is unique ID of the persistent disk resource in AWS (Amazon EBS volume). More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore"
-																					type:        "string"
-																				}
+																				readOnly: type: "boolean"
+																				volumeID: type: "string"
 																			}
 																			required: ["volumeID"]
 																			type: "object"
 																		}
 																		azureDisk: {
-																			description: "azureDisk represents an Azure Data Disk mount on the host and bind mount to the pod."
 																			properties: {
-																				cachingMode: {
-																					description: "cachingMode is the Host Caching mode: None, Read Only, Read Write."
-																					type:        "string"
-																				}
-																				diskName: {
-																					description: "diskName is the Name of the data disk in the blob storage"
-																					type:        "string"
-																				}
-																				diskURI: {
-																					description: "diskURI is the URI of data disk in the blob storage"
-																					type:        "string"
-																				}
+																				cachingMode: type: "string"
+																				diskName: type:    "string"
+																				diskURI: type:     "string"
 																				fsType: {
-																					description: "fsType is Filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified."
-																					type:        "string"
+																					default: "ext4"
+																					type:    "string"
 																				}
-																				kind: {
-																					description: "kind expected values are Shared: multiple blob disks per storage account  Dedicated: single blob disk per storage account  Managed: azure managed data disk (only in managed availability set). defaults to shared"
-																					type:        "string"
-																				}
+																				kind: type: "string"
 																				readOnly: {
-																					description: "readOnly Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
-																					type:        "boolean"
+																					default: false
+																					type:    "boolean"
 																				}
 																			}
-																			required: [
-																				"diskName",
-																				"diskURI",
-																			]
+																			required: ["diskName", "diskURI"]
 																			type: "object"
 																		}
 																		azureFile: {
-																			description: "azureFile represents an Azure File Service mount on the host and bind mount to the pod."
 																			properties: {
-																				readOnly: {
-																					description: "readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
-																					type:        "boolean"
-																				}
-																				secretName: {
-																					description: "secretName is the  name of secret that contains Azure Storage Account Name and Key"
-																					type:        "string"
-																				}
-																				shareName: {
-																					description: "shareName is the azure share Name"
-																					type:        "string"
-																				}
+																				readOnly: type:   "boolean"
+																				secretName: type: "string"
+																				shareName: type:  "string"
 																			}
-																			required: [
-																				"secretName",
-																				"shareName",
-																			]
+																			required: ["secretName", "shareName"]
 																			type: "object"
 																		}
 																		cephfs: {
-																			description: "cephFS represents a Ceph FS mount on the host that shares a pod's lifetime"
 																			properties: {
 																				monitors: {
-																					description: "monitors is Required: Monitors is a collection of Ceph monitors More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
 																					items: type: "string"
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
-																				path: {
-																					description: "path is Optional: Used as the mounted root, rather than the full Ceph tree, default is /"
-																					type:        "string"
-																				}
-																				readOnly: {
-																					description: "readOnly is Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
-																					type:        "boolean"
-																				}
-																				secretFile: {
-																					description: "secretFile is Optional: SecretFile is the path to key ring for User, default is /etc/ceph/user.secret More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
-																					type:        "string"
-																				}
+																				path: type:       "string"
+																				readOnly: type:   "boolean"
+																				secretFile: type: "string"
 																				secretRef: {
-																					description: "secretRef is Optional: SecretRef is reference to the authentication secret for User, default is empty. More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
 																					properties: name: {
-																						description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																						type:        "string"
+																						default: ""
+																						type:    "string"
 																					}
 																					type:                    "object"
 																					"x-kubernetes-map-type": "atomic"
 																				}
-																				user: {
-																					description: "user is optional: User is the rados user name, default is admin More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it"
-																					type:        "string"
-																				}
+																				user: type: "string"
 																			}
 																			required: ["monitors"]
 																			type: "object"
 																		}
 																		cinder: {
-																			description: "cinder represents a cinder volume attached and mounted on kubelets host machine. More info: https://examples.k8s.io/mysql-cinder-pd/README.md"
 																			properties: {
-																				fsType: {
-																					description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://examples.k8s.io/mysql-cinder-pd/README.md"
-																					type:        "string"
-																				}
-																				readOnly: {
-																					description: "readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts. More info: https://examples.k8s.io/mysql-cinder-pd/README.md"
-																					type:        "boolean"
-																				}
+																				fsType: type:   "string"
+																				readOnly: type: "boolean"
 																				secretRef: {
-																					description: "secretRef is optional: points to a secret object containing parameters used to connect to OpenStack."
 																					properties: name: {
-																						description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																						type:        "string"
+																						default: ""
+																						type:    "string"
 																					}
 																					type:                    "object"
 																					"x-kubernetes-map-type": "atomic"
 																				}
-																				volumeID: {
-																					description: "volumeID used to identify the volume in cinder. More info: https://examples.k8s.io/mysql-cinder-pd/README.md"
-																					type:        "string"
-																				}
+																				volumeID: type: "string"
 																			}
 																			required: ["volumeID"]
 																			type: "object"
 																		}
 																		configMap: {
-																			description: "configMap represents a configMap that should populate this volume"
 																			properties: {
 																				defaultMode: {
-																					description: "defaultMode is optional: mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				items: {
-																					description: "items if unspecified, each key-value pair in the Data field of the referenced ConfigMap will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the ConfigMap, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'."
 																					items: {
-																						description: "Maps a string key to a path within a volume."
 																						properties: {
-																							key: {
-																								description: "key is the key to project."
-																								type:        "string"
-																							}
+																							key: type: "string"
 																							mode: {
-																								description: "mode is Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
-																								format:      "int32"
-																								type:        "integer"
+																								format: "int32"
+																								type:   "integer"
 																							}
-																							path: {
-																								description: "path is the relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'."
-																								type:        "string"
-																							}
+																							path: type: "string"
 																						}
-																						required: [
-																							"key",
-																							"path",
-																						]
+																						required: ["key", "path"]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																				name: {
-																					description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																					type:        "string"
+																					default: ""
+																					type:    "string"
 																				}
-																				optional: {
-																					description: "optional specify whether the ConfigMap or its keys must be defined"
-																					type:        "boolean"
-																				}
+																				optional: type: "boolean"
 																			}
 																			type:                    "object"
 																			"x-kubernetes-map-type": "atomic"
 																		}
 																		csi: {
-																			description: "csi (Container Storage Interface) represents ephemeral storage that is handled by certain external CSI drivers (Beta feature)."
 																			properties: {
-																				driver: {
-																					description: "driver is the name of the CSI driver that handles this volume. Consult with your admin for the correct name as registered in the cluster."
-																					type:        "string"
-																				}
-																				fsType: {
-																					description: "fsType to mount. Ex. \"ext4\", \"xfs\", \"ntfs\". If not provided, the empty value is passed to the associated CSI driver which will determine the default filesystem to apply."
-																					type:        "string"
-																				}
+																				driver: type: "string"
+																				fsType: type: "string"
 																				nodePublishSecretRef: {
-																					description: "nodePublishSecretRef is a reference to the secret object containing sensitive information to pass to the CSI driver to complete the CSI NodePublishVolume and NodeUnpublishVolume calls. This field is optional, and  may be empty if no secret is required. If the secret object contains more than one secret, all secret references are passed."
 																					properties: name: {
-																						description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																						type:        "string"
+																						default: ""
+																						type:    "string"
 																					}
 																					type:                    "object"
 																					"x-kubernetes-map-type": "atomic"
 																				}
-																				readOnly: {
-																					description: "readOnly specifies a read-only configuration for the volume. Defaults to false (read/write)."
-																					type:        "boolean"
-																				}
+																				readOnly: type: "boolean"
 																				volumeAttributes: {
 																					additionalProperties: type: "string"
-																					description: "volumeAttributes stores driver-specific properties that are passed to the CSI driver. Consult your driver's documentation for supported values."
-																					type:        "object"
+																					type: "object"
 																				}
 																			}
 																			required: ["driver"]
 																			type: "object"
 																		}
 																		downwardAPI: {
-																			description: "downwardAPI represents downward API about the pod that should populate this volume"
 																			properties: {
 																				defaultMode: {
-																					description: "Optional: mode bits to use on created files by default. Must be a Optional: mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				items: {
-																					description: "Items is a list of downward API volume file"
 																					items: {
-																						description: "DownwardAPIVolumeFile represents information to create the file containing the pod field"
 																						properties: {
 																							fieldRef: {
-																								description: "Required: Selects a field of the pod: only annotations, labels, name and namespace are supported."
 																								properties: {
-																									apiVersion: {
-																										description: "Version of the schema the FieldPath is written in terms of, defaults to \"v1\"."
-																										type:        "string"
-																									}
-																									fieldPath: {
-																										description: "Path of the field to select in the specified API version."
-																										type:        "string"
-																									}
+																									apiVersion: type: "string"
+																									fieldPath: type:  "string"
 																								}
 																								required: ["fieldPath"]
 																								type:                    "object"
 																								"x-kubernetes-map-type": "atomic"
 																							}
 																							mode: {
-																								description: "Optional: mode bits used to set permissions on this file, must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
-																								format:      "int32"
-																								type:        "integer"
+																								format: "int32"
+																								type:   "integer"
 																							}
-																							path: {
-																								description: "Required: Path is  the relative path name of the file to be created. Must not be absolute or contain the '..' path. Must be utf-8 encoded. The first item of the relative path must not start with '..'"
-																								type:        "string"
-																							}
+																							path: type: "string"
 																							resourceFieldRef: {
-																								description: "Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, requests.cpu and requests.memory) are currently supported."
 																								properties: {
-																									containerName: {
-																										description: "Container name: required for volumes, optional for env vars"
-																										type:        "string"
-																									}
+																									containerName: type: "string"
 																									divisor: {
 																										anyOf: [{
 																											type: "integer"
 																										}, {
 																											type: "string"
 																										}]
-																										description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
 																										pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																										"x-kubernetes-int-or-string": true
 																									}
-																									resource: {
-																										description: "Required: resource to select"
-																										type:        "string"
-																									}
+																									resource: type: "string"
 																								}
 																								required: ["resource"]
 																								type:                    "object"
@@ -5872,25 +7659,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						required: ["path"]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
 																			type: "object"
 																		}
 																		emptyDir: {
-																			description: "emptyDir represents a temporary directory that shares a pod's lifetime. More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir"
 																			properties: {
-																				medium: {
-																					description: "medium represents what type of storage medium should back this directory. The default is \"\" which means to use the node's default medium. Must be an empty string (default) or Memory. More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir"
-																					type:        "string"
-																				}
+																				medium: type: "string"
 																				sizeLimit: {
 																					anyOf: [{
 																						type: "integer"
 																					}, {
 																						type: "string"
 																					}]
-																					description:                  "sizeLimit is the total amount of local storage required for this EmptyDir volume. The size limit is also applicable for memory medium. The maximum usage on memory medium EmptyDir would be the minimum value between the SizeLimit specified here and the sum of memory limits of all containers in a pod. The default is nil which means that the limit is undefined. More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir"
 																					pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																					"x-kubernetes-int-or-string": true
 																				}
@@ -5898,84 +7681,37 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			type: "object"
 																		}
 																		ephemeral: {
-																			description: """
-		ephemeral represents a volume that is handled by a cluster storage driver. The volume's lifecycle is tied to the pod that defines it - it will be created before the pod starts, and deleted when the pod is removed.
-		 Use this if: a) the volume is only needed while the pod runs, b) features of normal volumes like restoring from snapshot or capacity tracking are needed, c) the storage driver is specified through a storage class, and d) the storage driver supports dynamic volume provisioning through a PersistentVolumeClaim (see EphemeralVolumeSource for more information on the connection between this volume type and PersistentVolumeClaim).
-		 Use PersistentVolumeClaim or one of the vendor-specific APIs for volumes that persist for longer than the lifecycle of an individual pod.
-		 Use CSI for light-weight local ephemeral volumes if the CSI driver is meant to be used that way - see the documentation of the driver for more information.
-		 A pod can use both types of ephemeral volumes and persistent volumes at the same time.
-		"""
 																			properties: volumeClaimTemplate: {
-																				description: """
-		Will be used to create a stand-alone PVC to provision the volume. The pod in which this EphemeralVolumeSource is embedded will be the owner of the PVC, i.e. the PVC will be deleted together with the pod.  The name of the PVC will be `<pod name>-<volume name>` where `<volume name>` is the name from the `PodSpec.Volumes` array entry. Pod validation will reject the pod if the concatenated name is not valid for a PVC (for example, too long).
-		 An existing PVC with that name that is not owned by the pod will *not* be used for the pod to avoid using an unrelated volume by mistake. Starting the pod is then blocked until the unrelated PVC is removed. If such a pre-created PVC is meant to be used by the pod, the PVC has to updated with an owner reference to the pod once the pod exists. Normally this should not be necessary, but it may be useful when manually reconstructing a broken cluster.
-		 This field is read-only and no changes will be made by Kubernetes to the PVC after it has been created.
-		 Required, must not be nil.
-		"""
 																				properties: {
-																					metadata: {
-																						description: "May contain labels and annotations that will be copied into the PVC when creating it. No other fields are allowed and will be rejected during validation."
-																						type:        "object"
-																					}
+																					metadata: type: "object"
 																					spec: {
-																						description: "The specification for the PersistentVolumeClaim. The entire content is copied unchanged into the PVC that gets created from this template. The same fields as in a PersistentVolumeClaim are also valid here."
 																						properties: {
 																							accessModes: {
-																								description: "accessModes contains the desired access modes the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1"
 																								items: type: "string"
-																								type: "array"
+																								type:                     "array"
+																								"x-kubernetes-list-type": "atomic"
 																							}
 																							dataSource: {
-																								description: "dataSource field can be used to specify either: * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot) * An existing PVC (PersistentVolumeClaim) If the provisioner or an external controller can support the specified data source, it will create a new volume based on the contents of the specified data source. When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified. If the namespace is specified, then dataSourceRef will not be copied to dataSource."
 																								properties: {
-																									apiGroup: {
-																										description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
-																										type:        "string"
-																									}
-																									kind: {
-																										description: "Kind is the type of resource being referenced"
-																										type:        "string"
-																									}
-																									name: {
-																										description: "Name is the name of resource being referenced"
-																										type:        "string"
-																									}
+																									apiGroup: type: "string"
+																									kind: type:     "string"
+																									name: type:     "string"
 																								}
-																								required: [
-																									"kind",
-																									"name",
-																								]
+																								required: ["kind", "name"]
 																								type:                    "object"
 																								"x-kubernetes-map-type": "atomic"
 																							}
 																							dataSourceRef: {
-																								description: "dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volume is desired. This may be any object from a non-empty API group (non core object) or a PersistentVolumeClaim object. When this field is specified, volume binding will only succeed if the type of the specified object matches some installed volume populator or dynamic provisioner. This field will replace the functionality of the dataSource field and as such if both fields are non-empty, they must have the same value. For backwards compatibility, when namespace isn't specified in dataSourceRef, both fields (dataSource and dataSourceRef) will be set to the same value automatically if one of them is empty and the other is non-empty. When namespace is specified in dataSourceRef, dataSource isn't set to the same value and must be empty. There are three important differences between dataSource and dataSourceRef: * While dataSource only allows two specific types of objects, dataSourceRef allows any non-core object, as well as PersistentVolumeClaim objects. * While dataSource ignores disallowed values (dropping them), dataSourceRef preserves all values, and generates an error if a disallowed value is specified. * While dataSource only allows local objects, dataSourceRef allows objects in any namespaces. (Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled. (Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled."
 																								properties: {
-																									apiGroup: {
-																										description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
-																										type:        "string"
-																									}
-																									kind: {
-																										description: "Kind is the type of resource being referenced"
-																										type:        "string"
-																									}
-																									name: {
-																										description: "Name is the name of resource being referenced"
-																										type:        "string"
-																									}
-																									namespace: {
-																										description: "Namespace is the namespace of resource being referenced Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details. (Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled."
-																										type:        "string"
-																									}
+																									apiGroup: type:  "string"
+																									kind: type:      "string"
+																									name: type:      "string"
+																									namespace: type: "string"
 																								}
-																								required: [
-																									"kind",
-																									"name",
-																								]
+																								required: ["kind", "name"]
 																								type: "object"
 																							}
 																							resources: {
-																								description: "resources represents the minimum resources the volume should have. If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements that are lower than previous value but must still be higher than capacity recorded in the status field of the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources"
 																								properties: {
 																									limits: {
 																										additionalProperties: {
@@ -5987,8 +7723,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																											pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																											"x-kubernetes-int-or-string": true
 																										}
-																										description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
-																										type:        "object"
+																										type: "object"
 																									}
 																									requests: {
 																										additionalProperties: {
@@ -6000,67 +7735,42 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																											pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																											"x-kubernetes-int-or-string": true
 																										}
-																										description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. Requests cannot exceed Limits. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
-																										type:        "object"
+																										type: "object"
 																									}
 																								}
 																								type: "object"
 																							}
 																							selector: {
-																								description: "selector is a label query over volumes to consider for binding."
 																								properties: {
 																									matchExpressions: {
-																										description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																										items: {
-																											description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
 																											properties: {
-																												key: {
-																													description: "key is the label key that the selector applies to."
-																													type:        "string"
-																												}
-																												operator: {
-																													description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
-																													type:        "string"
-																												}
+																												key: type:      "string"
+																												operator: type: "string"
 																												values: {
-																													description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
 																													items: type: "string"
-																													type: "array"
+																													type:                     "array"
+																													"x-kubernetes-list-type": "atomic"
 																												}
 																											}
-																											required: [
-																												"key",
-																												"operator",
-																											]
+																											required: ["key", "operator"]
 																											type: "object"
 																										}
-																										type: "array"
+																										type:                     "array"
+																										"x-kubernetes-list-type": "atomic"
 																									}
 																									matchLabels: {
 																										additionalProperties: type: "string"
-																										description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
-																										type:        "object"
+																										type: "object"
 																									}
 																								}
 																								type:                    "object"
 																								"x-kubernetes-map-type": "atomic"
 																							}
-																							storageClassName: {
-																								description: "storageClassName is the name of the StorageClass required by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1"
-																								type:        "string"
-																							}
-																							volumeAttributesClassName: {
-																								description: "volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim. If specified, the CSI driver will create or update the volume with the attributes defined in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName, it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass will be applied to the claim but it's not allowed to reset this field to empty string once it is set. If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass will be set by the persistentvolume controller if it exists. If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource exists. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#volumeattributesclass (Alpha) Using this field requires the VolumeAttributesClass feature gate to be enabled."
-																								type:        "string"
-																							}
-																							volumeMode: {
-																								description: "volumeMode defines what type of volume is required by the claim. Value of Filesystem is implied when not included in claim spec."
-																								type:        "string"
-																							}
-																							volumeName: {
-																								description: "volumeName is the binding reference to the PersistentVolume backing this claim."
-																								type:        "string"
-																							}
+																							storageClassName: type:          "string"
+																							volumeAttributesClassName: type: "string"
+																							volumeMode: type:                "string"
+																							volumeName: type:                "string"
 																						}
 																						type: "object"
 																					}
@@ -6071,59 +7781,39 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			type: "object"
 																		}
 																		fc: {
-																			description: "fc represents a Fibre Channel resource that is attached to a kubelet's host machine and then exposed to the pod."
 																			properties: {
-																				fsType: {
-																					description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. TODO: how do we prevent errors in the filesystem from compromising the machine"
-																					type:        "string"
-																				}
+																				fsType: type: "string"
 																				lun: {
-																					description: "lun is Optional: FC target lun number"
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
-																				readOnly: {
-																					description: "readOnly is Optional: Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
-																					type:        "boolean"
-																				}
+																				readOnly: type: "boolean"
 																				targetWWNs: {
-																					description: "targetWWNs is Optional: FC target worldwide names (WWNs)"
 																					items: type: "string"
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																				wwids: {
-																					description: "wwids Optional: FC volume world wide identifiers (wwids) Either wwids or combination of targetWWNs and lun must be set, but not both simultaneously."
 																					items: type: "string"
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
 																			type: "object"
 																		}
 																		flexVolume: {
-																			description: "flexVolume represents a generic volume resource that is provisioned/attached using an exec based plugin."
 																			properties: {
-																				driver: {
-																					description: "driver is the name of the driver to use for this volume."
-																					type:        "string"
-																				}
-																				fsType: {
-																					description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". The default filesystem depends on FlexVolume script."
-																					type:        "string"
-																				}
+																				driver: type: "string"
+																				fsType: type: "string"
 																				options: {
 																					additionalProperties: type: "string"
-																					description: "options is Optional: this field holds extra command options if any."
-																					type:        "object"
+																					type: "object"
 																				}
-																				readOnly: {
-																					description: "readOnly is Optional: defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
-																					type:        "boolean"
-																				}
+																				readOnly: type: "boolean"
 																				secretRef: {
-																					description: "secretRef is Optional: secretRef is reference to the secret object containing sensitive information to pass to the plugin scripts. This may be empty if no secret object is specified. If the secret object contains more than one secret, all secrets are passed to the plugin scripts."
 																					properties: name: {
-																						description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																						type:        "string"
+																						default: ""
+																						type:    "string"
 																					}
 																					type:                    "object"
 																					"x-kubernetes-map-type": "atomic"
@@ -6133,411 +7823,231 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			type: "object"
 																		}
 																		flocker: {
-																			description: "flocker represents a Flocker volume attached to a kubelet's host machine. This depends on the Flocker control service being running"
 																			properties: {
-																				datasetName: {
-																					description: "datasetName is Name of the dataset stored as metadata -> name on the dataset for Flocker should be considered as deprecated"
-																					type:        "string"
-																				}
-																				datasetUUID: {
-																					description: "datasetUUID is the UUID of the dataset. This is unique identifier of a Flocker dataset"
-																					type:        "string"
-																				}
+																				datasetName: type: "string"
+																				datasetUUID: type: "string"
 																			}
 																			type: "object"
 																		}
 																		gcePersistentDisk: {
-																			description: "gcePersistentDisk represents a GCE Disk resource that is attached to a kubelet's host machine and then exposed to the pod. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk"
 																			properties: {
-																				fsType: {
-																					description: "fsType is filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk TODO: how do we prevent errors in the filesystem from compromising the machine"
-																					type:        "string"
-																				}
+																				fsType: type: "string"
 																				partition: {
-																					description: "partition is the partition in the volume that you want to mount. If omitted, the default is to mount by volume name. Examples: For volume /dev/sda1, you specify the partition as \"1\". Similarly, the volume partition for /dev/sda is \"0\" (or you can leave the property empty). More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk"
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
-																				pdName: {
-																					description: "pdName is unique name of the PD resource in GCE. Used to identify the disk in GCE. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk"
-																					type:        "string"
-																				}
-																				readOnly: {
-																					description: "readOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false. More info: https://kubernetes.io/docs/concepts/storage/volumes#gcepersistentdisk"
-																					type:        "boolean"
-																				}
+																				pdName: type:   "string"
+																				readOnly: type: "boolean"
 																			}
 																			required: ["pdName"]
 																			type: "object"
 																		}
 																		gitRepo: {
-																			description: "gitRepo represents a git repository at a particular revision. DEPRECATED: GitRepo is deprecated. To provision a container with a git repo, mount an EmptyDir into an InitContainer that clones the repo using git, then mount the EmptyDir into the Pod's container."
 																			properties: {
-																				directory: {
-																					description: "directory is the target directory name. Must not contain or start with '..'.  If '.' is supplied, the volume directory will be the git repository.  Otherwise, if specified, the volume will contain the git repository in the subdirectory with the given name."
-																					type:        "string"
-																				}
-																				repository: {
-																					description: "repository is the URL"
-																					type:        "string"
-																				}
-																				revision: {
-																					description: "revision is the commit hash for the specified revision."
-																					type:        "string"
-																				}
+																				directory: type:  "string"
+																				repository: type: "string"
+																				revision: type:   "string"
 																			}
 																			required: ["repository"]
 																			type: "object"
 																		}
 																		glusterfs: {
-																			description: "glusterfs represents a Glusterfs mount on the host that shares a pod's lifetime. More info: https://examples.k8s.io/volumes/glusterfs/README.md"
 																			properties: {
-																				endpoints: {
-																					description: "endpoints is the endpoint name that details Glusterfs topology. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod"
-																					type:        "string"
-																				}
-																				path: {
-																					description: "path is the Glusterfs volume path. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod"
-																					type:        "string"
-																				}
-																				readOnly: {
-																					description: "readOnly here will force the Glusterfs volume to be mounted with read-only permissions. Defaults to false. More info: https://examples.k8s.io/volumes/glusterfs/README.md#create-a-pod"
-																					type:        "boolean"
-																				}
+																				endpoints: type: "string"
+																				path: type:      "string"
+																				readOnly: type:  "boolean"
 																			}
-																			required: [
-																				"endpoints",
-																				"path",
-																			]
+																			required: ["endpoints", "path"]
 																			type: "object"
 																		}
 																		hostPath: {
-																			description: "hostPath represents a pre-existing file or directory on the host machine that is directly exposed to the container. This is generally used for system agents or other privileged things that are allowed to see the host machine. Most containers will NOT need this. More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath --- TODO(jonesdl) We need to restrict who can use host directory mounts and who can/can not mount host directories as read/write."
 																			properties: {
-																				path: {
-																					description: "path of the directory on the host. If the path is a symlink, it will follow the link to the real path. More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath"
-																					type:        "string"
-																				}
-																				type: {
-																					description: "type for HostPath Volume Defaults to \"\" More info: https://kubernetes.io/docs/concepts/storage/volumes#hostpath"
-																					type:        "string"
-																				}
+																				path: type: "string"
+																				type: type: "string"
 																			}
 																			required: ["path"]
 																			type: "object"
 																		}
-																		iscsi: {
-																			description: "iscsi represents an ISCSI Disk resource that is attached to a kubelet's host machine and then exposed to the pod. More info: https://examples.k8s.io/volumes/iscsi/README.md"
+																		image: {
 																			properties: {
-																				chapAuthDiscovery: {
-																					description: "chapAuthDiscovery defines whether support iSCSI Discovery CHAP authentication"
-																					type:        "boolean"
-																				}
-																				chapAuthSession: {
-																					description: "chapAuthSession defines whether support iSCSI Session CHAP authentication"
-																					type:        "boolean"
-																				}
-																				fsType: {
-																					description: "fsType is the filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#iscsi TODO: how do we prevent errors in the filesystem from compromising the machine"
-																					type:        "string"
-																				}
-																				initiatorName: {
-																					description: "initiatorName is the custom iSCSI Initiator Name. If initiatorName is specified with iscsiInterface simultaneously, new iSCSI interface <target portal>:<volume name> will be created for the connection."
-																					type:        "string"
-																				}
-																				iqn: {
-																					description: "iqn is the target iSCSI Qualified Name."
-																					type:        "string"
-																				}
+																				pullPolicy: type: "string"
+																				reference: type:  "string"
+																			}
+																			type: "object"
+																		}
+																		iscsi: {
+																			properties: {
+																				chapAuthDiscovery: type: "boolean"
+																				chapAuthSession: type:   "boolean"
+																				fsType: type:            "string"
+																				initiatorName: type:     "string"
+																				iqn: type:               "string"
 																				iscsiInterface: {
-																					description: "iscsiInterface is the interface Name that uses an iSCSI transport. Defaults to 'default' (tcp)."
-																					type:        "string"
+																					default: "default"
+																					type:    "string"
 																				}
 																				lun: {
-																					description: "lun represents iSCSI Target Lun number."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				portals: {
-																					description: "portals is the iSCSI Target Portal List. The portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260)."
 																					items: type: "string"
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
-																				readOnly: {
-																					description: "readOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false."
-																					type:        "boolean"
-																				}
+																				readOnly: type: "boolean"
 																				secretRef: {
-																					description: "secretRef is the CHAP Secret for iSCSI target and initiator authentication"
 																					properties: name: {
-																						description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																						type:        "string"
+																						default: ""
+																						type:    "string"
 																					}
 																					type:                    "object"
 																					"x-kubernetes-map-type": "atomic"
 																				}
-																				targetPortal: {
-																					description: "targetPortal is iSCSI Target Portal. The Portal is either an IP or ip_addr:port if the port is other than default (typically TCP ports 860 and 3260)."
-																					type:        "string"
-																				}
+																				targetPortal: type: "string"
 																			}
-																			required: [
-																				"iqn",
-																				"lun",
-																				"targetPortal",
-																			]
+																			required: ["iqn", "lun", "targetPortal"]
 																			type: "object"
 																		}
-																		name: {
-																			description: "name of the volume. Must be a DNS_LABEL and unique within the pod. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names"
-																			type:        "string"
-																		}
+																		name: type: "string"
 																		nfs: {
-																			description: "nfs represents an NFS mount on the host that shares a pod's lifetime More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs"
 																			properties: {
-																				path: {
-																					description: "path that is exported by the NFS server. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs"
-																					type:        "string"
-																				}
-																				readOnly: {
-																					description: "readOnly here will force the NFS export to be mounted with read-only permissions. Defaults to false. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs"
-																					type:        "boolean"
-																				}
-																				server: {
-																					description: "server is the hostname or IP address of the NFS server. More info: https://kubernetes.io/docs/concepts/storage/volumes#nfs"
-																					type:        "string"
-																				}
+																				path: type:     "string"
+																				readOnly: type: "boolean"
+																				server: type:   "string"
 																			}
-																			required: [
-																				"path",
-																				"server",
-																			]
+																			required: ["path", "server"]
 																			type: "object"
 																		}
 																		persistentVolumeClaim: {
-																			description: "persistentVolumeClaimVolumeSource represents a reference to a PersistentVolumeClaim in the same namespace. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
 																			properties: {
-																				claimName: {
-																					description: "claimName is the name of a PersistentVolumeClaim in the same namespace as the pod using this volume. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims"
-																					type:        "string"
-																				}
-																				readOnly: {
-																					description: "readOnly Will force the ReadOnly setting in VolumeMounts. Default false."
-																					type:        "boolean"
-																				}
+																				claimName: type: "string"
+																				readOnly: type:  "boolean"
 																			}
 																			required: ["claimName"]
 																			type: "object"
 																		}
 																		photonPersistentDisk: {
-																			description: "photonPersistentDisk represents a PhotonController persistent disk attached and mounted on kubelets host machine"
 																			properties: {
-																				fsType: {
-																					description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified."
-																					type:        "string"
-																				}
-																				pdID: {
-																					description: "pdID is the ID that identifies Photon Controller persistent disk"
-																					type:        "string"
-																				}
+																				fsType: type: "string"
+																				pdID: type:   "string"
 																			}
 																			required: ["pdID"]
 																			type: "object"
 																		}
 																		portworxVolume: {
-																			description: "portworxVolume represents a portworx volume attached and mounted on kubelets host machine"
 																			properties: {
-																				fsType: {
-																					description: "fSType represents the filesystem type to mount Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\". Implicitly inferred to be \"ext4\" if unspecified."
-																					type:        "string"
-																				}
-																				readOnly: {
-																					description: "readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
-																					type:        "boolean"
-																				}
-																				volumeID: {
-																					description: "volumeID uniquely identifies a Portworx volume"
-																					type:        "string"
-																				}
+																				fsType: type:   "string"
+																				readOnly: type: "boolean"
+																				volumeID: type: "string"
 																			}
 																			required: ["volumeID"]
 																			type: "object"
 																		}
 																		projected: {
-																			description: "projected items for all in one resources secrets, configmaps, and downward API"
 																			properties: {
 																				defaultMode: {
-																					description: "defaultMode are the mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				sources: {
-																					description: "sources is the list of volume projections"
 																					items: {
-																						description: "Projection that may be projected along with other supported volume types"
 																						properties: {
 																							clusterTrustBundle: {
-																								description: """
-		ClusterTrustBundle allows a pod to access the `.spec.trustBundle` field of ClusterTrustBundle objects in an auto-updating file.
-		 Alpha, gated by the ClusterTrustBundleProjection feature gate.
-		 ClusterTrustBundle objects can either be selected by name, or by the combination of signer name and a label selector.
-		 Kubelet performs aggressive normalization of the PEM contents written into the pod filesystem.  Esoteric PEM features such as inter-block comments and block headers are stripped.  Certificates are deduplicated. The ordering of certificates within the file is arbitrary, and Kubelet may change the order over time.
-		"""
 																								properties: {
 																									labelSelector: {
-																										description: "Select all ClusterTrustBundles that match this label selector.  Only has effect if signerName is set.  Mutually-exclusive with name.  If unset, interpreted as \"match nothing\".  If set but empty, interpreted as \"match everything\"."
 																										properties: {
 																											matchExpressions: {
-																												description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 																												items: {
-																													description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
 																													properties: {
-																														key: {
-																															description: "key is the label key that the selector applies to."
-																															type:        "string"
-																														}
-																														operator: {
-																															description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
-																															type:        "string"
-																														}
+																														key: type:      "string"
+																														operator: type: "string"
 																														values: {
-																															description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
 																															items: type: "string"
-																															type: "array"
+																															type:                     "array"
+																															"x-kubernetes-list-type": "atomic"
 																														}
 																													}
-																													required: [
-																														"key",
-																														"operator",
-																													]
+																													required: ["key", "operator"]
 																													type: "object"
 																												}
-																												type: "array"
+																												type:                     "array"
+																												"x-kubernetes-list-type": "atomic"
 																											}
 																											matchLabels: {
 																												additionalProperties: type: "string"
-																												description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
-																												type:        "object"
+																												type: "object"
 																											}
 																										}
 																										type:                    "object"
 																										"x-kubernetes-map-type": "atomic"
 																									}
-																									name: {
-																										description: "Select a single ClusterTrustBundle by object name.  Mutually-exclusive with signerName and labelSelector."
-																										type:        "string"
-																									}
-																									optional: {
-																										description: "If true, don't block pod startup if the referenced ClusterTrustBundle(s) aren't available.  If using name, then the named ClusterTrustBundle is allowed not to exist.  If using signerName, then the combination of signerName and labelSelector is allowed to match zero ClusterTrustBundles."
-																										type:        "boolean"
-																									}
-																									path: {
-																										description: "Relative path from the volume root to write the bundle."
-																										type:        "string"
-																									}
-																									signerName: {
-																										description: "Select all ClusterTrustBundles that match this signer name. Mutually-exclusive with name.  The contents of all selected ClusterTrustBundles will be unified and deduplicated."
-																										type:        "string"
-																									}
+																									name: type:       "string"
+																									optional: type:   "boolean"
+																									path: type:       "string"
+																									signerName: type: "string"
 																								}
 																								required: ["path"]
 																								type: "object"
 																							}
 																							configMap: {
-																								description: "configMap information about the configMap data to project"
 																								properties: {
 																									items: {
-																										description: "items if unspecified, each key-value pair in the Data field of the referenced ConfigMap will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the ConfigMap, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'."
 																										items: {
-																											description: "Maps a string key to a path within a volume."
 																											properties: {
-																												key: {
-																													description: "key is the key to project."
-																													type:        "string"
-																												}
+																												key: type: "string"
 																												mode: {
-																													description: "mode is Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
-																													format:      "int32"
-																													type:        "integer"
+																													format: "int32"
+																													type:   "integer"
 																												}
-																												path: {
-																													description: "path is the relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'."
-																													type:        "string"
-																												}
+																												path: type: "string"
 																											}
-																											required: [
-																												"key",
-																												"path",
-																											]
+																											required: ["key", "path"]
 																											type: "object"
 																										}
-																										type: "array"
+																										type:                     "array"
+																										"x-kubernetes-list-type": "atomic"
 																									}
 																									name: {
-																										description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																										type:        "string"
+																										default: ""
+																										type:    "string"
 																									}
-																									optional: {
-																										description: "optional specify whether the ConfigMap or its keys must be defined"
-																										type:        "boolean"
-																									}
+																									optional: type: "boolean"
 																								}
 																								type:                    "object"
 																								"x-kubernetes-map-type": "atomic"
 																							}
 																							downwardAPI: {
-																								description: "downwardAPI information about the downwardAPI data to project"
 																								properties: items: {
-																									description: "Items is a list of DownwardAPIVolume file"
 																									items: {
-																										description: "DownwardAPIVolumeFile represents information to create the file containing the pod field"
 																										properties: {
 																											fieldRef: {
-																												description: "Required: Selects a field of the pod: only annotations, labels, name and namespace are supported."
 																												properties: {
-																													apiVersion: {
-																														description: "Version of the schema the FieldPath is written in terms of, defaults to \"v1\"."
-																														type:        "string"
-																													}
-																													fieldPath: {
-																														description: "Path of the field to select in the specified API version."
-																														type:        "string"
-																													}
+																													apiVersion: type: "string"
+																													fieldPath: type:  "string"
 																												}
 																												required: ["fieldPath"]
 																												type:                    "object"
 																												"x-kubernetes-map-type": "atomic"
 																											}
 																											mode: {
-																												description: "Optional: mode bits used to set permissions on this file, must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
-																												format:      "int32"
-																												type:        "integer"
+																												format: "int32"
+																												type:   "integer"
 																											}
-																											path: {
-																												description: "Required: Path is  the relative path name of the file to be created. Must not be absolute or contain the '..' path. Must be utf-8 encoded. The first item of the relative path must not start with '..'"
-																												type:        "string"
-																											}
+																											path: type: "string"
 																											resourceFieldRef: {
-																												description: "Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, requests.cpu and requests.memory) are currently supported."
 																												properties: {
-																													containerName: {
-																														description: "Container name: required for volumes, optional for env vars"
-																														type:        "string"
-																													}
+																													containerName: type: "string"
 																													divisor: {
 																														anyOf: [{
 																															type: "integer"
 																														}, {
 																															type: "string"
 																														}]
-																														description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
 																														pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																														"x-kubernetes-int-or-string": true
 																													}
-																													resource: {
-																														description: "Required: resource to select"
-																														type:        "string"
-																													}
+																													resource: type: "string"
 																												}
 																												required: ["resource"]
 																												type:                    "object"
@@ -6547,68 +8057,65 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										required: ["path"]
 																										type: "object"
 																									}
-																									type: "array"
+																									type:                     "array"
+																									"x-kubernetes-list-type": "atomic"
 																								}
 																								type: "object"
 																							}
+																							podCertificate: {
+																								properties: {
+																									certificateChainPath: type: "string"
+																									credentialBundlePath: type: "string"
+																									keyPath: type:              "string"
+																									keyType: type:              "string"
+																									maxExpirationSeconds: {
+																										format: "int32"
+																										type:   "integer"
+																									}
+																									signerName: type: "string"
+																									userAnnotations: {
+																										additionalProperties: type: "string"
+																										type: "object"
+																									}
+																								}
+																								required: ["keyType", "signerName"]
+																								type: "object"
+																							}
 																							secret: {
-																								description: "secret information about the secret data to project"
 																								properties: {
 																									items: {
-																										description: "items if unspecified, each key-value pair in the Data field of the referenced Secret will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the Secret, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'."
 																										items: {
-																											description: "Maps a string key to a path within a volume."
 																											properties: {
-																												key: {
-																													description: "key is the key to project."
-																													type:        "string"
-																												}
+																												key: type: "string"
 																												mode: {
-																													description: "mode is Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
-																													format:      "int32"
-																													type:        "integer"
+																													format: "int32"
+																													type:   "integer"
 																												}
-																												path: {
-																													description: "path is the relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'."
-																													type:        "string"
-																												}
+																												path: type: "string"
 																											}
-																											required: [
-																												"key",
-																												"path",
-																											]
+																											required: ["key", "path"]
 																											type: "object"
 																										}
-																										type: "array"
+																										type:                     "array"
+																										"x-kubernetes-list-type": "atomic"
 																									}
 																									name: {
-																										description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																										type:        "string"
+																										default: ""
+																										type:    "string"
 																									}
-																									optional: {
-																										description: "optional field specify whether the Secret or its key must be defined"
-																										type:        "boolean"
-																									}
+																									optional: type: "boolean"
 																								}
 																								type:                    "object"
 																								"x-kubernetes-map-type": "atomic"
 																							}
 																							serviceAccountToken: {
-																								description: "serviceAccountToken is information about the serviceAccountToken data to project"
 																								properties: {
-																									audience: {
-																										description: "audience is the intended audience of the token. A recipient of a token must identify itself with an identifier specified in the audience of the token, and otherwise should reject the token. The audience defaults to the identifier of the apiserver."
-																										type:        "string"
-																									}
+																									audience: type: "string"
 																									expirationSeconds: {
-																										description: "expirationSeconds is the requested duration of validity of the service account token. As the token approaches expiration, the kubelet volume plugin will proactively rotate the service account token. The kubelet will start trying to rotate the token if the token is older than 80 percent of its time to live or if the token is older than 24 hours.Defaults to 1 hour and must be at least 10 minutes."
-																										format:      "int64"
-																										type:        "integer"
+																										format: "int64"
+																										type:   "integer"
 																									}
-																									path: {
-																										description: "path is the path relative to the mount point of the file to project the token into."
-																										type:        "string"
-																									}
+																									path: type: "string"
 																								}
 																								required: ["path"]
 																								type: "object"
@@ -6616,245 +8123,137 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						}
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																			}
 																			type: "object"
 																		}
 																		quobyte: {
-																			description: "quobyte represents a Quobyte mount on the host that shares a pod's lifetime"
 																			properties: {
-																				group: {
-																					description: "group to map volume access to Default is no group"
-																					type:        "string"
-																				}
-																				readOnly: {
-																					description: "readOnly here will force the Quobyte volume to be mounted with read-only permissions. Defaults to false."
-																					type:        "boolean"
-																				}
-																				registry: {
-																					description: "registry represents a single or multiple Quobyte Registry services specified as a string as host:port pair (multiple entries are separated with commas) which acts as the central registry for volumes"
-																					type:        "string"
-																				}
-																				tenant: {
-																					description: "tenant owning the given Quobyte volume in the Backend Used with dynamically provisioned Quobyte volumes, value is set by the plugin"
-																					type:        "string"
-																				}
-																				user: {
-																					description: "user to map volume access to Defaults to serivceaccount user"
-																					type:        "string"
-																				}
-																				volume: {
-																					description: "volume is a string that references an already created Quobyte volume by name."
-																					type:        "string"
-																				}
+																				group: type:    "string"
+																				readOnly: type: "boolean"
+																				registry: type: "string"
+																				tenant: type:   "string"
+																				user: type:     "string"
+																				volume: type:   "string"
 																			}
-																			required: [
-																				"registry",
-																				"volume",
-																			]
+																			required: ["registry", "volume"]
 																			type: "object"
 																		}
 																		rbd: {
-																			description: "rbd represents a Rados Block Device mount on the host that shares a pod's lifetime. More info: https://examples.k8s.io/volumes/rbd/README.md"
 																			properties: {
-																				fsType: {
-																					description: "fsType is the filesystem type of the volume that you want to mount. Tip: Ensure that the filesystem type is supported by the host operating system. Examples: \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified. More info: https://kubernetes.io/docs/concepts/storage/volumes#rbd TODO: how do we prevent errors in the filesystem from compromising the machine"
-																					type:        "string"
-																				}
-																				image: {
-																					description: "image is the rados image name. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
-																					type:        "string"
-																				}
+																				fsType: type: "string"
+																				image: type:  "string"
 																				keyring: {
-																					description: "keyring is the path to key ring for RBDUser. Default is /etc/ceph/keyring. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
-																					type:        "string"
+																					default: "/etc/ceph/keyring"
+																					type:    "string"
 																				}
 																				monitors: {
-																					description: "monitors is a collection of Ceph monitors. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
 																					items: type: "string"
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
 																				pool: {
-																					description: "pool is the rados pool name. Default is rbd. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
-																					type:        "string"
+																					default: "rbd"
+																					type:    "string"
 																				}
-																				readOnly: {
-																					description: "readOnly here will force the ReadOnly setting in VolumeMounts. Defaults to false. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
-																					type:        "boolean"
-																				}
+																				readOnly: type: "boolean"
 																				secretRef: {
-																					description: "secretRef is name of the authentication secret for RBDUser. If provided overrides keyring. Default is nil. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
 																					properties: name: {
-																						description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																						type:        "string"
+																						default: ""
+																						type:    "string"
 																					}
 																					type:                    "object"
 																					"x-kubernetes-map-type": "atomic"
 																				}
 																				user: {
-																					description: "user is the rados user name. Default is admin. More info: https://examples.k8s.io/volumes/rbd/README.md#how-to-use-it"
-																					type:        "string"
+																					default: "admin"
+																					type:    "string"
 																				}
 																			}
-																			required: [
-																				"image",
-																				"monitors",
-																			]
+																			required: ["image", "monitors"]
 																			type: "object"
 																		}
 																		scaleIO: {
-																			description: "scaleIO represents a ScaleIO persistent volume attached and mounted on Kubernetes nodes."
 																			properties: {
 																				fsType: {
-																					description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Default is \"xfs\"."
-																					type:        "string"
+																					default: "xfs"
+																					type:    "string"
 																				}
-																				gateway: {
-																					description: "gateway is the host address of the ScaleIO API Gateway."
-																					type:        "string"
-																				}
-																				protectionDomain: {
-																					description: "protectionDomain is the name of the ScaleIO Protection Domain for the configured storage."
-																					type:        "string"
-																				}
-																				readOnly: {
-																					description: "readOnly Defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
-																					type:        "boolean"
-																				}
+																				gateway: type:          "string"
+																				protectionDomain: type: "string"
+																				readOnly: type:         "boolean"
 																				secretRef: {
-																					description: "secretRef references to the secret for ScaleIO user and other sensitive information. If this is not provided, Login operation will fail."
 																					properties: name: {
-																						description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																						type:        "string"
+																						default: ""
+																						type:    "string"
 																					}
 																					type:                    "object"
 																					"x-kubernetes-map-type": "atomic"
 																				}
-																				sslEnabled: {
-																					description: "sslEnabled Flag enable/disable SSL communication with Gateway, default false"
-																					type:        "boolean"
-																				}
+																				sslEnabled: type: "boolean"
 																				storageMode: {
-																					description: "storageMode indicates whether the storage for a volume should be ThickProvisioned or ThinProvisioned. Default is ThinProvisioned."
-																					type:        "string"
+																					default: "ThinProvisioned"
+																					type:    "string"
 																				}
-																				storagePool: {
-																					description: "storagePool is the ScaleIO Storage Pool associated with the protection domain."
-																					type:        "string"
-																				}
-																				system: {
-																					description: "system is the name of the storage system as configured in ScaleIO."
-																					type:        "string"
-																				}
-																				volumeName: {
-																					description: "volumeName is the name of a volume already created in the ScaleIO system that is associated with this volume source."
-																					type:        "string"
-																				}
+																				storagePool: type: "string"
+																				system: type:      "string"
+																				volumeName: type:  "string"
 																			}
-																			required: [
-																				"gateway",
-																				"secretRef",
-																				"system",
-																			]
+																			required: ["gateway", "secretRef", "system"]
 																			type: "object"
 																		}
 																		secret: {
-																			description: "secret represents a secret that should populate this volume. More info: https://kubernetes.io/docs/concepts/storage/volumes#secret"
 																			properties: {
 																				defaultMode: {
-																					description: "defaultMode is Optional: mode bits used to set permissions on created files by default. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. Defaults to 0644. Directories within the path are not affected by this setting. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
-																					format:      "int32"
-																					type:        "integer"
+																					format: "int32"
+																					type:   "integer"
 																				}
 																				items: {
-																					description: "items If unspecified, each key-value pair in the Data field of the referenced Secret will be projected into the volume as a file whose name is the key and content is the value. If specified, the listed keys will be projected into the specified paths, and unlisted keys will not be present. If a key is specified which is not present in the Secret, the volume setup will error unless it is marked optional. Paths must be relative and may not contain the '..' path or start with '..'."
 																					items: {
-																						description: "Maps a string key to a path within a volume."
 																						properties: {
-																							key: {
-																								description: "key is the key to project."
-																								type:        "string"
-																							}
+																							key: type: "string"
 																							mode: {
-																								description: "mode is Optional: mode bits used to set permissions on this file. Must be an octal value between 0000 and 0777 or a decimal value between 0 and 511. YAML accepts both octal and decimal values, JSON requires decimal values for mode bits. If not specified, the volume defaultMode will be used. This might be in conflict with other options that affect the file mode, like fsGroup, and the result can be other mode bits set."
-																								format:      "int32"
-																								type:        "integer"
+																								format: "int32"
+																								type:   "integer"
 																							}
-																							path: {
-																								description: "path is the relative path of the file to map the key to. May not be an absolute path. May not contain the path element '..'. May not start with the string '..'."
-																								type:        "string"
-																							}
+																							path: type: "string"
 																						}
-																						required: [
-																							"key",
-																							"path",
-																						]
+																						required: ["key", "path"]
 																						type: "object"
 																					}
-																					type: "array"
+																					type:                     "array"
+																					"x-kubernetes-list-type": "atomic"
 																				}
-																				optional: {
-																					description: "optional field specify whether the Secret or its keys must be defined"
-																					type:        "boolean"
-																				}
-																				secretName: {
-																					description: "secretName is the name of the secret in the pod's namespace to use. More info: https://kubernetes.io/docs/concepts/storage/volumes#secret"
-																					type:        "string"
-																				}
+																				optional: type:   "boolean"
+																				secretName: type: "string"
 																			}
 																			type: "object"
 																		}
 																		storageos: {
-																			description: "storageOS represents a StorageOS volume attached and mounted on Kubernetes nodes."
 																			properties: {
-																				fsType: {
-																					description: "fsType is the filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified."
-																					type:        "string"
-																				}
-																				readOnly: {
-																					description: "readOnly defaults to false (read/write). ReadOnly here will force the ReadOnly setting in VolumeMounts."
-																					type:        "boolean"
-																				}
+																				fsType: type:   "string"
+																				readOnly: type: "boolean"
 																				secretRef: {
-																					description: "secretRef specifies the secret to use for obtaining the StorageOS API credentials.  If not specified, default values will be attempted."
 																					properties: name: {
-																						description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-																						type:        "string"
+																						default: ""
+																						type:    "string"
 																					}
 																					type:                    "object"
 																					"x-kubernetes-map-type": "atomic"
 																				}
-																				volumeName: {
-																					description: "volumeName is the human-readable name of the StorageOS volume.  Volume names are only unique within a namespace."
-																					type:        "string"
-																				}
-																				volumeNamespace: {
-																					description: "volumeNamespace specifies the scope of the volume within StorageOS.  If no namespace is specified then the Pod's namespace will be used.  This allows the Kubernetes name scoping to be mirrored within StorageOS for tighter integration. Set VolumeName to any name to override the default behaviour. Set to \"default\" if you are not using namespaces within StorageOS. Namespaces that do not pre-exist within StorageOS will be created."
-																					type:        "string"
-																				}
+																				volumeName: type:      "string"
+																				volumeNamespace: type: "string"
 																			}
 																			type: "object"
 																		}
 																		vsphereVolume: {
-																			description: "vsphereVolume represents a vSphere volume attached and mounted on kubelets host machine"
 																			properties: {
-																				fsType: {
-																					description: "fsType is filesystem type to mount. Must be a filesystem type supported by the host operating system. Ex. \"ext4\", \"xfs\", \"ntfs\". Implicitly inferred to be \"ext4\" if unspecified."
-																					type:        "string"
-																				}
-																				storagePolicyID: {
-																					description: "storagePolicyID is the storage Policy Based Management (SPBM) profile ID associated with the StoragePolicyName."
-																					type:        "string"
-																				}
-																				storagePolicyName: {
-																					description: "storagePolicyName is the storage Policy Based Management (SPBM) profile name."
-																					type:        "string"
-																				}
-																				volumePath: {
-																					description: "volumePath is the path that identifies vSphere volume vmdk"
-																					type:        "string"
-																				}
+																				fsType: type:            "string"
+																				storagePolicyID: type:   "string"
+																				storagePolicyName: type: "string"
+																				volumePath: type:        "string"
 																			}
 																			required: ["volumePath"]
 																			type: "object"
@@ -6877,6 +8276,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								}
 								type: "object"
 							}
+							disableDefaultAdminSecret: {
+								description: "DisableDefaultAdminSecret prevents operator from creating default admin-credentials secret"
+								type:        "boolean"
+							}
+							disableDefaultSecurityContext: {
+								description: "DisableDefaultSecurityContext prevents the operator from populating securityContext on deployments"
+								enum: ["Pod", "Container", "All"]
+								type: "string"
+							}
 							external: {
 								description: "External enables you to configure external grafana instances that is not managed by the operator."
 								properties: {
@@ -6888,8 +8296,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "string"
 											}
 											name: {
-												description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-												type:        "string"
+												default: ""
+												description: """
+																Name of the referent.
+																This field is effectively required, but due to backwards compatibility is
+																allowed to be empty. Instances of this type with an empty value here are
+																almost certainly wrong.
+																More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																"""
+												type: "string"
 											}
 											optional: {
 												description: "Specify whether the Secret or its key must be defined"
@@ -6908,8 +8323,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "string"
 											}
 											name: {
-												description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-												type:        "string"
+												default: ""
+												description: """
+																Name of the referent.
+																This field is effectively required, but due to backwards compatibility is
+																allowed to be empty. Instances of this type with an empty value here are
+																almost certainly wrong.
+																More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																"""
+												type: "string"
 											}
 											optional: {
 												description: "Specify whether the Secret or its key must be defined"
@@ -6928,8 +8350,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "string"
 											}
 											name: {
-												description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-												type:        "string"
+												default: ""
+												description: """
+																Name of the referent.
+																This field is effectively required, but due to backwards compatibility is
+																allowed to be empty. Instances of this type with an empty value here are
+																almost certainly wrong.
+																More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																"""
+												type: "string"
 											}
 											optional: {
 												description: "Specify whether the Secret or its key must be defined"
@@ -6940,12 +8369,4250 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type:                    "object"
 										"x-kubernetes-map-type": "atomic"
 									}
+									tenantNamespace: {
+										default: "default"
+										description: """
+														TenantNamespace is used as the `namespace` value for GrafanaManifest resources in multi-tenant scenarios
+														defaults to `default`
+														"""
+										type: "string"
+										"x-kubernetes-validations": [{
+											message: "Value is immutable"
+											rule:    "self == oldSelf"
+										}]
+									}
+									tls: {
+										description: "DEPRECATED, use top level `tls` instead."
+										properties: {
+											certSecretRef: {
+												description: "Use a secret as a reference to give TLS Certificate information"
+												properties: {
+													name: {
+														description: "name is unique within a namespace to reference a secret resource."
+														type:        "string"
+													}
+													namespace: {
+														description: "namespace defines the space within which the secret name must be unique."
+														type:        "string"
+													}
+												}
+												type:                    "object"
+												"x-kubernetes-map-type": "atomic"
+											}
+											insecureSkipVerify: {
+												description: "Disable the CA check of the server"
+												type:        "boolean"
+											}
+										}
+										type: "object"
+										"x-kubernetes-validations": [{
+											message: "insecureSkipVerify and certSecretRef cannot be set at the same time"
+											rule:    "(has(self.insecureSkipVerify) && !(has(self.certSecretRef))) || (has(self.certSecretRef) && !(has(self.insecureSkipVerify)))"
+										}]
+									}
 									url: {
 										description: "URL of the external grafana instance you want to manage."
+										pattern:     "^https?://.+$"
 										type:        "string"
 									}
 								}
-								required: ["url"]
+								required: ["tenantNamespace", "url"]
+								type: "object"
+							}
+							httpRoute: {
+								description: "HTTPRoute customizes the GatewayAPI HTTPRoute Object. It will not be created if this is not set"
+								properties: {
+									metadata: {
+										description: "ObjectMeta contains only a [subset of the fields included in k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#objectmeta-v1-meta)."
+										properties: {
+											annotations: {
+												additionalProperties: type: "string"
+												type: "object"
+											}
+											labels: {
+												additionalProperties: type: "string"
+												type: "object"
+											}
+										}
+										type: "object"
+									}
+									spec: {
+										description: "HTTPRouteSpec defines the desired state of HTTPRoute"
+										properties: {
+											hostnames: {
+												description: """
+																Hostnames defines a set of hostnames that should match against the HTTP Host
+																header to select a HTTPRoute used to process the request. Implementations
+																MUST ignore any port value specified in the HTTP Host header while
+																performing a match and (absent of any applicable header modification
+																configuration) MUST forward this header unmodified to the backend.
+
+																Valid values for Hostnames are determined by RFC 1123 definition of a
+																hostname with 2 notable exceptions:
+
+																1. IPs are not allowed.
+																2. A hostname may be prefixed with a wildcard label (`*.`). The wildcard
+																   label must appear by itself as the first label.
+
+																If a hostname is specified by both the Listener and HTTPRoute, there
+																must be at least one intersecting hostname for the HTTPRoute to be
+																attached to the Listener. For example:
+
+																* A Listener with `test.example.com` as the hostname matches HTTPRoutes
+																  that have either not specified any hostnames, or have specified at
+																  least one of `test.example.com` or `*.example.com`.
+																* A Listener with `*.example.com` as the hostname matches HTTPRoutes
+																  that have either not specified any hostnames or have specified at least
+																  one hostname that matches the Listener hostname. For example,
+																  `*.example.com`, `test.example.com`, and `foo.test.example.com` would
+																  all match. On the other hand, `example.com` and `test.example.net` would
+																  not match.
+
+																Hostnames that are prefixed with a wildcard label (`*.`) are interpreted
+																as a suffix match. That means that a match for `*.example.com` would match
+																both `test.example.com`, and `foo.test.example.com`, but not `example.com`.
+
+																If both the Listener and HTTPRoute have specified hostnames, any
+																HTTPRoute hostnames that do not match the Listener hostname MUST be
+																ignored. For example, if a Listener specified `*.example.com`, and the
+																HTTPRoute specified `test.example.com` and `test.example.net`,
+																`test.example.net` must not be considered for a match.
+
+																If both the Listener and HTTPRoute have specified hostnames, and none
+																match with the criteria above, then the HTTPRoute is not accepted. The
+																implementation must raise an 'Accepted' Condition with a status of
+																`False` in the corresponding RouteParentStatus.
+
+																In the event that multiple HTTPRoutes specify intersecting hostnames (e.g.
+																overlapping wildcard matching and exact matching hostnames), precedence must
+																be given to rules from the HTTPRoute with the largest number of:
+
+																* Characters in a matching non-wildcard hostname.
+																* Characters in a matching hostname.
+
+																If ties exist across multiple Routes, the matching precedence rules for
+																HTTPRouteMatches takes over.
+
+																Support: Core
+																"""
+												items: {
+													description: """
+																	Hostname is the fully qualified domain name of a network host. This matches
+																	the RFC 1123 definition of a hostname with 2 notable exceptions:
+
+																	 1. IPs are not allowed.
+																	 2. A hostname may be prefixed with a wildcard label (`*.`). The wildcard
+																	    label must appear by itself as the first label.
+
+																	Hostname can be "precise" which is a domain name without the terminating
+																	dot of a network host (e.g. "foo.example.com") or "wildcard", which is a
+																	domain name prefixed with a single wildcard label (e.g. `*.example.com`).
+
+																	Note that as per RFC1035 and RFC1123, a *label* must consist of lower case
+																	alphanumeric characters or '-', and must start and end with an alphanumeric
+																	character. No other punctuation is allowed.
+																	"""
+													maxLength: 253
+													minLength: 1
+													pattern:   "^(\\*\\.)?[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+													type:      "string"
+												}
+												maxItems:                 16
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
+											}
+											parentRefs: {
+												description: """
+																ParentRefs references the resources (usually Gateways) that a Route wants
+																to be attached to. Note that the referenced parent resource needs to
+																allow this for the attachment to be complete. For Gateways, that means
+																the Gateway needs to allow attachment from Routes of this kind and
+																namespace. For Services, that means the Service must either be in the same
+																namespace for a "producer" route, or the mesh implementation must support
+																and allow "consumer" routes for the referenced Service. ReferenceGrant is
+																not applicable for governing ParentRefs to Services - it is not possible to
+																create a "producer" route for a Service in a different namespace from the
+																Route.
+
+																There are two kinds of parent resources with "Core" support:
+
+																* Gateway (Gateway conformance profile)
+																* Service (Mesh conformance profile, ClusterIP Services only)
+
+																This API may be extended in the future to support additional kinds of parent
+																resources.
+
+																ParentRefs must be _distinct_. This means either that:
+
+																* They select different objects.  If this is the case, then parentRef
+																  entries are distinct. In terms of fields, this means that the
+																  multi-part key defined by `group`, `kind`, `namespace`, and `name` must
+																  be unique across all parentRef entries in the Route.
+																* They do not select different objects, but for each optional field used,
+																  each ParentRef that selects the same object must set the same set of
+																  optional fields to different values. If one ParentRef sets a
+																  combination of optional fields, all must set the same combination.
+
+																Some examples:
+
+																* If one ParentRef sets `sectionName`, all ParentRefs referencing the
+																  same object must also set `sectionName`.
+																* If one ParentRef sets `port`, all ParentRefs referencing the same
+																  object must also set `port`.
+																* If one ParentRef sets `sectionName` and `port`, all ParentRefs
+																  referencing the same object must also set `sectionName` and `port`.
+
+																It is possible to separately reference multiple distinct objects that may
+																be collapsed by an implementation. For example, some implementations may
+																choose to merge compatible Gateway Listeners together. If that is the
+																case, the list of routes attached to those resources should also be
+																merged.
+
+																Note that for ParentRefs that cross namespace boundaries, there are specific
+																rules. Cross-namespace references are only valid if they are explicitly
+																allowed by something in the namespace they are referring to. For example,
+																Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+																generic way to enable other kinds of cross-namespace reference.
+
+																<gateway:experimental:description>
+																ParentRefs from a Route to a Service in the same namespace are "producer"
+																routes, which apply default routing rules to inbound connections from
+																any namespace to the Service.
+
+																ParentRefs from a Route to a Service in a different namespace are
+																"consumer" routes, and these routing rules are only applied to outbound
+																connections originating from the same namespace as the Route, for which
+																the intended destination of the connections are a Service targeted as a
+																ParentRef of the Route.
+																</gateway:experimental:description>
+
+																<gateway:standard:validation:XValidation:message="sectionName must be specified when parentRefs includes 2 or more references to the same parent",rule="self.all(p1, self.all(p2, p1.group == p2.group && p1.kind == p2.kind && p1.name == p2.name && (((!has(p1.__namespace__) || p1.__namespace__ == '') && (!has(p2.__namespace__) || p2.__namespace__ == '')) || (has(p1.__namespace__) && has(p2.__namespace__) && p1.__namespace__ == p2.__namespace__ )) ? ((!has(p1.sectionName) || p1.sectionName == '') == (!has(p2.sectionName) || p2.sectionName == '')) : true))">
+																<gateway:standard:validation:XValidation:message="sectionName must be unique when parentRefs includes 2 or more references to the same parent",rule="self.all(p1, self.exists_one(p2, p1.group == p2.group && p1.kind == p2.kind && p1.name == p2.name && (((!has(p1.__namespace__) || p1.__namespace__ == '') && (!has(p2.__namespace__) || p2.__namespace__ == '')) || (has(p1.__namespace__) && has(p2.__namespace__) && p1.__namespace__ == p2.__namespace__ )) && (((!has(p1.sectionName) || p1.sectionName == '') && (!has(p2.sectionName) || p2.sectionName == '')) || (has(p1.sectionName) && has(p2.sectionName) && p1.sectionName == p2.sectionName))))">
+																<gateway:experimental:validation:XValidation:message="sectionName or port must be specified when parentRefs includes 2 or more references to the same parent",rule="self.all(p1, self.all(p2, p1.group == p2.group && p1.kind == p2.kind && p1.name == p2.name && (((!has(p1.__namespace__) || p1.__namespace__ == '') && (!has(p2.__namespace__) || p2.__namespace__ == '')) || (has(p1.__namespace__) && has(p2.__namespace__) && p1.__namespace__ == p2.__namespace__)) ? ((!has(p1.sectionName) || p1.sectionName == '') == (!has(p2.sectionName) || p2.sectionName == '') && (!has(p1.port) || p1.port == 0) == (!has(p2.port) || p2.port == 0)): true))">
+																<gateway:experimental:validation:XValidation:message="sectionName or port must be unique when parentRefs includes 2 or more references to the same parent",rule="self.all(p1, self.exists_one(p2, p1.group == p2.group && p1.kind == p2.kind && p1.name == p2.name && (((!has(p1.__namespace__) || p1.__namespace__ == '') && (!has(p2.__namespace__) || p2.__namespace__ == '')) || (has(p1.__namespace__) && has(p2.__namespace__) && p1.__namespace__ == p2.__namespace__ )) && (((!has(p1.sectionName) || p1.sectionName == '') && (!has(p2.sectionName) || p2.sectionName == '')) || ( has(p1.sectionName) && has(p2.sectionName) && p1.sectionName == p2.sectionName)) && (((!has(p1.port) || p1.port == 0) && (!has(p2.port) || p2.port == 0)) || (has(p1.port) && has(p2.port) && p1.port == p2.port))))">
+																"""
+												items: {
+													description: """
+																	ParentReference identifies an API object (usually a Gateway) that can be considered
+																	a parent of this resource (usually a route). There are two kinds of parent resources
+																	with "Core" support:
+
+																	* Gateway (Gateway conformance profile)
+																	* Service (Mesh conformance profile, ClusterIP Services only)
+
+																	This API may be extended in the future to support additional kinds of parent
+																	resources.
+
+																	The API object must be valid in the cluster; the Group and Kind must
+																	be registered in the cluster for this reference to be valid.
+																	"""
+													properties: {
+														group: {
+															default: "gateway.networking.k8s.io"
+															description: """
+																			Group is the group of the referent.
+																			When unspecified, "gateway.networking.k8s.io" is inferred.
+																			To set the core API group (such as for a "Service" kind referent),
+																			Group must be explicitly set to "" (empty string).
+
+																			Support: Core
+																			"""
+															maxLength: 253
+															pattern:   "^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+															type:      "string"
+														}
+														kind: {
+															default: "Gateway"
+															description: """
+																			Kind is kind of the referent.
+
+																			There are two kinds of parent resources with "Core" support:
+
+																			* Gateway (Gateway conformance profile)
+																			* Service (Mesh conformance profile, ClusterIP Services only)
+
+																			Support for other resources is Implementation-Specific.
+																			"""
+															maxLength: 63
+															minLength: 1
+															pattern:   "^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$"
+															type:      "string"
+														}
+														name: {
+															description: """
+																			Name is the name of the referent.
+
+																			Support: Core
+																			"""
+															maxLength: 253
+															minLength: 1
+															type:      "string"
+														}
+														namespace: {
+															description: """
+																			Namespace is the namespace of the referent. When unspecified, this refers
+																			to the local namespace of the Route.
+
+																			Note that there are specific rules for ParentRefs which cross namespace
+																			boundaries. Cross-namespace references are only valid if they are explicitly
+																			allowed by something in the namespace they are referring to. For example:
+																			Gateway has the AllowedRoutes field, and ReferenceGrant provides a
+																			generic way to enable any other kind of cross-namespace reference.
+
+																			<gateway:experimental:description>
+																			ParentRefs from a Route to a Service in the same namespace are "producer"
+																			routes, which apply default routing rules to inbound connections from
+																			any namespace to the Service.
+
+																			ParentRefs from a Route to a Service in a different namespace are
+																			"consumer" routes, and these routing rules are only applied to outbound
+																			connections originating from the same namespace as the Route, for which
+																			the intended destination of the connections are a Service targeted as a
+																			ParentRef of the Route.
+																			</gateway:experimental:description>
+
+																			Support: Core
+																			"""
+															maxLength: 63
+															minLength: 1
+															pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+															type:      "string"
+														}
+														port: {
+															description: """
+																			Port is the network port this Route targets. It can be interpreted
+																			differently based on the type of parent resource.
+
+																			When the parent resource is a Gateway, this targets all listeners
+																			listening on the specified port that also support this kind of Route(and
+																			select this Route). It's not recommended to set `Port` unless the
+																			networking behaviors specified in a Route must apply to a specific port
+																			as opposed to a listener(s) whose port(s) may be changed. When both Port
+																			and SectionName are specified, the name and port of the selected listener
+																			must match both specified values.
+
+																			<gateway:experimental:description>
+																			When the parent resource is a Service, this targets a specific port in the
+																			Service spec. When both Port (experimental) and SectionName are specified,
+																			the name and port of the selected port must match both specified values.
+																			</gateway:experimental:description>
+
+																			Implementations MAY choose to support other parent resources.
+																			Implementations supporting other types of parent resources MUST clearly
+																			document how/if Port is interpreted.
+
+																			For the purpose of status, an attachment is considered successful as
+																			long as the parent resource accepts it partially. For example, Gateway
+																			listeners can restrict which Routes can attach to them by Route kind,
+																			namespace, or hostname. If 1 of 2 Gateway listeners accept attachment
+																			from the referencing Route, the Route MUST be considered successfully
+																			attached. If no Gateway listeners accept attachment from this Route,
+																			the Route MUST be considered detached from the Gateway.
+
+																			Support: Extended
+																			"""
+															format:  "int32"
+															maximum: 65535
+															minimum: 1
+															type:    "integer"
+														}
+														sectionName: {
+															description: """
+																			SectionName is the name of a section within the target resource. In the
+																			following resources, SectionName is interpreted as the following:
+
+																			* Gateway: Listener name. When both Port (experimental) and SectionName
+																			are specified, the name and port of the selected listener must match
+																			both specified values.
+																			* Service: Port name. When both Port (experimental) and SectionName
+																			are specified, the name and port of the selected listener must match
+																			both specified values.
+
+																			Implementations MAY choose to support attaching Routes to other resources.
+																			If that is the case, they MUST clearly document how SectionName is
+																			interpreted.
+
+																			When unspecified (empty string), this will reference the entire resource.
+																			For the purpose of status, an attachment is considered successful if at
+																			least one section in the parent resource accepts it. For example, Gateway
+																			listeners can restrict which Routes can attach to them by Route kind,
+																			namespace, or hostname. If 1 of 2 Gateway listeners accept attachment from
+																			the referencing Route, the Route MUST be considered successfully
+																			attached. If no Gateway listeners accept attachment from this Route, the
+																			Route MUST be considered detached from the Gateway.
+
+																			Support: Core
+																			"""
+															maxLength: 253
+															minLength: 1
+															pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+															type:      "string"
+														}
+													}
+													required: ["name"]
+													type: "object"
+												}
+												maxItems:                 32
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
+											}
+											rules: {
+												description: """
+																Rules are a list of HTTP matchers, filters and actions.
+
+																<gateway:experimental:validation:XValidation:message="Rule name must be unique within the route",rule="self.all(l1, !has(l1.name) || self.exists_one(l2, has(l2.name) && l1.name == l2.name))">
+																"""
+												items: {
+													description: """
+																	HTTPRouteRule defines semantics for matching an HTTP request based on
+																	conditions (matches), processing it (filters), and forwarding the request to
+																	an API object (backendRefs).
+																	"""
+													properties: {
+														backendRefs: {
+															description: """
+																			BackendRefs defines the backend(s) where matching requests should be
+																			sent.
+
+																			Failure behavior here depends on how many BackendRefs are specified and
+																			how many are invalid.
+
+																			If *all* entries in BackendRefs are invalid, and there are also no filters
+																			specified in this route rule, *all* traffic which matches this rule MUST
+																			receive a 500 status code.
+
+																			See the HTTPBackendRef definition for the rules about what makes a single
+																			HTTPBackendRef invalid.
+
+																			When a HTTPBackendRef is invalid, 500 status codes MUST be returned for
+																			requests that would have otherwise been routed to an invalid backend. If
+																			multiple backends are specified, and some are invalid, the proportion of
+																			requests that would otherwise have been routed to an invalid backend
+																			MUST receive a 500 status code.
+
+																			For example, if two backends are specified with equal weights, and one is
+																			invalid, 50 percent of traffic must receive a 500. Implementations may
+																			choose how that 50 percent is determined.
+
+																			When a HTTPBackendRef refers to a Service that has no ready endpoints,
+																			implementations SHOULD return a 503 for requests to that backend instead.
+																			If an implementation chooses to do this, all of the above rules for 500 responses
+																			MUST also apply for responses that return a 503.
+
+																			Support: Core for Kubernetes Service
+
+																			Support: Extended for Kubernetes ServiceImport
+
+																			Support: Implementation-specific for any other resource
+
+																			Support for weight: Core
+																			"""
+															items: {
+																description: """
+																				HTTPBackendRef defines how a HTTPRoute forwards a HTTP request.
+
+																				Note that when a namespace different than the local namespace is specified, a
+																				ReferenceGrant object is required in the referent namespace to allow that
+																				namespace's owner to accept the reference. See the ReferenceGrant
+																				documentation for details.
+
+																				<gateway:experimental:description>
+
+																				When the BackendRef points to a Kubernetes Service, implementations SHOULD
+																				honor the appProtocol field if it is set for the target Service Port.
+
+																				Implementations supporting appProtocol SHOULD recognize the Kubernetes
+																				Standard Application Protocols defined in KEP-3726.
+
+																				If a Service appProtocol isn't specified, an implementation MAY infer the
+																				backend protocol through its own means. Implementations MAY infer the
+																				protocol from the Route type referring to the backend Service.
+
+																				If a Route is not able to send traffic to the backend using the specified
+																				protocol then the backend is considered invalid. Implementations MUST set the
+																				"ResolvedRefs" condition to "False" with the "UnsupportedProtocol" reason.
+
+																				</gateway:experimental:description>
+																				"""
+																properties: {
+																	filters: {
+																		description: """
+																						Filters defined at this level should be executed if and only if the
+																						request is being forwarded to the backend defined here.
+
+																						Support: Implementation-specific (For broader support of filters, use the
+																						Filters field in HTTPRouteRule.)
+																						"""
+																		items: {
+																			description: """
+																							HTTPRouteFilter defines processing steps that must be completed during the
+																							request or response lifecycle. HTTPRouteFilters are meant as an extension
+																							point to express processing that may be done in Gateway implementations. Some
+																							examples include request or response modification, implementing
+																							authentication strategies, rate-limiting, and traffic shaping. API
+																							guarantee/conformance is defined based on the type of the filter.
+
+																							<gateway:experimental:validation:XValidation:message="filter.externalAuth must be nil if the filter.type is not ExternalAuth",rule="!(has(self.externalAuth) && self.type != 'ExternalAuth')">
+																							<gateway:experimental:validation:XValidation:message="filter.externalAuth must be specified for ExternalAuth filter.type",rule="!(!has(self.externalAuth) && self.type == 'ExternalAuth')">
+																							"""
+																			properties: {
+																				cors: {
+																					description: """
+																									CORS defines a schema for a filter that responds to the
+																									cross-origin request based on HTTP response header.
+
+																									Support: Extended
+																									"""
+																					properties: {
+																						allowCredentials: {
+																							description: """
+																											AllowCredentials indicates whether the actual cross-origin request allows
+																											to include credentials.
+
+																											When set to true, the gateway will include the `Access-Control-Allow-Credentials`
+																											response header with value true (case-sensitive).
+
+																											When set to false or omitted the gateway will omit the header
+																											`Access-Control-Allow-Credentials` entirely (this is the standard CORS
+																											behavior).
+
+																											Support: Extended
+																											"""
+																							type: "boolean"
+																						}
+																						allowHeaders: {
+																							description: """
+																											AllowHeaders indicates which HTTP request headers are supported for
+																											accessing the requested resource.
+
+																											Header names are not case-sensitive.
+
+																											Multiple header names in the value of the `Access-Control-Allow-Headers`
+																											response header are separated by a comma (",").
+
+																											When the `AllowHeaders` field is configured with one or more headers, the
+																											gateway must return the `Access-Control-Allow-Headers` response header
+																											which value is present in the `AllowHeaders` field.
+
+																											If any header name in the `Access-Control-Request-Headers` request header
+																											is not included in the list of header names specified by the response
+																											header `Access-Control-Allow-Headers`, it will present an error on the
+																											client side.
+
+																											If any header name in the `Access-Control-Allow-Headers` response header
+																											does not recognize by the client, it will also occur an error on the
+																											client side.
+
+																											A wildcard indicates that the requests with all HTTP headers are allowed.
+																											If config contains the wildcard "*" in allowHeaders and the request is
+																											not credentialed, the `Access-Control-Allow-Headers` response header
+																											can either use the `*` wildcard or the value of
+																											Access-Control-Request-Headers from the request.
+
+																											When the request is credentialed, the gateway must not specify the `*`
+																											wildcard in the `Access-Control-Allow-Headers` response header. When
+																											also the `AllowCredentials` field is true and `AllowHeaders` field
+																											is specified with the `*` wildcard, the gateway must specify one or more
+																											HTTP headers in the value of the `Access-Control-Allow-Headers` response
+																											header. The value of the header `Access-Control-Allow-Headers` is same as
+																											the `Access-Control-Request-Headers` header provided by the client. If
+																											the header `Access-Control-Request-Headers` is not included in the
+																											request, the gateway will omit the `Access-Control-Allow-Headers`
+																											response header, instead of specifying the `*` wildcard.
+
+																											Support: Extended
+																											"""
+																							items: {
+																								description: """
+																												HTTPHeaderName is the name of an HTTP header.
+
+																												Valid values include:
+
+																												* "Authorization"
+																												* "Set-Cookie"
+
+																												Invalid values include:
+
+																												  - ":method" - ":" is an invalid character. This means that HTTP/2 pseudo
+																												    headers are not currently supported by this type.
+																												  - "/invalid" - "/ " is an invalid character
+																												"""
+																								maxLength: 256
+																								minLength: 1
+																								pattern:   "^[A-Za-z0-9!#$%&'*+\\-.^_\\x60|~]+$"
+																								type:      "string"
+																							}
+																							maxItems:                 64
+																							type:                     "array"
+																							"x-kubernetes-list-type": "set"
+																							"x-kubernetes-validations": [{
+																								message: "AllowHeaders cannot contain '*' alongside other methods"
+																								rule:    "!('*' in self && self.size() > 1)"
+																							}]
+																						}
+																						allowMethods: {
+																							description: """
+																											AllowMethods indicates which HTTP methods are supported for accessing the
+																											requested resource.
+
+																											Valid values are any method defined by RFC9110, along with the special
+																											value `*`, which represents all HTTP methods are allowed.
+
+																											Method names are case-sensitive, so these values are also case-sensitive.
+																											(See https://www.rfc-editor.org/rfc/rfc2616#section-5.1.1)
+
+																											Multiple method names in the value of the `Access-Control-Allow-Methods`
+																											response header are separated by a comma (",").
+
+																											A CORS-safelisted method is a method that is `GET`, `HEAD`, or `POST`.
+																											(See https://fetch.spec.whatwg.org/#cors-safelisted-method) The
+																											CORS-safelisted methods are always allowed, regardless of whether they
+																											are specified in the `AllowMethods` field.
+
+																											When the `AllowMethods` field is configured with one or more methods, the
+																											gateway must return the `Access-Control-Allow-Methods` response header
+																											which value is present in the `AllowMethods` field.
+
+																											If the HTTP method of the `Access-Control-Request-Method` request header
+																											is not included in the list of methods specified by the response header
+																											`Access-Control-Allow-Methods`, it will present an error on the client
+																											side.
+
+																											If config contains the wildcard "*" in allowMethods and the request is
+																											not credentialed, the `Access-Control-Allow-Methods` response header
+																											can either use the `*` wildcard or the value of
+																											Access-Control-Request-Method from the request.
+
+																											When the request is credentialed, the gateway must not specify the `*`
+																											wildcard in the `Access-Control-Allow-Methods` response header. When
+																											also the `AllowCredentials` field is true and `AllowMethods` field
+																											specified with the `*` wildcard, the gateway must specify one HTTP method
+																											in the value of the Access-Control-Allow-Methods response header. The
+																											value of the header `Access-Control-Allow-Methods` is same as the
+																											`Access-Control-Request-Method` header provided by the client. If the
+																											header `Access-Control-Request-Method` is not included in the request,
+																											the gateway will omit the `Access-Control-Allow-Methods` response header,
+																											instead of specifying the `*` wildcard.
+
+																											Support: Extended
+																											"""
+																							items: {
+																								enum: ["GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH", "*"]
+																								type: "string"
+																							}
+																							maxItems:                 9
+																							type:                     "array"
+																							"x-kubernetes-list-type": "set"
+																							"x-kubernetes-validations": [{
+																								message: "AllowMethods cannot contain '*' alongside other methods"
+																								rule:    "!('*' in self && self.size() > 1)"
+																							}]
+																						}
+																						allowOrigins: {
+																							description: """
+																											AllowOrigins indicates whether the response can be shared with requested
+																											resource from the given `Origin`.
+
+																											The `Origin` consists of a scheme and a host, with an optional port, and
+																											takes the form `<scheme>://<host>(:<port>)`.
+
+																											Valid values for scheme are: `http` and `https`.
+
+																											Valid values for port are any integer between 1 and 65535 (the list of
+																											available TCP/UDP ports). Note that, if not included, port `80` is
+																											assumed for `http` scheme origins, and port `443` is assumed for `https`
+																											origins. This may affect origin matching.
+
+																											The host part of the origin may contain the wildcard character `*`. These
+																											wildcard characters behave as follows:
+
+																											* `*` is a greedy match to the _left_, including any number of
+																											  DNS labels to the left of its position. This also means that
+																											  `*` will include any number of period `.` characters to the
+																											  left of its position.
+																											* A wildcard by itself matches all hosts.
+
+																											An origin value that includes _only_ the `*` character indicates requests
+																											from all `Origin`s are allowed.
+
+																											When the `AllowOrigins` field is configured with multiple origins, it
+																											means the server supports clients from multiple origins. If the request
+																											`Origin` matches the configured allowed origins, the gateway must return
+																											the given `Origin` and sets value of the header
+																											`Access-Control-Allow-Origin` same as the `Origin` header provided by the
+																											client.
+
+																											The status code of a successful response to a "preflight" request is
+																											always an OK status (i.e., 204 or 200).
+
+																											If the request `Origin` does not match the configured allowed origins,
+																											the gateway returns 204/200 response but doesn't set the relevant
+																											cross-origin response headers. Alternatively, the gateway responds with
+																											403 status to the "preflight" request is denied, coupled with omitting
+																											the CORS headers. The cross-origin request fails on the client side.
+																											Therefore, the client doesn't attempt the actual cross-origin request.
+
+																											Conversely, if the request `Origin` matches one of the configured
+																											allowed origins, the gateway sets the response header
+																											`Access-Control-Allow-Origin` to the same value as the `Origin`
+																											header provided by the client.
+
+																											When config has the wildcard ("*") in allowOrigins, and the request
+																											is not credentialed (e.g., it is a preflight request), the
+																											`Access-Control-Allow-Origin` response header either contains the
+																											wildcard as well or the Origin from the request.
+
+																											When the request is credentialed, the gateway must not specify the `*`
+																											wildcard in the `Access-Control-Allow-Origin` response header. When
+																											also the `AllowCredentials` field is true and `AllowOrigins` field
+																											specified with the `*` wildcard, the gateway must return a single origin
+																											in the value of the `Access-Control-Allow-Origin` response header,
+																											instead of specifying the `*` wildcard. The value of the header
+																											`Access-Control-Allow-Origin` is same as the `Origin` header provided by
+																											the client.
+
+																											Support: Extended
+																											"""
+																							items: {
+																								description: """
+																												The CORSOrigin MUST NOT be a relative URI, and it MUST follow the URI syntax and
+																												encoding rules specified in RFC3986.  The CORSOrigin MUST include both a
+																												scheme ("http" or "https") and a scheme-specific-part, or it should be a single '*' character.
+																												URIs that include an authority MUST include a fully qualified domain name or
+																												IP address as the host.
+																												"""
+																								maxLength: 253
+																								minLength: 1
+																								pattern:   "(^\\*$)|(^(http(s)?):\\/\\/(((\\*\\.)?([a-zA-Z0-9\\-]+\\.)*[a-zA-Z0-9-]+|\\*)(:([0-9]{1,5}))?)$)"
+																								type:      "string"
+																							}
+																							maxItems:                 64
+																							type:                     "array"
+																							"x-kubernetes-list-type": "set"
+																							"x-kubernetes-validations": [{
+																								message: "AllowOrigins cannot contain '*' alongside other origins"
+																								rule:    "!('*' in self && self.size() > 1)"
+																							}]
+																						}
+																						exposeHeaders: {
+																							description: """
+																											ExposeHeaders indicates which HTTP response headers can be exposed
+																											to client-side scripts in response to a cross-origin request.
+
+																											A CORS-safelisted response header is an HTTP header in a CORS response
+																											that it is considered safe to expose to the client scripts.
+																											The CORS-safelisted response headers include the following headers:
+																											`Cache-Control`
+																											`Content-Language`
+																											`Content-Length`
+																											`Content-Type`
+																											`Expires`
+																											`Last-Modified`
+																											`Pragma`
+																											(See https://fetch.spec.whatwg.org/#cors-safelisted-response-header-name)
+																											The CORS-safelisted response headers are exposed to client by default.
+
+																											When an HTTP header name is specified using the `ExposeHeaders` field,
+																											this additional header will be exposed as part of the response to the
+																											client.
+
+																											Header names are not case-sensitive.
+
+																											Multiple header names in the value of the `Access-Control-Expose-Headers`
+																											response header are separated by a comma (",").
+
+																											A wildcard indicates that the responses with all HTTP headers are exposed
+																											to clients. The `Access-Control-Expose-Headers` response header can only
+																											use `*` wildcard as value when the request is not credentialed.
+
+																											When the `exposeHeaders` config field contains the "*" wildcard and
+																											the request is credentialed, the gateway cannot use the `*` wildcard in
+																											the `Access-Control-Expose-Headers` response header.
+
+																											Support: Extended
+																											"""
+																							items: {
+																								description: """
+																												HTTPHeaderName is the name of an HTTP header.
+
+																												Valid values include:
+
+																												* "Authorization"
+																												* "Set-Cookie"
+
+																												Invalid values include:
+
+																												  - ":method" - ":" is an invalid character. This means that HTTP/2 pseudo
+																												    headers are not currently supported by this type.
+																												  - "/invalid" - "/ " is an invalid character
+																												"""
+																								maxLength: 256
+																								minLength: 1
+																								pattern:   "^[A-Za-z0-9!#$%&'*+\\-.^_\\x60|~]+$"
+																								type:      "string"
+																							}
+																							maxItems:                 64
+																							type:                     "array"
+																							"x-kubernetes-list-type": "set"
+																						}
+																						maxAge: {
+																							default: 5
+																							description: """
+																											MaxAge indicates the duration (in seconds) for the client to cache the
+																											results of a "preflight" request.
+
+																											The information provided by the `Access-Control-Allow-Methods` and
+																											`Access-Control-Allow-Headers` response headers can be cached by the
+																											client until the time specified by `Access-Control-Max-Age` elapses.
+
+																											The default value of `Access-Control-Max-Age` response header is 5
+																											(seconds).
+
+																											When the `MaxAge` field is unspecified, the gateway sets the response
+																											header "Access-Control-Max-Age: 5" by default.
+																											"""
+																							format:  "int32"
+																							minimum: 1
+																							type:    "integer"
+																						}
+																					}
+																					type: "object"
+																				}
+																				extensionRef: {
+																					description: """
+																									ExtensionRef is an optional, implementation-specific extension to the
+																									"filter" behavior.  For example, resource "myroutefilter" in group
+																									"networking.example.net"). ExtensionRef MUST NOT be used for core and
+																									extended filters.
+
+																									This filter can be used multiple times within the same rule.
+
+																									Support: Implementation-specific
+																									"""
+																					properties: {
+																						group: {
+																							description: """
+																											Group is the group of the referent. For example, "gateway.networking.k8s.io".
+																											When unspecified or empty string, core API group is inferred.
+																											"""
+																							maxLength: 253
+																							pattern:   "^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																							type:      "string"
+																						}
+																						kind: {
+																							description: "Kind is kind of the referent. For example \"HTTPRoute\" or \"Service\"."
+																							maxLength:   63
+																							minLength:   1
+																							pattern:     "^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$"
+																							type:        "string"
+																						}
+																						name: {
+																							description: "Name is the name of the referent."
+																							maxLength:   253
+																							minLength:   1
+																							type:        "string"
+																						}
+																					}
+																					required: ["group", "kind", "name"]
+																					type: "object"
+																				}
+																				externalAuth: {
+																					description: """
+																									ExternalAuth configures settings related to sending request details
+																									to an external auth service. The external service MUST authenticate
+																									the request, and MAY authorize the request as well.
+
+																									If there is any problem communicating with the external service,
+																									this filter MUST fail closed.
+
+																									Support: Extended
+
+																									<gateway:experimental>
+																									"""
+																					properties: {
+																						backendRef: {
+																							description: """
+																											BackendRef is a reference to a backend to send authorization
+																											requests to.
+
+																											The backend must speak the selected protocol (GRPC or HTTP) on the
+																											referenced port.
+
+																											If the backend service requires TLS, use BackendTLSPolicy to tell the
+																											implementation to supply the TLS details to be used to connect to that
+																											backend.
+																											"""
+																							properties: {
+																								group: {
+																									default: ""
+																									description: """
+																													Group is the group of the referent. For example, "gateway.networking.k8s.io".
+																													When unspecified or empty string, core API group is inferred.
+																													"""
+																									maxLength: 253
+																									pattern:   "^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																									type:      "string"
+																								}
+																								kind: {
+																									default: "Service"
+																									description: """
+																													Kind is the Kubernetes resource kind of the referent. For example
+																													"Service".
+
+																													Defaults to "Service" when not specified.
+
+																													ExternalName services can refer to CNAME DNS records that may live
+																													outside of the cluster and as such are difficult to reason about in
+																													terms of conformance. They also may not be safe to forward to (see
+																													CVE-2021-25740 for more information). Implementations SHOULD NOT
+																													support ExternalName Services.
+
+																													Support: Core (Services with a type other than ExternalName)
+
+																													Support: Implementation-specific (Services with type ExternalName)
+																													"""
+																									maxLength: 63
+																									minLength: 1
+																									pattern:   "^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$"
+																									type:      "string"
+																								}
+																								name: {
+																									description: "Name is the name of the referent."
+																									maxLength:   253
+																									minLength:   1
+																									type:        "string"
+																								}
+																								namespace: {
+																									description: """
+																													Namespace is the namespace of the backend. When unspecified, the local
+																													namespace is inferred.
+
+																													Note that when a namespace different than the local namespace is specified,
+																													a ReferenceGrant object is required in the referent namespace to allow that
+																													namespace's owner to accept the reference. See the ReferenceGrant
+																													documentation for details.
+
+																													Support: Core
+																													"""
+																									maxLength: 63
+																									minLength: 1
+																									pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+																									type:      "string"
+																								}
+																								port: {
+																									description: """
+																													Port specifies the destination port number to use for this resource.
+																													Port is required when the referent is a Kubernetes Service. In this
+																													case, the port number is the service port number, not the target port.
+																													For other resources, destination port might be derived from the referent
+																													resource or this field.
+																													"""
+																									format:  "int32"
+																									maximum: 65535
+																									minimum: 1
+																									type:    "integer"
+																								}
+																							}
+																							required: ["name"]
+																							type: "object"
+																							"x-kubernetes-validations": [{
+																								message: "Must have port for Service reference"
+																								rule:    "(size(self.group) == 0 && self.kind == 'Service') ? has(self.port) : true"
+																							}]
+																						}
+																						forwardBody: {
+																							description: """
+																											ForwardBody controls if requests to the authorization server should include
+																											the body of the client request; and if so, how big that body is allowed
+																											to be.
+
+																											It is expected that implementations will buffer the request body up to
+																											`forwardBody.maxSize` bytes. Bodies over that size must be rejected with a
+																											4xx series error (413 or 403 are common examples), and fail processing
+																											of the filter.
+
+																											If unset, or `forwardBody.maxSize` is set to `0`, then the body will not
+																											be forwarded.
+
+																											Feature Name: HTTPRouteExternalAuthForwardBody
+																											"""
+																							properties: maxSize: {
+																								description: """
+																													MaxSize specifies how large in bytes the largest body that will be buffered
+																													and sent to the authorization server. If the body size is larger than
+																													`maxSize`, then the body sent to the authorization server must be
+																													truncated to `maxSize` bytes.
+
+																													Experimental note: This behavior needs to be checked against
+																													various dataplanes; it may need to be changed.
+																													See https://github.com/kubernetes-sigs/gateway-api/pull/4001#discussion_r2291405746
+																													for more.
+
+																													If 0, the body will not be sent to the authorization server.
+																													"""
+																								type: "integer"
+																							}
+																							type: "object"
+																						}
+																						grpc: {
+																							description: """
+																											GRPCAuthConfig contains configuration for communication with ext_authz
+																											protocol-speaking backends.
+
+																											If unset, implementations must assume the default behavior for each
+																											included field is intended.
+																											"""
+																							properties: allowedHeaders: {
+																								description: """
+																													AllowedRequestHeaders specifies what headers from the client request
+																													will be sent to the authorization server.
+
+																													If this list is empty, then all headers must be sent.
+
+																													If the list has entries, only those entries must be sent.
+																													"""
+																								items: type: "string"
+																								maxItems:                 64
+																								type:                     "array"
+																								"x-kubernetes-list-type": "set"
+																							}
+																							type: "object"
+																						}
+																						http: {
+																							description: """
+																											HTTPAuthConfig contains configuration for communication with HTTP-speaking
+																											backends.
+
+																											If unset, implementations must assume the default behavior for each
+																											included field is intended.
+																											"""
+																							properties: {
+																								allowedHeaders: {
+																									description: """
+																													AllowedRequestHeaders specifies what additional headers from the client request
+																													will be sent to the authorization server.
+
+																													The following headers must always be sent to the authorization server,
+																													regardless of this setting:
+
+																													* `Host`
+																													* `Method`
+																													* `Path`
+																													* `Content-Length`
+																													* `Authorization`
+
+																													If this list is empty, then only those headers must be sent.
+
+																													Note that `Content-Length` has a special behavior, in that the length
+																													sent must be correct for the actual request to the external authorization
+																													server - that is, it must reflect the actual number of bytes sent in the
+																													body of the request to the authorization server.
+
+																													So if the `forwardBody` stanza is unset, or `forwardBody.maxSize` is set
+																													to `0`, then `Content-Length` must be `0`. If `forwardBody.maxSize` is set
+																													to anything other than `0`, then the `Content-Length` of the authorization
+																													request must be set to the actual number of bytes forwarded.
+																													"""
+																									items: type: "string"
+																									maxItems:                 64
+																									type:                     "array"
+																									"x-kubernetes-list-type": "set"
+																								}
+																								allowedResponseHeaders: {
+																									description: """
+																													AllowedResponseHeaders specifies what headers from the authorization response
+																													will be copied into the request to the backend.
+
+																													If this list is empty, then all headers from the authorization server
+																													except Authority or Host must be copied.
+																													"""
+																									items: type: "string"
+																									maxItems:                 64
+																									type:                     "array"
+																									"x-kubernetes-list-type": "set"
+																								}
+																								path: {
+																									description: """
+																													Path sets the prefix that paths from the client request will have added
+																													when forwarded to the authorization server.
+
+																													When empty or unspecified, no prefix is added.
+
+																													Valid values are the same as the "value" regex for path values in the `match`
+																													stanza, and the validation regex will screen out invalid paths in the same way.
+																													Even with the validation, implementations MUST sanitize this input before using it
+																													directly.
+																													"""
+																									maxLength: 1024
+																									pattern:   "^(?:[-A-Za-z0-9/._~!$&'()*+,;=:@]|[%][0-9a-fA-F]{2})+$"
+																									type:      "string"
+																								}
+																							}
+																							type: "object"
+																						}
+																						protocol: {
+																							description: """
+																											ExternalAuthProtocol describes which protocol to use when communicating with an
+																											ext_authz authorization server.
+
+																											When this is set to GRPC, each backend must use the Envoy ext_authz protocol
+																											on the port specified in `backendRefs`. Requests and responses are defined
+																											in the protobufs explained at:
+																											https://www.envoyproxy.io/docs/envoy/latest/api-v3/service/auth/v3/external_auth.proto
+
+																											When this is set to HTTP, each backend must respond with a `200` status
+																											code in on a successful authorization. Any other code is considered
+																											an authorization failure.
+
+																											Feature Names:
+																											GRPC Support - HTTPRouteExternalAuthGRPC
+																											HTTP Support - HTTPRouteExternalAuthHTTP
+																											"""
+																							enum: ["HTTP", "GRPC"]
+																							type: "string"
+																						}
+																					}
+																					required: ["backendRef", "protocol"]
+																					type: "object"
+																					"x-kubernetes-validations": [{
+																						message: "grpc must be specified when protocol is set to 'GRPC'"
+																						rule:    "self.protocol == 'GRPC' ? has(self.grpc) : true"
+																					}, {
+																						message: "protocol must be 'GRPC' when grpc is set"
+																						rule:    "has(self.grpc) ? self.protocol == 'GRPC' : true"
+																					}, {
+																						message: "http must be specified when protocol is set to 'HTTP'"
+																						rule:    "self.protocol == 'HTTP' ? has(self.http) : true"
+																					}, {
+																						message: "protocol must be 'HTTP' when http is set"
+																						rule:    "has(self.http) ? self.protocol == 'HTTP' : true"
+																					}]
+																				}
+																				requestHeaderModifier: {
+																					description: """
+																									RequestHeaderModifier defines a schema for a filter that modifies request
+																									headers.
+
+																									Support: Core
+																									"""
+																					properties: {
+																						add: {
+																							description: """
+																											Add adds the given header(s) (name, value) to the request
+																											before the action. It appends to any existing values associated
+																											with the header name.
+
+																											Input:
+																											  GET /foo HTTP/1.1
+																											  my-header: foo
+
+																											Config:
+																											  add:
+																											  - name: "my-header"
+																											    value: "bar,baz"
+
+																											Output:
+																											  GET /foo HTTP/1.1
+																											  my-header: foo,bar,baz
+																											"""
+																							items: {
+																								description: "HTTPHeader represents an HTTP Header name and value as defined by RFC 7230."
+																								properties: {
+																									name: {
+																										description: """
+																														Name is the name of the HTTP Header to be matched. Name matching MUST be
+																														case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+
+																														If multiple entries specify equivalent header names, the first entry with
+																														an equivalent name MUST be considered for a match. Subsequent entries
+																														with an equivalent header name MUST be ignored. Due to the
+																														case-insensitivity of header names, "foo" and "Foo" are considered
+																														equivalent.
+																														"""
+																										maxLength: 256
+																										minLength: 1
+																										pattern:   "^[A-Za-z0-9!#$%&'*+\\-.^_\\x60|~]+$"
+																										type:      "string"
+																									}
+																									value: {
+																										description: """
+																														Value is the value of HTTP Header to be matched.
+																														<gateway:experimental:description>
+																														Must consist of printable US-ASCII characters, optionally separated
+																														by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+																														</gateway:experimental:description>
+
+																														<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+																														"""
+																										maxLength: 4096
+																										minLength: 1
+																										type:      "string"
+																									}
+																								}
+																								required: ["name", "value"]
+																								type: "object"
+																							}
+																							maxItems: 16
+																							type:     "array"
+																							"x-kubernetes-list-map-keys": ["name"]
+																							"x-kubernetes-list-type": "map"
+																						}
+																						remove: {
+																							description: """
+																											Remove the given header(s) from the HTTP request before the action. The
+																											value of Remove is a list of HTTP header names. Note that the header
+																											names are case-insensitive (see
+																											https://datatracker.ietf.org/doc/html/rfc2616#section-4.2).
+
+																											Input:
+																											  GET /foo HTTP/1.1
+																											  my-header1: foo
+																											  my-header2: bar
+																											  my-header3: baz
+
+																											Config:
+																											  remove: ["my-header1", "my-header3"]
+
+																											Output:
+																											  GET /foo HTTP/1.1
+																											  my-header2: bar
+																											"""
+																							items: type: "string"
+																							maxItems:                 16
+																							type:                     "array"
+																							"x-kubernetes-list-type": "set"
+																						}
+																						set: {
+																							description: """
+																											Set overwrites the request with the given header (name, value)
+																											before the action.
+
+																											Input:
+																											  GET /foo HTTP/1.1
+																											  my-header: foo
+
+																											Config:
+																											  set:
+																											  - name: "my-header"
+																											    value: "bar"
+
+																											Output:
+																											  GET /foo HTTP/1.1
+																											  my-header: bar
+																											"""
+																							items: {
+																								description: "HTTPHeader represents an HTTP Header name and value as defined by RFC 7230."
+																								properties: {
+																									name: {
+																										description: """
+																														Name is the name of the HTTP Header to be matched. Name matching MUST be
+																														case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+
+																														If multiple entries specify equivalent header names, the first entry with
+																														an equivalent name MUST be considered for a match. Subsequent entries
+																														with an equivalent header name MUST be ignored. Due to the
+																														case-insensitivity of header names, "foo" and "Foo" are considered
+																														equivalent.
+																														"""
+																										maxLength: 256
+																										minLength: 1
+																										pattern:   "^[A-Za-z0-9!#$%&'*+\\-.^_\\x60|~]+$"
+																										type:      "string"
+																									}
+																									value: {
+																										description: """
+																														Value is the value of HTTP Header to be matched.
+																														<gateway:experimental:description>
+																														Must consist of printable US-ASCII characters, optionally separated
+																														by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+																														</gateway:experimental:description>
+
+																														<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+																														"""
+																										maxLength: 4096
+																										minLength: 1
+																										type:      "string"
+																									}
+																								}
+																								required: ["name", "value"]
+																								type: "object"
+																							}
+																							maxItems: 16
+																							type:     "array"
+																							"x-kubernetes-list-map-keys": ["name"]
+																							"x-kubernetes-list-type": "map"
+																						}
+																					}
+																					type: "object"
+																				}
+																				requestMirror: {
+																					description: """
+																									RequestMirror defines a schema for a filter that mirrors requests.
+																									Requests are sent to the specified destination, but responses from
+																									that destination are ignored.
+
+																									This filter can be used multiple times within the same rule. Note that
+																									not all implementations will be able to support mirroring to multiple
+																									backends.
+
+																									Support: Extended
+																									"""
+																					properties: {
+																						backendRef: {
+																							description: """
+																											BackendRef references a resource where mirrored requests are sent.
+
+																											Mirrored requests must be sent only to a single destination endpoint
+																											within this BackendRef, irrespective of how many endpoints are present
+																											within this BackendRef.
+
+																											If the referent cannot be found, this BackendRef is invalid and must be
+																											dropped from the Gateway. The controller must ensure the "ResolvedRefs"
+																											condition on the Route status is set to `status: False` and not configure
+																											this backend in the underlying implementation.
+
+																											If there is a cross-namespace reference to an *existing* object
+																											that is not allowed by a ReferenceGrant, the controller must ensure the
+																											"ResolvedRefs"  condition on the Route is set to `status: False`,
+																											with the "RefNotPermitted" reason and not configure this backend in the
+																											underlying implementation.
+
+																											In either error case, the Message of the `ResolvedRefs` Condition
+																											should be used to provide more detail about the problem.
+
+																											Support: Extended for Kubernetes Service
+
+																											Support: Implementation-specific for any other resource
+																											"""
+																							properties: {
+																								group: {
+																									default: ""
+																									description: """
+																													Group is the group of the referent. For example, "gateway.networking.k8s.io".
+																													When unspecified or empty string, core API group is inferred.
+																													"""
+																									maxLength: 253
+																									pattern:   "^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																									type:      "string"
+																								}
+																								kind: {
+																									default: "Service"
+																									description: """
+																													Kind is the Kubernetes resource kind of the referent. For example
+																													"Service".
+
+																													Defaults to "Service" when not specified.
+
+																													ExternalName services can refer to CNAME DNS records that may live
+																													outside of the cluster and as such are difficult to reason about in
+																													terms of conformance. They also may not be safe to forward to (see
+																													CVE-2021-25740 for more information). Implementations SHOULD NOT
+																													support ExternalName Services.
+
+																													Support: Core (Services with a type other than ExternalName)
+
+																													Support: Implementation-specific (Services with type ExternalName)
+																													"""
+																									maxLength: 63
+																									minLength: 1
+																									pattern:   "^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$"
+																									type:      "string"
+																								}
+																								name: {
+																									description: "Name is the name of the referent."
+																									maxLength:   253
+																									minLength:   1
+																									type:        "string"
+																								}
+																								namespace: {
+																									description: """
+																													Namespace is the namespace of the backend. When unspecified, the local
+																													namespace is inferred.
+
+																													Note that when a namespace different than the local namespace is specified,
+																													a ReferenceGrant object is required in the referent namespace to allow that
+																													namespace's owner to accept the reference. See the ReferenceGrant
+																													documentation for details.
+
+																													Support: Core
+																													"""
+																									maxLength: 63
+																									minLength: 1
+																									pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+																									type:      "string"
+																								}
+																								port: {
+																									description: """
+																													Port specifies the destination port number to use for this resource.
+																													Port is required when the referent is a Kubernetes Service. In this
+																													case, the port number is the service port number, not the target port.
+																													For other resources, destination port might be derived from the referent
+																													resource or this field.
+																													"""
+																									format:  "int32"
+																									maximum: 65535
+																									minimum: 1
+																									type:    "integer"
+																								}
+																							}
+																							required: ["name"]
+																							type: "object"
+																							"x-kubernetes-validations": [{
+																								message: "Must have port for Service reference"
+																								rule:    "(size(self.group) == 0 && self.kind == 'Service') ? has(self.port) : true"
+																							}]
+																						}
+																						fraction: {
+																							description: """
+																											Fraction represents the fraction of requests that should be
+																											mirrored to BackendRef.
+
+																											Only one of Fraction or Percent may be specified. If neither field
+																											is specified, 100% of requests will be mirrored.
+																											"""
+																							properties: {
+																								denominator: {
+																									default: 100
+																									format:  "int32"
+																									minimum: 1
+																									type:    "integer"
+																								}
+																								numerator: {
+																									format:  "int32"
+																									minimum: 0
+																									type:    "integer"
+																								}
+																							}
+																							required: ["numerator"]
+																							type: "object"
+																							"x-kubernetes-validations": [{
+																								message: "numerator must be less than or equal to denominator"
+																								rule:    "self.numerator <= self.denominator"
+																							}]
+																						}
+																						percent: {
+																							description: """
+																											Percent represents the percentage of requests that should be
+																											mirrored to BackendRef. Its minimum value is 0 (indicating 0% of
+																											requests) and its maximum value is 100 (indicating 100% of requests).
+
+																											Only one of Fraction or Percent may be specified. If neither field
+																											is specified, 100% of requests will be mirrored.
+																											"""
+																							format:  "int32"
+																							maximum: 100
+																							minimum: 0
+																							type:    "integer"
+																						}
+																					}
+																					required: ["backendRef"]
+																					type: "object"
+																					"x-kubernetes-validations": [{
+																						message: "Only one of percent or fraction may be specified in HTTPRequestMirrorFilter"
+																						rule:    "!(has(self.percent) && has(self.fraction))"
+																					}]
+																				}
+																				requestRedirect: {
+																					description: """
+																									RequestRedirect defines a schema for a filter that responds to the
+																									request with an HTTP redirection.
+
+																									Support: Core
+																									"""
+																					properties: {
+																						hostname: {
+																							description: """
+																											Hostname is the hostname to be used in the value of the `Location`
+																											header in the response.
+																											When empty, the hostname in the `Host` header of the request is used.
+
+																											Support: Core
+																											"""
+																							maxLength: 253
+																							minLength: 1
+																							pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																							type:      "string"
+																						}
+																						path: {
+																							description: """
+																											Path defines parameters used to modify the path of the incoming request.
+																											The modified path is then used to construct the `Location` header. When
+																											empty, the request path is used as-is.
+
+																											Support: Extended
+																											"""
+																							properties: {
+																								replaceFullPath: {
+																									description: """
+																													ReplaceFullPath specifies the value with which to replace the full path
+																													of a request during a rewrite or redirect.
+																													"""
+																									maxLength: 1024
+																									type:      "string"
+																								}
+																								replacePrefixMatch: {
+																									description: """
+																													ReplacePrefixMatch specifies the value with which to replace the prefix
+																													match of a request during a rewrite or redirect. For example, a request
+																													to "/foo/bar" with a prefix match of "/foo" and a ReplacePrefixMatch
+																													of "/xyz" would be modified to "/xyz/bar".
+
+																													Note that this matches the behavior of the PathPrefix match type. This
+																													matches full path elements. A path element refers to the list of labels
+																													in the path split by the `/` separator. When specified, a trailing `/` is
+																													ignored. For example, the paths `/abc`, `/abc/`, and `/abc/def` would all
+																													match the prefix `/abc`, but the path `/abcd` would not.
+
+																													ReplacePrefixMatch is only compatible with a `PathPrefix` HTTPRouteMatch.
+																													Using any other HTTPRouteMatch type on the same HTTPRouteRule will result in
+																													the implementation setting the Accepted Condition for the Route to `status: False`.
+
+																													Request Path | Prefix Match | Replace Prefix | Modified Path
+																													"""
+																									maxLength: 1024
+																									type:      "string"
+																								}
+																								type: {
+																									description: """
+																													Type defines the type of path modifier. Additional types may be
+																													added in a future release of the API.
+
+																													Note that values may be added to this enum, implementations
+																													must ensure that unknown values will not cause a crash.
+
+																													Unknown values here must result in the implementation setting the
+																													Accepted Condition for the Route to `status: False`, with a
+																													Reason of `UnsupportedValue`.
+																													"""
+																									enum: ["ReplaceFullPath", "ReplacePrefixMatch"]
+																									type: "string"
+																								}
+																							}
+																							required: ["type"]
+																							type: "object"
+																							"x-kubernetes-validations": [{
+																								message: "replaceFullPath must be specified when type is set to 'ReplaceFullPath'"
+																								rule:    "self.type == 'ReplaceFullPath' ? has(self.replaceFullPath) : true"
+																							}, {
+																								message: "type must be 'ReplaceFullPath' when replaceFullPath is set"
+																								rule:    "has(self.replaceFullPath) ? self.type == 'ReplaceFullPath' : true"
+																							}, {
+																								message: "replacePrefixMatch must be specified when type is set to 'ReplacePrefixMatch'"
+																								rule:    "self.type == 'ReplacePrefixMatch' ? has(self.replacePrefixMatch) : true"
+																							}, {
+																								message: "type must be 'ReplacePrefixMatch' when replacePrefixMatch is set"
+																								rule:    "has(self.replacePrefixMatch) ? self.type == 'ReplacePrefixMatch' : true"
+																							}]
+																						}
+																						port: {
+																							description: """
+																											Port is the port to be used in the value of the `Location`
+																											header in the response.
+
+																											If no port is specified, the redirect port MUST be derived using the
+																											following rules:
+
+																											* If redirect scheme is not-empty, the redirect port MUST be the well-known
+																											  port associated with the redirect scheme. Specifically "http" to port 80
+																											  and "https" to port 443. If the redirect scheme does not have a
+																											  well-known port, the listener port of the Gateway SHOULD be used.
+																											* If redirect scheme is empty, the redirect port MUST be the Gateway
+																											  Listener port.
+
+																											Implementations SHOULD NOT add the port number in the 'Location'
+																											header in the following cases:
+
+																											* A Location header that will use HTTP (whether that is determined via
+																											  the Listener protocol or the Scheme field) _and_ use port 80.
+																											* A Location header that will use HTTPS (whether that is determined via
+																											  the Listener protocol or the Scheme field) _and_ use port 443.
+
+																											Support: Extended
+																											"""
+																							format:  "int32"
+																							maximum: 65535
+																							minimum: 1
+																							type:    "integer"
+																						}
+																						scheme: {
+																							description: """
+																											Scheme is the scheme to be used in the value of the `Location` header in
+																											the response. When empty, the scheme of the request is used.
+
+																											Scheme redirects can affect the port of the redirect, for more information,
+																											refer to the documentation for the port field of this filter.
+
+																											Note that values may be added to this enum, implementations
+																											must ensure that unknown values will not cause a crash.
+
+																											Unknown values here must result in the implementation setting the
+																											Accepted Condition for the Route to `status: False`, with a
+																											Reason of `UnsupportedValue`.
+
+																											Support: Extended
+																											"""
+																							enum: ["http", "https"]
+																							type: "string"
+																						}
+																						statusCode: {
+																							default: 302
+																							description: """
+																											StatusCode is the HTTP status code to be used in response.
+
+																											Note that values may be added to this enum, implementations
+																											must ensure that unknown values will not cause a crash.
+
+																											Unknown values here must result in the implementation setting the
+																											Accepted Condition for the Route to `status: False`, with a
+																											Reason of `UnsupportedValue`.
+
+																											Support: Core
+																											"""
+																							enum: [301, 302, 303, 307, 308]
+																							type: "integer"
+																						}
+																					}
+																					type: "object"
+																				}
+																				responseHeaderModifier: {
+																					description: """
+																									ResponseHeaderModifier defines a schema for a filter that modifies response
+																									headers.
+
+																									Support: Extended
+																									"""
+																					properties: {
+																						add: {
+																							description: """
+																											Add adds the given header(s) (name, value) to the request
+																											before the action. It appends to any existing values associated
+																											with the header name.
+
+																											Input:
+																											  GET /foo HTTP/1.1
+																											  my-header: foo
+
+																											Config:
+																											  add:
+																											  - name: "my-header"
+																											    value: "bar,baz"
+
+																											Output:
+																											  GET /foo HTTP/1.1
+																											  my-header: foo,bar,baz
+																											"""
+																							items: {
+																								description: "HTTPHeader represents an HTTP Header name and value as defined by RFC 7230."
+																								properties: {
+																									name: {
+																										description: """
+																														Name is the name of the HTTP Header to be matched. Name matching MUST be
+																														case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+
+																														If multiple entries specify equivalent header names, the first entry with
+																														an equivalent name MUST be considered for a match. Subsequent entries
+																														with an equivalent header name MUST be ignored. Due to the
+																														case-insensitivity of header names, "foo" and "Foo" are considered
+																														equivalent.
+																														"""
+																										maxLength: 256
+																										minLength: 1
+																										pattern:   "^[A-Za-z0-9!#$%&'*+\\-.^_\\x60|~]+$"
+																										type:      "string"
+																									}
+																									value: {
+																										description: """
+																														Value is the value of HTTP Header to be matched.
+																														<gateway:experimental:description>
+																														Must consist of printable US-ASCII characters, optionally separated
+																														by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+																														</gateway:experimental:description>
+
+																														<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+																														"""
+																										maxLength: 4096
+																										minLength: 1
+																										type:      "string"
+																									}
+																								}
+																								required: ["name", "value"]
+																								type: "object"
+																							}
+																							maxItems: 16
+																							type:     "array"
+																							"x-kubernetes-list-map-keys": ["name"]
+																							"x-kubernetes-list-type": "map"
+																						}
+																						remove: {
+																							description: """
+																											Remove the given header(s) from the HTTP request before the action. The
+																											value of Remove is a list of HTTP header names. Note that the header
+																											names are case-insensitive (see
+																											https://datatracker.ietf.org/doc/html/rfc2616#section-4.2).
+
+																											Input:
+																											  GET /foo HTTP/1.1
+																											  my-header1: foo
+																											  my-header2: bar
+																											  my-header3: baz
+
+																											Config:
+																											  remove: ["my-header1", "my-header3"]
+
+																											Output:
+																											  GET /foo HTTP/1.1
+																											  my-header2: bar
+																											"""
+																							items: type: "string"
+																							maxItems:                 16
+																							type:                     "array"
+																							"x-kubernetes-list-type": "set"
+																						}
+																						set: {
+																							description: """
+																											Set overwrites the request with the given header (name, value)
+																											before the action.
+
+																											Input:
+																											  GET /foo HTTP/1.1
+																											  my-header: foo
+
+																											Config:
+																											  set:
+																											  - name: "my-header"
+																											    value: "bar"
+
+																											Output:
+																											  GET /foo HTTP/1.1
+																											  my-header: bar
+																											"""
+																							items: {
+																								description: "HTTPHeader represents an HTTP Header name and value as defined by RFC 7230."
+																								properties: {
+																									name: {
+																										description: """
+																														Name is the name of the HTTP Header to be matched. Name matching MUST be
+																														case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+
+																														If multiple entries specify equivalent header names, the first entry with
+																														an equivalent name MUST be considered for a match. Subsequent entries
+																														with an equivalent header name MUST be ignored. Due to the
+																														case-insensitivity of header names, "foo" and "Foo" are considered
+																														equivalent.
+																														"""
+																										maxLength: 256
+																										minLength: 1
+																										pattern:   "^[A-Za-z0-9!#$%&'*+\\-.^_\\x60|~]+$"
+																										type:      "string"
+																									}
+																									value: {
+																										description: """
+																														Value is the value of HTTP Header to be matched.
+																														<gateway:experimental:description>
+																														Must consist of printable US-ASCII characters, optionally separated
+																														by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+																														</gateway:experimental:description>
+
+																														<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+																														"""
+																										maxLength: 4096
+																										minLength: 1
+																										type:      "string"
+																									}
+																								}
+																								required: ["name", "value"]
+																								type: "object"
+																							}
+																							maxItems: 16
+																							type:     "array"
+																							"x-kubernetes-list-map-keys": ["name"]
+																							"x-kubernetes-list-type": "map"
+																						}
+																					}
+																					type: "object"
+																				}
+																				type: {
+																					description: """
+																									Type identifies the type of filter to apply. As with other API fields,
+																									types are classified into three conformance levels:
+
+																									- Core: Filter types and their corresponding configuration defined by
+																									  "Support: Core" in this package, e.g. "RequestHeaderModifier". All
+																									  implementations must support core filters.
+
+																									- Extended: Filter types and their corresponding configuration defined by
+																									  "Support: Extended" in this package, e.g. "RequestMirror". Implementers
+																									  are encouraged to support extended filters.
+
+																									- Implementation-specific: Filters that are defined and supported by
+																									  specific vendors.
+																									  In the future, filters showing convergence in behavior across multiple
+																									  implementations will be considered for inclusion in extended or core
+																									  conformance levels. Filter-specific configuration for such filters
+																									  is specified using the ExtensionRef field. `Type` should be set to
+																									  "ExtensionRef" for custom filters.
+
+																									Implementers are encouraged to define custom implementation types to
+																									extend the core API with implementation-specific behavior.
+
+																									If a reference to a custom filter type cannot be resolved, the filter
+																									MUST NOT be skipped. Instead, requests that would have been processed by
+																									that filter MUST receive a HTTP error response.
+
+																									Note that values may be added to this enum, implementations
+																									must ensure that unknown values will not cause a crash.
+
+																									Unknown values here must result in the implementation setting the
+																									Accepted Condition for the Route to `status: False`, with a
+																									Reason of `UnsupportedValue`.
+
+																									<gateway:experimental:validation:Enum=RequestHeaderModifier;ResponseHeaderModifier;RequestMirror;RequestRedirect;URLRewrite;ExtensionRef;CORS;ExternalAuth>
+																									"""
+																					enum: ["RequestHeaderModifier", "ResponseHeaderModifier", "RequestMirror", "RequestRedirect", "URLRewrite", "ExtensionRef", "CORS"]
+																					type: "string"
+																				}
+																				urlRewrite: {
+																					description: """
+																									URLRewrite defines a schema for a filter that modifies a request during forwarding.
+
+																									Support: Extended
+																									"""
+																					properties: {
+																						hostname: {
+																							description: """
+																											Hostname is the value to be used to replace the Host header value during
+																											forwarding.
+
+																											Support: Extended
+																											"""
+																							maxLength: 253
+																							minLength: 1
+																							pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																							type:      "string"
+																						}
+																						path: {
+																							description: """
+																											Path defines a path rewrite.
+
+																											Support: Extended
+																											"""
+																							properties: {
+																								replaceFullPath: {
+																									description: """
+																													ReplaceFullPath specifies the value with which to replace the full path
+																													of a request during a rewrite or redirect.
+																													"""
+																									maxLength: 1024
+																									type:      "string"
+																								}
+																								replacePrefixMatch: {
+																									description: """
+																													ReplacePrefixMatch specifies the value with which to replace the prefix
+																													match of a request during a rewrite or redirect. For example, a request
+																													to "/foo/bar" with a prefix match of "/foo" and a ReplacePrefixMatch
+																													of "/xyz" would be modified to "/xyz/bar".
+
+																													Note that this matches the behavior of the PathPrefix match type. This
+																													matches full path elements. A path element refers to the list of labels
+																													in the path split by the `/` separator. When specified, a trailing `/` is
+																													ignored. For example, the paths `/abc`, `/abc/`, and `/abc/def` would all
+																													match the prefix `/abc`, but the path `/abcd` would not.
+
+																													ReplacePrefixMatch is only compatible with a `PathPrefix` HTTPRouteMatch.
+																													Using any other HTTPRouteMatch type on the same HTTPRouteRule will result in
+																													the implementation setting the Accepted Condition for the Route to `status: False`.
+
+																													Request Path | Prefix Match | Replace Prefix | Modified Path
+																													"""
+																									maxLength: 1024
+																									type:      "string"
+																								}
+																								type: {
+																									description: """
+																													Type defines the type of path modifier. Additional types may be
+																													added in a future release of the API.
+
+																													Note that values may be added to this enum, implementations
+																													must ensure that unknown values will not cause a crash.
+
+																													Unknown values here must result in the implementation setting the
+																													Accepted Condition for the Route to `status: False`, with a
+																													Reason of `UnsupportedValue`.
+																													"""
+																									enum: ["ReplaceFullPath", "ReplacePrefixMatch"]
+																									type: "string"
+																								}
+																							}
+																							required: ["type"]
+																							type: "object"
+																							"x-kubernetes-validations": [{
+																								message: "replaceFullPath must be specified when type is set to 'ReplaceFullPath'"
+																								rule:    "self.type == 'ReplaceFullPath' ? has(self.replaceFullPath) : true"
+																							}, {
+																								message: "type must be 'ReplaceFullPath' when replaceFullPath is set"
+																								rule:    "has(self.replaceFullPath) ? self.type == 'ReplaceFullPath' : true"
+																							}, {
+																								message: "replacePrefixMatch must be specified when type is set to 'ReplacePrefixMatch'"
+																								rule:    "self.type == 'ReplacePrefixMatch' ? has(self.replacePrefixMatch) : true"
+																							}, {
+																								message: "type must be 'ReplacePrefixMatch' when replacePrefixMatch is set"
+																								rule:    "has(self.replacePrefixMatch) ? self.type == 'ReplacePrefixMatch' : true"
+																							}]
+																						}
+																					}
+																					type: "object"
+																				}
+																			}
+																			required: ["type"]
+																			type: "object"
+																			"x-kubernetes-validations": [{
+																				message: "filter.cors must be nil if the filter.type is not CORS"
+																				rule:    "!(has(self.cors) && self.type != 'CORS')"
+																			}, {
+																				message: "filter.cors must be specified for CORS filter.type"
+																				rule:    "!(!has(self.cors) && self.type == 'CORS')"
+																			}, {
+																				message: "filter.requestHeaderModifier must be nil if the filter.type is not RequestHeaderModifier"
+																				rule:    "!(has(self.requestHeaderModifier) && self.type != 'RequestHeaderModifier')"
+																			}, {
+																				message: "filter.requestHeaderModifier must be specified for RequestHeaderModifier filter.type"
+																				rule:    "!(!has(self.requestHeaderModifier) && self.type == 'RequestHeaderModifier')"
+																			}, {
+																				message: "filter.responseHeaderModifier must be nil if the filter.type is not ResponseHeaderModifier"
+																				rule:    "!(has(self.responseHeaderModifier) && self.type != 'ResponseHeaderModifier')"
+																			}, {
+																				message: "filter.responseHeaderModifier must be specified for ResponseHeaderModifier filter.type"
+																				rule:    "!(!has(self.responseHeaderModifier) && self.type == 'ResponseHeaderModifier')"
+																			}, {
+																				message: "filter.requestMirror must be nil if the filter.type is not RequestMirror"
+																				rule:    "!(has(self.requestMirror) && self.type != 'RequestMirror')"
+																			}, {
+																				message: "filter.requestMirror must be specified for RequestMirror filter.type"
+																				rule:    "!(!has(self.requestMirror) && self.type == 'RequestMirror')"
+																			}, {
+																				message: "filter.requestRedirect must be nil if the filter.type is not RequestRedirect"
+																				rule:    "!(has(self.requestRedirect) && self.type != 'RequestRedirect')"
+																			}, {
+																				message: "filter.requestRedirect must be specified for RequestRedirect filter.type"
+																				rule:    "!(!has(self.requestRedirect) && self.type == 'RequestRedirect')"
+																			}, {
+																				message: "filter.urlRewrite must be nil if the filter.type is not URLRewrite"
+																				rule:    "!(has(self.urlRewrite) && self.type != 'URLRewrite')"
+																			}, {
+																				message: "filter.urlRewrite must be specified for URLRewrite filter.type"
+																				rule:    "!(!has(self.urlRewrite) && self.type == 'URLRewrite')"
+																			}, {
+																				message: "filter.extensionRef must be nil if the filter.type is not ExtensionRef"
+																				rule:    "!(has(self.extensionRef) && self.type != 'ExtensionRef')"
+																			}, {
+																				message: "filter.extensionRef must be specified for ExtensionRef filter.type"
+																				rule:    "!(!has(self.extensionRef) && self.type == 'ExtensionRef')"
+																			}]
+																		}
+																		maxItems:                 16
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
+																		"x-kubernetes-validations": [{
+																			message: "May specify either httpRouteFilterRequestRedirect or httpRouteFilterRequestRewrite, but not both"
+																			rule:    "!(self.exists(f, f.type == 'RequestRedirect') && self.exists(f, f.type == 'URLRewrite'))"
+																		}, {
+																			message: "CORS filter cannot be repeated"
+																			rule:    "self.filter(f, f.type == 'CORS').size() <= 1"
+																		}, {
+																			message: "RequestHeaderModifier filter cannot be repeated"
+																			rule:    "self.filter(f, f.type == 'RequestHeaderModifier').size() <= 1"
+																		}, {
+																			message: "ResponseHeaderModifier filter cannot be repeated"
+																			rule:    "self.filter(f, f.type == 'ResponseHeaderModifier').size() <= 1"
+																		}, {
+																			message: "RequestRedirect filter cannot be repeated"
+																			rule:    "self.filter(f, f.type == 'RequestRedirect').size() <= 1"
+																		}, {
+																			message: "URLRewrite filter cannot be repeated"
+																			rule:    "self.filter(f, f.type == 'URLRewrite').size() <= 1"
+																		}]
+																	}
+																	group: {
+																		default: ""
+																		description: """
+																						Group is the group of the referent. For example, "gateway.networking.k8s.io".
+																						When unspecified or empty string, core API group is inferred.
+																						"""
+																		maxLength: 253
+																		pattern:   "^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																		type:      "string"
+																	}
+																	kind: {
+																		default: "Service"
+																		description: """
+																						Kind is the Kubernetes resource kind of the referent. For example
+																						"Service".
+
+																						Defaults to "Service" when not specified.
+
+																						ExternalName services can refer to CNAME DNS records that may live
+																						outside of the cluster and as such are difficult to reason about in
+																						terms of conformance. They also may not be safe to forward to (see
+																						CVE-2021-25740 for more information). Implementations SHOULD NOT
+																						support ExternalName Services.
+
+																						Support: Core (Services with a type other than ExternalName)
+
+																						Support: Implementation-specific (Services with type ExternalName)
+																						"""
+																		maxLength: 63
+																		minLength: 1
+																		pattern:   "^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$"
+																		type:      "string"
+																	}
+																	name: {
+																		description: "Name is the name of the referent."
+																		maxLength:   253
+																		minLength:   1
+																		type:        "string"
+																	}
+																	namespace: {
+																		description: """
+																						Namespace is the namespace of the backend. When unspecified, the local
+																						namespace is inferred.
+
+																						Note that when a namespace different than the local namespace is specified,
+																						a ReferenceGrant object is required in the referent namespace to allow that
+																						namespace's owner to accept the reference. See the ReferenceGrant
+																						documentation for details.
+
+																						Support: Core
+																						"""
+																		maxLength: 63
+																		minLength: 1
+																		pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+																		type:      "string"
+																	}
+																	port: {
+																		description: """
+																						Port specifies the destination port number to use for this resource.
+																						Port is required when the referent is a Kubernetes Service. In this
+																						case, the port number is the service port number, not the target port.
+																						For other resources, destination port might be derived from the referent
+																						resource or this field.
+																						"""
+																		format:  "int32"
+																		maximum: 65535
+																		minimum: 1
+																		type:    "integer"
+																	}
+																	weight: {
+																		default: 1
+																		description: """
+																						Weight specifies the proportion of requests forwarded to the referenced
+																						backend. This is computed as weight/(sum of all weights in this
+																						BackendRefs list). For non-zero values, there may be some epsilon from
+																						the exact proportion defined here depending on the precision an
+																						implementation supports. Weight is not a percentage and the sum of
+																						weights does not need to equal 100.
+
+																						If only one backend is specified and it has a weight greater than 0, 100%
+																						of the traffic is forwarded to that backend. If weight is set to 0, no
+																						traffic should be forwarded for this entry. If unspecified, weight
+																						defaults to 1.
+
+																						Support for this field varies based on the context where used.
+																						"""
+																		format:  "int32"
+																		maximum: 1000000
+																		minimum: 0
+																		type:    "integer"
+																	}
+																}
+																required: ["name"]
+																type: "object"
+																"x-kubernetes-validations": [{
+																	message: "Must have port for Service reference"
+																	rule:    "(size(self.group) == 0 && self.kind == 'Service') ? has(self.port) : true"
+																}]
+															}
+															maxItems:                 16
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
+														}
+														filters: {
+															description: """
+																			Filters define the filters that are applied to requests that match
+																			this rule.
+
+																			Wherever possible, implementations SHOULD implement filters in the order
+																			they are specified.
+
+																			Implementations MAY choose to implement this ordering strictly, rejecting
+																			any combination or order of filters that cannot be supported. If implementations
+																			choose a strict interpretation of filter ordering, they MUST clearly document
+																			that behavior.
+
+																			To reject an invalid combination or order of filters, implementations SHOULD
+																			consider the Route Rules with this configuration invalid. If all Route Rules
+																			in a Route are invalid, the entire Route would be considered invalid. If only
+																			a portion of Route Rules are invalid, implementations MUST set the
+																			"PartiallyInvalid" condition for the Route.
+
+																			Conformance-levels at this level are defined based on the type of filter:
+
+																			- ALL core filters MUST be supported by all implementations.
+																			- Implementers are encouraged to support extended filters.
+																			- Implementation-specific custom filters have no API guarantees across
+																			  implementations.
+
+																			Specifying the same filter multiple times is not supported unless explicitly
+																			indicated in the filter.
+
+																			All filters are expected to be compatible with each other except for the
+																			URLRewrite and RequestRedirect filters, which may not be combined. If an
+																			implementation cannot support other combinations of filters, they must clearly
+																			document that limitation. In cases where incompatible or unsupported
+																			filters are specified and cause the `Accepted` condition to be set to status
+																			`False`, implementations may use the `IncompatibleFilters` reason to specify
+																			this configuration error.
+
+																			Support: Core
+																			"""
+															items: {
+																description: """
+																				HTTPRouteFilter defines processing steps that must be completed during the
+																				request or response lifecycle. HTTPRouteFilters are meant as an extension
+																				point to express processing that may be done in Gateway implementations. Some
+																				examples include request or response modification, implementing
+																				authentication strategies, rate-limiting, and traffic shaping. API
+																				guarantee/conformance is defined based on the type of the filter.
+
+																				<gateway:experimental:validation:XValidation:message="filter.externalAuth must be nil if the filter.type is not ExternalAuth",rule="!(has(self.externalAuth) && self.type != 'ExternalAuth')">
+																				<gateway:experimental:validation:XValidation:message="filter.externalAuth must be specified for ExternalAuth filter.type",rule="!(!has(self.externalAuth) && self.type == 'ExternalAuth')">
+																				"""
+																properties: {
+																	cors: {
+																		description: """
+																						CORS defines a schema for a filter that responds to the
+																						cross-origin request based on HTTP response header.
+
+																						Support: Extended
+																						"""
+																		properties: {
+																			allowCredentials: {
+																				description: """
+																								AllowCredentials indicates whether the actual cross-origin request allows
+																								to include credentials.
+
+																								When set to true, the gateway will include the `Access-Control-Allow-Credentials`
+																								response header with value true (case-sensitive).
+
+																								When set to false or omitted the gateway will omit the header
+																								`Access-Control-Allow-Credentials` entirely (this is the standard CORS
+																								behavior).
+
+																								Support: Extended
+																								"""
+																				type: "boolean"
+																			}
+																			allowHeaders: {
+																				description: """
+																								AllowHeaders indicates which HTTP request headers are supported for
+																								accessing the requested resource.
+
+																								Header names are not case-sensitive.
+
+																								Multiple header names in the value of the `Access-Control-Allow-Headers`
+																								response header are separated by a comma (",").
+
+																								When the `AllowHeaders` field is configured with one or more headers, the
+																								gateway must return the `Access-Control-Allow-Headers` response header
+																								which value is present in the `AllowHeaders` field.
+
+																								If any header name in the `Access-Control-Request-Headers` request header
+																								is not included in the list of header names specified by the response
+																								header `Access-Control-Allow-Headers`, it will present an error on the
+																								client side.
+
+																								If any header name in the `Access-Control-Allow-Headers` response header
+																								does not recognize by the client, it will also occur an error on the
+																								client side.
+
+																								A wildcard indicates that the requests with all HTTP headers are allowed.
+																								If config contains the wildcard "*" in allowHeaders and the request is
+																								not credentialed, the `Access-Control-Allow-Headers` response header
+																								can either use the `*` wildcard or the value of
+																								Access-Control-Request-Headers from the request.
+
+																								When the request is credentialed, the gateway must not specify the `*`
+																								wildcard in the `Access-Control-Allow-Headers` response header. When
+																								also the `AllowCredentials` field is true and `AllowHeaders` field
+																								is specified with the `*` wildcard, the gateway must specify one or more
+																								HTTP headers in the value of the `Access-Control-Allow-Headers` response
+																								header. The value of the header `Access-Control-Allow-Headers` is same as
+																								the `Access-Control-Request-Headers` header provided by the client. If
+																								the header `Access-Control-Request-Headers` is not included in the
+																								request, the gateway will omit the `Access-Control-Allow-Headers`
+																								response header, instead of specifying the `*` wildcard.
+
+																								Support: Extended
+																								"""
+																				items: {
+																					description: """
+																									HTTPHeaderName is the name of an HTTP header.
+
+																									Valid values include:
+
+																									* "Authorization"
+																									* "Set-Cookie"
+
+																									Invalid values include:
+
+																									  - ":method" - ":" is an invalid character. This means that HTTP/2 pseudo
+																									    headers are not currently supported by this type.
+																									  - "/invalid" - "/ " is an invalid character
+																									"""
+																					maxLength: 256
+																					minLength: 1
+																					pattern:   "^[A-Za-z0-9!#$%&'*+\\-.^_\\x60|~]+$"
+																					type:      "string"
+																				}
+																				maxItems:                 64
+																				type:                     "array"
+																				"x-kubernetes-list-type": "set"
+																				"x-kubernetes-validations": [{
+																					message: "AllowHeaders cannot contain '*' alongside other methods"
+																					rule:    "!('*' in self && self.size() > 1)"
+																				}]
+																			}
+																			allowMethods: {
+																				description: """
+																								AllowMethods indicates which HTTP methods are supported for accessing the
+																								requested resource.
+
+																								Valid values are any method defined by RFC9110, along with the special
+																								value `*`, which represents all HTTP methods are allowed.
+
+																								Method names are case-sensitive, so these values are also case-sensitive.
+																								(See https://www.rfc-editor.org/rfc/rfc2616#section-5.1.1)
+
+																								Multiple method names in the value of the `Access-Control-Allow-Methods`
+																								response header are separated by a comma (",").
+
+																								A CORS-safelisted method is a method that is `GET`, `HEAD`, or `POST`.
+																								(See https://fetch.spec.whatwg.org/#cors-safelisted-method) The
+																								CORS-safelisted methods are always allowed, regardless of whether they
+																								are specified in the `AllowMethods` field.
+
+																								When the `AllowMethods` field is configured with one or more methods, the
+																								gateway must return the `Access-Control-Allow-Methods` response header
+																								which value is present in the `AllowMethods` field.
+
+																								If the HTTP method of the `Access-Control-Request-Method` request header
+																								is not included in the list of methods specified by the response header
+																								`Access-Control-Allow-Methods`, it will present an error on the client
+																								side.
+
+																								If config contains the wildcard "*" in allowMethods and the request is
+																								not credentialed, the `Access-Control-Allow-Methods` response header
+																								can either use the `*` wildcard or the value of
+																								Access-Control-Request-Method from the request.
+
+																								When the request is credentialed, the gateway must not specify the `*`
+																								wildcard in the `Access-Control-Allow-Methods` response header. When
+																								also the `AllowCredentials` field is true and `AllowMethods` field
+																								specified with the `*` wildcard, the gateway must specify one HTTP method
+																								in the value of the Access-Control-Allow-Methods response header. The
+																								value of the header `Access-Control-Allow-Methods` is same as the
+																								`Access-Control-Request-Method` header provided by the client. If the
+																								header `Access-Control-Request-Method` is not included in the request,
+																								the gateway will omit the `Access-Control-Allow-Methods` response header,
+																								instead of specifying the `*` wildcard.
+
+																								Support: Extended
+																								"""
+																				items: {
+																					enum: ["GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH", "*"]
+																					type: "string"
+																				}
+																				maxItems:                 9
+																				type:                     "array"
+																				"x-kubernetes-list-type": "set"
+																				"x-kubernetes-validations": [{
+																					message: "AllowMethods cannot contain '*' alongside other methods"
+																					rule:    "!('*' in self && self.size() > 1)"
+																				}]
+																			}
+																			allowOrigins: {
+																				description: """
+																								AllowOrigins indicates whether the response can be shared with requested
+																								resource from the given `Origin`.
+
+																								The `Origin` consists of a scheme and a host, with an optional port, and
+																								takes the form `<scheme>://<host>(:<port>)`.
+
+																								Valid values for scheme are: `http` and `https`.
+
+																								Valid values for port are any integer between 1 and 65535 (the list of
+																								available TCP/UDP ports). Note that, if not included, port `80` is
+																								assumed for `http` scheme origins, and port `443` is assumed for `https`
+																								origins. This may affect origin matching.
+
+																								The host part of the origin may contain the wildcard character `*`. These
+																								wildcard characters behave as follows:
+
+																								* `*` is a greedy match to the _left_, including any number of
+																								  DNS labels to the left of its position. This also means that
+																								  `*` will include any number of period `.` characters to the
+																								  left of its position.
+																								* A wildcard by itself matches all hosts.
+
+																								An origin value that includes _only_ the `*` character indicates requests
+																								from all `Origin`s are allowed.
+
+																								When the `AllowOrigins` field is configured with multiple origins, it
+																								means the server supports clients from multiple origins. If the request
+																								`Origin` matches the configured allowed origins, the gateway must return
+																								the given `Origin` and sets value of the header
+																								`Access-Control-Allow-Origin` same as the `Origin` header provided by the
+																								client.
+
+																								The status code of a successful response to a "preflight" request is
+																								always an OK status (i.e., 204 or 200).
+
+																								If the request `Origin` does not match the configured allowed origins,
+																								the gateway returns 204/200 response but doesn't set the relevant
+																								cross-origin response headers. Alternatively, the gateway responds with
+																								403 status to the "preflight" request is denied, coupled with omitting
+																								the CORS headers. The cross-origin request fails on the client side.
+																								Therefore, the client doesn't attempt the actual cross-origin request.
+
+																								Conversely, if the request `Origin` matches one of the configured
+																								allowed origins, the gateway sets the response header
+																								`Access-Control-Allow-Origin` to the same value as the `Origin`
+																								header provided by the client.
+
+																								When config has the wildcard ("*") in allowOrigins, and the request
+																								is not credentialed (e.g., it is a preflight request), the
+																								`Access-Control-Allow-Origin` response header either contains the
+																								wildcard as well or the Origin from the request.
+
+																								When the request is credentialed, the gateway must not specify the `*`
+																								wildcard in the `Access-Control-Allow-Origin` response header. When
+																								also the `AllowCredentials` field is true and `AllowOrigins` field
+																								specified with the `*` wildcard, the gateway must return a single origin
+																								in the value of the `Access-Control-Allow-Origin` response header,
+																								instead of specifying the `*` wildcard. The value of the header
+																								`Access-Control-Allow-Origin` is same as the `Origin` header provided by
+																								the client.
+
+																								Support: Extended
+																								"""
+																				items: {
+																					description: """
+																									The CORSOrigin MUST NOT be a relative URI, and it MUST follow the URI syntax and
+																									encoding rules specified in RFC3986.  The CORSOrigin MUST include both a
+																									scheme ("http" or "https") and a scheme-specific-part, or it should be a single '*' character.
+																									URIs that include an authority MUST include a fully qualified domain name or
+																									IP address as the host.
+																									"""
+																					maxLength: 253
+																					minLength: 1
+																					pattern:   "(^\\*$)|(^(http(s)?):\\/\\/(((\\*\\.)?([a-zA-Z0-9\\-]+\\.)*[a-zA-Z0-9-]+|\\*)(:([0-9]{1,5}))?)$)"
+																					type:      "string"
+																				}
+																				maxItems:                 64
+																				type:                     "array"
+																				"x-kubernetes-list-type": "set"
+																				"x-kubernetes-validations": [{
+																					message: "AllowOrigins cannot contain '*' alongside other origins"
+																					rule:    "!('*' in self && self.size() > 1)"
+																				}]
+																			}
+																			exposeHeaders: {
+																				description: """
+																								ExposeHeaders indicates which HTTP response headers can be exposed
+																								to client-side scripts in response to a cross-origin request.
+
+																								A CORS-safelisted response header is an HTTP header in a CORS response
+																								that it is considered safe to expose to the client scripts.
+																								The CORS-safelisted response headers include the following headers:
+																								`Cache-Control`
+																								`Content-Language`
+																								`Content-Length`
+																								`Content-Type`
+																								`Expires`
+																								`Last-Modified`
+																								`Pragma`
+																								(See https://fetch.spec.whatwg.org/#cors-safelisted-response-header-name)
+																								The CORS-safelisted response headers are exposed to client by default.
+
+																								When an HTTP header name is specified using the `ExposeHeaders` field,
+																								this additional header will be exposed as part of the response to the
+																								client.
+
+																								Header names are not case-sensitive.
+
+																								Multiple header names in the value of the `Access-Control-Expose-Headers`
+																								response header are separated by a comma (",").
+
+																								A wildcard indicates that the responses with all HTTP headers are exposed
+																								to clients. The `Access-Control-Expose-Headers` response header can only
+																								use `*` wildcard as value when the request is not credentialed.
+
+																								When the `exposeHeaders` config field contains the "*" wildcard and
+																								the request is credentialed, the gateway cannot use the `*` wildcard in
+																								the `Access-Control-Expose-Headers` response header.
+
+																								Support: Extended
+																								"""
+																				items: {
+																					description: """
+																									HTTPHeaderName is the name of an HTTP header.
+
+																									Valid values include:
+
+																									* "Authorization"
+																									* "Set-Cookie"
+
+																									Invalid values include:
+
+																									  - ":method" - ":" is an invalid character. This means that HTTP/2 pseudo
+																									    headers are not currently supported by this type.
+																									  - "/invalid" - "/ " is an invalid character
+																									"""
+																					maxLength: 256
+																					minLength: 1
+																					pattern:   "^[A-Za-z0-9!#$%&'*+\\-.^_\\x60|~]+$"
+																					type:      "string"
+																				}
+																				maxItems:                 64
+																				type:                     "array"
+																				"x-kubernetes-list-type": "set"
+																			}
+																			maxAge: {
+																				default: 5
+																				description: """
+																								MaxAge indicates the duration (in seconds) for the client to cache the
+																								results of a "preflight" request.
+
+																								The information provided by the `Access-Control-Allow-Methods` and
+																								`Access-Control-Allow-Headers` response headers can be cached by the
+																								client until the time specified by `Access-Control-Max-Age` elapses.
+
+																								The default value of `Access-Control-Max-Age` response header is 5
+																								(seconds).
+
+																								When the `MaxAge` field is unspecified, the gateway sets the response
+																								header "Access-Control-Max-Age: 5" by default.
+																								"""
+																				format:  "int32"
+																				minimum: 1
+																				type:    "integer"
+																			}
+																		}
+																		type: "object"
+																	}
+																	extensionRef: {
+																		description: """
+																						ExtensionRef is an optional, implementation-specific extension to the
+																						"filter" behavior.  For example, resource "myroutefilter" in group
+																						"networking.example.net"). ExtensionRef MUST NOT be used for core and
+																						extended filters.
+
+																						This filter can be used multiple times within the same rule.
+
+																						Support: Implementation-specific
+																						"""
+																		properties: {
+																			group: {
+																				description: """
+																								Group is the group of the referent. For example, "gateway.networking.k8s.io".
+																								When unspecified or empty string, core API group is inferred.
+																								"""
+																				maxLength: 253
+																				pattern:   "^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																				type:      "string"
+																			}
+																			kind: {
+																				description: "Kind is kind of the referent. For example \"HTTPRoute\" or \"Service\"."
+																				maxLength:   63
+																				minLength:   1
+																				pattern:     "^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$"
+																				type:        "string"
+																			}
+																			name: {
+																				description: "Name is the name of the referent."
+																				maxLength:   253
+																				minLength:   1
+																				type:        "string"
+																			}
+																		}
+																		required: ["group", "kind", "name"]
+																		type: "object"
+																	}
+																	externalAuth: {
+																		description: """
+																						ExternalAuth configures settings related to sending request details
+																						to an external auth service. The external service MUST authenticate
+																						the request, and MAY authorize the request as well.
+
+																						If there is any problem communicating with the external service,
+																						this filter MUST fail closed.
+
+																						Support: Extended
+
+																						<gateway:experimental>
+																						"""
+																		properties: {
+																			backendRef: {
+																				description: """
+																								BackendRef is a reference to a backend to send authorization
+																								requests to.
+
+																								The backend must speak the selected protocol (GRPC or HTTP) on the
+																								referenced port.
+
+																								If the backend service requires TLS, use BackendTLSPolicy to tell the
+																								implementation to supply the TLS details to be used to connect to that
+																								backend.
+																								"""
+																				properties: {
+																					group: {
+																						default: ""
+																						description: """
+																										Group is the group of the referent. For example, "gateway.networking.k8s.io".
+																										When unspecified or empty string, core API group is inferred.
+																										"""
+																						maxLength: 253
+																						pattern:   "^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																						type:      "string"
+																					}
+																					kind: {
+																						default: "Service"
+																						description: """
+																										Kind is the Kubernetes resource kind of the referent. For example
+																										"Service".
+
+																										Defaults to "Service" when not specified.
+
+																										ExternalName services can refer to CNAME DNS records that may live
+																										outside of the cluster and as such are difficult to reason about in
+																										terms of conformance. They also may not be safe to forward to (see
+																										CVE-2021-25740 for more information). Implementations SHOULD NOT
+																										support ExternalName Services.
+
+																										Support: Core (Services with a type other than ExternalName)
+
+																										Support: Implementation-specific (Services with type ExternalName)
+																										"""
+																						maxLength: 63
+																						minLength: 1
+																						pattern:   "^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$"
+																						type:      "string"
+																					}
+																					name: {
+																						description: "Name is the name of the referent."
+																						maxLength:   253
+																						minLength:   1
+																						type:        "string"
+																					}
+																					namespace: {
+																						description: """
+																										Namespace is the namespace of the backend. When unspecified, the local
+																										namespace is inferred.
+
+																										Note that when a namespace different than the local namespace is specified,
+																										a ReferenceGrant object is required in the referent namespace to allow that
+																										namespace's owner to accept the reference. See the ReferenceGrant
+																										documentation for details.
+
+																										Support: Core
+																										"""
+																						maxLength: 63
+																						minLength: 1
+																						pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+																						type:      "string"
+																					}
+																					port: {
+																						description: """
+																										Port specifies the destination port number to use for this resource.
+																										Port is required when the referent is a Kubernetes Service. In this
+																										case, the port number is the service port number, not the target port.
+																										For other resources, destination port might be derived from the referent
+																										resource or this field.
+																										"""
+																						format:  "int32"
+																						maximum: 65535
+																						minimum: 1
+																						type:    "integer"
+																					}
+																				}
+																				required: ["name"]
+																				type: "object"
+																				"x-kubernetes-validations": [{
+																					message: "Must have port for Service reference"
+																					rule:    "(size(self.group) == 0 && self.kind == 'Service') ? has(self.port) : true"
+																				}]
+																			}
+																			forwardBody: {
+																				description: """
+																								ForwardBody controls if requests to the authorization server should include
+																								the body of the client request; and if so, how big that body is allowed
+																								to be.
+
+																								It is expected that implementations will buffer the request body up to
+																								`forwardBody.maxSize` bytes. Bodies over that size must be rejected with a
+																								4xx series error (413 or 403 are common examples), and fail processing
+																								of the filter.
+
+																								If unset, or `forwardBody.maxSize` is set to `0`, then the body will not
+																								be forwarded.
+
+																								Feature Name: HTTPRouteExternalAuthForwardBody
+																								"""
+																				properties: maxSize: {
+																					description: """
+																										MaxSize specifies how large in bytes the largest body that will be buffered
+																										and sent to the authorization server. If the body size is larger than
+																										`maxSize`, then the body sent to the authorization server must be
+																										truncated to `maxSize` bytes.
+
+																										Experimental note: This behavior needs to be checked against
+																										various dataplanes; it may need to be changed.
+																										See https://github.com/kubernetes-sigs/gateway-api/pull/4001#discussion_r2291405746
+																										for more.
+
+																										If 0, the body will not be sent to the authorization server.
+																										"""
+																					type: "integer"
+																				}
+																				type: "object"
+																			}
+																			grpc: {
+																				description: """
+																								GRPCAuthConfig contains configuration for communication with ext_authz
+																								protocol-speaking backends.
+
+																								If unset, implementations must assume the default behavior for each
+																								included field is intended.
+																								"""
+																				properties: allowedHeaders: {
+																					description: """
+																										AllowedRequestHeaders specifies what headers from the client request
+																										will be sent to the authorization server.
+
+																										If this list is empty, then all headers must be sent.
+
+																										If the list has entries, only those entries must be sent.
+																										"""
+																					items: type: "string"
+																					maxItems:                 64
+																					type:                     "array"
+																					"x-kubernetes-list-type": "set"
+																				}
+																				type: "object"
+																			}
+																			http: {
+																				description: """
+																								HTTPAuthConfig contains configuration for communication with HTTP-speaking
+																								backends.
+
+																								If unset, implementations must assume the default behavior for each
+																								included field is intended.
+																								"""
+																				properties: {
+																					allowedHeaders: {
+																						description: """
+																										AllowedRequestHeaders specifies what additional headers from the client request
+																										will be sent to the authorization server.
+
+																										The following headers must always be sent to the authorization server,
+																										regardless of this setting:
+
+																										* `Host`
+																										* `Method`
+																										* `Path`
+																										* `Content-Length`
+																										* `Authorization`
+
+																										If this list is empty, then only those headers must be sent.
+
+																										Note that `Content-Length` has a special behavior, in that the length
+																										sent must be correct for the actual request to the external authorization
+																										server - that is, it must reflect the actual number of bytes sent in the
+																										body of the request to the authorization server.
+
+																										So if the `forwardBody` stanza is unset, or `forwardBody.maxSize` is set
+																										to `0`, then `Content-Length` must be `0`. If `forwardBody.maxSize` is set
+																										to anything other than `0`, then the `Content-Length` of the authorization
+																										request must be set to the actual number of bytes forwarded.
+																										"""
+																						items: type: "string"
+																						maxItems:                 64
+																						type:                     "array"
+																						"x-kubernetes-list-type": "set"
+																					}
+																					allowedResponseHeaders: {
+																						description: """
+																										AllowedResponseHeaders specifies what headers from the authorization response
+																										will be copied into the request to the backend.
+
+																										If this list is empty, then all headers from the authorization server
+																										except Authority or Host must be copied.
+																										"""
+																						items: type: "string"
+																						maxItems:                 64
+																						type:                     "array"
+																						"x-kubernetes-list-type": "set"
+																					}
+																					path: {
+																						description: """
+																										Path sets the prefix that paths from the client request will have added
+																										when forwarded to the authorization server.
+
+																										When empty or unspecified, no prefix is added.
+
+																										Valid values are the same as the "value" regex for path values in the `match`
+																										stanza, and the validation regex will screen out invalid paths in the same way.
+																										Even with the validation, implementations MUST sanitize this input before using it
+																										directly.
+																										"""
+																						maxLength: 1024
+																						pattern:   "^(?:[-A-Za-z0-9/._~!$&'()*+,;=:@]|[%][0-9a-fA-F]{2})+$"
+																						type:      "string"
+																					}
+																				}
+																				type: "object"
+																			}
+																			protocol: {
+																				description: """
+																								ExternalAuthProtocol describes which protocol to use when communicating with an
+																								ext_authz authorization server.
+
+																								When this is set to GRPC, each backend must use the Envoy ext_authz protocol
+																								on the port specified in `backendRefs`. Requests and responses are defined
+																								in the protobufs explained at:
+																								https://www.envoyproxy.io/docs/envoy/latest/api-v3/service/auth/v3/external_auth.proto
+
+																								When this is set to HTTP, each backend must respond with a `200` status
+																								code in on a successful authorization. Any other code is considered
+																								an authorization failure.
+
+																								Feature Names:
+																								GRPC Support - HTTPRouteExternalAuthGRPC
+																								HTTP Support - HTTPRouteExternalAuthHTTP
+																								"""
+																				enum: ["HTTP", "GRPC"]
+																				type: "string"
+																			}
+																		}
+																		required: ["backendRef", "protocol"]
+																		type: "object"
+																		"x-kubernetes-validations": [{
+																			message: "grpc must be specified when protocol is set to 'GRPC'"
+																			rule:    "self.protocol == 'GRPC' ? has(self.grpc) : true"
+																		}, {
+																			message: "protocol must be 'GRPC' when grpc is set"
+																			rule:    "has(self.grpc) ? self.protocol == 'GRPC' : true"
+																		}, {
+																			message: "http must be specified when protocol is set to 'HTTP'"
+																			rule:    "self.protocol == 'HTTP' ? has(self.http) : true"
+																		}, {
+																			message: "protocol must be 'HTTP' when http is set"
+																			rule:    "has(self.http) ? self.protocol == 'HTTP' : true"
+																		}]
+																	}
+																	requestHeaderModifier: {
+																		description: """
+																						RequestHeaderModifier defines a schema for a filter that modifies request
+																						headers.
+
+																						Support: Core
+																						"""
+																		properties: {
+																			add: {
+																				description: """
+																								Add adds the given header(s) (name, value) to the request
+																								before the action. It appends to any existing values associated
+																								with the header name.
+
+																								Input:
+																								  GET /foo HTTP/1.1
+																								  my-header: foo
+
+																								Config:
+																								  add:
+																								  - name: "my-header"
+																								    value: "bar,baz"
+
+																								Output:
+																								  GET /foo HTTP/1.1
+																								  my-header: foo,bar,baz
+																								"""
+																				items: {
+																					description: "HTTPHeader represents an HTTP Header name and value as defined by RFC 7230."
+																					properties: {
+																						name: {
+																							description: """
+																											Name is the name of the HTTP Header to be matched. Name matching MUST be
+																											case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+
+																											If multiple entries specify equivalent header names, the first entry with
+																											an equivalent name MUST be considered for a match. Subsequent entries
+																											with an equivalent header name MUST be ignored. Due to the
+																											case-insensitivity of header names, "foo" and "Foo" are considered
+																											equivalent.
+																											"""
+																							maxLength: 256
+																							minLength: 1
+																							pattern:   "^[A-Za-z0-9!#$%&'*+\\-.^_\\x60|~]+$"
+																							type:      "string"
+																						}
+																						value: {
+																							description: """
+																											Value is the value of HTTP Header to be matched.
+																											<gateway:experimental:description>
+																											Must consist of printable US-ASCII characters, optionally separated
+																											by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+																											</gateway:experimental:description>
+
+																											<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+																											"""
+																							maxLength: 4096
+																							minLength: 1
+																							type:      "string"
+																						}
+																					}
+																					required: ["name", "value"]
+																					type: "object"
+																				}
+																				maxItems: 16
+																				type:     "array"
+																				"x-kubernetes-list-map-keys": ["name"]
+																				"x-kubernetes-list-type": "map"
+																			}
+																			remove: {
+																				description: """
+																								Remove the given header(s) from the HTTP request before the action. The
+																								value of Remove is a list of HTTP header names. Note that the header
+																								names are case-insensitive (see
+																								https://datatracker.ietf.org/doc/html/rfc2616#section-4.2).
+
+																								Input:
+																								  GET /foo HTTP/1.1
+																								  my-header1: foo
+																								  my-header2: bar
+																								  my-header3: baz
+
+																								Config:
+																								  remove: ["my-header1", "my-header3"]
+
+																								Output:
+																								  GET /foo HTTP/1.1
+																								  my-header2: bar
+																								"""
+																				items: type: "string"
+																				maxItems:                 16
+																				type:                     "array"
+																				"x-kubernetes-list-type": "set"
+																			}
+																			set: {
+																				description: """
+																								Set overwrites the request with the given header (name, value)
+																								before the action.
+
+																								Input:
+																								  GET /foo HTTP/1.1
+																								  my-header: foo
+
+																								Config:
+																								  set:
+																								  - name: "my-header"
+																								    value: "bar"
+
+																								Output:
+																								  GET /foo HTTP/1.1
+																								  my-header: bar
+																								"""
+																				items: {
+																					description: "HTTPHeader represents an HTTP Header name and value as defined by RFC 7230."
+																					properties: {
+																						name: {
+																							description: """
+																											Name is the name of the HTTP Header to be matched. Name matching MUST be
+																											case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+
+																											If multiple entries specify equivalent header names, the first entry with
+																											an equivalent name MUST be considered for a match. Subsequent entries
+																											with an equivalent header name MUST be ignored. Due to the
+																											case-insensitivity of header names, "foo" and "Foo" are considered
+																											equivalent.
+																											"""
+																							maxLength: 256
+																							minLength: 1
+																							pattern:   "^[A-Za-z0-9!#$%&'*+\\-.^_\\x60|~]+$"
+																							type:      "string"
+																						}
+																						value: {
+																							description: """
+																											Value is the value of HTTP Header to be matched.
+																											<gateway:experimental:description>
+																											Must consist of printable US-ASCII characters, optionally separated
+																											by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+																											</gateway:experimental:description>
+
+																											<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+																											"""
+																							maxLength: 4096
+																							minLength: 1
+																							type:      "string"
+																						}
+																					}
+																					required: ["name", "value"]
+																					type: "object"
+																				}
+																				maxItems: 16
+																				type:     "array"
+																				"x-kubernetes-list-map-keys": ["name"]
+																				"x-kubernetes-list-type": "map"
+																			}
+																		}
+																		type: "object"
+																	}
+																	requestMirror: {
+																		description: """
+																						RequestMirror defines a schema for a filter that mirrors requests.
+																						Requests are sent to the specified destination, but responses from
+																						that destination are ignored.
+
+																						This filter can be used multiple times within the same rule. Note that
+																						not all implementations will be able to support mirroring to multiple
+																						backends.
+
+																						Support: Extended
+																						"""
+																		properties: {
+																			backendRef: {
+																				description: """
+																								BackendRef references a resource where mirrored requests are sent.
+
+																								Mirrored requests must be sent only to a single destination endpoint
+																								within this BackendRef, irrespective of how many endpoints are present
+																								within this BackendRef.
+
+																								If the referent cannot be found, this BackendRef is invalid and must be
+																								dropped from the Gateway. The controller must ensure the "ResolvedRefs"
+																								condition on the Route status is set to `status: False` and not configure
+																								this backend in the underlying implementation.
+
+																								If there is a cross-namespace reference to an *existing* object
+																								that is not allowed by a ReferenceGrant, the controller must ensure the
+																								"ResolvedRefs"  condition on the Route is set to `status: False`,
+																								with the "RefNotPermitted" reason and not configure this backend in the
+																								underlying implementation.
+
+																								In either error case, the Message of the `ResolvedRefs` Condition
+																								should be used to provide more detail about the problem.
+
+																								Support: Extended for Kubernetes Service
+
+																								Support: Implementation-specific for any other resource
+																								"""
+																				properties: {
+																					group: {
+																						default: ""
+																						description: """
+																										Group is the group of the referent. For example, "gateway.networking.k8s.io".
+																										When unspecified or empty string, core API group is inferred.
+																										"""
+																						maxLength: 253
+																						pattern:   "^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																						type:      "string"
+																					}
+																					kind: {
+																						default: "Service"
+																						description: """
+																										Kind is the Kubernetes resource kind of the referent. For example
+																										"Service".
+
+																										Defaults to "Service" when not specified.
+
+																										ExternalName services can refer to CNAME DNS records that may live
+																										outside of the cluster and as such are difficult to reason about in
+																										terms of conformance. They also may not be safe to forward to (see
+																										CVE-2021-25740 for more information). Implementations SHOULD NOT
+																										support ExternalName Services.
+
+																										Support: Core (Services with a type other than ExternalName)
+
+																										Support: Implementation-specific (Services with type ExternalName)
+																										"""
+																						maxLength: 63
+																						minLength: 1
+																						pattern:   "^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$"
+																						type:      "string"
+																					}
+																					name: {
+																						description: "Name is the name of the referent."
+																						maxLength:   253
+																						minLength:   1
+																						type:        "string"
+																					}
+																					namespace: {
+																						description: """
+																										Namespace is the namespace of the backend. When unspecified, the local
+																										namespace is inferred.
+
+																										Note that when a namespace different than the local namespace is specified,
+																										a ReferenceGrant object is required in the referent namespace to allow that
+																										namespace's owner to accept the reference. See the ReferenceGrant
+																										documentation for details.
+
+																										Support: Core
+																										"""
+																						maxLength: 63
+																						minLength: 1
+																						pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+																						type:      "string"
+																					}
+																					port: {
+																						description: """
+																										Port specifies the destination port number to use for this resource.
+																										Port is required when the referent is a Kubernetes Service. In this
+																										case, the port number is the service port number, not the target port.
+																										For other resources, destination port might be derived from the referent
+																										resource or this field.
+																										"""
+																						format:  "int32"
+																						maximum: 65535
+																						minimum: 1
+																						type:    "integer"
+																					}
+																				}
+																				required: ["name"]
+																				type: "object"
+																				"x-kubernetes-validations": [{
+																					message: "Must have port for Service reference"
+																					rule:    "(size(self.group) == 0 && self.kind == 'Service') ? has(self.port) : true"
+																				}]
+																			}
+																			fraction: {
+																				description: """
+																								Fraction represents the fraction of requests that should be
+																								mirrored to BackendRef.
+
+																								Only one of Fraction or Percent may be specified. If neither field
+																								is specified, 100% of requests will be mirrored.
+																								"""
+																				properties: {
+																					denominator: {
+																						default: 100
+																						format:  "int32"
+																						minimum: 1
+																						type:    "integer"
+																					}
+																					numerator: {
+																						format:  "int32"
+																						minimum: 0
+																						type:    "integer"
+																					}
+																				}
+																				required: ["numerator"]
+																				type: "object"
+																				"x-kubernetes-validations": [{
+																					message: "numerator must be less than or equal to denominator"
+																					rule:    "self.numerator <= self.denominator"
+																				}]
+																			}
+																			percent: {
+																				description: """
+																								Percent represents the percentage of requests that should be
+																								mirrored to BackendRef. Its minimum value is 0 (indicating 0% of
+																								requests) and its maximum value is 100 (indicating 100% of requests).
+
+																								Only one of Fraction or Percent may be specified. If neither field
+																								is specified, 100% of requests will be mirrored.
+																								"""
+																				format:  "int32"
+																				maximum: 100
+																				minimum: 0
+																				type:    "integer"
+																			}
+																		}
+																		required: ["backendRef"]
+																		type: "object"
+																		"x-kubernetes-validations": [{
+																			message: "Only one of percent or fraction may be specified in HTTPRequestMirrorFilter"
+																			rule:    "!(has(self.percent) && has(self.fraction))"
+																		}]
+																	}
+																	requestRedirect: {
+																		description: """
+																						RequestRedirect defines a schema for a filter that responds to the
+																						request with an HTTP redirection.
+
+																						Support: Core
+																						"""
+																		properties: {
+																			hostname: {
+																				description: """
+																								Hostname is the hostname to be used in the value of the `Location`
+																								header in the response.
+																								When empty, the hostname in the `Host` header of the request is used.
+
+																								Support: Core
+																								"""
+																				maxLength: 253
+																				minLength: 1
+																				pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																				type:      "string"
+																			}
+																			path: {
+																				description: """
+																								Path defines parameters used to modify the path of the incoming request.
+																								The modified path is then used to construct the `Location` header. When
+																								empty, the request path is used as-is.
+
+																								Support: Extended
+																								"""
+																				properties: {
+																					replaceFullPath: {
+																						description: """
+																										ReplaceFullPath specifies the value with which to replace the full path
+																										of a request during a rewrite or redirect.
+																										"""
+																						maxLength: 1024
+																						type:      "string"
+																					}
+																					replacePrefixMatch: {
+																						description: """
+																										ReplacePrefixMatch specifies the value with which to replace the prefix
+																										match of a request during a rewrite or redirect. For example, a request
+																										to "/foo/bar" with a prefix match of "/foo" and a ReplacePrefixMatch
+																										of "/xyz" would be modified to "/xyz/bar".
+
+																										Note that this matches the behavior of the PathPrefix match type. This
+																										matches full path elements. A path element refers to the list of labels
+																										in the path split by the `/` separator. When specified, a trailing `/` is
+																										ignored. For example, the paths `/abc`, `/abc/`, and `/abc/def` would all
+																										match the prefix `/abc`, but the path `/abcd` would not.
+
+																										ReplacePrefixMatch is only compatible with a `PathPrefix` HTTPRouteMatch.
+																										Using any other HTTPRouteMatch type on the same HTTPRouteRule will result in
+																										the implementation setting the Accepted Condition for the Route to `status: False`.
+
+																										Request Path | Prefix Match | Replace Prefix | Modified Path
+																										"""
+																						maxLength: 1024
+																						type:      "string"
+																					}
+																					type: {
+																						description: """
+																										Type defines the type of path modifier. Additional types may be
+																										added in a future release of the API.
+
+																										Note that values may be added to this enum, implementations
+																										must ensure that unknown values will not cause a crash.
+
+																										Unknown values here must result in the implementation setting the
+																										Accepted Condition for the Route to `status: False`, with a
+																										Reason of `UnsupportedValue`.
+																										"""
+																						enum: ["ReplaceFullPath", "ReplacePrefixMatch"]
+																						type: "string"
+																					}
+																				}
+																				required: ["type"]
+																				type: "object"
+																				"x-kubernetes-validations": [{
+																					message: "replaceFullPath must be specified when type is set to 'ReplaceFullPath'"
+																					rule:    "self.type == 'ReplaceFullPath' ? has(self.replaceFullPath) : true"
+																				}, {
+																					message: "type must be 'ReplaceFullPath' when replaceFullPath is set"
+																					rule:    "has(self.replaceFullPath) ? self.type == 'ReplaceFullPath' : true"
+																				}, {
+																					message: "replacePrefixMatch must be specified when type is set to 'ReplacePrefixMatch'"
+																					rule:    "self.type == 'ReplacePrefixMatch' ? has(self.replacePrefixMatch) : true"
+																				}, {
+																					message: "type must be 'ReplacePrefixMatch' when replacePrefixMatch is set"
+																					rule:    "has(self.replacePrefixMatch) ? self.type == 'ReplacePrefixMatch' : true"
+																				}]
+																			}
+																			port: {
+																				description: """
+																								Port is the port to be used in the value of the `Location`
+																								header in the response.
+
+																								If no port is specified, the redirect port MUST be derived using the
+																								following rules:
+
+																								* If redirect scheme is not-empty, the redirect port MUST be the well-known
+																								  port associated with the redirect scheme. Specifically "http" to port 80
+																								  and "https" to port 443. If the redirect scheme does not have a
+																								  well-known port, the listener port of the Gateway SHOULD be used.
+																								* If redirect scheme is empty, the redirect port MUST be the Gateway
+																								  Listener port.
+
+																								Implementations SHOULD NOT add the port number in the 'Location'
+																								header in the following cases:
+
+																								* A Location header that will use HTTP (whether that is determined via
+																								  the Listener protocol or the Scheme field) _and_ use port 80.
+																								* A Location header that will use HTTPS (whether that is determined via
+																								  the Listener protocol or the Scheme field) _and_ use port 443.
+
+																								Support: Extended
+																								"""
+																				format:  "int32"
+																				maximum: 65535
+																				minimum: 1
+																				type:    "integer"
+																			}
+																			scheme: {
+																				description: """
+																								Scheme is the scheme to be used in the value of the `Location` header in
+																								the response. When empty, the scheme of the request is used.
+
+																								Scheme redirects can affect the port of the redirect, for more information,
+																								refer to the documentation for the port field of this filter.
+
+																								Note that values may be added to this enum, implementations
+																								must ensure that unknown values will not cause a crash.
+
+																								Unknown values here must result in the implementation setting the
+																								Accepted Condition for the Route to `status: False`, with a
+																								Reason of `UnsupportedValue`.
+
+																								Support: Extended
+																								"""
+																				enum: ["http", "https"]
+																				type: "string"
+																			}
+																			statusCode: {
+																				default: 302
+																				description: """
+																								StatusCode is the HTTP status code to be used in response.
+
+																								Note that values may be added to this enum, implementations
+																								must ensure that unknown values will not cause a crash.
+
+																								Unknown values here must result in the implementation setting the
+																								Accepted Condition for the Route to `status: False`, with a
+																								Reason of `UnsupportedValue`.
+
+																								Support: Core
+																								"""
+																				enum: [301, 302, 303, 307, 308]
+																				type: "integer"
+																			}
+																		}
+																		type: "object"
+																	}
+																	responseHeaderModifier: {
+																		description: """
+																						ResponseHeaderModifier defines a schema for a filter that modifies response
+																						headers.
+
+																						Support: Extended
+																						"""
+																		properties: {
+																			add: {
+																				description: """
+																								Add adds the given header(s) (name, value) to the request
+																								before the action. It appends to any existing values associated
+																								with the header name.
+
+																								Input:
+																								  GET /foo HTTP/1.1
+																								  my-header: foo
+
+																								Config:
+																								  add:
+																								  - name: "my-header"
+																								    value: "bar,baz"
+
+																								Output:
+																								  GET /foo HTTP/1.1
+																								  my-header: foo,bar,baz
+																								"""
+																				items: {
+																					description: "HTTPHeader represents an HTTP Header name and value as defined by RFC 7230."
+																					properties: {
+																						name: {
+																							description: """
+																											Name is the name of the HTTP Header to be matched. Name matching MUST be
+																											case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+
+																											If multiple entries specify equivalent header names, the first entry with
+																											an equivalent name MUST be considered for a match. Subsequent entries
+																											with an equivalent header name MUST be ignored. Due to the
+																											case-insensitivity of header names, "foo" and "Foo" are considered
+																											equivalent.
+																											"""
+																							maxLength: 256
+																							minLength: 1
+																							pattern:   "^[A-Za-z0-9!#$%&'*+\\-.^_\\x60|~]+$"
+																							type:      "string"
+																						}
+																						value: {
+																							description: """
+																											Value is the value of HTTP Header to be matched.
+																											<gateway:experimental:description>
+																											Must consist of printable US-ASCII characters, optionally separated
+																											by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+																											</gateway:experimental:description>
+
+																											<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+																											"""
+																							maxLength: 4096
+																							minLength: 1
+																							type:      "string"
+																						}
+																					}
+																					required: ["name", "value"]
+																					type: "object"
+																				}
+																				maxItems: 16
+																				type:     "array"
+																				"x-kubernetes-list-map-keys": ["name"]
+																				"x-kubernetes-list-type": "map"
+																			}
+																			remove: {
+																				description: """
+																								Remove the given header(s) from the HTTP request before the action. The
+																								value of Remove is a list of HTTP header names. Note that the header
+																								names are case-insensitive (see
+																								https://datatracker.ietf.org/doc/html/rfc2616#section-4.2).
+
+																								Input:
+																								  GET /foo HTTP/1.1
+																								  my-header1: foo
+																								  my-header2: bar
+																								  my-header3: baz
+
+																								Config:
+																								  remove: ["my-header1", "my-header3"]
+
+																								Output:
+																								  GET /foo HTTP/1.1
+																								  my-header2: bar
+																								"""
+																				items: type: "string"
+																				maxItems:                 16
+																				type:                     "array"
+																				"x-kubernetes-list-type": "set"
+																			}
+																			set: {
+																				description: """
+																								Set overwrites the request with the given header (name, value)
+																								before the action.
+
+																								Input:
+																								  GET /foo HTTP/1.1
+																								  my-header: foo
+
+																								Config:
+																								  set:
+																								  - name: "my-header"
+																								    value: "bar"
+
+																								Output:
+																								  GET /foo HTTP/1.1
+																								  my-header: bar
+																								"""
+																				items: {
+																					description: "HTTPHeader represents an HTTP Header name and value as defined by RFC 7230."
+																					properties: {
+																						name: {
+																							description: """
+																											Name is the name of the HTTP Header to be matched. Name matching MUST be
+																											case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+
+																											If multiple entries specify equivalent header names, the first entry with
+																											an equivalent name MUST be considered for a match. Subsequent entries
+																											with an equivalent header name MUST be ignored. Due to the
+																											case-insensitivity of header names, "foo" and "Foo" are considered
+																											equivalent.
+																											"""
+																							maxLength: 256
+																							minLength: 1
+																							pattern:   "^[A-Za-z0-9!#$%&'*+\\-.^_\\x60|~]+$"
+																							type:      "string"
+																						}
+																						value: {
+																							description: """
+																											Value is the value of HTTP Header to be matched.
+																											<gateway:experimental:description>
+																											Must consist of printable US-ASCII characters, optionally separated
+																											by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+																											</gateway:experimental:description>
+
+																											<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+																											"""
+																							maxLength: 4096
+																							minLength: 1
+																							type:      "string"
+																						}
+																					}
+																					required: ["name", "value"]
+																					type: "object"
+																				}
+																				maxItems: 16
+																				type:     "array"
+																				"x-kubernetes-list-map-keys": ["name"]
+																				"x-kubernetes-list-type": "map"
+																			}
+																		}
+																		type: "object"
+																	}
+																	type: {
+																		description: """
+																						Type identifies the type of filter to apply. As with other API fields,
+																						types are classified into three conformance levels:
+
+																						- Core: Filter types and their corresponding configuration defined by
+																						  "Support: Core" in this package, e.g. "RequestHeaderModifier". All
+																						  implementations must support core filters.
+
+																						- Extended: Filter types and their corresponding configuration defined by
+																						  "Support: Extended" in this package, e.g. "RequestMirror". Implementers
+																						  are encouraged to support extended filters.
+
+																						- Implementation-specific: Filters that are defined and supported by
+																						  specific vendors.
+																						  In the future, filters showing convergence in behavior across multiple
+																						  implementations will be considered for inclusion in extended or core
+																						  conformance levels. Filter-specific configuration for such filters
+																						  is specified using the ExtensionRef field. `Type` should be set to
+																						  "ExtensionRef" for custom filters.
+
+																						Implementers are encouraged to define custom implementation types to
+																						extend the core API with implementation-specific behavior.
+
+																						If a reference to a custom filter type cannot be resolved, the filter
+																						MUST NOT be skipped. Instead, requests that would have been processed by
+																						that filter MUST receive a HTTP error response.
+
+																						Note that values may be added to this enum, implementations
+																						must ensure that unknown values will not cause a crash.
+
+																						Unknown values here must result in the implementation setting the
+																						Accepted Condition for the Route to `status: False`, with a
+																						Reason of `UnsupportedValue`.
+
+																						<gateway:experimental:validation:Enum=RequestHeaderModifier;ResponseHeaderModifier;RequestMirror;RequestRedirect;URLRewrite;ExtensionRef;CORS;ExternalAuth>
+																						"""
+																		enum: ["RequestHeaderModifier", "ResponseHeaderModifier", "RequestMirror", "RequestRedirect", "URLRewrite", "ExtensionRef", "CORS"]
+																		type: "string"
+																	}
+																	urlRewrite: {
+																		description: """
+																						URLRewrite defines a schema for a filter that modifies a request during forwarding.
+
+																						Support: Extended
+																						"""
+																		properties: {
+																			hostname: {
+																				description: """
+																								Hostname is the value to be used to replace the Host header value during
+																								forwarding.
+
+																								Support: Extended
+																								"""
+																				maxLength: 253
+																				minLength: 1
+																				pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+																				type:      "string"
+																			}
+																			path: {
+																				description: """
+																								Path defines a path rewrite.
+
+																								Support: Extended
+																								"""
+																				properties: {
+																					replaceFullPath: {
+																						description: """
+																										ReplaceFullPath specifies the value with which to replace the full path
+																										of a request during a rewrite or redirect.
+																										"""
+																						maxLength: 1024
+																						type:      "string"
+																					}
+																					replacePrefixMatch: {
+																						description: """
+																										ReplacePrefixMatch specifies the value with which to replace the prefix
+																										match of a request during a rewrite or redirect. For example, a request
+																										to "/foo/bar" with a prefix match of "/foo" and a ReplacePrefixMatch
+																										of "/xyz" would be modified to "/xyz/bar".
+
+																										Note that this matches the behavior of the PathPrefix match type. This
+																										matches full path elements. A path element refers to the list of labels
+																										in the path split by the `/` separator. When specified, a trailing `/` is
+																										ignored. For example, the paths `/abc`, `/abc/`, and `/abc/def` would all
+																										match the prefix `/abc`, but the path `/abcd` would not.
+
+																										ReplacePrefixMatch is only compatible with a `PathPrefix` HTTPRouteMatch.
+																										Using any other HTTPRouteMatch type on the same HTTPRouteRule will result in
+																										the implementation setting the Accepted Condition for the Route to `status: False`.
+
+																										Request Path | Prefix Match | Replace Prefix | Modified Path
+																										"""
+																						maxLength: 1024
+																						type:      "string"
+																					}
+																					type: {
+																						description: """
+																										Type defines the type of path modifier. Additional types may be
+																										added in a future release of the API.
+
+																										Note that values may be added to this enum, implementations
+																										must ensure that unknown values will not cause a crash.
+
+																										Unknown values here must result in the implementation setting the
+																										Accepted Condition for the Route to `status: False`, with a
+																										Reason of `UnsupportedValue`.
+																										"""
+																						enum: ["ReplaceFullPath", "ReplacePrefixMatch"]
+																						type: "string"
+																					}
+																				}
+																				required: ["type"]
+																				type: "object"
+																				"x-kubernetes-validations": [{
+																					message: "replaceFullPath must be specified when type is set to 'ReplaceFullPath'"
+																					rule:    "self.type == 'ReplaceFullPath' ? has(self.replaceFullPath) : true"
+																				}, {
+																					message: "type must be 'ReplaceFullPath' when replaceFullPath is set"
+																					rule:    "has(self.replaceFullPath) ? self.type == 'ReplaceFullPath' : true"
+																				}, {
+																					message: "replacePrefixMatch must be specified when type is set to 'ReplacePrefixMatch'"
+																					rule:    "self.type == 'ReplacePrefixMatch' ? has(self.replacePrefixMatch) : true"
+																				}, {
+																					message: "type must be 'ReplacePrefixMatch' when replacePrefixMatch is set"
+																					rule:    "has(self.replacePrefixMatch) ? self.type == 'ReplacePrefixMatch' : true"
+																				}]
+																			}
+																		}
+																		type: "object"
+																	}
+																}
+																required: ["type"]
+																type: "object"
+																"x-kubernetes-validations": [{
+																	message: "filter.cors must be nil if the filter.type is not CORS"
+																	rule:    "!(has(self.cors) && self.type != 'CORS')"
+																}, {
+																	message: "filter.cors must be specified for CORS filter.type"
+																	rule:    "!(!has(self.cors) && self.type == 'CORS')"
+																}, {
+																	message: "filter.requestHeaderModifier must be nil if the filter.type is not RequestHeaderModifier"
+																	rule:    "!(has(self.requestHeaderModifier) && self.type != 'RequestHeaderModifier')"
+																}, {
+																	message: "filter.requestHeaderModifier must be specified for RequestHeaderModifier filter.type"
+																	rule:    "!(!has(self.requestHeaderModifier) && self.type == 'RequestHeaderModifier')"
+																}, {
+																	message: "filter.responseHeaderModifier must be nil if the filter.type is not ResponseHeaderModifier"
+																	rule:    "!(has(self.responseHeaderModifier) && self.type != 'ResponseHeaderModifier')"
+																}, {
+																	message: "filter.responseHeaderModifier must be specified for ResponseHeaderModifier filter.type"
+																	rule:    "!(!has(self.responseHeaderModifier) && self.type == 'ResponseHeaderModifier')"
+																}, {
+																	message: "filter.requestMirror must be nil if the filter.type is not RequestMirror"
+																	rule:    "!(has(self.requestMirror) && self.type != 'RequestMirror')"
+																}, {
+																	message: "filter.requestMirror must be specified for RequestMirror filter.type"
+																	rule:    "!(!has(self.requestMirror) && self.type == 'RequestMirror')"
+																}, {
+																	message: "filter.requestRedirect must be nil if the filter.type is not RequestRedirect"
+																	rule:    "!(has(self.requestRedirect) && self.type != 'RequestRedirect')"
+																}, {
+																	message: "filter.requestRedirect must be specified for RequestRedirect filter.type"
+																	rule:    "!(!has(self.requestRedirect) && self.type == 'RequestRedirect')"
+																}, {
+																	message: "filter.urlRewrite must be nil if the filter.type is not URLRewrite"
+																	rule:    "!(has(self.urlRewrite) && self.type != 'URLRewrite')"
+																}, {
+																	message: "filter.urlRewrite must be specified for URLRewrite filter.type"
+																	rule:    "!(!has(self.urlRewrite) && self.type == 'URLRewrite')"
+																}, {
+																	message: "filter.extensionRef must be nil if the filter.type is not ExtensionRef"
+																	rule:    "!(has(self.extensionRef) && self.type != 'ExtensionRef')"
+																}, {
+																	message: "filter.extensionRef must be specified for ExtensionRef filter.type"
+																	rule:    "!(!has(self.extensionRef) && self.type == 'ExtensionRef')"
+																}]
+															}
+															maxItems:                 16
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
+															"x-kubernetes-validations": [{
+																message: "May specify either httpRouteFilterRequestRedirect or httpRouteFilterRequestRewrite, but not both"
+																rule:    "!(self.exists(f, f.type == 'RequestRedirect') && self.exists(f, f.type == 'URLRewrite'))"
+															}, {
+																message: "CORS filter cannot be repeated"
+																rule:    "self.filter(f, f.type == 'CORS').size() <= 1"
+															}, {
+																message: "RequestHeaderModifier filter cannot be repeated"
+																rule:    "self.filter(f, f.type == 'RequestHeaderModifier').size() <= 1"
+															}, {
+																message: "ResponseHeaderModifier filter cannot be repeated"
+																rule:    "self.filter(f, f.type == 'ResponseHeaderModifier').size() <= 1"
+															}, {
+																message: "RequestRedirect filter cannot be repeated"
+																rule:    "self.filter(f, f.type == 'RequestRedirect').size() <= 1"
+															}, {
+																message: "URLRewrite filter cannot be repeated"
+																rule:    "self.filter(f, f.type == 'URLRewrite').size() <= 1"
+															}]
+														}
+														matches: {
+															default: [{
+																path: {
+																	type:  "PathPrefix"
+																	value: "/"
+																}
+															}]
+															description: """
+																			Matches define conditions used for matching the rule against incoming
+																			HTTP requests. Each match is independent, i.e. this rule will be matched
+																			if **any** one of the matches is satisfied.
+
+																			For example, take the following matches configuration:
+
+																			```
+																			matches:
+																			- path:
+																			    value: "/foo"
+																			  headers:
+																			  - name: "version"
+																			    value: "v2"
+																			- path:
+																			    value: "/v2/foo"
+																			```
+
+																			For a request to match against this rule, a request must satisfy
+																			EITHER of the two conditions:
+
+																			- path prefixed with `/foo` AND contains the header `version: v2`
+																			- path prefix of `/v2/foo`
+
+																			See the documentation for HTTPRouteMatch on how to specify multiple
+																			match conditions that should be ANDed together.
+
+																			If no matches are specified, the default is a prefix
+																			path match on "/", which has the effect of matching every
+																			HTTP request.
+
+																			Proxy or Load Balancer routing configuration generated from HTTPRoutes
+																			MUST prioritize matches based on the following criteria, continuing on
+																			ties. Across all rules specified on applicable Routes, precedence must be
+																			given to the match having:
+
+																			* "Exact" path match.
+																			* "Prefix" path match with largest number of characters.
+																			* Method match.
+																			* Largest number of header matches.
+																			* Largest number of query param matches.
+
+																			Note: The precedence of RegularExpression path matches are implementation-specific.
+
+																			If ties still exist across multiple Routes, matching precedence MUST be
+																			determined in order of the following criteria, continuing on ties:
+
+																			* The oldest Route based on creation timestamp.
+																			* The Route appearing first in alphabetical order by
+																			  "{namespace}/{name}".
+
+																			If ties still exist within an HTTPRoute, matching precedence MUST be granted
+																			to the FIRST matching rule (in list order) with a match meeting the above
+																			criteria.
+
+																			When no rules matching a request have been successfully attached to the
+																			parent a request is coming from, a HTTP 404 status code MUST be returned.
+																			"""
+															items: {
+																description: """
+																				HTTPRouteMatch defines the predicate used to match requests to a given
+																				action. Multiple match types are ANDed together, i.e. the match will
+																				evaluate to true only if all conditions are satisfied.
+
+																				For example, the match below will match a HTTP request only if its path
+																				starts with `/foo` AND it contains the `version: v1` header:
+
+																				```
+																				match:
+
+																				\tpath:
+																				\t  value: "/foo"
+																				\theaders:
+																				\t- name: "version"
+																				\t  value "v1"
+
+																				```
+																				"""
+																properties: {
+																	headers: {
+																		description: """
+																						Headers specifies HTTP request header matchers. Multiple match values are
+																						ANDed together, meaning, a request must match all the specified headers
+																						to select the route.
+																						"""
+																		items: {
+																			description: """
+																							HTTPHeaderMatch describes how to select a HTTP route by matching HTTP request
+																							headers.
+																							"""
+																			properties: {
+																				name: {
+																					description: """
+																									Name is the name of the HTTP Header to be matched. Name matching MUST be
+																									case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
+
+																									If multiple entries specify equivalent header names, only the first
+																									entry with an equivalent name MUST be considered for a match. Subsequent
+																									entries with an equivalent header name MUST be ignored. Due to the
+																									case-insensitivity of header names, "foo" and "Foo" are considered
+																									equivalent.
+
+																									When a header is repeated in an HTTP request, it is
+																									implementation-specific behavior as to how this is represented.
+																									Generally, proxies should follow the guidance from the RFC:
+																									https://www.rfc-editor.org/rfc/rfc7230.html#section-3.2.2 regarding
+																									processing a repeated header, with special handling for "Set-Cookie".
+																									"""
+																					maxLength: 256
+																					minLength: 1
+																					pattern:   "^[A-Za-z0-9!#$%&'*+\\-.^_\\x60|~]+$"
+																					type:      "string"
+																				}
+																				type: {
+																					default: "Exact"
+																					description: """
+																									Type specifies how to match against the value of the header.
+
+																									Support: Core (Exact)
+
+																									Support: Implementation-specific (RegularExpression)
+
+																									Since RegularExpression HeaderMatchType has implementation-specific
+																									conformance, implementations can support POSIX, PCRE or any other dialects
+																									of regular expressions. Please read the implementation's documentation to
+																									determine the supported dialect.
+																									"""
+																					enum: ["Exact", "RegularExpression"]
+																					type: "string"
+																				}
+																				value: {
+																					description: """
+																									Value is the value of HTTP Header to be matched.
+																									<gateway:experimental:description>
+																									Must consist of printable US-ASCII characters, optionally separated
+																									by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+																									</gateway:experimental:description>
+
+																									<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+																									"""
+																					maxLength: 4096
+																					minLength: 1
+																					type:      "string"
+																				}
+																			}
+																			required: ["name", "value"]
+																			type: "object"
+																		}
+																		maxItems: 16
+																		type:     "array"
+																		"x-kubernetes-list-map-keys": ["name"]
+																		"x-kubernetes-list-type": "map"
+																	}
+																	method: {
+																		description: """
+																						Method specifies HTTP method matcher.
+																						When specified, this route will be matched only if the request has the
+																						specified method.
+
+																						Support: Extended
+																						"""
+																		enum: ["GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"]
+																		type: "string"
+																	}
+																	path: {
+																		default: {
+																			type:  "PathPrefix"
+																			value: "/"
+																		}
+																		description: """
+																						Path specifies a HTTP request path matcher. If this field is not
+																						specified, a default prefix match on the "/" path is provided.
+																						"""
+																		properties: {
+																			type: {
+																				default: "PathPrefix"
+																				description: """
+																								Type specifies how to match against the path Value.
+
+																								Support: Core (Exact, PathPrefix)
+
+																								Support: Implementation-specific (RegularExpression)
+																								"""
+																				enum: ["Exact", "PathPrefix", "RegularExpression"]
+																				type: "string"
+																			}
+																			value: {
+																				default:     "/"
+																				description: "Value of the HTTP path to match against."
+																				maxLength:   1024
+																				type:        "string"
+																			}
+																		}
+																		type: "object"
+																		"x-kubernetes-validations": [{
+																			message: "value must be an absolute path and start with '/' when type one of ['Exact', 'PathPrefix']"
+																			rule:    "(self.type in ['Exact','PathPrefix']) ? self.value.startsWith('/') : true"
+																		}, {
+																			message: "must not contain '//' when type one of ['Exact', 'PathPrefix']"
+																			rule:    "(self.type in ['Exact','PathPrefix']) ? !self.value.contains('//') : true"
+																		}, {
+																			message: "must not contain '/./' when type one of ['Exact', 'PathPrefix']"
+																			rule:    "(self.type in ['Exact','PathPrefix']) ? !self.value.contains('/./') : true"
+																		}, {
+																			message: "must not contain '/../' when type one of ['Exact', 'PathPrefix']"
+																			rule:    "(self.type in ['Exact','PathPrefix']) ? !self.value.contains('/../') : true"
+																		}, {
+																			message: "must not contain '%2f' when type one of ['Exact', 'PathPrefix']"
+																			rule:    "(self.type in ['Exact','PathPrefix']) ? !self.value.contains('%2f') : true"
+																		}, {
+																			message: "must not contain '%2F' when type one of ['Exact', 'PathPrefix']"
+																			rule:    "(self.type in ['Exact','PathPrefix']) ? !self.value.contains('%2F') : true"
+																		}, {
+																			message: "must not contain '#' when type one of ['Exact', 'PathPrefix']"
+																			rule:    "(self.type in ['Exact','PathPrefix']) ? !self.value.contains('#') : true"
+																		}, {
+																			message: "must not end with '/..' when type one of ['Exact', 'PathPrefix']"
+																			rule:    "(self.type in ['Exact','PathPrefix']) ? !self.value.endsWith('/..') : true"
+																		}, {
+																			message: "must not end with '/.' when type one of ['Exact', 'PathPrefix']"
+																			rule:    "(self.type in ['Exact','PathPrefix']) ? !self.value.endsWith('/.') : true"
+																		}, {
+																			message: "type must be one of ['Exact', 'PathPrefix', 'RegularExpression']"
+																			rule:    "self.type in ['Exact','PathPrefix'] || self.type == 'RegularExpression'"
+																		}, {
+																			message: "must only contain valid characters (matching ^(?:[-A-Za-z0-9/._~!$&'()*+,;=:@]|[%][0-9a-fA-F]{2})+$) for types ['Exact', 'PathPrefix']"
+																			rule:    "(self.type in ['Exact','PathPrefix']) ? self.value.matches(r\"\"\"^(?:[-A-Za-z0-9/._~!$&'()*+,;=:@]|[%][0-9a-fA-F]{2})+$\"\"\") : true"
+																		}]
+																	}
+																	queryParams: {
+																		description: """
+																						QueryParams specifies HTTP query parameter matchers. Multiple match
+																						values are ANDed together, meaning, a request must match all the
+																						specified query parameters to select the route.
+
+																						Support: Extended
+																						"""
+																		items: {
+																			description: """
+																							HTTPQueryParamMatch describes how to select a HTTP route by matching HTTP
+																							query parameters.
+																							"""
+																			properties: {
+																				name: {
+																					description: """
+																									Name is the name of the HTTP query param to be matched. This must be an
+																									exact string match. (See
+																									https://tools.ietf.org/html/rfc7230#section-2.7.3).
+
+																									If multiple entries specify equivalent query param names, only the first
+																									entry with an equivalent name MUST be considered for a match. Subsequent
+																									entries with an equivalent query param name MUST be ignored.
+
+																									If a query param is repeated in an HTTP request, the behavior is
+																									purposely left undefined, since different data planes have different
+																									capabilities. However, it is *recommended* that implementations should
+																									match against the first value of the param if the data plane supports it,
+																									as this behavior is expected in other load balancing contexts outside of
+																									the Gateway API.
+
+																									Users SHOULD NOT route traffic based on repeated query params to guard
+																									themselves against potential differences in the implementations.
+																									"""
+																					maxLength: 256
+																					minLength: 1
+																					pattern:   "^[A-Za-z0-9!#$%&'*+\\-.^_\\x60|~]+$"
+																					type:      "string"
+																				}
+																				type: {
+																					default: "Exact"
+																					description: """
+																									Type specifies how to match against the value of the query parameter.
+
+																									Support: Extended (Exact)
+
+																									Support: Implementation-specific (RegularExpression)
+
+																									Since RegularExpression QueryParamMatchType has Implementation-specific
+																									conformance, implementations can support POSIX, PCRE or any other
+																									dialects of regular expressions. Please read the implementation's
+																									documentation to determine the supported dialect.
+																									"""
+																					enum: ["Exact", "RegularExpression"]
+																					type: "string"
+																				}
+																				value: {
+																					description: "Value is the value of HTTP query param to be matched."
+																					maxLength:   1024
+																					minLength:   1
+																					type:        "string"
+																				}
+																			}
+																			required: ["name", "value"]
+																			type: "object"
+																		}
+																		maxItems: 16
+																		type:     "array"
+																		"x-kubernetes-list-map-keys": ["name"]
+																		"x-kubernetes-list-type": "map"
+																	}
+																}
+																type: "object"
+															}
+															maxItems:                 64
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
+														}
+														name: {
+															description: """
+																			Name is the name of the route rule. This name MUST be unique within a Route if it is set.
+
+																			Support: Extended
+																			"""
+															maxLength: 253
+															minLength: 1
+															pattern:   "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+															type:      "string"
+														}
+														retry: {
+															description: """
+																			Retry defines the configuration for when to retry an HTTP request.
+
+																			Support: Extended
+
+																			<gateway:experimental>
+																			"""
+															properties: {
+																attempts: {
+																	description: """
+																					Attempts specifies the maximum number of times an individual request
+																					from the gateway to a backend should be retried.
+
+																					If the maximum number of retries has been attempted without a successful
+																					response from the backend, the Gateway MUST return an error.
+
+																					When this field is unspecified, the number of times to attempt to retry
+																					a backend request is implementation-specific.
+
+																					Support: Extended
+																					"""
+																	type: "integer"
+																}
+																backoff: {
+																	description: """
+																					Backoff specifies the minimum duration a Gateway should wait between
+																					retry attempts and is represented in Gateway API Duration formatting.
+
+																					For example, setting the `rules[].retry.backoff` field to the value
+																					`100ms` will cause a backend request to first be retried approximately
+																					100 milliseconds after timing out or receiving a response code configured
+																					to be retriable.
+
+																					An implementation MAY use an exponential or alternative backoff strategy
+																					for subsequent retry attempts, MAY cap the maximum backoff duration to
+																					some amount greater than the specified minimum, and MAY add arbitrary
+																					jitter to stagger requests, as long as unsuccessful backend requests are
+																					not retried before the configured minimum duration.
+
+																					If a Request timeout (`rules[].timeouts.request`) is configured on the
+																					route, the entire duration of the initial request and any retry attempts
+																					MUST not exceed the Request timeout duration. If any retry attempts are
+																					still in progress when the Request timeout duration has been reached,
+																					these SHOULD be canceled if possible and the Gateway MUST immediately
+																					return a timeout error.
+
+																					If a BackendRequest timeout (`rules[].timeouts.backendRequest`) is
+																					configured on the route, any retry attempts which reach the configured
+																					BackendRequest timeout duration without a response SHOULD be canceled if
+																					possible and the Gateway should wait for at least the specified backoff
+																					duration before attempting to retry the backend request again.
+
+																					If a BackendRequest timeout is _not_ configured on the route, retry
+																					attempts MAY time out after an implementation default duration, or MAY
+																					remain pending until a configured Request timeout or implementation
+																					default duration for total request time is reached.
+
+																					When this field is unspecified, the time to wait between retry attempts
+																					is implementation-specific.
+
+																					Support: Extended
+																					"""
+																	pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:    "string"
+																}
+																codes: {
+																	description: """
+																					Codes defines the HTTP response status codes for which a backend request
+																					should be retried.
+
+																					Support: Extended
+																					"""
+																	items: {
+																		description: """
+																						HTTPRouteRetryStatusCode defines an HTTP response status code for
+																						which a backend request should be retried.
+
+																						Implementations MUST support the following status codes as retriable:
+
+																						* 500
+																						* 502
+																						* 503
+																						* 504
+
+																						Implementations MAY support specifying additional discrete values in the
+																						500-599 range.
+
+																						Implementations MAY support specifying discrete values in the 400-499 range,
+																						which are often inadvisable to retry.
+
+																						<gateway:experimental>
+																						"""
+																		maximum: 599
+																		minimum: 400
+																		type:    "integer"
+																	}
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
+																}
+															}
+															type: "object"
+														}
+														sessionPersistence: {
+															description: """
+																			SessionPersistence defines and configures session persistence
+																			for the route rule.
+
+																			Support: Extended
+
+																			<gateway:experimental>
+																			"""
+															properties: {
+																absoluteTimeout: {
+																	description: """
+																					AbsoluteTimeout defines the absolute timeout of the persistent
+																					session. Once the AbsoluteTimeout duration has elapsed, the
+																					session becomes invalid.
+
+																					Support: Extended
+																					"""
+																	pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:    "string"
+																}
+																cookieConfig: {
+																	description: """
+																					CookieConfig provides configuration settings that are specific
+																					to cookie-based session persistence.
+
+																					Support: Core
+																					"""
+																	properties: lifetimeType: {
+																		default: "Session"
+																		description: """
+																							LifetimeType specifies whether the cookie has a permanent or
+																							session-based lifetime. A permanent cookie persists until its
+																							specified expiry time, defined by the Expires or Max-Age cookie
+																							attributes, while a session cookie is deleted when the current
+																							session ends.
+
+																							When set to "Permanent", AbsoluteTimeout indicates the
+																							cookie's lifetime via the Expires or Max-Age cookie attributes
+																							and is required.
+
+																							When set to "Session", AbsoluteTimeout indicates the
+																							absolute lifetime of the cookie tracked by the gateway and
+																							is optional.
+
+																							Defaults to "Session".
+
+																							Support: Core for "Session" type
+
+																							Support: Extended for "Permanent" type
+																							"""
+																		enum: ["Permanent", "Session"]
+																		type: "string"
+																	}
+																	type: "object"
+																}
+																idleTimeout: {
+																	description: """
+																					IdleTimeout defines the idle timeout of the persistent session.
+																					Once the session has been idle for more than the specified
+																					IdleTimeout duration, the session becomes invalid.
+
+																					Support: Extended
+																					"""
+																	pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:    "string"
+																}
+																sessionName: {
+																	description: """
+																					SessionName defines the name of the persistent session token
+																					which may be reflected in the cookie or the header. Users
+																					should avoid reusing session names to prevent unintended
+																					consequences, such as rejection or unpredictable behavior.
+
+																					Support: Implementation-specific
+																					"""
+																	maxLength: 128
+																	type:      "string"
+																}
+																type: {
+																	default: "Cookie"
+																	description: """
+																					Type defines the type of session persistence such as through
+																					the use of a header or cookie. Defaults to cookie based session
+																					persistence.
+
+																					Support: Core for "Cookie" type
+
+																					Support: Extended for "Header" type
+																					"""
+																	enum: ["Cookie", "Header"]
+																	type: "string"
+																}
+															}
+															type: "object"
+															"x-kubernetes-validations": [{
+																message: "AbsoluteTimeout must be specified when cookie lifetimeType is Permanent"
+																rule:    "!has(self.cookieConfig) || !has(self.cookieConfig.lifetimeType) || self.cookieConfig.lifetimeType != 'Permanent' || has(self.absoluteTimeout)"
+															}, {
+																message: "cookieConfig can only be set with type Cookie"
+																rule:    "!has(self.cookieConfig) || self.type == 'Cookie'"
+															}]
+														}
+														timeouts: {
+															description: """
+																			Timeouts defines the timeouts that can be configured for an HTTP request.
+
+																			Support: Extended
+																			"""
+															properties: {
+																backendRequest: {
+																	description: """
+																					BackendRequest specifies a timeout for an individual request from the gateway
+																					to a backend. This covers the time from when the request first starts being
+																					sent from the gateway to when the full response has been received from the backend.
+
+																					Setting a timeout to the zero duration (e.g. "0s") SHOULD disable the timeout
+																					completely. Implementations that cannot completely disable the timeout MUST
+																					instead interpret the zero duration as the longest possible value to which
+																					the timeout can be set.
+
+																					An entire client HTTP transaction with a gateway, covered by the Request timeout,
+																					may result in more than one call from the gateway to the destination backend,
+																					for example, if automatic retries are supported.
+
+																					The value of BackendRequest must be a Gateway API Duration string as defined by
+																					GEP-2257.  When this field is unspecified, its behavior is implementation-specific;
+																					when specified, the value of BackendRequest must be no more than the value of the
+																					Request timeout (since the Request timeout encompasses the BackendRequest timeout).
+
+																					Support: Extended
+																					"""
+																	pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:    "string"
+																}
+																request: {
+																	description: """
+																					Request specifies the maximum duration for a gateway to respond to an HTTP request.
+																					If the gateway has not been able to respond before this deadline is met, the gateway
+																					MUST return a timeout error.
+
+																					For example, setting the `rules.timeouts.request` field to the value `10s` in an
+																					`HTTPRoute` will cause a timeout if a client request is taking longer than 10 seconds
+																					to complete.
+
+																					Setting a timeout to the zero duration (e.g. "0s") SHOULD disable the timeout
+																					completely. Implementations that cannot completely disable the timeout MUST
+																					instead interpret the zero duration as the longest possible value to which
+																					the timeout can be set.
+
+																					This timeout is intended to cover as close to the whole request-response transaction
+																					as possible although an implementation MAY choose to start the timeout after the entire
+																					request stream has been received instead of immediately after the transaction is
+																					initiated by the client.
+
+																					The value of Request is a Gateway API Duration string as defined by GEP-2257. When this
+																					field is unspecified, request timeout behavior is implementation-specific.
+
+																					Support: Extended
+																					"""
+																	pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:    "string"
+																}
+															}
+															type: "object"
+															"x-kubernetes-validations": [{
+																message: "backendRequest timeout cannot be longer than request timeout"
+																rule:    "!(has(self.request) && has(self.backendRequest) && duration(self.request) != duration('0s') && duration(self.backendRequest) > duration(self.request))"
+															}]
+														}
+													}
+													type: "object"
+													"x-kubernetes-validations": [{
+														message: "RequestRedirect filter must not be used together with backendRefs"
+														rule:    "(has(self.backendRefs) && size(self.backendRefs) > 0) ? (!has(self.filters) || self.filters.all(f, !has(f.requestRedirect))): true"
+													}, {
+														message: "When using RequestRedirect filter with path.replacePrefixMatch, exactly one PathPrefix match must be specified"
+														rule:    "(has(self.filters) && self.filters.exists_one(f, has(f.requestRedirect) && has(f.requestRedirect.path) && f.requestRedirect.path.type == 'ReplacePrefixMatch' && has(f.requestRedirect.path.replacePrefixMatch))) ? ((size(self.matches) != 1 || !has(self.matches[0].path) || self.matches[0].path.type != 'PathPrefix') ? false : true) : true"
+													}, {
+														message: "When using URLRewrite filter with path.replacePrefixMatch, exactly one PathPrefix match must be specified"
+														rule:    "(has(self.filters) && self.filters.exists_one(f, has(f.urlRewrite) && has(f.urlRewrite.path) && f.urlRewrite.path.type == 'ReplacePrefixMatch' && has(f.urlRewrite.path.replacePrefixMatch))) ? ((size(self.matches) != 1 || !has(self.matches[0].path) || self.matches[0].path.type != 'PathPrefix') ? false : true) : true"
+													}, {
+														message: "Within backendRefs, when using RequestRedirect filter with path.replacePrefixMatch, exactly one PathPrefix match must be specified"
+														rule:    "(has(self.backendRefs) && self.backendRefs.exists_one(b, (has(b.filters) && b.filters.exists_one(f, has(f.requestRedirect) && has(f.requestRedirect.path) && f.requestRedirect.path.type == 'ReplacePrefixMatch' && has(f.requestRedirect.path.replacePrefixMatch))) )) ? ((size(self.matches) != 1 || !has(self.matches[0].path) || self.matches[0].path.type != 'PathPrefix') ? false : true) : true"
+													}, {
+														message: "Within backendRefs, When using URLRewrite filter with path.replacePrefixMatch, exactly one PathPrefix match must be specified"
+														rule:    "(has(self.backendRefs) && self.backendRefs.exists_one(b, (has(b.filters) && b.filters.exists_one(f, has(f.urlRewrite) && has(f.urlRewrite.path) && f.urlRewrite.path.type == 'ReplacePrefixMatch' && has(f.urlRewrite.path.replacePrefixMatch))) )) ? ((size(self.matches) != 1 || !has(self.matches[0].path) || self.matches[0].path.type != 'PathPrefix') ? false : true) : true"
+													}]
+												}
+												maxItems:                 16
+												minItems:                 1
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
+												"x-kubernetes-validations": [{
+													message: "While 16 rules and 64 matches per rule are allowed, the total number of matches across all rules in a route must be less than 128"
+													rule:    "(self.size() > 0 ? self[0].matches.size() : 0) + (self.size() > 1 ? self[1].matches.size() : 0) + (self.size() > 2 ? self[2].matches.size() : 0) + (self.size() > 3 ? self[3].matches.size() : 0) + (self.size() > 4 ? self[4].matches.size() : 0) + (self.size() > 5 ? self[5].matches.size() : 0) + (self.size() > 6 ? self[6].matches.size() : 0) + (self.size() > 7 ? self[7].matches.size() : 0) + (self.size() > 8 ? self[8].matches.size() : 0) + (self.size() > 9 ? self[9].matches.size() : 0) + (self.size() > 10 ? self[10].matches.size() : 0) + (self.size() > 11 ? self[11].matches.size() : 0) + (self.size() > 12 ? self[12].matches.size() : 0) + (self.size() > 13 ? self[13].matches.size() : 0) + (self.size() > 14 ? self[14].matches.size() : 0) + (self.size() > 15 ? self[15].matches.size() : 0) <= 128"
+												}]
+											}
+											useDefaultGateways: {
+												description: """
+																UseDefaultGateways indicates the default Gateway scope to use for this
+																Route. If unset (the default) or set to None, the Route will not be
+																attached to any default Gateway; if set, it will be attached to any
+																default Gateway supporting the named scope, subject to the usual rules
+																about which Routes a Gateway is allowed to claim.
+
+																Think carefully before using this functionality! The set of default
+																Gateways supporting the requested scope can change over time without
+																any notice to the Route author, and in many situations it will not be
+																appropriate to request a default Gateway for a given Route -- for
+																example, a Route with specific security requirements should almost
+																certainly not use a default Gateway.
+
+																<gateway:experimental>
+																"""
+												enum: ["All", "None"]
+												type: "string"
+											}
+										}
+										type: "object"
+									}
+								}
 								type: "object"
 							}
 							ingress: {
@@ -6969,14 +12636,28 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										description: "IngressSpec describes the Ingress the user wishes to exist."
 										properties: {
 											defaultBackend: {
-												description: "defaultBackend is the backend that should handle requests that don't match any rule. If Rules are not specified, DefaultBackend must be specified. If DefaultBackend is not set, the handling of requests that do not match any of the rules will be up to the Ingress controller."
+												description: """
+																defaultBackend is the backend that should handle requests that don't
+																match any rule. If Rules are not specified, DefaultBackend must be specified.
+																If DefaultBackend is not set, the handling of requests that do not match any
+																of the rules will be up to the Ingress controller.
+																"""
 												properties: {
 													resource: {
-														description: "resource is an ObjectRef to another Kubernetes resource in the namespace of the Ingress object. If resource is specified, a service.Name and service.Port must not be specified. This is a mutually exclusive setting with \"Service\"."
+														description: """
+																		resource is an ObjectRef to another Kubernetes resource in the namespace
+																		of the Ingress object. If resource is specified, a service.Name and
+																		service.Port must not be specified.
+																		This is a mutually exclusive setting with "Service".
+																		"""
 														properties: {
 															apiGroup: {
-																description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
-																type:        "string"
+																description: """
+																				APIGroup is the group for the resource being referenced.
+																				If APIGroup is not specified, the specified Kind must be in the core API group.
+																				For any other third-party types, APIGroup is required.
+																				"""
+																type: "string"
 															}
 															kind: {
 																description: "Kind is the type of resource being referenced"
@@ -6987,34 +12668,47 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type:        "string"
 															}
 														}
-														required: [
-															"kind",
-															"name",
-														]
+														required: ["kind", "name"]
 														type:                    "object"
 														"x-kubernetes-map-type": "atomic"
 													}
 													service: {
-														description: "service references a service as a backend. This is a mutually exclusive setting with \"Resource\"."
+														description: """
+																		service references a service as a backend.
+																		This is a mutually exclusive setting with "Resource".
+																		"""
 														properties: {
 															name: {
-																description: "name is the referenced service. The service must exist in the same namespace as the Ingress object."
-																type:        "string"
+																description: """
+																				name is the referenced service. The service must exist in
+																				the same namespace as the Ingress object.
+																				"""
+																type: "string"
 															}
 															port: {
-																description: "port of the referenced service. A port name or port number is required for a IngressServiceBackend."
+																description: """
+																				port of the referenced service. A port name or port number
+																				is required for a IngressServiceBackend.
+																				"""
 																properties: {
 																	name: {
-																		description: "name is the name of the port on the Service. This is a mutually exclusive setting with \"Number\"."
-																		type:        "string"
+																		description: """
+																						name is the name of the port on the Service.
+																						This is a mutually exclusive setting with "Number".
+																						"""
+																		type: "string"
 																	}
 																	number: {
-																		description: "number is the numerical port number (e.g. 80) on the Service. This is a mutually exclusive setting with \"Name\"."
-																		format:      "int32"
-																		type:        "integer"
+																		description: """
+																						number is the numerical port number (e.g. 80) on the Service.
+																						This is a mutually exclusive setting with "Name".
+																						"""
+																		format: "int32"
+																		type:   "integer"
 																	}
 																}
-																type: "object"
+																type:                    "object"
+																"x-kubernetes-map-type": "atomic"
 															}
 														}
 														required: ["name"]
@@ -7024,37 +12718,96 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type: "object"
 											}
 											ingressClassName: {
-												description: "ingressClassName is the name of an IngressClass cluster resource. Ingress controller implementations use this field to know whether they should be serving this Ingress resource, by a transitive connection (controller -> IngressClass -> Ingress resource). Although the `kubernetes.io/ingress.class` annotation (simple constant name) was never formally defined, it was widely supported by Ingress controllers to create a direct binding between Ingress controller and Ingress resources. Newly created Ingress resources should prefer using the field. However, even though the annotation is officially deprecated, for backwards compatibility reasons, ingress controllers should still honor that annotation if present."
-												type:        "string"
+												description: """
+																ingressClassName is the name of an IngressClass cluster resource. Ingress
+																controller implementations use this field to know whether they should be
+																serving this Ingress resource, by a transitive connection
+																(controller -> IngressClass -> Ingress resource). Although the
+																`kubernetes.io/ingress.class` annotation (simple constant name) was never
+																formally defined, it was widely supported by Ingress controllers to create
+																a direct binding between Ingress controller and Ingress resources. Newly
+																created Ingress resources should prefer using the field. However, even
+																though the annotation is officially deprecated, for backwards compatibility
+																reasons, ingress controllers should still honor that annotation if present.
+																"""
+												type: "string"
 											}
 											rules: {
-												description: "rules is a list of host rules used to configure the Ingress. If unspecified, or no rule matches, all traffic is sent to the default backend."
+												description: """
+																rules is a list of host rules used to configure the Ingress. If unspecified,
+																or no rule matches, all traffic is sent to the default backend.
+																"""
 												items: {
-													description: "IngressRule represents the rules mapping the paths under a specified host to the related backend services. Incoming requests are first evaluated for a host match, then routed to the backend associated with the matching IngressRuleValue."
+													description: """
+																	IngressRule represents the rules mapping the paths under a specified host to
+																	the related backend services. Incoming requests are first evaluated for a host
+																	match, then routed to the backend associated with the matching IngressRuleValue.
+																	"""
 													properties: {
 														host: {
 															description: """
-		host is the fully qualified domain name of a network host, as defined by RFC 3986. Note the following deviations from the \"host\" part of the URI as defined in RFC 3986: 1. IPs are not allowed. Currently an IngressRuleValue can only apply to the IP in the Spec of the parent Ingress. 2. The `:` delimiter is not respected because ports are not allowed. Currently the port of an Ingress is implicitly :80 for http and :443 for https. Both these may change in the future. Incoming requests are matched against the host before the IngressRuleValue. If the host is unspecified, the Ingress routes all traffic based on the specified IngressRuleValue.
-		 host can be \"precise\" which is a domain name without the terminating dot of a network host (e.g. \"foo.bar.com\") or \"wildcard\", which is a domain name prefixed with a single wildcard label (e.g. \"*.foo.com\"). The wildcard character '*' must appear by itself as the first DNS label and matches only a single label. You cannot have a wildcard label by itself (e.g. Host == \"*\"). Requests will be matched against the Host field in the following way: 1. If host is precise, the request matches this rule if the http host header is equal to Host. 2. If host is a wildcard, then the request matches this rule if the http host header is to equal to the suffix (removing the first label) of the wildcard rule.
-		"""
+																			host is the fully qualified domain name of a network host, as defined by RFC 3986.
+																			Note the following deviations from the "host" part of the
+																			URI as defined in RFC 3986:
+																			1. IPs are not allowed. Currently an IngressRuleValue can only apply to
+																			   the IP in the Spec of the parent Ingress.
+																			2. The `:` delimiter is not respected because ports are not allowed.
+																			\t  Currently the port of an Ingress is implicitly :80 for http and
+																			\t  :443 for https.
+																			Both these may change in the future.
+																			Incoming requests are matched against the host before the
+																			IngressRuleValue. If the host is unspecified, the Ingress routes all
+																			traffic based on the specified IngressRuleValue.
+
+																			host can be "precise" which is a domain name without the terminating dot of
+																			a network host (e.g. "foo.bar.com") or "wildcard", which is a domain name
+																			prefixed with a single wildcard label (e.g. "*.foo.com").
+																			The wildcard character '*' must appear by itself as the first DNS label and
+																			matches only a single label. You cannot have a wildcard label by itself (e.g. Host == "*").
+																			Requests will be matched against the Host field in the following way:
+																			1. If host is precise, the request matches this rule if the http host header is equal to Host.
+																			2. If host is a wildcard, then the request matches this rule if the http host header
+																			is to equal to the suffix (removing the first label) of the wildcard rule.
+																			"""
 															type: "string"
 														}
 														http: {
-															description: "HTTPIngressRuleValue is a list of http selectors pointing to backends. In the example: http://<host>/<path>?<searchpart> -> backend where where parts of the url correspond to RFC 3986, this resource will be used to match against everything after the last '/' and before the first '?' or '#'."
+															description: """
+																			HTTPIngressRuleValue is a list of http selectors pointing to backends.
+																			In the example: http://<host>/<path>?<searchpart> -> backend where
+																			where parts of the url correspond to RFC 3986, this resource will be used
+																			to match against everything after the last '/' and before the first '?'
+																			or '#'.
+																			"""
 															properties: paths: {
 																description: "paths is a collection of paths that map requests to backends."
 																items: {
-																	description: "HTTPIngressPath associates a path with a backend. Incoming urls matching the path are forwarded to the backend."
+																	description: """
+																						HTTPIngressPath associates a path with a backend. Incoming urls matching the
+																						path are forwarded to the backend.
+																						"""
 																	properties: {
 																		backend: {
-																			description: "backend defines the referenced service endpoint to which the traffic will be forwarded to."
+																			description: """
+																								backend defines the referenced service endpoint to which the traffic
+																								will be forwarded to.
+																								"""
 																			properties: {
 																				resource: {
-																					description: "resource is an ObjectRef to another Kubernetes resource in the namespace of the Ingress object. If resource is specified, a service.Name and service.Port must not be specified. This is a mutually exclusive setting with \"Service\"."
+																					description: """
+																										resource is an ObjectRef to another Kubernetes resource in the namespace
+																										of the Ingress object. If resource is specified, a service.Name and
+																										service.Port must not be specified.
+																										This is a mutually exclusive setting with "Service".
+																										"""
 																					properties: {
 																						apiGroup: {
-																							description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
-																							type:        "string"
+																							description: """
+																												APIGroup is the group for the resource being referenced.
+																												If APIGroup is not specified, the specified Kind must be in the core API group.
+																												For any other third-party types, APIGroup is required.
+																												"""
+																							type: "string"
 																						}
 																						kind: {
 																							description: "Kind is the type of resource being referenced"
@@ -7065,34 +12818,47 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							type:        "string"
 																						}
 																					}
-																					required: [
-																						"kind",
-																						"name",
-																					]
+																					required: ["kind", "name"]
 																					type:                    "object"
 																					"x-kubernetes-map-type": "atomic"
 																				}
 																				service: {
-																					description: "service references a service as a backend. This is a mutually exclusive setting with \"Resource\"."
+																					description: """
+																										service references a service as a backend.
+																										This is a mutually exclusive setting with "Resource".
+																										"""
 																					properties: {
 																						name: {
-																							description: "name is the referenced service. The service must exist in the same namespace as the Ingress object."
-																							type:        "string"
+																							description: """
+																												name is the referenced service. The service must exist in
+																												the same namespace as the Ingress object.
+																												"""
+																							type: "string"
 																						}
 																						port: {
-																							description: "port of the referenced service. A port name or port number is required for a IngressServiceBackend."
+																							description: """
+																												port of the referenced service. A port name or port number
+																												is required for a IngressServiceBackend.
+																												"""
 																							properties: {
 																								name: {
-																									description: "name is the name of the port on the Service. This is a mutually exclusive setting with \"Number\"."
-																									type:        "string"
+																									description: """
+																														name is the name of the port on the Service.
+																														This is a mutually exclusive setting with "Number".
+																														"""
+																									type: "string"
 																								}
 																								number: {
-																									description: "number is the numerical port number (e.g. 80) on the Service. This is a mutually exclusive setting with \"Name\"."
-																									format:      "int32"
-																									type:        "integer"
+																									description: """
+																														number is the numerical port number (e.g. 80) on the Service.
+																														This is a mutually exclusive setting with "Name".
+																														"""
+																									format: "int32"
+																									type:   "integer"
 																								}
 																							}
-																							type: "object"
+																							type:                    "object"
+																							"x-kubernetes-map-type": "atomic"
 																						}
 																					}
 																					required: ["name"]
@@ -7102,18 +12868,35 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			type: "object"
 																		}
 																		path: {
-																			description: "path is matched against the path of an incoming request. Currently it can contain characters disallowed from the conventional \"path\" part of a URL as defined by RFC 3986. Paths must begin with a '/' and must be present when using PathType with value \"Exact\" or \"Prefix\"."
-																			type:        "string"
+																			description: """
+																								path is matched against the path of an incoming request. Currently it can
+																								contain characters disallowed from the conventional "path" part of a URL
+																								as defined by RFC 3986. Paths must begin with a '/' and must be present
+																								when using PathType with value "Exact" or "Prefix".
+																								"""
+																			type: "string"
 																		}
 																		pathType: {
-																			description: "pathType determines the interpretation of the path matching. PathType can be one of the following values: * Exact: Matches the URL path exactly. * Prefix: Matches based on a URL path prefix split by '/'. Matching is done on a path element by element basis. A path element refers is the list of labels in the path split by the '/' separator. A request is a match for path p if every p is an element-wise prefix of p of the request path. Note that if the last element of the path is a substring of the last element in request path, it is not a match (e.g. /foo/bar matches /foo/bar/baz, but does not match /foo/barbaz). * ImplementationSpecific: Interpretation of the Path matching is up to the IngressClass. Implementations can treat this as a separate PathType or treat it identically to Prefix or Exact path types. Implementations are required to support all path types."
-																			type:        "string"
+																			description: """
+																								pathType determines the interpretation of the path matching. PathType can
+																								be one of the following values:
+																								* Exact: Matches the URL path exactly.
+																								* Prefix: Matches based on a URL path prefix split by '/'. Matching is
+																								  done on a path element by element basis. A path element refers is the
+																								  list of labels in the path split by the '/' separator. A request is a
+																								  match for path p if every p is an element-wise prefix of p of the
+																								  request path. Note that if the last element of the path is a substring
+																								  of the last element in request path, it is not a match (e.g. /foo/bar
+																								  matches /foo/bar/baz, but does not match /foo/barbaz).
+																								* ImplementationSpecific: Interpretation of the Path matching is up to
+																								  the IngressClass. Implementations can treat this as a separate PathType
+																								  or treat it identically to Prefix or Exact path types.
+																								Implementations are required to support all path types.
+																								"""
+																			type: "string"
 																		}
 																	}
-																	required: [
-																		"backend",
-																		"pathType",
-																	]
+																	required: ["backend", "pathType"]
 																	type: "object"
 																}
 																type:                     "array"
@@ -7129,19 +12912,36 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												"x-kubernetes-list-type": "atomic"
 											}
 											tls: {
-												description: "tls represents the TLS configuration. Currently the Ingress only supports a single TLS port, 443. If multiple members of this list specify different hosts, they will be multiplexed on the same port according to the hostname specified through the SNI TLS extension, if the ingress controller fulfilling the ingress supports SNI."
+												description: """
+																tls represents the TLS configuration. Currently the Ingress only supports a
+																single TLS port, 443. If multiple members of this list specify different hosts,
+																they will be multiplexed on the same port according to the hostname specified
+																through the SNI TLS extension, if the ingress controller fulfilling the
+																ingress supports SNI.
+																"""
 												items: {
 													description: "IngressTLS describes the transport layer security associated with an ingress."
 													properties: {
 														hosts: {
-															description: "hosts is a list of hosts included in the TLS certificate. The values in this list must match the name/s used in the tlsSecret. Defaults to the wildcard host setting for the loadbalancer controller fulfilling this Ingress, if left unspecified."
+															description: """
+																			hosts is a list of hosts included in the TLS certificate. The values in
+																			this list must match the name/s used in the tlsSecret. Defaults to the
+																			wildcard host setting for the loadbalancer controller fulfilling this
+																			Ingress, if left unspecified.
+																			"""
 															items: type: "string"
 															type:                     "array"
 															"x-kubernetes-list-type": "atomic"
 														}
 														secretName: {
-															description: "secretName is the name of the secret used to terminate TLS traffic on port 443. Field is left optional to allow TLS routing based on SNI hostname alone. If the SNI host in a listener conflicts with the \"Host\" header field used by an IngressRule, the SNI host is used for termination and value of the \"Host\" header is used for routing."
-															type:        "string"
+															description: """
+																			secretName is the name of the secret used to terminate TLS traffic on
+																			port 443. Field is left optional to allow TLS routing based on SNI
+																			hostname alone. If the SNI host in a listener conflicts with the "Host"
+																			header field used by an IngressRule, the SNI host is used for termination
+																			and value of the "Host" header is used for routing.
+																			"""
+															type: "string"
 														}
 													}
 													type: "object"
@@ -7157,39 +12957,57 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							jsonnet: {
 								properties: libraryLabelSelector: {
-									description: "A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed. An empty label selector matches all objects. A null label selector matches no objects."
+									description: """
+														A label selector is a label query over a set of resources. The result of matchLabels and
+														matchExpressions are ANDed. An empty label selector matches all objects. A null
+														label selector matches no objects.
+														"""
 									properties: {
 										matchExpressions: {
 											description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 											items: {
-												description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+												description: """
+																	A label selector requirement is a selector that contains values, a key, and an operator that
+																	relates the key and values.
+																	"""
 												properties: {
 													key: {
 														description: "key is the label key that the selector applies to."
 														type:        "string"
 													}
 													operator: {
-														description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
-														type:        "string"
+														description: """
+																			operator represents a key's relationship to a set of values.
+																			Valid operators are In, NotIn, Exists and DoesNotExist.
+																			"""
+														type: "string"
 													}
 													values: {
-														description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+														description: """
+																			values is an array of string values. If the operator is In or NotIn,
+																			the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																			the values array must be empty. This array is replaced during a strategic
+																			merge patch.
+																			"""
 														items: type: "string"
-														type: "array"
+														type:                     "array"
+														"x-kubernetes-list-type": "atomic"
 													}
 												}
-												required: [
-													"key",
-													"operator",
-												]
+												required: ["key", "operator"]
 												type: "object"
 											}
-											type: "array"
+											type:                     "array"
+											"x-kubernetes-list-type": "atomic"
 										}
 										matchLabels: {
 											additionalProperties: type: "string"
-											description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
-											type:        "object"
+											description: """
+																matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+																map is equivalent to an element of matchExpressions, whose key field is "key", the
+																operator is "In", and the values array contains only "value". The requirements are ANDed.
+																"""
+											type: "object"
 										}
 									}
 									type:                    "object"
@@ -7221,11 +13039,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type: "array"
 											}
 											dataSource: {
-												description: "TypedLocalObjectReference contains enough information to let you locate the typed referenced object inside the same namespace."
+												description: """
+																TypedLocalObjectReference contains enough information to let you locate the
+																typed referenced object inside the same namespace.
+																"""
 												properties: {
 													apiGroup: {
-														description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
-														type:        "string"
+														description: """
+																		APIGroup is the group for the resource being referenced.
+																		If APIGroup is not specified, the specified Kind must be in the core API group.
+																		For any other third-party types, APIGroup is required.
+																		"""
+														type: "string"
 													}
 													kind: {
 														description: "Kind is the type of resource being referenced"
@@ -7236,19 +13061,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:        "string"
 													}
 												}
-												required: [
-													"kind",
-													"name",
-												]
+												required: ["kind", "name"]
 												type:                    "object"
 												"x-kubernetes-map-type": "atomic"
 											}
 											dataSourceRef: {
-												description: "TypedLocalObjectReference contains enough information to let you locate the typed referenced object inside the same namespace."
+												description: """
+																TypedLocalObjectReference contains enough information to let you locate the
+																typed referenced object inside the same namespace.
+																"""
 												properties: {
 													apiGroup: {
-														description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
-														type:        "string"
+														description: """
+																		APIGroup is the group for the resource being referenced.
+																		If APIGroup is not specified, the specified Kind must be in the core API group.
+																		For any other third-party types, APIGroup is required.
+																		"""
+														type: "string"
 													}
 													kind: {
 														description: "Kind is the type of resource being referenced"
@@ -7259,10 +13088,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:        "string"
 													}
 												}
-												required: [
-													"kind",
-													"name",
-												]
+												required: ["kind", "name"]
 												type:                    "object"
 												"x-kubernetes-map-type": "atomic"
 											}
@@ -7271,15 +13097,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												properties: {
 													claims: {
 														description: """
-		Claims lists the names of resources, defined in spec.resourceClaims, that are used by this container.
-		 This is an alpha field and requires enabling the DynamicResourceAllocation feature gate.
-		 This field is immutable. It can only be set for containers.
-		"""
+																		Claims lists the names of resources, defined in spec.resourceClaims,
+																		that are used by this container.
+
+																		This field depends on the
+																		DynamicResourceAllocation feature gate.
+
+																		This field is immutable. It can only be set for containers.
+																		"""
 														items: {
 															description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
-															properties: name: {
-																description: "Name must match the name of one entry in pod.spec.resourceClaims of the Pod where this field is used. It makes that resource available inside a container."
-																type:        "string"
+															properties: {
+																name: {
+																	description: """
+																					Name must match the name of one entry in pod.spec.resourceClaims of
+																					the Pod where this field is used. It makes that resource available
+																					inside a container.
+																					"""
+																	type: "string"
+																}
+																request: {
+																	description: """
+																					Request is the name chosen for a request in the referenced claim.
+																					If empty, everything from the claim is made available, otherwise
+																					only the result of this request.
+																					"""
+																	type: "string"
+																}
 															}
 															required: ["name"]
 															type: "object"
@@ -7298,8 +13142,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 															"x-kubernetes-int-or-string": true
 														}
-														description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
-														type:        "object"
+														description: """
+																		Limits describes the maximum amount of compute resources allowed.
+																		More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																		"""
+														type: "object"
 													}
 													requests: {
 														additionalProperties: {
@@ -7311,46 +13158,69 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 															"x-kubernetes-int-or-string": true
 														}
-														description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. Requests cannot exceed Limits. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
-														type:        "object"
+														description: """
+																		Requests describes the minimum amount of compute resources required.
+																		If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+																		otherwise to an implementation-defined value. Requests cannot exceed Limits.
+																		More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+																		"""
+														type: "object"
 													}
 												}
 												type: "object"
 											}
 											selector: {
-												description: "A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed. An empty label selector matches all objects. A null label selector matches no objects."
+												description: """
+																A label selector is a label query over a set of resources. The result of matchLabels and
+																matchExpressions are ANDed. An empty label selector matches all objects. A null
+																label selector matches no objects.
+																"""
 												properties: {
 													matchExpressions: {
 														description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
 														items: {
-															description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+															description: """
+																			A label selector requirement is a selector that contains values, a key, and an operator that
+																			relates the key and values.
+																			"""
 															properties: {
 																key: {
 																	description: "key is the label key that the selector applies to."
 																	type:        "string"
 																}
 																operator: {
-																	description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
-																	type:        "string"
+																	description: """
+																					operator represents a key's relationship to a set of values.
+																					Valid operators are In, NotIn, Exists and DoesNotExist.
+																					"""
+																	type: "string"
 																}
 																values: {
-																	description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																	description: """
+																					values is an array of string values. If the operator is In or NotIn,
+																					the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																					the values array must be empty. This array is replaced during a strategic
+																					merge patch.
+																					"""
 																	items: type: "string"
-																	type: "array"
+																	type:                     "array"
+																	"x-kubernetes-list-type": "atomic"
 																}
 															}
-															required: [
-																"key",
-																"operator",
-															]
+															required: ["key", "operator"]
 															type: "object"
 														}
-														type: "array"
+														type:                     "array"
+														"x-kubernetes-list-type": "atomic"
 													}
 													matchLabels: {
 														additionalProperties: type: "string"
-														description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
-														type:        "object"
+														description: """
+																		matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+																		map is equivalent to an element of matchExpressions, whose key field is "key", the
+																		operator is "In", and the values array contains only "value". The requirements are ANDed.
+																		"""
+														type: "object"
 													}
 												}
 												type:                    "object"
@@ -7397,27 +13267,35 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										properties: {
 											alternateBackends: {
 												items: {
-													description: "RouteTargetReference specifies the target that resolve into endpoints. Only the 'Service' kind is allowed. Use 'weight' field to emphasize one over others."
+													description: """
+																	RouteTargetReference specifies the target that resolve into endpoints. Only the 'Service'
+																	kind is allowed. Use 'weight' field to emphasize one over others.
+																	"""
 													properties: {
 														kind: {
+															default:     "Service"
 															description: "The kind of target that the route is referring to. Currently, only 'Service' is allowed"
-															type:        "string"
+															enum: ["Service", ""]
+															type: "string"
 														}
 														name: {
 															description: "name of the service/target that is being referred to. e.g. name of the service"
+															minLength:   1
 															type:        "string"
 														}
 														weight: {
-															description: "weight as an integer between 0 and 256, default 100, that specifies the target's relative weight against other target reference objects. 0 suppresses requests to this backend."
-															format:      "int32"
-															type:        "integer"
+															default: 100
+															description: """
+																			weight as an integer between 0 and 256, default 100, that specifies the target's relative weight
+																			against other target reference objects. 0 suppresses requests to this backend.
+																			"""
+															format:  "int32"
+															maximum: 256
+															minimum: 0
+															type:    "integer"
 														}
 													}
-													required: [
-														"kind",
-														"name",
-														"weight",
-													]
+													required: ["kind", "name"]
 													type: "object"
 												}
 												type: "array"
@@ -7432,12 +13310,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}, {
 														type: "string"
 													}]
-													description:                  "The target port on pods selected by the service this route points to. If this is a string, it will be looked up as a named port in the target endpoints port list. Required"
+													description: """
+																		The target port on pods selected by the service this route points to.
+																		If this is a string, it will be looked up as a named port in the target
+																		endpoints port list. Required
+																		"""
 													"x-kubernetes-int-or-string": true
 												}
 												required: ["targetPort"]
 												type: "object"
 											}
+											subdomain: type: "string"
 											tls: {
 												description: "TLSConfig defines config used to secure a route and provide termination"
 												properties: {
@@ -7446,18 +13329,56 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:        "string"
 													}
 													certificate: {
-														description: "certificate provides certificate contents"
-														type:        "string"
+														description: """
+																		certificate provides certificate contents. This should be a single serving certificate, not a certificate
+																		chain. Do not include a CA certificate.
+																		"""
+														type: "string"
 													}
 													destinationCACertificate: {
-														description: "destinationCACertificate provides the contents of the ca certificate of the final destination.  When using reencrypt termination this file should be provided in order to have routers use it for health checks on the secure connection. If this field is not specified, the router may provide its own destination CA and perform hostname validation using the short service name (service.namespace.svc), which allows infrastructure generated certificates to automatically verify."
-														type:        "string"
+														description: """
+																		destinationCACertificate provides the contents of the ca certificate of the final destination.  When using reencrypt
+																		termination this file should be provided in order to have routers use it for health checks on the secure connection.
+																		If this field is not specified, the router may provide its own destination CA and perform hostname validation using
+																		the short service name (service.namespace.svc), which allows infrastructure generated certificates to automatically
+																		verify.
+																		"""
+														type: "string"
+													}
+													externalCertificate: {
+														description: """
+																		externalCertificate provides certificate contents as a secret reference.
+																		This should be a single serving certificate, not a certificate
+																		chain. Do not include a CA certificate. The secret referenced should
+																		be present in the same namespace as that of the Route.
+																		Forbidden when `certificate` is set.
+																		The router service account needs to be granted with read-only access to this secret,
+																		please refer to openshift docs for additional details.
+																		"""
+														properties: name: {
+															description: """
+																				name of the referent.
+																				More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																				"""
+															type: "string"
+														}
+														type:                    "object"
+														"x-kubernetes-map-type": "atomic"
 													}
 													insecureEdgeTerminationPolicy: {
 														description: """
-		insecureEdgeTerminationPolicy indicates the desired behavior for insecure connections to a route. While each router may make its own decisions on which ports to expose, this is normally port 80.
-		 * Allow - traffic is sent to the server on the insecure port (default) * Disable - no traffic is allowed on the insecure port. * Redirect - clients are redirected to the secure port.
-		"""
+																		insecureEdgeTerminationPolicy indicates the desired behavior for insecure connections to a route. While
+																		each router may make its own decisions on which ports to expose, this is normally port 80.
+
+																		If a route does not specify insecureEdgeTerminationPolicy, then the default behavior is "None".
+
+																		* Allow - traffic is sent to the server on the insecure port (edge/reencrypt terminations only).
+
+																		* None - no traffic is allowed on the insecure port (default).
+
+																		* Redirect - clients are redirected to the secure port.
+																		"""
+														enum: ["Allow", "None", "Redirect", ""]
 														type: "string"
 													}
 													key: {
@@ -7465,35 +13386,56 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:        "string"
 													}
 													termination: {
-														description: "termination indicates termination type."
-														type:        "string"
+														description: """
+																		termination indicates termination type.
+
+																		* edge - TLS termination is done by the router and http is used to communicate with the backend (default)
+																		* passthrough - Traffic is sent straight to the destination without the router providing TLS termination
+																		* reencrypt - TLS termination is done by the router and https is used to communicate with the backend
+
+																		Note: passthrough termination is incompatible with httpHeader actions
+																		"""
+														enum: ["edge", "reencrypt", "passthrough"]
+														type: "string"
 													}
 												}
 												required: ["termination"]
 												type: "object"
+												"x-kubernetes-validations": [{
+													message: "cannot have both spec.tls.termination: passthrough and spec.tls.insecureEdgeTerminationPolicy: Allow"
+													rule:    "has(self.termination) && has(self.insecureEdgeTerminationPolicy) ? !((self.termination=='passthrough') && (self.insecureEdgeTerminationPolicy=='Allow')) : true"
+												}]
 											}
 											to: {
-												description: "RouteTargetReference specifies the target that resolve into endpoints. Only the 'Service' kind is allowed. Use 'weight' field to emphasize one over others."
+												description: """
+																RouteTargetReference specifies the target that resolve into endpoints. Only the 'Service'
+																kind is allowed. Use 'weight' field to emphasize one over others.
+																"""
 												properties: {
 													kind: {
+														default:     "Service"
 														description: "The kind of target that the route is referring to. Currently, only 'Service' is allowed"
-														type:        "string"
+														enum: ["Service", ""]
+														type: "string"
 													}
 													name: {
 														description: "name of the service/target that is being referred to. e.g. name of the service"
+														minLength:   1
 														type:        "string"
 													}
 													weight: {
-														description: "weight as an integer between 0 and 256, default 100, that specifies the target's relative weight against other target reference objects. 0 suppresses requests to this backend."
-														format:      "int32"
-														type:        "integer"
+														default: 100
+														description: """
+																		weight as an integer between 0 and 256, default 100, that specifies the target's relative weight
+																		against other target reference objects. 0 suppresses requests to this backend.
+																		"""
+														format:  "int32"
+														maximum: 256
+														minimum: 0
+														type:    "integer"
 													}
 												}
-												required: [
-													"kind",
-													"name",
-													"weight",
-												]
+												required: ["kind", "name"]
 												type: "object"
 											}
 											wildcardPolicy: {
@@ -7527,95 +13469,265 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										description: "ServiceSpec describes the attributes that a user creates on a service."
 										properties: {
 											allocateLoadBalancerNodePorts: {
-												description: "allocateLoadBalancerNodePorts defines if NodePorts will be automatically allocated for services with type LoadBalancer.  Default is \"true\". It may be set to \"false\" if the cluster load-balancer does not rely on NodePorts.  If the caller requests specific NodePorts (by specifying a value), those requests will be respected, regardless of this field. This field may only be set for services with type LoadBalancer and will be cleared if the type is changed to any other type."
-												type:        "boolean"
+												description: """
+																allocateLoadBalancerNodePorts defines if NodePorts will be automatically
+																allocated for services with type LoadBalancer.  Default is "true". It
+																may be set to "false" if the cluster load-balancer does not rely on
+																NodePorts.  If the caller requests specific NodePorts (by specifying a
+																value), those requests will be respected, regardless of this field.
+																This field may only be set for services with type LoadBalancer and will
+																be cleared if the type is changed to any other type.
+																"""
+												type: "boolean"
 											}
 											clusterIP: {
-												description: "clusterIP is the IP address of the service and is usually assigned randomly. If an address is specified manually, is in-range (as per system configuration), and is not in use, it will be allocated to the service; otherwise creation of the service will fail. This field may not be changed through updates unless the type field is also being changed to ExternalName (which requires this field to be blank) or the type field is being changed from ExternalName (in which case this field may optionally be specified, as describe above).  Valid values are \"None\", empty string (\"\"), or a valid IP address. Setting this to \"None\" makes a \"headless service\" (no virtual IP), which is useful when direct endpoint connections are preferred and proxying is not required.  Only applies to types ClusterIP, NodePort, and LoadBalancer. If this field is specified when creating a Service of type ExternalName, creation will fail. This field will be wiped when updating a Service to type ExternalName. More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies"
-												type:        "string"
+												description: """
+																clusterIP is the IP address of the service and is usually assigned
+																randomly. If an address is specified manually, is in-range (as per
+																system configuration), and is not in use, it will be allocated to the
+																service; otherwise creation of the service will fail. This field may not
+																be changed through updates unless the type field is also being changed
+																to ExternalName (which requires this field to be blank) or the type
+																field is being changed from ExternalName (in which case this field may
+																optionally be specified, as describe above).  Valid values are "None",
+																empty string (""), or a valid IP address. Setting this to "None" makes a
+																"headless service" (no virtual IP), which is useful when direct endpoint
+																connections are preferred and proxying is not required.  Only applies to
+																types ClusterIP, NodePort, and LoadBalancer. If this field is specified
+																when creating a Service of type ExternalName, creation will fail. This
+																field will be wiped when updating a Service to type ExternalName.
+																More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+																"""
+												type: "string"
 											}
 											clusterIPs: {
 												description: """
-		ClusterIPs is a list of IP addresses assigned to this service, and are usually assigned randomly.  If an address is specified manually, is in-range (as per system configuration), and is not in use, it will be allocated to the service; otherwise creation of the service will fail. This field may not be changed through updates unless the type field is also being changed to ExternalName (which requires this field to be empty) or the type field is being changed from ExternalName (in which case this field may optionally be specified, as describe above).  Valid values are \"None\", empty string (\"\"), or a valid IP address.  Setting this to \"None\" makes a \"headless service\" (no virtual IP), which is useful when direct endpoint connections are preferred and proxying is not required.  Only applies to types ClusterIP, NodePort, and LoadBalancer. If this field is specified when creating a Service of type ExternalName, creation will fail. This field will be wiped when updating a Service to type ExternalName.  If this field is not specified, it will be initialized from the clusterIP field.  If this field is specified, clients must ensure that clusterIPs[0] and clusterIP have the same value.
-		 This field may hold a maximum of two entries (dual-stack IPs, in either order). These IPs must correspond to the values of the ipFamilies field. Both clusterIPs and ipFamilies are governed by the ipFamilyPolicy field. More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
-		"""
+																ClusterIPs is a list of IP addresses assigned to this service, and are
+																usually assigned randomly.  If an address is specified manually, is
+																in-range (as per system configuration), and is not in use, it will be
+																allocated to the service; otherwise creation of the service will fail.
+																This field may not be changed through updates unless the type field is
+																also being changed to ExternalName (which requires this field to be
+																empty) or the type field is being changed from ExternalName (in which
+																case this field may optionally be specified, as describe above).  Valid
+																values are "None", empty string (""), or a valid IP address.  Setting
+																this to "None" makes a "headless service" (no virtual IP), which is
+																useful when direct endpoint connections are preferred and proxying is
+																not required.  Only applies to types ClusterIP, NodePort, and
+																LoadBalancer. If this field is specified when creating a Service of type
+																ExternalName, creation will fail. This field will be wiped when updating
+																a Service to type ExternalName.  If this field is not specified, it will
+																be initialized from the clusterIP field.  If this field is specified,
+																clients must ensure that clusterIPs[0] and clusterIP have the same
+																value.
+
+																This field may hold a maximum of two entries (dual-stack IPs, in either order).
+																These IPs must correspond to the values of the ipFamilies field. Both
+																clusterIPs and ipFamilies are governed by the ipFamilyPolicy field.
+																More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+																"""
 												items: type: "string"
 												type:                     "array"
 												"x-kubernetes-list-type": "atomic"
 											}
 											externalIPs: {
-												description: "externalIPs is a list of IP addresses for which nodes in the cluster will also accept traffic for this service.  These IPs are not managed by Kubernetes.  The user is responsible for ensuring that traffic arrives at a node with this IP.  A common example is external load-balancers that are not part of the Kubernetes system."
+												description: """
+																externalIPs is a list of IP addresses for which nodes in the cluster
+																will also accept traffic for this service.  These IPs are not managed by
+																Kubernetes.  The user is responsible for ensuring that traffic arrives
+																at a node with this IP.  A common example is external load-balancers
+																that are not part of the Kubernetes system.
+																"""
 												items: type: "string"
-												type: "array"
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
 											}
 											externalName: {
-												description: "externalName is the external reference that discovery mechanisms will return as an alias for this service (e.g. a DNS CNAME record). No proxying will be involved.  Must be a lowercase RFC-1123 hostname (https://tools.ietf.org/html/rfc1123) and requires `type` to be \"ExternalName\"."
-												type:        "string"
+												description: """
+																externalName is the external reference that discovery mechanisms will
+																return as an alias for this service (e.g. a DNS CNAME record). No
+																proxying will be involved.  Must be a lowercase RFC-1123 hostname
+																(https://tools.ietf.org/html/rfc1123) and requires `type` to be "ExternalName".
+																"""
+												type: "string"
 											}
 											externalTrafficPolicy: {
-												description: "externalTrafficPolicy describes how nodes distribute service traffic they receive on one of the Service's \"externally-facing\" addresses (NodePorts, ExternalIPs, and LoadBalancer IPs). If set to \"Local\", the proxy will configure the service in a way that assumes that external load balancers will take care of balancing the service traffic between nodes, and so each node will deliver traffic only to the node-local endpoints of the service, without masquerading the client source IP. (Traffic mistakenly sent to a node with no endpoints will be dropped.) The default value, \"Cluster\", uses the standard behavior of routing to all endpoints evenly (possibly modified by topology and other features). Note that traffic sent to an External IP or LoadBalancer IP from within the cluster will always get \"Cluster\" semantics, but clients sending to a NodePort from within the cluster may need to take traffic policy into account when picking a node."
-												type:        "string"
+												description: """
+																externalTrafficPolicy describes how nodes distribute service traffic they
+																receive on one of the Service's "externally-facing" addresses (NodePorts,
+																ExternalIPs, and LoadBalancer IPs). If set to "Local", the proxy will configure
+																the service in a way that assumes that external load balancers will take care
+																of balancing the service traffic between nodes, and so each node will deliver
+																traffic only to the node-local endpoints of the service, without masquerading
+																the client source IP. (Traffic mistakenly sent to a node with no endpoints will
+																be dropped.) The default value, "Cluster", uses the standard behavior of
+																routing to all endpoints evenly (possibly modified by topology and other
+																features). Note that traffic sent to an External IP or LoadBalancer IP from
+																within the cluster will always get "Cluster" semantics, but clients sending to
+																a NodePort from within the cluster may need to take traffic policy into account
+																when picking a node.
+																"""
+												type: "string"
 											}
 											healthCheckNodePort: {
-												description: "healthCheckNodePort specifies the healthcheck nodePort for the service. This only applies when type is set to LoadBalancer and externalTrafficPolicy is set to Local. If a value is specified, is in-range, and is not in use, it will be used.  If not specified, a value will be automatically allocated.  External systems (e.g. load-balancers) can use this port to determine if a given node holds endpoints for this service or not.  If this field is specified when creating a Service which does not need it, creation will fail. This field will be wiped when updating a Service to no longer need it (e.g. changing type). This field cannot be updated once set."
-												format:      "int32"
-												type:        "integer"
+												description: """
+																healthCheckNodePort specifies the healthcheck nodePort for the service.
+																This only applies when type is set to LoadBalancer and
+																externalTrafficPolicy is set to Local. If a value is specified, is
+																in-range, and is not in use, it will be used.  If not specified, a value
+																will be automatically allocated.  External systems (e.g. load-balancers)
+																can use this port to determine if a given node holds endpoints for this
+																service or not.  If this field is specified when creating a Service
+																which does not need it, creation will fail. This field will be wiped
+																when updating a Service to no longer need it (e.g. changing type).
+																This field cannot be updated once set.
+																"""
+												format: "int32"
+												type:   "integer"
 											}
 											internalTrafficPolicy: {
-												description: "InternalTrafficPolicy describes how nodes distribute service traffic they receive on the ClusterIP. If set to \"Local\", the proxy will assume that pods only want to talk to endpoints of the service on the same node as the pod, dropping the traffic if there are no local endpoints. The default value, \"Cluster\", uses the standard behavior of routing to all endpoints evenly (possibly modified by topology and other features)."
-												type:        "string"
+												description: """
+																InternalTrafficPolicy describes how nodes distribute service traffic they
+																receive on the ClusterIP. If set to "Local", the proxy will assume that pods
+																only want to talk to endpoints of the service on the same node as the pod,
+																dropping the traffic if there are no local endpoints. The default value,
+																"Cluster", uses the standard behavior of routing to all endpoints evenly
+																(possibly modified by topology and other features).
+																"""
+												type: "string"
 											}
 											ipFamilies: {
 												description: """
-		IPFamilies is a list of IP families (e.g. IPv4, IPv6) assigned to this service. This field is usually assigned automatically based on cluster configuration and the ipFamilyPolicy field. If this field is specified manually, the requested family is available in the cluster, and ipFamilyPolicy allows it, it will be used; otherwise creation of the service will fail. This field is conditionally mutable: it allows for adding or removing a secondary IP family, but it does not allow changing the primary IP family of the Service. Valid values are \"IPv4\" and \"IPv6\".  This field only applies to Services of types ClusterIP, NodePort, and LoadBalancer, and does apply to \"headless\" services. This field will be wiped when updating a Service to type ExternalName.
-		 This field may hold a maximum of two entries (dual-stack families, in either order).  These families must correspond to the values of the clusterIPs field, if specified. Both clusterIPs and ipFamilies are governed by the ipFamilyPolicy field.
-		"""
+																IPFamilies is a list of IP families (e.g. IPv4, IPv6) assigned to this
+																service. This field is usually assigned automatically based on cluster
+																configuration and the ipFamilyPolicy field. If this field is specified
+																manually, the requested family is available in the cluster,
+																and ipFamilyPolicy allows it, it will be used; otherwise creation of
+																the service will fail. This field is conditionally mutable: it allows
+																for adding or removing a secondary IP family, but it does not allow
+																changing the primary IP family of the Service. Valid values are "IPv4"
+																and "IPv6".  This field only applies to Services of types ClusterIP,
+																NodePort, and LoadBalancer, and does apply to "headless" services.
+																This field will be wiped when updating a Service to type ExternalName.
+
+																This field may hold a maximum of two entries (dual-stack families, in
+																either order).  These families must correspond to the values of the
+																clusterIPs field, if specified. Both clusterIPs and ipFamilies are
+																governed by the ipFamilyPolicy field.
+																"""
 												items: {
-													description: "IPFamily represents the IP Family (IPv4 or IPv6). This type is used to express the family of an IP expressed by a type (e.g. service.spec.ipFamilies)."
-													type:        "string"
+													description: """
+																	IPFamily represents the IP Family (IPv4 or IPv6). This type is used
+																	to express the family of an IP expressed by a type (e.g. service.spec.ipFamilies).
+																	"""
+													type: "string"
 												}
 												type:                     "array"
 												"x-kubernetes-list-type": "atomic"
 											}
 											ipFamilyPolicy: {
-												description: "IPFamilyPolicy represents the dual-stack-ness requested or required by this Service. If there is no value provided, then this field will be set to SingleStack. Services can be \"SingleStack\" (a single IP family), \"PreferDualStack\" (two IP families on dual-stack configured clusters or a single IP family on single-stack clusters), or \"RequireDualStack\" (two IP families on dual-stack configured clusters, otherwise fail). The ipFamilies and clusterIPs fields depend on the value of this field. This field will be wiped when updating a service to type ExternalName."
-												type:        "string"
+												description: """
+																IPFamilyPolicy represents the dual-stack-ness requested or required by
+																this Service. If there is no value provided, then this field will be set
+																to SingleStack. Services can be "SingleStack" (a single IP family),
+																"PreferDualStack" (two IP families on dual-stack configured clusters or
+																a single IP family on single-stack clusters), or "RequireDualStack"
+																(two IP families on dual-stack configured clusters, otherwise fail). The
+																ipFamilies and clusterIPs fields depend on the value of this field. This
+																field will be wiped when updating a service to type ExternalName.
+																"""
+												type: "string"
 											}
 											loadBalancerClass: {
-												description: "loadBalancerClass is the class of the load balancer implementation this Service belongs to. If specified, the value of this field must be a label-style identifier, with an optional prefix, e.g. \"internal-vip\" or \"example.com/internal-vip\". Unprefixed names are reserved for end-users. This field can only be set when the Service type is 'LoadBalancer'. If not set, the default load balancer implementation is used, today this is typically done through the cloud provider integration, but should apply for any default implementation. If set, it is assumed that a load balancer implementation is watching for Services with a matching class. Any default load balancer implementation (e.g. cloud providers) should ignore Services that set this field. This field can only be set when creating or updating a Service to type 'LoadBalancer'. Once set, it can not be changed. This field will be wiped when a service is updated to a non 'LoadBalancer' type."
-												type:        "string"
+												description: """
+																loadBalancerClass is the class of the load balancer implementation this Service belongs to.
+																If specified, the value of this field must be a label-style identifier, with an optional prefix,
+																e.g. "internal-vip" or "example.com/internal-vip". Unprefixed names are reserved for end-users.
+																This field can only be set when the Service type is 'LoadBalancer'. If not set, the default load
+																balancer implementation is used, today this is typically done through the cloud provider integration,
+																but should apply for any default implementation. If set, it is assumed that a load balancer
+																implementation is watching for Services with a matching class. Any default load balancer
+																implementation (e.g. cloud providers) should ignore Services that set this field.
+																This field can only be set when creating or updating a Service to type 'LoadBalancer'.
+																Once set, it can not be changed. This field will be wiped when a service is updated to a non 'LoadBalancer' type.
+																"""
+												type: "string"
 											}
 											loadBalancerIP: {
-												description: "Only applies to Service Type: LoadBalancer. This feature depends on whether the underlying cloud-provider supports specifying the loadBalancerIP when a load balancer is created. This field will be ignored if the cloud-provider does not support the feature. Deprecated: This field was under-specified and its meaning varies across implementations. Using it is non-portable and it may not support dual-stack. Users are encouraged to use implementation-specific annotations when available."
-												type:        "string"
+												description: """
+																Only applies to Service Type: LoadBalancer.
+																This feature depends on whether the underlying cloud-provider supports specifying
+																the loadBalancerIP when a load balancer is created.
+																This field will be ignored if the cloud-provider does not support the feature.
+																Deprecated: This field was under-specified and its meaning varies across implementations.
+																Using it is non-portable and it may not support dual-stack.
+																Users are encouraged to use implementation-specific annotations when available.
+																"""
+												type: "string"
 											}
 											loadBalancerSourceRanges: {
-												description: "If specified and supported by the platform, this will restrict traffic through the cloud-provider load-balancer will be restricted to the specified client IPs. This field will be ignored if the cloud-provider does not support the feature.\" More info: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/"
+												description: """
+																If specified and supported by the platform, this will restrict traffic through the cloud-provider
+																load-balancer will be restricted to the specified client IPs. This field will be ignored if the
+																cloud-provider does not support the feature."
+																More info: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/
+																"""
 												items: type: "string"
-												type: "array"
+												type:                     "array"
+												"x-kubernetes-list-type": "atomic"
 											}
 											ports: {
-												description: "The list of ports that are exposed by this service. More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies"
+												description: """
+																The list of ports that are exposed by this service.
+																More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+																"""
 												items: {
 													description: "ServicePort contains information on service's port."
 													properties: {
 														appProtocol: {
 															description: """
-		The application protocol for this port. This is used as a hint for implementations to offer richer behavior for protocols that they understand. This field follows standard Kubernetes label syntax. Valid values are either:
-		 * Un-prefixed protocol names - reserved for IANA standard service names (as per RFC-6335 and https://www.iana.org/assignments/service-names).
-		 * Kubernetes-defined prefixed names: * 'kubernetes.io/h2c' - HTTP/2 prior knowledge over cleartext as described in https://www.rfc-editor.org/rfc/rfc9113.html#name-starting-http-2-with-prior- * 'kubernetes.io/ws'  - WebSocket over cleartext as described in https://www.rfc-editor.org/rfc/rfc6455 * 'kubernetes.io/wss' - WebSocket over TLS as described in https://www.rfc-editor.org/rfc/rfc6455
-		 * Other protocols should use implementation-defined prefixed names such as mycompany.com/my-custom-protocol.
-		"""
+																			The application protocol for this port.
+																			This is used as a hint for implementations to offer richer behavior for protocols that they understand.
+																			This field follows standard Kubernetes label syntax.
+																			Valid values are either:
+
+																			* Un-prefixed protocol names - reserved for IANA standard service names (as per
+																			RFC-6335 and https://www.iana.org/assignments/service-names).
+
+																			* Kubernetes-defined prefixed names:
+																			  * 'kubernetes.io/h2c' - HTTP/2 prior knowledge over cleartext as described in https://www.rfc-editor.org/rfc/rfc9113.html#name-starting-http-2-with-prior-
+																			  * 'kubernetes.io/ws'  - WebSocket over cleartext as described in https://www.rfc-editor.org/rfc/rfc6455
+																			  * 'kubernetes.io/wss' - WebSocket over TLS as described in https://www.rfc-editor.org/rfc/rfc6455
+
+																			* Other protocols should use implementation-defined prefixed names such as
+																			mycompany.com/my-custom-protocol.
+																			"""
 															type: "string"
 														}
 														name: {
-															description: "The name of this port within the service. This must be a DNS_LABEL. All ports within a ServiceSpec must have unique names. When considering the endpoints for a Service, this must match the 'name' field in the EndpointPort. Optional if only one ServicePort is defined on this service."
-															type:        "string"
+															description: """
+																			The name of this port within the service. This must be a DNS_LABEL.
+																			All ports within a ServiceSpec must have unique names. When considering
+																			the endpoints for a Service, this must match the 'name' field in the
+																			EndpointPort.
+																			Optional if only one ServicePort is defined on this service.
+																			"""
+															type: "string"
 														}
 														nodePort: {
-															description: "The port on each node on which this service is exposed when type is NodePort or LoadBalancer.  Usually assigned by the system. If a value is specified, in-range, and not in use it will be used, otherwise the operation will fail.  If not specified, a port will be allocated if this Service requires one.  If this field is specified when creating a Service which does not need it, creation will fail. This field will be wiped when updating a Service to no longer need it (e.g. changing type from NodePort to ClusterIP). More info: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport"
-															format:      "int32"
-															type:        "integer"
+															description: """
+																			The port on each node on which this service is exposed when type is
+																			NodePort or LoadBalancer.  Usually assigned by the system. If a value is
+																			specified, in-range, and not in use it will be used, otherwise the
+																			operation will fail.  If not specified, a port will be allocated if this
+																			Service requires one.  If this field is specified when creating a
+																			Service which does not need it, creation will fail. This field will be
+																			wiped when updating a Service to no longer need it (e.g. changing type
+																			from NodePort to ClusterIP).
+																			More info: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+																			"""
+															format: "int32"
+															type:   "integer"
 														}
 														port: {
 															description: "The port that will be exposed by this service."
@@ -7623,9 +13735,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:        "integer"
 														}
 														protocol: {
-															default:     "TCP"
-															description: "The IP protocol for this port. Supports \"TCP\", \"UDP\", and \"SCTP\". Default is TCP."
-															type:        "string"
+															default: "TCP"
+															description: """
+																			The IP protocol for this port. Supports "TCP", "UDP", and "SCTP".
+																			Default is TCP.
+																			"""
+															type: "string"
 														}
 														targetPort: {
 															anyOf: [{
@@ -7633,7 +13748,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															}, {
 																type: "string"
 															}]
-															description:                  "Number or name of the port to access on the pods targeted by the service. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME. If this is a string, it will be looked up as a named port in the target Pod's container ports. If this is not specified, the value of the 'port' field is used (an identity map). This field is ignored for services with clusterIP=None, and should be omitted or set equal to the 'port' field. More info: https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service"
+															description: """
+																			Number or name of the port to access on the pods targeted by the service.
+																			Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME.
+																			If this is a string, it will be looked up as a named port in the
+																			target Pod's container ports. If this is not specified, the value
+																			of the 'port' field is used (an identity map).
+																			This field is ignored for services with clusterIP=None, and should be
+																			omitted or set equal to the 'port' field.
+																			More info: https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+																			"""
 															"x-kubernetes-int-or-string": true
 														}
 													}
@@ -7641,42 +13765,93 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type: "object"
 												}
 												type: "array"
-												"x-kubernetes-list-map-keys": [
-													"port",
-													"protocol",
-												]
+												"x-kubernetes-list-map-keys": ["port", "protocol"]
 												"x-kubernetes-list-type": "map"
 											}
 											publishNotReadyAddresses: {
-												description: "publishNotReadyAddresses indicates that any agent which deals with endpoints for this Service should disregard any indications of ready/not-ready. The primary use case for setting this field is for a StatefulSet's Headless Service to propagate SRV DNS records for its Pods for the purpose of peer discovery. The Kubernetes controllers that generate Endpoints and EndpointSlice resources for Services interpret this to mean that all endpoints are considered \"ready\" even if the Pods themselves are not. Agents which consume only Kubernetes generated endpoints through the Endpoints or EndpointSlice resources can safely assume this behavior."
-												type:        "boolean"
+												description: """
+																publishNotReadyAddresses indicates that any agent which deals with endpoints for this
+																Service should disregard any indications of ready/not-ready.
+																The primary use case for setting this field is for a StatefulSet's Headless Service to
+																propagate SRV DNS records for its Pods for the purpose of peer discovery.
+																The Kubernetes controllers that generate Endpoints and EndpointSlice resources for
+																Services interpret this to mean that all endpoints are considered "ready" even if the
+																Pods themselves are not. Agents which consume only Kubernetes generated endpoints
+																through the Endpoints or EndpointSlice resources can safely assume this behavior.
+																"""
+												type: "boolean"
 											}
 											selector: {
 												additionalProperties: type: "string"
-												description:             "Route service traffic to pods with label keys and values matching this selector. If empty or not present, the service is assumed to have an external process managing its endpoints, which Kubernetes will not modify. Only applies to types ClusterIP, NodePort, and LoadBalancer. Ignored if type is ExternalName. More info: https://kubernetes.io/docs/concepts/services-networking/service/"
+												description: """
+																Route service traffic to pods with label keys and values matching this
+																selector. If empty or not present, the service is assumed to have an
+																external process managing its endpoints, which Kubernetes will not
+																modify. Only applies to types ClusterIP, NodePort, and LoadBalancer.
+																Ignored if type is ExternalName.
+																More info: https://kubernetes.io/docs/concepts/services-networking/service/
+																"""
 												type:                    "object"
 												"x-kubernetes-map-type": "atomic"
 											}
 											sessionAffinity: {
-												description: "Supports \"ClientIP\" and \"None\". Used to maintain session affinity. Enable client IP based session affinity. Must be ClientIP or None. Defaults to None. More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies"
-												type:        "string"
+												description: """
+																Supports "ClientIP" and "None". Used to maintain session affinity.
+																Enable client IP based session affinity.
+																Must be ClientIP or None.
+																Defaults to None.
+																More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+																"""
+												type: "string"
 											}
 											sessionAffinityConfig: {
 												description: "sessionAffinityConfig contains the configurations of session affinity."
 												properties: clientIP: {
 													description: "clientIP contains the configurations of Client IP based session affinity."
 													properties: timeoutSeconds: {
-														description: "timeoutSeconds specifies the seconds of ClientIP type session sticky time. The value must be >0 && <=86400(for 1 day) if ServiceAffinity == \"ClientIP\". Default value is 10800(for 3 hours)."
-														format:      "int32"
-														type:        "integer"
+														description: """
+																				timeoutSeconds specifies the seconds of ClientIP type session sticky time.
+																				The value must be >0 && <=86400(for 1 day) if ServiceAffinity == "ClientIP".
+																				Default value is 10800(for 3 hours).
+																				"""
+														format: "int32"
+														type:   "integer"
 													}
 													type: "object"
 												}
 												type: "object"
 											}
+											trafficDistribution: {
+												description: """
+																TrafficDistribution offers a way to express preferences for how traffic
+																is distributed to Service endpoints. Implementations can use this field
+																as a hint, but are not required to guarantee strict adherence. If the
+																field is not set, the implementation will apply its default routing
+																strategy. If set to "PreferClose", implementations should prioritize
+																endpoints that are in the same zone.
+																"""
+												type: "string"
+											}
 											type: {
-												description: "type determines how the Service is exposed. Defaults to ClusterIP. Valid options are ExternalName, ClusterIP, NodePort, and LoadBalancer. \"ClusterIP\" allocates a cluster-internal IP address for load-balancing to endpoints. Endpoints are determined by the selector or if that is not specified, by manual construction of an Endpoints object or EndpointSlice objects. If clusterIP is \"None\", no virtual IP is allocated and the endpoints are published as a set of endpoints rather than a virtual IP. \"NodePort\" builds on ClusterIP and allocates a port on every node which routes to the same endpoints as the clusterIP. \"LoadBalancer\" builds on NodePort and creates an external load-balancer (if supported in the current cloud) which routes to the same endpoints as the clusterIP. \"ExternalName\" aliases this service to the specified externalName. Several other fields do not apply to ExternalName services. More info: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types"
-												type:        "string"
+												description: """
+																type determines how the Service is exposed. Defaults to ClusterIP. Valid
+																options are ExternalName, ClusterIP, NodePort, and LoadBalancer.
+																"ClusterIP" allocates a cluster-internal IP address for load-balancing
+																to endpoints. Endpoints are determined by the selector or if that is not
+																specified, by manual construction of an Endpoints object or
+																EndpointSlice objects. If clusterIP is "None", no virtual IP is
+																allocated and the endpoints are published as a set of endpoints rather
+																than a virtual IP.
+																"NodePort" builds on ClusterIP and allocates a port on every node which
+																routes to the same endpoints as the clusterIP.
+																"LoadBalancer" builds on NodePort and creates an external load-balancer
+																(if supported in the current cloud) which routes to the same endpoints
+																as the clusterIP.
+																"ExternalName" aliases this service to the specified externalName.
+																Several other fields do not apply to ExternalName services.
+																More info: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+																"""
+												type: "string"
 											}
 										}
 										type: "object"
@@ -7690,10 +13865,20 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									automountServiceAccountToken: type: "boolean"
 									imagePullSecrets: {
 										items: {
-											description: "LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace."
+											description: """
+															LocalObjectReference contains enough information to let you locate the
+															referenced object inside the same namespace.
+															"""
 											properties: name: {
-												description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?"
-												type:        "string"
+												default: ""
+												description: """
+																	Name of the referent.
+																	This field is effectively required, but due to backwards compatibility is
+																	allowed to be empty. Instances of this type with an empty value here are
+																	almost certainly wrong.
+																	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																	"""
+												type: "string"
 											}
 											type:                    "object"
 											"x-kubernetes-map-type": "atomic"
@@ -7716,38 +13901,58 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									secrets: {
 										items: {
-											description: """
-		ObjectReference contains enough information to let you inspect or modify the referred object. --- New uses of this type are discouraged because of difficulty describing its usage when embedded in APIs. 1. Ignored fields.  It includes many fields which are not generally honored.  For instance, ResourceVersion and FieldPath are both very rarely valid in actual usage. 2. Invalid usage help.  It is impossible to add specific help for individual usage.  In most embedded usages, there are particular restrictions like, \"must refer only to types A and B\" or \"UID not honored\" or \"name must be restricted\". Those cannot be well described when embedded. 3. Inconsistent validation.  Because the usages are different, the validation rules are different by usage, which makes it hard for users to predict what will happen. 4. The fields are both imprecise and overly precise.  Kind is not a precise mapping to a URL. This can produce ambiguity during interpretation and require a REST mapping.  In most cases, the dependency is on the group,resource tuple and the version of the actual struct is irrelevant. 5. We cannot easily change it.  Because this type is embedded in many locations, updates to this type will affect numerous schemas.  Don't make new APIs embed an underspecified API type they do not control.
-		 Instead of using this type, create a locally provided and used type that is well-focused on your reference. For example, ServiceReferences for admission registration: https://github.com/kubernetes/api/blob/release-1.17/admissionregistration/v1/types.go#L533 .
-		"""
+											description: "ObjectReference contains enough information to let you inspect or modify the referred object."
 											properties: {
 												apiVersion: {
 													description: "API version of the referent."
 													type:        "string"
 												}
 												fieldPath: {
-													description: "If referring to a piece of an object instead of an entire object, this string should contain a valid JSON/Go field access statement, such as desiredState.manifest.containers[2]. For example, if the object reference is to a container within a pod, this would take on a value like: \"spec.containers{name}\" (where \"name\" refers to the name of the container that triggered the event) or if no container name is specified \"spec.containers[2]\" (container with index 2 in this pod). This syntax is chosen only to have some well-defined way of referencing a part of an object. TODO: this design is not final and this field is subject to change in the future."
-													type:        "string"
+													description: """
+																	If referring to a piece of an object instead of an entire object, this string
+																	should contain a valid JSON/Go field access statement, such as desiredState.manifest.containers[2].
+																	For example, if the object reference is to a container within a pod, this would take on a value like:
+																	"spec.containers{name}" (where "name" refers to the name of the container that triggered
+																	the event) or if no container name is specified "spec.containers[2]" (container with
+																	index 2 in this pod). This syntax is chosen only to have some well-defined way of
+																	referencing a part of an object.
+																	"""
+													type: "string"
 												}
 												kind: {
-													description: "Kind of the referent. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds"
-													type:        "string"
+													description: """
+																	Kind of the referent.
+																	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+																	"""
+													type: "string"
 												}
 												name: {
-													description: "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names"
-													type:        "string"
+													description: """
+																	Name of the referent.
+																	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+																	"""
+													type: "string"
 												}
 												namespace: {
-													description: "Namespace of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"
-													type:        "string"
+													description: """
+																	Namespace of the referent.
+																	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
+																	"""
+													type: "string"
 												}
 												resourceVersion: {
-													description: "Specific resourceVersion to which this reference is made, if any. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency"
-													type:        "string"
+													description: """
+																	Specific resourceVersion to which this reference is made, if any.
+																	More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+																	"""
+													type: "string"
 												}
 												uid: {
-													description: "UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids"
-													type:        "string"
+													description: """
+																	UID of the referent.
+																	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
+																	"""
+													type: "string"
 												}
 											}
 											type:                    "object"
@@ -7758,6 +13963,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								}
 								type: "object"
 							}
+							suspend: {
+								description: "Suspend pauses reconciliation of owned resources like deployments, Services, Etc. upon changes"
+								type:        "boolean"
+							}
+							version: {
+								description: """
+												Version sets the tag of the default image: docker.io/grafana/grafana.
+												Allows full image refs with/without sha256checksum: "registry/repo/image:tag@sha"
+												default: 12.4.1
+												"""
+								type: "string"
+							}
 						}
 						type: "object"
 					}
@@ -7765,6 +13982,74 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						description: "GrafanaStatus defines the observed state of Grafana"
 						properties: {
 							adminUrl: type: "string"
+							alertRuleGroups: {
+								items: type: "string"
+								type: "array"
+							}
+							conditions: {
+								items: {
+									description: "Condition contains details for one aspect of the current state of this API Resource."
+									properties: {
+										lastTransitionTime: {
+											description: """
+															lastTransitionTime is the last time the condition transitioned from one status to another.
+															This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+															"""
+											format: "date-time"
+											type:   "string"
+										}
+										message: {
+											description: """
+															message is a human readable message indicating details about the transition.
+															This may be an empty string.
+															"""
+											maxLength: 32768
+											type:      "string"
+										}
+										observedGeneration: {
+											description: """
+															observedGeneration represents the .metadata.generation that the condition was set based upon.
+															For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+															with respect to the current state of the instance.
+															"""
+											format:  "int64"
+											minimum: 0
+											type:    "integer"
+										}
+										reason: {
+											description: """
+															reason contains a programmatic identifier indicating the reason for the condition's last transition.
+															Producers of specific condition types may define expected values and meanings for this field,
+															and whether the values are considered a guaranteed API.
+															The value should be a CamelCase string.
+															This field may not be empty.
+															"""
+											maxLength: 1024
+											minLength: 1
+											pattern:   "^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$"
+											type:      "string"
+										}
+										status: {
+											description: "status of the condition, one of True, False, Unknown."
+											enum: ["True", "False", "Unknown"]
+											type: "string"
+										}
+										type: {
+											description: "type of condition in CamelCase or in foo.example.com/CamelCase."
+											maxLength:   316
+											pattern:     "^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"
+											type:        "string"
+										}
+									}
+									required: ["lastTransitionTime", "message", "reason", "status", "type"]
+									type: "object"
+								}
+								type: "array"
+							}
+							contactPoints: {
+								items: type: "string"
+								type: "array"
+							}
 							dashboards: {
 								items: type: "string"
 								type: "array"
@@ -7778,8 +14063,298 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type: "array"
 							}
 							lastMessage: type: "string"
+							libraryPanels: {
+								items: type: "string"
+								type: "array"
+							}
+							manifests: {
+								items: type: "string"
+								type: "array"
+							}
+							muteTimings: {
+								items: type: "string"
+								type: "array"
+							}
+							notificationTemplates: {
+								items: type: "string"
+								type: "array"
+							}
+							serviceaccounts: {
+								items: type: "string"
+								type: "array"
+							}
 							stage: type:       "string"
 							stageStatus: type: "string"
+							version: type:     "string"
+						}
+						type: "object"
+					}
+				}
+				required: [
+					"spec",
+				]
+				type: "object"
+			}
+			served:  true
+			storage: true
+			subresources: status: {}
+		}]
+	}
+}, {
+	metadata: name: "grafanaserviceaccounts.grafana.integreatly.org"
+	spec: {
+		group: "grafana.integreatly.org"
+		names: {
+			categories: [
+				"grafana-operator",
+			]
+			kind:     "GrafanaServiceAccount"
+			listKind: "GrafanaServiceAccountList"
+			plural:   "grafanaserviceaccounts"
+			singular: "grafanaserviceaccount"
+		}
+		scope: "Namespaced"
+		versions: [{
+			additionalPrinterColumns: [{
+				format:   "date-time"
+				jsonPath: ".status.lastResync"
+				name:     "Last resync"
+				type:     "date"
+			}, {
+				jsonPath: ".metadata.creationTimestamp"
+				name:     "Age"
+				type:     "date"
+			}]
+			name: "v1beta1"
+			schema: openAPIV3Schema: {
+				description: "GrafanaServiceAccount is the Schema for the grafanaserviceaccounts API"
+				properties: {
+					apiVersion: {
+						description: """
+										APIVersion defines the versioned schema of this representation of an object.
+										Servers should convert recognized schemas to the latest internal value, and
+										may reject unrecognized values.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+										"""
+						type: "string"
+					}
+					kind: {
+						description: """
+										Kind is a string value representing the REST resource this object represents.
+										Servers may infer this from the endpoint the client submits requests to.
+										Cannot be updated.
+										In CamelCase.
+										More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+										"""
+						type: "string"
+					}
+					metadata: type: "object"
+					spec: {
+						description: "GrafanaServiceAccountSpec defines the desired state of a GrafanaServiceAccount."
+						properties: {
+							instanceName: {
+								description: "Name of the Grafana instance to create the service account for"
+								minLength:   1
+								type:        "string"
+								"x-kubernetes-validations": [{
+									message: "spec.instanceName is immutable"
+									rule:    "self == oldSelf"
+								}]
+							}
+							isDisabled: {
+								default:     false
+								description: "Whether the service account is disabled"
+								type:        "boolean"
+							}
+							name: {
+								description: "Name of the service account in Grafana"
+								minLength:   1
+								type:        "string"
+								"x-kubernetes-validations": [{
+									message: "spec.name is immutable"
+									rule:    "self == oldSelf"
+								}]
+							}
+							resyncPeriod: {
+								description: "How often the resource is synced, defaults to 10m0s if not set"
+								pattern:     "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
+								type:        "string"
+								"x-kubernetes-validations": [{
+									message: "spec.resyncPeriod must be greater than 0"
+									rule:    "duration(self) > duration('0s')"
+								}]
+							}
+							role: {
+								description: "Role of the service account (Viewer, Editor, Admin)"
+								enum: ["Viewer", "Editor", "Admin"]
+								type: "string"
+							}
+							suspend: {
+								default:     false
+								description: "Suspend pauses reconciliation of the service account"
+								type:        "boolean"
+							}
+							tokens: {
+								description: "Tokens to create for the service account"
+								items: {
+									description: "GrafanaServiceAccountTokenSpec defines a token for a service account"
+									properties: {
+										expires: {
+											description: "Expiration date of the token. If not set, the token never expires"
+											format:      "date-time"
+											type:        "string"
+										}
+										name: {
+											description: "Name of the token"
+											minLength:   1
+											type:        "string"
+										}
+										secretName: {
+											description: "Name of the secret to store the token. If not set, a name will be generated"
+											minLength:   1
+											type:        "string"
+										}
+									}
+									required: ["name"]
+									type: "object"
+								}
+								type: "array"
+								"x-kubernetes-list-map-keys": ["name"]
+								"x-kubernetes-list-type": "map"
+							}
+						}
+						required: ["instanceName", "role"]
+						type: "object"
+						"x-kubernetes-validations": [{
+							message: "spec.name is immutable"
+							rule:    "((!has(oldSelf.name) && !has(self.name)) || (has(oldSelf.name) && has(self.name)))"
+						}]
+					}
+					status: {
+						description: "GrafanaServiceAccountStatus defines the observed state of a GrafanaServiceAccount"
+						properties: {
+							account: {
+								description: "Info contains the Grafana service account information"
+								properties: {
+									id: {
+										description: "ID of the service account in Grafana"
+										format:      "int64"
+										type:        "integer"
+									}
+									isDisabled: {
+										description: "IsDisabled indicates if the service account is disabled"
+										type:        "boolean"
+									}
+									login: type: "string"
+									name: type:  "string"
+									role: {
+										description: "Role is the Grafana role for the service account (Viewer, Editor, Admin)"
+										type:        "string"
+									}
+									tokens: {
+										description: "Information about tokens"
+										items: {
+											description: "GrafanaServiceAccountTokenStatus describes a token created in Grafana."
+											properties: {
+												expires: {
+													description: """
+																	Expiration time of the token
+																	N.B. There's possible discrepancy with the expiration time in spec
+																	It happens because Grafana API accepts TTL in seconds then calculates the expiration time against the current time
+																	"""
+													format: "date-time"
+													type:   "string"
+												}
+												id: {
+													description: "ID of the token in Grafana"
+													format:      "int64"
+													type:        "integer"
+												}
+												name: type: "string"
+												secret: {
+													description: "Name of the secret containing the token"
+													properties: {
+														name: type:      "string"
+														namespace: type: "string"
+													}
+													type: "object"
+												}
+											}
+											required: ["id", "name"]
+											type: "object"
+										}
+										type: "array"
+									}
+								}
+								required: ["id", "isDisabled", "login", "name", "role"]
+								type: "object"
+							}
+							conditions: {
+								description: "Results when synchronizing resource with Grafana instances"
+								items: {
+									description: "Condition contains details for one aspect of the current state of this API Resource."
+									properties: {
+										lastTransitionTime: {
+											description: """
+															lastTransitionTime is the last time the condition transitioned from one status to another.
+															This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+															"""
+											format: "date-time"
+											type:   "string"
+										}
+										message: {
+											description: """
+															message is a human readable message indicating details about the transition.
+															This may be an empty string.
+															"""
+											maxLength: 32768
+											type:      "string"
+										}
+										observedGeneration: {
+											description: """
+															observedGeneration represents the .metadata.generation that the condition was set based upon.
+															For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+															with respect to the current state of the instance.
+															"""
+											format:  "int64"
+											minimum: 0
+											type:    "integer"
+										}
+										reason: {
+											description: """
+															reason contains a programmatic identifier indicating the reason for the condition's last transition.
+															Producers of specific condition types may define expected values and meanings for this field,
+															and whether the values are considered a guaranteed API.
+															The value should be a CamelCase string.
+															This field may not be empty.
+															"""
+											maxLength: 1024
+											minLength: 1
+											pattern:   "^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$"
+											type:      "string"
+										}
+										status: {
+											description: "status of the condition, one of True, False, Unknown."
+											enum: ["True", "False", "Unknown"]
+											type: "string"
+										}
+										type: {
+											description: "type of condition in CamelCase or in foo.example.com/CamelCase."
+											maxLength:   316
+											pattern:     "^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$"
+											type:        "string"
+										}
+									}
+									required: ["lastTransitionTime", "message", "reason", "status", "type"]
+									type: "object"
+								}
+								type: "array"
+							}
+							lastResync: {
+								description: "Last time the resource was synchronized with Grafana instances"
+								format:      "date-time"
+								type:        "string"
+							}
 						}
 						type: "object"
 					}

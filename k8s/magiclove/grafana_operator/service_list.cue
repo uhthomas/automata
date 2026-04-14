@@ -14,9 +14,9 @@ import "k8s.io/api/core/v1"
 #ServiceList: items: [{
 	spec: {
 		ports: [{
-			name:       "http-metrics"
+			name:       "metrics"
 			port:       9090
-			targetPort: "http-metrics"
+			targetPort: "metrics"
 		}]
 		selector: "app.kubernetes.io/name": #Name
 	}

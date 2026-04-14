@@ -13,7 +13,7 @@ import operatorv1beta1 "github.com/VictoriaMetrics/operator/api/operator/v1beta1
 
 #VMServiceScrapeList: items: [{
 	spec: {
-		endpoints: [{port: "http-metrics"}]
+		endpoints: [{port: "metrics"}]
 		selector: matchLabels: "app.kubernetes.io/name": #Name
 	}
 }]

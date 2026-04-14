@@ -23,17 +23,26 @@ import (
 				volumes: [{
 					name: "dashboards-dir"
 					emptyDir: {}
+				}, {
+					name: "kubeauth-token-volume"
+					projected: sources: [{
+						serviceAccountToken: {
+							audience:          "operator.grafana.com"
+							expirationSeconds: 3600
+							path:              "token"
+						}
+					}]
 				}]
 				containers: [{
-					name:  "manager"
+					name:  "grafana-operator"
 					image: "ghcr.io/grafana/grafana-operator:v\(#Version)"
 					args: [
 						"--health-probe-bind-address=:8081",
 						"--metrics-bind-address=0.0.0.0:9090",
-						"--leader-elect",
+							"--leader-elect",
 					]
 					ports: [{
-						name:          "http-metrics"
+						name:          "metrics"
 						containerPort: 9090
 					}]
 					resources: limits: {
@@ -43,6 +52,10 @@ import (
 					volumeMounts: [{
 						name:      "dashboards-dir"
 						mountPath: "/tmp/dashboards"
+					}, {
+						name:      "kubeauth-token-volume"
+						mountPath: "/var/run/secrets/grafana.com/serviceaccount"
+						readOnly:  true
 					}]
 
 					let probe = {httpGet: port: 8081}
@@ -62,6 +75,7 @@ import (
 					securityContext: {
 						capabilities: drop: ["ALL"]
 						readOnlyRootFilesystem:   true
+						runAsNonRoot:              true
 						allowPrivilegeEscalation: false
 					}
 				}]

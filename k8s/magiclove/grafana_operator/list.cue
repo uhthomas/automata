@@ -8,7 +8,7 @@ import (
 
 #Name:      "grafana-operator"
 #Namespace: #Name
-#Version:   "5.8.0"
+#Version:   "5.22.2"
 
 #List: v1.#List & {
 	apiVersion: "v1"
@@ -35,6 +35,8 @@ _items: [
 	#CustomResourceDefinitionList.items,
 	#DeploymentList.items,
 	#NamespaceList.items,
+	#RoleBindingList.items,
+	#RoleList.items,
 	#ServiceAccountList.items,
 	#ServiceList.items,
 	#VMServiceScrapeList.items,
