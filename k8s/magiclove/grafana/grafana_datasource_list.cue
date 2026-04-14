@@ -50,7 +50,7 @@ import grafanav1beta1 "github.com/grafana/grafana-operator/v5/api/v1beta1"
 		instanceSelector: matchLabels: "app.kubernetes.io/name": #Name
 		plugins: [{
 			name:    "victoriametrics-logs-datasource"
-			version: "v0.26.3"
+			version: "0.26.3"
 		}]
 	}
 }, {
@@ -65,7 +65,7 @@ import grafanav1beta1 "github.com/grafana/grafana-operator/v5/api/v1beta1"
 		instanceSelector: matchLabels: "app.kubernetes.io/name": #Name
 		plugins: [{
 			name:    "victoriametrics-metrics-datasource"
-			version: "v0.23.3"
+			version: "0.23.3"
 		}]
 	}
 }]

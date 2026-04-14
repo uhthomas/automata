@@ -13,31 +13,29 @@ import "k8s.io/api/core/v1"
 
 #ConfigMapList: items: [{
 	data: "grafana.ini": """
-			[analytics]
-			check_for_updates = true
+		[analytics]
+		check_for_updates = true
 
-			[grafana_net]
-			url = https://grafana.net
+		[grafana_net]
+		url = https://grafana.net
 
-			[log]
-			mode = console
+		[log]
+		mode = console
 
-			[paths]
-			data = /var/lib/grafana/
-			logs = /var/log/grafana
-			plugins = /var/lib/grafana/plugins
+		[paths]
+		data = /var/lib/grafana/
+		logs = /var/log/grafana
+		plugins = /var/lib/grafana/plugins
 
-			[database]
-			path = /var/lib/grafana/database/grafana.db
+		[database]
+		path = /var/lib/grafana/database/grafana.db
 
-			[auth.anonymous]
-			enabled = true
-			org_role = Admin
+		[auth.anonymous]
+		enabled = true
+		org_role = Admin
 
-			[log]
-			mode = console
+		[log]
+		mode = console
 
-			[plugins]
-			preinstall = victoriametrics-logs-datasource,victoriametrics-metrics-datasource
-			"""
+		"""
 }]
