@@ -16,7 +16,7 @@ import (
 
 #DeploymentList: items: [{
 	spec: {
-		minReadySeconds: 15
+		minReadySeconds: 35
 		replicas:        2
 		selector: matchLabels: "app.kubernetes.io/name": #Name
 		strategy: rollingUpdate: {
@@ -28,7 +28,7 @@ import (
 			spec: {
 				containers: [{
 					name:  "snapshot-controller"
-					image: "registry.k8s.io/sig-storage/snapshot-controller:v6.2.1"
+					image: "registry.k8s.io/sig-storage/snapshot-controller:v\(#Version)"
 					args: [
 						"--v=5",
 						"--leader-election=true",

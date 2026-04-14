@@ -8,7 +8,7 @@ import (
 
 #Name:      "snapshot-controller"
 #Namespace: #Name
-#Version:   "6.2.1"
+#Version:   "8.5.0"
 
 #List: v1.#List & {
 	apiVersion: "v1"

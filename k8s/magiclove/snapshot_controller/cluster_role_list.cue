@@ -40,10 +40,30 @@ import rbacv1 "k8s.io/api/rbac/v1"
 	}, {
 		apiGroups: ["snapshot.storage.k8s.io"]
 		resources: ["volumesnapshots"]
-		verbs: ["get", "list", "watch", "update", "patch"]
+		verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
 	}, {
 		apiGroups: ["snapshot.storage.k8s.io"]
 		resources: ["volumesnapshots/status"]
+		verbs: ["update", "patch"]
+	}, {
+		apiGroups: ["groupsnapshot.storage.k8s.io"]
+		resources: ["volumegroupsnapshotclasses"]
+		verbs: ["get", "list", "watch"]
+	}, {
+		apiGroups: ["groupsnapshot.storage.k8s.io"]
+		resources: ["volumegroupsnapshotcontents"]
+		verbs: ["create", "get", "list", "watch", "update", "delete", "patch"]
+	}, {
+		apiGroups: ["groupsnapshot.storage.k8s.io"]
+		resources: ["volumegroupsnapshotcontents/status"]
+		verbs: ["patch"]
+	}, {
+		apiGroups: ["groupsnapshot.storage.k8s.io"]
+		resources: ["volumegroupsnapshots"]
+		verbs: ["get", "list", "watch", "update", "patch"]
+	}, {
+		apiGroups: ["groupsnapshot.storage.k8s.io"]
+		resources: ["volumegroupsnapshots/status"]
 		verbs: ["update", "patch"]
 	}]
 }]
