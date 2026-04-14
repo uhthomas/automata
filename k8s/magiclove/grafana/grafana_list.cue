@@ -22,5 +22,6 @@ import grafanav1beta1 "github.com/grafana/grafana-operator/v5/api/v1beta1"
 			name: "grafana"
 			key:  "password"
 		}
+		tenantNamespace: "default"
 	}
 }]
