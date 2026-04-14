@@ -8,7 +8,7 @@ import (
 
 #Name:      "node-exporter"
 #Namespace: #Name
-#Version:   "1.6.0"
+#Version:   "1.11.1"
 
 #List: v1.#List & {
 	apiVersion: "v1"
