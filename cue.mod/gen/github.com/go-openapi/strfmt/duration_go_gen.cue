@@ -4,10 +4,13 @@
 
 package strfmt
 
+_#hoursInDay: 24
+_#daysInWeek: 7
+
 // Duration represents a duration
 //
 // Duration stores a period of time as a nanosecond count, with the largest
-// repesentable duration being approximately 290 years.
+// representable duration being approximately 290 years.
 //
-// swagger:strfmt duration
+// swagger:[strfmt] duration.
 #Duration: _

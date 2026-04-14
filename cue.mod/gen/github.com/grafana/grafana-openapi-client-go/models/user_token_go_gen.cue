@@ -20,6 +20,9 @@ package models
 	// created at
 	CreatedAt?: int64
 
+	// external session Id
+	ExternalSessionId?: int64 @go(ExternalSessionID)
+
 	// Id
 	Id?: int64 @go(ID)
 

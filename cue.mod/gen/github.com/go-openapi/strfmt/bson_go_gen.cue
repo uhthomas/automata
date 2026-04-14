@@ -4,7 +4,7 @@
 
 package strfmt
 
-// ObjectId represents a BSON object ID (alias to go.mongodb.org/mongo-driver/bson/primitive.ObjectID)
+// ObjectId represents a BSON object ID (a 12-byte unique identifier).
 //
-// swagger:strfmt bsonobjectid
+// swagger:strfmt bsonobjectid.
 #ObjectId: _

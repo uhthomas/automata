@@ -11,9 +11,9 @@ package models
 	// ID Identifier of the created annotation.
 	// Example: 65
 	// Required: true
-	id?: null | int64 @go(ID,*int64)
+	id?: int64 @go(ID,*int64)
 
 	// Message Message of the created annotation.
 	// Required: true
-	message?: null | string @go(Message,*string)
+	message?: string @go(Message,*string)
 }

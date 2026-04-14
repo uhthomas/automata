@@ -8,6 +8,9 @@ package models
 //
 // swagger:model NotificationPolicyExport
 #NotificationPolicyExport: {
+	// active time intervals
+	active_time_intervals: [...string] @go(ActiveTimeIntervals,[]string)
+
 	// continue
 	continue?: bool @go(Continue)
 
@@ -45,5 +48,5 @@ package models
 	repeat_interval?: string @go(RepeatInterval)
 
 	// routes
-	routes: [...null | #RouteExport] @go(Routes,[]*RouteExport)
+	routes: [...#RouteExport] @go(Routes,[]*RouteExport)
 }

@@ -15,7 +15,7 @@ package models
 	attributes?: {[string]: string} @go(Attributes,map[string]string)
 
 	// http config
-	http_config?: null | #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
+	http_config?: #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
 
 	// message
 	message?: string @go(Message)
@@ -27,7 +27,7 @@ package models
 	send_resolved?: bool @go(SendResolved)
 
 	// sigv4
-	sigv4?: null | #SigV4Config @go(Sigv4,*SigV4Config)
+	sigv4?: #SigV4Config @go(Sigv4,*SigV4Config)
 
 	// subject
 	subject?: string @go(Subject)

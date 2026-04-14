@@ -4,16 +4,23 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // AlertingRule adapted from cortex
 //
 // swagger:model AlertingRule
 #AlertingRule: {
+	// active at
+	// Required: true
+	// Format: date-time
+	activeAt?: strfmt.#DateTime @go(ActiveAt,*strfmt.DateTime)
+
 	// alerts
-	alerts: [...null | #Alert] @go(Alerts,[]*Alert)
+	alerts: [...#Alert] @go(Alerts,[]*Alert)
 
 	// annotations
 	// Required: true
-	annotations: #OverrideLabels @go(Annotations)
+	annotations: #Labels @go(Annotations)
 
 	// duration
 	duration?: float64 @go(Duration)
@@ -21,27 +28,49 @@ package models
 	// evaluation time
 	evaluationTime?: float64 @go(EvaluationTime)
 
+	// folder Uid
+	folderUid?: string @go(FolderUID)
+
 	// health
 	// Required: true
-	health?: null | string @go(Health,*string)
+	health?: string @go(Health,*string)
+
+	// is paused
+	isPaused?: bool @go(IsPaused)
+
+	// keep firing for
+	keepFiringFor?: float64 @go(KeepFiringFor)
 
 	// labels
-	labels?: #OverrideLabels @go(Labels)
+	labels?: #Labels @go(Labels)
 
 	// last error
 	lastError?: string @go(LastError)
 
+	// last evaluation
+	// Format: date-time
+	lastEvaluation?: strfmt.#DateTime @go(LastEvaluation)
+
 	// name
 	// Required: true
-	name?: null | string @go(Name,*string)
+	name?: string @go(Name,*string)
+
+	// notification settings
+	notificationSettings?: #AlertRuleNotificationSettings @go(NotificationSettings,*AlertRuleNotificationSettings)
+
+	// provenance
+	provenance?: #Provenance @go(Provenance)
+
+	// queried datasource UI ds
+	queriedDatasourceUIDs: [...string] @go(QueriedDatasourceUIDs,[]string)
 
 	// query
 	// Required: true
-	query?: null | string @go(Query,*string)
+	query?: string @go(Query,*string)
 
 	// State can be "pending", "firing", "inactive".
 	// Required: true
-	state?: null | string @go(State,*string)
+	state?: string @go(State,*string)
 
 	// totals
 	totals?: {[string]: int64} @go(Totals,map[string]int64)
@@ -51,5 +80,8 @@ package models
 
 	// type
 	// Required: true
-	type?: null | #RuleType @go(Type,*RuleType)
+	type?: string @go(Type,*string)
+
+	// uid
+	uid?: string @go(UID)
 }

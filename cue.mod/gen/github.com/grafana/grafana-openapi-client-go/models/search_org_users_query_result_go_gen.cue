@@ -9,7 +9,7 @@ package models
 // swagger:model SearchOrgUsersQueryResult
 #SearchOrgUsersQueryResult: {
 	// org users
-	orgUsers: [...null | #OrgUserDTO] @go(OrgUsers,[]*OrgUserDTO)
+	orgUsers: [...#OrgUserDTO] @go(OrgUsers,[]*OrgUserDTO)
 
 	// page
 	page?: int64 @go(Page)

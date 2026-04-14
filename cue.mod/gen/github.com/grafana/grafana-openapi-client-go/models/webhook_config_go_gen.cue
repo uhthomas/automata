@@ -9,7 +9,7 @@ package models
 // swagger:model WebhookConfig
 #WebhookConfig: {
 	// http config
-	http_config?: null | #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
+	http_config?: #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
 
 	// MaxAlerts is the maximum number of alerts to be sent per webhook message.
 	// Alerts exceeding this threshold will be truncated. Setting this to 0
@@ -19,8 +19,11 @@ package models
 	// send resolved
 	send_resolved?: bool @go(SendResolved)
 
+	// timeout
+	timeout?: #Duration @go(Timeout)
+
 	// url
-	url?: null | #SecretURL @go(URL,*SecretURL)
+	url?: #SecretURL @go(URL,*SecretURL)
 
 	// url file
 	url_file?: string @go(URLFile)

@@ -9,8 +9,8 @@ package models
 // swagger:model AlertManagersResult
 #AlertManagersResult: {
 	// active alert managers
-	activeAlertManagers: [...null | #AlertManager] @go(ActiveAlertManagers,[]*AlertManager)
+	activeAlertManagers: [...#AlertManager] @go(ActiveAlertManagers,[]*AlertManager)
 
 	// dropped alert managers
-	droppedAlertManagers: [...null | #AlertManager] @go(DroppedAlertManagers,[]*AlertManager)
+	droppedAlertManagers: [...#AlertManager] @go(DroppedAlertManagers,[]*AlertManager)
 }

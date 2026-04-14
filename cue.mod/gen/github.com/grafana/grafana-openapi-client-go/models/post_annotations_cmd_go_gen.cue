@@ -25,7 +25,7 @@ package models
 
 	// text
 	// Required: true
-	text?: null | string @go(Text,*string)
+	text?: string @go(Text,*string)
 
 	// time
 	time?: int64 @go(Time)

@@ -14,6 +14,9 @@ package models
 	// dashboard Id
 	dashboardId?: int64 @go(DashboardID)
 
+	// dashboard UID
+	dashboardUID?: string @go(DashboardUID)
+
 	// id
 	id?: int64 @go(ID)
 
@@ -24,7 +27,7 @@ package models
 	panelId?: int64 @go(PanelID)
 
 	// source
-	source?: null | #AnnotationQuery @go(Source,*AnnotationQuery)
+	source?: #AnnotationQuery @go(Source,*AnnotationQuery)
 
 	// tags
 	tags: [...string] @go(Tags,[]string)

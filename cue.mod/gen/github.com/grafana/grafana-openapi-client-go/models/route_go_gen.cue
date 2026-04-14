@@ -9,6 +9,9 @@ package models
 //
 // swagger:model Route
 #Route: {
+	// active time intervals
+	active_time_intervals: [...string] @go(ActiveTimeIntervals,[]string)
+
 	// continue
 	continue?: bool @go(Continue)
 
@@ -46,5 +49,5 @@ package models
 	repeat_interval?: string @go(RepeatInterval)
 
 	// routes
-	routes: [...null | #Route] @go(Routes,[]*Route)
+	routes: [...#Route] @go(Routes,[]*Route)
 }

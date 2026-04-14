@@ -4,21 +4,21 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // ReportSchedule report schedule
 //
 // swagger:model ReportSchedule
 #ReportSchedule: {
-	// day
-	day?: string @go(Day)
-
 	// day of month
 	dayOfMonth?: string @go(DayOfMonth)
 
+	// end date
+	// Format: date-time
+	endDate?: strfmt.#DateTime @go(EndDate,*strfmt.DateTime)
+
 	// frequency
 	frequency?: string @go(Frequency)
-
-	// hour
-	hour?: int64 @go(Hour)
 
 	// interval amount
 	intervalAmount?: int64 @go(IntervalAmount)
@@ -26,8 +26,9 @@ package models
 	// interval frequency
 	intervalFrequency?: string @go(IntervalFrequency)
 
-	// minute
-	minute?: int64 @go(Minute)
+	// start date
+	// Format: date-time
+	startDate?: strfmt.#DateTime @go(StartDate,*strfmt.DateTime)
 
 	// time zone
 	timeZone?: string @go(TimeZone)

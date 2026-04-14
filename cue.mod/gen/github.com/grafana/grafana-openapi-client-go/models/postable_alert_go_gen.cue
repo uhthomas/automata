@@ -13,6 +13,11 @@ import "github.com/go-openapi/strfmt"
 	// annotations
 	annotations?: #LabelSet @go(Annotations)
 
+	// ends at
+	// Format: date-time
+	// Format: date-time
+	endsAt?: strfmt.#DateTime @go(EndsAt)
+
 	// generator URL
 	// Format: uri
 	// Format: uri
@@ -21,4 +26,9 @@ import "github.com/go-openapi/strfmt"
 	// labels
 	// Required: true
 	labels: #LabelSet @go(Labels)
+
+	// starts at
+	// Format: date-time
+	// Format: date-time
+	startsAt?: strfmt.#DateTime @go(StartsAt)
 }

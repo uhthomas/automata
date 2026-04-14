@@ -4,7 +4,7 @@
 
 package models
 
-// PagerdutyLink PagerdutyLink is a link
+// PagerdutyLink PagerdutyLink is a link.
 //
 // swagger:model PagerdutyLink
 #PagerdutyLink: {

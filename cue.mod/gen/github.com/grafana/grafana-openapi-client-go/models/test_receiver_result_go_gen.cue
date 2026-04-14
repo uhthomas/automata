@@ -9,7 +9,7 @@ package models
 // swagger:model TestReceiverResult
 #TestReceiverResult: {
 	// grafana managed receiver configs
-	grafana_managed_receiver_configs: [...null | #TestReceiverConfigResult] @go(GrafanaManagedReceiverConfigs,[]*TestReceiverConfigResult)
+	grafana_managed_receiver_configs: [...#TestReceiverConfigResult] @go(GrafanaManagedReceiverConfigs,[]*TestReceiverConfigResult)
 
 	// name
 	name?: string @go(Name)

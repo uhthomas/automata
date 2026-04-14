@@ -55,7 +55,7 @@ import (
 
 	// conversion defines conversion settings for the CRD.
 	// +optional
-	conversion?: null | #CustomResourceConversion @go(Conversion,*CustomResourceConversion) @protobuf(9,bytes,opt)
+	conversion?: #CustomResourceConversion @go(Conversion,*CustomResourceConversion) @protobuf(9,bytes,opt)
 
 	// preserveUnknownFields indicates that object fields which are not specified
 	// in the OpenAPI schema should be preserved when persisting to storage.
@@ -76,14 +76,14 @@ import (
 
 	// webhook describes how to call the conversion webhook. Required when `strategy` is set to `"Webhook"`.
 	// +optional
-	webhook?: null | #WebhookConversion @go(Webhook,*WebhookConversion) @protobuf(2,bytes,opt)
+	webhook?: #WebhookConversion @go(Webhook,*WebhookConversion) @protobuf(2,bytes,opt)
 }
 
 // WebhookConversion describes how to call a conversion webhook
 #WebhookConversion: {
 	// clientConfig is the instructions for how to call the webhook if strategy is `Webhook`.
 	// +optional
-	clientConfig?: null | #WebhookClientConfig @go(ClientConfig,*WebhookClientConfig) @protobuf(2,bytes)
+	clientConfig?: #WebhookClientConfig @go(ClientConfig,*WebhookClientConfig) @protobuf(2,bytes)
 
 	// conversionReviewVersions is an ordered list of preferred `ConversionReview`
 	// versions the Webhook expects. The API server will use the first version in
@@ -124,7 +124,7 @@ import (
 	// allowed, either.
 	//
 	// +optional
-	url?: null | string @go(URL,*string) @protobuf(3,bytes,opt)
+	url?: string @go(URL,*string) @protobuf(3,bytes,opt)
 
 	// service is a reference to the service for this webhook. Either
 	// service or url must be specified.
@@ -132,7 +132,7 @@ import (
 	// If the webhook is running within the cluster, then you should use `service`.
 	//
 	// +optional
-	service?: null | #ServiceReference @go(Service,*ServiceReference) @protobuf(1,bytes,opt)
+	service?: #ServiceReference @go(Service,*ServiceReference) @protobuf(1,bytes,opt)
 
 	// caBundle is a PEM encoded CA bundle which will be used to validate the webhook's server certificate.
 	// If unspecified, system trust roots on the apiserver are used.
@@ -152,13 +152,13 @@ import (
 
 	// path is an optional URL path at which the webhook will be contacted.
 	// +optional
-	path?: null | string @go(Path,*string) @protobuf(3,bytes,opt)
+	path?: string @go(Path,*string) @protobuf(3,bytes,opt)
 
 	// port is an optional service port at which the webhook will be contacted.
 	// `port` should be a valid port number (1-65535, inclusive).
 	// Defaults to 443 for backward compatibility.
 	// +optional
-	port?: null | int32 @go(Port,*int32) @protobuf(4,varint,opt)
+	port?: int32 @go(Port,*int32) @protobuf(4,varint,opt)
 }
 
 // CustomResourceDefinitionVersion describes a version for CRD.
@@ -185,15 +185,15 @@ import (
 	// The default warning indicates this version is deprecated and recommends use
 	// of the newest served version of equal or greater stability, if one exists.
 	// +optional
-	deprecationWarning?: null | string @go(DeprecationWarning,*string) @protobuf(8,bytes,opt)
+	deprecationWarning?: string @go(DeprecationWarning,*string) @protobuf(8,bytes,opt)
 
 	// schema describes the schema used for validation, pruning, and defaulting of this version of the custom resource.
 	// +optional
-	schema?: null | #CustomResourceValidation @go(Schema,*CustomResourceValidation) @protobuf(4,bytes,opt)
+	schema?: #CustomResourceValidation @go(Schema,*CustomResourceValidation) @protobuf(4,bytes,opt)
 
 	// subresources specify what subresources this version of the defined custom resource have.
 	// +optional
-	subresources?: null | #CustomResourceSubresources @go(Subresources,*CustomResourceSubresources) @protobuf(5,bytes,opt)
+	subresources?: #CustomResourceSubresources @go(Subresources,*CustomResourceSubresources) @protobuf(5,bytes,opt)
 
 	// additionalPrinterColumns specifies additional columns returned in Table output.
 	// See https://kubernetes.io/docs/reference/using-api/api-concepts/#receiving-resources-as-tables for details.
@@ -439,7 +439,7 @@ import (
 #CustomResourceValidation: {
 	// openAPIV3Schema is the OpenAPI v3 schema to use for validation and pruning.
 	// +optional
-	openAPIV3Schema?: null | #JSONSchemaProps @go(OpenAPIV3Schema,*JSONSchemaProps) @protobuf(1,bytes,opt)
+	openAPIV3Schema?: #JSONSchemaProps @go(OpenAPIV3Schema,*JSONSchemaProps) @protobuf(1,bytes,opt)
 }
 
 // CustomResourceSubresources defines the status and scale subresources for CustomResources.
@@ -449,11 +449,11 @@ import (
 	// 1. requests to the custom resource primary endpoint ignore changes to the `status` stanza of the object.
 	// 2. requests to the custom resource `/status` subresource ignore changes to anything other than the `status` stanza of the object.
 	// +optional
-	status?: null | #CustomResourceSubresourceStatus @go(Status,*CustomResourceSubresourceStatus) @protobuf(1,bytes,opt)
+	status?: #CustomResourceSubresourceStatus @go(Status,*CustomResourceSubresourceStatus) @protobuf(1,bytes,opt)
 
 	// scale indicates the custom resource should serve a `/scale` subresource that returns an `autoscaling/v1` Scale object.
 	// +optional
-	scale?: null | #CustomResourceSubresourceScale @go(Scale,*CustomResourceSubresourceScale) @protobuf(2,bytes,opt)
+	scale?: #CustomResourceSubresourceScale @go(Scale,*CustomResourceSubresourceScale) @protobuf(2,bytes,opt)
 }
 
 // CustomResourceSubresourceStatus defines how to serve the status subresource for CustomResources.
@@ -488,7 +488,7 @@ import (
 	// If there is no value under the given path in the custom resource, the `status.selector` value in the `/scale`
 	// subresource will default to the empty string.
 	// +optional
-	labelSelectorPath?: null | string @go(LabelSelectorPath,*string) @protobuf(3,bytes,opt)
+	labelSelectorPath?: string @go(LabelSelectorPath,*string) @protobuf(3,bytes,opt)
 }
 
 // ConversionReview describes a conversion request/response.
@@ -497,11 +497,11 @@ import (
 
 	// request describes the attributes for the conversion request.
 	// +optional
-	request?: null | #ConversionRequest @go(Request,*ConversionRequest) @protobuf(1,bytes,opt)
+	request?: #ConversionRequest @go(Request,*ConversionRequest) @protobuf(1,bytes,opt)
 
 	// response describes the attributes for the conversion response.
 	// +optional
-	response?: null | #ConversionResponse @go(Response,*ConversionResponse) @protobuf(2,bytes,opt)
+	response?: #ConversionResponse @go(Response,*ConversionResponse) @protobuf(2,bytes,opt)
 }
 
 // ConversionRequest describes the conversion request parameters.

@@ -9,5 +9,5 @@ package models
 // swagger:model FindTagsResult
 #FindTagsResult: {
 	// tags
-	tags: [...null | #TagsDTO] @go(Tags,[]*TagsDTO)
+	tags: [...#TagsDTO] @go(Tags,[]*TagsDTO)
 }

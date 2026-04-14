@@ -9,11 +9,11 @@ package models
 // swagger:model ReportDashboard
 #ReportDashboard: {
 	// dashboard
-	dashboard?: null | #ReportDashboardID @go(Dashboard,*ReportDashboardID)
+	dashboard?: #ReportDashboardID @go(Dashboard,*ReportDashboardID)
 
 	// report variables
 	reportVariables?: _ @go(ReportVariables,interface{})
 
 	// time range
-	timeRange?: null | #ReportTimeRange @go(TimeRange,*ReportTimeRange)
+	timeRange?: #ReportTimeRange @go(TimeRange,*ReportTimeRange)
 }

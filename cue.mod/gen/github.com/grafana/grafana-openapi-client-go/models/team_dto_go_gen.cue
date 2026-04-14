@@ -17,21 +17,33 @@ package models
 	// email
 	email?: string @go(Email)
 
-	// id
-	id?: int64 @go(ID)
+	// external UID
+	externalUID?: string @go(ExternalUID)
+
+	// @deprecated Use UID instead
+	// Required: true
+	id?: int64 @go(ID,*int64)
+
+	// is provisioned
+	// Required: true
+	isProvisioned?: bool @go(IsProvisioned,*bool)
 
 	// member count
-	memberCount?: int64 @go(MemberCount)
+	// Required: true
+	memberCount?: int64 @go(MemberCount,*int64)
 
 	// name
-	name?: string @go(Name)
+	// Required: true
+	name?: string @go(Name,*string)
 
 	// org Id
-	orgId?: int64 @go(OrgID)
+	// Required: true
+	orgId?: int64 @go(OrgID,*int64)
 
 	// permission
 	permission?: #PermissionType @go(Permission)
 
 	// uid
-	uid?: string @go(UID)
+	// Required: true
+	uid?: string @go(UID,*string)
 }

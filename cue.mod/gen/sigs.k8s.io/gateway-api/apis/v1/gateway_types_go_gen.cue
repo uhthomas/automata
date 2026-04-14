@@ -10,14 +10,18 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // by binding Listeners to a set of IP addresses.
 #Gateway: {
 	metav1.#TypeMeta
+
+	// +optional
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta)
 
 	// Spec defines the desired state of Gateway.
+	// +required
 	spec: #GatewaySpec @go(Spec)
 
 	// Status defines the current state of Gateway.
 	//
 	// +kubebuilder:default={conditions: {{type: "Accepted", status: "Unknown", reason:"Pending", message:"Waiting for controller", lastTransitionTime: "1970-01-01T00:00:00Z"},{type: "Programmed", status: "Unknown", reason:"Pending", message:"Waiting for controller", lastTransitionTime: "1970-01-01T00:00:00Z"}}}
+	// +optional
 	status?: #GatewayStatus @go(Status)
 }
 
@@ -37,6 +41,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 #GatewaySpec: {
 	// GatewayClassName used for this Gateway. This is the name of a
 	// GatewayClass resource.
+	// +required
 	gatewayClassName: #ObjectName @go(GatewayClassName)
 
 	// Listeners associated with this Gateway. Listeners define
@@ -207,15 +212,17 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// +kubebuilder:validation:MaxItems=64
 	// +kubebuilder:validation:XValidation:message="tls must not be specified for protocols ['HTTP', 'TCP', 'UDP']",rule="self.all(l, l.protocol in ['HTTP', 'TCP', 'UDP'] ? !has(l.tls) : true)"
 	// +kubebuilder:validation:XValidation:message="tls mode must be Terminate for protocol HTTPS",rule="self.all(l, (l.protocol == 'HTTPS' && has(l.tls)) ? (l.tls.mode == '' || l.tls.mode == 'Terminate') : true)"
+	// +kubebuilder:validation:XValidation:message="tls mode must be set for protocol TLS",rule="self.all(l, (l.protocol == 'TLS' ? has(l.tls) && has(l.tls.mode) && l.tls.mode != '' : true))"
 	// +kubebuilder:validation:XValidation:message="hostname must not be specified for protocols ['TCP', 'UDP']",rule="self.all(l, l.protocol in ['TCP', 'UDP']  ? (!has(l.hostname) || l.hostname == '') : true)"
 	// +kubebuilder:validation:XValidation:message="Listener name must be unique within the Gateway",rule="self.all(l1, self.exists_one(l2, l1.name == l2.name))"
 	// +kubebuilder:validation:XValidation:message="Combination of port, protocol and hostname must be unique for each listener",rule="self.all(l1, self.exists_one(l2, l1.port == l2.port && l1.protocol == l2.protocol && (has(l1.hostname) && has(l2.hostname) ? l1.hostname == l2.hostname : !has(l1.hostname) && !has(l2.hostname))))"
+	// +required
 	listeners: [...#Listener] @go(Listeners,[]Listener)
 
 	// Addresses requested for this Gateway. This is optional and behavior can
 	// depend on the implementation. If a value is set in the spec and the
 	// requested address is invalid or unavailable, the implementation MUST
-	// indicate this in the associated entry in GatewayStatus.Addresses.
+	// indicate this in an associated entry in GatewayStatus.Conditions.
 	//
 	// The Addresses field represents a request for the address(es) on the
 	// "outside of the Gateway", that traffic bound for this Gateway will use.
@@ -234,10 +241,11 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended
 	//
 	// +optional
+	// +listType=atomic
 	// <gateway:validateIPAddress>
 	// +kubebuilder:validation:MaxItems=16
-	// +kubebuilder:validation:XValidation:message="IPAddress values must be unique",rule="self.all(a1, a1.type == 'IPAddress' ? self.exists_one(a2, a2.type == a1.type && a2.value == a1.value) : true )"
-	// +kubebuilder:validation:XValidation:message="Hostname values must be unique",rule="self.all(a1, a1.type == 'Hostname' ? self.exists_one(a2, a2.type == a1.type && a2.value == a1.value) : true )"
+	// +kubebuilder:validation:XValidation:message="IPAddress values must be unique",rule="self.all(a1, a1.type == 'IPAddress' && has(a1.value) ? self.exists_one(a2, a2.type == a1.type && has(a2.value) && a2.value == a1.value) : true )"
+	// +kubebuilder:validation:XValidation:message="Hostname values must be unique",rule="self.all(a1, a1.type == 'Hostname'  && has(a1.value) ? self.exists_one(a2, a2.type == a1.type && has(a2.value) && a2.value == a1.value) : true )"
 	addresses?: [...#GatewaySpecAddress] @go(Addresses,[]GatewaySpecAddress)
 
 	// Infrastructure defines infrastructure level attributes about this Gateway instance.
@@ -245,34 +253,53 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended
 	//
 	// +optional
-	infrastructure?: null | #GatewayInfrastructure @go(Infrastructure,*GatewayInfrastructure)
-
-	// BackendTLS configures TLS settings for when this Gateway is connecting to
-	// backends with TLS.
-	//
-	// Support: Core
-	//
-	// +optional
-	// <gateway:experimental>
-	backendTLS?: null | #GatewayBackendTLS @go(BackendTLS,*GatewayBackendTLS)
+	infrastructure?: #GatewayInfrastructure @go(Infrastructure,*GatewayInfrastructure)
 
 	// AllowedListeners defines which ListenerSets can be attached to this Gateway.
-	// While this feature is experimental, the default value is to allow no ListenerSets.
-	//
-	// <gateway:experimental>
+	// The default value is to allow no ListenerSets.
 	//
 	// +optional
-	allowedListeners?: null | #AllowedListeners @go(AllowedListeners,*AllowedListeners)
+	allowedListeners?: #AllowedListeners @go(AllowedListeners,*AllowedListeners)
+
+	//
+	// TLS specifies frontend and backend tls configuration for entire gateway.
+	//
+	// Support: Extended
+	//
+	// +optional
+	tls?: #GatewayTLSConfig @go(TLS,*GatewayTLSConfig)
+
+	// DefaultScope, when set, configures the Gateway as a default Gateway,
+	// meaning it will dynamically and implicitly have Routes (e.g. HTTPRoute)
+	// attached to it, according to the scope configured here.
+	//
+	// If unset (the default) or set to None, the Gateway will not act as a
+	// default Gateway; if set, the Gateway will claim any Route with a
+	// matching scope set in its UseDefaultGateway field, subject to the usual
+	// rules about which routes the Gateway can attach to.
+	//
+	// Think carefully before using this functionality! While the normal rules
+	// about which Route can apply are still enforced, it is simply easier for
+	// the wrong Route to be accidentally attached to this Gateway in this
+	// configuration. If the Gateway operator is not also the operator in
+	// control of the scope (e.g. namespace) with tight controls and checks on
+	// what kind of workloads and Routes get added in that scope, we strongly
+	// recommend not using this just because it seems convenient, and instead
+	// stick to direct Route attachment.
+	//
+	// +optional
+	// <gateway:experimental>
+	defaultScope?: #GatewayDefaultScope @go(DefaultScope)
 }
 
 // AllowedListeners defines which ListenerSets can be attached to this Gateway.
 #AllowedListeners: {
 	// Namespaces defines which namespaces ListenerSets can be attached to this Gateway.
-	// While this feature is experimental, the default value is to allow no ListenerSets.
+	// The default value is to allow no ListenerSets.
 	//
 	// +optional
 	// +kubebuilder:default={from: None}
-	namespaces?: null | #ListenerNamespaces @go(Namespaces,*ListenerNamespaces)
+	namespaces?: #ListenerNamespaces @go(Namespaces,*ListenerNamespaces)
 }
 
 // ListenerNamespaces indicate which namespaces ListenerSets should be selected from.
@@ -285,19 +312,19 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// * All: ListenerSets in all namespaces may be attached to this Gateway.
 	// * None: Only listeners defined in the Gateway's spec are allowed
 	//
-	// While this feature is experimental, the default value None
+	// The default value None
 	//
 	// +optional
 	// +kubebuilder:default=None
 	// +kubebuilder:validation:Enum=All;Selector;Same;None
-	from?: null | #FromNamespaces @go(From,*FromNamespaces)
+	from?: #FromNamespaces @go(From,*FromNamespaces)
 
 	// Selector must be specified when From is set to "Selector". In that case,
 	// only ListenerSets in Namespaces matching this Selector will be selected by this
 	// Gateway. This field is ignored for other values of "From".
 	//
 	// +optional
-	selector?: null | metav1.#LabelSelector @go(Selector,*metav1.LabelSelector)
+	selector?: metav1.#LabelSelector @go(Selector,*metav1.LabelSelector)
 }
 
 // Listener embodies the concept of a logical endpoint where a Gateway accepts
@@ -307,6 +334,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Gateway.
 	//
 	// Support: Core
+	// +required
 	name: #SectionName @go(Name)
 
 	// Hostname specifies the virtual hostname to match for protocol types that
@@ -340,7 +368,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//   the Gateway SHOULD return a 421.
 	// * If the current Listener (selected by SNI matching during ClientHello)
 	//   does not match the Host:
-	//     * If another Listener does match the Host the Gateway SHOULD return a
+	//     * If another Listener does match the Host, the Gateway SHOULD return a
 	//       421.
 	//     * If no other Listener matches the Host, the Gateway MUST return a
 	//       404.
@@ -358,24 +386,30 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Core
 	//
 	// +optional
-	hostname?: null | #Hostname @go(Hostname,*Hostname)
+	hostname?: #Hostname @go(Hostname,*Hostname)
 
 	// Port is the network port. Multiple listeners may use the
 	// same port, subject to the Listener compatibility rules.
 	//
 	// Support: Core
-	port: #PortNumber @go(Port)
+	//
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=65535
+	//
+	// +required
+	port: int32 @go(Port,PortNumber)
 
 	// Protocol specifies the network protocol this listener expects to receive.
 	//
 	// Support: Core
+	// +required
 	protocol: #ProtocolType @go(Protocol)
 
 	// TLS is the TLS configuration for the Listener. This field is required if
 	// the Protocol field is "HTTPS" or "TLS". It is invalid to set this field
 	// if the Protocol field is "HTTP", "TCP", or "UDP".
 	//
-	// The association of SNIs to Certificate defined in GatewayTLSConfig is
+	// The association of SNIs to Certificate defined in ListenerTLSConfig is
 	// defined based on the Hostname field for this listener.
 	//
 	// The GatewayClass MUST use the longest matching SNI out of all
@@ -384,7 +418,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Core
 	//
 	// +optional
-	tls?: null | #GatewayTLSConfig @go(TLS,*GatewayTLSConfig)
+	tls?: #ListenerTLSConfig @go(TLS,*ListenerTLSConfig)
 
 	// AllowedRoutes defines the types of routes that MAY be attached to a
 	// Listener and the trusted namespaces where those Route resources MAY be
@@ -412,7 +446,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Core
 	// +kubebuilder:default={namespaces:{from: Same}}
 	// +optional
-	allowedRoutes?: null | #AllowedRoutes @go(AllowedRoutes,*AllowedRoutes)
+	allowedRoutes?: #AllowedRoutes @go(AllowedRoutes,*AllowedRoutes)
 }
 
 // ProtocolType defines the application protocol accepted by a Listener.
@@ -471,31 +505,38 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 // GatewayBackendTLS describes backend TLS configuration for gateway.
 #GatewayBackendTLS: {
-	// ClientCertificateRef is a reference to an object that contains a Client
-	// Certificate and the associated private key.
+	// ClientCertificateRef references an object that contains a client certificate
+	// and its associated private key. It can reference standard Kubernetes resources,
+	// i.e., Secret, or implementation-specific custom resources.
 	//
-	// References to a resource in different namespace are invalid UNLESS there
-	// is a ReferenceGrant in the target namespace that allows the certificate
-	// to be attached. If a ReferenceGrant does not allow this reference, the
-	// "ResolvedRefs" condition MUST be set to False for this listener with the
-	// "RefNotPermitted" reason.
+	// A ClientCertificateRef is considered invalid if:
 	//
-	// ClientCertificateRef can reference to standard Kubernetes resources, i.e.
-	// Secret, or implementation-specific custom resources.
+	// * It refers to a resource that cannot be resolved (e.g., the referenced resource
+	//   does not exist) or is misconfigured (e.g., a Secret does not contain the keys
+	//   named `tls.crt` and `tls.key`). In this case, the `ResolvedRefs` condition
+	//   on the Gateway MUST be set to False with the Reason `InvalidClientCertificateRef`
+	//   and the Message of the Condition MUST indicate why the reference is invalid.
 	//
-	// This setting can be overridden on the service level by use of BackendTLSPolicy.
+	// * It refers to a resource in another namespace UNLESS there is a ReferenceGrant
+	//   in the target namespace that allows the certificate to be attached.
+	//   If a ReferenceGrant does not allow this reference, the `ResolvedRefs` condition
+	//   on the Gateway MUST be set to False with the Reason `RefNotPermitted`.
 	//
-	// Support: Core
+	// Implementations MAY choose to perform further validation of the certificate
+	// content (e.g., checking expiry or enforcing specific formats). In such cases,
+	// an implementation-specific Reason and Message MUST be set.
 	//
+	// Support: Core - Reference to a Kubernetes TLS Secret (with the type `kubernetes.io/tls`).
+	// Support: Implementation-specific - Other resource kinds or Secrets with a
+	// different type (e.g., `Opaque`).
 	// +optional
-	// <gateway:experimental>
-	clientCertificateRef?: null | #SecretObjectReference @go(ClientCertificateRef,*SecretObjectReference)
+	clientCertificateRef?: #SecretObjectReference @go(ClientCertificateRef,*SecretObjectReference)
 }
 
-// GatewayTLSConfig describes a TLS configuration.
+// ListenerTLSConfig describes a TLS configuration for a listener.
 //
 // +kubebuilder:validation:XValidation:message="certificateRefs or options must be specified when mode is Terminate",rule="self.mode == 'Terminate' ? size(self.certificateRefs) > 0 || size(self.options) > 0 : true"
-#GatewayTLSConfig: {
+#ListenerTLSConfig: {
 	// Mode defines the TLS behavior for the TLS session initiated by the client.
 	// There are two possible modes:
 	//
@@ -512,7 +553,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +optional
 	// +kubebuilder:default=Terminate
-	mode?: null | #TLSModeType @go(Mode,*TLSModeType)
+	mode?: #TLSModeType @go(Mode,*TLSModeType)
 
 	// CertificateRefs contains a series of references to Kubernetes objects that
 	// contains TLS certificates and private keys. These certificates are used to
@@ -540,20 +581,9 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Implementation-specific (More than one reference or other resource types)
 	//
 	// +optional
+	// +listType=atomic
 	// +kubebuilder:validation:MaxItems=64
 	certificateRefs?: [...#SecretObjectReference] @go(CertificateRefs,[]SecretObjectReference)
-
-	// FrontendValidation holds configuration information for validating the frontend (client).
-	// Setting this field will require clients to send a client certificate
-	// required for validation during the TLS handshake. In browsers this may result in a dialog appearing
-	// that requests a user to specify the client certificate.
-	// The maximum depth of a certificate chain accepted in verification is Implementation specific.
-	//
-	// Support: Extended
-	//
-	// +optional
-	// <gateway:experimental>
-	frontendValidation?: null | #FrontendTLSValidation @go(FrontendValidation,*FrontendTLSValidation)
 
 	// Options are a list of key/value pairs to enable extended TLS
 	// configuration for each implementation. For example, configuring the
@@ -569,6 +599,54 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// +optional
 	// +kubebuilder:validation:MaxProperties=16
 	options?: {[string]: #AnnotationValue} @go(Options,map[AnnotationKey]AnnotationValue)
+}
+
+// GatewayTLSConfig specifies frontend and backend tls configuration for gateway.
+#GatewayTLSConfig: {
+	// Backend describes TLS configuration for gateway when connecting
+	// to backends.
+	//
+	// Note that this contains only details for the Gateway as a TLS client,
+	// and does _not_ imply behavior about how to choose which backend should
+	// get a TLS connection. That is determined by the presence of a BackendTLSPolicy.
+	//
+	// Support: Core
+	//
+	// +optional
+	backend?: #GatewayBackendTLS @go(Backend,*GatewayBackendTLS)
+
+	// Frontend describes TLS config when client connects to Gateway.
+	// Support: Core
+	//
+	// +optional
+	frontend?: #FrontendTLSConfig @go(Frontend,*FrontendTLSConfig)
+}
+
+// FrontendTLSConfig specifies frontend tls configuration for gateway.
+#FrontendTLSConfig: {
+	// Default specifies the default client certificate validation configuration
+	// for all Listeners handling HTTPS traffic, unless a per-port configuration
+	// is defined.
+	//
+	// support: Core
+	//
+	// +required
+	default: #TLSConfig @go(Default)
+
+	// PerPort specifies tls configuration assigned per port.
+	// Per port configuration is optional. Once set this configuration overrides
+	// the default configuration for all Listeners handling HTTPS traffic
+	// that match this port.
+	// Each override port requires a unique TLS configuration.
+	//
+	// support: Core
+	//
+	// +optional
+	// +listType=map
+	// +listMapKey=port
+	// +kubebuilder:validation:MaxItems=64
+	// +kubebuilder:validation:XValidation:message="Port for TLS configuration must be unique within the Gateway",rule="self.all(t1, self.exists_one(t2, t1.port == t2.port))"
+	perPort?: [...#TLSPortConfig] @go(PerPort,[]TLSPortConfig)
 }
 
 // TLSModeType type defines how a Gateway handles TLS sessions.
@@ -591,35 +669,138 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // Note that SSL passthrough is only supported by TLSRoute.
 #TLSModePassthrough: #TLSModeType & "Passthrough"
 
+// TLSConfig describes TLS configuration that can apply to multiple Listeners
+// within this Gateway. Currently, it stores only the client certificate validation
+// configuration, but this may be extended in the future.
+#TLSConfig: {
+	// Validation holds configuration information for validating the frontend (client).
+	// Setting this field will result in mutual authentication when connecting to the gateway.
+	// In browsers this may result in a dialog appearing
+	// that requests a user to specify the client certificate.
+	// The maximum depth of a certificate chain accepted in verification is Implementation specific.
+	//
+	// Support: Core
+	//
+	// +optional
+	validation?: #FrontendTLSValidation @go(Validation,*FrontendTLSValidation)
+}
+
+#TLSPortConfig: {
+	// The Port indicates the Port Number to which the TLS configuration will be
+	// applied. This configuration will be applied to all Listeners handling HTTPS
+	// traffic that match this port.
+	//
+	// Support: Core
+	//
+	// +required
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=65535
+	port: int32 @go(Port,PortNumber)
+
+	// TLS store the configuration that will be applied to all Listeners handling
+	// HTTPS traffic and matching given port.
+	//
+	// Support: Core
+	//
+	// +required
+	tls: #TLSConfig @go(TLS)
+}
+
 // FrontendTLSValidation holds configuration information that can be used to validate
 // the frontend initiating the TLS connection
 #FrontendTLSValidation: {
-	// CACertificateRefs contains one or more references to
-	// Kubernetes objects that contain TLS certificates of
-	// the Certificate Authorities that can be used
-	// as a trust anchor to validate the certificates presented by the client.
+	// CACertificateRefs contains one or more references to Kubernetes
+	// objects that contain a PEM-encoded TLS CA certificate bundle, which
+	// is used as a trust anchor to validate the certificates presented by
+	// the client.
 	//
-	// A single CA certificate reference to a Kubernetes ConfigMap
-	// has "Core" support.
-	// Implementations MAY choose to support attaching multiple CA certificates to
-	// a Listener, but this behavior is implementation-specific.
+	// A CACertificateRef is invalid if:
 	//
-	// Support: Core - A single reference to a Kubernetes ConfigMap
-	// with the CA certificate in a key named `ca.crt`.
+	// * It refers to a resource that cannot be resolved (e.g., the
+	//   referenced resource does not exist) or is misconfigured (e.g., a
+	//   ConfigMap does not contain a key named `ca.crt`). In this case, the
+	//   Reason on all matching HTTPS listeners must be set to `InvalidCACertificateRef`
+	//   and the Message of the Condition must indicate which reference is invalid and why.
 	//
-	// Support: Implementation-specific (More than one reference, or other kinds
-	// of resources).
+	// * It refers to an unknown or unsupported kind of resource. In this
+	//   case, the Reason on all matching HTTPS listeners must be set to
+	//   `InvalidCACertificateKind` and the Message of the Condition must explain
+	//   which kind of resource is unknown or unsupported.
 	//
-	// References to a resource in a different namespace are invalid UNLESS there
-	// is a ReferenceGrant in the target namespace that allows the certificate
-	// to be attached. If a ReferenceGrant does not allow this reference, the
-	// "ResolvedRefs" condition MUST be set to False for this listener with the
-	// "RefNotPermitted" reason.
+	// * It refers to a resource in another namespace UNLESS there is a
+	//   ReferenceGrant in the target namespace that allows the CA
+	//   certificate to be attached. If a ReferenceGrant does not allow this
+	//   reference, the `ResolvedRefs` on all matching HTTPS listeners condition
+	//   MUST be set with the Reason `RefNotPermitted`.
 	//
+	// Implementations MAY choose to perform further validation of the
+	// certificate content (e.g., checking expiry or enforcing specific formats).
+	// In such cases, an implementation-specific Reason and Message MUST be set.
+	//
+	// In all cases, the implementation MUST ensure that the `ResolvedRefs`
+	// condition is set to `status: False` on all targeted listeners (i.e.,
+	// listeners serving HTTPS on a matching port). The condition MUST
+	// include a Reason and Message that indicate the cause of the error. If
+	// ALL CACertificateRefs are invalid, the implementation MUST also ensure
+	// the `Accepted` condition on the listener is set to `status: False`, with
+	// the Reason `NoValidCACertificate`.
+	// Implementations MAY choose to support attaching multiple CA certificates
+	// to a listener, but this behavior is implementation-specific.
+	//
+	// Support: Core - A single reference to a Kubernetes ConfigMap, with the
+	// CA certificate in a key named `ca.crt`.
+	//
+	// Support: Implementation-specific - More than one reference, other kinds
+	// of resources, or a single reference that includes multiple certificates.
+	//
+	// +required
+	// +listType=atomic
 	// +kubebuilder:validation:MaxItems=8
 	// +kubebuilder:validation:MinItems=1
-	caCertificateRefs?: [...#ObjectReference] @go(CACertificateRefs,[]ObjectReference)
+	caCertificateRefs: [...#ObjectReference] @go(CACertificateRefs,[]ObjectReference)
+
+	// FrontendValidationMode defines the mode for validating the client certificate.
+	// There are two possible modes:
+	//
+	// - AllowValidOnly: In this mode, the gateway will accept connections only if
+	//   the client presents a valid certificate. This certificate must successfully
+	//   pass validation against the CA certificates specified in `CACertificateRefs`.
+	// - AllowInsecureFallback: In this mode, the gateway will accept connections
+	//   even if the client certificate is not presented or fails verification.
+	//
+	//   This approach delegates client authorization to the backend and introduce
+	//   a significant security risk. It should be used in testing environments or
+	//   on a temporary basis in non-testing environments.
+	//
+	// Defaults to AllowValidOnly.
+	//
+	// Support: Core
+	//
+	// +optional
+	// +kubebuilder:default=AllowValidOnly
+	mode?: #FrontendValidationModeType @go(Mode)
 }
+
+// FrontendValidationModeType type defines how a Gateway validates client certificates.
+//
+// +kubebuilder:validation:Enum=AllowValidOnly;AllowInsecureFallback
+#FrontendValidationModeType: string // #enumFrontendValidationModeType
+
+#enumFrontendValidationModeType:
+	#AllowValidOnly |
+	#AllowInsecureFallback
+
+// AllowValidOnly indicates that a client certificate is required
+// during the TLS handshake and MUST pass validation.
+//
+// Support: Core
+#AllowValidOnly: #FrontendValidationModeType & "AllowValidOnly"
+
+// AllowInsecureFallback indicates that a client certificate may not be
+// presented during the handshake or the validation against CA certificates may fail.
+//
+// Support: Extended
+#AllowInsecureFallback: #FrontendValidationModeType & "AllowInsecureFallback"
 
 // AllowedRoutes defines which Routes may be attached to this Listener.
 #AllowedRoutes: {
@@ -630,7 +811,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +optional
 	// +kubebuilder:default={from: Same}
-	namespaces?: null | #RouteNamespaces @go(Namespaces,*RouteNamespaces)
+	namespaces?: #RouteNamespaces @go(Namespaces,*RouteNamespaces)
 
 	// Kinds specifies the groups and kinds of Routes that are allowed to bind
 	// to this Gateway Listener. When unspecified or empty, the kinds of Routes
@@ -645,6 +826,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Core
 	//
 	// +optional
+	// +listType=atomic
 	// +kubebuilder:validation:MaxItems=8
 	kinds?: [...#RouteGroupKind] @go(Kinds,[]RouteGroupKind)
 }
@@ -688,7 +870,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// +optional
 	// +kubebuilder:default=Same
 	// +kubebuilder:validation:Enum=All;Selector;Same
-	from?: null | #FromNamespaces @go(From,*FromNamespaces)
+	from?: #FromNamespaces @go(From,*FromNamespaces)
 
 	// Selector must be specified when From is set to "Selector". In that case,
 	// only Routes in Namespaces matching this Selector will be selected by this
@@ -697,7 +879,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Core
 	//
 	// +optional
-	selector?: null | metav1.#LabelSelector @go(Selector,*metav1.LabelSelector)
+	selector?: metav1.#LabelSelector @go(Selector,*metav1.LabelSelector)
 }
 
 // RouteGroupKind indicates the group and kind of a Route resource.
@@ -706,21 +888,22 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +optional
 	// +kubebuilder:default=gateway.networking.k8s.io
-	group?: null | #Group @go(Group,*Group)
+	group?: #Group @go(Group,*Group)
 
 	// Kind is the kind of the Route.
+	// +required
 	kind: #Kind @go(Kind)
 }
 
 // GatewaySpecAddress describes an address that can be bound to a Gateway.
 //
-// +kubebuilder:validation:XValidation:message="Hostname value must only contain valid characters (matching ^(\\*\\.)?[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$)",rule="self.type == 'Hostname' ? self.value.matches(r\"\"\"^(\\*\\.)?[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$\"\"\"): true"
+// +kubebuilder:validation:XValidation:message="Hostname value must be empty or contain only valid characters (matching ^(\\*\\.)?[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$)",rule="self.type == 'Hostname' ? (!has(self.value) || self.value.matches(r\"\"\"^(\\*\\.)?[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$\"\"\")): true"
 #GatewaySpecAddress: {
 	// Type of the address.
 	//
 	// +optional
 	// +kubebuilder:default=IPAddress
-	type?: null | #AddressType @go(Type,*AddressType)
+	type?: #AddressType @go(Type,*AddressType)
 
 	// When a value is unspecified, an implementation SHOULD automatically
 	// assign an address matching the requested type if possible.
@@ -743,7 +926,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +optional
 	// +kubebuilder:default=IPAddress
-	type?: null | #AddressType @go(Type,*AddressType)
+	type?: #AddressType @go(Type,*AddressType)
 
 	// Value of the address. The validity of the values will depend
 	// on the type and support by the controller.
@@ -752,6 +935,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=253
+	// +required
 	value: string @go(Value)
 }
 
@@ -768,6 +952,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//   * a specified address was unusable (e.g. already in use)
 	//
 	// +optional
+	// +listType=atomic
 	// <gateway:validateIPAddress>
 	// +kubebuilder:validation:MaxItems=16
 	addresses?: [...#GatewayStatusAddress] @go(Addresses,[]GatewayStatusAddress)
@@ -785,6 +970,34 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// * "Programmed"
 	// * "Ready"
 	//
+	// <gateway:util:excludeFromCRD>
+	// Notes for implementors:
+	//
+	// Conditions are a listType `map`, which means that they function like a
+	// map with a key of the `type` field _in the k8s apiserver_.
+	//
+	// This means that implementations must obey some rules when updating this
+	// section.
+	//
+	// * Implementations MUST perform a read-modify-write cycle on this field
+	//   before modifying it. That is, when modifying this field, implementations
+	//   must be confident they have fetched the most recent version of this field,
+	//   and ensure that changes they make are on that recent version.
+	// * Implementations MUST NOT remove or reorder Conditions that they are not
+	//   directly responsible for. For example, if an implementation sees a Condition
+	//   with type `special.io/SomeField`, it MUST NOT remove, change or update that
+	//   Condition.
+	// * Implementations MUST always _merge_ changes into Conditions of the same Type,
+	//   rather than creating more than one Condition of the same Type.
+	// * Implementations MUST always update the `observedGeneration` field of the
+	//   Condition to the `metadata.generation` of the Gateway at the time of update creation.
+	// * If the `observedGeneration` of a Condition is _greater than_ the value the
+	//   implementation knows about, then it MUST NOT perform the update on that Condition,
+	//   but must wait for a future reconciliation and status update. (The assumption is that
+	//   the implementation's copy of the object is stale and an update will be re-triggered
+	//   if relevant.)
+	// </gateway:util:excludeFromCRD>
+	//
 	// +optional
 	// +listType=map
 	// +listMapKey=type
@@ -799,6 +1012,19 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// +listMapKey=name
 	// +kubebuilder:validation:MaxItems=64
 	listeners?: [...#ListenerStatus] @go(Listeners,[]ListenerStatus)
+
+	// AttachedListenerSets represents the total number of ListenerSets that have been
+	// successfully attached to this Gateway.
+	//
+	// A ListenerSet is successfully attached to a Gateway when all the following conditions are met:
+	// - The ListenerSet is selected by the Gateway's AllowedListeners field
+	// - The ListenerSet has a valid ParentRef selecting the Gateway
+	// - The ListenerSet's status has the condition "Accepted: true"
+	//
+	// Uses for this field include troubleshooting AttachedListenerSets attachment and
+	// measuring blast radius/impact of changes to a Gateway.
+	// +optional
+	attachedListenerSets?: int32 @go(AttachedListenerSets,*int32)
 }
 
 // GatewayInfrastructure defines infrastructure level attributes about a Gateway instance.
@@ -854,22 +1080,25 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Implementation-specific
 	//
 	// +optional
-	parametersRef?: null | #LocalParametersReference @go(ParametersRef,*LocalParametersReference)
+	parametersRef?: #LocalParametersReference @go(ParametersRef,*LocalParametersReference)
 }
 
 // LocalParametersReference identifies an API object containing controller-specific
 // configuration resource within the namespace.
 #LocalParametersReference: {
 	// Group is the group of the referent.
+	// +required
 	group: #Group @go(Group)
 
 	// Kind is kind of the referent.
+	// +required
 	kind: #Kind @go(Kind)
 
 	// Name is the name of the referent.
 	//
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=253
+	// +required
 	name: string @go(Name)
 }
 
@@ -880,8 +1109,10 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 #enumGatewayConditionType:
 	#GatewayConditionProgrammed |
+	#GatewayConditionInsecureFrontendValidationMode |
 	#GatewayConditionAccepted |
 	#GatewayConditionScheduled |
+	#GatewayConditionResolvedRefs |
 	#GatewayConditionReady
 
 // GatewayConditionReason defines the set of reasons that explain why a
@@ -894,6 +1125,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	#GatewayReasonNoResources |
 	#GatewayReasonAddressNotAssigned |
 	#GatewayReasonAddressNotUsable |
+	#GatewayReasonConfigurationChanged |
 	#GatewayReasonAccepted |
 	#GatewayReasonListenersNotValid |
 	#GatewayReasonPending |
@@ -901,6 +1133,10 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	#GatewayReasonInvalidParameters |
 	#GatewayReasonScheduled |
 	#GatewayReasonNotReconciled |
+	#GatewayReasonResolvedRefs |
+	#GatewayReasonInvalidClientCertificateRef |
+	#GatewayReasonRefNotPermitted |
+	#GatewayReasonListenersNotResolved |
 	#GatewayReasonReady |
 	#GatewayReasonListenersNotReady
 
@@ -979,6 +1215,21 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // in the condition message.
 #GatewayReasonAddressNotUsable: #GatewayConditionReason & "AddressNotUsable"
 
+// This condition is true when the Gateway FrontendValidationModeType is
+// configured to allow insecure fallback behavior.
+//
+// Possible reasons for this condition to be True are:
+//
+// * "ConfigurationChanged"
+//
+// This condition is removed as soon as FrontendValidationModeType is changed back to `AllowValidOnly`.
+#GatewayConditionInsecureFrontendValidationMode: #GatewayConditionType & "InsecureFrontendValidationMode"
+
+// This reason is used with the "InsecureFrontendValidationMode" condition when
+// the FrontendValidationModeType has been changed from `AllowValidOnly` to
+// `AllowInsecureFallback`, either at the Gateway level or via a per-port override.
+#GatewayReasonConfigurationChanged: #GatewayConditionReason & "ConfigurationChanged"
+
 // This condition is true when the controller managing the Gateway is
 // syntactically and semantically valid enough to produce some configuration
 // in the underlying data plane. This does not indicate whether or not the
@@ -1044,6 +1295,55 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // Deprecated: Use "Pending" instead.
 #GatewayReasonNotReconciled: #GatewayConditionReason & "NotReconciled"
 
+// This condition indicates whether the controller was able to resolve all
+// the object references for the Gateway that are not part of a specific
+// Listener configuration, and also provides a positive-polarity summary of
+// Listener's "ResolvedRefs" condition. This condition does not directly
+// impact the Gateway's Accepted or Programmed conditions.
+//
+// Possible reasons for this condition to be True are:
+//
+// * "ResolvedRefs"
+//
+// Possible reasons for this condition to be False are:
+//
+// * "RefNotPermitted"
+// * "InvalidClientCertificateRef"
+// * "ListenersNotResolved"
+//
+// Controllers may raise this condition with other reasons, but should
+// prefer to use the reasons listed above to improve interoperability.
+//
+// Note: This condition is considered Experimental and may change in future
+// releases of the API.
+#GatewayConditionResolvedRefs: #GatewayConditionType & "ResolvedRefs"
+
+// This reason is used with the "ResolvedRefs" condition when the condition
+// is true.
+#GatewayReasonResolvedRefs: #GatewayConditionReason & "ResolvedRefs"
+
+// This reason is used with the "ResolvedRefs" condition when the Gateway
+// has an invalid ClientCertificateRef in its backend TLS configuration.
+// A ClientCertificateRef is considered invalid when it refers to a
+// nonexistent or unsupported resource or kind, or when the data within
+// that resource is malformed.
+// This reason must be used only when the reference is allowed, either by
+// referencing an object in the same namespace as the Gateway, or when
+// a cross-namespace reference has been explicitly allowed by a ReferenceGrant.
+// If the reference is not allowed, the reason RefNotPermitted must be used
+// instead.
+#GatewayReasonInvalidClientCertificateRef: #GatewayConditionReason & "InvalidClientCertificateRef"
+
+// This reason is used with the "ResolvedRefs" condition when the Gateway
+// has a top-level backend TLS configuration that references an object in
+// another namespace, where the object in the other namespace does not have
+// a ReferenceGrant explicitly allowing the reference.
+#GatewayReasonRefNotPermitted: #GatewayConditionReason & "RefNotPermitted"
+
+// This reason is used with the "ResolvedRefs" condition when one or more
+// Listeners have their "ResolvedRefs" condition set to false in their status.
+#GatewayReasonListenersNotResolved: #GatewayConditionReason & "ListenersNotResolved"
+
 // "Ready" is a condition type reserved for future use. It should not be used by implementations.
 //
 // If used in the future, "Ready" will represent the final state where all configuration is confirmed good
@@ -1055,6 +1355,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 //
 // Note: This condition is not really "deprecated", but rather "reserved"; however, deprecated triggers Go linters
 // to alert about usage.
+//
 // Deprecated: Ready is reserved for future use
 #GatewayConditionReady: #GatewayConditionType & "Ready"
 
@@ -1067,10 +1368,11 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // ListenerStatus is the status associated with a Listener.
 #ListenerStatus: {
 	// Name is the name of the Listener that this status corresponds to.
+	// +required
 	name: #SectionName @go(Name)
 
 	// SupportedKinds is the list indicating the Kinds supported by this
-	// listener. This MUST represent the kinds an implementation supports for
+	// listener. This MUST represent the kinds supported by an implementation for
 	// that Listener configuration.
 	//
 	// If kinds are specified in Spec that are not supported, they MUST NOT
@@ -1079,8 +1381,10 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// and invalid Route kinds are specified, the implementation MUST
 	// reference the valid Route kinds that have been specified.
 	//
+	// +optional
+	// +listType=atomic
 	// +kubebuilder:validation:MaxItems=8
-	supportedKinds: [...#RouteGroupKind] @go(SupportedKinds,[]RouteGroupKind)
+	supportedKinds?: [...#RouteGroupKind] @go(SupportedKinds,[]RouteGroupKind)
 
 	// AttachedRoutes represents the total number of Routes that have been
 	// successfully attached to this Listener.
@@ -1094,18 +1398,53 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// attachment semantics can be found in the documentation on the various
 	// Route kinds ParentRefs fields). Listener or Route status does not impact
 	// successful attachment, i.e. the AttachedRoutes field count MUST be set
-	// for Listeners with condition Accepted: false and MUST count successfully
-	// attached Routes that may themselves have Accepted: false conditions.
+	// for Listeners, even if the Accepted condition of an individual Listener is set
+	// to "False". The AttachedRoutes number represents the number of Routes with
+	// the Accepted condition set to "True" that have been attached to this Listener.
+	// Routes with any other value for the Accepted condition MUST NOT be included
+	// in this count.
 	//
 	// Uses for this field include troubleshooting Route attachment and
 	// measuring blast radius/impact of changes to a Listener.
+	// +required
 	attachedRoutes: int32 @go(AttachedRoutes)
 
 	// Conditions describe the current condition of this listener.
 	//
+	//
+	// <gateway:util:excludeFromCRD>
+	// Notes for implementors:
+	//
+	// Conditions are a listType `map`, which means that they function like a
+	// map with a key of the `type` field _in the k8s apiserver_.
+	//
+	// This means that implementations must obey some rules when updating this
+	// section.
+	//
+	// * Implementations MUST perform a read-modify-write cycle on this field
+	//   before modifying it. That is, when modifying this field, implementations
+	//   must be confident they have fetched the most recent version of this field,
+	//   and ensure that changes they make are on that recent version.
+	// * Implementations MUST NOT remove or reorder Conditions that they are not
+	//   directly responsible for. For example, if an implementation sees a Condition
+	//   with type `special.io/SomeField`, it MUST NOT remove, change or update that
+	//   Condition.
+	// * Implementations MUST always _merge_ changes into Conditions of the same Type,
+	//   rather than creating more than one Condition of the same Type.
+	// * Implementations MUST always update the `observedGeneration` field of the
+	//   Condition to the `metadata.generation` of the Gateway at the time of update creation.
+	// * If the `observedGeneration` of a Condition is _greater than_ the value the
+	//   implementation knows about, then it MUST NOT perform the update on that Condition,
+	//   but must wait for a future reconciliation and status update. (The assumption is that
+	//   the implementation's copy of the object is stale and an update will be re-triggered
+	//   if relevant.)
+	//
+	// </gateway:util:excludeFromCRD>
+	//
 	// +listType=map
 	// +listMapKey=type
 	// +kubebuilder:validation:MaxItems=8
+	// +required
 	conditions: [...metav1.#Condition] @go(Conditions,[]metav1.Condition)
 }
 
@@ -1135,10 +1474,14 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	#ListenerReasonAttached |
 	#ListenerReasonPortUnavailable |
 	#ListenerReasonUnsupportedProtocol |
+	#ListenerReasonNoValidCACertificate |
+	#ListenerReasonUnsupportedValue |
 	#ListenerReasonResolvedRefs |
 	#ListenerReasonInvalidCertificateRef |
 	#ListenerReasonInvalidRouteKinds |
 	#ListenerReasonRefNotPermitted |
+	#ListenerReasonInvalidCACertificateRef |
+	#ListenerReasonInvalidCACertificateKind |
 	#ListenerReasonProgrammed |
 	#ListenerReasonInvalid |
 	#ListenerReasonPending |
@@ -1163,6 +1506,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // Controllers may raise this condition with other reasons,
 // but should prefer to use the reasons listed above to improve
 // interoperability.
+// If this condition is not set, it is assumed that there are no conflicts.
 #ListenerConditionConflicted: #ListenerConditionType & "Conflicted"
 
 // This reason is used with the "Conflicted" condition when
@@ -1200,6 +1544,8 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 //
 // * "PortUnavailable"
 // * "UnsupportedProtocol"
+// * "NoValidCACertificate"
+// * "UnsupportedValue"
 //
 // Possible reasons for this condition to be Unknown are:
 //
@@ -1236,6 +1582,16 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // protocol type is not supported.
 #ListenerReasonUnsupportedProtocol: #ListenerConditionReason & "UnsupportedProtocol"
 
+// This reason is used with the "Accepted" condition when the
+// Listener could not resolve the references to any CACertificate used
+// to configure Gateway's Client Certificate Validation
+#ListenerReasonNoValidCACertificate: #ListenerConditionReason & "NoValidCACertificate"
+
+// This reason is used with the "Accepted" condition when the
+// Listener uses a value for a field that is not supported by the
+// implementation
+#ListenerReasonUnsupportedValue: #ListenerConditionReason & "UnsupportedValue"
+
 // This condition indicates whether the controller was able to
 // resolve all the object references for the Listener.
 //
@@ -1248,6 +1604,8 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // * "InvalidCertificateRef"
 // * "InvalidRouteKinds"
 // * "RefNotPermitted"
+// * "InvalidCACertificateRef"
+// * "InvalidCACertificateKind"
 //
 // Controllers may raise this condition with other reasons,
 // but should prefer to use the reasons listed above to improve
@@ -1280,6 +1638,16 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // namespace, where the object in the other namespace does not have a
 // ReferenceGrant explicitly allowing the reference.
 #ListenerReasonRefNotPermitted: #ListenerConditionReason & "RefNotPermitted"
+
+// This reason is used with the "ResolvedRefs" condition when one or more
+// CACertificate References used to configure Client Certificate
+// validation for Gateway are invalid.
+#ListenerReasonInvalidCACertificateRef: #ListenerConditionReason & "InvalidCACertificateRef"
+
+// This reason is used with the "ResolvedRefs" condition when one or more
+// CACertificate References used to configure Client Certificate
+// validation for Gateway has unknown or unsupported kind.
+#ListenerReasonInvalidCACertificateKind: #ListenerConditionReason & "InvalidCACertificateKind"
 
 // This condition indicates whether a Listener has generated some
 // configuration that will soon be ready in the underlying data plane.

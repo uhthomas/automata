@@ -13,7 +13,7 @@ package models
 
 	// a human readable version of the error
 	// Required: true
-	message?: null | string @go(Message,*string)
+	message?: string @go(Message,*string)
 
 	// Status An optional status to denote the cause of the error.
 	//

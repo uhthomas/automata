@@ -10,5 +10,5 @@ package models
 #AlertmanagerConfig: {
 	// original
 	// Required: true
-	original?: null | string @go(Original,*string)
+	original?: string @go(Original,*string)
 }

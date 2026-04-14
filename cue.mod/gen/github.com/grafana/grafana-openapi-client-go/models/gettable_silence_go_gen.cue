@@ -4,27 +4,44 @@
 
 package models
 
-// GettableSilence gettable silence
+import "github.com/go-openapi/strfmt"
+
+// GettableSilence GettableSilence gettable silence
 //
 // swagger:model gettableSilence
 #GettableSilence: {
 	// comment
 	// Required: true
-	comment?: null | string @go(Comment,*string)
+	comment?: string @go(Comment,*string)
 
 	// created by
 	// Required: true
-	createdBy?: null | string @go(CreatedBy,*string)
+	createdBy?: string @go(CreatedBy,*string)
+
+	// ends at
+	// Required: true
+	// Format: date-time
+	endsAt?: strfmt.#DateTime @go(EndsAt,*strfmt.DateTime)
 
 	// id
 	// Required: true
-	id?: null | string @go(ID,*string)
+	id?: string @go(ID,*string)
 
 	// matchers
 	// Required: true
 	matchers: #Matchers @go(Matchers)
 
+	// starts at
+	// Required: true
+	// Format: date-time
+	startsAt?: strfmt.#DateTime @go(StartsAt,*strfmt.DateTime)
+
 	// status
 	// Required: true
-	status?: null | #SilenceStatus @go(Status,*SilenceStatus)
+	status?: #SilenceStatus @go(Status,*SilenceStatus)
+
+	// updated at
+	// Required: true
+	// Format: date-time
+	updatedAt?: strfmt.#DateTime @go(UpdatedAt,*strfmt.DateTime)
 }

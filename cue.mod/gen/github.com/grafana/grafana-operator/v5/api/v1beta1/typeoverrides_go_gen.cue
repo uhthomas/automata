@@ -6,11 +6,34 @@ package v1beta1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	v13 "k8s.io/api/apps/v1"
-	v14 "k8s.io/api/core/v1"
-	"k8s.io/api/networking/v1"
-	v12 "github.com/openshift/api/route/v1"
+	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	networkingv1 "k8s.io/api/networking/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
+	gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
+
+// RequiredObjectMeta contains only a [subset of the fields included in k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#objectmeta-v1-meta).
+// It requires `name` to be set
+// +kubebuilder:validation:XValidation:rule="((!has(oldSelf.__namespace__) && !has(self.__namespace__)) || (has(oldSelf.__namespace__) && has(self.__namespace__)))", message="namespace is immutable"
+#RequiredObjectMeta: {
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	name: string @go(Name) @protobuf(1,bytes,opt)
+
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	namespace?: string @go(Namespace) @protobuf(3,bytes,opt)
+	labels?: {[string]: string} @go(Labels,map[string]string) @protobuf(11,bytes,rep)
+	annotations?: {[string]: string} @go(Annotations,map[string]string) @protobuf(12,bytes,rep)
+}
+
+#RequiredTypeMeta: {
+	// Kind is a string value representing the REST resource this object represents.
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	kind: string @go(Kind) @protobuf(1,bytes,opt)
+
+	// APIVersion defines the versioned schema of this representation of an object.
+	apiVersion: string @go(APIVersion) @protobuf(2,bytes,opt)
+}
 
 // ObjectMeta contains only a [subset of the fields included in k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#objectmeta-v1-meta).
 #ObjectMeta: {
@@ -31,7 +54,7 @@ import (
 
 	// +optional
 	// +patchStrategy=retainKeys
-	strategy?: null | v13.#DeploymentStrategy @go(Strategy,*v13.DeploymentStrategy) @protobuf(4,bytes,opt)
+	strategy?: null | appsv1.#DeploymentStrategy @go(Strategy,*appsv1.DeploymentStrategy) @protobuf(4,bytes,opt)
 
 	// +optional
 	minReadySeconds?: int32 @go(MinReadySeconds) @protobuf(5,varint,opt)
@@ -60,25 +83,25 @@ import (
 	// +optional
 	// +patchMergeKey=name
 	// +patchStrategy=merge,retainKeys
-	volumes?: [...v14.#Volume] @go(Volumes,[]v14.Volume) @protobuf(1,bytes,rep)
+	volumes?: [...corev1.#Volume] @go(Volumes,[]corev1.Volume) @protobuf(1,bytes,rep)
 
 	// +patchMergeKey=name
 	// +patchStrategy=merge
 	// +optional
-	initContainers?: [...v14.#Container] @go(InitContainers,[]v14.Container) @protobuf(20,bytes,rep)
+	initContainers?: [...corev1.#Container] @go(InitContainers,[]corev1.Container) @protobuf(20,bytes,rep)
 
 	// +patchMergeKey=name
 	// +patchStrategy=merge
 	// +optional
-	containers?: [...v14.#Container] @go(Containers,[]v14.Container) @protobuf(2,bytes,rep)
+	containers?: [...corev1.#Container] @go(Containers,[]corev1.Container) @protobuf(2,bytes,rep)
 
 	// +optional
 	// +patchMergeKey=name
 	// +patchStrategy=merge
-	ephemeralContainers?: [...v14.#EphemeralContainer] @go(EphemeralContainers,[]v14.EphemeralContainer) @protobuf(34,bytes,rep)
+	ephemeralContainers?: [...corev1.#EphemeralContainer] @go(EphemeralContainers,[]corev1.EphemeralContainer) @protobuf(34,bytes,rep)
 
 	// +optional
-	restartPolicy?: v14.#RestartPolicy @go(RestartPolicy) @protobuf(3,bytes,opt,casttype=RestartPolicy)
+	restartPolicy?: corev1.#RestartPolicy @go(RestartPolicy) @protobuf(3,bytes,opt,casttype=RestartPolicy)
 
 	// +optional
 	terminationGracePeriodSeconds?: null | int64 @go(TerminationGracePeriodSeconds,*int64) @protobuf(4,varint,opt)
@@ -87,7 +110,7 @@ import (
 	activeDeadlineSeconds?: null | int64 @go(ActiveDeadlineSeconds,*int64) @protobuf(5,varint,opt)
 
 	// +optional
-	dnsPolicy?: v14.#DNSPolicy @go(DNSPolicy) @protobuf(6,bytes,opt,casttype=DNSPolicy)
+	dnsPolicy?: corev1.#DNSPolicy @go(DNSPolicy) @protobuf(6,bytes,opt,casttype=DNSPolicy)
 
 	// NodeSelector is a selector which must be true for the pod to fit on a node.
 	// Selector which must match a node's labels for the pod to be scheduled on that node.
@@ -102,7 +125,9 @@ import (
 	serviceAccountName?: string @go(ServiceAccountName) @protobuf(8,bytes,opt)
 
 	// DeprecatedServiceAccount is a depreciated alias for ServiceAccountName.
+	//
 	// Deprecated: Use serviceAccountName instead.
+	//
 	// +k8s:conversion-gen=false
 	// +optional
 	serviceAccount?: string @go(DeprecatedServiceAccount) @protobuf(9,bytes,opt)
@@ -148,7 +173,7 @@ import (
 	// SecurityContext holds pod-level security attributes and common container settings.
 	// Optional: Defaults to empty.  See type description for default values of each field.
 	// +optional
-	securityContext?: null | v14.#PodSecurityContext @go(SecurityContext,*v14.PodSecurityContext) @protobuf(14,bytes,opt)
+	securityContext?: null | corev1.#PodSecurityContext @go(SecurityContext,*corev1.PodSecurityContext) @protobuf(14,bytes,opt)
 
 	// ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this PodSpec.
 	// If specified, these secrets will be passed to individual puller implementations for them to use.
@@ -156,7 +181,7 @@ import (
 	// +optional
 	// +patchMergeKey=name
 	// +patchStrategy=merge
-	imagePullSecrets?: [...v14.#LocalObjectReference] @go(ImagePullSecrets,[]v14.LocalObjectReference) @protobuf(15,bytes,rep)
+	imagePullSecrets?: [...corev1.#LocalObjectReference] @go(ImagePullSecrets,[]corev1.LocalObjectReference) @protobuf(15,bytes,rep)
 
 	// Specifies the hostname of the Pod
 	// If not specified, the pod's hostname will be set to a system-defined value.
@@ -170,7 +195,7 @@ import (
 
 	// If specified, the pod's scheduling constraints
 	// +optional
-	affinity?: null | v14.#Affinity @go(Affinity,*v14.Affinity) @protobuf(18,bytes,opt)
+	affinity?: null | corev1.#Affinity @go(Affinity,*corev1.Affinity) @protobuf(18,bytes,opt)
 
 	// If specified, the pod will be dispatched by specified scheduler.
 	// If not specified, the pod will be dispatched by default scheduler.
@@ -179,14 +204,14 @@ import (
 
 	// If specified, the pod's tolerations.
 	// +optional
-	tolerations?: [...v14.#Toleration] @go(Tolerations,[]v14.Toleration) @protobuf(22,bytes,opt)
+	tolerations?: [...corev1.#Toleration] @go(Tolerations,[]corev1.Toleration) @protobuf(22,bytes,opt)
 
 	// HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts
 	// file if specified. This is only valid for non-hostNetwork pods.
 	// +optional
 	// +patchMergeKey=ip
 	// +patchStrategy=merge
-	hostAliases?: [...v14.#HostAlias] @go(HostAliases,[]v14.HostAlias) @protobuf(23,bytes,rep)
+	hostAliases?: [...corev1.#HostAlias] @go(HostAliases,[]corev1.HostAlias) @protobuf(23,bytes,rep)
 
 	// If specified, indicates the pod's priority. "system-node-critical" and
 	// "system-cluster-critical" are two special keywords which indicate the
@@ -209,14 +234,14 @@ import (
 	// Parameters specified here will be merged to the generated DNS
 	// configuration based on DNSPolicy.
 	// +optional
-	dnsConfig?: null | v14.#PodDNSConfig @go(DNSConfig,*v14.PodDNSConfig) @protobuf(26,bytes,opt)
+	dnsConfig?: null | corev1.#PodDNSConfig @go(DNSConfig,*corev1.PodDNSConfig) @protobuf(26,bytes,opt)
 
 	// If specified, all readiness gates will be evaluated for pod readiness.
 	// A pod is ready when all its containers are ready AND
 	// all conditions specified in the readiness gates have status equal to "True"
 	// More info: https://git.k8s.io/enhancements/keps/sig-network/580-pod-readiness-gates
 	// +optional
-	readinessGates?: [...v14.#PodReadinessGate] @go(ReadinessGates,[]v14.PodReadinessGate) @protobuf(28,bytes,opt)
+	readinessGates?: [...corev1.#PodReadinessGate] @go(ReadinessGates,[]corev1.PodReadinessGate) @protobuf(28,bytes,opt)
 
 	// RuntimeClassName refers to a RuntimeClass object in the node.k8s.io group, which should be used
 	// to run this pod.  If no RuntimeClass resource matches the named class, the pod will not be run.
@@ -236,7 +261,7 @@ import (
 	// One of Never, PreemptLowerPriority.
 	// Defaults to PreemptLowerPriority if unset.
 	// +optional
-	preemptionPolicy?: null | v14.#PreemptionPolicy @go(PreemptionPolicy,*v14.PreemptionPolicy) @protobuf(31,bytes,opt)
+	preemptionPolicy?: null | corev1.#PreemptionPolicy @go(PreemptionPolicy,*corev1.PreemptionPolicy) @protobuf(31,bytes,opt)
 
 	// Overhead represents the resource overhead associated with running a pod for a given RuntimeClass.
 	// This field will be autopopulated at admission time by the RuntimeClass admission controller. If
@@ -246,7 +271,7 @@ import (
 	// defined in the corresponding RuntimeClass, otherwise it will remain unset and treated as zero.
 	// More info: https://git.k8s.io/enhancements/keps/sig-node/688-pod-overhead/README.md
 	// +optional
-	overhead?: v14.#ResourceList @go(Overhead) @protobuf(32,bytes,opt)
+	overhead?: corev1.#ResourceList @go(Overhead) @protobuf(32,bytes,opt)
 
 	// TopologySpreadConstraints describes how a group of pods ought to spread across topology
 	// domains. Scheduler will schedule pods in a way which abides by the constraints.
@@ -257,7 +282,7 @@ import (
 	// +listType=map
 	// +listMapKey=topologyKey
 	// +listMapKey=whenUnsatisfiable
-	topologySpreadConstraints?: [...v14.#TopologySpreadConstraint] @go(TopologySpreadConstraints,[]v14.TopologySpreadConstraint) @protobuf(33,bytes,opt)
+	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint] @go(TopologySpreadConstraints,[]corev1.TopologySpreadConstraint) @protobuf(33,bytes,opt)
 
 	// If true the pod's hostname will be configured as the pod's FQDN, rather than the leaf name (the default).
 	// In Linux containers, this means setting the FQDN in the hostname field of the kernel (the nodename field of struct utsname).
@@ -296,7 +321,7 @@ import (
 	// - spec.containers[*].securityContext.runAsUser
 	// - spec.containers[*].securityContext.runAsGroup
 	// +optional
-	os?: null | v14.#PodOS @go(OS,*v14.PodOS) @protobuf(36,bytes,opt)
+	os?: null | corev1.#PodOS @go(OS,*corev1.PodOS) @protobuf(36,bytes,opt)
 
 	// Use the host's user namespace.
 	// Optional: Default to true.
@@ -313,8 +338,8 @@ import (
 }
 
 #IngressNetworkingV1: {
-	metadata?: #ObjectMeta            @go(ObjectMeta)
-	spec?:     null | v1.#IngressSpec @go(Spec,*v1.IngressSpec)
+	metadata?: #ObjectMeta                      @go(ObjectMeta)
+	spec?:     null | networkingv1.#IngressSpec @go(Spec,*networkingv1.IngressSpec)
 }
 
 #RouteOpenshiftV1: {
@@ -322,19 +347,177 @@ import (
 	spec?:     null | #RouteOpenShiftV1Spec @go(Spec,*RouteOpenShiftV1Spec)
 }
 
+// RouteTargetReference specifies the target that resolve into endpoints. Only the 'Service'
+// kind is allowed. Use 'weight' field to emphasize one over others.
+#RouteTargetReference: {
+	// The kind of target that the route is referring to. Currently, only 'Service' is allowed
+	//
+	// +kubebuilder:validation:Enum=Service;""
+	// +kubebuilder:default=Service
+	kind: string @go(Kind) @protobuf(1,bytes,opt)
+
+	// name of the service/target that is being referred to. e.g. name of the service
+	//
+	// +kubebuilder:validation:MinLength=1
+	name: string @go(Name) @protobuf(2,bytes,opt)
+
+	// weight as an integer between 0 and 256, default 100, that specifies the target's relative weight
+	// against other target reference objects. 0 suppresses requests to this backend.
+	//
+	// +optional
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=256
+	// +kubebuilder:default=100
+	weight?: null | int32 @go(Weight,*int32) @protobuf(3,varint,opt)
+}
+
+// RoutePort defines a port mapping from a router to an endpoint in the service endpoints.
+#RoutePort: {
+	// The target port on pods selected by the service this route points to.
+	// If this is a string, it will be looked up as a named port in the target
+	// endpoints port list. Required
+	targetPort: intstr.#IntOrString @go(TargetPort) @protobuf(1,bytes,opt)
+}
+
+// TLSTerminationType dictates where the secure communication will stop
+// TODO: Reconsider this type in v2
+#TLSTerminationType: string // #enumTLSTerminationType
+
+#enumTLSTerminationType:
+	#TLSTerminationEdge |
+	#TLSTerminationPassthrough |
+	#TLSTerminationReencrypt
+
+// InsecureEdgeTerminationPolicyType dictates the behavior of insecure
+// connections to an edge-terminated route.
+#InsecureEdgeTerminationPolicyType: string // #enumInsecureEdgeTerminationPolicyType
+
+#enumInsecureEdgeTerminationPolicyType:
+	#InsecureEdgeTerminationPolicyNone |
+	#InsecureEdgeTerminationPolicyAllow |
+	#InsecureEdgeTerminationPolicyRedirect
+
+// TLSTerminationEdge terminate encryption at the edge router.
+#TLSTerminationEdge: #TLSTerminationType & "edge"
+
+// TLSTerminationPassthrough terminate encryption at the destination, the destination is responsible for decrypting traffic
+#TLSTerminationPassthrough: #TLSTerminationType & "passthrough"
+
+// TLSTerminationReencrypt terminate encryption at the edge router and re-encrypt it with a new certificate supplied by the destination
+#TLSTerminationReencrypt: #TLSTerminationType & "reencrypt"
+
+// InsecureEdgeTerminationPolicyNone disables insecure connections for an edge-terminated route.
+#InsecureEdgeTerminationPolicyNone: #InsecureEdgeTerminationPolicyType & "None"
+
+// InsecureEdgeTerminationPolicyAllow allows insecure connections for an edge-terminated route.
+#InsecureEdgeTerminationPolicyAllow: #InsecureEdgeTerminationPolicyType & "Allow"
+
+// InsecureEdgeTerminationPolicyRedirect redirects insecure connections for an edge-terminated route.
+// As an example, for routers that support HTTP and HTTPS, the
+// insecure HTTP connections will be redirected to use HTTPS.
+#InsecureEdgeTerminationPolicyRedirect: #InsecureEdgeTerminationPolicyType & "Redirect"
+
+// LocalObjectReference contains enough information to let you locate the
+// referenced object inside the same namespace.
+// +structType=atomic
+#LocalObjectReference: {
+	// name of the referent.
+	// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+	// +optional
+	name?: string @go(Name) @protobuf(1,bytes,opt)
+}
+
+// TLSConfig defines config used to secure a route and provide termination
+//
+// +kubebuilder:validation:XValidation:rule="has(self.termination) && has(self.insecureEdgeTerminationPolicy) ? !((self.termination=='passthrough') && (self.insecureEdgeTerminationPolicy=='Allow')) : true", message="cannot have both spec.tls.termination: passthrough and spec.tls.insecureEdgeTerminationPolicy: Allow"
+// +openshift:validation:FeatureGateAwareXValidation:featureGate=RouteExternalCertificate,rule="!(has(self.certificate) && has(self.externalCertificate))", message="cannot have both spec.tls.certificate and spec.tls.externalCertificate"
+#OpenshiftTLSConfig: {
+	// termination indicates termination type.
+	//
+	// * edge - TLS termination is done by the router and http is used to communicate with the backend (default)
+	// * passthrough - Traffic is sent straight to the destination without the router providing TLS termination
+	// * reencrypt - TLS termination is done by the router and https is used to communicate with the backend
+	//
+	// Note: passthrough termination is incompatible with httpHeader actions
+	// +kubebuilder:validation:Enum=edge;reencrypt;passthrough
+	termination: #TLSTerminationType @go(Termination) @protobuf(1,bytes,opt,casttype=TLSTerminationType)
+
+	// certificate provides certificate contents. This should be a single serving certificate, not a certificate
+	// chain. Do not include a CA certificate.
+	certificate?: string @go(Certificate) @protobuf(2,bytes,opt)
+
+	// key provides key file contents
+	key?: string @go(Key) @protobuf(3,bytes,opt)
+
+	// caCertificate provides the cert authority certificate contents
+	caCertificate?: string @go(CACertificate) @protobuf(4,bytes,opt)
+
+	// destinationCACertificate provides the contents of the ca certificate of the final destination.  When using reencrypt
+	// termination this file should be provided in order to have routers use it for health checks on the secure connection.
+	// If this field is not specified, the router may provide its own destination CA and perform hostname validation using
+	// the short service name (service.namespace.svc), which allows infrastructure generated certificates to automatically
+	// verify.
+	destinationCACertificate?: string @go(DestinationCACertificate) @protobuf(5,bytes,opt)
+
+	// insecureEdgeTerminationPolicy indicates the desired behavior for insecure connections to a route. While
+	// each router may make its own decisions on which ports to expose, this is normally port 80.
+	//
+	// If a route does not specify insecureEdgeTerminationPolicy, then the default behavior is "None".
+	//
+	// * Allow - traffic is sent to the server on the insecure port (edge/reencrypt terminations only).
+	//
+	// * None - no traffic is allowed on the insecure port (default).
+	//
+	// * Redirect - clients are redirected to the secure port.
+	//
+	// +kubebuilder:validation:Enum=Allow;None;Redirect;""
+	insecureEdgeTerminationPolicy?: #InsecureEdgeTerminationPolicyType @go(InsecureEdgeTerminationPolicy) @protobuf(6,bytes,opt,casttype=InsecureEdgeTerminationPolicyType)
+
+	// externalCertificate provides certificate contents as a secret reference.
+	// This should be a single serving certificate, not a certificate
+	// chain. Do not include a CA certificate. The secret referenced should
+	// be present in the same namespace as that of the Route.
+	// Forbidden when `certificate` is set.
+	// The router service account needs to be granted with read-only access to this secret,
+	// please refer to openshift docs for additional details.
+	//
+	// +openshift:enable:FeatureGate=RouteExternalCertificate
+	// +optional
+	externalCertificate?: null | #LocalObjectReference @go(ExternalCertificate,*LocalObjectReference) @protobuf(7,bytes,opt)
+}
+
+// WildcardPolicyType indicates the type of wildcard support needed by routes.
+#WildcardPolicyType: string // #enumWildcardPolicyType
+
+#enumWildcardPolicyType:
+	#WildcardPolicyNone |
+	#WildcardPolicySubdomain
+
+// WildcardPolicyNone indicates no wildcard support is needed.
+#WildcardPolicyNone: #WildcardPolicyType & "None"
+
+// WildcardPolicySubdomain indicates the host needs wildcard support for the subdomain.
+// Example: For host = "www.acme.test", indicates that the router
+//          should support requests for *.acme.test
+//          Note that this will not match acme.test only *.acme.test
+#WildcardPolicySubdomain: #WildcardPolicyType & "Subdomain"
+
 #RouteOpenShiftV1Spec: {
-	host?: string                           @go(Host) @protobuf(1,bytes,opt)
-	path?: string                           @go(Path) @protobuf(2,bytes,opt)
-	to?:   null | v12.#RouteTargetReference @go(To,*v12.RouteTargetReference) @protobuf(3,bytes,opt)
-	alternateBackends?: [...v12.#RouteTargetReference] @go(AlternateBackends,[]v12.RouteTargetReference) @protobuf(4,bytes,rep)
-	port?:           null | v12.#RoutePort   @go(Port,*v12.RoutePort) @protobuf(5,bytes,opt)
-	tls?:            null | v12.#TLSConfig   @go(TLS,*v12.TLSConfig) @protobuf(6,bytes,opt)
-	wildcardPolicy?: v12.#WildcardPolicyType @go(WildcardPolicy) @protobuf(7,bytes,opt)
+	host?: string                       @go(Host) @protobuf(1,bytes,opt)
+	path?: string                       @go(Path) @protobuf(2,bytes,opt)
+	to?:   null | #RouteTargetReference @go(To,*RouteTargetReference) @protobuf(3,bytes,opt)
+	alternateBackends?: [...#RouteTargetReference] @go(AlternateBackends,[]RouteTargetReference) @protobuf(4,bytes,rep)
+	port?: null | #RoutePort          @go(Port,*RoutePort) @protobuf(5,bytes,opt)
+	tls?:  null | #OpenshiftTLSConfig @go(TLS,*OpenshiftTLSConfig) @protobuf(6,bytes,opt)
+
+	// +optional
+	subdomain?:      string              @go(Subdomain) @protobuf(8,bytes,opt)
+	wildcardPolicy?: #WildcardPolicyType @go(WildcardPolicy) @protobuf(7,bytes,opt)
 }
 
 #ServiceV1: {
-	metadata?: #ObjectMeta             @go(ObjectMeta)
-	spec?:     null | v14.#ServiceSpec @go(Spec,*v14.ServiceSpec)
+	metadata?: #ObjectMeta                @go(ObjectMeta)
+	spec?:     null | corev1.#ServiceSpec @go(Spec,*corev1.ServiceSpec)
 }
 
 #PersistentVolumeClaimV1: {
@@ -344,13 +527,13 @@ import (
 
 #PersistentVolumeClaimV1Spec: {
 	// +optional
-	accessModes?: [...v14.#PersistentVolumeAccessMode] @go(AccessModes,[]v14.PersistentVolumeAccessMode) @protobuf(1,bytes,rep,casttype=PersistentVolumeAccessMode)
+	accessModes?: [...corev1.#PersistentVolumeAccessMode] @go(AccessModes,[]corev1.PersistentVolumeAccessMode) @protobuf(1,bytes,rep,casttype=PersistentVolumeAccessMode)
 
 	// +optional
 	selector?: null | metav1.#LabelSelector @go(Selector,*metav1.LabelSelector) @protobuf(4,bytes,opt)
 
 	// +optional
-	resources?: null | v14.#ResourceRequirements @go(Resources,*v14.ResourceRequirements) @protobuf(2,bytes,opt)
+	resources?: null | corev1.#ResourceRequirements @go(Resources,*corev1.ResourceRequirements) @protobuf(2,bytes,opt)
 
 	// VolumeName is the binding reference to the PersistentVolume backing this claim.
 	// +optional
@@ -360,22 +543,28 @@ import (
 	storageClassName?: null | string @go(StorageClassName,*string) @protobuf(5,bytes,opt)
 
 	// +optional
-	volumeMode?: null | v14.#PersistentVolumeMode @go(VolumeMode,*v14.PersistentVolumeMode) @protobuf(6,bytes,opt,casttype=PersistentVolumeMode)
+	volumeMode?: null | corev1.#PersistentVolumeMode @go(VolumeMode,*corev1.PersistentVolumeMode) @protobuf(6,bytes,opt,casttype=PersistentVolumeMode)
 
 	// +optional
-	dataSource?: null | v14.#TypedLocalObjectReference @go(DataSource,*v14.TypedLocalObjectReference) @protobuf(7,bytes,opt)
+	dataSource?: null | corev1.#TypedLocalObjectReference @go(DataSource,*corev1.TypedLocalObjectReference) @protobuf(7,bytes,opt)
 
 	// +optional
-	dataSourceRef?: null | v14.#TypedLocalObjectReference @go(DataSourceRef,*v14.TypedLocalObjectReference) @protobuf(8,bytes,opt)
+	dataSourceRef?: null | corev1.#TypedLocalObjectReference @go(DataSourceRef,*corev1.TypedLocalObjectReference) @protobuf(8,bytes,opt)
 }
 
 #ServiceAccountV1: {
 	metadata?: #ObjectMeta @go(ObjectMeta)
-	secrets?: [...v14.#ObjectReference] @go(Secrets,[]v14.ObjectReference) @protobuf(2,bytes,rep)
+	secrets?: [...corev1.#ObjectReference] @go(Secrets,[]corev1.ObjectReference) @protobuf(2,bytes,rep)
 
 	// +optional
-	imagePullSecrets?: [...v14.#LocalObjectReference] @go(ImagePullSecrets,[]v14.LocalObjectReference) @protobuf(3,bytes,rep)
+	imagePullSecrets?: [...corev1.#LocalObjectReference] @go(ImagePullSecrets,[]corev1.LocalObjectReference) @protobuf(3,bytes,rep)
 
 	// +optional
 	automountServiceAccountToken?: null | bool @go(AutomountServiceAccountToken,*bool) @protobuf(4,varint,opt)
+}
+
+// +kubebuilder:object:generate=true
+#HTTPRouteV1: {
+	metadata?: #ObjectMeta            @go(ObjectMeta)
+	spec?:     gwapiv1.#HTTPRouteSpec @go(Spec)
 }

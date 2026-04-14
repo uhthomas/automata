@@ -4,6 +4,8 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // OrgUserDTO org user DTO
 //
 // swagger:model OrgUserDTO
@@ -26,6 +28,13 @@ package models
 	// is externally synced
 	isExternallySynced?: bool @go(IsExternallySynced)
 
+	// is provisioned
+	isProvisioned?: bool @go(IsProvisioned)
+
+	// last seen at
+	// Format: date-time
+	lastSeenAt?: strfmt.#DateTime @go(LastSeenAt)
+
 	// last seen at age
 	lastSeenAtAge?: string @go(LastSeenAtAge)
 
@@ -40,6 +49,9 @@ package models
 
 	// role
 	role?: string @go(Role)
+
+	// uid
+	uid?: string @go(UID)
 
 	// user Id
 	userId?: int64 @go(UserID)

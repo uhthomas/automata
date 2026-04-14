@@ -17,9 +17,9 @@ package models
 
 	// MessageID A unique identifier for the error
 	// Required: true
-	messageId?: null | string @go(MessageID,*string)
+	messageId?: string @go(MessageID,*string)
 
 	// StatusCode The HTTP status code returned
 	// Required: true
-	statusCode?: null | int64 @go(StatusCode,*int64)
+	statusCode?: int64 @go(StatusCode,*int64)
 }

@@ -18,8 +18,5 @@ package models
 
 	// Source data transformations
 	// Example: [{"type":"logfmt"},{"expression":"(Superman|Batman)","type":"regex","variable":"name"}]
-	transformations: [...null | #Transformation] @go(Transformations,[]*Transformation)
-
-	// type
-	type?: #CorrelationConfigType @go(Type)
+	transformations: [...#Transformation] @go(Transformations,[]*Transformation)
 }

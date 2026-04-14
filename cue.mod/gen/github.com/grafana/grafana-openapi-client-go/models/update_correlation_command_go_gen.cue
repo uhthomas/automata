@@ -9,7 +9,7 @@ package models
 // swagger:model UpdateCorrelationCommand
 #UpdateCorrelationCommand: {
 	// config
-	config?: null | #CorrelationConfigUpdateDTO @go(Config,*CorrelationConfigUpdateDTO)
+	config?: #CorrelationConfigUpdateDTO @go(Config,*CorrelationConfigUpdateDTO)
 
 	// Optional description of the correlation
 	// Example: Logs to Traces
@@ -18,4 +18,7 @@ package models
 	// Optional label identifying the correlation
 	// Example: My label
 	label?: string @go(Label)
+
+	// type
+	type?: #CorrelationType @go(Type)
 }

@@ -4,6 +4,8 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // ServiceAccountProfileDTO service account profile DTO
 //
 // swagger:model ServiceAccountProfileDTO
@@ -14,6 +16,11 @@ package models
 	// avatar Url
 	// Example: /avatar/8ea890a677d6a223c591a1beea6ea9d2
 	avatarUrl?: string @go(AvatarURL)
+
+	// created at
+	// Example: 2022-03-21T14:35:33Z
+	// Format: date-time
+	createdAt?: strfmt.#DateTime @go(CreatedAt)
 
 	// id
 	// Example: 2
@@ -53,4 +60,13 @@ package models
 
 	// tokens
 	tokens?: int64 @go(Tokens)
+
+	// uid
+	// Example: fe1xejlha91xce
+	uid?: string @go(UID)
+
+	// updated at
+	// Example: 2022-03-21T14:35:33Z
+	// Format: date-time
+	updatedAt?: strfmt.#DateTime @go(UpdatedAt)
 }

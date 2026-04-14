@@ -4,7 +4,7 @@
 
 package models
 
-// AnnotationActions annotation actions
+// AnnotationActions +k8s:deepcopy-gen=true
 //
 // swagger:model AnnotationActions
 #AnnotationActions: {

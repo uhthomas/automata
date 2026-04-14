@@ -21,5 +21,5 @@ package models
 	orgId?: int64 @go(OrgID)
 
 	// password
-	password?: string @go(Password)
+	password?: #Password @go(Password)
 }

@@ -4,6 +4,8 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // Folder folder
 //
 // swagger:model Folder
@@ -23,6 +25,10 @@ package models
 	// can save
 	canSave?: bool @go(CanSave)
 
+	// created
+	// Format: date-time
+	created?: strfmt.#DateTime @go(Created)
+
 	// created by
 	createdBy?: string @go(CreatedBy)
 
@@ -32,6 +38,9 @@ package models
 	// Deprecated: use UID instead
 	id?: int64 @go(ID)
 
+	// managed by
+	managedBy?: #ManagerKind @go(ManagedBy)
+
 	// org Id
 	orgId?: int64 @go(OrgID)
 
@@ -39,13 +48,17 @@ package models
 	parentUid?: string @go(ParentUID)
 
 	// the parent folders starting from the root going down
-	parents: [...null | #Folder] @go(Parents,[]*Folder)
+	parents: [...#Folder] @go(Parents,[]*Folder)
 
 	// title
 	title?: string @go(Title)
 
 	// uid
 	uid?: string @go(UID)
+
+	// updated
+	// Format: date-time
+	updated?: strfmt.#DateTime @go(Updated)
 
 	// updated by
 	updatedBy?: string @go(UpdatedBy)

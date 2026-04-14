@@ -4,10 +4,10 @@
 
 package models
 
-// QueryHistoryPreference QueryHistoryPreference defines model for QueryHistoryPreference.
+// QueryHistoryPreference query history preference
 //
 // swagger:model QueryHistoryPreference
 #QueryHistoryPreference: {
-	// HomeTab one of: '' | 'query' | 'starred';
+	// home tab
 	homeTab?: string @go(HomeTab)
 }

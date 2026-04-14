@@ -9,5 +9,5 @@ package models
 // swagger:model QueryHistorySearchResponse
 #QueryHistorySearchResponse: {
 	// result
-	result?: null | #QueryHistorySearchResult @go(Result,*QueryHistorySearchResult)
+	result?: #QueryHistorySearchResult @go(Result,*QueryHistorySearchResult)
 }

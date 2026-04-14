@@ -18,7 +18,7 @@ package models
 	api_key_file?: string @go(APIKeyFile)
 
 	// api url
-	api_url?: null | #URL @go(APIURL,*URL)
+	api_url?: #URL @go(APIURL,*URL)
 
 	// description
 	description?: string @go(Description)
@@ -30,7 +30,7 @@ package models
 	entity?: string @go(Entity)
 
 	// http config
-	http_config?: null | #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
+	http_config?: #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
 
 	// message
 	message?: string @go(Message)
@@ -42,7 +42,7 @@ package models
 	priority?: string @go(Priority)
 
 	// responders
-	responders: [...null | #OpsGenieConfigResponder] @go(Responders,[]*OpsGenieConfigResponder)
+	responders: [...#OpsGenieConfigResponder] @go(Responders,[]*OpsGenieConfigResponder)
 
 	// send resolved
 	send_resolved?: bool @go(SendResolved)

@@ -12,5 +12,5 @@ package models
 	dashboard?: #JSON @go(Dashboard)
 
 	// meta
-	meta?: null | #DashboardMeta @go(Meta,*DashboardMeta)
+	meta?: #DashboardMeta @go(Meta,*DashboardMeta)
 }

@@ -10,4 +10,4 @@ package models
 // There should be no `nil` entries in the Frames slice (making them pointers was a mistake).
 //
 // swagger:model Frames
-#Frames: [...null | #Frame]
+#Frames: [...#Frame]

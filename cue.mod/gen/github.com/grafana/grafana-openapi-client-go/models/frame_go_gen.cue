@@ -16,10 +16,10 @@ package models
 	// Fields are the columns of a frame.
 	// All Fields must be of the same the length when marshalling the Frame for transmission.
 	// There should be no `nil` entries in the Fields slice (making them pointers was a mistake).
-	Fields: [...null | #Field] @go(,[]*Field)
+	Fields: [...#Field] @go(,[]*Field)
 
 	// meta
-	Meta?: null | #FrameMeta @go(,*FrameMeta)
+	Meta?: #FrameMeta @go(,*FrameMeta)
 
 	// Name is used in some Grafana visualizations.
 	Name?: string

@@ -9,7 +9,7 @@ package models
 // swagger:model CreateCorrelationCommand
 #CreateCorrelationCommand: {
 	// config
-	config?: null | #CorrelationConfig @go(Config,*CorrelationConfig)
+	config?: #CorrelationConfig @go(Config,*CorrelationConfig)
 
 	// Optional description of the correlation
 	// Example: Logs to Traces
@@ -22,7 +22,10 @@ package models
 	// True if correlation was created with provisioning. This makes it read-only.
 	provisioned?: bool @go(Provisioned)
 
-	// Target data source UID to which the correlation is created. required if config.type = query
+	// Target data source UID to which the correlation is created. required if type = query
 	// Example: PE1C5CBDA0504A6A3
 	targetUID?: string @go(TargetUID)
+
+	// type
+	type?: #CorrelationType @go(Type)
 }

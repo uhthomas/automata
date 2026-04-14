@@ -4,7 +4,7 @@
 
 package models
 
-// State state
+// State +enum
 //
 // swagger:model State
 #State: string

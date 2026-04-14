@@ -9,7 +9,7 @@ package models
 // swagger:model Description
 #Description: {
 	// assignments
-	assignments?: null | #Assignments @go(Assignments,*Assignments)
+	assignments?: #Assignments @go(Assignments,*Assignments)
 
 	// permissions
 	permissions: [...string] @go(Permissions,[]string)

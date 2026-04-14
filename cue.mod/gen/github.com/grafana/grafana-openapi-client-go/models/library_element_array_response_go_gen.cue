@@ -9,5 +9,5 @@ package models
 // swagger:model LibraryElementArrayResponse
 #LibraryElementArrayResponse: {
 	// result
-	result: [...null | #LibraryElementDTO] @go(Result,[]*LibraryElementDTO)
+	result: [...#LibraryElementDTO] @go(Result,[]*LibraryElementDTO)
 }

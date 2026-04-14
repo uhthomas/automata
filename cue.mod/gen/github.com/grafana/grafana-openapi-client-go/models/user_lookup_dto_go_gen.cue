@@ -14,6 +14,9 @@ package models
 	// login
 	login?: string @go(Login)
 
+	// uid
+	uid?: string @go(UID)
+
 	// user Id
 	userId?: int64 @go(UserID)
 }

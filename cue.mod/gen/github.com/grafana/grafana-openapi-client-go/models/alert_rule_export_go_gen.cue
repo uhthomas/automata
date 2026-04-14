@@ -14,31 +14,43 @@ package models
 	// condition
 	condition?: string @go(Condition)
 
-	// dasboard Uid
-	dasboardUid?: string @go(DasboardUID)
+	// dashboard Uid
+	dashboardUid?: string @go(DashboardUID)
 
 	// data
-	data: [...null | #AlertQueryExport] @go(Data,[]*AlertQueryExport)
+	data: [...#AlertQueryExport] @go(Data,[]*AlertQueryExport)
 
 	// exec err state
 	// Enum: [OK Alerting Error]
 	execErrState?: string @go(ExecErrState)
 
 	// for
-	for?: #Duration @go(For)
+	for?: string @go(For)
 
 	// is paused
 	isPaused?: bool @go(IsPaused)
 
+	// keep firing for
+	keepFiringFor?: string @go(KeepFiringFor)
+
 	// labels
 	labels?: {[string]: string} @go(Labels,map[string]string)
+
+	// missing series evals to resolve
+	missing_series_evals_to_resolve?: int64 @go(MissingSeriesEvalsToResolve)
 
 	// no data state
 	// Enum: [Alerting NoData OK]
 	noDataState?: string @go(NoDataState)
 
+	// notification settings
+	notification_settings?: #AlertRuleNotificationSettingsExport @go(NotificationSettings,*AlertRuleNotificationSettingsExport)
+
 	// panel Id
 	panelId?: int64 @go(PanelID)
+
+	// record
+	record?: #AlertRuleRecordExport @go(Record,*AlertRuleRecordExport)
 
 	// title
 	title?: string @go(Title)

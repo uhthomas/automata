@@ -9,23 +9,26 @@ package models
 // swagger:model GettableApiAlertingConfig
 #GettableAPIAlertingConfig: {
 	// global
-	global?: null | #GlobalConfig @go(Global,*GlobalConfig)
+	global?: #GlobalConfig @go(Global,*GlobalConfig)
 
 	// inhibit rules
-	inhibit_rules: [...null | #InhibitRule] @go(InhibitRules,[]*InhibitRule)
+	inhibit_rules: [...#InhibitRule] @go(InhibitRules,[]*InhibitRule)
 
 	// mute time provenances
 	muteTimeProvenances?: {[string]: #Provenance} @go(MuteTimeProvenances,map[string]Provenance)
 
-	// mute time intervals
-	mute_time_intervals: [...null | #MuteTimeInterval] @go(MuteTimeIntervals,[]*MuteTimeInterval)
+	// MuteTimeIntervals is deprecated and will be removed before Alertmanager 1.0.
+	mute_time_intervals: [...#MuteTimeInterval] @go(MuteTimeIntervals,[]*MuteTimeInterval)
 
 	// Override with our superset receiver type
-	receivers: [...null | #GettableAPIReceiver] @go(Receivers,[]*GettableAPIReceiver)
+	receivers: [...#GettableAPIReceiver] @go(Receivers,[]*GettableAPIReceiver)
 
 	// route
-	route?: null | #Route @go(Route,*Route)
+	route?: #Route @go(Route,*Route)
 
 	// templates
 	templates: [...string] @go(Templates,[]string)
+
+	// time intervals
+	time_intervals: [...#TimeInterval] @go(TimeIntervals,[]*TimeInterval)
 }

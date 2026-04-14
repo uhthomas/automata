@@ -20,7 +20,7 @@ package models
 	// created
 	created?: int64 @go(Created)
 
-	// dashboard Id
+	// Deprecated: Use DashboardUID and OrgID instead
 	dashboardId?: int64 @go(DashboardID)
 
 	// dashboard UID

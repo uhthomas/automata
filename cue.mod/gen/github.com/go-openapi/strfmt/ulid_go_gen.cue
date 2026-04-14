@@ -4,7 +4,7 @@
 
 package strfmt
 
-// ULID represents a ulid string format
+// ULID represents a [ulid] string format
 // ref:
 //
 //	https://github.com/ulid/spec
@@ -13,5 +13,5 @@ package strfmt
 //
 //	https://github.com/oklog/ulid
 //
-// swagger:strfmt ulid
+// swagger:[strfmt] [ulid]
 #ULID: _

@@ -9,5 +9,5 @@ package models
 // swagger:model setPermissionsCommand
 #SetPermissionsCommand: {
 	// permissions
-	permissions: [...null | #SetResourcePermissionCommand] @go(Permissions,[]*SetResourcePermissionCommand)
+	permissions: [...#SetResourcePermissionCommand] @go(Permissions,[]*SetResourcePermissionCommand)
 }

@@ -18,5 +18,5 @@ package models
 	name?: string @go(Name)
 
 	// serviceaccount
-	serviceaccount?: null | #ServiceAccountProfileDTO @go(Serviceaccount,*ServiceAccountProfileDTO)
+	serviceaccount?: #ServiceAccountProfileDTO @go(Serviceaccount,*ServiceAccountProfileDTO)
 }

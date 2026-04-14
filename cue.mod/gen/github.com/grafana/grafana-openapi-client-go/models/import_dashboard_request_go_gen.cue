@@ -18,7 +18,7 @@ package models
 	folderUid?: string @go(FolderUID)
 
 	// inputs
-	inputs: [...null | #ImportDashboardInput] @go(Inputs,[]*ImportDashboardInput)
+	inputs: [...#ImportDashboardInput] @go(Inputs,[]*ImportDashboardInput)
 
 	// overwrite
 	overwrite?: bool @go(Overwrite)

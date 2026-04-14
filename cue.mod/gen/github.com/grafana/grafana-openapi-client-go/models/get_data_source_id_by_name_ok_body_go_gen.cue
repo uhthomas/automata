@@ -11,5 +11,5 @@ package models
 	// ID Identifier of the data source.
 	// Example: 65
 	// Required: true
-	id?: null | int64 @go(ID,*int64)
+	id?: int64 @go(ID,*int64)
 }

@@ -12,5 +12,5 @@ package models
 	mode?: #ThresholdsMode @go(Mode)
 
 	// Must be sorted by 'value', first value is always -Infinity
-	steps: [...null | #Threshold] @go(Steps,[]*Threshold)
+	steps: [...#Threshold] @go(Steps,[]*Threshold)
 }

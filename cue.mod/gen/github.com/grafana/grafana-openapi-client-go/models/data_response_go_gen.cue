@@ -15,7 +15,7 @@ package models
 	Error?: string
 
 	// error source
-	ErrorSource?: #ErrorSource
+	ErrorSource?: #Source
 
 	// frames
 	Frames?: #Frames

@@ -9,5 +9,5 @@ package models
 // swagger:model SearchResult
 #SearchResult: {
 	// result
-	result: [...null | #SearchResultItem] @go(Result,[]*SearchResultItem)
+	result: [...#SearchResultItem] @go(Result,[]*SearchResultItem)
 }

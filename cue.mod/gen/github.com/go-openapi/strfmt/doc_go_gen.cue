@@ -2,7 +2,5 @@
 
 //cue:generate cue get go github.com/go-openapi/strfmt
 
-// Package strfmt contains custom string formats
-//
-// TODO: add info on how to define and register a custom format
+// Package strfmt contains custom string formats.
 package strfmt

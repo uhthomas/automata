@@ -9,5 +9,5 @@ package models
 // swagger:model FieldTypeConfig
 #FieldTypeConfig: {
 	// enum
-	enum?: null | #EnumFieldConfig @go(Enum,*EnumFieldConfig)
+	enum?: #EnumFieldConfig @go(Enum,*EnumFieldConfig)
 }

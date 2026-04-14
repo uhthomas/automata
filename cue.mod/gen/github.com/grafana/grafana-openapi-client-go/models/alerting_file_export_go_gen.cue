@@ -12,14 +12,14 @@ package models
 	apiVersion?: int64 @go(APIVersion)
 
 	// contact points
-	contactPoints: [...null | #ContactPointExport] @go(ContactPoints,[]*ContactPointExport)
+	contactPoints: [...#ContactPointExport] @go(ContactPoints,[]*ContactPointExport)
 
 	// groups
-	groups: [...null | #AlertRuleGroupExport] @go(Groups,[]*AlertRuleGroupExport)
+	groups: [...#AlertRuleGroupExport] @go(Groups,[]*AlertRuleGroupExport)
 
 	// mute times
-	muteTimes: [...null | #MuteTimeIntervalExport] @go(MuteTimes,[]*MuteTimeIntervalExport)
+	muteTimes: [...#MuteTimeIntervalExport] @go(MuteTimes,[]*MuteTimeIntervalExport)
 
 	// policies
-	policies: [...null | #NotificationPolicyExport] @go(Policies,[]*NotificationPolicyExport)
+	policies: [...#NotificationPolicyExport] @go(Policies,[]*NotificationPolicyExport)
 }

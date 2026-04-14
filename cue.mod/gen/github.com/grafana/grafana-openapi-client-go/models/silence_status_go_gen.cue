@@ -11,7 +11,7 @@ package models
 	// state
 	// Required: true
 	// Enum: [[expired active pending]]
-	state?: null | string @go(State,*string)
+	state?: string @go(State,*string)
 }
 
 // SilenceStatusStateExpiredActivePending captures enum value "[expired active pending]"

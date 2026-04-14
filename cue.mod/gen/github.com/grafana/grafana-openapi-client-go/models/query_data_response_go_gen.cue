@@ -10,6 +10,6 @@ package models
 //
 // swagger:model QueryDataResponse
 #QueryDataResponse: {
-	// responses
-	Responses?: #Responses
+	// results
+	results?: #Responses @go(Results)
 }

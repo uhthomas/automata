@@ -4,6 +4,8 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // EvalAlertConditionCommand EvalAlertConditionCommand is the command for evaluating a condition
 //
 // swagger:model EvalAlertConditionCommand
@@ -12,5 +14,9 @@ package models
 	condition?: string @go(Condition)
 
 	// data
-	data: [...null | #AlertQuery] @go(Data,[]*AlertQuery)
+	data: [...#AlertQuery] @go(Data,[]*AlertQuery)
+
+	// now
+	// Format: date-time
+	now?: strfmt.#DateTime @go(Now)
 }

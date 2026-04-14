@@ -9,10 +9,10 @@ package models
 // swagger:model WebexConfig
 #WebexConfig: {
 	// api url
-	api_url?: null | #URL @go(APIURL,*URL)
+	api_url?: #URL @go(APIURL,*URL)
 
 	// http config
-	http_config?: null | #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
+	http_config?: #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
 
 	// message
 	message?: string @go(Message)

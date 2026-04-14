@@ -14,30 +14,30 @@ package models
 	// ID The unique identifier (id) of the created/updated dashboard.
 	// Example: 1
 	// Required: true
-	id?: null | int64 @go(ID,*int64)
+	id?: int64 @go(ID,*int64)
 
 	// Status status of the response.
 	// Example: success
 	// Required: true
-	status?: null | string @go(Status,*string)
+	status?: string @go(Status,*string)
 
 	// Slug The slug of the dashboard.
 	// Example: my-dashboard
 	// Required: true
-	title?: null | string @go(Title,*string)
+	title?: string @go(Title,*string)
 
 	// UID The unique identifier (uid) of the created/updated dashboard.
 	// Example: nHz3SXiiz
 	// Required: true
-	uid?: null | string @go(UID,*string)
+	uid?: string @go(UID,*string)
 
 	// URL The relative URL for accessing the created/updated dashboard.
 	// Example: /d/nHz3SXiiz/my-dashboard
 	// Required: true
-	url?: null | string @go(URL,*string)
+	url?: string @go(URL,*string)
 
 	// Version The version of the dashboard.
 	// Example: 2
 	// Required: true
-	version?: null | int64 @go(Version,*int64)
+	version?: int64 @go(Version,*int64)
 }

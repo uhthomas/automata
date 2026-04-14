@@ -9,5 +9,5 @@ package models
 // swagger:model AdminUpdateUserPasswordForm
 #AdminUpdateUserPasswordForm: {
 	// password
-	password?: string @go(Password)
+	password?: #Password @go(Password)
 }

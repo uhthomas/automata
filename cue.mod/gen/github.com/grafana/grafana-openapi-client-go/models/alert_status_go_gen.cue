@@ -19,7 +19,7 @@ package models
 	// state
 	// Required: true
 	// Enum: [[unprocessed active suppressed]]
-	state?: null | string @go(State,*string)
+	state?: string @go(State,*string)
 }
 
 // AlertStatusStateUnprocessedActiveSuppressed captures enum value "[unprocessed active suppressed]"

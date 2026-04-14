@@ -12,12 +12,12 @@ package models
 	name?: string @go(Name)
 
 	// peers
-	peers: [...null | #PeerStatus] @go(Peers,[]*PeerStatus)
+	peers: [...#PeerStatus] @go(Peers,[]*PeerStatus)
 
 	// status
 	// Required: true
 	// Enum: [[ready settling disabled]]
-	status?: null | string @go(Status,*string)
+	status?: string @go(Status,*string)
 }
 
 // ClusterStatusStatusReadySettlingDisabled captures enum value "[ready settling disabled]"

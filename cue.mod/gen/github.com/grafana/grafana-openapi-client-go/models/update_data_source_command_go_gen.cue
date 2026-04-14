@@ -44,7 +44,7 @@ package models
 	// user
 	user?: string @go(User)
 
-	// version
+	// The previous version -- used for optimistic locking
 	version?: int64 @go(Version)
 
 	// with credentials

@@ -9,5 +9,6 @@ package models
 // swagger:model AddTeamMemberCommand
 #AddTeamMemberCommand: {
 	// user Id
-	userId?: int64 @go(UserID)
+	// Required: true
+	userId?: int64 @go(UserID,*int64)
 }

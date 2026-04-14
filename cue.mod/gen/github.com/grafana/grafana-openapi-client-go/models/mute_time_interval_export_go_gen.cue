@@ -15,5 +15,5 @@ package models
 	orgId?: int64 @go(OrgID)
 
 	// time intervals
-	time_intervals: [...null | #TimeInterval] @go(TimeIntervals,[]*TimeInterval)
+	time_intervals: [...#TimeInterval] @go(TimeIntervals,[]*TimeInterval)
 }

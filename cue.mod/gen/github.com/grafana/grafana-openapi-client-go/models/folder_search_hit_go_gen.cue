@@ -11,6 +11,9 @@ package models
 	// id
 	id?: int64 @go(ID)
 
+	// managed by
+	managedBy?: #ManagerKind @go(ManagedBy)
+
 	// parent Uid
 	parentUid?: string @go(ParentUID)
 

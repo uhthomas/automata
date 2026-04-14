@@ -7,4 +7,4 @@ package models
 // ProvisionedAlertRules provisioned alert rules
 //
 // swagger:model ProvisionedAlertRules
-#ProvisionedAlertRules: [...null | #ProvisionedAlertRule]
+#ProvisionedAlertRules: [...#ProvisionedAlertRule]

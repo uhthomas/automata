@@ -14,6 +14,12 @@ package models
 	// orientation
 	orientation?: string @go(Orientation)
 
+	// pdf combine one file
+	pdfCombineOneFile?: bool @go(PDFCombineOneFile)
+
+	// pdf show template variables
+	pdfShowTemplateVariables?: bool @go(PDFShowTemplateVariables)
+
 	// time range
-	timeRange?: null | #ReportTimeRange @go(TimeRange,*ReportTimeRange)
+	timeRange?: #ReportTimeRange @go(TimeRange,*ReportTimeRange)
 }

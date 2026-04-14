@@ -8,14 +8,26 @@ package models
 //
 // swagger:model GettableRuleGroupConfig
 #GettableRuleGroupConfig: {
+	// align evaluation time on interval
+	align_evaluation_time_on_interval?: bool @go(AlignEvaluationTimeOnInterval)
+
+	// evaluation delay
+	evaluation_delay?: string @go(EvaluationDelay)
+
 	// interval
 	interval?: #Duration @go(Interval)
+
+	// limit
+	limit?: int64 @go(Limit)
 
 	// name
 	name?: string @go(Name)
 
+	// query offset
+	query_offset?: string @go(QueryOffset)
+
 	// rules
-	rules: [...null | #GettableExtendedRuleNode] @go(Rules,[]*GettableExtendedRuleNode)
+	rules: [...#GettableExtendedRuleNode] @go(Rules,[]*GettableExtendedRuleNode)
 
 	// source tenants
 	source_tenants: [...string] @go(SourceTenants,[]string)

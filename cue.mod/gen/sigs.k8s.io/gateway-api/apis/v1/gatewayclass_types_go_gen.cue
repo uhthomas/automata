@@ -25,9 +25,12 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // GatewayClass is a Cluster level resource.
 #GatewayClass: {
 	metav1.#TypeMeta
+
+	// +optional
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta)
 
 	// Spec defines the desired state of GatewayClass.
+	// +required
 	spec: #GatewayClassSpec @go(Spec)
 
 	// Status defines the current state of GatewayClass.
@@ -36,6 +39,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// specify their controller name.
 	//
 	// +kubebuilder:default={conditions: {{type: "Accepted", status: "Unknown", message: "Waiting for controller", reason: "Pending", lastTransitionTime: "1970-01-01T00:00:00Z"}}}
+	// +optional
 	status?: #GatewayClassStatus @go(Status)
 }
 
@@ -56,6 +60,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Core
 	//
 	// +kubebuilder:validation:XValidation:message="Value is immutable",rule="self == oldSelf"
+	// +required
 	controllerName: #GatewayController @go(ControllerName)
 
 	// ParametersRef is a reference to a resource that contains the configuration
@@ -78,28 +83,31 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Implementation-specific
 	//
 	// +optional
-	parametersRef?: null | #ParametersReference @go(ParametersRef,*ParametersReference)
+	parametersRef?: #ParametersReference @go(ParametersRef,*ParametersReference)
 
 	// Description helps describe a GatewayClass with more details.
 	//
 	// +kubebuilder:validation:MaxLength=64
 	// +optional
-	description?: null | string @go(Description,*string)
+	description?: string @go(Description,*string)
 }
 
 // ParametersReference identifies an API object containing controller-specific
 // configuration resource within the cluster.
 #ParametersReference: {
 	// Group is the group of the referent.
+	// +required
 	group: #Group @go(Group)
 
 	// Kind is kind of the referent.
+	// +required
 	kind: #Kind @go(Kind)
 
 	// Name is the name of the referent.
 	//
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=253
+	// +required
 	name: string @go(Name)
 
 	// Namespace is the namespace of the referent.
@@ -107,7 +115,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// MUST be unset when referring to a Cluster-scoped resource.
 	//
 	// +optional
-	namespace?: null | #Namespace @go(Namespace,*Namespace)
+	namespace?: #Namespace @go(Namespace,*Namespace)
 }
 
 // GatewayClassConditionType is the type for status conditions on
@@ -238,6 +246,35 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Controllers should prefer to publish conditions using values
 	// of GatewayClassConditionType for the type of each Condition.
 	//
+	// <gateway:util:excludeFromCRD>
+	// Notes for implementors:
+	//
+	// Conditions are a listType `map`, which means that they function like a
+	// map with a key of the `type` field _in the k8s apiserver_.
+	//
+	// This means that implementations must obey some rules when updating this
+	// section.
+	//
+	// * Implementations MUST perform a read-modify-write cycle on this field
+	//   before modifying it. That is, when modifying this field, implementations
+	//   must be confident they have fetched the most recent version of this field,
+	//   and ensure that changes they make are on that recent version.
+	// * Implementations MUST NOT remove or reorder Conditions that they are not
+	//   directly responsible for. For example, if an implementation sees a Condition
+	//   with type `special.io/SomeField`, it MUST NOT remove, change or update that
+	//   Condition.
+	// * Implementations MUST always _merge_ changes into Conditions of the same Type,
+	//   rather than creating more than one Condition of the same Type.
+	// * Implementations MUST always update the `observedGeneration` field of the
+	//   Condition to the `metadata.generation` of the Gateway at the time of update creation.
+	// * If the `observedGeneration` of a Condition is _greater than_ the value the
+	//   implementation knows about, then it MUST NOT perform the update on that Condition,
+	//   but must wait for a future reconciliation and status update. (The assumption is that
+	//   the implementation's copy of the object is stale and an update will be re-triggered
+	//   if relevant.)
+	//
+	// </gateway:util:excludeFromCRD>
+	//
 	// +optional
 	// +listType=map
 	// +listMapKey=type
@@ -250,7 +287,6 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// +optional
 	// +listType=map
 	// +listMapKey=name
-	// <gateway:experimental>
 	// +kubebuilder:validation:MaxItems=64
 	supportedFeatures?: [...#SupportedFeature] @go(SupportedFeatures,[]SupportedFeature)
 }

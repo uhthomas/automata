@@ -4,6 +4,9 @@
 
 package v1beta1
 
+// +kubebuilder:object:generate=false
+#NamespacedResourceChecker: _
+
 #NamespacedResource: string
 
 #NamespacedResourceList: [...#NamespacedResource]

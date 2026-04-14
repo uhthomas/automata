@@ -9,10 +9,10 @@ package models
 // swagger:model HTTPClientConfig
 #HTTPClientConfig: {
 	// authorization
-	authorization?: null | #Authorization @go(Authorization,*Authorization)
+	authorization?: #Authorization @go(Authorization,*Authorization)
 
 	// basic auth
-	basic_auth?: null | #BasicAuth @go(BasicAuth,*BasicAuth)
+	basic_auth?: #BasicAuth @go(BasicAuth,*BasicAuth)
 
 	// bearer token
 	bearer_token?: #Secret @go(BearerToken)
@@ -31,22 +31,25 @@ package models
 	// marshalled configuration when set to false.
 	follow_redirects?: bool @go(FollowRedirects)
 
+	// http headers
+	http_headers?: #Headers @go(HTTPHeaders,*Headers)
+
 	// NoProxy contains addresses that should not use a proxy.
 	no_proxy?: string @go(NoProxy)
 
 	// oauth2
-	oauth2?: null | #OAuth2 @go(Oauth2,*OAuth2)
+	oauth2?: #OAuth2 @go(Oauth2,*OAuth2)
 
 	// proxy connect header
-	proxy_connect_header?: #Header @go(ProxyConnectHeader)
+	proxy_connect_header?: #ProxyHeader @go(ProxyConnectHeader)
 
 	// ProxyFromEnvironment makes use of net/http ProxyFromEnvironment function
 	// to determine proxies.
 	proxy_from_environment?: bool @go(ProxyFromEnvironment)
 
 	// proxy url
-	proxy_url?: null | #URL @go(ProxyURL,*URL)
+	proxy_url?: #URL @go(ProxyURL,*URL)
 
 	// tls config
-	tls_config?: null | #TLSConfig @go(TLSConfig,*TLSConfig)
+	tls_config?: #TLSConfig @go(TLSConfig,*TLSConfig)
 }

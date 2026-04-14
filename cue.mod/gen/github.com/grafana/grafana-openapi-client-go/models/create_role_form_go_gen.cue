@@ -27,7 +27,7 @@ package models
 	name?: string @go(Name)
 
 	// permissions
-	permissions: [...null | #Permission] @go(Permissions,[]*Permission)
+	permissions: [...#Permission] @go(Permissions,[]*Permission)
 
 	// uid
 	uid?: string @go(UID)

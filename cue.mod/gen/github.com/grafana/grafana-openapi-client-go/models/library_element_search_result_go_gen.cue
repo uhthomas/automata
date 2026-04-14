@@ -9,7 +9,7 @@ package models
 // swagger:model LibraryElementSearchResult
 #LibraryElementSearchResult: {
 	// elements
-	elements: [...null | #LibraryElementDTO] @go(Elements,[]*LibraryElementDTO)
+	elements: [...#LibraryElementDTO] @go(Elements,[]*LibraryElementDTO)
 
 	// page
 	page?: int64 @go(Page)

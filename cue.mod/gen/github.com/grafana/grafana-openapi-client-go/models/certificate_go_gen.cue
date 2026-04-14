@@ -4,6 +4,8 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // Certificate A Certificate represents an X.509 certificate.
 //
 // swagger:model Certificate
@@ -33,7 +35,7 @@ package models
 	ExcludedEmailAddresses: [...string] @go(,[]string)
 
 	// excluded IP ranges
-	ExcludedIPRanges: [...null | #IPNet] @go(,[]*IPNet)
+	ExcludedIPRanges: [...#IPNet] @go(,[]*IPNet)
 
 	// excluded URI domains
 	ExcludedURIDomains: [...string] @go(,[]string)
@@ -45,22 +47,62 @@ package models
 	// this can be used to extract non-critical extensions that are not
 	// parsed by this package. When marshaling certificates, the Extensions
 	// field is ignored, see ExtraExtensions.
-	Extensions: [...null | #Extension] @go(,[]*Extension)
+	Extensions: [...#Extension] @go(,[]*Extension)
 
 	// ExtraExtensions contains extensions to be copied, raw, into any
 	// marshaled certificates. Values override any extensions that would
 	// otherwise be produced based on the other fields. The ExtraExtensions
 	// field is not populated when parsing certificates, see Extensions.
-	ExtraExtensions: [...null | #Extension] @go(,[]*Extension)
+	ExtraExtensions: [...#Extension] @go(,[]*Extension)
 
 	// IP addresses
 	IPAddresses: [...string] @go(,[]string)
+
+	// InhibitAnyPolicy and InhibitAnyPolicyZero indicate the presence and value
+	// of the inhibitAnyPolicy extension.
+	//
+	// The value of InhibitAnyPolicy indicates the number of additional
+	// certificates in the path after this certificate that may use the
+	// anyPolicy policy OID to indicate a match with any other policy.
+	//
+	// When parsing a certificate, a positive non-zero InhibitAnyPolicy means
+	// that the field was specified, -1 means it was unset, and
+	// InhibitAnyPolicyZero being true mean that the field was explicitly set to
+	// zero. The case of InhibitAnyPolicy==0 with InhibitAnyPolicyZero==false
+	// should be treated equivalent to -1 (unset).
+	InhibitAnyPolicy?: int64
+
+	// InhibitAnyPolicyZero indicates that InhibitAnyPolicy==0 should be
+	// interpreted as an actual maximum path length of zero. Otherwise, that
+	// combination is interpreted as InhibitAnyPolicy not being set.
+	InhibitAnyPolicyZero?: bool
+
+	// InhibitPolicyMapping and InhibitPolicyMappingZero indicate the presence
+	// and value of the inhibitPolicyMapping field of the policyConstraints
+	// extension.
+	//
+	// The value of InhibitPolicyMapping indicates the number of additional
+	// certificates in the path after this certificate that may use policy
+	// mapping.
+	//
+	// When parsing a certificate, a positive non-zero InhibitPolicyMapping
+	// means that the field was specified, -1 means it was unset, and
+	// InhibitPolicyMappingZero being true mean that the field was explicitly
+	// set to zero. The case of InhibitPolicyMapping==0 with
+	// InhibitPolicyMappingZero==false should be treated equivalent to -1
+	// (unset).
+	InhibitPolicyMapping?: int64
+
+	// InhibitPolicyMappingZero indicates that InhibitPolicyMapping==0 should be
+	// interpreted as an actual maximum path length of zero. Otherwise, that
+	// combination is interpreted as InhibitAnyPolicy not being set.
+	InhibitPolicyMappingZero?: bool
 
 	// is c a
 	IsCA?: bool
 
 	// issuer
-	Issuer?: null | #Name @go(,*Name)
+	Issuer?: #Name @go(,*Name)
 
 	// issuing certificate URL
 	IssuingCertificateURL: [...string] @go(,[]string)
@@ -88,6 +130,10 @@ package models
 	// interpreted as MaxPathLen not being set.
 	MaxPathLenZero?: bool
 
+	// not before
+	// Format: date-time
+	NotBefore?: strfmt.#DateTime
+
 	// RFC 5280, 4.2.2.1 (Authority Information Access)
 	OCSPServer: [...string] @go(,[]string)
 
@@ -101,13 +147,28 @@ package models
 	PermittedEmailAddresses: [...string] @go(,[]string)
 
 	// permitted IP ranges
-	PermittedIPRanges: [...null | #IPNet] @go(,[]*IPNet)
+	PermittedIPRanges: [...#IPNet] @go(,[]*IPNet)
 
 	// permitted URI domains
 	PermittedURIDomains: [...string] @go(,[]string)
 
-	// policy identifiers
+	// Policies contains all policy identifiers included in the certificate.
+	// See CreateCertificate for context about how this field and the PolicyIdentifiers field
+	// interact.
+	// In Go 1.22, encoding/gob cannot handle and ignores this field.
+	Policies: [...string] @go(,[]string)
+
+	// PolicyIdentifiers contains asn1.ObjectIdentifiers, the components
+	// of which are limited to int32. If a certificate contains a policy which
+	// cannot be represented by asn1.ObjectIdentifier, it will not be included in
+	// PolicyIdentifiers, but will be present in Policies, which contains all parsed
+	// policy OIDs.
+	// See CreateCertificate for context about how this field and the Policies field
+	// interact.
 	PolicyIdentifiers: [...#ObjectIdentifier] @go(,[]ObjectIdentifier)
+
+	// PolicyMappings contains a list of policy mappings included in the certificate.
+	PolicyMappings: [...#PolicyMapping] @go(,[]*PolicyMapping)
 
 	// public key
 	PublicKey?: _ @go(,interface{})
@@ -130,6 +191,30 @@ package models
 	// raw t b s certificate
 	RawTBSCertificate: [...uint8] @go(,[]uint8)
 
+	// RequireExplicitPolicy and RequireExplicitPolicyZero indicate the presence
+	// and value of the requireExplicitPolicy field of the policyConstraints
+	// extension.
+	//
+	// The value of RequireExplicitPolicy indicates the number of additional
+	// certificates in the path after this certificate before an explicit policy
+	// is required for the rest of the path. When an explicit policy is required,
+	// each subsequent certificate in the path must contain a required policy OID,
+	// or a policy OID which has been declared as equivalent through the policy
+	// mapping extension.
+	//
+	// When parsing a certificate, a positive non-zero RequireExplicitPolicy
+	// means that the field was specified, -1 means it was unset, and
+	// RequireExplicitPolicyZero being true mean that the field was explicitly
+	// set to zero. The case of RequireExplicitPolicy==0 with
+	// RequireExplicitPolicyZero==false should be treated equivalent to -1
+	// (unset).
+	RequireExplicitPolicy?: int64
+
+	// RequireExplicitPolicyZero indicates that RequireExplicitPolicy==0 should be
+	// interpreted as an actual maximum path length of zero. Otherwise, that
+	// combination is interpreted as InhibitAnyPolicy not being set.
+	RequireExplicitPolicyZero?: bool
+
 	// serial number
 	SerialNumber?: string
 
@@ -140,13 +225,13 @@ package models
 	SignatureAlgorithm?: #SignatureAlgorithm
 
 	// subject
-	Subject?: null | #Name @go(,*Name)
+	Subject?: #Name @go(,*Name)
 
 	// subject key Id
 	SubjectKeyId: [...uint8] @go(SubjectKeyID,[]uint8)
 
 	// u r is
-	URIs: [...null | #URL] @go(,[]*URL)
+	URIs: [...#URL] @go(,[]*URL)
 
 	// UnhandledCriticalExtensions contains a list of extension IDs that
 	// were not (fully) processed when parsing. Verify will fail if this

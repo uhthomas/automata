@@ -27,7 +27,7 @@ package models
 
 	// Notices provide additional information about the data in the Frame that
 	// Grafana can display to the user in the user interface.
-	notices: [...null | #Notice] @go(Notices,[]*Notice)
+	notices: [...#Notice] @go(Notices,[]*Notice)
 
 	// Path is a browsable path on the datasource.
 	path?: string @go(Path)
@@ -43,7 +43,7 @@ package models
 	preferredVisualisationType?: #VisType @go(PreferredVisualisationType)
 
 	// Stats is an array of query result statistics.
-	stats: [...null | #QueryStat] @go(Stats,[]*QueryStat)
+	stats: [...#QueryStat] @go(Stats,[]*QueryStat)
 
 	// type
 	type?: #FrameType @go(Type)

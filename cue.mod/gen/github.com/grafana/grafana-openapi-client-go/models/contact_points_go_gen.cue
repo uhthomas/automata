@@ -7,4 +7,4 @@ package models
 // ContactPoints contact points
 //
 // swagger:model ContactPoints
-#ContactPoints: [...null | #EmbeddedContactPoint]
+#ContactPoints: [...#EmbeddedContactPoint]

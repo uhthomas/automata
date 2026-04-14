@@ -41,6 +41,9 @@ package models
 	// team Id
 	teamId?: int64 @go(TeamID)
 
+	// team Uid
+	teamUid?: string @go(TeamUID)
+
 	// user avatar Url
 	userAvatarUrl?: string @go(UserAvatarURL)
 
@@ -49,4 +52,7 @@ package models
 
 	// user login
 	userLogin?: string @go(UserLogin)
+
+	// user Uid
+	userUid?: string @go(UserUID)
 }

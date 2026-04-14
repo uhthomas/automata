@@ -12,7 +12,7 @@ package models
 // swagger:model SlackAction
 #SlackAction: {
 	// confirm
-	confirm?: null | #SlackConfirmationField @go(Confirm,*SlackConfirmationField)
+	confirm?: #SlackConfirmationField @go(Confirm,*SlackConfirmationField)
 
 	// name
 	name?: string @go(Name)

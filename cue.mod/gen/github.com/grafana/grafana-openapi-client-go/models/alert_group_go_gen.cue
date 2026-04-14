@@ -10,7 +10,7 @@ package models
 #AlertGroup: {
 	// alerts
 	// Required: true
-	alerts: [...null | #GettableAlert] @go(Alerts,[]*GettableAlert)
+	alerts: [...#GettableAlert] @go(Alerts,[]*GettableAlert)
 
 	// labels
 	// Required: true
@@ -18,5 +18,5 @@ package models
 
 	// receiver
 	// Required: true
-	receiver?: null | #Receiver @go(Receiver,*Receiver)
+	receiver?: #Receiver @go(Receiver,*Receiver)
 }

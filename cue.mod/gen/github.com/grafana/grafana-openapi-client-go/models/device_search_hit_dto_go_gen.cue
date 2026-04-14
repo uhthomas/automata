@@ -4,6 +4,8 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // DeviceSearchHitDTO device search hit DTO
 //
 // swagger:model DeviceSearchHitDTO
@@ -11,8 +13,20 @@ package models
 	// client Ip
 	clientIp?: string @go(ClientIP)
 
+	// created at
+	// Format: date-time
+	createdAt?: strfmt.#DateTime @go(CreatedAt)
+
 	// device Id
 	deviceId?: string @go(DeviceID)
+
+	// last seen at
+	// Format: date-time
+	lastSeenAt?: strfmt.#DateTime @go(LastSeenAt)
+
+	// updated at
+	// Format: date-time
+	updatedAt?: strfmt.#DateTime @go(UpdatedAt)
 
 	// user agent
 	userAgent?: string @go(UserAgent)

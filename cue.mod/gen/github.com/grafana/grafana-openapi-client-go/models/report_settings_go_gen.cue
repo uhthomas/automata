@@ -9,13 +9,19 @@ package models
 // swagger:model ReportSettings
 #ReportSettings: {
 	// branding
-	branding?: null | #ReportBrandingOptions @go(Branding,*ReportBrandingOptions)
+	branding?: #ReportBrandingOptions @go(Branding,*ReportBrandingOptions)
+
+	// embedded image theme
+	embeddedImageTheme?: string @go(EmbeddedImageTheme)
 
 	// id
 	id?: int64 @go(ID)
 
 	// org Id
 	orgId?: int64 @go(OrgID)
+
+	// pdf theme
+	pdfTheme?: string @go(PDFTheme)
 
 	// user Id
 	userId?: int64 @go(UserID)

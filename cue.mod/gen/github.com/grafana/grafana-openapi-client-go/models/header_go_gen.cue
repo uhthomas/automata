@@ -4,7 +4,16 @@
 
 package models
 
-// Header header
+// Header Header represents the configuration for a single HTTP header.
 //
 // swagger:model Header
-#Header: {[string]: [...#Secret]}
+#Header: {
+	// files
+	files: [...string] @go(Files,[]string)
+
+	// secrets
+	secrets: [...#Secret] @go(Secrets,[]Secret)
+
+	// values
+	values: [...string] @go(Values,[]string)
+}

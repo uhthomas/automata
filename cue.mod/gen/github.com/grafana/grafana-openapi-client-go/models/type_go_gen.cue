@@ -4,7 +4,7 @@
 
 package models
 
-// Type type
+// Type +enum
 //
 // swagger:model Type
 #Type: string

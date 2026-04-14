@@ -9,5 +9,5 @@ package models
 // swagger:model GetAnnotationTagsResponse
 #GetAnnotationTagsResponse: {
 	// result
-	result?: null | #FindTagsResult @go(Result,*FindTagsResult)
+	result?: #FindTagsResult @go(Result,*FindTagsResult)
 }

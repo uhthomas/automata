@@ -4,7 +4,7 @@
 
 package models
 
-// ObjectMatchers object matchers
+// ObjectMatchers ObjectMatchers is a list of matchers that can be used to filter alerts.
 //
 // swagger:model ObjectMatchers
 #ObjectMatchers: [...#ObjectMatcher]

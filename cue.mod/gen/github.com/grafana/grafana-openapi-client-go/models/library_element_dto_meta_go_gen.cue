@@ -4,6 +4,8 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // LibraryElementDTOMeta LibraryElementDTOMeta is the meta information for LibraryElementDTO.
 //
 // swagger:model LibraryElementDTOMeta
@@ -11,8 +13,12 @@ package models
 	// connected dashboards
 	connectedDashboards?: int64 @go(ConnectedDashboards)
 
+	// created
+	// Format: date-time
+	created?: strfmt.#DateTime @go(Created)
+
 	// created by
-	createdBy?: null | #LibraryElementDTOMetaUser @go(CreatedBy,*LibraryElementDTOMetaUser)
+	createdBy?: #LibraryElementDTOMetaUser @go(CreatedBy,*LibraryElementDTOMetaUser)
 
 	// folder name
 	folderName?: string @go(FolderName)
@@ -20,6 +26,10 @@ package models
 	// folder Uid
 	folderUid?: string @go(FolderUID)
 
+	// updated
+	// Format: date-time
+	updated?: strfmt.#DateTime @go(Updated)
+
 	// updated by
-	updatedBy?: null | #LibraryElementDTOMetaUser @go(UpdatedBy,*LibraryElementDTOMetaUser)
+	updatedBy?: #LibraryElementDTOMetaUser @go(UpdatedBy,*LibraryElementDTOMetaUser)
 }

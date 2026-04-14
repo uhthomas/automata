@@ -4,12 +4,18 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // DashboardVersionMeta DashboardVersionMeta extends the DashboardVersionDTO with the names
 // associated with the UserIds, overriding the field with the same name from
 // the DashboardVersionDTO model.
 //
 // swagger:model DashboardVersionMeta
 #DashboardVersionMeta: {
+	// created
+	// Format: date-time
+	created?: strfmt.#DateTime @go(Created)
+
 	// created by
 	createdBy?: string @go(CreatedBy)
 

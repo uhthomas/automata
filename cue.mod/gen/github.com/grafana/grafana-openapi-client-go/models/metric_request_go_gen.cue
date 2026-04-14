@@ -14,7 +14,7 @@ package models
 	// From Start time in epoch timestamps in milliseconds or relative using Grafana time units.
 	// Example: now-1h
 	// Required: true
-	from?: null | string @go(From,*string)
+	from?: string @go(From,*string)
 
 	// queries.refId – Specifies an identifier of the query. Is optional and default to “A”.
 	// queries.datasourceId – Specifies the data source to be queried. Each query in the request must have an unique datasourceId.
@@ -27,5 +27,5 @@ package models
 	// To End time in epoch timestamps in milliseconds or relative using Grafana time units.
 	// Example: now
 	// Required: true
-	to?: null | string @go(To,*string)
+	to?: string @go(To,*string)
 }

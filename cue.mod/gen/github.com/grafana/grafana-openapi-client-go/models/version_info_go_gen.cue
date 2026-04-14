@@ -10,25 +10,25 @@ package models
 #VersionInfo: {
 	// branch
 	// Required: true
-	branch?: null | string @go(Branch,*string)
+	branch?: string @go(Branch,*string)
 
 	// build date
 	// Required: true
-	buildDate?: null | string @go(BuildDate,*string)
+	buildDate?: string @go(BuildDate,*string)
 
 	// build user
 	// Required: true
-	buildUser?: null | string @go(BuildUser,*string)
+	buildUser?: string @go(BuildUser,*string)
 
 	// go version
 	// Required: true
-	goVersion?: null | string @go(GoVersion,*string)
+	goVersion?: string @go(GoVersion,*string)
 
 	// revision
 	// Required: true
-	revision?: null | string @go(Revision,*string)
+	revision?: string @go(Revision,*string)
 
 	// version
 	// Required: true
-	version?: null | string @go(Version,*string)
+	version?: string @go(Version,*string)
 }

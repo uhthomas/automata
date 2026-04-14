@@ -8,9 +8,6 @@ package models
 //
 // swagger:model ReportEmail
 #ReportEmail: {
-	// email
-	email?: string @go(Email)
-
 	// Comma-separated list of emails to which to send the report to.
 	emails?: string @go(Emails)
 

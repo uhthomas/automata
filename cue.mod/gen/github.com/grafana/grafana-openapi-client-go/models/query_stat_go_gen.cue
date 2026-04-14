@@ -40,7 +40,7 @@ package models
 	interval?: float64 @go(Interval)
 
 	// The behavior when clicking on a result
-	links: [...null | #DataLink] @go(Links,[]*DataLink)
+	links: [...#DataLink] @go(Links,[]*DataLink)
 
 	// mappings
 	mappings?: #ValueMappings @go(Mappings)
@@ -62,10 +62,10 @@ package models
 	path?: string @go(Path)
 
 	// thresholds
-	thresholds?: null | #ThresholdsConfig @go(Thresholds,*ThresholdsConfig)
+	thresholds?: #ThresholdsConfig @go(Thresholds,*ThresholdsConfig)
 
 	// type
-	type?: null | #FieldTypeConfig @go(Type,*FieldTypeConfig)
+	type?: #FieldTypeConfig @go(Type,*FieldTypeConfig)
 
 	// Numeric Options
 	unit?: string @go(Unit)

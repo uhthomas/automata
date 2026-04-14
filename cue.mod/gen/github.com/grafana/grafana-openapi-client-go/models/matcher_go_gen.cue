@@ -13,13 +13,13 @@ package models
 
 	// is regex
 	// Required: true
-	isRegex?: null | bool @go(IsRegex,*bool)
+	isRegex?: bool @go(IsRegex,*bool)
 
 	// name
 	// Required: true
-	name?: null | string @go(Name,*string)
+	name?: string @go(Name,*string)
 
 	// value
 	// Required: true
-	value?: null | string @go(Value,*string)
+	value?: string @go(Value,*string)
 }

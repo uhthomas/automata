@@ -10,7 +10,10 @@ package models
 // swagger:model GlobalConfig
 #GlobalConfig: {
 	// http config
-	http_config?: null | #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
+	http_config?: #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
+
+	// jira api url
+	jira_api_url?: #URL @go(JiraAPIURL,*URL)
 
 	// opsgenie api key
 	opsgenie_api_key?: #Secret @go(OpsgenieAPIKey)
@@ -19,16 +22,16 @@ package models
 	opsgenie_api_key_file?: string @go(OpsgenieAPIKeyFile)
 
 	// opsgenie api url
-	opsgenie_api_url?: null | #URL @go(OpsgenieAPIURL,*URL)
+	opsgenie_api_url?: #URL @go(OpsgenieAPIURL,*URL)
 
 	// pagerduty url
-	pagerduty_url?: null | #URL @go(PagerdutyURL,*URL)
+	pagerduty_url?: #URL @go(PagerdutyURL,*URL)
 
 	// resolve timeout
 	resolve_timeout?: #Duration @go(ResolveTimeout)
 
 	// slack api url
-	slack_api_url?: null | #SecretURL @go(SlackAPIURL,*SecretURL)
+	slack_api_url?: #SecretURL @go(SlackAPIURL,*SecretURL)
 
 	// slack api url file
 	slack_api_url_file?: string @go(SlackAPIURLFile)
@@ -58,10 +61,13 @@ package models
 	smtp_require_tls?: bool @go(SMTPRequireTLS)
 
 	// smtp smarthost
-	smtp_smarthost?: null | #HostPort @go(SMTPSmarthost,*HostPort)
+	smtp_smarthost?: #HostPort @go(SMTPSmarthost,*HostPort)
+
+	// smtp tls config
+	smtp_tls_config?: #TLSConfig @go(SMTPTLSConfig,*TLSConfig)
 
 	// telegram api url
-	telegram_api_url?: null | #URL @go(TelegramAPIURL,*URL)
+	telegram_api_url?: #URL @go(TelegramAPIURL,*URL)
 
 	// victorops api key
 	victorops_api_key?: #Secret @go(VictoropsAPIKey)
@@ -70,10 +76,10 @@ package models
 	victorops_api_key_file?: string @go(VictoropsAPIKeyFile)
 
 	// victorops api url
-	victorops_api_url?: null | #URL @go(VictoropsAPIURL,*URL)
+	victorops_api_url?: #URL @go(VictoropsAPIURL,*URL)
 
 	// webex api url
-	webex_api_url?: null | #URL @go(WebexAPIURL,*URL)
+	webex_api_url?: #URL @go(WebexAPIURL,*URL)
 
 	// wechat api corp id
 	wechat_api_corp_id?: string @go(WechatAPICorpID)
@@ -82,5 +88,5 @@ package models
 	wechat_api_secret?: #Secret @go(WechatAPISecret)
 
 	// wechat api url
-	wechat_api_url?: null | #URL @go(WechatAPIURL,*URL)
+	wechat_api_url?: #URL @go(WechatAPIURL,*URL)
 }

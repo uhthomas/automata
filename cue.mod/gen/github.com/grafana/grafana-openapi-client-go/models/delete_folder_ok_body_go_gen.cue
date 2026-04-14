@@ -11,15 +11,15 @@ package models
 	// ID Identifier of the deleted folder.
 	// Example: 65
 	// Required: true
-	id?: null | int64 @go(ID,*int64)
+	id?: int64 @go(ID,*int64)
 
 	// Message Message of the deleted folder.
 	// Example: Folder My Folder deleted
 	// Required: true
-	message?: null | string @go(Message,*string)
+	message?: string @go(Message,*string)
 
 	// Title of the deleted folder.
 	// Example: My Folder
 	// Required: true
-	title?: null | string @go(Title,*string)
+	title?: string @go(Title,*string)
 }

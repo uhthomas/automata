@@ -15,7 +15,7 @@ package models
 	perPage?: int64 @go(PerPage)
 
 	// service accounts
-	serviceAccounts: [...null | #ServiceAccountDTO] @go(ServiceAccounts,[]*ServiceAccountDTO)
+	serviceAccounts: [...#ServiceAccountDTO] @go(ServiceAccounts,[]*ServiceAccountDTO)
 
 	// It can be used for pagination of the user list
 	// E.g. if totalCount is equal to 100 users and

@@ -4,6 +4,8 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // LibraryElementConnectionDTO LibraryElementConnectionDTO is the frontend DTO for element connections.
 //
 // swagger:model LibraryElementConnectionDTO
@@ -14,13 +16,17 @@ package models
 	// connection Uid
 	connectionUid?: string @go(ConnectionUID)
 
+	// created
+	// Format: date-time
+	created?: strfmt.#DateTime @go(Created)
+
 	// created by
-	createdBy?: null | #LibraryElementDTOMetaUser @go(CreatedBy,*LibraryElementDTOMetaUser)
+	createdBy?: #LibraryElementDTOMetaUser @go(CreatedBy,*LibraryElementDTOMetaUser)
 
 	// element Id
 	elementId?: int64 @go(ElementID)
 
-	// id
+	// Deprecated: this field will be removed in the future
 	id?: int64 @go(ID)
 
 	// kind

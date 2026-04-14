@@ -12,5 +12,6 @@ package models
 	email?: string @go(Email)
 
 	// name
-	name?: string @go(Name)
+	// Required: true
+	name?: string @go(Name,*string)
 }

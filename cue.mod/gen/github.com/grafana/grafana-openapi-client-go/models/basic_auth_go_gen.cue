@@ -14,9 +14,15 @@ package models
 	// password file
 	password_file?: string @go(PasswordFile)
 
+	// PasswordRef is the name of the secret within the secret manager to use as the password.
+	password_ref?: string @go(PasswordRef)
+
 	// username
 	username?: string @go(Username)
 
 	// username file
 	username_file?: string @go(UsernameFile)
+
+	// UsernameRef is the name of the secret within the secret manager to use as the username.
+	username_ref?: string @go(UsernameRef)
 }

@@ -17,27 +17,27 @@ import "github.com/go-openapi/strfmt"
 	// condition
 	// Example: A
 	// Required: true
-	condition?: null | string @go(Condition,*string)
+	condition?: string @go(Condition,*string)
 
 	// data
 	// Example: [{"datasourceUid":"__expr__","model":{"conditions":[{"evaluator":{"params":[0,0],"type":"gt"},"operator":{"type":"and"},"query":{"params":[]},"reducer":{"params":[],"type":"avg"},"type":"query"}],"datasource":{"type":"__expr__","uid":"__expr__"},"expression":"1 == 1","hide":false,"intervalMs":1000,"maxDataPoints":43200,"refId":"A","type":"math"},"queryType":"","refId":"A","relativeTimeRange":{"from":0,"to":0}}]
 	// Required: true
-	data: [...null | #AlertQuery] @go(Data,[]*AlertQuery)
+	data: [...#AlertQuery] @go(Data,[]*AlertQuery)
 
 	// exec err state
 	// Required: true
 	// Enum: [OK Alerting Error]
-	execErrState?: null | string @go(ExecErrState,*string)
+	execErrState?: string @go(ExecErrState,*string)
 
 	// folder UID
 	// Example: project_x
 	// Required: true
-	folderUID?: null | string @go(FolderUID,*string)
+	folderUID?: string @go(FolderUID,*string)
 
 	// for
 	// Required: true
 	// Format: duration
-	for?: null | strfmt.#Duration @go(For,*strfmt.Duration)
+	for?: strfmt.#Duration @go(For,*strfmt.Duration)
 
 	// id
 	id?: int64 @go(ID)
@@ -46,41 +46,60 @@ import "github.com/go-openapi/strfmt"
 	// Example: false
 	isPaused?: bool @go(IsPaused)
 
+	// keep firing for
+	// Format: duration
+	keep_firing_for?: strfmt.#Duration @go(KeepFiringFor)
+
 	// labels
 	// Example: {"team":"sre-team-1"}
 	labels?: {[string]: string} @go(Labels,map[string]string)
 
+	// missing series evals to resolve
+	// Example: 2
+	missingSeriesEvalsToResolve?: int64 @go(MissingSeriesEvalsToResolve)
+
 	// no data state
 	// Required: true
 	// Enum: [Alerting NoData OK]
-	noDataState?: null | string @go(NoDataState,*string)
+	noDataState?: string @go(NoDataState,*string)
+
+	// notification settings
+	notification_settings?: #AlertRuleNotificationSettings @go(NotificationSettings,*AlertRuleNotificationSettings)
 
 	// org ID
 	// Required: true
-	orgID?: null | int64 @go(OrgID,*int64)
+	orgID?: int64 @go(OrgID,*int64)
 
 	// provenance
 	provenance?: #Provenance @go(Provenance)
+
+	// record
+	record?: #Record @go(Record,*Record)
 
 	// rule group
 	// Example: eval_group_1
 	// Required: true
 	// Max Length: 190
 	// Min Length: 1
-	ruleGroup?: null | string @go(RuleGroup,*string)
+	ruleGroup?: string @go(RuleGroup,*string)
 
 	// title
 	// Example: Always firing
 	// Required: true
 	// Max Length: 190
 	// Min Length: 1
-	title?: null | string @go(Title,*string)
+	title?: string @go(Title,*string)
 
 	// uid
 	// Max Length: 40
 	// Min Length: 1
 	// Pattern: ^[a-zA-Z0-9-_]+$
 	uid?: string @go(UID)
+
+	// updated
+	// Read Only: true
+	// Format: date-time
+	updated?: strfmt.#DateTime @go(Updated)
 }
 
 // ProvisionedAlertRuleExecErrStateOK captures enum value "OK"

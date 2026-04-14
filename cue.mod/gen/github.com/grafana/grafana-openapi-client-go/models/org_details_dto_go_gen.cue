@@ -9,7 +9,7 @@ package models
 // swagger:model OrgDetailsDTO
 #OrgDetailsDTO: {
 	// address
-	address?: null | #Address @go(Address,*Address)
+	address?: #Address @go(Address,*Address)
 
 	// id
 	id?: int64 @go(ID)

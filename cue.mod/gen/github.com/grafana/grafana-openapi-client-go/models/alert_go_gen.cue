@@ -4,23 +4,29 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // Alert Alert has info for an alert.
 //
 // swagger:model Alert
 #Alert: {
+	// active at
+	// Format: date-time
+	activeAt?: strfmt.#DateTime @go(ActiveAt)
+
 	// annotations
 	// Required: true
-	annotations: #OverrideLabels @go(Annotations)
+	annotations: #Labels @go(Annotations)
 
 	// labels
 	// Required: true
-	labels: #OverrideLabels @go(Labels)
+	labels: #Labels @go(Labels)
 
 	// state
 	// Required: true
-	state?: null | string @go(State,*string)
+	state?: string @go(State,*string)
 
 	// value
 	// Required: true
-	value?: null | string @go(Value,*string)
+	value?: string @go(Value,*string)
 }

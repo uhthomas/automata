@@ -4,6 +4,8 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // PublicDashboard public dashboard
 //
 // swagger:model PublicDashboard
@@ -13,6 +15,10 @@ package models
 
 	// annotations enabled
 	annotationsEnabled?: bool @go(AnnotationsEnabled)
+
+	// created at
+	// Format: date-time
+	createdAt?: strfmt.#DateTime @go(CreatedAt)
 
 	// created by
 	createdBy?: int64 @go(CreatedBy)
@@ -24,7 +30,7 @@ package models
 	isEnabled?: bool @go(IsEnabled)
 
 	// recipients
-	recipients: [...null | #EmailDTO] @go(Recipients,[]*EmailDTO)
+	recipients: [...#EmailDTO] @go(Recipients,[]*EmailDTO)
 
 	// share
 	share?: #ShareType @go(Share)
@@ -34,6 +40,10 @@ package models
 
 	// uid
 	uid?: string @go(UID)
+
+	// updated at
+	// Format: date-time
+	updatedAt?: strfmt.#DateTime @go(UpdatedAt)
 
 	// updated by
 	updatedBy?: int64 @go(UpdatedBy)

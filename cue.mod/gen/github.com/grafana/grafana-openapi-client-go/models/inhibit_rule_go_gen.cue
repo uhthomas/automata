@@ -10,8 +10,9 @@ package models
 //
 // swagger:model InhibitRule
 #InhibitRule: {
-	// equal
-	equal?: #LabelNames @go(Equal)
+	// A set of labels that must be equal between the source and target alert
+	// for them to be a match.
+	equal: [...string] @go(Equal,[]string)
 
 	// SourceMatch defines a set of labels that have to equal the given
 	// value for source alerts. Deprecated. Remove before v1.0 release.

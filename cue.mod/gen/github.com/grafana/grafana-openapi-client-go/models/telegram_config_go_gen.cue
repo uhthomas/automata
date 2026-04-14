@@ -9,7 +9,7 @@ package models
 // swagger:model TelegramConfig
 #TelegramConfig: {
 	// api url
-	api_url?: null | #URL @go(APIURL,*URL)
+	api_url?: #URL @go(APIURL,*URL)
 
 	// chat
 	chat?: int64 @go(Chat)
@@ -18,7 +18,7 @@ package models
 	disable_notifications?: bool @go(DisableNotifications)
 
 	// http config
-	http_config?: null | #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
+	http_config?: #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
 
 	// message
 	message?: string @go(Message)

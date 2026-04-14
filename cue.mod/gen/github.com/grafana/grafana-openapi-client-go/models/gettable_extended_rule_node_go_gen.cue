@@ -21,7 +21,7 @@ package models
 	for?: string @go(For)
 
 	// grafana alert
-	grafana_alert?: null | #GettableGrafanaRule @go(GrafanaAlert,*GettableGrafanaRule)
+	grafana_alert?: #GettableGrafanaRule @go(GrafanaAlert,*GettableGrafanaRule)
 
 	// keep firing for
 	keep_firing_for?: string @go(KeepFiringFor)

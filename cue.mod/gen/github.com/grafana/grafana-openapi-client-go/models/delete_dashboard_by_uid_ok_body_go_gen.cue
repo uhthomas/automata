@@ -8,18 +8,18 @@ package models
 //
 // swagger:model deleteDashboardByUidOkBody
 #DeleteDashboardByUIDOKBody: {
-	// ID Identifier of the deleted dashboard.
-	// Example: 65
-	// Required: true
-	id?: null | int64 @go(ID,*int64)
-
 	// Message Message of the deleted dashboard.
 	// Example: Dashboard My Dashboard deleted
 	// Required: true
-	message?: null | string @go(Message,*string)
+	message?: string @go(Message,*string)
 
 	// Title Title of the deleted dashboard.
 	// Example: My Dashboard
 	// Required: true
-	title?: null | string @go(Title,*string)
+	title?: string @go(Title,*string)
+
+	// UID Identifier of the deleted dashboard.
+	// Example: 65
+	// Required: true
+	uid?: string @go(UID,*string)
 }

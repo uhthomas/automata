@@ -4,7 +4,7 @@
 
 package models
 
-// AnnotationPanelFilter AnnotationPanelFilter defines model for AnnotationPanelFilter.
+// AnnotationPanelFilter annotation panel filter
 //
 // swagger:model AnnotationPanelFilter
 #AnnotationPanelFilter: {
@@ -12,5 +12,5 @@ package models
 	exclude?: bool @go(Exclude)
 
 	// Panel IDs that should be included or excluded
-	ids: [...int64] @go(Ids,[]int64)
+	ids: [...uint8] @go(Ids,[]uint8)
 }

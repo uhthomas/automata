@@ -24,7 +24,7 @@ package models
 	kind?: int64 @go(Kind)
 
 	// meta
-	meta?: null | #LibraryElementDTOMeta @go(Meta,*LibraryElementDTOMeta)
+	meta?: #LibraryElementDTOMeta @go(Meta,*LibraryElementDTOMeta)
 
 	// model
 	model?: _ @go(Model,interface{})

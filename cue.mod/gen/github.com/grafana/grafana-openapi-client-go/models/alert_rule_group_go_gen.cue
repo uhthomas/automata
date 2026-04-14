@@ -15,7 +15,7 @@ package models
 	interval?: int64 @go(Interval)
 
 	// rules
-	rules: [...null | #ProvisionedAlertRule] @go(Rules,[]*ProvisionedAlertRule)
+	rules: [...#ProvisionedAlertRule] @go(Rules,[]*ProvisionedAlertRule)
 
 	// title
 	title?: string @go(Title)

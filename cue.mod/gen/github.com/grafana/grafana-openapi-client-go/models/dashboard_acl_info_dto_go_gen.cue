@@ -4,10 +4,16 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // DashboardACLInfoDTO dashboard ACL info DTO
 //
 // swagger:model DashboardACLInfoDTO
 #DashboardACLInfoDTO: {
+	// created
+	// Format: date-time
+	created?: strfmt.#DateTime @go(Created)
+
 	// dashboard Id
 	dashboardId?: int64 @go(DashboardID)
 
@@ -48,11 +54,18 @@ package models
 	// team Id
 	teamId?: int64 @go(TeamID)
 
+	// team Uid
+	teamUid?: string @go(TeamUID)
+
 	// title
 	title?: string @go(Title)
 
 	// uid
 	uid?: string @go(UID)
+
+	// updated
+	// Format: date-time
+	updated?: strfmt.#DateTime @go(Updated)
 
 	// url
 	url?: string @go(URL)
@@ -68,6 +81,9 @@ package models
 
 	// user login
 	userLogin?: string @go(UserLogin)
+
+	// user Uid
+	userUid?: string @go(UserUID)
 }
 
 // DashboardACLInfoDTORoleNone captures enum value "None"

@@ -4,6 +4,8 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // UserSearchHitDTO user search hit DTO
 //
 // swagger:model UserSearchHitDTO
@@ -26,6 +28,13 @@ package models
 	// is disabled
 	isDisabled?: bool @go(IsDisabled)
 
+	// is provisioned
+	isProvisioned?: bool @go(IsProvisioned)
+
+	// last seen at
+	// Format: date-time
+	lastSeenAt?: strfmt.#DateTime @go(LastSeenAt)
+
 	// last seen at age
 	lastSeenAtAge?: string @go(LastSeenAtAge)
 
@@ -34,4 +43,7 @@ package models
 
 	// name
 	name?: string @go(Name)
+
+	// uid
+	uid?: string @go(UID)
 }

@@ -7,6 +7,7 @@ package v1
 // This is solely for the purpose of ensuring backward compatibility and
 // SHOULD NOT be used elsewhere.
 _#supportedFeatureInternal: {
+	// +required
 	name: #FeatureName @go(Name)
 }
 

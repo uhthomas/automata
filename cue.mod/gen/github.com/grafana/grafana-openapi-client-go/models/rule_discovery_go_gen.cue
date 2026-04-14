@@ -8,9 +8,12 @@ package models
 //
 // swagger:model RuleDiscovery
 #RuleDiscovery: {
+	// group next token
+	groupNextToken?: string @go(GroupNextToken)
+
 	// groups
 	// Required: true
-	groups: [...null | #RuleGroup] @go(Groups,[]*RuleGroup)
+	groups: [...#RuleGroup] @go(Groups,[]*RuleGroup)
 
 	// totals
 	totals?: {[string]: int64} @go(Totals,map[string]int64)

@@ -9,11 +9,8 @@ package models
 // swagger:model UpdateTeamCommand
 #UpdateTeamCommand: {
 	// email
-	Email?: string
-
-	// ID
-	ID?: int64
+	email?: string @go(Email)
 
 	// name
-	Name?: string
+	name?: string @go(Name)
 }

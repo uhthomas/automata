@@ -10,20 +10,20 @@ package models
 #UpdateDataSourceByIDOKBody: {
 	// datasource
 	// Required: true
-	datasource?: null | #DataSource @go(Datasource,*DataSource)
+	datasource?: #DataSource @go(Datasource,*DataSource)
 
 	// ID Identifier of the new data source.
 	// Example: 65
 	// Required: true
-	id?: null | int64 @go(ID,*int64)
+	id?: int64 @go(ID,*int64)
 
 	// Message Message of the deleted dashboard.
 	// Example: Data source added
 	// Required: true
-	message?: null | string @go(Message,*string)
+	message?: string @go(Message,*string)
 
 	// Name of the new data source.
 	// Example: My Data source
 	// Required: true
-	name?: null | string @go(Name,*string)
+	name?: string @go(Name,*string)
 }

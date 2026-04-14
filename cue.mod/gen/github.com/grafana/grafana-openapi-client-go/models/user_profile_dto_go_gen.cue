@@ -4,6 +4,8 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // UserProfileDTO user profile DTO
 //
 // swagger:model UserProfileDTO
@@ -16,6 +18,10 @@ package models
 
 	// avatar Url
 	avatarUrl?: string @go(AvatarURL)
+
+	// created at
+	// Format: date-time
+	createdAt?: strfmt.#DateTime @go(CreatedAt)
 
 	// email
 	email?: string @go(Email)
@@ -38,6 +44,9 @@ package models
 	// is grafana admin externally synced
 	isGrafanaAdminExternallySynced?: bool @go(IsGrafanaAdminExternallySynced)
 
+	// is provisioned
+	isProvisioned?: bool @go(IsProvisioned)
+
 	// login
 	login?: string @go(Login)
 
@@ -49,4 +58,11 @@ package models
 
 	// theme
 	theme?: string @go(Theme)
+
+	// uid
+	uid?: string @go(UID)
+
+	// updated at
+	// Format: date-time
+	updatedAt?: strfmt.#DateTime @go(UpdatedAt)
 }

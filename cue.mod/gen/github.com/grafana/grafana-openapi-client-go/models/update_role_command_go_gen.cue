@@ -9,16 +9,19 @@ package models
 // swagger:model UpdateRoleCommand
 #UpdateRoleCommand: {
 	// description
-	description?: string @go(Description)
+	// Required: true
+	description?: string @go(Description,*string)
 
 	// display name
-	displayName?: string @go(DisplayName)
+	// Required: true
+	displayName?: string @go(DisplayName,*string)
 
 	// global
 	global?: bool @go(Global)
 
 	// group
-	group?: string @go(Group)
+	// Required: true
+	group?: string @go(Group,*string)
 
 	// hidden
 	hidden?: bool @go(Hidden)
@@ -27,7 +30,7 @@ package models
 	name?: string @go(Name)
 
 	// permissions
-	permissions: [...null | #Permission] @go(Permissions,[]*Permission)
+	permissions: [...#Permission] @go(Permissions,[]*Permission)
 
 	// version
 	version?: int64 @go(Version)

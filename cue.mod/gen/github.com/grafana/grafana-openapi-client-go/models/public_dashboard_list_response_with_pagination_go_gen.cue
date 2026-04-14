@@ -15,7 +15,7 @@ package models
 	perPage?: int64 @go(PerPage)
 
 	// public dashboards
-	publicDashboards: [...null | #PublicDashboardListResponse] @go(PublicDashboards,[]*PublicDashboardListResponse)
+	publicDashboards: [...#PublicDashboardListResponse] @go(PublicDashboards,[]*PublicDashboardListResponse)
 
 	// total count
 	totalCount?: int64 @go(TotalCount)

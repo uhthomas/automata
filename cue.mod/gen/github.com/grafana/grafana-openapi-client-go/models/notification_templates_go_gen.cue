@@ -7,4 +7,4 @@ package models
 // NotificationTemplates notification templates
 //
 // swagger:model NotificationTemplates
-#NotificationTemplates: [...null | #NotificationTemplate]
+#NotificationTemplates: [...#NotificationTemplate]

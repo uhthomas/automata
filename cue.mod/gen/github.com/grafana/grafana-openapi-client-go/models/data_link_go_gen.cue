@@ -9,7 +9,7 @@ package models
 // swagger:model DataLink
 #DataLink: {
 	// internal
-	internal?: null | #InternalDataLink @go(Internal,*InternalDataLink)
+	internal?: #InternalDataLink @go(Internal,*InternalDataLink)
 
 	// target blank
 	targetBlank?: bool @go(TargetBlank)

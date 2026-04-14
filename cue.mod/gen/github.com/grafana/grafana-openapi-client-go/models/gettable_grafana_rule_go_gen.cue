@@ -4,6 +4,8 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // GettableGrafanaRule gettable grafana rule
 //
 // swagger:model GettableGrafanaRule
@@ -12,20 +14,29 @@ package models
 	condition?: string @go(Condition)
 
 	// data
-	data: [...null | #AlertQuery] @go(Data,[]*AlertQuery)
+	data: [...#AlertQuery] @go(Data,[]*AlertQuery)
 
 	// exec err state
 	// Enum: [OK Alerting Error]
 	exec_err_state?: string @go(ExecErrState)
 
-	// id
-	id?: int64 @go(ID)
+	// guid
+	guid?: string @go(GUID)
 
 	// interval seconds
 	intervalSeconds?: int64 @go(IntervalSeconds)
 
 	// is paused
 	is_paused?: bool @go(IsPaused)
+
+	// Field is only populated when listing alert rule versions.
+	message?: string @go(Message)
+
+	// metadata
+	metadata?: #AlertRuleMetadata @go(Metadata,*AlertRuleMetadata)
+
+	// missing series evals to resolve
+	missing_series_evals_to_resolve?: int64 @go(MissingSeriesEvalsToResolve)
 
 	// namespace uid
 	namespace_uid?: string @go(NamespaceUID)
@@ -34,11 +45,14 @@ package models
 	// Enum: [Alerting NoData OK]
 	no_data_state?: string @go(NoDataState)
 
-	// org Id
-	orgId?: int64 @go(OrgID)
+	// notification settings
+	notification_settings?: #AlertRuleNotificationSettings @go(NotificationSettings,*AlertRuleNotificationSettings)
 
 	// provenance
 	provenance?: #Provenance @go(Provenance)
+
+	// record
+	record?: #Record @go(Record,*Record)
 
 	// rule group
 	rule_group?: string @go(RuleGroup)
@@ -48,6 +62,13 @@ package models
 
 	// uid
 	uid?: string @go(UID)
+
+	// updated
+	// Format: date-time
+	updated?: strfmt.#DateTime @go(Updated)
+
+	// updated by
+	updated_by?: #UserInfo @go(UpdatedBy,*UserInfo)
 
 	// version
 	version?: int64 @go(Version)

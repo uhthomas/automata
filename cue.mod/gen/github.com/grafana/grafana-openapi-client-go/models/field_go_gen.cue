@@ -14,7 +14,7 @@ package models
 // swagger:model Field
 #Field: {
 	// config
-	config?: null | #FieldConfig @go(Config,*FieldConfig)
+	config?: #FieldConfig @go(Config,*FieldConfig)
 
 	// labels
 	labels?: #FrameLabels @go(Labels)

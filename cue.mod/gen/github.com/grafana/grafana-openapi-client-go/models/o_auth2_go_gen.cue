@@ -9,7 +9,30 @@ package models
 // swagger:model OAuth2
 #OAuth2: {
 	// TLS config
-	TLSConfig?: null | #TLSConfig @go(,*TLSConfig)
+	TLSConfig?: #TLSConfig @go(,*TLSConfig)
+
+	// Audience optionally specifies the intended audience of the
+	// request.  If empty, the value of TokenURL is used as the
+	// intended audience. Only used if
+	// GrantType is set to "urn:ietf:params:oauth:grant-type:jwt-bearer".
+	audience?: string @go(Audience)
+
+	// Claims is a map of claims to be added to the JWT token. Only used if
+	// GrantType is set to "urn:ietf:params:oauth:grant-type:jwt-bearer".
+	claims?: _ @go(Claims,interface{})
+
+	// client certificate key
+	client_certificate_key?: #Secret @go(ClientCertificateKey)
+
+	// client certificate key file
+	client_certificate_key_file?: string @go(ClientCertificateKeyFile)
+
+	// client certificate key id
+	client_certificate_key_id?: string @go(ClientCertificateKeyID)
+
+	// ClientCertificateKeyRef is the name of the secret within the secret manager to use as the client
+	// secret.
+	client_certificate_key_ref?: string @go(ClientCertificateKeyRef)
 
 	// client id
 	client_id?: string @go(ClientID)
@@ -20,24 +43,43 @@ package models
 	// client secret file
 	client_secret_file?: string @go(ClientSecretFile)
 
+	// ClientSecretRef is the name of the secret within the secret manager to use as the client
+	// secret.
+	client_secret_ref?: string @go(ClientSecretRef)
+
 	// endpoint params
 	endpoint_params?: {[string]: string} @go(EndpointParams,map[string]string)
+
+	// GrantType is the OAuth2 grant type to use. It can be one of
+	// "client_credentials" or "urn:ietf:params:oauth:grant-type:jwt-bearer" (RFC 7523).
+	// Default value is "client_credentials"
+	grant_type?: string @go(GrantType)
+
+	// Iss is the OAuth client identifier used when communicating with
+	// the configured OAuth provider. Default value is client_id. Only used if
+	// GrantType is set to "urn:ietf:params:oauth:grant-type:jwt-bearer".
+	iss?: string @go(Iss)
 
 	// NoProxy contains addresses that should not use a proxy.
 	no_proxy?: string @go(NoProxy)
 
 	// proxy connect header
-	proxy_connect_header?: #Header @go(ProxyConnectHeader)
+	proxy_connect_header?: #ProxyHeader @go(ProxyConnectHeader)
 
 	// ProxyFromEnvironment makes use of net/http ProxyFromEnvironment function
 	// to determine proxies.
 	proxy_from_environment?: bool @go(ProxyFromEnvironment)
 
 	// proxy url
-	proxy_url?: null | #URL @go(ProxyURL,*URL)
+	proxy_url?: #URL @go(ProxyURL,*URL)
 
 	// scopes
 	scopes: [...string] @go(Scopes,[]string)
+
+	// SignatureAlgorithm is the RSA algorithm used to sign JWT token. Only used if
+	// GrantType is set to "urn:ietf:params:oauth:grant-type:jwt-bearer".
+	// Default value is RS256 and valid values RS256, RS384, RS512
+	signature_algorithm?: string @go(SignatureAlgorithm)
 
 	// token url
 	token_url?: string @go(TokenURL)

@@ -18,7 +18,7 @@ package models
 	html?: bool @go(HTML)
 
 	// http config
-	http_config?: null | #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
+	http_config?: #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
 
 	// message
 	message?: string @go(Message)

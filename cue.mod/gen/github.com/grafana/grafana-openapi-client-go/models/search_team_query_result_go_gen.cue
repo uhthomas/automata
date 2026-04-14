@@ -15,7 +15,7 @@ package models
 	perPage?: int64 @go(PerPage)
 
 	// teams
-	teams: [...null | #TeamDTO] @go(Teams,[]*TeamDTO)
+	teams: [...#TeamDTO] @go(Teams,[]*TeamDTO)
 
 	// total count
 	totalCount?: int64 @go(TotalCount)

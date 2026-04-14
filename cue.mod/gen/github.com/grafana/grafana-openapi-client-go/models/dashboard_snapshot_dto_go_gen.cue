@@ -4,10 +4,20 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // DashboardSnapshotDTO DashboardSnapshotDTO without dashboard map
 //
 // swagger:model DashboardSnapshotDTO
 #DashboardSnapshotDTO: {
+	// created
+	// Format: date-time
+	created?: strfmt.#DateTime @go(Created)
+
+	// expires
+	// Format: date-time
+	expires?: strfmt.#DateTime @go(Expires)
+
 	// external
 	external?: bool @go(External)
 
@@ -19,4 +29,8 @@ package models
 
 	// name
 	name?: string @go(Name)
+
+	// updated
+	// Format: date-time
+	updated?: strfmt.#DateTime @go(Updated)
 }

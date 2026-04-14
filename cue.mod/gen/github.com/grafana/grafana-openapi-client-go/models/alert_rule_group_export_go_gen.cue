@@ -12,7 +12,7 @@ package models
 	folder?: string @go(Folder)
 
 	// interval
-	interval?: #Duration @go(Interval)
+	interval?: string @go(Interval)
 
 	// name
 	name?: string @go(Name)
@@ -21,5 +21,5 @@ package models
 	orgId?: int64 @go(OrgID)
 
 	// rules
-	rules: [...null | #AlertRuleExport] @go(Rules,[]*AlertRuleExport)
+	rules: [...#AlertRuleExport] @go(Rules,[]*AlertRuleExport)
 }

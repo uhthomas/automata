@@ -7,4 +7,4 @@ package models
 // DataSourceList data source list
 //
 // swagger:model DataSourceList
-#DataSourceList: [...null | #DataSourceListItemDTO]
+#DataSourceList: [...#DataSourceListItemDTO]

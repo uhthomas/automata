@@ -4,6 +4,8 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // SyncResult SyncResult holds the result of a sync with LDAP. This gives us information on which users were updated and how.
 //
 // swagger:model SyncResult
@@ -12,10 +14,14 @@ package models
 	Elapsed?: #Duration
 
 	// failed users
-	FailedUsers: [...null | #FailedUser] @go(,[]*FailedUser)
+	FailedUsers: [...#FailedUser] @go(,[]*FailedUser)
 
 	// missing user ids
 	MissingUserIds: [...int64] @go(,[]int64)
+
+	// started
+	// Format: date-time
+	Started?: strfmt.#DateTime
 
 	// updated user ids
 	UpdatedUserIds: [...int64] @go(,[]int64)

@@ -42,13 +42,13 @@ package models
 	send_resolved?: bool @go(SendResolved)
 
 	// smarthost
-	smarthost?: null | #HostPort @go(Smarthost,*HostPort)
+	smarthost?: #HostPort @go(Smarthost,*HostPort)
 
 	// text
 	text?: string @go(Text)
 
 	// tls config
-	tls_config?: null | #TLSConfig @go(TLSConfig,*TLSConfig)
+	tls_config?: #TLSConfig @go(TLSConfig,*TLSConfig)
 
 	// Email address to notify.
 	to?: string @go(To)

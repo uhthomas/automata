@@ -4,155 +4,151 @@
 
 package strfmt
 
-// HostnamePattern http://json-schema.org/latest/json-schema-validation.html#anchor114
-//  A string instance is valid against this attribute if it is a valid
-//  representation for an Internet host name, as defined by RFC 1034, section 3.1 [RFC1034].
-//  http://tools.ietf.org/html/rfc1034#section-3.5
-//  <digit> ::= any one of the ten digits 0 through 9
-//  var digit = /[0-9]/;
-//  <letter> ::= any one of the 52 alphabetic characters A through Z in upper case and a through z in lower case
-//  var letter = /[a-zA-Z]/;
-//  <let-dig> ::= <letter> | <digit>
-//  var letDig = /[0-9a-zA-Z]/;
-//  <let-dig-hyp> ::= <let-dig> | "-"
-//  var letDigHyp = /[-0-9a-zA-Z]/;
-//  <ldh-str> ::= <let-dig-hyp> | <let-dig-hyp> <ldh-str>
-//  var ldhStr = /[-0-9a-zA-Z]+/;
-//  <label> ::= <letter> [ [ <ldh-str> ] <let-dig> ]
-//  var label = /[a-zA-Z](([-0-9a-zA-Z]+)?[0-9a-zA-Z])?/;
-//  <subdomain> ::= <label> | <subdomain> "." <label>
-//  var subdomain = /^[a-zA-Z](([-0-9a-zA-Z]+)?[0-9a-zA-Z])?(\.[a-zA-Z](([-0-9a-zA-Z]+)?[0-9a-zA-Z])?)*$/;
-//  <domain> ::= <subdomain> | " "
+// HostnamePattern http://[json]-schema.org/latest/[json]-schema-validation.html#anchor114.
 //
-// Additional validations:
-//   - for FDQNs, top-level domain (e.g. ".com"), is at least to letters long (no special characters here)
-//   - hostnames may start with a digit [RFC1123]
-//   - special registered names with an underscore ('_') are not allowed in this context
-//   - dashes are permitted, but not at the start or the end of a segment
-//   - long top-level domain names (e.g. example.london) are permitted
-//   - symbol unicode points are permitted (e.g. emoji) (not for top-level domain)
-#HostnamePattern: "^([a-zA-Z0-9\\p{S}\\p{L}]((-?[a-zA-Z0-9\\p{S}\\p{L}]{0,62})?)|([a-zA-Z0-9\\p{S}\\p{L}](([a-zA-Z0-9-\\p{S}\\p{L}]{0,61}[a-zA-Z0-9\\p{S}\\p{L}])?)(\\.)){1,}([a-zA-Z\\p{L}]){2,63})$" // `^([a-zA-Z0-9\p{S}\p{L}]((-?[a-zA-Z0-9\p{S}\p{L}]{0,62})?)|([a-zA-Z0-9\p{S}\p{L}](([a-zA-Z0-9-\p{S}\p{L}]{0,61}[a-zA-Z0-9\p{S}\p{L}])?)(\.)){1,}([a-zA-Z\p{L}]){2,63})$`
+// Deprecated: this package no longer uses regular expressions to validate hostnames.
+#HostnamePattern: "^([a-zA-Z0-9\\p{S}\\p{L}]((-?[a-zA-Z0-9\\p{S}\\p{L}]{0,62})?)|([a-zA-Z0-9\\p{S}\\p{L}](([a-zA-Z0-9-\\p{S}\\p{L}]{0,61}[a-zA-Z0-9\\p{S}\\p{L}])?)(\\.)){1,}([a-zA-Z0-9-\\p{L}]){2,63})$"
 
-// json null type
+// json null type.
 _#jsonNull: "null"
 
-// UUIDPattern Regex for UUID that allows uppercase
+// UUIDPattern Regex for [UUID] that allows uppercase
 //
-// Deprecated: strfmt no longer uses regular expressions to validate UUIDs.
+// Deprecated: [strfmt] no longer uses regular expressions to validate UUIDs.
 #UUIDPattern: "(?i)(^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$)|(^[0-9a-f]{32}$)" // `(?i)(^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$)|(^[0-9a-f]{32}$)`
 
-// UUID3Pattern Regex for UUID3 that allows uppercase
+// UUID3Pattern Regex for [UUID3] that allows uppercase
 //
-// Deprecated: strfmt no longer uses regular expressions to validate UUIDs.
+// Deprecated: [strfmt] no longer uses regular expressions to validate UUIDs.
 #UUID3Pattern: "(?i)(^[0-9a-f]{8}-[0-9a-f]{4}-3[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$)|(^[0-9a-f]{12}3[0-9a-f]{3}?[0-9a-f]{16}$)" // `(?i)(^[0-9a-f]{8}-[0-9a-f]{4}-3[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$)|(^[0-9a-f]{12}3[0-9a-f]{3}?[0-9a-f]{16}$)`
 
-// UUID4Pattern Regex for UUID4 that allows uppercase
+// UUID4Pattern Regex for [UUID4] that allows uppercase
 //
-// Deprecated: strfmt no longer uses regular expressions to validate UUIDs.
+// Deprecated: [strfmt] no longer uses regular expressions to validate UUIDs.
 #UUID4Pattern: "(?i)(^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$)|(^[0-9a-f]{12}4[0-9a-f]{3}[89ab][0-9a-f]{15}$)" // `(?i)(^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$)|(^[0-9a-f]{12}4[0-9a-f]{3}[89ab][0-9a-f]{15}$)`
 
-// UUID5Pattern Regex for UUID5 that allows uppercase
+// UUID5Pattern Regex for [UUID]5 that allows uppercase
 //
-// Deprecated: strfmt no longer uses regular expressions to validate UUIDs.
-#UUID5Pattern: "(?i)(^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$)|(^[0-9a-f]{12}5[0-9a-f]{3}[89ab][0-9a-f]{15}$)" // `(?i)(^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$)|(^[0-9a-f]{12}5[0-9a-f]{3}[89ab][0-9a-f]{15}$)`
+// Deprecated: [strfmt] no longer uses regular expressions to validate UUIDs.
+#UUID5Pattern:     "(?i)(^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$)|(^[0-9a-f]{12}5[0-9a-f]{3}[89ab][0-9a-f]{15}$)" // `(?i)(^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$)|(^[0-9a-f]{12}5[0-9a-f]{3}[89ab][0-9a-f]{15}$)`
+_#isbn10Pattern:   "^(?:[0-9]{9}X|[0-9]{10})$"
+_#isbn13Pattern:   "^(?:[0-9]{13})$"
+_#usCardPattern:   "^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|(222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[01][0-9]|2720)[0-9]{12}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\\d{3})\\d{11}|6[27][0-9]{14})$"
+_#ssnPattern:      "^\\d{3}[- ]?\\d{2}[- ]?\\d{4}$" // `^\d{3}[- ]?\d{2}[- ]?\d{4}$`
+_#hexColorPattern: "^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$"
+_#rgbColorPattern: "^rgb\\(\\s*(0|[1-9]\\d?|1\\d\\d?|2[0-4]\\d|25[0-5])\\s*,\\s*(0|[1-9]\\d?|1\\d\\d?|2[0-4]\\d|25[0-5])\\s*,\\s*(0|[1-9]\\d?|1\\d\\d?|2[0-4]\\d|25[0-5])\\s*\\)$"
 
-// Base64 represents a base64 encoded string, using URLEncoding alphabet
+_#isbnVersion10: 10
+_#isbnVersion13: 13
+_#decimalBase:   10
+
+_#uuidV3: 3
+_#uuidV4: 4
+_#uuidV5: 5
+_#uuidV7: 7
+
+// Base64 represents a base64 encoded string, using URLEncoding alphabet.
 //
-// swagger:strfmt byte
+// swagger:strfmt byte.
 #Base64: _
 
-// URI represents the uri string format as specified by the json schema spec
+// URI represents the uri string format as specified by the [json] schema spec.
 //
-// swagger:strfmt uri
+// swagger:strfmt uri.
 #URI: _
 
-// Email represents the email string format as specified by the json schema spec
+// Email represents the email string format as specified by the [json] schema spec.
 //
-// swagger:strfmt email
+// swagger:strfmt email.
 #Email: _
 
-// Hostname represents the hostname string format as specified by the json schema spec
+// Hostname represents the hostname string format as specified by the [json] schema spec.
 //
-// swagger:strfmt hostname
+// swagger:strfmt hostname.
 #Hostname: _
 
-// IPv4 represents an IP v4 address
+// IPv4 represents an IP v4 address.
 //
-// swagger:strfmt ipv4
+// swagger:strfmt ipv4.
 #IPv4: _
 
-// IPv6 represents an IP v6 address
+// IPv6 represents an IP v6 address.
 //
-// swagger:strfmt ipv6
+// swagger:strfmt ipv6.
 #IPv6: _
 
-// CIDR represents a Classless Inter-Domain Routing notation
+// CIDR represents a Classless Inter-Domain Routing notation.
 //
-// swagger:strfmt cidr
+// swagger:strfmt cidr.
 #CIDR: _
 
-// MAC represents a 48 bit MAC address
+// MAC represents a 48 bit MAC address.
 //
-// swagger:strfmt mac
+// swagger:strfmt mac.
 #MAC: _
 
-// UUID represents a uuid string format
+// UUID represents a [uuid] string format
 //
-// swagger:strfmt uuid
+// swagger:strfmt uuid.
 #UUID: _
 
-// UUID3 represents a uuid3 string format
+// UUID3 represents a uuid3 string format.
 //
-// swagger:strfmt uuid3
+// swagger:strfmt uuid3.
 #UUID3: _
 
-// UUID4 represents a uuid4 string format
+// UUID4 represents a uuid4 string format.
 //
-// swagger:strfmt uuid4
+// swagger:strfmt uuid4.
 #UUID4: _
 
-// UUID5 represents a uuid5 string format
+// UUID5 represents a uuid5 string format.
 //
-// swagger:strfmt uuid5
+// swagger:strfmt uuid5.
 #UUID5: _
 
-// ISBN represents an isbn string format
+// UUID7 represents a uuid7 string format.
 //
-// swagger:strfmt isbn
+// swagger:strfmt uuid7.
+#UUID7: _
+
+// ISBN represents an isbn string format.
+//
+// swagger:strfmt isbn.
 #ISBN: _
 
-// ISBN10 represents an isbn 10 string format
+// ISBN10 represents an isbn 10 string format.
 //
-// swagger:strfmt isbn10
+// swagger:strfmt isbn10.
 #ISBN10: _
 
-// ISBN13 represents an isbn 13 string format
+// ISBN13 represents an isbn 13 string format.
 //
-// swagger:strfmt isbn13
+// swagger:strfmt isbn13.
 #ISBN13: _
 
-// CreditCard represents a credit card string format
+// CreditCard represents a credit card string format.
 //
-// swagger:strfmt creditcard
+// swagger:strfmt creditcard.
 #CreditCard: _
 
-// SSN represents a social security string format
+// SSN represents a social security string format.
 //
-// swagger:strfmt ssn
+// swagger:strfmt ssn.
 #SSN: _
 
-// HexColor represents a hex color string format
+// HexColor represents a hex color string format.
 //
-// swagger:strfmt hexcolor
+// swagger:strfmt hexcolor.
 #HexColor: _
 
-// RGBColor represents a RGB color string format
+// RGBColor represents a RGB color string format.
 //
-// swagger:strfmt rgbcolor
+// swagger:strfmt rgbcolor.
 #RGBColor: _
 
 // Password represents a password.
 // This has no validations and is mainly used as a marker for UI components.
 //
-// swagger:strfmt password
+// swagger:strfmt password.
 #Password: _

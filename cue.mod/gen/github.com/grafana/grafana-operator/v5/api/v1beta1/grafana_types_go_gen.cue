@@ -5,9 +5,11 @@
 package v1beta1
 
 import (
-	"k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
+
+#PluginVersionLatest: "latest"
 
 #OperatorStageName: string // #enumOperatorStageName
 
@@ -64,8 +66,15 @@ import (
 	// Route sets how the ingress object should look like with your grafana instance, this only works in Openshift.
 	route?: null | #RouteOpenshiftV1 @go(Route,*RouteOpenshiftV1)
 
+	// HTTPRoute customizes the GatewayAPI HTTPRoute Object. It will not be created if this is not set
+	httpRoute?: null | #HTTPRouteV1 @go(HTTPRoute,*HTTPRouteV1)
+
 	// Service sets how the service object should look like with your grafana instance, contains a number of defaults.
 	service?: null | #ServiceV1 @go(Service,*ServiceV1)
+
+	// Version sets the tag of the default image: docker.io/grafana/grafana.
+	// Allows full image refs with/without sha256checksum: "registry/repo/image:tag@sha"
+	version?: string @go(Version)
 
 	// Deployment sets how the deployment object should look like with your grafana instance, contains a number of defaults.
 	deployment?: null | #DeploymentV1 @go(Deployment,*DeploymentV1)
@@ -85,20 +94,54 @@ import (
 
 	// Preferences holds the Grafana Preferences settings
 	preferences?: null | #GrafanaPreferences @go(Preferences,*GrafanaPreferences)
+
+	// DisableDefaultAdminSecret prevents operator from creating default admin-credentials secret
+	disableDefaultAdminSecret?: bool @go(DisableDefaultAdminSecret)
+
+	// Suspend pauses reconciliation of owned resources like deployments, Services, Etc. upon changes
+	// +optional
+	suspend?: bool @go(Suspend)
+
+	// DisableDefaultSecurityContext prevents the operator from populating securityContext on deployments
+	// +kubebuilder:validation:Enum=Pod;Container;All
+	disableDefaultSecurityContext?: string @go(DisableDefaultSecurityContext)
 }
 
 #External: {
 	// URL of the external grafana instance you want to manage.
+	// +kubebuilder:validation:Pattern=`^https?://.+$`
 	url: string @go(URL)
 
 	// The API key to talk to the external grafana instance, you need to define ether apiKey or adminUser/adminPassword.
-	apiKey?: null | v1.#SecretKeySelector @go(ApiKey,*v1.SecretKeySelector)
+	apiKey?: null | corev1.#SecretKeySelector @go(APIKey,*corev1.SecretKeySelector)
 
 	// AdminUser key to talk to the external grafana instance.
-	adminUser?: null | v1.#SecretKeySelector @go(AdminUser,*v1.SecretKeySelector)
+	adminUser?: null | corev1.#SecretKeySelector @go(AdminUser,*corev1.SecretKeySelector)
 
 	// AdminPassword key to talk to the external grafana instance.
-	adminPassword?: null | v1.#SecretKeySelector @go(AdminPassword,*v1.SecretKeySelector)
+	adminPassword?: null | corev1.#SecretKeySelector @go(AdminPassword,*corev1.SecretKeySelector)
+
+	// DEPRECATED, use top level `tls` instead.
+	// +optional
+	tls?: null | #TLSConfig @go(TLS,*TLSConfig)
+
+	// TenantNamespace is used as the `namespace` value for GrafanaManifest resources in multi-tenant scenarios
+	// defaults to `default`
+	// +kubebuilder:default=default
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	tenantNamespace: string @go(TenantNamespace)
+}
+
+// TLSConfig specifies options to use when communicating with the Grafana endpoint
+// +kubebuilder:validation:XValidation:rule="(has(self.insecureSkipVerify) && !(has(self.certSecretRef))) || (has(self.certSecretRef) && !(has(self.insecureSkipVerify)))", message="insecureSkipVerify and certSecretRef cannot be set at the same time"
+#TLSConfig: {
+	// Disable the CA check of the server
+	// +optional
+	insecureSkipVerify?: bool @go(InsecureSkipVerify)
+
+	// Use a secret as a reference to give TLS Certificate information
+	// +optional
+	certSecretRef?: null | corev1.#SecretReference @go(CertSecretRef,*corev1.SecretReference)
 }
 
 #JsonnetConfig: {
@@ -107,12 +150,25 @@ import (
 
 // GrafanaClient contains the Grafana API client settings
 #GrafanaClient: {
+	// Use Kubernetes Serviceaccount as authentication
+	// Requires configuring [auth.jwt] in the instance
+	// +optional
+	useKubeAuth?: bool @go(UseKubeAuth)
+
 	// +nullable
 	timeout?: null | int @go(TimeoutSeconds,*int)
 
 	// +nullable
 	// If the operator should send it's request through the grafana instances ingress object instead of through the service.
 	preferIngress?: null | bool @go(PreferIngress,*bool)
+
+	// TLS Configuration used to talk with the grafana instance.
+	// +optional
+	tls?: null | #TLSConfig @go(TLS,*TLSConfig)
+
+	// Custom HTTP headers to use when interacting with this Grafana.
+	// +optional
+	headers?: {[string]: string} @go(Headers,map[string]string)
 }
 
 // GrafanaPreferences holds Grafana preferences API settings
@@ -122,23 +178,34 @@ import (
 
 // GrafanaStatus defines the observed state of Grafana
 #GrafanaStatus: {
-	stage?:       #OperatorStageName      @go(Stage)
-	stageStatus?: #OperatorStageStatus    @go(StageStatus)
-	lastMessage?: string                  @go(LastMessage)
-	adminUrl?:    string                  @go(AdminUrl)
-	dashboards?:  #NamespacedResourceList @go(Dashboards)
-	datasources?: #NamespacedResourceList @go(Datasources)
-	folders?:     #NamespacedResourceList @go(Folders)
+	stage?:                 #OperatorStageName      @go(Stage)
+	stageStatus?:           #OperatorStageStatus    @go(StageStatus)
+	lastMessage?:           string                  @go(LastMessage)
+	adminUrl?:              string                  @go(AdminURL)
+	alertRuleGroups?:       #NamespacedResourceList @go(AlertRuleGroups)
+	contactPoints?:         #NamespacedResourceList @go(ContactPoints)
+	dashboards?:            #NamespacedResourceList @go(Dashboards)
+	datasources?:           #NamespacedResourceList @go(Datasources)
+	serviceaccounts?:       #NamespacedResourceList @go(ServiceAccounts)
+	folders?:               #NamespacedResourceList @go(Folders)
+	libraryPanels?:         #NamespacedResourceList @go(LibraryPanels)
+	muteTimings?:           #NamespacedResourceList @go(MuteTimings)
+	notificationTemplates?: #NamespacedResourceList @go(NotificationTemplates)
+	manifests?:             #NamespacedResourceList @go(Manifests)
+	version?:               string                  @go(Version)
+	conditions?: [...metav1.#Condition] @go(Conditions,[]metav1.Condition)
 }
 
 // Grafana is the Schema for the grafanas API
+// +kubebuilder:printcolumn:name="Version",type="string",JSONPath=".status.version",description=""
 // +kubebuilder:printcolumn:name="Stage",type="string",JSONPath=".status.stage",description=""
 // +kubebuilder:printcolumn:name="Stage status",type="string",JSONPath=".status.stageStatus",description=""
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description=""
+// +kubebuilder:resource:categories={grafana-operator}
 #Grafana: {
 	metav1.#TypeMeta
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta)
-	spec?:     #GrafanaSpec       @go(Spec)
+	spec:      #GrafanaSpec       @go(Spec)
 	status?:   #GrafanaStatus     @go(Status)
 }
 

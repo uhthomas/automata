@@ -9,7 +9,7 @@ package models
 // swagger:model Correlation
 #Correlation: {
 	// config
-	config?: null | #CorrelationConfig @go(Config,*CorrelationConfig)
+	config?: #CorrelationConfig @go(Config,*CorrelationConfig)
 
 	// Description of the correlation
 	// Example: Logs to Traces
@@ -33,6 +33,9 @@ package models
 	// UID of the data source the correlation points to
 	// Example: PE1C5CBDA0504A6A3
 	targetUID?: string @go(TargetUID)
+
+	// type
+	type?: #CorrelationType @go(Type)
 
 	// Unique identifier of the correlation
 	// Example: 50xhMlg9k

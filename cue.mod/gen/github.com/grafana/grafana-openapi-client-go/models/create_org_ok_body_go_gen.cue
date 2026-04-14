@@ -11,10 +11,10 @@ package models
 	// Message Message of the created org.
 	// Example: Data source added
 	// Required: true
-	message?: null | string @go(Message,*string)
+	message?: string @go(Message,*string)
 
 	// ID Identifier of the created org.
 	// Example: 65
 	// Required: true
-	orgId?: null | int64 @go(OrgID,*int64)
+	orgId?: int64 @go(OrgID,*int64)
 }

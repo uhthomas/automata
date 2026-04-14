@@ -13,5 +13,5 @@ package models
 	message?: string @go(Message)
 
 	// result
-	result?: null | #Correlation @go(Result,*Correlation)
+	result?: #Correlation @go(Result,*Correlation)
 }

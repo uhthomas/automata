@@ -4,21 +4,18 @@
 
 package models
 
-// Report ConfigDTO is model representation in transfer
+import "github.com/go-openapi/strfmt"
+
+// Report report
 //
 // swagger:model Report
 #Report: {
-	// dashboard Id
-	dashboardId?: int64 @go(DashboardID)
-
-	// dashboard name
-	dashboardName?: string @go(DashboardName)
-
-	// dashboard Uid
-	dashboardUid?: string @go(DashboardUID)
+	// created
+	// Format: date-time
+	created?: strfmt.#DateTime @go(Created)
 
 	// dashboards
-	dashboards: [...null | #ReportDashboard] @go(Dashboards,[]*ReportDashboard)
+	dashboards: [...#ReportDashboard] @go(Dashboards,[]*ReportDashboard)
 
 	// enable Csv
 	enableCsv?: bool @go(EnableCSV)
@@ -39,7 +36,7 @@ package models
 	name?: string @go(Name)
 
 	// options
-	options?: null | #ReportOptions @go(Options,*ReportOptions)
+	options?: #ReportOptions @go(Options,*ReportOptions)
 
 	// org Id
 	orgId?: int64 @go(OrgID)
@@ -54,13 +51,20 @@ package models
 	scaleFactor?: int64 @go(ScaleFactor)
 
 	// schedule
-	schedule?: null | #ReportSchedule @go(Schedule,*ReportSchedule)
+	schedule?: #ReportSchedule @go(Schedule,*ReportSchedule)
 
 	// state
 	state?: #State @go(State)
 
-	// template vars
-	templateVars?: _ @go(TemplateVars,interface{})
+	// subject
+	subject?: string @go(Subject)
+
+	// uid
+	uid?: string @go(UID)
+
+	// updated
+	// Format: date-time
+	updated?: strfmt.#DateTime @go(Updated)
 
 	// user Id
 	userId?: int64 @go(UserID)

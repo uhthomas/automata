@@ -4,11 +4,16 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // Hit hit
 //
 // swagger:model Hit
 #Hit: {
-	// Deprecated: use FolderUID instead
+	// description
+	description?: string @go(Description)
+
+	// folder Id
 	folderId?: int64 @go(FolderID)
 
 	// folder title
@@ -23,8 +28,18 @@ package models
 	// id
 	id?: int64 @go(ID)
 
+	// is deleted
+	isDeleted?: bool @go(IsDeleted)
+
 	// is starred
 	isStarred?: bool @go(IsStarred)
+
+	// org Id
+	orgId?: int64 @go(OrgID)
+
+	// permanently delete date
+	// Format: date-time
+	permanentlyDeleteDate?: strfmt.#DateTime @go(PermanentlyDeleteDate)
 
 	// slug
 	slug?: string @go(Slug)

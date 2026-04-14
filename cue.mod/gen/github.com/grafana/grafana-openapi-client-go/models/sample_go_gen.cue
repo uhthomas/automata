@@ -4,19 +4,25 @@
 
 package models
 
-// Sample Sample is a single sample belonging to a metric.
+// Sample Sample is a single sample belonging to a metric. It represents either a float
+// sample or a histogram sample. If H is nil, it is a float sample. Otherwise,
+// it is a histogram sample.
 //
 // swagger:model Sample
 #Sample: {
+	// DropName is used to indicate whether the __name__ label should be dropped
+	// as part of the query evaluation.
+	DropName?: bool
+
+	// f
+	F?: float64
+
 	// h
-	H?: null | #FloatHistogram @go(,*FloatHistogram)
+	H?: #FloatHistogram @go(,*FloatHistogram)
 
 	// metric
 	Metric?: #Labels
 
 	// t
 	T?: int64
-
-	// v
-	V?: float64
 }

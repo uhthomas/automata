@@ -9,10 +9,10 @@ package models
 // swagger:model SlackConfig
 #SlackConfig: {
 	// actions
-	actions: [...null | #SlackAction] @go(Actions,[]*SlackAction)
+	actions: [...#SlackAction] @go(Actions,[]*SlackAction)
 
 	// api url
-	api_url?: null | #SecretURL @go(APIURL,*SecretURL)
+	api_url?: #SecretURL @go(APIURL,*SecretURL)
 
 	// api url file
 	api_url_file?: string @go(APIURLFile)
@@ -30,13 +30,13 @@ package models
 	fallback?: string @go(Fallback)
 
 	// fields
-	fields: [...null | #SlackField] @go(Fields,[]*SlackField)
+	fields: [...#SlackField] @go(Fields,[]*SlackField)
 
 	// footer
 	footer?: string @go(Footer)
 
 	// http config
-	http_config?: null | #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
+	http_config?: #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
 
 	// icon emoji
 	icon_emoji?: string @go(IconEmoji)

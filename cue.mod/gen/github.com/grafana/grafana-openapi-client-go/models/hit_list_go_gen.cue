@@ -7,4 +7,4 @@ package models
 // HitList hit list
 //
 // swagger:model HitList
-#HitList: [...null | #Hit]
+#HitList: [...#Hit]

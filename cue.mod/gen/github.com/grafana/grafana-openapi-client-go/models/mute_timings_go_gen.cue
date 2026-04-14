@@ -7,4 +7,4 @@ package models
 // MuteTimings mute timings
 //
 // swagger:model MuteTimings
-#MuteTimings: [...null | #MuteTimeInterval]
+#MuteTimings: [...#MuteTimeInterval]

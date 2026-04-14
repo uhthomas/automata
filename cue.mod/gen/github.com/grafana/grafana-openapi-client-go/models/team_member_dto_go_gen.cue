@@ -38,6 +38,12 @@ package models
 	// team UID
 	teamUID?: string @go(TeamUID)
 
+	// uid
+	uid?: string @go(UID)
+
 	// user Id
 	userId?: int64 @go(UserID)
+
+	// user UID
+	userUID?: string @go(UserUID)
 }

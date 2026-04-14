@@ -29,8 +29,8 @@ package models
 	// type
 	// Example: webhook
 	// Required: true
-	// Enum: [alertmanager  dingding  discord  email  googlechat  kafka  line  opsgenie  pagerduty  pushover  sensugo  slack  teams  telegram  threema  victorops  webhook  wecom]
-	type?: null | string @go(Type,*string)
+	// Enum: [alertmanager dingding discord email googlechat kafka line opsgenie pagerduty pushover sensugo slack teams telegram threema victorops webhook wecom]
+	type?: string @go(Type,*string)
 
 	// UID is the unique identifier of the contact point. The UID can be
 	// set by the user.
@@ -44,53 +44,53 @@ package models
 // EmbeddedContactPointTypeAlertmanager captures enum value "alertmanager"
 #EmbeddedContactPointTypeAlertmanager: "alertmanager"
 
-// EmbeddedContactPointTypeDingding captures enum value " dingding"
-#EmbeddedContactPointTypeDingding: " dingding"
+// EmbeddedContactPointTypeDingding captures enum value "dingding"
+#EmbeddedContactPointTypeDingding: "dingding"
 
-// EmbeddedContactPointTypeDiscord captures enum value " discord"
-#EmbeddedContactPointTypeDiscord: " discord"
+// EmbeddedContactPointTypeDiscord captures enum value "discord"
+#EmbeddedContactPointTypeDiscord: "discord"
 
-// EmbeddedContactPointTypeEmail captures enum value " email"
-#EmbeddedContactPointTypeEmail: " email"
+// EmbeddedContactPointTypeEmail captures enum value "email"
+#EmbeddedContactPointTypeEmail: "email"
 
-// EmbeddedContactPointTypeGooglechat captures enum value " googlechat"
-#EmbeddedContactPointTypeGooglechat: " googlechat"
+// EmbeddedContactPointTypeGooglechat captures enum value "googlechat"
+#EmbeddedContactPointTypeGooglechat: "googlechat"
 
-// EmbeddedContactPointTypeKafka captures enum value " kafka"
-#EmbeddedContactPointTypeKafka: " kafka"
+// EmbeddedContactPointTypeKafka captures enum value "kafka"
+#EmbeddedContactPointTypeKafka: "kafka"
 
-// EmbeddedContactPointTypeLine captures enum value " line"
-#EmbeddedContactPointTypeLine: " line"
+// EmbeddedContactPointTypeLine captures enum value "line"
+#EmbeddedContactPointTypeLine: "line"
 
-// EmbeddedContactPointTypeOpsgenie captures enum value " opsgenie"
-#EmbeddedContactPointTypeOpsgenie: " opsgenie"
+// EmbeddedContactPointTypeOpsgenie captures enum value "opsgenie"
+#EmbeddedContactPointTypeOpsgenie: "opsgenie"
 
-// EmbeddedContactPointTypePagerduty captures enum value " pagerduty"
-#EmbeddedContactPointTypePagerduty: " pagerduty"
+// EmbeddedContactPointTypePagerduty captures enum value "pagerduty"
+#EmbeddedContactPointTypePagerduty: "pagerduty"
 
-// EmbeddedContactPointTypePushover captures enum value " pushover"
-#EmbeddedContactPointTypePushover: " pushover"
+// EmbeddedContactPointTypePushover captures enum value "pushover"
+#EmbeddedContactPointTypePushover: "pushover"
 
-// EmbeddedContactPointTypeSensugo captures enum value " sensugo"
-#EmbeddedContactPointTypeSensugo: " sensugo"
+// EmbeddedContactPointTypeSensugo captures enum value "sensugo"
+#EmbeddedContactPointTypeSensugo: "sensugo"
 
-// EmbeddedContactPointTypeSlack captures enum value " slack"
-#EmbeddedContactPointTypeSlack: " slack"
+// EmbeddedContactPointTypeSlack captures enum value "slack"
+#EmbeddedContactPointTypeSlack: "slack"
 
-// EmbeddedContactPointTypeTeams captures enum value " teams"
-#EmbeddedContactPointTypeTeams: " teams"
+// EmbeddedContactPointTypeTeams captures enum value "teams"
+#EmbeddedContactPointTypeTeams: "teams"
 
-// EmbeddedContactPointTypeTelegram captures enum value " telegram"
-#EmbeddedContactPointTypeTelegram: " telegram"
+// EmbeddedContactPointTypeTelegram captures enum value "telegram"
+#EmbeddedContactPointTypeTelegram: "telegram"
 
-// EmbeddedContactPointTypeThreema captures enum value " threema"
-#EmbeddedContactPointTypeThreema: " threema"
+// EmbeddedContactPointTypeThreema captures enum value "threema"
+#EmbeddedContactPointTypeThreema: "threema"
 
-// EmbeddedContactPointTypeVictorops captures enum value " victorops"
-#EmbeddedContactPointTypeVictorops: " victorops"
+// EmbeddedContactPointTypeVictorops captures enum value "victorops"
+#EmbeddedContactPointTypeVictorops: "victorops"
 
-// EmbeddedContactPointTypeWebhook captures enum value " webhook"
-#EmbeddedContactPointTypeWebhook: " webhook"
+// EmbeddedContactPointTypeWebhook captures enum value "webhook"
+#EmbeddedContactPointTypeWebhook: "webhook"
 
-// EmbeddedContactPointTypeWecom captures enum value " wecom"
-#EmbeddedContactPointTypeWecom: " wecom"
+// EmbeddedContactPointTypeWecom captures enum value "wecom"
+#EmbeddedContactPointTypeWecom: "wecom"

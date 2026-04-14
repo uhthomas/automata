@@ -7,4 +7,4 @@ package models
 // Matchers Matchers matchers
 //
 // swagger:model matchers
-#Matchers: [...null | #Matcher]
+#Matchers: [...#Matcher]

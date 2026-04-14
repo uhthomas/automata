@@ -9,5 +9,5 @@ package models
 // swagger:model UpdateDashboardACLCommand
 #UpdateDashboardACLCommand: {
 	// items
-	items: [...null | #DashboardACLUpdateItem] @go(Items,[]*DashboardACLUpdateItem)
+	items: [...#DashboardACLUpdateItem] @go(Items,[]*DashboardACLUpdateItem)
 }

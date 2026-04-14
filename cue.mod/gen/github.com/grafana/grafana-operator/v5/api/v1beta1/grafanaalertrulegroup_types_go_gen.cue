@@ -6,29 +6,32 @@ package v1beta1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"github.com/grafana/grafana-openapi-client-go/models"
 )
 
 // GrafanaAlertRuleGroupSpec defines the desired state of GrafanaAlertRuleGroup
-// +kubebuilder:validation:XValidation:rule="(has(self.folderUID) && !(has(self.folderRef))) || (has(self.folderRef) && !(has(self.folderUID)))", message="Only one of FolderUID or FolderRef can be set"
+// +kubebuilder:validation:XValidation:rule="(has(self.folderUID) && !(has(self.folderRef))) || (has(self.folderRef) && !(has(self.folderUID)))", message="Only one of FolderUID or FolderRef can be set and one must be defined"
+// +kubebuilder:validation:XValidation:rule="((!has(oldSelf.editable) && !has(self.editable)) || (has(oldSelf.editable) && has(self.editable)))", message="spec.editable is immutable"
+// +kubebuilder:validation:XValidation:rule="((!has(oldSelf.folderUID) && !has(self.folderUID)) || (has(oldSelf.folderUID) && has(self.folderUID)))", message="spec.folderUID is immutable"
+// +kubebuilder:validation:XValidation:rule="((!has(oldSelf.folderRef) && !has(self.folderRef)) || (has(oldSelf.folderRef) && has(self.folderRef)))", message="spec.folderRef is immutable"
 #GrafanaAlertRuleGroupSpec: {
-	// +optional
-	// +kubebuilder:validation:Type=string
-	// +kubebuilder:validation:Format=duration
-	// +kubebuilder:validation:Pattern="^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
-	// +kubebuilder:default="10m"
-	resyncPeriod?: metav1.#Duration @go(ResyncPeriod)
+	#GrafanaCommonSpec
 
-	// selects Grafanas for import
-	instanceSelector?: null | metav1.#LabelSelector @go(InstanceSelector,*metav1.LabelSelector)
+	// +optional
+	// Name of the alert rule group. If not specified, the resource name will be used.
+	name?: string @go(Name)
 
 	// UID of the folder containing this rule group
 	// Overrides the FolderSelector
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	folderUID?: string @go(FolderUID)
 
 	// Match GrafanaFolders CRs to infer the uid
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	folderRef?: string @go(FolderRef)
+
+	// +kubebuilder:validation:MinItems=1
 	rules: [...#AlertRule] @go(Rules,[]AlertRule)
 
 	// +kubebuilder:validation:Type=string
@@ -37,8 +40,10 @@ import (
 	// +kubebuilder:validation:Required
 	interval: metav1.#Duration @go(Interval)
 
+	// Whether to enable or disable editing of the alert rule group in Grafana UI
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// +optional
-	allowCrossNamespaceImport?: null | bool @go(AllowCrossNamespaceImport,*bool)
+	editable?: null | bool @go(Editable,*bool)
 }
 
 // AlertRule defines a specific rule to be evaluated. It is based on the upstream model with some k8s specific type mappings
@@ -47,29 +52,91 @@ import (
 	condition: string @go(Condition)
 
 	// +kubebuilder:validation:Required
-	data: [...null | #AlertQuery] @go(Data,[]*AlertQuery)
+	data: [...#AlertQuery] @go(Data,[]*AlertQuery)
 
-	// +kubebuilder:validation:Enum=OK;Alerting;Error
+	// +kubebuilder:validation:Enum=OK;Alerting;Error;KeepLast
 	execErrState: string @go(ExecErrState)
+
+	// +kubebuilder:validation:Pattern="^([0-9]+(\\.[0-9]+)?(s|m|h|d|w))+$"
+	// +kubebuilder:default="0s"
+	for?:                  null | string                @go(For,*string)
+	isPaused?:             bool                         @go(IsPaused)
+	notificationSettings?: null | #NotificationSettings @go(NotificationSettings,*NotificationSettings)
+	labels?: {[string]: string} @go(Labels,map[string]string)
+
+	// +kubebuilder:validation:Enum=Alerting;NoData;OK;KeepLast
+	noDataState?: null | string @go(NoDataState,*string)
+
+	// The number of missing series evaluations that must occur before the rule is considered to be resolved.
+	missingSeriesEvalsToResolve?: null | int64 @go(MissingSeriesEvalsToResolve,*int64)
 
 	// +kubebuilder:validation:Type=string
 	// +kubebuilder:validation:Format=duration
 	// +kubebuilder:validation:Pattern="^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
-	// +kubebuilder:validation:Required
-	for?:      null | metav1.#Duration @go(For,*metav1.Duration)
-	isPaused?: bool                    @go(IsPaused)
-	labels?: {[string]: string} @go(Labels,map[string]string)
-
-	// +kubebuilder:validation:Enum=Alerting;NoData;OK
-	noDataState?: null | string @go(NoDataState,*string)
+	keepFiringFor?: null | metav1.#Duration @go(KeepFiringFor,*metav1.Duration)
+	record?:        null | #Record          @go(Record,*Record)
 
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=190
 	// +kubebuilder:example="Always firing"
 	title: string @go(Title)
 
+	// UID of the alert rule. Can be any string consisting of alphanumeric characters, - and _ with a maximum length of 40
+	// +kubebuilder:validation:MaxLength=40
 	// +kubebuilder:validation:Pattern="^[a-zA-Z0-9-_]+$"
 	uid: string @go(UID)
+
+	// Deprecated: The field is not used, use rules[].annotations.__dashboardUid__
+	dashboardUid?: string @go(DashboardUID)
+
+	// Deprecated: The field is not used, use rules[].annotations.__panelId__
+	panelId?: int @go(PanelID)
+}
+
+#NotificationSettings: {
+	// Receiver is the name of the receiver to send notifications to.
+	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:MinLength=1
+	receiver: string @go(Receiver)
+
+	// GroupBy defines the labels by which incoming alerts are grouped together.
+	// +optional
+	group_by?: [...string] @go(GroupBy,[]string)
+
+	// GroupWait defines how long to initially wait to send a notification for a group of alerts. (e.g. 30s)
+	// +optional
+	group_wait?: string @go(GroupWait)
+
+	// GroupInterval defines how long to wait before sending a notification about new alerts added
+	// to a group for which an initial notification has already been sent. (e.g. 5m)
+	// +optional
+	group_interval?: string @go(GroupInterval)
+
+	// RepeatInterval defines how long to wait before sending a notification again if it has already
+	// been sent successfully for an alert. (e.g. 4h)
+	// Should not be less than GroupInterval.
+	// +optional
+	repeat_interval?: string @go(RepeatInterval)
+
+	// MuteTimeIntervals defines the time intervals during which notifications should be muted.
+	// These must match the name of a mute time interval defined in the Alertmanager configuration.
+	// +optional
+	mute_time_intervals?: [...string] @go(MuteTimeIntervals,[]string)
+
+	// ActiveTimeIntervals defines the time intervals during which notifications should NOT be muted.
+	// +optional
+	active_time_intervals?: [...string] @go(ActiveTimeIntervals,[]string)
+}
+
+#Record: {
+	// +kubebuilder:validation:Required
+	from: string @go(From)
+
+	// +kubebuilder:validation:Required
+	metric: string @go(Metric)
+
+	// +optional
+	targetDatasourceUid?: string @go(TargetDatasourceUID)
 }
 
 #AlertQuery: {
@@ -77,7 +144,7 @@ import (
 	datasourceUid?: string @go(DatasourceUID)
 
 	// JSON is the raw JSON query and includes the above properties as well as custom properties.
-	model?: null | apiextensions.#JSON @go(Model,*apiextensions.JSON)
+	model?: null | apiextensionsv1.#JSON @go(Model,*apiextensionsv1.JSON)
 
 	// QueryType is an optional identifier for the type of query.
 	// It can be used to distinguish different types of queries.
@@ -90,17 +157,15 @@ import (
 	relativeTimeRange?: null | models.#RelativeTimeRange @go(RelativeTimeRange,*models.RelativeTimeRange)
 }
 
-// GrafanaAlertRuleGroupStatus defines the observed state of GrafanaAlertRuleGroup
-#GrafanaAlertRuleGroupStatus: {
-	conditions: [...metav1.#Condition] @go(Conditions,[]metav1.Condition)
-}
-
 // GrafanaAlertRuleGroup is the Schema for the grafanaalertrulegroups API
+// +kubebuilder:printcolumn:name="Last resync",type="date",format="date-time",JSONPath=".status.lastResync",description=""
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description=""
+// +kubebuilder:resource:categories={grafana-operator}
 #GrafanaAlertRuleGroup: {
 	metav1.#TypeMeta
-	metadata?: metav1.#ObjectMeta           @go(ObjectMeta)
-	spec?:     #GrafanaAlertRuleGroupSpec   @go(Spec)
-	status?:   #GrafanaAlertRuleGroupStatus @go(Status)
+	metadata?: metav1.#ObjectMeta         @go(ObjectMeta)
+	spec:      #GrafanaAlertRuleGroupSpec @go(Spec)
+	status?:   #GrafanaCommonStatus       @go(Status)
 }
 
 // GrafanaAlertRuleGroupList contains a list of GrafanaAlertRuleGroup

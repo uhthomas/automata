@@ -20,8 +20,14 @@ package models
 	// language
 	language?: string @go(Language)
 
+	// navbar
+	navbar?: #NavbarPreference @go(Navbar,*NavbarPreference)
+
 	// query history
-	queryHistory?: null | #QueryHistoryPreference @go(QueryHistory,*QueryHistoryPreference)
+	queryHistory?: #QueryHistoryPreference @go(QueryHistory,*QueryHistoryPreference)
+
+	// regional format
+	regionalFormat?: string @go(RegionalFormat)
 
 	// theme
 	// Enum: [light dark system]

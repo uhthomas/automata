@@ -12,7 +12,7 @@ package models
 	interval?: string @go(Interval)
 
 	// items
-	items: [...null | #PlaylistItem] @go(Items,[]*PlaylistItem)
+	items: [...#PlaylistItem] @go(Items,[]*PlaylistItem)
 
 	// name
 	name?: string @go(Name)

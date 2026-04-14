@@ -4,13 +4,23 @@
 
 package models
 
-// Permission Permission is the model for access control permissions.
+import "github.com/go-openapi/strfmt"
+
+// Permission Permission is the model for access control permissions
 //
 // swagger:model Permission
 #Permission: {
 	// action
 	action?: string @go(Action)
 
+	// created
+	// Format: date-time
+	created?: strfmt.#DateTime @go(Created)
+
 	// scope
 	scope?: string @go(Scope)
+
+	// updated
+	// Format: date-time
+	updated?: strfmt.#DateTime @go(Updated)
 }

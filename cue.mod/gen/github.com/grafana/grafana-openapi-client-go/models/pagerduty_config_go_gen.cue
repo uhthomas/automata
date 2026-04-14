@@ -30,13 +30,13 @@ package models
 	group?: string @go(Group)
 
 	// http config
-	http_config?: null | #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
+	http_config?: #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
 
 	// images
-	images: [...null | #PagerdutyImage] @go(Images,[]*PagerdutyImage)
+	images: [...#PagerdutyImage] @go(Images,[]*PagerdutyImage)
 
 	// links
-	links: [...null | #PagerdutyLink] @go(Links,[]*PagerdutyLink)
+	links: [...#PagerdutyLink] @go(Links,[]*PagerdutyLink)
 
 	// routing key
 	routing_key?: #Secret @go(RoutingKey)
@@ -60,5 +60,5 @@ package models
 	source?: string @go(Source)
 
 	// url
-	url?: null | #URL @go(URL,*URL)
+	url?: #URL @go(URL,*URL)
 }

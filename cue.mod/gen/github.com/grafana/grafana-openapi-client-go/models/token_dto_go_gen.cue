@@ -4,10 +4,22 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // TokenDTO token DTO
 //
 // swagger:model TokenDTO
 #TokenDTO: {
+	// created
+	// Example: 2022-03-23T10:31:02Z
+	// Format: date-time
+	created?: strfmt.#DateTime @go(Created)
+
+	// expiration
+	// Example: 2022-03-23T10:31:02Z
+	// Format: date-time
+	expiration?: strfmt.#DateTime @go(Expiration)
+
 	// has expired
 	// Example: false
 	hasExpired?: bool @go(HasExpired)
@@ -19,6 +31,11 @@ package models
 	// is revoked
 	// Example: false
 	isRevoked?: bool @go(IsRevoked)
+
+	// last used at
+	// Example: 2022-03-23T10:31:02Z
+	// Format: date-time
+	lastUsedAt?: strfmt.#DateTime @go(LastUsedAt)
 
 	// name
 	// Example: grafana

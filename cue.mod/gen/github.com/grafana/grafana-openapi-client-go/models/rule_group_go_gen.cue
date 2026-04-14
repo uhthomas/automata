@@ -4,6 +4,8 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // RuleGroup rule group
 //
 // swagger:model RuleGroup
@@ -13,21 +15,29 @@ package models
 
 	// file
 	// Required: true
-	file?: null | string @go(File,*string)
+	file?: string @go(File,*string)
+
+	// folder Uid
+	// Required: true
+	folderUid?: string @go(FolderUID,*string)
 
 	// interval
 	// Required: true
-	interval?: null | float64 @go(Interval,*float64)
+	interval?: float64 @go(Interval,*float64)
+
+	// last evaluation
+	// Format: date-time
+	lastEvaluation?: strfmt.#DateTime @go(LastEvaluation)
 
 	// name
 	// Required: true
-	name?: null | string @go(Name,*string)
+	name?: string @go(Name,*string)
 
 	// In order to preserve rule ordering, while exposing type (alerting or recording)
 	// specific properties, both alerting and recording rules are exposed in the
 	// same array.
 	// Required: true
-	rules: [...null | #AlertingRule] @go(Rules,[]*AlertingRule)
+	rules: [...#AlertingRule] @go(Rules,[]*AlertingRule)
 
 	// totals
 	totals?: {[string]: int64} @go(Totals,map[string]int64)

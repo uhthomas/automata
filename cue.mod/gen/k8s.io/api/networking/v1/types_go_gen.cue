@@ -137,21 +137,21 @@ import (
 	// protocol represents the protocol (TCP, UDP, or SCTP) which traffic must match.
 	// If not specified, this field defaults to TCP.
 	// +optional
-	protocol?: null | v1.#Protocol @go(Protocol,*v1.Protocol) @protobuf(1,bytes,opt,casttype=k8s.io/api/core/v1.Protocol)
+	protocol?: v1.#Protocol @go(Protocol,*v1.Protocol) @protobuf(1,bytes,opt,casttype=k8s.io/api/core/v1.Protocol)
 
 	// port represents the port on the given protocol. This can either be a numerical or named
 	// port on a pod. If this field is not provided, this matches all port names and
 	// numbers.
 	// If present, only traffic on the specified protocol AND port will be matched.
 	// +optional
-	port?: null | intstr.#IntOrString @go(Port,*intstr.IntOrString) @protobuf(2,bytes,opt)
+	port?: intstr.#IntOrString @go(Port,*intstr.IntOrString) @protobuf(2,bytes,opt)
 
 	// endPort indicates that the range of ports from port to endPort if set, inclusive,
 	// should be allowed by the policy. This field cannot be defined if the port field
 	// is not defined or if the port field is defined as a named (string) port.
 	// The endPort must be equal or greater than port.
 	// +optional
-	endPort?: null | int32 @go(EndPort,*int32) @protobuf(3,bytes,opt)
+	endPort?: int32 @go(EndPort,*int32) @protobuf(3,bytes,opt)
 }
 
 // IPBlock describes a particular CIDR (Ex. "192.168.1.0/24","2001:db8::/64") that is allowed
@@ -180,7 +180,7 @@ import (
 	// the pods matching podSelector in the Namespaces selected by NamespaceSelector.
 	// Otherwise it selects the pods matching podSelector in the policy's own namespace.
 	// +optional
-	podSelector?: null | metav1.#LabelSelector @go(PodSelector,*metav1.LabelSelector) @protobuf(1,bytes,opt)
+	podSelector?: metav1.#LabelSelector @go(PodSelector,*metav1.LabelSelector) @protobuf(1,bytes,opt)
 
 	// namespaceSelector selects namespaces using cluster-scoped labels. This field follows
 	// standard label selector semantics; if present but empty, it selects all namespaces.
@@ -189,12 +189,12 @@ import (
 	// the pods matching podSelector in the namespaces selected by namespaceSelector.
 	// Otherwise it selects all pods in the namespaces selected by namespaceSelector.
 	// +optional
-	namespaceSelector?: null | metav1.#LabelSelector @go(NamespaceSelector,*metav1.LabelSelector) @protobuf(2,bytes,opt)
+	namespaceSelector?: metav1.#LabelSelector @go(NamespaceSelector,*metav1.LabelSelector) @protobuf(2,bytes,opt)
 
 	// ipBlock defines policy on a particular IPBlock. If this field is set then
 	// neither of the other fields can be.
 	// +optional
-	ipBlock?: null | #IPBlock @go(IPBlock,*IPBlock) @protobuf(3,bytes,rep)
+	ipBlock?: #IPBlock @go(IPBlock,*IPBlock) @protobuf(3,bytes,rep)
 }
 
 // NetworkPolicyList is a list of NetworkPolicy objects.
@@ -259,14 +259,14 @@ import (
 	// though the annotation is officially deprecated, for backwards compatibility
 	// reasons, ingress controllers should still honor that annotation if present.
 	// +optional
-	ingressClassName?: null | string @go(IngressClassName,*string) @protobuf(4,bytes,opt)
+	ingressClassName?: string @go(IngressClassName,*string) @protobuf(4,bytes,opt)
 
 	// defaultBackend is the backend that should handle requests that don't
 	// match any rule. If Rules are not specified, DefaultBackend must be specified.
 	// If DefaultBackend is not set, the handling of requests that do not match any
 	// of the rules will be up to the Ingress controller.
 	// +optional
-	defaultBackend?: null | #IngressBackend @go(DefaultBackend,*IngressBackend) @protobuf(1,bytes,opt)
+	defaultBackend?: #IngressBackend @go(DefaultBackend,*IngressBackend) @protobuf(1,bytes,opt)
 
 	// tls represents the TLS configuration. Currently the Ingress only supports a
 	// single TLS port, 443. If multiple members of this list specify different hosts,
@@ -355,7 +355,7 @@ import (
 	// +kubebuilder:validation:Required
 	// +kubebuilder:validation:Pattern=`^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$`
 	// +kubebuilder:validation:MaxLength=316
-	error?: null | string @go(Error,*string) @protobuf(3,bytes,opt)
+	error?: string @go(Error,*string) @protobuf(3,bytes,opt)
 }
 
 // IngressRule represents the rules mapping the paths under a specified host to
@@ -396,7 +396,7 @@ import (
 // one of the following must be set.
 #IngressRuleValue: {
 	// +optional
-	http?: null | #HTTPIngressRuleValue @go(HTTP,*HTTPIngressRuleValue) @protobuf(1,bytes,opt)
+	http?: #HTTPIngressRuleValue @go(HTTP,*HTTPIngressRuleValue) @protobuf(1,bytes,opt)
 }
 
 // HTTPIngressRuleValue is a list of http selectors pointing to backends.
@@ -468,7 +468,7 @@ import (
 	//   the IngressClass. Implementations can treat this as a separate PathType
 	//   or treat it identically to Prefix or Exact path types.
 	// Implementations are required to support all path types.
-	pathType?: null | #PathType @go(PathType,*PathType) @protobuf(3,bytes,opt)
+	pathType?: #PathType @go(PathType,*PathType) @protobuf(3,bytes,opt)
 
 	// backend defines the referenced service endpoint to which the traffic
 	// will be forwarded to.
@@ -480,14 +480,14 @@ import (
 	// service references a service as a backend.
 	// This is a mutually exclusive setting with "Resource".
 	// +optional
-	service?: null | #IngressServiceBackend @go(Service,*IngressServiceBackend) @protobuf(4,bytes,opt)
+	service?: #IngressServiceBackend @go(Service,*IngressServiceBackend) @protobuf(4,bytes,opt)
 
 	// resource is an ObjectRef to another Kubernetes resource in the namespace
 	// of the Ingress object. If resource is specified, a service.Name and
 	// service.Port must not be specified.
 	// This is a mutually exclusive setting with "Service".
 	// +optional
-	resource?: null | v1.#TypedLocalObjectReference @go(Resource,*v1.TypedLocalObjectReference) @protobuf(3,bytes,opt)
+	resource?: v1.#TypedLocalObjectReference @go(Resource,*v1.TypedLocalObjectReference) @protobuf(3,bytes,opt)
 }
 
 // IngressServiceBackend references a Kubernetes Service as a Backend.
@@ -548,7 +548,7 @@ import (
 	// configuration for the controller. This is optional if the controller does
 	// not require extra parameters.
 	// +optional
-	parameters?: null | #IngressClassParametersReference @go(Parameters,*IngressClassParametersReference) @protobuf(2,bytes,opt)
+	parameters?: #IngressClassParametersReference @go(Parameters,*IngressClassParametersReference) @protobuf(2,bytes,opt)
 }
 
 // IngressClassParametersReferenceScopeNamespace indicates that the
@@ -566,7 +566,7 @@ import (
 	// not specified, the specified Kind must be in the core API group. For any
 	// other third-party types, APIGroup is required.
 	// +optional
-	apiGroup?: null | string @go(APIGroup,*string) @protobuf(1,bytes,opt,name=aPIGroup)
+	apiGroup?: string @go(APIGroup,*string) @protobuf(1,bytes,opt,name=aPIGroup)
 
 	// kind is the type of resource being referenced.
 	kind: string @go(Kind) @protobuf(2,bytes,opt)
@@ -577,13 +577,13 @@ import (
 	// scope represents if this refers to a cluster or namespace scoped resource.
 	// This may be set to "Cluster" (default) or "Namespace".
 	// +optional
-	scope?: null | string @go(Scope,*string) @protobuf(4,bytes,opt)
+	scope?: string @go(Scope,*string) @protobuf(4,bytes,opt)
 
 	// namespace is the namespace of the resource being referenced. This field is
 	// required when scope is set to "Namespace" and must be unset when scope is set to
 	// "Cluster".
 	// +optional
-	namespace?: null | string @go(Namespace,*string) @protobuf(5,bytes,opt)
+	namespace?: string @go(Namespace,*string) @protobuf(5,bytes,opt)
 }
 
 // IngressClassList is a collection of IngressClasses.
@@ -624,7 +624,7 @@ import (
 	// ParentRef references the resource that an IPAddress is attached to.
 	// An IPAddress must reference a parent object.
 	// +required
-	parentRef?: null | #ParentReference @go(ParentRef,*ParentReference) @protobuf(1,bytes,opt)
+	parentRef: #ParentReference @go(ParentRef,*ParentReference) @protobuf(1,bytes,opt)
 }
 
 // ParentReference describes a reference to a parent object.
@@ -635,7 +635,7 @@ import (
 
 	// Resource is the resource of the object being referenced.
 	// +required
-	resource?: string @go(Resource) @protobuf(2,bytes,opt)
+	resource: string @go(Resource) @protobuf(2,bytes,opt)
 
 	// Namespace is the namespace of the object being referenced.
 	// +optional
@@ -643,7 +643,7 @@ import (
 
 	// Name is the name of the object being referenced.
 	// +required
-	name?: string @go(Name) @protobuf(4,bytes,opt)
+	name: string @go(Name) @protobuf(4,bytes,opt)
 }
 
 // IPAddressList contains a list of IPAddress.

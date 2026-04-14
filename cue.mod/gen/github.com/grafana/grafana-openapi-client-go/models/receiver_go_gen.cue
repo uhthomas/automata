@@ -8,15 +8,7 @@ package models
 //
 // swagger:model receiver
 #Receiver: {
-	// active
-	// Required: true
-	active?: null | bool @go(Active,*bool)
-
-	// integrations
-	// Required: true
-	integrations: [...null | #Integration] @go(Integrations,[]*Integration)
-
 	// name
 	// Required: true
-	name?: null | string @go(Name,*string)
+	name?: string @go(Name,*string)
 }

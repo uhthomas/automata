@@ -4,6 +4,8 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // TempUserDTO temp user DTO
 //
 // swagger:model TempUserDTO
@@ -11,11 +13,19 @@ package models
 	// code
 	code?: string @go(Code)
 
+	// created on
+	// Format: date-time
+	createdOn?: strfmt.#DateTime @go(CreatedOn)
+
 	// email
 	email?: string @go(Email)
 
 	// email sent
 	emailSent?: bool @go(EmailSent)
+
+	// email sent on
+	// Format: date-time
+	emailSentOn?: strfmt.#DateTime @go(EmailSentOn)
 
 	// id
 	id?: int64 @go(ID)

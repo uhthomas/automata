@@ -7,46 +7,53 @@ package v1beta1
 import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 // GrafanaFolderSpec defines the desired state of GrafanaFolder
+// +kubebuilder:validation:XValidation:rule="(has(self.parentFolderUID) && !(has(self.parentFolderRef))) || (has(self.parentFolderRef) && !(has(self.parentFolderUID))) || !(has(self.parentFolderRef) && (has(self.parentFolderUID)))", message="Only one of parentFolderUID or parentFolderRef can be set"
+// +kubebuilder:validation:XValidation:rule="((!has(oldSelf.uid) && !has(self.uid)) || (has(oldSelf.uid) && has(self.uid)))", message="spec.uid is immutable"
 #GrafanaFolderSpec: {
+	#GrafanaCommonSpec
+
+	// Manually specify the UID the Folder is created with. Can be any string consisting of alphanumeric characters, - and _ with a maximum length of 40
+	// +optional
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="spec.uid is immutable"
+	// +kubebuilder:validation:MaxLength=40
+	// +kubebuilder:validation:Pattern="^[a-zA-Z0-9-_]+$"
+	uid?: string @go(CustomUID)
+
+	// Display name of the folder in Grafana
 	// +optional
 	title?: string @go(Title)
 
-	// raw json with folder permissions
+	// Raw json with folder permissions, potentially exported from Grafana
 	// +optional
 	permissions?: string @go(Permissions)
 
-	// selects Grafanas for import
-	instanceSelector?: null | metav1.#LabelSelector @go(InstanceSelector,*metav1.LabelSelector)
-
-	// allow to import this resources from an operator in a different namespace
+	// UID of the folder in which the current folder should be created
 	// +optional
-	allowCrossNamespaceImport?: null | bool @go(AllowCrossNamespaceImport,*bool)
+	parentFolderUID?: string @go(ParentFolderUID)
 
-	// how often the folder is synced, defaults to 5m if not set
+	// Reference to an existing GrafanaFolder CR in the same namespace
 	// +optional
-	resyncPeriod?: string @go(ResyncPeriod)
+	parentFolderRef?: string @go(ParentFolderRef)
 }
 
 // GrafanaFolderStatus defines the observed state of GrafanaFolder
 #GrafanaFolderStatus: {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	#GrafanaCommonStatus
 	hash?: string @go(Hash)
 
 	// The folder instanceSelector can't find matching grafana instances
 	NoMatchingInstances?: bool
-
-	// Last time the folder was resynced
-	lastResync?: metav1.#Time @go(LastResync)
 }
 
 // GrafanaFolder is the Schema for the grafanafolders API
 // +kubebuilder:printcolumn:name="No matching instances",type="boolean",JSONPath=".status.NoMatchingInstances",description=""
+// +kubebuilder:printcolumn:name="Last resync",type="date",format="date-time",JSONPath=".status.lastResync",description=""
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description=""
+// +kubebuilder:resource:categories={grafana-operator}
 #GrafanaFolder: {
 	metav1.#TypeMeta
 	metadata?: metav1.#ObjectMeta   @go(ObjectMeta)
-	spec?:     #GrafanaFolderSpec   @go(Spec)
+	spec:      #GrafanaFolderSpec   @go(Spec)
 	status?:   #GrafanaFolderStatus @go(Status)
 }
 

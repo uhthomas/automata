@@ -10,4 +10,7 @@ package models
 #NotificationTemplateContent: {
 	// template
 	template?: string @go(Template)
+
+	// version
+	version?: string @go(Version)
 }

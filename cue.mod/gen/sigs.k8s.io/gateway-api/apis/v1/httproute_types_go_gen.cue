@@ -12,12 +12,16 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // requests should be routed.
 #HTTPRoute: {
 	metav1.#TypeMeta
+
+	// +optional
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta)
 
 	// Spec defines the desired state of HTTPRoute.
+	// +required
 	spec: #HTTPRouteSpec @go(Spec)
 
 	// Status defines the current state of HTTPRoute.
+	// +optional
 	status?: #HTTPRouteStatus @go(Status)
 }
 
@@ -87,13 +91,16 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Core
 	//
 	// +optional
+	// +listType=atomic
 	// +kubebuilder:validation:MaxItems=16
 	hostnames?: [...#Hostname] @go(Hostnames,[]Hostname)
 
 	// Rules are a list of HTTP matchers, filters and actions.
 	//
 	// +optional
+	// +listType=atomic
 	// <gateway:experimental:validation:XValidation:message="Rule name must be unique within the route",rule="self.all(l1, !has(l1.name) || self.exists_one(l2, has(l2.name) && l1.name == l2.name))">
+	// +kubebuilder:validation:MinItems=1
 	// +kubebuilder:validation:MaxItems=16
 	// +kubebuilder:default={{matches: {{path: {type: "PathPrefix", value: "/"}}}}}
 	// +kubebuilder:validation:XValidation:message="While 16 rules and 64 matches per rule are allowed, the total number of matches across all rules in a route must be less than 128",rule="(self.size() > 0 ? self[0].matches.size() : 0) + (self.size() > 1 ? self[1].matches.size() : 0) + (self.size() > 2 ? self[2].matches.size() : 0) + (self.size() > 3 ? self[3].matches.size() : 0) + (self.size() > 4 ? self[4].matches.size() : 0) + (self.size() > 5 ? self[5].matches.size() : 0) + (self.size() > 6 ? self[6].matches.size() : 0) + (self.size() > 7 ? self[7].matches.size() : 0) + (self.size() > 8 ? self[8].matches.size() : 0) + (self.size() > 9 ? self[9].matches.size() : 0) + (self.size() > 10 ? self[10].matches.size() : 0) + (self.size() > 11 ? self[11].matches.size() : 0) + (self.size() > 12 ? self[12].matches.size() : 0) + (self.size() > 13 ? self[13].matches.size() : 0) + (self.size() > 14 ? self[14].matches.size() : 0) + (self.size() > 15 ? self[15].matches.size() : 0) <= 128"
@@ -114,8 +121,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// Support: Extended
 	// +optional
-	// <gateway:experimental>
-	name?: null | #SectionName @go(Name,*SectionName)
+	name?: #SectionName @go(Name,*SectionName)
 
 	// Matches define conditions used for matching the rule against incoming
 	// HTTP requests. Each match is independent, i.e. this rule will be matched
@@ -175,6 +181,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// parent a request is coming from, a HTTP 404 status code MUST be returned.
 	//
 	// +optional
+	// +listType=atomic
 	// +kubebuilder:validation:MaxItems=64
 	// +kubebuilder:default={{path:{ type: "PathPrefix", value: "/"}}}
 	matches?: [...#HTTPRouteMatch] @go(Matches,[]HTTPRouteMatch)
@@ -217,8 +224,10 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Core
 	//
 	// +optional
+	// +listType=atomic
 	// +kubebuilder:validation:MaxItems=16
 	// +kubebuilder:validation:XValidation:message="May specify either httpRouteFilterRequestRedirect or httpRouteFilterRequestRewrite, but not both",rule="!(self.exists(f, f.type == 'RequestRedirect') && self.exists(f, f.type == 'URLRewrite'))"
+	// +kubebuilder:validation:XValidation:message="CORS filter cannot be repeated",rule="self.filter(f, f.type == 'CORS').size() <= 1"
 	// +kubebuilder:validation:XValidation:message="RequestHeaderModifier filter cannot be repeated",rule="self.filter(f, f.type == 'RequestHeaderModifier').size() <= 1"
 	// +kubebuilder:validation:XValidation:message="ResponseHeaderModifier filter cannot be repeated",rule="self.filter(f, f.type == 'ResponseHeaderModifier').size() <= 1"
 	// +kubebuilder:validation:XValidation:message="RequestRedirect filter cannot be repeated",rule="self.filter(f, f.type == 'RequestRedirect').size() <= 1"
@@ -262,6 +271,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support for weight: Core
 	//
 	// +optional
+	// +listType=atomic
 	// +kubebuilder:validation:MaxItems=16
 	backendRefs?: [...#HTTPBackendRef] @go(BackendRefs,[]HTTPBackendRef)
 
@@ -270,7 +280,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended
 	//
 	// +optional
-	timeouts?: null | #HTTPRouteTimeouts @go(Timeouts,*HTTPRouteTimeouts)
+	timeouts?: #HTTPRouteTimeouts @go(Timeouts,*HTTPRouteTimeouts)
 
 	// Retry defines the configuration for when to retry an HTTP request.
 	//
@@ -278,7 +288,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +optional
 	// <gateway:experimental>
-	retry?: null | #HTTPRouteRetry @go(Retry,*HTTPRouteRetry)
+	retry?: #HTTPRouteRetry @go(Retry,*HTTPRouteRetry)
 
 	// SessionPersistence defines and configures session persistence
 	// for the route rule.
@@ -287,7 +297,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +optional
 	// <gateway:experimental>
-	sessionPersistence?: null | #SessionPersistence @go(SessionPersistence,*SessionPersistence)
+	sessionPersistence?: #SessionPersistence @go(SessionPersistence,*SessionPersistence)
 }
 
 // HTTPRouteTimeouts defines timeouts that can be configured for an HTTPRoute.
@@ -319,7 +329,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended
 	//
 	// +optional
-	request?: null | #Duration @go(Request,*Duration)
+	request?: #Duration @go(Request,*Duration)
 
 	// BackendRequest specifies a timeout for an individual request from the gateway
 	// to a backend. This covers the time from when the request first starts being
@@ -342,7 +352,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended
 	//
 	// +optional
-	backendRequest?: null | #Duration @go(BackendRequest,*Duration)
+	backendRequest?: #Duration @go(BackendRequest,*Duration)
 }
 
 // HTTPRouteRetry defines retry configuration for an HTTPRoute.
@@ -356,6 +366,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended
 	//
 	// +optional
+	// +listType=atomic
 	codes?: [...#HTTPRouteRetryStatusCode] @go(Codes,[]HTTPRouteRetryStatusCode)
 
 	// Attempts specifies the maximum number of times an individual request
@@ -370,7 +381,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended
 	//
 	// +optional
-	attempts?: null | int @go(Attempts,*int)
+	attempts?: int @go(Attempts,*int)
 
 	// Backoff specifies the minimum duration a Gateway should wait between
 	// retry attempts and is represented in Gateway API Duration formatting.
@@ -378,7 +389,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// For example, setting the `rules[].retry.backoff` field to the value
 	// `100ms` will cause a backend request to first be retried approximately
 	// 100 milliseconds after timing out or receiving a response code configured
-	// to be retryable.
+	// to be retriable.
 	//
 	// An implementation MAY use an exponential or alternative backoff strategy
 	// for subsequent retry attempts, MAY cap the maximum backoff duration to
@@ -410,13 +421,13 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended
 	//
 	// +optional
-	backoff?: null | #Duration @go(Backoff,*Duration)
+	backoff?: #Duration @go(Backoff,*Duration)
 }
 
 // HTTPRouteRetryStatusCode defines an HTTP response status code for
 // which a backend request should be retried.
 //
-// Implementations MUST support the following status codes as retryable:
+// Implementations MUST support the following status codes as retriable:
 //
 // * 500
 // * 502
@@ -510,14 +521,14 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +optional
 	// +kubebuilder:default=PathPrefix
-	type?: null | #PathMatchType @go(Type,*PathMatchType)
+	type?: #PathMatchType @go(Type,*PathMatchType)
 
 	// Value of the HTTP path to match against.
 	//
 	// +optional
 	// +kubebuilder:default="/"
 	// +kubebuilder:validation:MaxLength=1024
-	value?: null | string @go(Value,*string)
+	value?: string @go(Value,*string)
 }
 
 // HeaderMatchType specifies the semantics of how HTTP header values should be
@@ -573,7 +584,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +optional
 	// +kubebuilder:default=Exact
-	type?: null | #HeaderMatchType @go(Type,*HeaderMatchType)
+	type?: #HeaderMatchType @go(Type,*HeaderMatchType)
 
 	// Name is the name of the HTTP Header to be matched. Name matching MUST be
 	// case-insensitive. (See https://tools.ietf.org/html/rfc7230#section-3.2).
@@ -589,12 +600,19 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Generally, proxies should follow the guidance from the RFC:
 	// https://www.rfc-editor.org/rfc/rfc7230.html#section-3.2.2 regarding
 	// processing a repeated header, with special handling for "Set-Cookie".
+	// +required
 	name: #HTTPHeaderName @go(Name)
 
 	// Value is the value of HTTP Header to be matched.
+	// <gateway:experimental:description>
+	// Must consist of printable US-ASCII characters, optionally separated
+	// by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+	// </gateway:experimental:description>
 	//
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=4096
+	// +required
+	// <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
 	value: string @go(Value)
 }
 
@@ -638,7 +656,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +optional
 	// +kubebuilder:default=Exact
-	type?: null | #QueryParamMatchType @go(Type,*QueryParamMatchType)
+	type?: #QueryParamMatchType @go(Type,*QueryParamMatchType)
 
 	// Name is the name of the HTTP query param to be matched. This must be an
 	// exact string match. (See
@@ -657,12 +675,14 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// Users SHOULD NOT route traffic based on repeated query params to guard
 	// themselves against potential differences in the implementations.
+	// +required
 	name: #HTTPHeaderName @go(Name)
 
 	// Value is the value of HTTP query param to be matched.
 	//
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=1024
+	// +required
 	value: string @go(Value)
 }
 
@@ -729,7 +749,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +optional
 	// +kubebuilder:default={type: "PathPrefix", value: "/"}
-	path?: null | #HTTPPathMatch @go(Path,*HTTPPathMatch)
+	path?: #HTTPPathMatch @go(Path,*HTTPPathMatch)
 
 	// Headers specifies HTTP request header matchers. Multiple match values are
 	// ANDed together, meaning, a request must match all the specified headers
@@ -760,7 +780,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended
 	//
 	// +optional
-	method?: null | #HTTPMethod @go(Method,*HTTPMethod)
+	method?: #HTTPMethod @go(Method,*HTTPMethod)
 }
 
 // HTTPRouteFilter defines processing steps that must be completed during the
@@ -770,6 +790,8 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // authentication strategies, rate-limiting, and traffic shaping. API
 // guarantee/conformance is defined based on the type of the filter.
 //
+// +kubebuilder:validation:XValidation:message="filter.cors must be nil if the filter.type is not CORS",rule="!(has(self.cors) && self.type != 'CORS')"
+// +kubebuilder:validation:XValidation:message="filter.cors must be specified for CORS filter.type",rule="!(!has(self.cors) && self.type == 'CORS')"
 // +kubebuilder:validation:XValidation:message="filter.requestHeaderModifier must be nil if the filter.type is not RequestHeaderModifier",rule="!(has(self.requestHeaderModifier) && self.type != 'RequestHeaderModifier')"
 // +kubebuilder:validation:XValidation:message="filter.requestHeaderModifier must be specified for RequestHeaderModifier filter.type",rule="!(!has(self.requestHeaderModifier) && self.type == 'RequestHeaderModifier')"
 // +kubebuilder:validation:XValidation:message="filter.responseHeaderModifier must be nil if the filter.type is not ResponseHeaderModifier",rule="!(has(self.responseHeaderModifier) && self.type != 'ResponseHeaderModifier')"
@@ -780,8 +802,8 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // +kubebuilder:validation:XValidation:message="filter.requestRedirect must be specified for RequestRedirect filter.type",rule="!(!has(self.requestRedirect) && self.type == 'RequestRedirect')"
 // +kubebuilder:validation:XValidation:message="filter.urlRewrite must be nil if the filter.type is not URLRewrite",rule="!(has(self.urlRewrite) && self.type != 'URLRewrite')"
 // +kubebuilder:validation:XValidation:message="filter.urlRewrite must be specified for URLRewrite filter.type",rule="!(!has(self.urlRewrite) && self.type == 'URLRewrite')"
-// <gateway:experimental:validation:XValidation:message="filter.cors must be nil if the filter.type is not CORS",rule="!(has(self.cors) && self.type != 'CORS')">
-// <gateway:experimental:validation:XValidation:message="filter.cors must be specified for CORS filter.type",rule="!(!has(self.cors) && self.type == 'CORS')">
+// <gateway:experimental:validation:XValidation:message="filter.externalAuth must be nil if the filter.type is not ExternalAuth",rule="!(has(self.externalAuth) && self.type != 'ExternalAuth')">
+// <gateway:experimental:validation:XValidation:message="filter.externalAuth must be specified for ExternalAuth filter.type",rule="!(!has(self.externalAuth) && self.type == 'ExternalAuth')">
 // +kubebuilder:validation:XValidation:message="filter.extensionRef must be nil if the filter.type is not ExtensionRef",rule="!(has(self.extensionRef) && self.type != 'ExtensionRef')"
 // +kubebuilder:validation:XValidation:message="filter.extensionRef must be specified for ExtensionRef filter.type",rule="!(!has(self.extensionRef) && self.type == 'ExtensionRef')"
 #HTTPRouteFilter: {
@@ -819,8 +841,9 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Reason of `UnsupportedValue`.
 	//
 	// +unionDiscriminator
-	// +kubebuilder:validation:Enum=RequestHeaderModifier;ResponseHeaderModifier;RequestMirror;RequestRedirect;URLRewrite;ExtensionRef
-	// <gateway:experimental:validation:Enum=RequestHeaderModifier;ResponseHeaderModifier;RequestMirror;RequestRedirect;URLRewrite;ExtensionRef;CORS>
+	// +kubebuilder:validation:Enum=RequestHeaderModifier;ResponseHeaderModifier;RequestMirror;RequestRedirect;URLRewrite;ExtensionRef;CORS
+	// <gateway:experimental:validation:Enum=RequestHeaderModifier;ResponseHeaderModifier;RequestMirror;RequestRedirect;URLRewrite;ExtensionRef;CORS;ExternalAuth>
+	// +required
 	type: #HTTPRouteFilterType @go(Type)
 
 	// RequestHeaderModifier defines a schema for a filter that modifies request
@@ -829,7 +852,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Core
 	//
 	// +optional
-	requestHeaderModifier?: null | #HTTPHeaderFilter @go(RequestHeaderModifier,*HTTPHeaderFilter)
+	requestHeaderModifier?: #HTTPHeaderFilter @go(RequestHeaderModifier,*HTTPHeaderFilter)
 
 	// ResponseHeaderModifier defines a schema for a filter that modifies response
 	// headers.
@@ -837,7 +860,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended
 	//
 	// +optional
-	responseHeaderModifier?: null | #HTTPHeaderFilter @go(ResponseHeaderModifier,*HTTPHeaderFilter)
+	responseHeaderModifier?: #HTTPHeaderFilter @go(ResponseHeaderModifier,*HTTPHeaderFilter)
 
 	// RequestMirror defines a schema for a filter that mirrors requests.
 	// Requests are sent to the specified destination, but responses from
@@ -852,7 +875,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// +optional
 	//
 	// +kubebuilder:validation:XValidation:message="Only one of percent or fraction may be specified in HTTPRequestMirrorFilter",rule="!(has(self.percent) && has(self.fraction))"
-	requestMirror?: null | #HTTPRequestMirrorFilter @go(RequestMirror,*HTTPRequestMirrorFilter)
+	requestMirror?: #HTTPRequestMirrorFilter @go(RequestMirror,*HTTPRequestMirrorFilter)
 
 	// RequestRedirect defines a schema for a filter that responds to the
 	// request with an HTTP redirection.
@@ -860,14 +883,14 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Core
 	//
 	// +optional
-	requestRedirect?: null | #HTTPRequestRedirectFilter @go(RequestRedirect,*HTTPRequestRedirectFilter)
+	requestRedirect?: #HTTPRequestRedirectFilter @go(RequestRedirect,*HTTPRequestRedirectFilter)
 
 	// URLRewrite defines a schema for a filter that modifies a request during forwarding.
 	//
 	// Support: Extended
 	//
 	// +optional
-	urlRewrite?: null | #HTTPURLRewriteFilter @go(URLRewrite,*HTTPURLRewriteFilter)
+	urlRewrite?: #HTTPURLRewriteFilter @go(URLRewrite,*HTTPURLRewriteFilter)
 
 	// CORS defines a schema for a filter that responds to the
 	// cross-origin request based on HTTP response header.
@@ -875,8 +898,20 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended
 	//
 	// +optional
+	cors?: #HTTPCORSFilter @go(CORS,*HTTPCORSFilter)
+
+	// ExternalAuth configures settings related to sending request details
+	// to an external auth service. The external service MUST authenticate
+	// the request, and MAY authorize the request as well.
+	//
+	// If there is any problem communicating with the external service,
+	// this filter MUST fail closed.
+	//
+	// Support: Extended
+	//
+	// +optional
 	// <gateway:experimental>
-	cors?: null | #HTTPCORSFilter @go(CORS,*HTTPCORSFilter)
+	externalAuth?: #HTTPExternalAuthFilter @go(ExternalAuth,*HTTPExternalAuthFilter)
 
 	// ExtensionRef is an optional, implementation-specific extension to the
 	// "filter" behavior.  For example, resource "myroutefilter" in group
@@ -888,7 +923,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Implementation-specific
 	//
 	// +optional
-	extensionRef?: null | #LocalObjectReference @go(ExtensionRef,*LocalObjectReference)
+	extensionRef?: #LocalObjectReference @go(ExtensionRef,*LocalObjectReference)
 }
 
 // HTTPRouteFilterType identifies a type of HTTPRoute filter.
@@ -901,6 +936,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	#HTTPRouteFilterURLRewrite |
 	#HTTPRouteFilterRequestMirror |
 	#HTTPRouteFilterCORS |
+	#HTTPRouteFilterExternalAuth |
 	#HTTPRouteFilterExtensionRef
 
 // HTTPRouteFilterRequestHeaderModifier can be used to add or remove an HTTP
@@ -954,8 +990,19 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // Support in HTTPRouteRule: Extended
 //
 // Support in HTTPBackendRef: Extended
-// <gateway:experimental>
 #HTTPRouteFilterCORS: #HTTPRouteFilterType & "CORS"
+
+// HTTPRouteFilterExternalAuth can be used to configure a Gateway implementation
+// to call out to an external Auth server, which MUST perform Authentication
+// and MAY perform Authorization on the matched request before the request
+// is forwarded to the backend.
+//
+// Support in HTTPRouteRule: Extended
+//
+// Feature Name: HTTPRouteExternalAuth
+//
+// <gateway:experimental>
+#HTTPRouteFilterExternalAuth: #HTTPRouteFilterType & "ExternalAuth"
 
 // HTTPRouteFilterExtensionRef should be used for configuring custom
 // HTTP filters.
@@ -975,21 +1022,28 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// with an equivalent header name MUST be ignored. Due to the
 	// case-insensitivity of header names, "foo" and "Foo" are considered
 	// equivalent.
+	// +required
 	name: #HTTPHeaderName @go(Name)
 
 	// Value is the value of HTTP Header to be matched.
+	// <gateway:experimental:description>
+	// Must consist of printable US-ASCII characters, optionally separated
+	// by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+	// </gateway:experimental:description>
 	//
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=4096
+	// +required
+	// <gateway:experimental:validation:Pattern=`^[!-~]+([\t ]?[!-~]+)*$`>
 	value: string @go(Value)
 }
 
 // HTTPHeaderFilter defines a filter that modifies the headers of an HTTP
-// request or response. Only one action for a given header name is permitted.
-// Filters specifying multiple actions of the same or different type for any one
-// header name are invalid and will be rejected by CRD validation.
-// Configuration to set or add multiple values for a header must use RFC 7230
-// header value formatting, separating each value with a comma.
+// request or response. Only one action for a given header name is
+// permitted. Filters specifying multiple actions of the same or different
+// type for any one header name are invalid. Configuration to set or add
+// multiple values for a header must use RFC 7230 header value formatting,
+// separating each value with a comma.
 #HTTPHeaderFilter: {
 	// Set overwrites the request with the given header (name, value)
 	// before the action.
@@ -1101,6 +1155,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Reason of `UnsupportedValue`.
 	//
 	// +kubebuilder:validation:Enum=ReplaceFullPath;ReplacePrefixMatch
+	// +required
 	type: #HTTPPathModifierType @go(Type)
 
 	// ReplaceFullPath specifies the value with which to replace the full path
@@ -1108,7 +1163,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	replaceFullPath?: null | string @go(ReplaceFullPath,*string)
+	replaceFullPath?: string @go(ReplaceFullPath,*string)
 
 	// ReplacePrefixMatch specifies the value with which to replace the prefix
 	// match of a request during a rewrite or redirect. For example, a request
@@ -1141,7 +1196,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +kubebuilder:validation:MaxLength=1024
 	// +optional
-	replacePrefixMatch?: null | string @go(ReplacePrefixMatch,*string)
+	replacePrefixMatch?: string @go(ReplacePrefixMatch,*string)
 }
 
 // HTTPRequestRedirect defines a filter that redirects a request. This filter
@@ -1164,7 +1219,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +optional
 	// +kubebuilder:validation:Enum=http;https
-	scheme?: null | string @go(Scheme,*string)
+	scheme?: string @go(Scheme,*string)
 
 	// Hostname is the hostname to be used in the value of the `Location`
 	// header in the response.
@@ -1173,7 +1228,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Core
 	//
 	// +optional
-	hostname?: null | #PreciseHostname @go(Hostname,*PreciseHostname)
+	hostname?: #PreciseHostname @go(Hostname,*PreciseHostname)
 
 	// Path defines parameters used to modify the path of the incoming request.
 	// The modified path is then used to construct the `Location` header. When
@@ -1182,7 +1237,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended
 	//
 	// +optional
-	path?: null | #HTTPPathModifier @go(Path,*HTTPPathModifier)
+	path?: #HTTPPathModifier @go(Path,*HTTPPathModifier)
 
 	// Port is the port to be used in the value of the `Location`
 	// header in the response.
@@ -1208,7 +1263,10 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended
 	//
 	// +optional
-	port?: null | #PortNumber @go(Port,*PortNumber)
+	//
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=65535
+	port?: int32 @go(Port,*PortNumber)
 
 	// StatusCode is the HTTP status code to be used in response.
 	//
@@ -1223,8 +1281,8 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +optional
 	// +kubebuilder:default=302
-	// +kubebuilder:validation:Enum=301;302
-	statusCode?: null | int @go(StatusCode,*int)
+	// +kubebuilder:validation:Enum=301;302;303;307;308
+	statusCode?: int @go(StatusCode,*int)
 }
 
 // HTTPURLRewriteFilter defines a filter that modifies a request during
@@ -1239,14 +1297,14 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended
 	//
 	// +optional
-	hostname?: null | #PreciseHostname @go(Hostname,*PreciseHostname)
+	hostname?: #PreciseHostname @go(Hostname,*PreciseHostname)
 
 	// Path defines a path rewrite.
 	//
 	// Support: Extended
 	//
 	// +optional
-	path?: null | #HTTPPathModifier @go(Path,*HTTPPathModifier)
+	path?: #HTTPPathModifier @go(Path,*HTTPPathModifier)
 }
 
 // HTTPRequestMirrorFilter defines configuration for the RequestMirror filter.
@@ -1274,6 +1332,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended for Kubernetes Service
 	//
 	// Support: Implementation-specific for any other resource
+	// +required
 	backendRef: #BackendObjectReference @go(BackendRef)
 
 	// Percent represents the percentage of requests that should be
@@ -1286,7 +1345,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// +optional
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=100
-	percent?: null | int32 @go(Percent,*int32)
+	percent?: int32 @go(Percent,*int32)
 
 	// Fraction represents the fraction of requests that should be
 	// mirrored to BackendRef.
@@ -1295,7 +1354,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// is specified, 100% of requests will be mirrored.
 	//
 	// +optional
-	fraction?: null | #Fraction @go(Fraction,*Fraction)
+	fraction?: #Fraction @go(Fraction,*Fraction)
 }
 
 // HTTPCORSFilter defines a filter that that configures Cross-Origin Request
@@ -1343,10 +1402,19 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// the CORS headers. The cross-origin request fails on the client side.
 	// Therefore, the client doesn't attempt the actual cross-origin request.
 	//
-	// The `Access-Control-Allow-Origin` response header can only use `*`
-	// wildcard as value when the `AllowCredentials` field is unspecified.
+	// Conversely, if the request `Origin` matches one of the configured
+	// allowed origins, the gateway sets the response header
+	// `Access-Control-Allow-Origin` to the same value as the `Origin`
+	// header provided by the client.
 	//
-	// When the `AllowCredentials` field is specified and `AllowOrigins` field
+	// When config has the wildcard ("*") in allowOrigins, and the request
+	// is not credentialed (e.g., it is a preflight request), the
+	// `Access-Control-Allow-Origin` response header either contains the
+	// wildcard as well or the Origin from the request.
+	//
+	// When the request is credentialed, the gateway must not specify the `*`
+	// wildcard in the `Access-Control-Allow-Origin` response header. When
+	// also the `AllowCredentials` field is true and `AllowOrigins` field
 	// specified with the `*` wildcard, the gateway must return a single origin
 	// in the value of the `Access-Control-Allow-Origin` response header,
 	// instead of specifying the `*` wildcard. The value of the header
@@ -1356,22 +1424,24 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended
 	// +listType=set
 	// +kubebuilder:validation:MaxItems=64
-	allowOrigins?: [...#AbsoluteURI] @go(AllowOrigins,[]AbsoluteURI)
+	// +kubebuilder:validation:XValidation:message="AllowOrigins cannot contain '*' alongside other origins",rule="!('*' in self && self.size() > 1)"
+	// +optional
+	allowOrigins?: [...#CORSOrigin] @go(AllowOrigins,[]CORSOrigin)
 
 	// AllowCredentials indicates whether the actual cross-origin request allows
 	// to include credentials.
 	//
-	// The only valid value for the `Access-Control-Allow-Credentials` response
-	// header is true (case-sensitive).
+	// When set to true, the gateway will include the `Access-Control-Allow-Credentials`
+	// response header with value true (case-sensitive).
 	//
-	// If the credentials are not allowed in cross-origin requests, the gateway
-	// will omit the header `Access-Control-Allow-Credentials` entirely rather
-	// than setting its value to false.
+	// When set to false or omitted the gateway will omit the header
+	// `Access-Control-Allow-Credentials` entirely (this is the standard CORS
+	// behavior).
 	//
 	// Support: Extended
 	//
 	// +optional
-	allowCredentials?: #TrueField @go(AllowCredentials)
+	allowCredentials?: bool @go(AllowCredentials,*bool)
 
 	// AllowMethods indicates which HTTP methods are supported for accessing the
 	// requested resource.
@@ -1379,7 +1449,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Valid values are any method defined by RFC9110, along with the special
 	// value `*`, which represents all HTTP methods are allowed.
 	//
-	// Method names are case sensitive, so these values are also case-sensitive.
+	// Method names are case-sensitive, so these values are also case-sensitive.
 	// (See https://www.rfc-editor.org/rfc/rfc2616#section-5.1.1)
 	//
 	// Multiple method names in the value of the `Access-Control-Allow-Methods`
@@ -1399,30 +1469,34 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// `Access-Control-Allow-Methods`, it will present an error on the client
 	// side.
 	//
-	// The `Access-Control-Allow-Methods` response header can only use `*`
-	// wildcard as value when the `AllowCredentials` field is unspecified.
+	// If config contains the wildcard "*" in allowMethods and the request is
+	// not credentialed, the `Access-Control-Allow-Methods` response header
+	// can either use the `*` wildcard or the value of
+	// Access-Control-Request-Method from the request.
 	//
-	// When the `AllowCredentials` field is specified and `AllowMethods` field
+	// When the request is credentialed, the gateway must not specify the `*`
+	// wildcard in the `Access-Control-Allow-Methods` response header. When
+	// also the `AllowCredentials` field is true and `AllowMethods` field
 	// specified with the `*` wildcard, the gateway must specify one HTTP method
 	// in the value of the Access-Control-Allow-Methods response header. The
 	// value of the header `Access-Control-Allow-Methods` is same as the
 	// `Access-Control-Request-Method` header provided by the client. If the
 	// header `Access-Control-Request-Method` is not included in the request,
 	// the gateway will omit the `Access-Control-Allow-Methods` response header,
-	// instead of specifying the `*` wildcard. A Gateway implementation may
-	// choose to add implementation-specific default methods.
+	// instead of specifying the `*` wildcard.
 	//
 	// Support: Extended
 	//
 	// +listType=set
 	// +kubebuilder:validation:MaxItems=9
 	// +kubebuilder:validation:XValidation:message="AllowMethods cannot contain '*' alongside other methods",rule="!('*' in self && self.size() > 1)"
+	// +optional
 	allowMethods?: [...#HTTPMethodWithWildcard] @go(AllowMethods,[]HTTPMethodWithWildcard)
 
 	// AllowHeaders indicates which HTTP request headers are supported for
 	// accessing the requested resource.
 	//
-	// Header names are not case sensitive.
+	// Header names are not case-sensitive.
 	//
 	// Multiple header names in the value of the `Access-Control-Allow-Headers`
 	// response header are separated by a comma (",").
@@ -1441,23 +1515,28 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// client side.
 	//
 	// A wildcard indicates that the requests with all HTTP headers are allowed.
-	// The `Access-Control-Allow-Headers` response header can only use `*`
-	// wildcard as value when the `AllowCredentials` field is unspecified.
+	// If config contains the wildcard "*" in allowHeaders and the request is
+	// not credentialed, the `Access-Control-Allow-Headers` response header
+	// can either use the `*` wildcard or the value of
+	// Access-Control-Request-Headers from the request.
 	//
-	// When the `AllowCredentials` field is specified and `AllowHeaders` field
-	// specified with the `*` wildcard, the gateway must specify one or more
+	// When the request is credentialed, the gateway must not specify the `*`
+	// wildcard in the `Access-Control-Allow-Headers` response header. When
+	// also the `AllowCredentials` field is true and `AllowHeaders` field
+	// is specified with the `*` wildcard, the gateway must specify one or more
 	// HTTP headers in the value of the `Access-Control-Allow-Headers` response
 	// header. The value of the header `Access-Control-Allow-Headers` is same as
 	// the `Access-Control-Request-Headers` header provided by the client. If
 	// the header `Access-Control-Request-Headers` is not included in the
 	// request, the gateway will omit the `Access-Control-Allow-Headers`
-	// response header, instead of specifying the `*` wildcard. A Gateway
-	// implementation may choose to add implementation-specific default headers.
+	// response header, instead of specifying the `*` wildcard.
 	//
 	// Support: Extended
 	//
 	// +listType=set
 	// +kubebuilder:validation:MaxItems=64
+	// +kubebuilder:validation:XValidation:message="AllowHeaders cannot contain '*' alongside other methods",rule="!('*' in self && self.size() > 1)"
+	// +optional
 	allowHeaders?: [...#HTTPHeaderName] @go(AllowHeaders,[]HTTPHeaderName)
 
 	// ExposeHeaders indicates which HTTP response headers can be exposed
@@ -1480,15 +1559,18 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// this additional header will be exposed as part of the response to the
 	// client.
 	//
-	// Header names are not case sensitive.
+	// Header names are not case-sensitive.
 	//
 	// Multiple header names in the value of the `Access-Control-Expose-Headers`
 	// response header are separated by a comma (",").
 	//
 	// A wildcard indicates that the responses with all HTTP headers are exposed
 	// to clients. The `Access-Control-Expose-Headers` response header can only
-	// use `*` wildcard as value when the `AllowCredentials` field is
-	// unspecified.
+	// use `*` wildcard as value when the request is not credentialed.
+	//
+	// When the `exposeHeaders` config field contains the "*" wildcard and
+	// the request is credentialed, the gateway cannot use the `*` wildcard in
+	// the `Access-Control-Expose-Headers` response header.
 	//
 	// Support: Extended
 	//
@@ -1507,10 +1589,206 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// The default value of `Access-Control-Max-Age` response header is 5
 	// (seconds).
 	//
+	// When the `MaxAge` field is unspecified, the gateway sets the response
+	// header "Access-Control-Max-Age: 5" by default.
+	//
 	// +optional
 	// +kubebuilder:default=5
 	// +kubebuilder:validation:Minimum=1
 	maxAge?: int32 @go(MaxAge)
+}
+
+// HTTPRouteExternalAuthProtocol specifies what protocol should be used
+// for communicating with an external authorization server.
+//
+// Valid values are supplied as constants below.
+#HTTPRouteExternalAuthProtocol: string // #enumHTTPRouteExternalAuthProtocol
+
+#enumHTTPRouteExternalAuthProtocol:
+	#HTTPRouteExternalAuthGRPCProtocol |
+	#HTTPRouteExternalAuthHTTPProtocol
+
+#HTTPRouteExternalAuthGRPCProtocol: #HTTPRouteExternalAuthProtocol & "GRPC"
+#HTTPRouteExternalAuthHTTPProtocol: #HTTPRouteExternalAuthProtocol & "HTTP"
+
+// HTTPExternalAuthFilter defines a filter that modifies requests by sending
+// request details to an external authorization server.
+//
+// Support: Extended
+// Feature Name: HTTPRouteExternalAuth
+// +kubebuilder:validation:XValidation:message="grpc must be specified when protocol is set to 'GRPC'",rule="self.protocol == 'GRPC' ? has(self.grpc) : true"
+// +kubebuilder:validation:XValidation:message="protocol must be 'GRPC' when grpc is set",rule="has(self.grpc) ? self.protocol == 'GRPC' : true"
+// +kubebuilder:validation:XValidation:message="http must be specified when protocol is set to 'HTTP'",rule="self.protocol == 'HTTP' ? has(self.http) : true"
+// +kubebuilder:validation:XValidation:message="protocol must be 'HTTP' when http is set",rule="has(self.http) ? self.protocol == 'HTTP' : true"
+#HTTPExternalAuthFilter: {
+	// ExternalAuthProtocol describes which protocol to use when communicating with an
+	// ext_authz authorization server.
+	//
+	// When this is set to GRPC, each backend must use the Envoy ext_authz protocol
+	// on the port specified in `backendRefs`. Requests and responses are defined
+	// in the protobufs explained at:
+	// https://www.envoyproxy.io/docs/envoy/latest/api-v3/service/auth/v3/external_auth.proto
+	//
+	// When this is set to HTTP, each backend must respond with a `200` status
+	// code in on a successful authorization. Any other code is considered
+	// an authorization failure.
+	//
+	// Feature Names:
+	// GRPC Support - HTTPRouteExternalAuthGRPC
+	// HTTP Support - HTTPRouteExternalAuthHTTP
+	//
+	// +unionDiscriminator
+	// +required
+	// +kubebuilder:validation:Enum=HTTP;GRPC
+	protocol: #HTTPRouteExternalAuthProtocol @go(ExternalAuthProtocol)
+
+	// BackendRef is a reference to a backend to send authorization
+	// requests to.
+	//
+	// The backend must speak the selected protocol (GRPC or HTTP) on the
+	// referenced port.
+	//
+	// If the backend service requires TLS, use BackendTLSPolicy to tell the
+	// implementation to supply the TLS details to be used to connect to that
+	// backend.
+	//
+	// +required
+	backendRef: #BackendObjectReference @go(BackendRef)
+
+	// GRPCAuthConfig contains configuration for communication with ext_authz
+	// protocol-speaking backends.
+	//
+	// If unset, implementations must assume the default behavior for each
+	// included field is intended.
+	//
+	// +optional
+	grpc?: #GRPCAuthConfig @go(GRPCAuthConfig,*GRPCAuthConfig)
+
+	// HTTPAuthConfig contains configuration for communication with HTTP-speaking
+	// backends.
+	//
+	// If unset, implementations must assume the default behavior for each
+	// included field is intended.
+	//
+	// +optional
+	http?: #HTTPAuthConfig @go(HTTPAuthConfig,*HTTPAuthConfig)
+
+	// ForwardBody controls if requests to the authorization server should include
+	// the body of the client request; and if so, how big that body is allowed
+	// to be.
+	//
+	// It is expected that implementations will buffer the request body up to
+	// `forwardBody.maxSize` bytes. Bodies over that size must be rejected with a
+	// 4xx series error (413 or 403 are common examples), and fail processing
+	// of the filter.
+	//
+	// If unset, or `forwardBody.maxSize` is set to `0`, then the body will not
+	// be forwarded.
+	//
+	// Feature Name: HTTPRouteExternalAuthForwardBody
+	//
+	//
+	// +optional
+	forwardBody?: #ForwardBodyConfig @go(ForwardBody,*ForwardBodyConfig)
+}
+
+// GRPCAuthConfig contains configuration for communication with Auth server
+// backends that speak Envoy's ext_authz gRPC protocol.
+//
+// Requests and responses are defined in the protobufs explained at:
+// https://www.envoyproxy.io/docs/envoy/latest/api-v3/service/auth/v3/external_auth.proto
+#GRPCAuthConfig: {
+	// AllowedRequestHeaders specifies what headers from the client request
+	// will be sent to the authorization server.
+	//
+	// If this list is empty, then all headers must be sent.
+	//
+	// If the list has entries, only those entries must be sent.
+	//
+	// +optional
+	// +listType=set
+	// +kubebuilder:validation:MaxItems=64
+	allowedHeaders?: [...string] @go(AllowedRequestHeaders,[]string)
+}
+
+// HTTPAuthConfig contains configuration for communication with HTTP-speaking
+// backends.
+#HTTPAuthConfig: {
+	// Path sets the prefix that paths from the client request will have added
+	// when forwarded to the authorization server.
+	//
+	// When empty or unspecified, no prefix is added.
+	//
+	// Valid values are the same as the "value" regex for path values in the `match`
+	// stanza, and the validation regex will screen out invalid paths in the same way.
+	// Even with the validation, implementations MUST sanitize this input before using it
+	// directly.
+	//
+	// +optional
+	// +kubebuilder:validation:MaxLength=1024
+	// +kubebuilder:validation:Pattern="^(?:[-A-Za-z0-9/._~!$&'()*+,;=:@]|[%][0-9a-fA-F]{2})+$"
+	path?: string @go(Path)
+
+	// AllowedRequestHeaders specifies what additional headers from the client request
+	// will be sent to the authorization server.
+	//
+	// The following headers must always be sent to the authorization server,
+	// regardless of this setting:
+	//
+	// * `Host`
+	// * `Method`
+	// * `Path`
+	// * `Content-Length`
+	// * `Authorization`
+	//
+	// If this list is empty, then only those headers must be sent.
+	//
+	// Note that `Content-Length` has a special behavior, in that the length
+	// sent must be correct for the actual request to the external authorization
+	// server - that is, it must reflect the actual number of bytes sent in the
+	// body of the request to the authorization server.
+	//
+	// So if the `forwardBody` stanza is unset, or `forwardBody.maxSize` is set
+	// to `0`, then `Content-Length` must be `0`. If `forwardBody.maxSize` is set
+	// to anything other than `0`, then the `Content-Length` of the authorization
+	// request must be set to the actual number of bytes forwarded.
+	//
+	// +optional
+	// +listType=set
+	// +kubebuilder:validation:MaxItems=64
+	allowedHeaders?: [...string] @go(AllowedRequestHeaders,[]string)
+
+	// AllowedResponseHeaders specifies what headers from the authorization response
+	// will be copied into the request to the backend.
+	//
+	// If this list is empty, then all headers from the authorization server
+	// except Authority or Host must be copied.
+	//
+	// +optional
+	// +listType=set
+	// +kubebuilder:validation:MaxItems=64
+	allowedResponseHeaders?: [...string] @go(AllowedResponseHeaders,[]string)
+}
+
+// ForwardBody configures if requests to the authorization server should include
+// the body of the client request; and if so, how big that body is allowed
+// to be.
+//
+// If empty or unset, do not forward the body.
+#ForwardBodyConfig: {
+	// MaxSize specifies how large in bytes the largest body that will be buffered
+	// and sent to the authorization server. If the body size is larger than
+	// `maxSize`, then the body sent to the authorization server must be
+	// truncated to `maxSize` bytes.
+	//
+	// Experimental note: This behavior needs to be checked against
+	// various dataplanes; it may need to be changed.
+	// See https://github.com/kubernetes-sigs/gateway-api/pull/4001#discussion_r2291405746
+	// for more.
+	//
+	// If 0, the body will not be sent to the authorization server.
+	// +optional
+	maxSize?: uint16 @go(MaxSize)
 }
 
 // HTTPBackendRef defines how a HTTPRoute forwards a HTTP request.
@@ -1547,9 +1825,10 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Filters field in HTTPRouteRule.)
 	//
 	// +optional
+	// +listType=atomic
 	// +kubebuilder:validation:MaxItems=16
 	// +kubebuilder:validation:XValidation:message="May specify either httpRouteFilterRequestRedirect or httpRouteFilterRequestRewrite, but not both",rule="!(self.exists(f, f.type == 'RequestRedirect') && self.exists(f, f.type == 'URLRewrite'))"
-	// +kubebuilder:validation:XValidation:message="May specify either httpRouteFilterRequestRedirect or httpRouteFilterRequestRewrite, but not both",rule="!(self.exists(f, f.type == 'RequestRedirect') && self.exists(f, f.type == 'URLRewrite'))"
+	// +kubebuilder:validation:XValidation:message="CORS filter cannot be repeated",rule="self.filter(f, f.type == 'CORS').size() <= 1"
 	// +kubebuilder:validation:XValidation:message="RequestHeaderModifier filter cannot be repeated",rule="self.filter(f, f.type == 'RequestHeaderModifier').size() <= 1"
 	// +kubebuilder:validation:XValidation:message="ResponseHeaderModifier filter cannot be repeated",rule="self.filter(f, f.type == 'ResponseHeaderModifier').size() <= 1"
 	// +kubebuilder:validation:XValidation:message="RequestRedirect filter cannot be repeated",rule="self.filter(f, f.type == 'RequestRedirect').size() <= 1"

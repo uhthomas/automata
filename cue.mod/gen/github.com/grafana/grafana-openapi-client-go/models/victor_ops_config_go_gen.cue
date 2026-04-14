@@ -15,7 +15,7 @@ package models
 	api_key_file?: string @go(APIKeyFile)
 
 	// api url
-	api_url?: null | #URL @go(APIURL,*URL)
+	api_url?: #URL @go(APIURL,*URL)
 
 	// custom fields
 	custom_fields?: {[string]: string} @go(CustomFields,map[string]string)
@@ -24,7 +24,7 @@ package models
 	entity_display_name?: string @go(EntityDisplayName)
 
 	// http config
-	http_config?: null | #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
+	http_config?: #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
 
 	// message type
 	message_type?: string @go(MessageType)

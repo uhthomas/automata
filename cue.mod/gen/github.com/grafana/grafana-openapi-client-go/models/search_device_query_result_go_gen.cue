@@ -9,7 +9,7 @@ package models
 // swagger:model SearchDeviceQueryResult
 #SearchDeviceQueryResult: {
 	// devices
-	devices: [...null | #DeviceSearchHitDTO] @go(Devices,[]*DeviceSearchHitDTO)
+	devices: [...#DeviceSearchHitDTO] @go(Devices,[]*DeviceSearchHitDTO)
 
 	// page
 	page?: int64 @go(Page)

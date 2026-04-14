@@ -9,5 +9,5 @@ package models
 // swagger:model LibraryElementSearchResponse
 #LibraryElementSearchResponse: {
 	// result
-	result?: null | #LibraryElementSearchResult @go(Result,*LibraryElementSearchResult)
+	result?: #LibraryElementSearchResult @go(Result,*LibraryElementSearchResult)
 }

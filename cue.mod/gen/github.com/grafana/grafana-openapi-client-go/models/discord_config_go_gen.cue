@@ -9,7 +9,7 @@ package models
 // swagger:model DiscordConfig
 #DiscordConfig: {
 	// http config
-	http_config?: null | #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
+	http_config?: #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
 
 	// message
 	message?: string @go(Message)
@@ -21,5 +21,8 @@ package models
 	title?: string @go(Title)
 
 	// webhook url
-	webhook_url?: null | #SecretURL @go(WebhookURL,*SecretURL)
+	webhook_url?: #SecretURL @go(WebhookURL,*SecretURL)
+
+	// webhook url file
+	webhook_url_file?: string @go(WebhookURLFile)
 }

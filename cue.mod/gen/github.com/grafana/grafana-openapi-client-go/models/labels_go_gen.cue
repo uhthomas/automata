@@ -8,4 +8,4 @@ package models
 // instantiation.
 //
 // swagger:model Labels
-#Labels: [...null | #Label]
+#Labels: [...#Label]

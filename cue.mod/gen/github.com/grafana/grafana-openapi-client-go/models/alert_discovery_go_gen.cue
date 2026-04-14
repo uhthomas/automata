@@ -10,5 +10,5 @@ package models
 #AlertDiscovery: {
 	// alerts
 	// Required: true
-	alerts: [...null | #Alert] @go(Alerts,[]*Alert)
+	alerts: [...#Alert] @go(Alerts,[]*Alert)
 }

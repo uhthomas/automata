@@ -4,13 +4,13 @@
 
 package models
 
-// AnnotationPermission annotation permission
+// AnnotationPermission +k8s:deepcopy-gen=true
 //
 // swagger:model AnnotationPermission
 #AnnotationPermission: {
 	// dashboard
-	dashboard?: null | #AnnotationActions @go(Dashboard,*AnnotationActions)
+	dashboard?: #AnnotationActions @go(Dashboard,*AnnotationActions)
 
 	// organization
-	organization?: null | #AnnotationActions @go(Organization,*AnnotationActions)
+	organization?: #AnnotationActions @go(Organization,*AnnotationActions)
 }

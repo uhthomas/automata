@@ -14,11 +14,19 @@ package models
 	// The CA cert to use for the targets.
 	ca_file?: string @go(CaFile)
 
+	// CARef is the name of the secret within the secret manager to use as the CA cert for the
+	// targets.
+	ca_ref?: string @go(CaRef)
+
 	// Text of the client cert file for the targets.
 	cert?: string @go(Cert)
 
 	// The client cert file for the targets.
 	cert_file?: string @go(CertFile)
+
+	// CertRef is the name of the secret within the secret manager to use as the client cert for
+	// the targets.
+	cert_ref?: string @go(CertRef)
 
 	// Disable target certificate validation.
 	insecure_skip_verify?: bool @go(InsecureSkipVerify)
@@ -28,6 +36,10 @@ package models
 
 	// The client key file for the targets.
 	key_file?: string @go(KeyFile)
+
+	// KeyRef is the name of the secret within the secret manager to use as the client key for
+	// the targets.
+	key_ref?: string @go(KeyRef)
 
 	// max version
 	max_version?: #TLSVersion @go(MaxVersion)

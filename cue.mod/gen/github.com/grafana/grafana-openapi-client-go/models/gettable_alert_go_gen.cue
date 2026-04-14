@@ -6,7 +6,7 @@ package models
 
 import "github.com/go-openapi/strfmt"
 
-// GettableAlert gettable alert
+// GettableAlert GettableAlert gettable alert
 //
 // swagger:model gettableAlert
 #GettableAlert: {
@@ -14,9 +14,14 @@ import "github.com/go-openapi/strfmt"
 	// Required: true
 	annotations: #LabelSet @go(Annotations)
 
+	// ends at
+	// Required: true
+	// Format: date-time
+	endsAt?: strfmt.#DateTime @go(EndsAt,*strfmt.DateTime)
+
 	// fingerprint
 	// Required: true
-	fingerprint?: null | string @go(Fingerprint,*string)
+	fingerprint?: string @go(Fingerprint,*string)
 
 	// generator URL
 	// Format: uri
@@ -29,9 +34,19 @@ import "github.com/go-openapi/strfmt"
 
 	// receivers
 	// Required: true
-	receivers: [...null | #Receiver] @go(Receivers,[]*Receiver)
+	receivers: [...#Receiver] @go(Receivers,[]*Receiver)
+
+	// starts at
+	// Required: true
+	// Format: date-time
+	startsAt?: strfmt.#DateTime @go(StartsAt,*strfmt.DateTime)
 
 	// status
 	// Required: true
-	status?: null | #AlertStatus @go(Status,*AlertStatus)
+	status?: #AlertStatus @go(Status,*AlertStatus)
+
+	// updated at
+	// Required: true
+	// Format: date-time
+	updatedAt?: strfmt.#DateTime @go(UpdatedAt,*strfmt.DateTime)
 }

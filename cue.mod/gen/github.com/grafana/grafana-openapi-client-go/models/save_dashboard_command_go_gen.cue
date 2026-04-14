@@ -4,10 +4,16 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // SaveDashboardCommand save dashboard command
 //
 // swagger:model SaveDashboardCommand
 #SaveDashboardCommand: {
+	// updated at
+	// Format: date-time
+	UpdatedAt?: strfmt.#DateTime
+
 	// dashboard
 	dashboard?: #JSON @go(Dashboard)
 

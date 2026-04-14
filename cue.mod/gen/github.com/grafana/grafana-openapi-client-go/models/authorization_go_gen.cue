@@ -14,6 +14,9 @@ package models
 	// credentials file
 	credentials_file?: string @go(CredentialsFile)
 
+	// CredentialsRef is the name of the secret within the secret manager to use as credentials.
+	credentials_ref?: string @go(CredentialsRef)
+
 	// type
 	type?: string @go(Type)
 }

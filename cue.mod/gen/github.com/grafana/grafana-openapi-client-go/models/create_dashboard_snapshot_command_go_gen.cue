@@ -8,9 +8,16 @@ package models
 //
 // swagger:model CreateDashboardSnapshotCommand
 #CreateDashboardSnapshotCommand: {
+	// APIVersion defines the versioned schema of this representation of an object.
+	// Servers should convert recognized schemas to the latest internal value, and
+	// may reject unrecognized values.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+	// +optional
+	apiVersion?: string @go(APIVersion)
+
 	// dashboard
 	// Required: true
-	dashboard: #JSON @go(Dashboard)
+	dashboard: #Unstructured @go(Dashboard)
 
 	// Unique key used to delete the snapshot. It is different from the `key` so that only the creator can delete the snapshot. Required if `external` is `true`.
 	deleteKey?: string @go(DeleteKey)
@@ -20,10 +27,18 @@ package models
 
 	// these are passed when storing an external snapshot ref
 	// Save the snapshot on an external server rather than locally.
-	external?: null | bool @go(External,*bool)
+	external?: bool @go(External,*bool)
 
 	// Define the unique key. Required if `external` is `true`.
 	key?: string @go(Key)
+
+	// Kind is a string value representing the REST resource this object represents.
+	// Servers may infer this from the endpoint the client submits requests to.
+	// Cannot be updated.
+	// In CamelCase.
+	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+	// +optional
+	kind?: string @go(Kind)
 
 	// Snapshot name
 	name?: string @go(Name)

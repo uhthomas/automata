@@ -46,4 +46,8 @@ package models
 	// tokens
 	// Example: 0
 	tokens?: int64 @go(Tokens)
+
+	// uid
+	// Example: fe1xejlha91xce
+	uid?: string @go(UID)
 }

@@ -10,16 +10,16 @@ package models
 // swagger:model AnnotationQuery
 #AnnotationQuery: {
 	// Set to 1 for the standard annotation query all dashboards have by default.
-	builtIn?: float32 @go(BuiltIn)
+	builtIn?: float64 @go(BuiltIn)
 
 	// datasource
-	datasource?: null | #DataSourceRef @go(Datasource,*DataSourceRef)
+	datasource?: #DataSourceRef @go(Datasource,*DataSourceRef)
 
 	// When enabled the annotation query is issued with every dashboard refresh
 	enable?: bool @go(Enable)
 
 	// filter
-	filter?: null | #AnnotationPanelFilter @go(Filter,*AnnotationPanelFilter)
+	filter?: #AnnotationPanelFilter @go(Filter,*AnnotationPanelFilter)
 
 	// Annotation queries can be toggled on or off at the top of the dashboard.
 	// When hide is true, the toggle is not shown in the dashboard.
@@ -31,8 +31,11 @@ package models
 	// Name of annotation.
 	name?: string @go(Name)
 
+	// Placement can be used to display the annotation query somewhere else on the dashboard other than the default location.
+	placement?: string @go(Placement)
+
 	// target
-	target?: null | #AnnotationTarget @go(Target,*AnnotationTarget)
+	target?: #AnnotationTarget @go(Target,*AnnotationTarget)
 
 	// TODO -- this should not exist here, it is based on the --grafana-- datasource
 	type?: string @go(Type)

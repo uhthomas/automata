@@ -9,5 +9,5 @@ package models
 // swagger:model retrieveJWKSOkBody
 #RetrieveJWKSOKBody: {
 	// keys
-	keys: [...null | #JSONWebKey] @go(Keys,[]*JSONWebKey)
+	keys: [...#JSONWebKey] @go(Keys,[]*JSONWebKey)
 }

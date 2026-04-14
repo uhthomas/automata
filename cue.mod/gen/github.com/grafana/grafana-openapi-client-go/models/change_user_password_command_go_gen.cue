@@ -9,8 +9,8 @@ package models
 // swagger:model ChangeUserPasswordCommand
 #ChangeUserPasswordCommand: {
 	// new password
-	newPassword?: string @go(NewPassword)
+	newPassword?: #Password @go(NewPassword)
 
 	// old password
-	oldPassword?: string @go(OldPassword)
+	oldPassword?: #Password @go(OldPassword)
 }

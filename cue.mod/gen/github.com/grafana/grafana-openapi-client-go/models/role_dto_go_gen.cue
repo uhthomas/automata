@@ -4,37 +4,58 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // RoleDTO role DTO
 //
 // swagger:model RoleDTO
 #RoleDTO: {
+	// created
+	// Required: true
+	// Format: date-time
+	created?: strfmt.#DateTime @go(Created,*strfmt.DateTime)
+
 	// delegatable
 	delegatable?: bool @go(Delegatable)
 
 	// description
-	description?: string @go(Description)
+	// Required: true
+	description?: string @go(Description,*string)
 
 	// display name
-	displayName?: string @go(DisplayName)
+	// Required: true
+	displayName?: string @go(DisplayName,*string)
 
 	// global
 	global?: bool @go(Global)
 
 	// group
-	group?: string @go(Group)
+	// Required: true
+	group?: string @go(Group,*string)
 
 	// hidden
 	hidden?: bool @go(Hidden)
 
+	// mapped
+	mapped?: bool @go(Mapped)
+
 	// name
-	name?: string @go(Name)
+	// Required: true
+	name?: string @go(Name,*string)
 
 	// permissions
-	permissions: [...null | #Permission] @go(Permissions,[]*Permission)
+	permissions: [...#Permission] @go(Permissions,[]*Permission)
 
 	// uid
-	uid?: string @go(UID)
+	// Required: true
+	uid?: string @go(UID,*string)
+
+	// updated
+	// Required: true
+	// Format: date-time
+	updated?: strfmt.#DateTime @go(Updated,*strfmt.DateTime)
 
 	// version
-	version?: int64 @go(Version)
+	// Required: true
+	version?: int64 @go(Version,*int64)
 }

@@ -13,4 +13,7 @@ package models
 
 	// message
 	message?: string @go(Message)
+
+	// uid
+	uid?: string @go(UID)
 }

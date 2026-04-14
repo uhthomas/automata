@@ -7,4 +7,4 @@ package models
 // Playlists playlists
 //
 // swagger:model Playlists
-#Playlists: [...null | #Playlist]
+#Playlists: [...#Playlist]

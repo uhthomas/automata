@@ -15,12 +15,15 @@ package v1
 #LocalObjectReference: {
 	// Group is the group of the referent. For example, "gateway.networking.k8s.io".
 	// When unspecified or empty string, core API group is inferred.
+	// +required
 	group: #Group @go(Group)
 
 	// Kind is kind of the referent. For example "HTTPRoute" or "Service".
+	// +required
 	kind: #Kind @go(Kind)
 
 	// Name is the name of the referent.
+	// +required
 	name: #ObjectName @go(Name)
 }
 
@@ -39,15 +42,16 @@ package v1
 	//
 	// +optional
 	// +kubebuilder:default=""
-	group?: null | #Group @go(Group,*Group)
+	group?: #Group @go(Group,*Group)
 
 	// Kind is kind of the referent. For example "Secret".
 	//
 	// +optional
 	// +kubebuilder:default=Secret
-	kind?: null | #Kind @go(Kind,*Kind)
+	kind?: #Kind @go(Kind,*Kind)
 
 	// Name is the name of the referent.
+	// +required
 	name: #ObjectName @go(Name)
 
 	// Namespace is the namespace of the referenced object. When unspecified, the local
@@ -61,7 +65,7 @@ package v1
 	// Support: Core
 	//
 	// +optional
-	namespace?: null | #Namespace @go(Namespace,*Namespace)
+	namespace?: #Namespace @go(Namespace,*Namespace)
 }
 
 // BackendObjectReference defines how an ObjectReference that is
@@ -87,7 +91,7 @@ package v1
 	//
 	// +optional
 	// +kubebuilder:default=""
-	group?: null | #Group @go(Group,*Group)
+	group?: #Group @go(Group,*Group)
 
 	// Kind is the Kubernetes resource kind of the referent. For example
 	// "Service".
@@ -106,9 +110,10 @@ package v1
 	//
 	// +optional
 	// +kubebuilder:default=Service
-	kind?: null | #Kind @go(Kind,*Kind)
+	kind?: #Kind @go(Kind,*Kind)
 
 	// Name is the name of the referent.
+	// +required
 	name: #ObjectName @go(Name)
 
 	// Namespace is the namespace of the backend. When unspecified, the local
@@ -122,7 +127,7 @@ package v1
 	// Support: Core
 	//
 	// +optional
-	namespace?: null | #Namespace @go(Namespace,*Namespace)
+	namespace?: #Namespace @go(Namespace,*Namespace)
 
 	// Port specifies the destination port number to use for this resource.
 	// Port is required when the referent is a Kubernetes Service. In this
@@ -131,7 +136,9 @@ package v1
 	// resource or this field.
 	//
 	// +optional
-	port?: null | #PortNumber @go(Port,*PortNumber)
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=65535
+	port?: int32 @go(Port,*PortNumber)
 }
 
 // ObjectReference identifies an API object including its namespace.
@@ -145,12 +152,15 @@ package v1
 #ObjectReference: {
 	// Group is the group of the referent. For example, "gateway.networking.k8s.io".
 	// When set to the empty string, core API group is inferred.
+	// +required
 	group: #Group @go(Group)
 
 	// Kind is kind of the referent. For example "ConfigMap" or "Service".
+	// +required
 	kind: #Kind @go(Kind)
 
 	// Name is the name of the referent.
+	// +required
 	name: #ObjectName @go(Name)
 
 	// Namespace is the namespace of the referenced object. When unspecified, the local
@@ -164,5 +174,5 @@ package v1
 	// Support: Core
 	//
 	// +optional
-	namespace?: null | #Namespace @go(Namespace,*Namespace)
+	namespace?: #Namespace @go(Namespace,*Namespace)
 }

@@ -4,26 +4,13 @@
 
 package models
 
-// TimeInterval TimeInterval describes intervals of time. ContainsTime will tell you if a golang time is contained
-// within the interval.
+// TimeInterval TimeInterval represents a named set of time intervals for which a route should be muted.
 //
 // swagger:model TimeInterval
 #TimeInterval: {
-	// days of month
-	days_of_month: [...string] @go(DaysOfMonth,[]string)
+	// name
+	name?: string @go(Name)
 
-	// location
-	location?: string @go(Location)
-
-	// months
-	months: [...string] @go(Months,[]string)
-
-	// times
-	times: [...null | #TimeIntervalRange] @go(Times,[]*TimeIntervalRange)
-
-	// weekdays
-	weekdays: [...string] @go(Weekdays,[]string)
-
-	// years
-	years: [...string] @go(Years,[]string)
+	// time intervals
+	time_intervals: [...#TimeIntervalItem] @go(TimeIntervals,[]*TimeIntervalItem)
 }

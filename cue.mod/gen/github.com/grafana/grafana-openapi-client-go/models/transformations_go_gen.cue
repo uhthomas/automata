@@ -7,4 +7,4 @@ package models
 // Transformations transformations
 //
 // swagger:model Transformations
-#Transformations: [...null | #Transformation]
+#Transformations: [...#Transformation]

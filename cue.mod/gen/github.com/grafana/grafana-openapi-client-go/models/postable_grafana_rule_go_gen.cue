@@ -12,7 +12,7 @@ package models
 	condition?: string @go(Condition)
 
 	// data
-	data: [...null | #AlertQuery] @go(Data,[]*AlertQuery)
+	data: [...#AlertQuery] @go(Data,[]*AlertQuery)
 
 	// exec err state
 	// Enum: [OK Alerting Error]
@@ -21,9 +21,24 @@ package models
 	// is paused
 	is_paused?: bool @go(IsPaused)
 
+	// metadata
+	metadata?: #AlertRuleMetadata @go(Metadata,*AlertRuleMetadata)
+
+	// Number of consecutive evaluation intervals with no data for a dimension must pass
+	// before the alert state is considered stale and automatically resolved.
+	// If set to 0, the value is reset to the default.
+	// Example: 3
+	missing_series_evals_to_resolve?: int64 @go(MissingSeriesEvalsToResolve)
+
 	// no data state
 	// Enum: [Alerting NoData OK]
 	no_data_state?: string @go(NoDataState)
+
+	// notification settings
+	notification_settings?: #AlertRuleNotificationSettings @go(NotificationSettings,*AlertRuleNotificationSettings)
+
+	// record
+	record?: #Record @go(Record,*Record)
 
 	// title
 	title?: string @go(Title)

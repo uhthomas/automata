@@ -18,5 +18,5 @@ package models
 	totalCount?: int64 @go(TotalCount)
 
 	// users
-	users: [...null | #UserSearchHitDTO] @go(Users,[]*UserSearchHitDTO)
+	users: [...#UserSearchHitDTO] @go(Users,[]*UserSearchHitDTO)
 }

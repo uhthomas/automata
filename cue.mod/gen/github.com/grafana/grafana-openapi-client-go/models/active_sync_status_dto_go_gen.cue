@@ -4,6 +4,8 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // ActiveSyncStatusDTO ActiveSyncStatusDTO holds the information for LDAP background Sync
 //
 // swagger:model ActiveSyncStatusDTO
@@ -11,8 +13,12 @@ package models
 	// enabled
 	enabled?: bool @go(Enabled)
 
+	// next sync
+	// Format: date-time
+	nextSync?: strfmt.#DateTime @go(NextSync)
+
 	// prev sync
-	prevSync?: null | #SyncResult @go(PrevSync,*SyncResult)
+	prevSync?: #SyncResult @go(PrevSync,*SyncResult)
 
 	// schedule
 	schedule?: string @go(Schedule)

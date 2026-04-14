@@ -4,12 +4,17 @@
 
 package models
 
+import "github.com/go-openapi/strfmt"
+
 // DashboardMeta dashboard meta
 //
 // swagger:model DashboardMeta
 #DashboardMeta: {
 	// annotations permissions
-	annotationsPermissions?: null | #AnnotationPermission @go(AnnotationsPermissions,*AnnotationPermission)
+	annotationsPermissions?: #AnnotationPermission @go(AnnotationsPermissions,*AnnotationPermission)
+
+	// api version
+	apiVersion?: string @go(APIVersion)
 
 	// can admin
 	canAdmin?: bool @go(CanAdmin)
@@ -26,8 +31,16 @@ package models
 	// can star
 	canStar?: bool @go(CanStar)
 
+	// created
+	// Format: date-time
+	created?: strfmt.#DateTime @go(Created)
+
 	// created by
 	createdBy?: string @go(CreatedBy)
+
+	// expires
+	// Format: date-time
+	expires?: strfmt.#DateTime @go(Expires)
 
 	// Deprecated: use FolderUID instead
 	folderId?: int64 @go(FolderID)
@@ -62,14 +75,15 @@ package models
 	// public dashboard enabled
 	publicDashboardEnabled?: bool @go(PublicDashboardEnabled)
 
-	// public dashboard Uid
-	publicDashboardUid?: string @go(PublicDashboardUID)
-
 	// slug
 	slug?: string @go(Slug)
 
 	// type
 	type?: string @go(Type)
+
+	// updated
+	// Format: date-time
+	updated?: strfmt.#DateTime @go(Updated)
 
 	// updated by
 	updatedBy?: string @go(UpdatedBy)

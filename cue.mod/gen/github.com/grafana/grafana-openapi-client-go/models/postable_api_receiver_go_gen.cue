@@ -4,52 +4,58 @@
 
 package models
 
-// PostableAPIReceiver postable Api receiver
+// PostableAPIReceiver nolint:revive
 //
 // swagger:model PostableApiReceiver
 #PostableAPIReceiver: {
 	// discord configs
-	discord_configs: [...null | #DiscordConfig] @go(DiscordConfigs,[]*DiscordConfig)
+	discord_configs: [...#DiscordConfig] @go(DiscordConfigs,[]*DiscordConfig)
 
 	// email configs
-	email_configs: [...null | #EmailConfig] @go(EmailConfigs,[]*EmailConfig)
+	email_configs: [...#EmailConfig] @go(EmailConfigs,[]*EmailConfig)
 
 	// grafana managed receiver configs
-	grafana_managed_receiver_configs: [...null | #PostableGrafanaReceiver] @go(GrafanaManagedReceiverConfigs,[]*PostableGrafanaReceiver)
+	grafana_managed_receiver_configs: [...#PostableGrafanaReceiver] @go(GrafanaManagedReceiverConfigs,[]*PostableGrafanaReceiver)
+
+	// jira configs
+	jira_configs: [...#JiraConfig] @go(JiraConfigs,[]*JiraConfig)
 
 	// msteams configs
-	msteams_configs: [...null | #MSTeamsConfig] @go(MsteamsConfigs,[]*MSTeamsConfig)
+	msteams_configs: [...#MSTeamsConfig] @go(MsteamsConfigs,[]*MSTeamsConfig)
+
+	// msteamsv2 configs
+	msteamsv2_configs: [...#MSTeamsV2Config] @go(Msteamsv2Configs,[]*MSTeamsV2Config)
 
 	// A unique identifier for this receiver.
 	name?: string @go(Name)
 
 	// opsgenie configs
-	opsgenie_configs: [...null | #OpsGenieConfig] @go(OpsgenieConfigs,[]*OpsGenieConfig)
+	opsgenie_configs: [...#OpsGenieConfig] @go(OpsgenieConfigs,[]*OpsGenieConfig)
 
 	// pagerduty configs
-	pagerduty_configs: [...null | #PagerdutyConfig] @go(PagerdutyConfigs,[]*PagerdutyConfig)
+	pagerduty_configs: [...#PagerdutyConfig] @go(PagerdutyConfigs,[]*PagerdutyConfig)
 
 	// pushover configs
-	pushover_configs: [...null | #PushoverConfig] @go(PushoverConfigs,[]*PushoverConfig)
+	pushover_configs: [...#PushoverConfig] @go(PushoverConfigs,[]*PushoverConfig)
 
 	// slack configs
-	slack_configs: [...null | #SlackConfig] @go(SlackConfigs,[]*SlackConfig)
+	slack_configs: [...#SlackConfig] @go(SlackConfigs,[]*SlackConfig)
 
 	// sns configs
-	sns_configs: [...null | #SNSConfig] @go(SNSConfigs,[]*SNSConfig)
+	sns_configs: [...#SNSConfig] @go(SNSConfigs,[]*SNSConfig)
 
 	// telegram configs
-	telegram_configs: [...null | #TelegramConfig] @go(TelegramConfigs,[]*TelegramConfig)
+	telegram_configs: [...#TelegramConfig] @go(TelegramConfigs,[]*TelegramConfig)
 
 	// victorops configs
-	victorops_configs: [...null | #VictorOpsConfig] @go(VictoropsConfigs,[]*VictorOpsConfig)
+	victorops_configs: [...#VictorOpsConfig] @go(VictoropsConfigs,[]*VictorOpsConfig)
 
 	// webex configs
-	webex_configs: [...null | #WebexConfig] @go(WebexConfigs,[]*WebexConfig)
+	webex_configs: [...#WebexConfig] @go(WebexConfigs,[]*WebexConfig)
 
 	// webhook configs
-	webhook_configs: [...null | #WebhookConfig] @go(WebhookConfigs,[]*WebhookConfig)
+	webhook_configs: [...#WebhookConfig] @go(WebhookConfigs,[]*WebhookConfig)
 
 	// wechat configs
-	wechat_configs: [...null | #WechatConfig] @go(WechatConfigs,[]*WechatConfig)
+	wechat_configs: [...#WechatConfig] @go(WechatConfigs,[]*WechatConfig)
 }

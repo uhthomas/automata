@@ -28,7 +28,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +kubebuilder:default=gateway.networking.k8s.io
 	// +optional
-	group?: null | #Group @go(Group,*Group)
+	group?: #Group @go(Group,*Group)
 
 	// Kind is kind of the referent.
 	//
@@ -41,7 +41,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +kubebuilder:default=Gateway
 	// +optional
-	kind?: null | #Kind @go(Kind,*Kind)
+	kind?: #Kind @go(Kind,*Kind)
 
 	// Namespace is the namespace of the referent. When unspecified, this refers
 	// to the local namespace of the Route.
@@ -67,11 +67,12 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Core
 	//
 	// +optional
-	namespace?: null | #Namespace @go(Namespace,*Namespace)
+	namespace?: #Namespace @go(Namespace,*Namespace)
 
 	// Name is the name of the referent.
 	//
 	// Support: Core
+	// +required
 	name: #ObjectName @go(Name)
 
 	// SectionName is the name of a section within the target resource. In the
@@ -100,7 +101,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Core
 	//
 	// +optional
-	sectionName?: null | #SectionName @go(SectionName,*SectionName)
+	sectionName?: #SectionName @go(SectionName,*SectionName)
 
 	// Port is the network port this Route targets. It can be interpreted
 	// differently based on the type of parent resource.
@@ -134,8 +135,32 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended
 	//
 	// +optional
-	port?: null | #PortNumber @go(Port,*PortNumber)
+	//
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=65535
+	port?: int32 @go(Port,*PortNumber)
 }
+
+// GatewayDefaultScope defines the set of default scopes that a Gateway
+// can claim, for use in any Route type. At present the only supported
+// scopes are "All" and "None". "None" is a special scope which
+// explicitly means that the Route MUST NOT attached to any default
+// Gateway.
+//
+// +kubebuilder:validation:Enum=All;None
+#GatewayDefaultScope: string // #enumGatewayDefaultScope
+
+#enumGatewayDefaultScope:
+	#GatewayDefaultScopeAll |
+	#GatewayDefaultScopeNone
+
+// GatewayDefaultScopeAll indicates that a Gateway can claim absolutely
+// any Route asking for a default Gateway.
+#GatewayDefaultScopeAll: #GatewayDefaultScope & "All"
+
+// GatewayDefaultScopeNone indicates that a Gateway MUST NOT claim
+// any Route asking for a default Gateway.
+#GatewayDefaultScopeNone: #GatewayDefaultScope & "None"
 
 // CommonRouteSpec defines the common attributes that all Routes MUST include
 // within their spec.
@@ -204,18 +229,33 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// </gateway:experimental:description>
 	//
 	// +optional
+	// +listType=atomic
 	// +kubebuilder:validation:MaxItems=32
 	// <gateway:standard:validation:XValidation:message="sectionName must be specified when parentRefs includes 2 or more references to the same parent",rule="self.all(p1, self.all(p2, p1.group == p2.group && p1.kind == p2.kind && p1.name == p2.name && (((!has(p1.__namespace__) || p1.__namespace__ == '') && (!has(p2.__namespace__) || p2.__namespace__ == '')) || (has(p1.__namespace__) && has(p2.__namespace__) && p1.__namespace__ == p2.__namespace__ )) ? ((!has(p1.sectionName) || p1.sectionName == '') == (!has(p2.sectionName) || p2.sectionName == '')) : true))">
 	// <gateway:standard:validation:XValidation:message="sectionName must be unique when parentRefs includes 2 or more references to the same parent",rule="self.all(p1, self.exists_one(p2, p1.group == p2.group && p1.kind == p2.kind && p1.name == p2.name && (((!has(p1.__namespace__) || p1.__namespace__ == '') && (!has(p2.__namespace__) || p2.__namespace__ == '')) || (has(p1.__namespace__) && has(p2.__namespace__) && p1.__namespace__ == p2.__namespace__ )) && (((!has(p1.sectionName) || p1.sectionName == '') && (!has(p2.sectionName) || p2.sectionName == '')) || (has(p1.sectionName) && has(p2.sectionName) && p1.sectionName == p2.sectionName))))">
 	// <gateway:experimental:validation:XValidation:message="sectionName or port must be specified when parentRefs includes 2 or more references to the same parent",rule="self.all(p1, self.all(p2, p1.group == p2.group && p1.kind == p2.kind && p1.name == p2.name && (((!has(p1.__namespace__) || p1.__namespace__ == '') && (!has(p2.__namespace__) || p2.__namespace__ == '')) || (has(p1.__namespace__) && has(p2.__namespace__) && p1.__namespace__ == p2.__namespace__)) ? ((!has(p1.sectionName) || p1.sectionName == '') == (!has(p2.sectionName) || p2.sectionName == '') && (!has(p1.port) || p1.port == 0) == (!has(p2.port) || p2.port == 0)): true))">
 	// <gateway:experimental:validation:XValidation:message="sectionName or port must be unique when parentRefs includes 2 or more references to the same parent",rule="self.all(p1, self.exists_one(p2, p1.group == p2.group && p1.kind == p2.kind && p1.name == p2.name && (((!has(p1.__namespace__) || p1.__namespace__ == '') && (!has(p2.__namespace__) || p2.__namespace__ == '')) || (has(p1.__namespace__) && has(p2.__namespace__) && p1.__namespace__ == p2.__namespace__ )) && (((!has(p1.sectionName) || p1.sectionName == '') && (!has(p2.sectionName) || p2.sectionName == '')) || ( has(p1.sectionName) && has(p2.sectionName) && p1.sectionName == p2.sectionName)) && (((!has(p1.port) || p1.port == 0) && (!has(p2.port) || p2.port == 0)) || (has(p1.port) && has(p2.port) && p1.port == p2.port))))">
 	parentRefs?: [...#ParentReference] @go(ParentRefs,[]ParentReference)
+
+	// UseDefaultGateways indicates the default Gateway scope to use for this
+	// Route. If unset (the default) or set to None, the Route will not be
+	// attached to any default Gateway; if set, it will be attached to any
+	// default Gateway supporting the named scope, subject to the usual rules
+	// about which Routes a Gateway is allowed to claim.
+	//
+	// Think carefully before using this functionality! The set of default
+	// Gateways supporting the requested scope can change over time without
+	// any notice to the Route author, and in many situations it will not be
+	// appropriate to request a default Gateway for a given Route -- for
+	// example, a Route with specific security requirements should almost
+	// certainly not use a default Gateway.
+	//
+	// +optional
+	// <gateway:experimental>
+	useDefaultGateways?: #GatewayDefaultScope @go(UseDefaultGateways)
 }
 
 // PortNumber defines a network port.
-//
-// +kubebuilder:validation:Minimum=1
-// +kubebuilder:validation:Maximum=65535
 #PortNumber: int32
 
 // BackendRef defines how a Route should forward a request to a Kubernetes
@@ -268,7 +308,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// +kubebuilder:default=1
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=1000000
-	weight?: null | int32 @go(Weight,*int32)
+	weight?: int32 @go(Weight,*int32)
 }
 
 // RouteConditionType is a type of condition for a route.
@@ -434,6 +474,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 #RouteParentStatus: {
 	// ParentRef corresponds with a ParentRef in the spec that this
 	// RouteParentStatus struct describes the status of.
+	// +required
 	parentRef: #ParentReference @go(ParentRef)
 
 	// ControllerName is a domain/path string that indicates the name of the
@@ -449,6 +490,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Controllers MUST populate this field when writing status. Controllers should ensure that
 	// entries to status populated with their ControllerName are cleaned up when they are no
 	// longer necessary.
+	// +required
 	controllerName: #GatewayController @go(ControllerName)
 
 	// Conditions describes the status of the route with respect to the Gateway.
@@ -469,13 +511,44 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// * The Route refers to a nonexistent parent.
 	// * The Route is of a type that the controller does not support.
-	// * The Route is in a namespace the controller does not have access to.
+	// * The Route is in a namespace to which the controller does not have access.
+	//
+	// <gateway:util:excludeFromCRD>
+	//
+	// Notes for implementors:
+	//
+	// Conditions are a listType `map`, which means that they function like a
+	// map with a key of the `type` field _in the k8s apiserver_.
+	//
+	// This means that implementations must obey some rules when updating this
+	// section.
+	//
+	// * Implementations MUST perform a read-modify-write cycle on this field
+	//   before modifying it. That is, when modifying this field, implementations
+	//   must be confident they have fetched the most recent version of this field,
+	//   and ensure that changes they make are on that recent version.
+	// * Implementations MUST NOT remove or reorder Conditions that they are not
+	//   directly responsible for. For example, if an implementation sees a Condition
+	//   with type `special.io/SomeField`, it MUST NOT remove, change or update that
+	//   Condition.
+	// * Implementations MUST always _merge_ changes into Conditions of the same Type,
+	//   rather than creating more than one Condition of the same Type.
+	// * Implementations MUST always update the `observedGeneration` field of the
+	//   Condition to the `metadata.generation` of the Gateway at the time of update creation.
+	// * If the `observedGeneration` of a Condition is _greater than_ the value the
+	//   implementation knows about, then it MUST NOT perform the update on that Condition,
+	//   but must wait for a future reconciliation and status update. (The assumption is that
+	//   the implementation's copy of the object is stale and an update will be re-triggered
+	//   if relevant.)
+	//
+	// </gateway:util:excludeFromCRD>
 	//
 	// +listType=map
 	// +listMapKey=type
 	// +kubebuilder:validation:MinItems=1
 	// +kubebuilder:validation:MaxItems=8
-	conditions?: [...metav1.#Condition] @go(Conditions,[]metav1.Condition)
+	// +required
+	conditions: [...metav1.#Condition] @go(Conditions,[]metav1.Condition)
 }
 
 // RouteStatus defines the common attributes that all Routes MUST include within
@@ -496,6 +569,31 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// A maximum of 32 Gateways will be represented in this list. An empty list
 	// means the route has not been attached to any Gateway.
 	//
+	// <gateway:util:excludeFromCRD>
+	// Notes for implementors:
+	//
+	// While parents is not a listType `map`, this is due to the fact that the
+	// list key is not scalar, and Kubernetes is unable to represent this.
+	//
+	// Parent status MUST be considered to be namespaced by the combination of
+	// the parentRef and controllerName fields, and implementations should keep
+	// the following rules in mind when updating this status:
+	//
+	// * Implementations MUST update only entries that have a matching value of
+	//   `controllerName` for that implementation.
+	// * Implementations MUST NOT update entries with non-matching `controllerName`
+	//   fields.
+	// * Implementations MUST treat each `parentRef`` in the Route separately and
+	//   update its status based on the relationship with that parent.
+	// * Implementations MUST perform a read-modify-write cycle on this field
+	//   before modifying it. That is, when modifying this field, implementations
+	//   must be confident they have fetched the most recent version of this field,
+	//   and ensure that changes they make are on that recent version.
+	//
+	// </gateway:util:excludeFromCRD>
+	//
+	// +required
+	// +listType=atomic
 	// +kubebuilder:validation:MaxItems=32
 	parents: [...#RouteParentStatus] @go(Parents,[]RouteParentStatus)
 }
@@ -543,6 +641,16 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // +kubebuilder:validation:MaxLength=253
 // +kubebuilder:validation:Pattern=`^(([^:/?#]+):)(//([^/?#]*))([^?#]*)(\?([^#]*))?(#(.*))?`
 #AbsoluteURI: string
+
+// The CORSOrigin MUST NOT be a relative URI, and it MUST follow the URI syntax and
+// encoding rules specified in RFC3986.  The CORSOrigin MUST include both a
+// scheme ("http" or "https") and a scheme-specific-part, or it should be a single '*' character.
+// URIs that include an authority MUST include a fully qualified domain name or
+// IP address as the host.
+// +kubebuilder:validation:MinLength=1
+// +kubebuilder:validation:MaxLength=253
+// +kubebuilder:validation:Pattern=`(^\*$)|(^(http(s)?):\/\/(((\*\.)?([a-zA-Z0-9\-]+\.)*[a-zA-Z0-9-]+|\*)(:([0-9]{1,5}))?)$)`
+#CORSOrigin: string
 
 // Group refers to a Kubernetes Group. It must either be an empty string or a
 // RFC 1123 subdomain.
@@ -765,11 +873,6 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // +kubebuilder:validation:Pattern=`^([0-9]{1,5}(h|m|s|ms)){1,4}$`
 #Duration: string
 
-// TrueField is a boolean value that can only be set to true
-//
-// +kubebuilder:validation:Enum=true
-#TrueField: bool
-
 // A textual representation of a numeric IP address. IPv4
 // addresses must be in dotted-decimal form. IPv6 addresses
 // must be in a standard IPv6 text representation
@@ -802,6 +905,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 // SessionPersistence defines the desired state of SessionPersistence.
 // +kubebuilder:validation:XValidation:message="AbsoluteTimeout must be specified when cookie lifetimeType is Permanent",rule="!has(self.cookieConfig) || !has(self.cookieConfig.lifetimeType) || self.cookieConfig.lifetimeType != 'Permanent' || has(self.absoluteTimeout)"
+// +kubebuilder:validation:XValidation:message="cookieConfig can only be set with type Cookie",rule="!has(self.cookieConfig) || self.type == 'Cookie'"
 #SessionPersistence: {
 	// SessionName defines the name of the persistent session token
 	// which may be reflected in the cookie or the header. Users
@@ -812,7 +916,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +optional
 	// +kubebuilder:validation:MaxLength=128
-	sessionName?: null | string @go(SessionName,*string)
+	sessionName?: string @go(SessionName,*string)
 
 	// AbsoluteTimeout defines the absolute timeout of the persistent
 	// session. Once the AbsoluteTimeout duration has elapsed, the
@@ -821,7 +925,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended
 	//
 	// +optional
-	absoluteTimeout?: null | #Duration @go(AbsoluteTimeout,*Duration)
+	absoluteTimeout?: #Duration @go(AbsoluteTimeout,*Duration)
 
 	// IdleTimeout defines the idle timeout of the persistent session.
 	// Once the session has been idle for more than the specified
@@ -830,10 +934,10 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended
 	//
 	// +optional
-	idleTimeout?: null | #Duration @go(IdleTimeout,*Duration)
+	idleTimeout?: #Duration @go(IdleTimeout,*Duration)
 
 	// Type defines the type of session persistence such as through
-	// the use a header or cookie. Defaults to cookie based session
+	// the use of a header or cookie. Defaults to cookie based session
 	// persistence.
 	//
 	// Support: Core for "Cookie" type
@@ -842,7 +946,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +optional
 	// +kubebuilder:default=Cookie
-	type?: null | #SessionPersistenceType @go(Type,*SessionPersistenceType)
+	type?: #SessionPersistenceType @go(Type,*SessionPersistenceType)
 
 	// CookieConfig provides configuration settings that are specific
 	// to cookie-based session persistence.
@@ -850,7 +954,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Core
 	//
 	// +optional
-	cookieConfig?: null | #CookieConfig @go(CookieConfig,*CookieConfig)
+	cookieConfig?: #CookieConfig @go(CookieConfig,*CookieConfig)
 }
 
 // +kubebuilder:validation:Enum=Cookie;Header
@@ -896,7 +1000,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +optional
 	// +kubebuilder:default=Session
-	lifetimeType?: null | #CookieLifetimeType @go(LifetimeType,*CookieLifetimeType)
+	lifetimeType?: #CookieLifetimeType @go(LifetimeType,*CookieLifetimeType)
 }
 
 // +kubebuilder:validation:Enum=Permanent;Session
@@ -921,10 +1025,38 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // +kubebuilder:validation:XValidation:message="numerator must be less than or equal to denominator",rule="self.numerator <= self.denominator"
 #Fraction: {
 	// +kubebuilder:validation:Minimum=0
+	// +required
 	numerator: int32 @go(Numerator)
 
 	// +optional
 	// +kubebuilder:default=100
 	// +kubebuilder:validation:Minimum=1
-	denominator?: null | int32 @go(Denominator,*int32)
+	denominator?: int32 @go(Denominator,*int32)
+}
+
+// ParentGatewayReference identifies an API object including its namespace,
+// defaulting to Gateway.
+#ParentGatewayReference: {
+	// Group is the group of the referent.
+	//
+	// +optional
+	// +kubebuilder:default="gateway.networking.k8s.io"
+	group?: #Group @go(Group,*Group)
+
+	// Kind is kind of the referent. For example "Gateway".
+	//
+	// +optional
+	// +kubebuilder:default=Gateway
+	kind?: #Kind @go(Kind,*Kind)
+
+	// Name is the name of the referent.
+	// +required
+	name: #ObjectName @go(Name)
+
+	// Namespace is the namespace of the referent.  If not present,
+	// the namespace of the referent is assumed to be the same as
+	// the namespace of the referring object.
+	//
+	// +optional
+	namespace?: #Namespace @go(Namespace,*Namespace)
 }

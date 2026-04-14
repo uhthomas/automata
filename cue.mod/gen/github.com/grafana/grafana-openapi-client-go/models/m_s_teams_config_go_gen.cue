@@ -9,10 +9,13 @@ package models
 // swagger:model MSTeamsConfig
 #MSTeamsConfig: {
 	// http config
-	http_config?: null | #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
+	http_config?: #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
 
 	// send resolved
 	send_resolved?: bool @go(SendResolved)
+
+	// summary
+	summary?: string @go(Summary)
 
 	// text
 	text?: string @go(Text)
@@ -21,5 +24,8 @@ package models
 	title?: string @go(Title)
 
 	// webhook url
-	webhook_url?: null | #SecretURL @go(WebhookURL,*SecretURL)
+	webhook_url?: #SecretURL @go(WebhookURL,*SecretURL)
+
+	// webhook url file
+	webhook_url_file?: string @go(WebhookURLFile)
 }

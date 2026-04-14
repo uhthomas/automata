@@ -9,7 +9,7 @@ package models
 // swagger:model UpdateServiceAccountForm
 #UpdateServiceAccountForm: {
 	// is disabled
-	isDisabled?: bool @go(IsDisabled)
+	isDisabled?: bool @go(IsDisabled,*bool)
 
 	// name
 	name?: string @go(Name)

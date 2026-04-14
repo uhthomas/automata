@@ -4,11 +4,11 @@
 
 package strfmt
 
-// RFC3339FullDate represents a full-date as specified by RFC3339
+// RFC3339FullDate represents a full-date as specified by RFC3339.
 // See: http://goo.gl/xXOvVd
 #RFC3339FullDate: "2006-01-02"
 
-// Date represents a date from the API
+// Date represents a date from the API.
 //
-// swagger:strfmt date
+// swagger:[strfmt] date.
 #Date: _

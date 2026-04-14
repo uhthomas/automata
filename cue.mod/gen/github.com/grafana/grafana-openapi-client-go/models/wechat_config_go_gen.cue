@@ -15,13 +15,13 @@ package models
 	api_secret?: #Secret @go(APISecret)
 
 	// api url
-	api_url?: null | #URL @go(APIURL,*URL)
+	api_url?: #URL @go(APIURL,*URL)
 
 	// corp id
 	corp_id?: string @go(CorpID)
 
 	// http config
-	http_config?: null | #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
+	http_config?: #HTTPClientConfig @go(HTTPConfig,*HTTPClientConfig)
 
 	// message
 	message?: string @go(Message)

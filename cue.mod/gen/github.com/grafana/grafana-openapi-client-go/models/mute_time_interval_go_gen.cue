@@ -12,5 +12,5 @@ package models
 	name?: string @go(Name)
 
 	// time intervals
-	time_intervals: [...null | #TimeInterval] @go(TimeIntervals,[]*TimeInterval)
+	time_intervals: [...#TimeIntervalItem] @go(TimeIntervals,[]*TimeIntervalItem)
 }

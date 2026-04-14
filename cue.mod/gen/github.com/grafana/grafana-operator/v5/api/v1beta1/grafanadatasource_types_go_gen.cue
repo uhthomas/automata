@@ -4,24 +4,28 @@
 
 package v1beta1
 
-import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/api/core/v1"
-)
+import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 #GrafanaDatasourceInternal: {
-	uid?:           string       @go(UID)
-	name?:          string       @go(Name)
-	type?:          string       @go(Type)
-	url?:           string       @go(URL)
-	access?:        string       @go(Access)
-	database?:      string       @go(Database)
-	user?:          string       @go(User)
-	orgId?:         null | int64 @go(OrgID,*int64)
-	isDefault?:     null | bool  @go(IsDefault,*bool)
-	basicAuth?:     null | bool  @go(BasicAuth,*bool)
-	basicAuthUser?: string       @go(BasicAuthUser)
-	editable?:      null | bool  @go(Editable,*bool)
+	// Deprecated field, use spec.uid instead
+	// +optional
+	uid?:           string      @go(UID)
+	name?:          string      @go(Name)
+	type?:          string      @go(Type)
+	url?:           string      @go(URL)
+	access?:        string      @go(Access)
+	database?:      string      @go(Database)
+	user?:          string      @go(User)
+	isDefault?:     null | bool @go(IsDefault,*bool)
+	basicAuth?:     null | bool @go(BasicAuth,*bool)
+	basicAuthUser?: string      @go(BasicAuthUser)
+
+	// Deprecated field, it has no effect
+	orgId?: null | int64 @go(OrgID,*int64)
+
+	// Whether to enable/disable editing of the datasource in Grafana UI
+	// +optional
+	editable?: null | bool @go(Editable,*bool)
 
 	// +kubebuilder:validation:Schemaless
 	// +kubebuilder:pruning:PreserveUnknownFields
@@ -37,11 +41,18 @@ import (
 }
 
 // GrafanaDatasourceSpec defines the desired state of GrafanaDatasource
+// +kubebuilder:validation:XValidation:rule="((!has(oldSelf.uid) && !has(self.uid)) || (has(oldSelf.uid) && has(self.uid)))", message="spec.uid is immutable"
 #GrafanaDatasourceSpec: {
-	datasource?: null | #GrafanaDatasourceInternal @go(Datasource,*GrafanaDatasourceInternal)
+	#GrafanaCommonSpec
 
-	// selects Grafana instances for import
-	instanceSelector?: null | metav1.#LabelSelector @go(InstanceSelector,*metav1.LabelSelector)
+	// The UID, for the datasource, fallback to the deprecated spec.datasource.uid
+	// and metadata.uid. Can be any string consisting of alphanumeric characters,
+	// - and _ with a maximum length of 40 +optional
+	// +kubebuilder:validation:MaxLength=40
+	// +kubebuilder:validation:Pattern="^[a-zA-Z0-9-_]+$"
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="spec.uid is immutable"
+	uid?:        string                            @go(CustomUID)
+	datasource?: null | #GrafanaDatasourceInternal @go(Datasource,*GrafanaDatasourceInternal)
 
 	// plugins
 	// +optional
@@ -49,53 +60,32 @@ import (
 
 	// environments variables from secrets or config maps
 	// +optional
-	valuesFrom?: [...#GrafanaDatasourceValueFrom] @go(ValuesFrom,[]GrafanaDatasourceValueFrom)
-
-	// how often the datasource is refreshed, defaults to 5m if not set
-	// +optional
-	resyncPeriod?: string @go(ResyncPeriod)
-
-	// allow to import this resources from an operator in a different namespace
-	// +optional
-	allowCrossNamespaceImport?: null | bool @go(AllowCrossNamespaceImport,*bool)
-}
-
-#GrafanaDatasourceValueFrom: {
-	targetPath: string                            @go(TargetPath)
-	valueFrom:  #GrafanaDatasourceValueFromSource @go(ValueFrom)
-}
-
-#GrafanaDatasourceValueFromSource: {
-	// Selects a key of a ConfigMap.
-	// +optional
-	configMapKeyRef?: null | v1.#ConfigMapKeySelector @go(ConfigMapKeyRef,*v1.ConfigMapKeySelector)
-
-	// Selects a key of a Secret.
-	// +optional
-	secretKeyRef?: null | v1.#SecretKeySelector @go(SecretKeyRef,*v1.SecretKeySelector)
+	// +kubebuilder:validation:MaxItems=99
+	valuesFrom?: [...#ValueFrom] @go(ValuesFrom,[]ValueFrom)
 }
 
 // GrafanaDatasourceStatus defines the observed state of GrafanaDatasource
 #GrafanaDatasourceStatus: {
-	hash?:        string @go(Hash)
+	#GrafanaCommonStatus
+	hash?: string @go(Hash)
+
+	// Deprecated: Check status.conditions or operator logs
 	lastMessage?: string @go(LastMessage)
 
 	// The datasource instanceSelector can't find matching grafana instances
 	NoMatchingInstances?: bool
-
-	// Last time the datasource was resynced
-	lastResync?: metav1.#Time @go(LastResync)
-	uid?:        string       @go(UID)
+	uid?:                 string @go(UID)
 }
 
 // GrafanaDatasource is the Schema for the grafanadatasources API
 // +kubebuilder:printcolumn:name="No matching instances",type="boolean",JSONPath=".status.NoMatchingInstances",description=""
 // +kubebuilder:printcolumn:name="Last resync",type="date",format="date-time",JSONPath=".status.lastResync",description=""
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp",description=""
+// +kubebuilder:resource:categories={grafana-operator}
 #GrafanaDatasource: {
 	metav1.#TypeMeta
 	metadata?: metav1.#ObjectMeta       @go(ObjectMeta)
-	spec?:     #GrafanaDatasourceSpec   @go(Spec)
+	spec:      #GrafanaDatasourceSpec   @go(Spec)
 	status?:   #GrafanaDatasourceStatus @go(Status)
 }
 

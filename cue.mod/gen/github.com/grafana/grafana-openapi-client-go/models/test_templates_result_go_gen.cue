@@ -11,6 +11,20 @@ package models
 	// Name of the associated template definition for this result.
 	name?: string @go(Name)
 
+	// Scope that was successfully used to interpolate the template. If the root scope "." fails, more specific
+	// scopes will be tried, such as ".Alerts', or ".Alert".
+	// Enum: [. .Alerts .Alert]
+	scope?: string @go(Scope)
+
 	// Interpolated value of the template.
 	text?: string @go(Text)
 }
+
+// TestTemplatesResultScopeDot captures enum value "."
+#TestTemplatesResultScopeDot: "."
+
+// TestTemplatesResultScopeDotAlerts captures enum value ".Alerts"
+#TestTemplatesResultScopeDotAlerts: ".Alerts"
+
+// TestTemplatesResultScopeDotAlert captures enum value ".Alert"
+#TestTemplatesResultScopeDotAlert: ".Alert"

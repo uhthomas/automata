@@ -15,5 +15,5 @@ package models
 	orgId?: int64 @go(OrgID)
 
 	// receivers
-	receivers: [...null | #ReceiverExport] @go(Receivers,[]*ReceiverExport)
+	receivers: [...#ReceiverExport] @go(Receivers,[]*ReceiverExport)
 }

@@ -20,6 +20,9 @@ package models
 	// query
 	query?: _ @go(Query,interface{})
 
+	// time range
+	timeRange?: #TimeRange @go(TimeRange,*TimeRange)
+
 	// transformations
-	transformations: [...null | #LinkTransformationConfig] @go(Transformations,[]*LinkTransformationConfig)
+	transformations: [...#LinkTransformationConfig] @go(Transformations,[]*LinkTransformationConfig)
 }

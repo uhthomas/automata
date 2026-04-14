@@ -11,7 +11,7 @@ package models
 	// Field used to attach the correlation link
 	// Example: message
 	// Required: true
-	field?: null | string @go(Field,*string)
+	field?: string @go(Field,*string)
 
 	// Target data query
 	// Example: {"prop1":"value1","prop2":"value"}
@@ -22,6 +22,5 @@ package models
 	transformations?: #Transformations @go(Transformations)
 
 	// type
-	// Required: true
-	type?: null | #CorrelationConfigType @go(Type,*CorrelationConfigType)
+	type?: #CorrelationType @go(Type)
 }

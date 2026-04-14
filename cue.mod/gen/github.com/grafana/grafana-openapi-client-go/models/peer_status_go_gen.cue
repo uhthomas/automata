@@ -10,9 +10,9 @@ package models
 #PeerStatus: {
 	// address
 	// Required: true
-	address?: null | string @go(Address,*string)
+	address?: string @go(Address,*string)
 
 	// name
 	// Required: true
-	name?: null | string @go(Name,*string)
+	name?: string @go(Name,*string)
 }

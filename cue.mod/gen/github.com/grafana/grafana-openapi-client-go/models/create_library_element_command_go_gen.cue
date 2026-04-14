@@ -19,8 +19,7 @@ package models
 	// Kind of element to create, Use 1 for library panels or 2 for c.
 	// Description:
 	// 1 - library panels
-	// 2 - library variables
-	// Enum: [1 2]
+	// Enum: [1]
 	kind?: int64 @go(Kind)
 
 	// The JSON model for the library element.

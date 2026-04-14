@@ -15,7 +15,7 @@ package models
 	perPage?: int64 @go(PerPage)
 
 	// query history
-	queryHistory: [...null | #QueryHistoryDTO] @go(QueryHistory,[]*QueryHistoryDTO)
+	queryHistory: [...#QueryHistoryDTO] @go(QueryHistory,[]*QueryHistoryDTO)
 
 	// total count
 	totalCount?: int64 @go(TotalCount)

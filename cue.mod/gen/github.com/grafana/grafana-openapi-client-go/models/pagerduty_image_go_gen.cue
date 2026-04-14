@@ -4,7 +4,7 @@
 
 package models
 
-// PagerdutyImage PagerdutyImage is an image
+// PagerdutyImage PagerdutyImage is an image.
 //
 // swagger:model PagerdutyImage
 #PagerdutyImage: {

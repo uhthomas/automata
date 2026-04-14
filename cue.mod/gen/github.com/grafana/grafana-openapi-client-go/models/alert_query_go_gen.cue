@@ -22,5 +22,5 @@ package models
 	refId?: string @go(RefID)
 
 	// relative time range
-	relativeTimeRange?: null | #RelativeTimeRange @go(RelativeTimeRange,*RelativeTimeRange)
+	relativeTimeRange?: #RelativeTimeRange @go(RelativeTimeRange,*RelativeTimeRange)
 }
