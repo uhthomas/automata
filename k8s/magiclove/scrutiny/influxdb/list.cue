@@ -8,7 +8,7 @@ import (
 
 #Name:      "scrutiny-influxdb"
 #Namespace: "scrutiny"
-#Version:   "2.7.4"
+#Version:   "2.7.12"
 
 #List: v1.#List & {
 	apiVersion: "v1"
