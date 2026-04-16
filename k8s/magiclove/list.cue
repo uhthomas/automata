@@ -51,7 +51,6 @@ import (
 	"github.com/uhthomas/automata/k8s/magiclove/vm_operator"
 	"github.com/uhthomas/automata/k8s/magiclove/vm"
 	// "github.com/uhthomas/automata/k8s/magiclove/volsync_system"
-	"github.com/uhthomas/automata/k8s/magiclove/wireguard_operator"
 	"github.com/uhthomas/automata/k8s/magiclove/zigbee2mqtt"
 	"k8s.io/api/core/v1"
 )
@@ -133,7 +132,6 @@ _items: [
 	vm_operator.#List.items,
 	vm.#List.items,
 	// volsync_system.#List.items,
-	wireguard_operator.#List.items,
 	zigbee2mqtt.#List.items,
 ]
 
