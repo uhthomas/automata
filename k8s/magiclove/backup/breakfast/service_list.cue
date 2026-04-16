@@ -58,7 +58,8 @@ import "k8s.io/api/core/v1"
 			protocol:   v1.#ProtocolUDP
 		}]
 		selector: "app.kubernetes.io/name": "\(#Name)-syncthing"
-		type: v1.#ServiceTypeLoadBalancer
+		type:                  v1.#ServiceTypeLoadBalancer
+		externalTrafficPolicy: v1.#ServiceExternalTrafficPolicyLocal
 	}
 }, {
 	metadata: name: "\(#Name)-ssh"
@@ -69,6 +70,7 @@ import "k8s.io/api/core/v1"
 			targetPort: "ssh"
 		}]
 		selector: "app.kubernetes.io/name": "\(#Name)-ssh"
-		type: v1.#ServiceTypeLoadBalancer
+		type:                  v1.#ServiceTypeLoadBalancer
+		externalTrafficPolicy: v1.#ServiceExternalTrafficPolicyLocal
 	}
 }]

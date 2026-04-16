@@ -20,6 +20,7 @@ import "k8s.io/api/core/v1"
 			targetPort: "smb"
 		}]
 		selector: "app.kubernetes.io/name": "smb"
-		type: v1.#ServiceTypeLoadBalancer
+		type:                  v1.#ServiceTypeLoadBalancer
+		externalTrafficPolicy: v1.#ServiceExternalTrafficPolicyLocal
 	}
 }]
