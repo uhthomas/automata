@@ -318,7 +318,7 @@ replace (
 
 // https://github.com/rook/rook/blob/4b80a90cb8a0e4d71279cc10562463dd1670a82c/go.mod#L5-L13
 replace (
-	github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.4.1
+	github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.7.1
 	github.com/kubernetes-incubator/external-storage => github.com/libopenstorage/external-storage v0.20.4-openstorage-rc3
 
 	github.com/libopenstorage/secrets => github.com/rook/secrets v0.0.0-20240315053144-3195f6906937
