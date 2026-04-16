@@ -30,6 +30,7 @@ _items: [
 	#ExternalSecretList.items,
 	#GatewayList.items,
 	#HTTPRouteList.items,
+	#KanidmOAuth2ClientList.items,
 	#NamespaceList.items,
 	#VMPodScrapeList.items,
 ]

@@ -18,4 +18,13 @@ package kanidm
 			mail: ["thomas@6f.io"]
 		}
 	}
+}, {
+	metadata: name: "grace"
+	spec: {
+		kanidmRef: name: #Name
+		personAttributes: {
+			displayname: "grace"
+			mail: ["grace.bullimore@btinternet.com"]
+		}
+	}
 }]

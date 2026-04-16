@@ -12,7 +12,11 @@ package kanidm
 #KanidmList: items: [{
 	spec: {
 		domain: "kanidm-magiclove.hipparcos.net"
-		oauth2ClientNamespaceSelector: matchLabels: "kubernetes.io/metadata.name": "grafana"
+		oauth2ClientNamespaceSelector: matchExpressions: [{
+			key:      "kubernetes.io/metadata.name"
+			operator: "In"
+			values: ["grafana", "immich"]
+		}]
 		replicaGroups: [{
 			name:     "default"
 			replicas: 1
