@@ -57,7 +57,7 @@ import (
 				}
 			}, {
 				name:  "yaml-tags"
-				image: "mikefarah/yq:4.33.1@sha256:ddf60fa876a4f73414477fab551bcfb864a179cad6ce998b13ba4180e0f5702d"
+				image: "mikefarah/yq:4.53.2@sha256:0cb4a78491b6e62ee8a9bf4fbeacbd15b5013d19bc420591b05383a696315e60"
 				args: ["-i", ".[][].api_key tag = \"!env_var\"", configPath]
 				volumeMounts: [{
 					name:      "config"
