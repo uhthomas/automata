@@ -27,6 +27,9 @@ let dashboards = {
 		20417,
 		// Spegel
 		"https://raw.githubusercontent.com/spegel-org/spegel/v0.4.0/charts/spegel/monitoring/grafana-dashboard.json",
+		// Kubernetes PVC Stats
+		// https://grafana.com/grafana/dashboards/23233-kubernetes-pvc-stats/
+		23233,
 	]
 	Ceph: [
 		"https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/ceph-application-overview.json",
