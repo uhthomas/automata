@@ -26,10 +26,12 @@ import (
 					args: [
 						"--source=service",
 						"--source=ingress",
+						"--source=crd",
 						"--source=gateway-httproute",
 						"--source=gateway-tlsroute",
 						"--source=gateway-tcproute",
 						"--source=gateway-udproute",
+						"--gateway-listener-sets",
 						"--registry=txt",
 						"--provider=cloudflare",
 					]

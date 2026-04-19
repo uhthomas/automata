@@ -28,6 +28,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 		versions: [{
 			name: "v1alpha1"
 			schema: openAPIV3Schema: {
+				description: """
+					DNSEndpoint is a contract that a user-specified CRD must implement to be used as a source for external-dns.
+					The user-specified CRD should also have the status sub-resource.
+					"""
 				properties: {
 					apiVersion: {
 						description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources"

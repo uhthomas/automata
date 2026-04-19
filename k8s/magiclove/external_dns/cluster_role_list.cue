@@ -17,7 +17,11 @@ import (
 #ClusterRoleList: items: [{
 	rules: [{
 		apiGroups: [v1.#GroupName]
-		resources: ["services", "endpoints", "pods", "namespaces"]
+		resources: ["services", "pods", "namespaces"]
+		verbs: ["get", "watch", "list"]
+	}, {
+		apiGroups: ["discovery.k8s.io"]
+		resources: ["endpointslices"]
 		verbs: ["get", "watch", "list"]
 	}, {
 		apiGroups: ["networking.k8s.io"]
@@ -37,7 +41,7 @@ import (
 		verbs: ["*"]
 	}, {
 		apiGroups: ["gateway.networking.k8s.io"]
-		resources: ["gateways", "httproutes", "grpcroutes", "tlsroutes", "tcproutes", "udproutes"]
+		resources: ["gateways", "httproutes", "grpcroutes", "tlsroutes", "tcproutes", "udproutes", "listenersets"]
 		verbs: ["get", "watch", "list"]
 	}]
 }]
