@@ -10,7 +10,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=docker depName=nvcr.io/nvidia/k8s-device-plugin versioning=docker
-#Version: "0.16.2"
+#Version: "0.19.1"
 
 #List: v1.#List & {
 	apiVersion: "v1"
