@@ -66,7 +66,6 @@ let defaultCephFSParameters = defaultParameters & {
 		fsName: "main"
 		pool:   "main-nvme-ec"
 	}
-	mountOptions: ["discard"]
 	reclaimPolicy:        v1.#PersistentVolumeReclaimRetain
 	allowVolumeExpansion: true
 }]
