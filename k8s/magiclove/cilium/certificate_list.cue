@@ -21,7 +21,7 @@ import certmanagerv1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/
 			name: "cilium"
 		}
 		isCA: true
-		privateKey: rotationPolicy: "Always"
+		privateKey: rotationPolicy: "Never"
 	}
 }, {
 	metadata: name: "hubble-server-certs"

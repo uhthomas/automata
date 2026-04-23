@@ -21,6 +21,6 @@ import certmanagerv1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/
 			name: "self-signed"
 		}
 		isCA: true
-		privateKey: rotationPolicy: "Always"
+		privateKey: rotationPolicy: "Never"
 	}
 }]
