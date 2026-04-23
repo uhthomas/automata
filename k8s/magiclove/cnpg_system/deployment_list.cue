@@ -37,7 +37,7 @@ import (
 				}]
 				containers: [{
 					name:  "manager"
-					image: "ghcr.io/cloudnative-pg/cloudnative-pg:1.25.1"
+					image: "ghcr.io/cloudnative-pg/cloudnative-pg:\(#Version)"
 					command: ["/manager"]
 					args: [
 						"controller",
@@ -56,7 +56,7 @@ import (
 					}]
 					env: [{
 						name:  "OPERATOR_IMAGE_NAME"
-						value: "ghcr.io/cloudnative-pg/cloudnative-pg:1.25.1"
+						value: "ghcr.io/cloudnative-pg/cloudnative-pg:\(#Version)"
 					}, {
 						name: "OPERATOR_NAMESPACE"
 						valueFrom: fieldRef: fieldPath: "metadata.namespace"

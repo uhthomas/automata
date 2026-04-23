@@ -86,8 +86,12 @@ import (
 		verbs: ["update"]
 	}, {
 		apiGroups: ["postgresql.cnpg.io"]
-		resources: ["clusters/status", "poolers/status"]
+		resources: ["clusters/status", "failoverquorums/status", "poolers/status"]
 		verbs: ["get", "patch", "update", "watch"]
+	}, {
+		apiGroups: ["postgresql.cnpg.io"]
+		resources: ["failoverquorums"]
+		verbs: ["create", "delete", "get", "list", "watch"]
 	}, {
 		apiGroups: ["rbac.authorization.k8s.io"]
 		resources: ["rolebindings", "roles"]

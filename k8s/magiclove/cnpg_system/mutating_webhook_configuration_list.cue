@@ -46,6 +46,22 @@ import admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
 			path:      "/mutate-postgresql-cnpg-io-v1-cluster"
 		}
 	}, {
+		name: "mdatabase.cnpg.io"
+		rules: [{
+			apiGroups: ["postgresql.cnpg.io"]
+			apiVersions: ["v1"]
+			operations: ["CREATE", "UPDATE"]
+			resources: ["databases"]
+		}]
+		admissionReviewVersions: ["v1"]
+		failurePolicy: admissionregistrationv1.#Fail
+		sideEffects:   admissionregistrationv1.#SideEffectClassNone
+		clientConfig: service: {
+			name:      "cnpg-webhook-service"
+			namespace: "cnpg-system"
+			path:      "/mutate-postgresql-cnpg-io-v1-database"
+		}
+	}, {
 		name: "mscheduledbackup.cnpg.io"
 		rules: [{
 			apiGroups: ["postgresql.cnpg.io"]

@@ -229,6 +229,11 @@ import (
 				FROM pg_catalog.pg_stat_archiver
 
 				"""
+			predicate_query: """
+				SELECT NOT pg_catalog.pg_is_in_recovery()
+				  OR pg_catalog.current_setting('archive_mode') = 'always'
+
+				"""
 			metrics: [{
 				archived_count: {
 					usage:       "COUNTER"
@@ -648,6 +653,49 @@ import (
 					description: "Setting value"
 				}
 			}]
+		}
+		pg_extensions: {
+			query: """
+				SELECT
+				 current_database() as datname,
+				 name as extname,
+				 default_version,
+				 installed_version,
+				 CASE
+				   WHEN default_version = installed_version THEN 0
+				   ELSE 1
+				END AS update_available
+				FROM pg_catalog.pg_available_extensions
+				WHERE installed_version IS NOT NULL
+
+				"""
+			metrics: [{
+				datname: {
+					usage:       "LABEL"
+					description: "Name of the database"
+				}
+			}, {
+				extname: {
+					usage:       "LABEL"
+					description: "Extension name"
+				}
+			}, {
+				default_version: {
+					usage:       "LABEL"
+					description: "Default version"
+				}
+			}, {
+				installed_version: {
+					usage:       "LABEL"
+					description: "Installed version"
+				}
+			}, {
+				update_available: {
+					usage:       "GAUGE"
+					description: "An update is available"
+				}
+			}]
+			target_databases: ["*"]
 		}
 	})
 }]

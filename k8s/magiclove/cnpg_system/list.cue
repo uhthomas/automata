@@ -8,7 +8,7 @@ import (
 
 #Name:      "cloudnative-pg"
 #Namespace: "cnpg-system"
-#Version:   "1.25.1"
+#Version:   "1.29.0"
 
 #List: v1.#List & {
 	apiVersion: "v1"
