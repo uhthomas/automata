@@ -44,6 +44,7 @@ require (
 	github.com/go-openapi/swag/stringutils v0.25.5 // indirect
 	github.com/go-openapi/swag/typeutils v0.25.5 // indirect
 	github.com/go-openapi/swag/yamlutils v0.25.5 // indirect
+	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
 	github.com/itchyny/gojq v0.12.18 // indirect
 	github.com/itchyny/timefmt-go v0.1.7 // indirect
 	github.com/oklog/ulid/v2 v2.1.1 // indirect
@@ -302,7 +303,7 @@ replace (
 	k8s.io/kms => k8s.io/kms v0.34.0
 	k8s.io/kube-aggregator => k8s.io/kube-aggregator v0.34.0
 	k8s.io/kube-controller-manager => k8s.io/kube-controller-manager v0.34.0
-	k8s.io/kube-openapi => k8s.io/kube-openapi v0.0.0-20250710124328-f3f2b991d03b
+	k8s.io/kube-openapi => k8s.io/kube-openapi v0.0.0-20260427204847-8949caaa1199
 	k8s.io/kube-proxy => k8s.io/kube-proxy v0.34.0
 	k8s.io/kube-scheduler => k8s.io/kube-scheduler v0.34.0
 	k8s.io/kubectl => k8s.io/kubectl v0.34.0
