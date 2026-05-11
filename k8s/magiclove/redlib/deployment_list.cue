@@ -54,8 +54,8 @@ import (
 						containerPort: 8080
 					}]
 					env: [{
-						name:  "SOCKS_PROXY"
-						value: "127.0.0.1:1080"
+						name:  "ALL_PROXY"
+						value: "socks5://127.0.0.1:1080"
 					}, {
 						name:  "REDLIB_DEFAULT_WIDE"
 						value: "on"

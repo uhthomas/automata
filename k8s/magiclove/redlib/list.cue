@@ -12,12 +12,12 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=github-releases depName=redlib-org/redlib extractVersion=^v(?<version>.*)$
-#Version: "d25a7c1ce52a6b87a2f2bf9e5e8c99d92f3d639d"
+#Version: "721e698415e551495f38f750d03b1b8ef6866668"
 
 _image: tools.#Image & {
 	name:   "ghcr.io/uhthomas/redlib"
-	tag:    "d25a7c1ce52a6b87a2f2bf9e5e8c99d92f3d639d"
-	digest: "sha256:1f60367e1e33b29312cb924554de1e61bd5c3fca9442db03b4f42e8776a52f5b"
+	tag:    "721e698415e551495f38f750d03b1b8ef6866668"
+	digest: "sha256:9fc3bdd4d148b7aa9c53bb18f6651ea6ad25146ca299c1c1f247707389b27f7b"
 }
 
 #List: v1.#List & {
