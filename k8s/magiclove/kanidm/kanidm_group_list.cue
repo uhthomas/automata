@@ -10,6 +10,12 @@ package kanidm
 }
 
 #KanidmGroupList: items: [{
+	metadata: name: "grafana-admins"
+	spec: {
+		kanidmRef: name: #Name
+		members: ["thomas"]
+	}
+}, {
 	metadata: name: "grafana-users"
 	spec: {
 		kanidmRef: name: #Name
