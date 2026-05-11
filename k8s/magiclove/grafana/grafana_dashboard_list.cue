@@ -36,6 +36,9 @@ let dashboards = {
 		// etcd
 		// https://grafana.com/grafana/dashboards/22236-etcd/
 		22236,
+		// Ping Exporter
+		// https://grafana.com/grafana/dashboards/19761-pingexporter/
+		19761,
 	]
 	Ceph: [
 		"https://raw.githubusercontent.com/ceph/ceph/main/monitoring/ceph-mixin/dashboards_out/ceph-application-overview.json",
