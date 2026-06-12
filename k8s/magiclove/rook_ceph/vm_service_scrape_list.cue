@@ -28,13 +28,4 @@ import operatorv1beta1 "github.com/VictoriaMetrics/operator/api/operator/v1beta1
 			rook_cluster: #Namespace
 		}
 	}
-}, {
-	metadata: name: "csi-metrics"
-	spec: {
-		endpoints: [{
-			port:     "csi-http-metrics"
-			interval: "5s"
-		}]
-		selector: matchLabels: app: "csi-metrics"
-	}
 }]

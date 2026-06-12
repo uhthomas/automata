@@ -12,7 +12,15 @@ import "k8s.io/api/core/v1"
 }
 
 #PersistentVolumeClaimList: items: [{
-	metadata: name: "vmsingle-vm"
+	metadata: {
+		name: "vmsingle-vm"
+		labels: {
+			"app.kubernetes.io/component": "monitoring"
+			"app.kubernetes.io/instance":  "vm"
+			"app.kubernetes.io/name":      "vmsingle"
+			"managed-by":                  "vm-operator"
+		}
+	}
 	spec: {
 		accessModes: [v1.#ReadWriteOnce]
 		storageClassName: "rook-ceph-nvme"
@@ -20,7 +28,15 @@ import "k8s.io/api/core/v1"
 		volumeName: "vm-vmsingle-vm"
 	}
 }, {
-	metadata: name: "vmalertmanager-vm-db-vmalertmanager-vm-0"
+	metadata: {
+		name: "vmalertmanager-vm-db-vmalertmanager-vm-0"
+		labels: {
+			"app.kubernetes.io/component": "monitoring"
+			"app.kubernetes.io/instance":  "vm"
+			"app.kubernetes.io/name":      "vmalertmanager"
+			"managed-by":                  "vm-operator"
+		}
+	}
 	spec: {
 		accessModes: [v1.#ReadWriteOnce]
 		storageClassName: "rook-ceph-nvme"

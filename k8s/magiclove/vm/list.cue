@@ -16,7 +16,7 @@ import (
 		metadata: {
 			name:      string | *#Name
 			namespace: #Namespace
-			labels: "app.kubernetes.io/name": #Name
+			labels: "app.kubernetes.io/name": string | *#Name
 		}
 	}]
 }

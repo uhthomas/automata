@@ -1654,7 +1654,7 @@ import operatorv1beta1 "github.com/VictoriaMetrics/operator/api/operator/v1beta1
 				description: "Recording rule \"{{ $labels.recording }}\" from group \"{{ $labels.group }} in file \"{{ $labels.file }}\" produces 0 samples over the last 30min. It might be caused by a misconfiguration or incorrect query expression."
 				summary:     "Recording rule {{ $labels.recording }} ({{ $labels.group }}) produces no data"
 			}
-			expr: "sum(vmalert_recording_rules_last_evaluation_samples) without(id) < 1"
+			expr: "sum(vmalert_recording_rules_last_evaluation_samples{recording!~\"cluster_quantile:scheduler_.+\"}) without(id) < 1"
 			for:  "30m"
 			labels: severity: "info"
 		}, {
