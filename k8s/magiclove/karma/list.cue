@@ -41,6 +41,7 @@ _image: tag: #Version
 
 _items: [
 	// #CiliumNetworkPolicyList.items,
+	#ConfigMapList.items,
 	#DeploymentList.items,
 	#GatewayList.items,
 	#HTTPRouteList.items,

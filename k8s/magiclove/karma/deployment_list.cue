@@ -20,6 +20,10 @@ import (
 		template: {
 			metadata: labels: "app.kubernetes.io/name": #Name
 			spec: {
+				volumes: [{
+					name: "config"
+					configMap: name: #Name
+				}]
 				containers: [{
 					name:  "karma"
 					image: _image.reference
@@ -36,6 +40,14 @@ import (
 					}, {
 						name:  "FILTERS_DEFAULT"
 						value: "@state=active"
+					}, {
+						name:  "CONFIG_FILE"
+						value: "/etc/karma/karma.yaml"
+					}]
+					volumeMounts: [{
+						name:      "config"
+						mountPath: "/etc/karma/karma.yaml"
+						subPath:   "karma.yaml"
 					}]
 					resources: limits: {
 						(v1.#ResourceCPU):    "50m"
