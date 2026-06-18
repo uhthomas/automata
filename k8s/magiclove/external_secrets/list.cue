@@ -9,7 +9,7 @@ import (
 
 #Name:      "external-secrets"
 #Namespace: #Name
-#Version:   "0.20.1"
+#Version:   "2.6.0"
 
 #List: v1.#List & {
 	apiVersion: "v1"

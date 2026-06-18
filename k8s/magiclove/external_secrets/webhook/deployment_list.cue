@@ -26,7 +26,7 @@ import (
 				}]
 				containers: [{
 					name:  "webhook"
-					image: "oci.external-secrets.io/external-secrets/external-secrets:v\(#Version)"
+					image: "ghcr.io/external-secrets/external-secrets:v\(#Version)"
 					args: [
 						"webhook",
 						"--port=10250",

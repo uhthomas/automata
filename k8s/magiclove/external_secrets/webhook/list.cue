@@ -8,7 +8,7 @@ import (
 
 #Name:      "external-secrets-webhook"
 #Namespace: "external-secrets"
-#Version:   "0.20.1"
+#Version:   "2.6.0"
 
 #List: v1.#List & {
 	apiVersion: "v1"

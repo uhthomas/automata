@@ -22,7 +22,7 @@ import (
 			spec: {
 				containers: [{
 					name:  "external-secrets"
-					image: "oci.external-secrets.io/external-secrets/external-secrets:v\(#Version)"
+					image: "ghcr.io/external-secrets/external-secrets:v\(#Version)"
 					args: [
 						"--concurrent=1",
 						"--metrics-addr=:8080",

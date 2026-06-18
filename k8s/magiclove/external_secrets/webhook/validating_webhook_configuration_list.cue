@@ -30,6 +30,7 @@ import (
 			resources: ["secretstores"]
 			scope: admissionregistrationv1.#NamespacedScope
 		}]
+		failurePolicy:  admissionregistrationv1.#Fail
 		sideEffects:    admissionregistrationv1.#SideEffectClassNone
 		timeoutSeconds: 5
 		admissionReviewVersions: ["v1", "v1beta1"]
@@ -47,6 +48,7 @@ import (
 			resources: ["clustersecretstores"]
 			scope: admissionregistrationv1.#ClusterScope
 		}]
+		failurePolicy:  admissionregistrationv1.#Fail
 		sideEffects:    admissionregistrationv1.#SideEffectClassNone
 		timeoutSeconds: 5
 		admissionReviewVersions: ["v1", "v1beta1"]
