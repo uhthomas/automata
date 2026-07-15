@@ -29,6 +29,7 @@ _items: [
 	#HTTPRouteList.items,
 	#KanidmGroupList.items,
 	#KanidmList.items,
+	#KanidmOAuth2ClientList.items,
 	#KanidmPersonAccountList.items,
 	#NamespaceList.items,
 ]

@@ -13,9 +13,9 @@ import rbacv1 "k8s.io/api/rbac/v1"
 
 #ClusterRoleBindingList: items: [{
 	subjects: [{
-		kind:      rbacv1.#ServiceAccountKind
-		name:      #Name
-		namespace: #Namespace
+		kind:     rbacv1.#GroupKind
+		apiGroup: rbacv1.#GroupName
+		name:     "oidc:kubernetes-admins"
 	}]
 	roleRef: {
 		apiGroup: rbacv1.#GroupName

@@ -22,15 +22,21 @@ package kanidm
 		members: ["thomas"]
 	}
 }, {
-	metadata: name: "headlamp-admins"
+	metadata: name: "immich-users"
+	spec: {
+		kanidmRef: name: #Name
+		members: ["thomas", "grace"]
+	}
+}, {
+	metadata: name: "kubernetes-admins"
 	spec: {
 		kanidmRef: name: #Name
 		members: ["thomas"]
 	}
 }, {
-	metadata: name: "immich-users"
+	metadata: name: "kubernetes-users"
 	spec: {
 		kanidmRef: name: #Name
-		members: ["thomas", "grace"]
+		members: ["thomas"]
 	}
 }]

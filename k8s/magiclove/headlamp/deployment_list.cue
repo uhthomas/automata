@@ -30,11 +30,29 @@ import (
 					args: [
 						"-in-cluster",
 						"-in-cluster-context-name=magiclove",
-						"-unsafe-use-service-account-token",
+						"-oidc-client-id=$(OIDC_CLIENT_ID)",
+						"-oidc-client-secret=$(OIDC_CLIENT_SECRET)",
+						"-oidc-idp-issuer-url=https://kanidm-magiclove.hipparcos.net/oauth2/openid/headlamp",
+						"-oidc-scopes=profile,email,groups_name",
+						"-oidc-callback-url=https://headlamp-magiclove.hipparcos.net/oidc-callback",
+						"-oidc-use-pkce",
 					]
 					ports: [{
 						name:          "http"
 						containerPort: 4466
+					}]
+					env: [{name: "HOME", value: "/tmp"}, {
+						name: "OIDC_CLIENT_ID"
+						valueFrom: secretKeyRef: {
+							name: "headlamp-kanidm-oauth2-credentials"
+							key:  "CLIENT_ID"
+						}
+					}, {
+						name: "OIDC_CLIENT_SECRET"
+						valueFrom: secretKeyRef: {
+							name: "headlamp-kanidm-oauth2-credentials"
+							key:  "CLIENT_SECRET"
+						}
 					}]
 					resources: limits: {
 						(v1.#ResourceCPU):    "100m"

@@ -1,0 +1,53 @@
+machine:
+  files:
+    - content: |
+        apiVersion: apiserver.config.k8s.io/v1
+        kind: AuthenticationConfiguration
+        jwt:
+          - issuer:
+              url: https://kanidm-magiclove.hipparcos.net/oauth2/openid/kubernetes
+              audiences:
+                - kubernetes
+            claimMappings:
+              username:
+                claim: preferred_username
+                prefix: "oidc:"
+              groups:
+                claim: groups
+                prefix: "oidc:"
+              uid:
+                claim: sub
+            userValidationRules:
+              - expression: "!user.username.startsWith('system:')"
+                message: username cannot use the reserved system prefix
+              - expression: "user.groups.all(group, !group.startsWith('system:'))"
+                message: groups cannot use the reserved system prefix
+          - issuer:
+              url: https://kanidm-magiclove.hipparcos.net/oauth2/openid/headlamp
+              audiences:
+                - headlamp
+            claimMappings:
+              username:
+                claim: preferred_username
+                prefix: "oidc:"
+              groups:
+                claim: groups
+                prefix: "oidc:"
+              uid:
+                claim: sub
+            userValidationRules:
+              - expression: "!user.username.startsWith('system:')"
+                message: username cannot use the reserved system prefix
+              - expression: "user.groups.all(group, !group.startsWith('system:'))"
+                message: groups cannot use the reserved system prefix
+      permissions: 0o644
+      path: /var/etc/kubernetes/authentication-config.yaml
+      op: create
+cluster:
+  apiServer:
+    extraArgs:
+      authentication-config: /etc/kubernetes/authentication/authentication-config.yaml
+    extraVolumes:
+      - hostPath: /var/etc/kubernetes
+        mountPath: /etc/kubernetes/authentication
+        readonly: true

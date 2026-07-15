@@ -11,6 +11,4 @@ import "k8s.io/api/core/v1"
 	}]
 }
 
-#ServiceAccountList: items: [{}, {
-	metadata: name: #OIDCSecretServiceAccountName
-}]
+#ServiceAccountList: items: [{}]

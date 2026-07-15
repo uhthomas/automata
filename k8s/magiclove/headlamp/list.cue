@@ -11,9 +11,6 @@ import (
 #Name:      "headlamp"
 #Namespace: #Name
 
-#OIDCSecretName:               "\(#Name)-oidc"
-#OIDCSecretServiceAccountName: "\(#OIDCSecretName)-secret"
-
 // renovate: datasource=github-releases depName=kubernetes-sigs/headlamp extractVersion=^v(?<version>.*)$
 #Version: "0.43.0"
 
@@ -46,15 +43,10 @@ _items: [
 	#CiliumNetworkPolicyList.items,
 	#ClusterRoleBindingList.items,
 	#DeploymentList.items,
-	#ExternalSecretList.items,
 	#GatewayList.items,
 	#HTTPRouteList.items,
 	#KanidmOAuth2ClientList.items,
 	#NamespaceList.items,
-	#RoleBindingList.items,
-	#RoleList.items,
-	#SecretStoreList.items,
-	#SecurityPolicyList.items,
 	#ServiceAccountList.items,
 	#ServiceList.items,
 ]

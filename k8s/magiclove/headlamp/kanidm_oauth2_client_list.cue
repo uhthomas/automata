@@ -17,11 +17,11 @@ package headlamp
 		}
 		displayname: "Headlamp"
 		origin:      "https://headlamp-magiclove.hipparcos.net"
-		redirectUrl: ["https://headlamp-magiclove.hipparcos.net/oauth2/callback"]
-		preferShortUsername: true
+		redirectUrl: ["https://headlamp-magiclove.hipparcos.net/oidc-callback"]
 		scopeMap: [{
-			group: "headlamp-admins"
-			scopes: ["openid", "profile", "email"]
+			group: "kubernetes-users"
+			scopes: ["openid", "profile", "email", "groups_name"]
 		}]
+		preferShortUsername: true
 	}
 }]
