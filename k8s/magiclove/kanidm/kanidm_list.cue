@@ -15,7 +15,7 @@ package kanidm
 		oauth2ClientNamespaceSelector: matchExpressions: [{
 			key:      "kubernetes.io/metadata.name"
 			operator: "In"
-			values: ["grafana", "immich"]
+			values: ["grafana", "headlamp", "immich"]
 		}]
 		replicaGroups: [{
 			name:     "default"

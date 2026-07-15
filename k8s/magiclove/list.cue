@@ -21,6 +21,7 @@ import (
 	"github.com/uhthomas/automata/k8s/magiclove/gateway_api"
 	"github.com/uhthomas/automata/k8s/magiclove/grafana"
 	"github.com/uhthomas/automata/k8s/magiclove/grafana_operator"
+	"github.com/uhthomas/automata/k8s/magiclove/headlamp"
 	"github.com/uhthomas/automata/k8s/magiclove/home_assistant"
 	"github.com/uhthomas/automata/k8s/magiclove/immich"
 	"github.com/uhthomas/automata/k8s/magiclove/kanidm"
@@ -101,6 +102,7 @@ _items: [
 	gateway_api.#List.items,
 	grafana.#List.items,
 	grafana_operator.#List.items,
+	headlamp.#List.items,
 	home_assistant.#List.items,
 	immich.#List.items,
 	kanidm.#List.items,

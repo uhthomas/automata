@@ -22,6 +22,12 @@ package kanidm
 		members: ["thomas"]
 	}
 }, {
+	metadata: name: "headlamp-admins"
+	spec: {
+		kanidmRef: name: #Name
+		members: ["thomas"]
+	}
+}, {
 	metadata: name: "immich-users"
 	spec: {
 		kanidmRef: name: #Name
