@@ -44,6 +44,7 @@ require (
 	github.com/go-openapi/swag/stringutils v0.25.5 // indirect
 	github.com/go-openapi/swag/typeutils v0.25.5 // indirect
 	github.com/go-openapi/swag/yamlutils v0.25.5 // indirect
+	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
 	github.com/itchyny/gojq v0.12.18 // indirect
 	github.com/itchyny/timefmt-go v0.1.7 // indirect
 	github.com/oklog/ulid/v2 v2.1.1 // indirect
@@ -289,7 +290,7 @@ replace (
 	k8s.io/apimachinery => k8s.io/apimachinery v0.34.0
 	k8s.io/apiserver => k8s.io/apiserver v0.34.0
 	k8s.io/cli-runtime => k8s.io/cli-runtime v0.34.0
-	k8s.io/client-go => k8s.io/client-go v0.34.0
+	k8s.io/client-go => k8s.io/client-go v1.5.2
 	k8s.io/cloud-provider => k8s.io/cloud-provider v0.34.0
 	k8s.io/cluster-bootstrap => k8s.io/cluster-bootstrap v0.34.0
 	k8s.io/code-generator => k8s.io/code-generator v0.34.0
