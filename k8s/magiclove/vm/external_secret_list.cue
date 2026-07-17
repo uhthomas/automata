@@ -29,4 +29,29 @@ import externalsecretsv1beta1 "github.com/external-secrets/external-secrets/apis
 			}
 		}]
 	}
+}, {
+	metadata: name: "\(#Name)-pushover"
+	spec: {
+		secretStoreRef: {
+			name: "onepassword"
+			kind: "ClusterSecretStore"
+		}
+		target: template: metadata: {
+			annotations: {}
+			labels: {}
+		}
+		data: [{
+			secretKey: "user-key"
+			remoteRef: {
+				key:      "vm-pushover"
+				property: "user-key"
+			}
+		}, {
+			secretKey: "token"
+			remoteRef: {
+				key:      "vm-pushover"
+				property: "token"
+			}
+		}]
+	}
 }]

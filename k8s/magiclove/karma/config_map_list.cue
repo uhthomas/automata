@@ -17,6 +17,10 @@ import (
 
 #ConfigMapList: items: [{
 	data: "karma.yaml": yaml.Marshal({
+		filters: default: [
+			"@state=active",
+			"alertname!~^(InfoInhibitor|Watchdog)$",
+		]
 		history: rewrite: [{
 			source: "(.*)"
 			uri:    "http://vmsingle-vm.vm:8429"

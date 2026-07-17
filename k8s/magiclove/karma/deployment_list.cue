@@ -38,9 +38,6 @@ import (
 						name:  "ALERTMANAGER_URI"
 						value: "http://vmalertmanager-vm-additional-service.vm"
 					}, {
-						name:  "FILTERS_DEFAULT"
-						value: "@state=active"
-					}, {
 						name:  "CONFIG_FILE"
 						value: "/etc/karma/karma.yaml"
 					}]

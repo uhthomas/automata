@@ -5,6 +5,9 @@ import (
 	"k8s.io/api/core/v1"
 )
 
+// renovate: datasource=github-releases depName=prometheus/alertmanager extractVersion=^v(?<version>.*)$
+#AlertmanagerVersion: "0.33.1"
+
 #VMAlertmanagerList: operatorv1beta1.#VMAlertmanagerList & {
 	apiVersion: "operator.victoriametrics.com/v1beta1"
 	kind:       "VMAlertmanagerList"
@@ -16,7 +19,8 @@ import (
 
 #VMAlertmanagerList: items: [{
 	spec: {
-		image: tag: "v0.27.0"
+		externalURL: "https://vmalertmanager-magiclove.hipparcos.net"
+		image: tag: "v\(#AlertmanagerVersion)"
 		storage: volumeClaimTemplate: spec: {
 			storageClassName: "rook-ceph-nvme"
 			resources: requests: (v1.#ResourceStorage): "512Mi"
