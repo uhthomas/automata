@@ -694,7 +694,7 @@ import operatorv1beta1 "github.com/VictoriaMetrics/operator/api/operator/v1beta1
 				description: "Mountpoint {{ $labels.mountpoint }} on {{ $labels.nodename }} will be full in less than 5 days based on the 48 hour trailing fill rate."
 				summary:     "Host filesystem free space is getting low"
 			}
-			expr: "predict_linear(node_filesystem_free_bytes{device=~\"/.*\"}[2d], 3600 * 24 * 5) *on(instance) group_left(nodename) node_uname_info < 0"
+			expr: "predict_linear((max without(pod) (node_filesystem_free_bytes{device=~\"/.*\"}))[2d:1m], 3600 * 24 * 5) *on(instance) group_left(nodename) node_uname_info < 0"
 			labels: {
 				oid:      "1.3.6.1.4.1.50495.1.2.1.8.4"
 				severity: "warning"
