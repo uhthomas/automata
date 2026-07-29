@@ -30,7 +30,7 @@ import (
 				}]
 				containers: [{
 					name:  "machine-learning"
-					image: "ghcr.io/immich-app/immich-machine-learning:v1.131.3"
+					image: "ghcr.io/immich-app/immich-machine-learning:v3.1.0"
 					ports: [{
 						name:          "http"
 						containerPort: 3003
