@@ -47,10 +47,13 @@ import (
 
 	// FailOpen is a switch used to control the behavior when a fatal error occurs
 	// during the initialization or the execution of the Wasm extension.
+	//
 	// If FailOpen is set to true, the system bypasses the Wasm extension and
-	// allows the traffic to pass through. Otherwise, if it is set to false or
+	// allows the traffic to pass through. If it is set to false or
 	// not set (defaulting to false), the system blocks the traffic and returns
 	// an HTTP 5xx error.
+	//
+	// If set to true, the Wasm extension will also be bypassed if the configuration is invalid.
 	//
 	// +optional
 	// +kubebuilder:default=false
@@ -127,7 +130,6 @@ import (
 
 	// TLS configuration when connecting to the Wasm code source.
 	// +optional
-	// +notImplementedHide
 	tls?: null | #WasmCodeSourceTLSConfig @go(TLS,*WasmCodeSourceTLSConfig)
 }
 
@@ -147,14 +149,12 @@ import (
 	sha256?: null | string @go(SHA256,*string)
 
 	// PullSecretRef is a reference to the secret containing the credentials to pull the image.
-	// Only support Kubernetes Secret resource from the same namespace.
 	// +kubebuilder:validation:XValidation:message="only support Secret kind.",rule="self.kind == 'Secret'"
 	// +optional
 	pullSecretRef?: null | gwapiv1.#SecretObjectReference @go(PullSecretRef,*gwapiv1.SecretObjectReference)
 
 	// TLS configuration when connecting to the Wasm code source.
 	// +optional
-	// +notImplementedHide
 	tls?: null | #WasmCodeSourceTLSConfig @go(TLS,*WasmCodeSourceTLSConfig)
 }
 
@@ -175,12 +175,11 @@ import (
 
 // WasmCodeSourceTLSConfig defines the TLS configuration when connecting to the Wasm code source.
 #WasmCodeSourceTLSConfig: {
-	// CACertificateRef contains a references to
+	// CACertificateRef contains a reference to
 	// Kubernetes objects that contain TLS certificates of
 	// the Certificate Authorities that can be used
 	// as a trust anchor to validate the certificates presented by the Wasm code source.
 	//
-	// Kubernetes ConfigMap and Kubernetes Secret are supported.
-	// Note: The ConfigMap or Secret must be in the same namespace as the EnvoyExtensionPolicy.
+	// Kubernetes ConfigMap, Kubernetes Secret, and Kubernetes ClusterTrustBundle are supported.
 	caCertificateRef: gwapiv1.#SecretObjectReference @go(CACertificateRef)
 }

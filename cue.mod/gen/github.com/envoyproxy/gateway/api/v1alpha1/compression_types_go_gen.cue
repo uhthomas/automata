@@ -4,17 +4,21 @@
 
 package v1alpha1
 
+import "k8s.io/apimachinery/pkg/api/resource"
+
 // CompressorType defines the types of compressor library supported by Envoy Gateway.
 //
-// +kubebuilder:validation:Enum=Gzip;Brotli
+// +kubebuilder:validation:Enum=Gzip;Brotli;Zstd
 #CompressorType: string // #enumCompressorType
 
 #enumCompressorType:
 	#GzipCompressorType |
-	#BrotliCompressorType
+	#BrotliCompressorType |
+	#ZstdCompressorType
 
 #GzipCompressorType:   #CompressorType & "Gzip"
 #BrotliCompressorType: #CompressorType & "Brotli"
+#ZstdCompressorType:   #CompressorType & "Zstd"
 
 // GzipCompressor defines the config for the Gzip compressor.
 // The default values can be found here:
@@ -25,6 +29,11 @@ package v1alpha1
 // The default values can be found here:
 // https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/compression/brotli/compressor/v3/brotli.proto#extension-envoy-compression-brotli-compressor
 #BrotliCompressor: {}
+
+// ZstdCompressor defines the config for the Zstd compressor.
+// The default values can be found here:
+// https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/compression/zstd/compressor/v3/zstd.proto#extension-envoy-compression-zstd-compressor
+#ZstdCompressor: {}
 
 // Compression defines the config of enabling compression.
 // This can help reduce the bandwidth at the expense of higher CPU.
@@ -43,4 +52,20 @@ package v1alpha1
 	//
 	// +optional
 	gzip?: null | #GzipCompressor @go(Gzip,*GzipCompressor)
+
+	// The configuration for Zstd compressor.
+	//
+	// +optional
+	zstd?: null | #ZstdCompressor @go(Zstd,*ZstdCompressor)
+
+	// MinContentLength defines the minimum response size in bytes to apply compression.
+	// Responses smaller than this threshold will not be compressed.
+	// Must be at least 30 bytes as enforced by Envoy Proxy.
+	// Note that when the suffix is not provided, the value is interpreted as bytes.
+	// Default: 30 bytes
+	//
+	// +optional
+	// +kubebuilder:validation:XIntOrString
+	// +kubebuilder:validation:Pattern="^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
+	minContentLength?: null | resource.#Quantity @go(MinContentLength,*resource.Quantity)
 }

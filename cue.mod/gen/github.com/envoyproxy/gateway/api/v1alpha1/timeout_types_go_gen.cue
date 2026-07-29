@@ -44,6 +44,20 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	//
 	// +optional
 	requestTimeout?: null | gwapiv1.#Duration @go(RequestTimeout,*gwapiv1.Duration)
+
+	// MaxStreamDuration is the maximum duration for a stream to complete. This timeout measures the time
+	// from when the request is sent until the response stream is fully consumed and does not apply to
+	// non-streaming requests.
+	// When set to "0s", no max duration is applied and streams can run indefinitely.
+	//
+	// +optional
+	maxStreamDuration?: null | gwapiv1.#Duration @go(MaxStreamDuration,*gwapiv1.Duration)
+
+	//  The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+	//  If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+	//
+	// +optional
+	streamIdleTimeout?: null | gwapiv1.#Duration @go(StreamIdleTimeout,*gwapiv1.Duration)
 }
 
 #ClientTimeout: {
@@ -80,4 +94,10 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	//
 	// +optional
 	idleTimeout?: null | gwapiv1.#Duration @go(IdleTimeout,*gwapiv1.Duration)
+
+	//  The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+	//  Default: 5 minutes.
+	//
+	// +optional
+	streamIdleTimeout?: null | gwapiv1.#Duration @go(StreamIdleTimeout,*gwapiv1.Duration)
 }

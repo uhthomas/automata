@@ -6,6 +6,8 @@ package v1alpha1
 
 import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 
+#TLSOCSPKey: "tls.ocsp-staple"
+
 #ClientTLSSettings: {
 	// ClientValidation specifies the configuration to validate the client
 	// initiating the TLS connection to the Gateway listener.
@@ -36,6 +38,39 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 
 	// Ciphers specifies the set of cipher suites supported when
 	// negotiating TLS 1.0 - 1.2. This setting has no effect for TLS 1.3.
+	// For Envoy TLS cipher suite configuration semantics and default cipher
+	// lists, see the Envoy documentation:
+	// https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/transport_sockets/tls/v3/common.proto#extensions-transport-sockets-tls-v3-tlsparameters
+	// Supported cipher suite names:
+	// - ECDHE-ECDSA-AES128-GCM-SHA256
+	// - ECDHE-RSA-AES128-GCM-SHA256
+	// - ECDHE-ECDSA-AES256-GCM-SHA384
+	// - ECDHE-RSA-AES256-GCM-SHA384
+	// - ECDHE-ECDSA-CHACHA20-POLY1305
+	// - ECDHE-RSA-CHACHA20-POLY1305
+	// - ECDHE-ECDSA-AES128-SHA
+	// - ECDHE-RSA-AES128-SHA
+	// - AES128-GCM-SHA256
+	// - AES128-SHA
+	// - ECDHE-ECDSA-AES256-SHA
+	// - ECDHE-RSA-AES256-SHA
+	// - AES256-GCM-SHA384
+	// - AES256-SHA
+	// Supported IANA/RFC aliases:
+	// - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+	// - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	// - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+	// - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	// - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
+	// - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+	// - TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
+	// - TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+	// - TLS_RSA_WITH_AES_128_GCM_SHA256
+	// - TLS_RSA_WITH_AES_128_CBC_SHA
+	// - TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA
+	// - TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+	// - TLS_RSA_WITH_AES_256_GCM_SHA384
+	// - TLS_RSA_WITH_AES_256_CBC_SHA
 	// In non-FIPS Envoy Proxy builds the default cipher list is:
 	// - [ECDHE-ECDSA-AES128-GCM-SHA256|ECDHE-ECDSA-CHACHA20-POLY1305]
 	// - [ECDHE-RSA-AES128-GCM-SHA256|ECDHE-RSA-CHACHA20-POLY1305]
@@ -73,17 +108,33 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	// 2. Other Routes: ALPN is disabled.
 	// 3. Backends: proxy uses the appropriate ALPN options for the backend protocol.
 	// When an empty list is provided, the ALPN TLS extension is disabled.
-	// Supported values are:
+	//
+	// Defaults to [h2, http/1.1] if not specified.
+	//
+	// Typical Supported values are:
 	// - http/1.0
 	// - http/1.1
 	// - h2
 	//
 	// +optional
 	alpnProtocols?: [...#ALPNProtocol] @go(ALPNProtocols,[]ALPNProtocol)
+
+	// Fingerprints specifies TLS client fingerprinting.
+	// When specified, a JAX fingerprint derived from the client’s TLS handshake
+	// is generated. The fingerprint can be logged in access logs or
+	// forwarded to upstream services using request headers.
+	//
+	// Fingerprinting is disabled if not specified.
+	//
+	// Supported values are:
+	// - JA3
+	// - JA4
+	//
+	// +optional
+	fingerprints?: [...#TLSFingerprintType] @go(Fingerprints,[]TLSFingerprintType)
 }
 
 // ALPNProtocol specifies the protocol to be negotiated using ALPN
-// +kubebuilder:validation:Enum=http/1.0;http/1.1;h2
 #ALPNProtocol: string // #enumALPNProtocol
 
 #enumALPNProtocol:
@@ -126,14 +177,38 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 // TLSv1.3 specifies TLS version 1.3
 #TLSv13: #TLSVersion & "1.3"
 
+// TLSFingerprintType specifies the TLS client fingerprinting mode.
+// +kubebuilder:validation:Enum=JA3;JA4
+#TLSFingerprintType: string // #enumTLSFingerprintType
+
+#enumTLSFingerprintType:
+	#TLSFingerprintTypeJA3 |
+	#TLSFingerprintTypeJA4
+
+// Enable JA3 TLS fingerprinting only.
+// The fingerprint will be available as %TLS_JA3_FINGERPRINT%.
+#TLSFingerprintTypeJA3: #TLSFingerprintType & "JA3"
+
+// Enable JA4 TLS fingerprinting only.
+// The fingerprint will be available as %TLS_JA4_FINGERPRINT%.
+#TLSFingerprintTypeJA4: #TLSFingerprintType & "JA4"
+
 // ClientValidationContext holds configuration that can be used to validate the client initiating the TLS connection
 // to the Gateway.
 // By default, no client specific configuration is validated.
 #ClientValidationContext: {
 	// Optional set to true accepts connections even when a client doesn't present a certificate.
 	// Defaults to false, which rejects connections without a valid client certificate.
+	//
+	// Deprecated: Use Mode instead.
 	// +optional
 	optional?: bool @go(Optional)
+
+	// Mode defines how the Gateway or Listener validates client certificates.
+	// If not specified, defaults to RequireAndVerify.
+	//
+	// +optional
+	mode?: null | #ClientValidationModeType @go(Mode,*ClientValidationModeType)
 
 	// CACertificateRefs contains one or more references to
 	// Kubernetes objects that contain TLS certificates of
@@ -150,6 +225,107 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	// +kubebuilder:validation:MaxItems=8
 	// +optional
 	caCertificateRefs?: [...gwapiv1.#SecretObjectReference] @go(CACertificateRefs,[]gwapiv1.SecretObjectReference)
+
+	// An optional list of base64-encoded SHA-256 hashes. If specified, Envoy will
+	// verify that the SHA-256 of the DER-encoded Subject Public Key Information
+	// (SPKI) of the presented certificate matches one of the specified values.
+	// +optional
+	spkiHashes?: [...string] @go(SPKIHashes,[]string)
+
+	// An optional list of hex-encoded SHA-256 hashes. If specified, Envoy will
+	// verify that the SHA-256 of the DER-encoded presented certificate matches
+	// one of the specified values.
+	// +optional
+	certificateHashes?: [...string] @go(CertificateHashes,[]string)
+
+	// An optional list of Subject Alternative name matchers. If specified, Envoy
+	// will verify that the Subject Alternative Name of the presented certificate
+	// matches one of the specified matchers
+	// +optional
+	subjectAltNames?: null | #SubjectAltNames @go(SubjectAltNames,*SubjectAltNames)
+
+	// Crl specifies the crl configuration that can be used to validate the client initiating the TLS connection
+	// +optional
+	crl?: null | #CrlContext @go(Crl,*CrlContext)
+}
+
+// ClientValidationModeType defines how a Gateway or Listener validates client certificates.
+//
+// +kubebuilder:validation:Enum=Request;RequireAny;VerifyIfGiven;RequireAndVerify
+#ClientValidationModeType: string // #enumClientValidationModeType
+
+#enumClientValidationModeType:
+	#ClientValidationRequest |
+	#ClientValidationRequireAny |
+	#ClientValidationVerifyIfGiven |
+	#ClientValidationRequireAndVerify
+
+// Request indicates that a client certificate is requested
+// during the TLS handshake but does not require one.
+#ClientValidationRequest: #ClientValidationModeType & "Request"
+
+// RequireAny indicates that a client certificate is required during
+// the handshake, but the connection is permitted even when the
+// client certificate verification fails.
+#ClientValidationRequireAny: #ClientValidationModeType & "RequireAny"
+
+// VerifyIfGiven indicates that a client certificate is requested
+// but not required. If presented, the certificate must be valid.
+#ClientValidationVerifyIfGiven: #ClientValidationModeType & "VerifyIfGiven"
+
+// RequireAndVerify indicates that a valid client certificate must be
+// presented during the handshake and validated
+// using CA certificates defined in CACertificateRefs.
+#ClientValidationRequireAndVerify: #ClientValidationModeType & "RequireAndVerify"
+
+// CrlContext holds certificate revocation list configuration that can be used to validate the client initiating the TLS connection
+#CrlContext: {
+	// Refs contains one or more references to a Kubernetes ConfigMap or a Kubernetes Secret,
+	// containing the certificate revocation list in PEM format
+	// Expects the content in a key named `ca.crl`.
+	//
+	// References to a resource in different namespace are invalid UNLESS there
+	// is a ReferenceGrant in the target namespace that allows the crl
+	// to be attached.
+	//
+	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:MinItems=1
+	// +kubebuilder:validation:MaxItems=8
+	refs: [...gwapiv1.#SecretObjectReference] @go(Refs,[]gwapiv1.SecretObjectReference)
+
+	// If this option is set to true,  Envoy will only verify the certificate at the end of the certificate chain against the CRL.
+	// Defaults to false, which will verify the entire certificate chain against the CRL.
+	// +optional
+	onlyVerifyLeafCertificate?: null | bool @go(OnlyVerifyLeafCertificate,*bool)
+}
+
+#SubjectAltNames: {
+	// DNS names matchers
+	// +optional
+	dnsNames?: [...#StringMatch] @go(DNSNames,[]StringMatch)
+
+	// Email addresses matchers
+	// +optional
+	emailAddresses?: [...#StringMatch] @go(EmailAddresses,[]StringMatch)
+
+	// IP addresses matchers
+	// +optional
+	ipAddresses?: [...#StringMatch] @go(IPAddresses,[]StringMatch)
+
+	// URIs matchers
+	// +optional
+	uris?: [...#StringMatch] @go(URIs,[]StringMatch)
+
+	// Other names matchers
+	// +optional
+	otherNames?: [...#OtherSANMatch] @go(OtherNames,[]OtherSANMatch)
+}
+
+#OtherSANMatch: {
+	// OID Value
+	oid: string @go(Oid)
+
+	#StringMatch
 }
 
 // Session defines settings related to TLS session management.

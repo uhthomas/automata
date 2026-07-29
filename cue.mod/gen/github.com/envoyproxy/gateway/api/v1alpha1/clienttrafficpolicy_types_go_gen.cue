@@ -6,7 +6,6 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	gwapiv1a2 "sigs.k8s.io/gateway-api/apis/v1alpha2"
 	gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
@@ -15,6 +14,8 @@ import (
 
 // ClientTrafficPolicy allows the user to configure the behavior of the connection
 // between the downstream client and Envoy Proxy listener.
+// +genclient
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 #ClientTrafficPolicy: {
 	metav1.#TypeMeta
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta)
@@ -23,17 +24,16 @@ import (
 	spec: #ClientTrafficPolicySpec @go(Spec)
 
 	// Status defines the current status of ClientTrafficPolicy.
-	status?: gwapiv1a2.#PolicyStatus @go(Status)
+	status?: gwapiv1.#PolicyStatus @go(Status)
 }
 
-// +kubebuilder:validation:XValidation:rule="(has(self.targetRef) && !has(self.targetRefs)) || (!has(self.targetRef) && has(self.targetRefs)) || (has(self.targetSelectors) && self.targetSelectors.size() > 0) ", message="either targetRef or targetRefs must be used"
+// ClientTrafficPolicySpec defines the desired state of ClientTrafficPolicy.
 //
+// +kubebuilder:validation:XValidation:rule="(has(self.targetRef) && !has(self.targetRefs)) || (!has(self.targetRef) && has(self.targetRefs)) || (has(self.targetSelectors) && self.targetSelectors.size() > 0) ", message="either targetRef or targetRefs must be used"
 // +kubebuilder:validation:XValidation:rule="has(self.targetRef) ? self.targetRef.group == 'gateway.networking.k8s.io' : true", message="this policy can only have a targetRef.group of gateway.networking.k8s.io"
 // +kubebuilder:validation:XValidation:rule="has(self.targetRef) ? self.targetRef.kind == 'Gateway' : true", message="this policy can only have a targetRef.kind of Gateway"
 // +kubebuilder:validation:XValidation:rule="has(self.targetRefs) ? self.targetRefs.all(ref, ref.group == 'gateway.networking.k8s.io') : true", message="this policy can only have a targetRefs[*].group of gateway.networking.k8s.io"
 // +kubebuilder:validation:XValidation:rule="has(self.targetRefs) ? self.targetRefs.all(ref, ref.kind == 'Gateway') : true", message="this policy can only have a targetRefs[*].kind of Gateway"
-//
-// ClientTrafficPolicySpec defines the desired state of ClientTrafficPolicy.
 #ClientTrafficPolicySpec: {
 	#PolicyTargetReferences
 
@@ -49,8 +49,18 @@ import (
 	// Note Proxy Protocol must be present when this field is set, else the connection
 	// is closed.
 	//
+	// Deprecated: Use ProxyProtocol instead.
+	//
 	// +optional
 	enableProxyProtocol?: null | bool @go(EnableProxyProtocol,*bool)
+
+	// ProxyProtocol configures the Proxy Protocol settings. When configured,
+	// the Proxy Protocol header will be interpreted and the Client Address
+	// will be added into the X-Forwarded-For header.
+	// If both EnableProxyProtocol and ProxyProtocol are set, ProxyProtocol takes precedence.
+	//
+	// +optional
+	proxyProtocol?: null | #ProxyProtocolSettings @go(ProxyProtocol,*ProxyProtocolSettings)
 
 	// ClientIPDetectionSettings provides configuration for determining the original client IP address for requests.
 	//
@@ -97,10 +107,28 @@ import (
 	// +optional
 	http3?: null | #HTTP3Settings @go(HTTP3,*HTTP3Settings)
 
+	// GRPC provides gRPC configuration on the listener.
+	//
+	// +optional
+	grpc?: null | #GRPCSettings @go(GRPC,*GRPCSettings)
+
 	// HealthCheck provides configuration for determining whether the HTTP/HTTPS listener is healthy.
 	//
 	// +optional
 	healthCheck?: null | #HealthCheckSettings @go(HealthCheck,*HealthCheckSettings)
+
+	// Scheme configures how the :scheme pseudo-header is set for requests forwarded to backends.
+	//
+	// - Preserve (default): Preserves the :scheme from the original client request.
+	//   Use this when backends need to know the original client scheme for URL generation or redirects.
+	//
+	// - MatchBackend: Sets the :scheme to match the backend transport protocol.
+	//   If the backend uses TLS, the scheme is "https", otherwise "http".
+	//   Use this when backends require the scheme to match the actual transport protocol,
+	//   such as strictly HTTPS services that validate the :scheme header.
+	//
+	// +optional
+	scheme?: null | #SchemeHeaderTransform @go(Scheme,*SchemeHeaderTransform)
 }
 
 // HeaderSettings provides configuration options for headers on the listener.
@@ -137,13 +165,15 @@ import (
 	// PreserveXRequestID configures Envoy to keep the X-Request-ID header if passed for a request that is edge
 	// (Edge request is the request from external clients to front Envoy) and not reset it, which is the current Envoy behaviour.
 	// Defaults to false and cannot be combined with RequestID.
-	// Deprecated: use RequestID=Preserve instead
+	//
+	// Deprecated: use RequestID=PreserveOrGenerate instead
 	//
 	// +optional
 	preserveXRequestID?: null | bool @go(PreserveXRequestID,*bool)
 
 	// RequestID configures Envoy's behavior for handling the `X-Request-ID` header.
-	// Defaults to `Generate` and builds the `X-Request-ID` for every request and ignores pre-existing values from the edge.
+	// When omitted default behavior is `Generate` which builds the `X-Request-ID` for every request
+	//  and ignores pre-existing values from the edge.
 	// (An "edge request" refers to a request from an external client to the Envoy entrypoint.)
 	//
 	// +optional
@@ -153,7 +183,12 @@ import (
 	// routing, tracing and built-in header manipulation.
 	//
 	// +optional
-	earlyRequestHeaders?: null | gwapiv1.#HTTPHeaderFilter @go(EarlyRequestHeaders,*gwapiv1.HTTPHeaderFilter)
+	earlyRequestHeaders?: null | #HTTPHeaderFilter @go(EarlyRequestHeaders,*HTTPHeaderFilter)
+
+	// LateResponseHeaders defines settings for global response header modification.
+	//
+	// +optional
+	lateResponseHeaders?: null | #HTTPHeaderFilter @go(LateResponseHeaders,*HTTPHeaderFilter)
 }
 
 // WithUnderscoresAction configures the action to take when an HTTP header with underscores
@@ -178,7 +213,8 @@ import (
 // dropped headers.
 #WithUnderscoresActionDropHeader: #WithUnderscoresAction & "DropHeader"
 
-// RequestIDAction configures Envoy's behavior for handling the `X-Request-ID` header.
+// RequestIDAction configures Envoy's behavior for handling the `X-Request-ID` header at the edge.
+// An "edge request" refers to a request from an external client to the Envoy entrypoint.
 //
 // +kubebuilder:validation:Enum=PreserveOrGenerate;Preserve;Generate;Disable
 #RequestIDAction: string // #enumRequestIDAction
@@ -298,10 +334,18 @@ import (
 // for more details.
 // +kubebuilder:validation:XValidation:rule="(has(self.numTrustedHops) && !has(self.trustedCIDRs)) || (!has(self.numTrustedHops) && has(self.trustedCIDRs))", message="only one of numTrustedHops or trustedCIDRs must be set"
 #XForwardedForSettings: {
-	// NumTrustedHops controls the number of additional ingress proxy hops from the right side of XFF HTTP
-	// headers to trust when determining the origin client's IP address.
-	// Only one of NumTrustedHops and TrustedCIDRs must be set.
+	// NumTrustedHops specifies how many trusted hops to count from the rightmost side of
+	// the X-Forwarded-For (XFF) header when determining the original client’s IP address.
 	//
+	// If NumTrustedHops is set to N, the client IP is taken from the Nth address from the
+	// right end of the XFF header.
+	//
+	// Example:
+	//   XFF = "203.0.113.128, 203.0.113.10, 203.0.113.1"
+	//   NumTrustedHops = 2
+	//   → Trusted client address = 203.0.113.10
+	//
+	// Only one of NumTrustedHops or TrustedCIDRs should be configured.
 	// +optional
 	numTrustedHops?: null | uint32 @go(NumTrustedHops,*uint32)
 
@@ -356,15 +400,44 @@ import (
 	// HTTP10 turns on support for HTTP/1.0 and HTTP/0.9 requests.
 	// +optional
 	http10?: null | #HTTP10Settings @go(HTTP10,*HTTP10Settings)
+
+	// DisableSafeMaxConnectionDuration controls the close behavior for HTTP/1 connections.
+	// By default, connection closure is delayed until the next request arrives after maxConnectionDuration is exceeded.
+	// It then adds a Connection: close header and gracefully closes the connection after the response completes.
+	// When set to true (disabled), Envoy uses its default drain behavior, closing the connection shortly after maxConnectionDuration elapses.
+	// Has no effect unless maxConnectionDuration is set.
+	//
+	// +optional
+	disableSafeMaxConnectionDuration?: null | bool @go(DisableSafeMaxConnectionDuration,*bool)
+
+	// IgnoredUpgradeTypes specifies a list of upgrade types for which
+	// HTTP/1.1 Upgrade requests should be ignored by Envoy instead of being
+	// rejected with a 403 response. When a client sends an HTTP/1.1 request
+	// with Connection: Upgrade and an Upgrade header matching one of these
+	// matchers, Envoy will strip the upgrade headers and process the request
+	// as a normal HTTP/1.1 request.
+	//
+	// Example: To ignore TLS upgrade requests (RFC 2817), use a Prefix match with value "TLS/".
+	//
+	// +optional
+	ignoredUpgradeTypes?: [...#StringMatch] @go(IgnoredUpgradeTypes,[]StringMatch)
 }
 
 // HTTP10Settings provides HTTP/1.0 configuration on the listener.
 #HTTP10Settings: {
-	// UseDefaultHost defines if the HTTP/1.0 request is missing the Host header,
-	// then the hostname associated with the listener should be injected into the
-	// request.
-	// If this is not set and an HTTP/1.0 request arrives without a host, then
-	// it will be rejected.
+	// UseDefaultHost specifies whether a default Host header should be injected
+	// into HTTP/1.0 requests that do not include one.
+	//
+	// When set to true, Envoy Gateway injects the hostname associated with the
+	// listener or route into the request, in the following order:
+	//
+	//   1. If the targeted listener has a non-wildcard hostname, use that hostname.
+	//   2. If there is exactly one HTTPRoute with a non-wildcard hostname under
+	//      the targeted listener, use that hostname.
+	//
+	//  Note: Setting this field to true without a non-wildcard hostname makes the
+	// ClientTrafficPolicy invalid.
+	//
 	// +optional
 	useDefaultHost?: null | bool @go(UseDefaultHost,*bool)
 }
@@ -377,9 +450,46 @@ import (
 	path: string @go(Path)
 }
 
+// ProxyProtocolSettings configures the Proxy Protocol settings. When configured,
+// the Proxy Protocol header will be interpreted and the Client Address
+// will be added into the X-Forwarded-For header.
+// If both EnableProxyProtocol and ProxyProtocol are set, ProxyProtocol takes precedence.
+//
+// +kubebuilder:validation:MinProperties=0
+#ProxyProtocolSettings: {
+	// Optional allows requests without a Proxy Protocol header to be proxied.
+	// If set to true, the listener will accept requests without a Proxy Protocol header.
+	// If set to false, the listener will reject requests without a Proxy Protocol header.
+	// If not set, the default behavior is to reject requests without a Proxy Protocol header.
+	// Warning: Optional breaks conformance with the specification. Only enable if ALL traffic to the listener comes from a trusted source.
+	// For more information on security implications, see haproxy.org/download/2.1/doc/proxy-protocol.txt
+	//
+	//
+	// +optional
+	optional?: null | bool @go(Optional,*bool)
+}
+
 // ClientTrafficPolicyList contains a list of ClientTrafficPolicy resources.
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 #ClientTrafficPolicyList: {
 	metav1.#TypeMeta
 	metadata?: metav1.#ListMeta @go(ListMeta)
 	items: [...#ClientTrafficPolicy] @go(Items,[]ClientTrafficPolicy)
 }
+
+// SchemeHeaderTransform defines how the :scheme pseudo-header is set for requests forwarded to backends.
+//
+// +kubebuilder:validation:Enum=Preserve;MatchBackend
+#SchemeHeaderTransform: string // #enumSchemeHeaderTransform
+
+#enumSchemeHeaderTransform:
+	#SchemeHeaderTransformPreserve |
+	#SchemeHeaderTransformMatchBackend
+
+// SchemeHeaderTransformPreserve preserves the :scheme from the original client request.
+// This is the default behavior.
+#SchemeHeaderTransformPreserve: #SchemeHeaderTransform & "Preserve"
+
+// SchemeHeaderTransformMatchBackend sets the :scheme to match the backend transport protocol.
+// If the backend uses TLS, the scheme is "https", otherwise "http".
+#SchemeHeaderTransformMatchBackend: #SchemeHeaderTransform & "MatchBackend"

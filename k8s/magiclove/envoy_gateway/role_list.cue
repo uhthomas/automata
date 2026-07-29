@@ -15,15 +15,15 @@ import rbacv1 "k8s.io/api/rbac/v1"
 	rules: [{
 		apiGroups: [""]
 		resources: ["serviceaccounts", "services", "configmaps"]
-		verbs: ["create", "get", "list", "delete", "deletecollection", "patch"]
+		verbs: ["create", "get", "list", "delete", "deletecollection", "patch", "watch"]
 	}, {
 		apiGroups: ["apps"]
 		resources: ["deployments", "daemonsets"]
-		verbs: ["create", "get", "delete", "deletecollection", "patch"]
+		verbs: ["create", "get", "list", "delete", "deletecollection", "patch", "watch"]
 	}, {
 		apiGroups: ["autoscaling", "policy"]
 		resources: ["horizontalpodautoscalers", "poddisruptionbudgets"]
-		verbs: ["create", "get", "list", "delete", "deletecollection", "patch"]
+		verbs: ["create", "get", "list", "delete", "deletecollection", "patch", "watch"]
 	}, {
 		apiGroups: ["certificates.k8s.io"]
 		resources: ["clustertrustbundles"]

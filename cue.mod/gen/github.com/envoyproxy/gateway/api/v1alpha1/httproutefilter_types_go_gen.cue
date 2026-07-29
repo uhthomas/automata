@@ -17,6 +17,9 @@ import (
 
 // HTTPRouteFilter is a custom Envoy Gateway HTTPRouteFilter which provides extended
 // traffic processing options such as path regex rewrite, direct response and more.
+// +genclient
+// +genclient:noStatus
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 #HTTPRouteFilter: {
 	metav1.#TypeMeta
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta)
@@ -36,6 +39,15 @@ import (
 
 	// +optional
 	credentialInjection?: null | #HTTPCredentialInjectionFilter @go(CredentialInjection,*HTTPCredentialInjectionFilter)
+
+	// Matches defines additional matching criteria for the HTTPRoute rule.
+	// As with HTTPRouteRule.Matches, the rule is matched if any one match applies.
+	// When both HTTPRouteRule.Matches and HTTPRouteFilter.Matches are set, the
+	// effective matching is the logical AND of the two sets.
+	//
+	// +optional
+	// +kubebuilder:validation:MaxItems=8
+	matches?: [...#HTTPRouteMatchFilter] @go(Matches,[]HTTPRouteMatchFilter)
 }
 
 // HTTPURLRewriteFilter define rewrites of HTTP URL components such as path and host
@@ -50,17 +62,24 @@ import (
 	//
 	// +optional
 	path?: null | #HTTPPathModifier @go(Path,*HTTPPathModifier)
+
+	// AppendXForwardedHost controls whether the original Host header value is
+	// appended to the X-Forwarded-Host header when hostname rewriting is configured.
+	// Defaults to true for backward compatibility.
+	//
+	// +optional
+	appendXForwardedHost?: null | bool @go(AppendXForwardedHost,*bool)
 }
 
 // HTTPDirectResponseFilter defines the configuration to return a fixed response.
 #HTTPDirectResponseFilter: {
-	// Content Type of the response. This will be set in the Content-Type header.
+	// Content Type of the direct response. This will be set in the Content-Type header.
 	//
 	// +optional
 	contentType?: null | string @go(ContentType,*string)
 
-	// Body of the Response
-	//
+	// Body of the direct response.
+	// Supports Envoy command operators for dynamic content (see https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#command-operators).
 	// +optional
 	body?: null | #CustomResponseBody @go(Body,*CustomResponseBody)
 
@@ -68,6 +87,11 @@ import (
 	// If unset, defaults to 200.
 	// +optional
 	statusCode?: null | int @go(StatusCode,*int)
+
+	// Header defines the headers of the direct response.
+	// +optional
+	// +kubebuilder:validation:XValidation:rule="!has(self.remove) || size(self.remove) == 0",message="header.remove is not supported for DirectResponse"
+	header?: null | gwapiv1.#HTTPHeaderFilter @go(Header,*gwapiv1.HTTPHeaderFilter)
 }
 
 // HTTPPathModifierType defines the type of path redirect or rewrite.
@@ -152,7 +176,6 @@ import (
 // This is useful when the backend service requires credentials in the request, and the original
 // request does not contain them. The filter can inject credentials into the request before forwarding
 // it to the backend service.
-// +notImplementedHide
 #HTTPCredentialInjectionFilter: {
 	// Header is the name of the header where the credentials are injected.
 	// If not specified, the credentials are injected into the Authorization header.
@@ -169,18 +192,68 @@ import (
 }
 
 // InjectedCredential defines the credential to be injected.
-// +notImplementedHide
 #InjectedCredential: {
 	// ValueRef is a reference to the secret containing the credentials to be injected.
 	// This is an Opaque secret. The credential should be stored in the key
 	// "credential", and the value should be the credential to be injected.
 	// For example, for basic authentication, the value should be "Basic <base64 encoded username:password>".
 	// for bearer token, the value should be "Bearer <token>".
-	// Note: The secret must be in the same namespace as the HTTPRouteFilter.
 	valueRef: gwapiv1.#SecretObjectReference @go(ValueRef)
 }
 
+// HTTPRouteMatchFilter defines additional matching criteria for the HTTPRoute rule.
+// At least one matcher must be specified.
+//
+// +kubebuilder:validation:MinProperties=1
+#HTTPRouteMatchFilter: {
+	// Cookies is a list of cookie matchers evaluated against the HTTP request.
+	// All specified matchers must match.
+	//
+	// +kubebuilder:validation:MinItems=1
+	// +kubebuilder:validation:MaxItems=16
+	cookies?: [...#HTTPCookieMatch] @go(Cookies,[]HTTPCookieMatch)
+}
+
+// CookieMatchType specifies the semantics of how cookie values should be compared.
+// Valid CookieMatchType values are "Exact" and "RegularExpression".
+//
+// +kubebuilder:validation:Enum=Exact;RegularExpression
+#CookieMatchType: string // #enumCookieMatchType
+
+#enumCookieMatchType:
+	#CookieMatchExact |
+	#CookieMatchRegularExpression
+
+// CookieMatchExact matches the exact value of the cookie.
+#CookieMatchExact: #CookieMatchType & "Exact"
+
+// CookieMatchRegularExpression matches a regular expression against the value of the cookie.
+// The regex string must adhere to the syntax documented in https://github.com/google/re2/wiki/Syntax.
+#CookieMatchRegularExpression: #CookieMatchType & "RegularExpression"
+
+// HTTPCookieMatch defines how to match a single cookie.
+#HTTPCookieMatch: {
+	// Type specifies how to match against the value of the cookie.
+	//
+	// +optional
+	// +kubebuilder:default=Exact
+	type?: null | #CookieMatchType @go(Type,*CookieMatchType)
+
+	// Name is the cookie name to evaluate.
+	//
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=256
+	name: string @go(Name)
+
+	// Value is the cookie value to be matched.
+	//
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=4096
+	value: string @go(Value)
+}
+
 // HTTPRouteFilterList contains a list of HTTPRouteFilter resources.
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 #HTTPRouteFilterList: {
 	metav1.#TypeMeta
 	metadata?: metav1.#ListMeta @go(ListMeta)

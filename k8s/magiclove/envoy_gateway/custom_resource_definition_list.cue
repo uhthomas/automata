@@ -274,6 +274,39 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										description: """
 														Ciphers specifies the set of cipher suites supported when
 														negotiating TLS 1.0 - 1.2. This setting has no effect for TLS 1.3.
+														For Envoy TLS cipher suite configuration semantics and default cipher
+														lists, see the Envoy documentation:
+														https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/transport_sockets/tls/v3/common.proto#extensions-transport-sockets-tls-v3-tlsparameters
+														Supported cipher suite names:
+														- ECDHE-ECDSA-AES128-GCM-SHA256
+														- ECDHE-RSA-AES128-GCM-SHA256
+														- ECDHE-ECDSA-AES256-GCM-SHA384
+														- ECDHE-RSA-AES256-GCM-SHA384
+														- ECDHE-ECDSA-CHACHA20-POLY1305
+														- ECDHE-RSA-CHACHA20-POLY1305
+														- ECDHE-ECDSA-AES128-SHA
+														- ECDHE-RSA-AES128-SHA
+														- AES128-GCM-SHA256
+														- AES128-SHA
+														- ECDHE-ECDSA-AES256-SHA
+														- ECDHE-RSA-AES256-SHA
+														- AES256-GCM-SHA384
+														- AES256-SHA
+														Supported IANA/RFC aliases:
+														- TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+														- TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+														- TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+														- TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+														- TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
+														- TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+														- TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
+														- TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+														- TLS_RSA_WITH_AES_128_GCM_SHA256
+														- TLS_RSA_WITH_AES_128_CBC_SHA
+														- TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA
+														- TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+														- TLS_RSA_WITH_AES_256_GCM_SHA384
+														- TLS_RSA_WITH_AES_256_CBC_SHA
 														In non-FIPS Envoy Proxy builds the default cipher list is:
 														- [ECDHE-ECDSA-AES128-GCM-SHA256|ECDHE-ECDSA-CHACHA20-POLY1305]
 														- [ECDHE-RSA-AES128-GCM-SHA256|ECDHE-RSA-CHACHA20-POLY1305]
@@ -353,6 +386,26 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										items: type: "string"
 										type: "array"
 									}
+									fingerprints: {
+										description: """
+														Fingerprints specifies TLS client fingerprinting.
+														When specified, a JAX fingerprint derived from the client’s TLS handshake
+														is generated. The fingerprint can be logged in access logs or
+														forwarded to upstream services using request headers.
+
+														Fingerprinting is disabled if not specified.
+
+														Supported values are:
+														- JA3
+														- JA4
+														"""
+										items: {
+											description: "TLSFingerprintType specifies the TLS client fingerprinting mode."
+											enum: ["JA3", "JA4"]
+											type: "string"
+										}
+										type: "array"
+									}
 									insecureSkipVerify: {
 										default: false
 										description: """
@@ -410,8 +463,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														must be specified with at least one entry for a valid configuration. Only one of
 														CACertificateRefs or WellKnownCACertificates may be specified, not both.
 														"""
-										enum: ["System"]
-										type: "string"
+										maxLength: 253
+										minLength: 1
+										pattern:   "^(System|([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/([A-Za-z0-9][-A-Za-z0-9_.]{0,61})?[A-Za-z0-9]))$"
+										type:      "string"
 									}
 								}
 								type: "object"
@@ -574,6 +629,219 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 					spec: {
 						description: "spec defines the desired state of BackendTrafficPolicy."
 						properties: {
+							admissionControl: {
+								description: """
+												AdmissionControl defines the admission control policy to be applied. This configuration
+												probabilistically rejects requests based on the success rate of previous requests in a
+												configurable sliding time window.
+												"""
+								properties: {
+									maxRejectionPercent: {
+										description: """
+														MaxRejectionPercent represents the upper limit of the rejection probability,
+														expressed as a percentage in the range [0, 100]. Defaults to 80 if not specified.
+														"""
+										format:  "int32"
+										maximum: 100
+										minimum: 0
+										type:    "integer"
+									}
+									minRequestRate: {
+										description: """
+														MinRequestRate defines the minimum requests per second below which requests will
+														pass through the filter without rejection. Defaults to 0 if not specified.
+														"""
+										format:  "int32"
+										minimum: 0
+										type:    "integer"
+									}
+									minSuccessRate: {
+										description: """
+														MinSuccessRate is the lowest request success rate, as a percentage in the
+														range [1, 100], at which the filter will not reject requests. Defaults to 95 if
+														not specified. Envoy rejects values below 1%, so values lower than 1 are not allowed.
+														"""
+										format:  "int32"
+										maximum: 100
+										minimum: 1
+										type:    "integer"
+									}
+									rejectionAggression: {
+										description: """
+														RejectionAggression controls how steeply the rejection probability rises
+														as the observed success rate falls below MinSuccessRate. A value of 1
+														produces a linear curve; higher values reject more aggressively for a
+														given drop in success rate. Must be greater than 0; values below 1 are
+														clamped to 1. Defaults to 1.
+														"""
+										format:  "int32"
+										minimum: 1
+										type:    "integer"
+									}
+									samplingWindow: {
+										description: """
+														SamplingWindow defines the time window over which request success rates are calculated.
+														Must be at least 1s; Envoy truncates the window to whole seconds and uses it as the
+														denominator in RPS calculations, so sub-second values would produce a zero denominator.
+														Defaults to 30s if not specified.
+														"""
+										pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+										type:    "string"
+									}
+									successCriteria: {
+										description: "SuccessCriteria defines what constitutes a successful request for both HTTP and gRPC."
+										properties: {
+											grpc: {
+												description: "GRPC defines success criteria for gRPC requests."
+												properties: statusCodes: {
+													description: """
+																		StatusCodes defines gRPC status codes that are considered successful.
+																		Status codes are defined in https://github.com/grpc/grpc/blob/master/doc/statuscodes.md#status-codes-and-their-use-in-grpc.
+																		"""
+													items: {
+														description: """
+																			GRPCSuccessCode defines gRPC status codes as defined in
+																			https://github.com/grpc/grpc/blob/master/doc/statuscodes.md#status-codes-and-their-use-in-grpc.
+																			"""
+														enum: ["Ok", "Cancelled", "Unknown", "InvalidArgument", "DeadlineExceeded", "NotFound", "AlreadyExists", "PermissionDenied", "ResourceExhausted", "FailedPrecondition", "Aborted", "OutOfRange", "Unimplemented", "Internal", "Unavailable", "DataLoss", "Unauthenticated"]
+														type: "string"
+													}
+													type: "array"
+												}
+												type: "object"
+											}
+											http: {
+												description: "HTTP defines success criteria for HTTP requests."
+												properties: statusCodes: {
+													description: "StatusCodes defines HTTP status codes that are considered successful."
+													items: {
+														description: "HTTPStatus defines the http status code."
+														maximum:     599
+														minimum:     100
+														type:        "integer"
+													}
+													type: "array"
+												}
+												type: "object"
+											}
+										}
+										type: "object"
+									}
+								}
+								type: "object"
+								"x-kubernetes-validations": [{
+									message: "minSuccessRate must be between 1 and 100"
+									rule:    "!has(self.minSuccessRate) || (self.minSuccessRate >= 1 && self.minSuccessRate <= 100)"
+								}, {
+									message: "maxRejectionPercent must be between 0 and 100"
+									rule:    "!has(self.maxRejectionPercent) || (self.maxRejectionPercent >= 0 && self.maxRejectionPercent <= 100)"
+								}, {
+									message: "samplingWindow must be at least 1s"
+									rule:    "!has(self.samplingWindow) || duration(self.samplingWindow) >= duration('1s')"
+								}]
+							}
+							bandwidthLimit: {
+								description: """
+												BandwidthLimit allows the user to limit the bandwidth of traffic
+												sent to and received from the backend.
+												"""
+								properties: {
+									request: {
+										description: "Request configures bandwidth limits for traffic sent to the backend."
+										properties: limit: {
+											description: "Limit specifies the bandwidth limit as a bytes-per-unit throughput rate."
+											properties: {
+												unit: {
+													description: "Unit specifies the time unit for the bandwidth limit (e.g. Second, Minute, Hour)."
+													enum: ["Second", "Minute", "Hour"]
+													type: "string"
+												}
+												value: {
+													allOf: [{
+														pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+													}, {
+														pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
+													}]
+													anyOf: [{
+														type: "integer"
+													}, {
+														type: "string"
+													}]
+													description:                  "Value specifies the bandwidth limit."
+													"x-kubernetes-int-or-string": true
+												}
+											}
+											required: ["unit", "value"]
+											type: "object"
+										}
+										required: ["limit"]
+										type: "object"
+									}
+									response: {
+										description: "Response configures bandwidth limits for traffic sent from the backend."
+										properties: {
+											limit: {
+												description: "Limit specifies the bandwidth limit as a bytes-per-unit throughput rate."
+												properties: {
+													unit: {
+														description: "Unit specifies the time unit for the bandwidth limit (e.g. Second, Minute, Hour)."
+														enum: ["Second", "Minute", "Hour"]
+														type: "string"
+													}
+													value: {
+														allOf: [{
+															pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
+														}, {
+															pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
+														}]
+														anyOf: [{
+															type: "integer"
+														}, {
+															type: "string"
+														}]
+														description:                  "Value specifies the bandwidth limit."
+														"x-kubernetes-int-or-string": true
+													}
+												}
+												required: ["unit", "value"]
+												type: "object"
+											}
+											responseTrailers: {
+												description: """
+																ResponseTrailers configures the trailer headers appended to responses
+																when bandwidth limiting introduces delays.
+																"""
+												properties: prefix: {
+													description: """
+																		Prefix is prepended to each trailer header name.
+																		If not set, no prefix is added and the trailers are named as-is.
+																		For example, setting "x-eg" produces trailers such as "x-eg-bandwidth-request-delay-ms",
+																		while leaving it unset produces "bandwidth-request-delay-ms".
+
+																		The following four trailers can be added:
+																		"bandwidth-request-delay-ms" is delay time in milliseconds it took for the request stream transfer
+																		including request body transfer time and the time added by the filter.
+																		"bandwidth-response-delay-ms" is delay time in milliseconds it took for the response stream transfer
+																		including response body transfer time and the time added by the filter.
+																		"bandwidth-request-filter-delay-ms" is delay time in milliseconds in request stream transfer added by the filter.
+																		"bandwidth-response-filter-delay-ms" is delay time in milliseconds that added by the filter.
+																		"""
+													pattern: "^[^\\r\\n\\x00]*$"
+													type:    "string"
+												}
+												type: "object"
+											}
+										}
+										required: ["limit"]
+										type: "object"
+									}
+								}
+								type: "object"
+								"x-kubernetes-validations": [{
+									message: "at least one of request or response must be specified"
+									rule:    "has(self.request) || has(self.response)"
+								}]
+							}
 							circuitBreaker: {
 								description: """
 												Circuit Breaker settings for the upstream connections and requests.
@@ -634,12 +902,60 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										}
 										type: "object"
 									}
+									retryBudget: {
+										description: """
+														RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+														RetryBudget take precedence over maxParallelRetries.
+														"""
+										properties: {
+											minRetryConcurrency: {
+												description: """
+																MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+																For example, a budget of 20% with a minimum retry concurrency of 3
+																will allow 5 active retries while there are 25 active requests.
+																If there are 2 active requests, there are still 3 active retries
+																allowed because of the minimum retry concurrency.
+																Defaults to 3.
+																"""
+												format: "int32"
+												type:   "integer"
+											}
+											percent: {
+												description: """
+																Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+																the sum of active requests and active pending requests.
+																"""
+												properties: {
+													denominator: {
+														default: 100
+														format:  "int32"
+														minimum: 1
+														type:    "integer"
+													}
+													numerator: {
+														format:  "int32"
+														minimum: 0
+														type:    "integer"
+													}
+												}
+												required: ["numerator"]
+												type: "object"
+												"x-kubernetes-validations": [{
+													message: "numerator must be less than or equal to denominator"
+													rule:    "self.numerator <= self.denominator"
+												}]
+											}
+										}
+										required: ["percent"]
+										type: "object"
+									}
 								}
 								type: "object"
 							}
 							compression: {
 								description: """
 												The compression config for the http streams.
+
 												Deprecated: Use Compressor instead.
 												"""
 								items: {
@@ -876,6 +1192,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											grpcStatus: {
 												description: "GrpcStatus specifies the GRPC status code to be returned"
 												format:      "int32"
+												maximum:     16
+												minimum:     0
 												type:        "integer"
 											}
 											httpStatus: {
@@ -1005,8 +1323,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													hostname: {
 														description: """
-																		Hostname defines the HTTP host that will be requested during health checking.
-																		Default: HTTPRoute or GRPCRoute hostname.
+																		Hostname defines the HTTP Host header used for active HTTP health checks.
+																		Host selection uses this order: this field, the associated Backend endpoint
+																		hostname if available, then the effective Route hostname.
 																		"""
 														maxLength: 253
 														minLength: 1
@@ -1026,6 +1345,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														minLength:   1
 														type:        "string"
 													}
+													retriableStatuses: {
+														description: """
+																		RetriableStatuses defines a list of HTTP response statuses considered retriable.
+																		Responses matching these statuses count towards the unhealthy threshold but
+																		do not result in the host being considered immediately unhealthy.
+																		The expected statuses take precedence for any range overlaps with this field.
+																		"""
+														items: {
+															description: "HTTPStatus defines the http status code."
+															maximum:     599
+															minimum:     100
+															type:        "integer"
+														}
+														type: "array"
+													}
 												}
 												required: ["path"]
 												type: "object"
@@ -1043,6 +1377,26 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												description: "Interval defines the time between active health checks."
 												pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 												type:        "string"
+											}
+											overrides: {
+												description: """
+																Overrides defines the configuration of the overriding health check settings for all endpoints
+																in the backend cluster. This allows customization of port and other settings that may differ
+																from the main service configuration.
+																"""
+												properties: port: {
+													description: """
+																		Port overrides the health check port.
+																		If not set, the endpoint's serving port is used for health checks.
+																		This is useful when health checks are served on a different port than
+																		the main service port (e.g., port 443 for service, port 9090 for health checks).
+																		"""
+													format:  "int32"
+													maximum: 65535
+													minimum: 1
+													type:    "integer"
+												}
+												type: "object"
 											}
 											tcp: {
 												description: """
@@ -1133,11 +1487,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "string"
 											}
 											unhealthyThreshold: {
-												default:     3
-												description: "UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy."
-												format:      "int32"
-												minimum:     1
-												type:        "integer"
+												default: 3
+												description: """
+																UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+																Without RetriableStatuses configured, any health check failure results in the host being immediately
+																considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+																up to this threshold before the host is marked unhealthy.
+																"""
+												format:  "int32"
+												minimum: 1
+												type:    "integer"
 											}
 										}
 										required: ["type"]
@@ -1168,6 +1527,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									passive: {
 										description: "Passive passive check configuration"
 										properties: {
+											alwaysEjectOneEndpoint: {
+												default: false
+												description: """
+																AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+																regardless of MaxEjectionPercent.
+																"""
+												type: "boolean"
+											}
 											baseEjectionTime: {
 												default:     "30s"
 												description: "BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures."
@@ -1215,6 +1582,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												default:     10
 												description: "MaxEjectionPercent sets the maximum percentage of hosts in a cluster that can be ejected."
 												format:      "int32"
+												maximum:     100
+												minimum:     0
 												type:        "integer"
 											}
 											splitExternalLocalOriginErrors: {
@@ -1231,6 +1600,41 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							http2: {
 								description: "HTTP2 provides HTTP/2 configuration for backend connections."
 								properties: {
+									connectionKeepalive: {
+										description: "ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames."
+										properties: {
+											idleInterval: {
+												description: "IdleInterval specifies how long a connection must be idle before a PING is sent."
+												pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+												type:        "string"
+											}
+											interval: {
+												description: "Interval specifies how often to send HTTP/2 PING frames to keep the connection alive."
+												pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+												type:        "string"
+											}
+											intervalJitter: {
+												description: """
+																IntervalJitter specifies a random jitter percentage added to each interval.
+																Defaults to 15% if not specified.
+																"""
+												format:  "int32"
+												maximum: 100
+												minimum: 0
+												type:    "integer"
+											}
+											timeout: {
+												description: "Timeout specifies how long to wait for a PING response before considering the connection dead."
+												pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+												type:        "string"
+											}
+										}
+										type: "object"
+										"x-kubernetes-validations": [{
+											message: "timeout must be less than interval"
+											rule:    "!has(self.timeout) || !has(self.interval) || duration(self.timeout) < duration(self.interval)"
+										}]
+									}
 									initialConnectionWindowSize: {
 										allOf: [{
 											pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
@@ -1290,7 +1694,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							httpUpgrade: {
 								description: """
 												HTTPUpgrade defines the configuration for HTTP protocol upgrades.
-												If not specified, the default upgrade configuration(websocket) will be used.
+												If not specified, the default upgrade configuration (websocket) will be used.
+												However, if requestBuffer is configured, the default upgrade configuration
+												will be ignored.
 												"""
 								items: {
 									description: "ProtocolUpgradeConfig specifies the configuration for protocol upgrades."
@@ -1329,6 +1735,65 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												the backend endpoints. Defaults to `LeastRequest`.
 												"""
 								properties: {
+									backendUtilization: {
+										description: """
+														BackendUtilization defines the configuration when the load balancer type is
+														set to BackendUtilization.
+														"""
+										properties: {
+											blackoutPeriod: {
+												description: """
+																A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+																Default is 10s.
+																"""
+												pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+												type:    "string"
+											}
+											errorUtilizationPenaltyPercent: {
+												description: """
+																ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+																This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+
+																For example:
+																- 100 => 1.0x
+																- 120 => 1.2x
+																- 200 => 2.0x
+
+																Must be non-negative.
+																"""
+												format:  "int32"
+												minimum: 0
+												type:    "integer"
+											}
+											keepResponseHeaders: {
+												default: false
+												description: """
+																KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+																Defaults to false.
+																"""
+												type: "boolean"
+											}
+											metricNamesForComputingUtilization: {
+												description: """
+																Metric names used to compute utilization if application_utilization is not set.
+																For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+																"""
+												items: type: "string"
+												type: "array"
+											}
+											weightExpirationPeriod: {
+												description: "If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m."
+												pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+												type:        "string"
+											}
+											weightUpdatePeriod: {
+												description: "How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s."
+												pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+												type:        "string"
+											}
+										}
+										type: "object"
+									}
 									consistentHash: {
 										description: """
 														ConsistentHash defines the configuration when the load balancer type is
@@ -1447,6 +1912,47 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											rule:    "self.type == 'QueryParams' ? has(self.queryParams) : !has(self.queryParams)"
 										}]
 									}
+									dynamicModule: {
+										description: """
+														DynamicModule defines the configuration when the load balancer type is
+														set to DynamicModule. The referenced module must be registered in the
+														EnvoyProxy resource's dynamicModules allowlist.
+														"""
+										properties: {
+											config: {
+												description: """
+																Config is optional configuration for the module's load balancer
+																implementation. This is serialized and passed to the module's
+																initialization function.
+																"""
+												"x-kubernetes-preserve-unknown-fields": true
+											}
+											lbPolicyName: {
+												description: """
+																LBPolicyName identifies a specific load balancer implementation within
+																the dynamic module. A single shared library can contain multiple LB
+																policy implementations. This value is passed to the module's
+																initialization function to select the appropriate implementation.
+																"""
+												maxLength: 253
+												minLength: 1
+												type:      "string"
+											}
+											name: {
+												description: """
+																Name references a dynamic module registered in the EnvoyProxy resource's
+																dynamicModules list. The referenced module must exist in the registry;
+																otherwise, the policy will be rejected.
+																"""
+												maxLength: 253
+												minLength: 1
+												pattern:   "^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$"
+												type:      "string"
+											}
+										}
+										required: ["lbPolicyName", "name"]
+										type: "object"
+									}
 									endpointOverride: {
 										description: """
 														EndpointOverride defines the configuration for endpoint override.
@@ -1480,7 +1986,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										description: """
 														SlowStart defines the configuration related to the slow start load balancer policy.
 														If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-														Currently this is only supported for RoundRobin and LeastRequest load balancers
+														Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
 														"""
 										properties: window: {
 											description: """
@@ -1502,45 +2008,83 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														"ConsistentHash",
 														"LeastRequest",
 														"Random",
-														"RoundRobin".
+														"RoundRobin",
+														"BackendUtilization",
+														"DynamicModule".
 														"""
-										enum: ["ConsistentHash", "LeastRequest", "Random", "RoundRobin"]
+										enum: ["ConsistentHash", "LeastRequest", "Random", "RoundRobin", "BackendUtilization", "DynamicModule"]
 										type: "string"
 									}
 									zoneAware: {
 										description: "ZoneAware defines the configuration related to the distribution of requests between locality zones."
-										properties: preferLocal: {
-											description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
-											properties: {
-												force: {
-													description: """
+										properties: {
+											preferLocal: {
+												description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
+												properties: {
+													force: {
+														description: """
 																		ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
 																		which maintains equal distribution among upstream endpoints while sending as much traffic as possible locally.
 																		"""
-													properties: minEndpointsInZoneThreshold: {
-														description: """
+														properties: minEndpointsInZoneThreshold: {
+															description: """
 																				MinEndpointsInZoneThreshold is the minimum number of upstream endpoints in the local zone required to honor the forceLocalZone
 																				override. This is useful for protecting zones with fewer endpoints.
 																				"""
-														format: "int32"
-														type:   "integer"
+															format: "int32"
+															type:   "integer"
+														}
+														type: "object"
 													}
+													minEndpointsThreshold: {
+														description: "MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing."
+														format:      "int64"
+														type:        "integer"
+													}
+													percentageEnabled: {
+														description: "Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%."
+														format:      "int32"
+														maximum:     100
+														minimum:     0
+														type:        "integer"
+													}
+												}
+												type: "object"
+											}
+											weightedZones: {
+												description: """
+																WeightedZones configures weight-based traffic distribution across locality zones.
+																Traffic is distributed proportionally based on the sum of all zone weights.
+																"""
+												items: {
+													description: "WeightedZoneConfig defines the weight for a specific locality zone."
+													properties: {
+														weight: {
+															description: """
+																			Weight defines the weight for this locality.
+																			Higher values receive more traffic. The actual traffic distribution
+																			is proportional to this value relative to other localities.
+																			"""
+															format: "int32"
+															type:   "integer"
+														}
+														zone: {
+															description: """
+																			Zone specifies the topology zone this weight applies to.
+																			The value should match the topology.kubernetes.io/zone label
+																			of the nodes where endpoints are running.
+																			Zones not listed in the configuration receive a default weight of 1.
+																			"""
+															type: "string"
+														}
+													}
+													required: ["weight", "zone"]
 													type: "object"
 												}
-												minEndpointsThreshold: {
-													description: "MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing."
-													format:      "int64"
-													type:        "integer"
-												}
-												percentageEnabled: {
-													description: "Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%."
-													format:      "int32"
-													maximum:     100
-													minimum:     0
-													type:        "integer"
-												}
+												type: "array"
+												"x-kubernetes-list-map-keys": ["zone"]
+												"x-kubernetes-list-type": "map"
 											}
-											type: "object"
 										}
 										type: "object"
 									}
@@ -1551,11 +2095,29 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									message: "If LoadBalancer type is consistentHash, consistentHash field needs to be set."
 									rule:    "self.type == 'ConsistentHash' ? has(self.consistentHash) : !has(self.consistentHash)"
 								}, {
-									message: "Currently SlowStart is only supported for RoundRobin and LeastRequest load balancers."
-									rule:    "self.type in ['Random', 'ConsistentHash'] ? !has(self.slowStart) : true "
+									message: "If LoadBalancer type is BackendUtilization, backendUtilization field needs to be set."
+									rule:    "self.type == 'BackendUtilization' ? has(self.backendUtilization) : !has(self.backendUtilization)"
 								}, {
-									message: "Currently ZoneAware is only supported for LeastRequest, Random, and RoundRobin load balancers."
-									rule:    "self.type == 'ConsistentHash' ? !has(self.zoneAware) : true "
+									message: "If LoadBalancer type is DynamicModule, dynamicModule field needs to be set."
+									rule:    "self.type == 'DynamicModule' ? has(self.dynamicModule) : !has(self.dynamicModule)"
+								}, {
+									message: "Currently SlowStart is only supported for RoundRobin, LeastRequest, and BackendUtilization load balancers."
+									rule:    "self.type in ['Random', 'ConsistentHash', 'DynamicModule'] ? !has(self.slowStart) : true"
+								}, {
+									message: "PreferLocal zone-aware routing is not supported for ConsistentHash load balancers. Use weightedZones instead."
+									rule:    "self.type == 'ConsistentHash' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true"
+								}, {
+									message: "PreferLocal zone-aware routing is not currently supported for BackendUtilization load balancers. Only WeightedZones can be used with BackendUtilization."
+									rule:    "self.type == 'BackendUtilization' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true"
+								}, {
+									message: "ZoneAware routing is not supported for DynamicModule load balancers."
+									rule:    "self.type == 'DynamicModule' ? !has(self.zoneAware) : true"
+								}, {
+									message: "ZoneAware PreferLocal and WeightedZones cannot be specified together."
+									rule:    "has(self.zoneAware) ? !(has(self.zoneAware.preferLocal) && has(self.zoneAware.weightedZones)) : true"
+								}, {
+									message: "EndpointOverride is not supported for DynamicModule load balancers."
+									rule:    "self.type == 'DynamicModule' ? !has(self.endpointOverride) : true"
 								}]
 							}
 							mergeType: {
@@ -1567,12 +2129,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												If unset, no merging occurs, and only the most specific configuration takes effect.
 												"""
 								type: "string"
+								"x-kubernetes-validations": [{
+									message: "Replace is not a valid MergeType for BackendTrafficPolicySpec"
+									rule:    "self != 'Replace'"
+								}]
 							}
 							proxyProtocol: {
 								description: "ProxyProtocol enables the Proxy Protocol when communicating with the backend."
 								properties: version: {
 									description: """
-														Version of ProxyProtol
+														Version of ProxyProtocol
 														Valid ProxyProtocolVersion values are
 														"V1"
 														"V2"
@@ -1677,7 +2243,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		required: ["name"]
 																		type: "object"
 																	}
-																	maxItems: 16
+																	maxItems: 64
 																	type:     "array"
 																}
 																methods: {
@@ -1779,6 +2345,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																sourceCIDR: {
 																	description: "SourceCIDR is the client IP Address range to match on."
 																	properties: {
+																		invert: {
+																			default: false
+																			description: """
+																								Invert specifies whether the source range match result will be inverted.
+																								When true, the rule matches when the client IP is not in the specified range(s).
+																								"""
+																			type: "boolean"
+																		}
 																		type: {
 																			default: "Exact"
 																			enum: ["Exact", "Distinct"]
@@ -1927,7 +2501,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			the selected requests have reached the limit.
 																			"""
 														properties: {
-															requests: type: "integer"
+															requests: {
+																description: """
+																					Requests is the number of requests (or cost units, when used with
+																					cost-based rate limiting) allowed per Unit.
+																					"""
+																format:  "int64"
+																maximum: 4294967295
+																minimum: 1
+																type:    "integer"
+															}
 															unit: {
 																description: """
 																					RateLimitUnit specifies the intervals for setting rate limits.
@@ -1959,11 +2542,20 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			"""
 														type: "boolean"
 													}
+													xRateLimitHeaders: {
+														description: """
+																			XRateLimitHeaders controls whether X-RateLimit response headers are emitted for this rate limit rule.
+																			When set, this overrides the global DisableRateLimitHeaders setting in ClientTrafficPolicy for this rule.
+																			If not set, the rule inherits the listener-level setting (default behavior).
+																			"""
+														enum: ["Off", "DraftVersion03"]
+														type: "string"
+													}
 												}
 												required: ["limit"]
 												type: "object"
 											}
-											maxItems: 128
+											maxItems: 256
 											type:     "array"
 										}
 										required: ["rules"]
@@ -2053,7 +2645,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		required: ["name"]
 																		type: "object"
 																	}
-																	maxItems: 16
+																	maxItems: 64
 																	type:     "array"
 																}
 																methods: {
@@ -2155,6 +2747,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																sourceCIDR: {
 																	description: "SourceCIDR is the client IP Address range to match on."
 																	properties: {
+																		invert: {
+																			default: false
+																			description: """
+																								Invert specifies whether the source range match result will be inverted.
+																								When true, the rule matches when the client IP is not in the specified range(s).
+																								"""
+																			type: "boolean"
+																		}
 																		type: {
 																			default: "Exact"
 																			enum: ["Exact", "Distinct"]
@@ -2303,7 +2903,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			the selected requests have reached the limit.
 																			"""
 														properties: {
-															requests: type: "integer"
+															requests: {
+																description: """
+																					Requests is the number of requests (or cost units, when used with
+																					cost-based rate limiting) allowed per Unit.
+																					"""
+																format:  "int64"
+																maximum: 4294967295
+																minimum: 1
+																type:    "integer"
+															}
 															unit: {
 																description: """
 																					RateLimitUnit specifies the intervals for setting rate limits.
@@ -2335,6 +2944,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			"""
 														type: "boolean"
 													}
+													xRateLimitHeaders: {
+														description: """
+																			XRateLimitHeaders controls whether X-RateLimit response headers are emitted for this rate limit rule.
+																			When set, this overrides the global DisableRateLimitHeaders setting in ClientTrafficPolicy for this rule.
+																			If not set, the rule inherits the listener-level setting (default behavior).
+																			"""
+														enum: ["Off", "DraftVersion03"]
+														type: "string"
+													}
 												}
 												required: ["limit"]
 												type: "object"
@@ -2343,10 +2961,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											type:     "array"
 											"x-kubernetes-validations": [{
 												message: "response cost is not supported for Local Rate Limits"
-												rule:    "self.all(foo, !has(foo.cost) || !has(foo.cost.response))"
-											}, {
-												message: "shadow mode is not supported for Local Rate Limits"
-												rule:    "self.all(foo, !has(foo.shadowMode))"
+												rule:    "self.all(r, !has(r.cost) || !has(r.cost.response))"
 											}]
 										}
 										type: "object"
@@ -2374,6 +2989,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 
 												When enabling this option, you should also configure your connection buffer size to account for these request buffers. There will also be an
 												increase in memory usage for Envoy that should be accounted for in your deployment settings.
+
+												Request buffering is incompatible with streaming APIs and protocol upgrades such as gRPC streaming and WebSocket. Do not enable this option
+												on routes that need those protocols, because requests can hang instead of being forwarded upstream.
 												"""
 								properties: limit: {
 									allOf: [{
@@ -2711,10 +3329,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:      "string"
 																	}
 																	value: {
-																		description: "Value is the value of HTTP Header to be matched."
-																		maxLength:   4096
-																		minLength:   1
-																		type:        "string"
+																		description: """
+																						Value is the value of HTTP Header to be matched.
+																						<gateway:experimental:description>
+																						Must consist of printable US-ASCII characters, optionally separated
+																						by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+																						</gateway:experimental:description>
+
+																						<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+																						"""
+																		maxLength: 4096
+																		minLength: 1
+																		type:      "string"
 																	}
 																}
 																required: ["name", "value"]
@@ -2788,10 +3414,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:      "string"
 																	}
 																	value: {
-																		description: "Value is the value of HTTP Header to be matched."
-																		maxLength:   4096
-																		minLength:   1
-																		type:        "string"
+																		description: """
+																						Value is the value of HTTP Header to be matched.
+																						<gateway:experimental:description>
+																						Must consist of printable US-ASCII characters, optionally separated
+																						by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+																						</gateway:experimental:description>
+
+																						<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+																						"""
+																		maxLength: 4096
+																		minLength: 1
+																		type:      "string"
 																	}
 																}
 																required: ["name", "value"]
@@ -2818,6 +3452,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												}
 											}
 											type: "object"
+										}
+										source: {
+											description: """
+															Source specifies which responses this rule applies to.
+															Local overrides only Envoy-generated responses (e.g. auth failures).
+															Backend overrides only upstream responses.
+															All (default) overrides both.
+															"""
+											enum: ["All", "Local", "Backend"]
+											type: "string"
 										}
 									}
 									required: ["match"]
@@ -2924,7 +3568,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								description: """
 												RoutingType can be set to "Service" to use the Service Cluster IP for routing to the backend,
 												or it can be set to "Endpoint" to use Endpoint routing.
-												When specified, this overrides the EnvoyProxy-level setting for the relevant targeRefs.
+												When specified, this overrides the EnvoyProxy-level setting for the relevant targetRefs.
 												If not specified, the EnvoyProxy-level setting is used.
 												"""
 								type: "string"
@@ -3099,8 +3743,94 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										}
 										matchLabels: {
 											additionalProperties: type: "string"
-											description: "MatchLabels are the set of label selectors for identifying the targeted resource"
+											description: "MatchLabels are the set of label selectors for identifying the targeted resource."
 											type:        "object"
+										}
+										namespaces: {
+											description: """
+															Namespaces determines which namespaces are considered for target selection.
+
+															If unspecified, only targets in the same namespace as this policy are considered.
+
+															When specified, the effective set of namespaces is always constrained to the
+															namespaces watched by Envoy Gateway.
+
+															Selecting targets across namespaces requires a ReferenceGrant in the target
+															namespace that allows this policy kind to reference the selected target kind.
+															Cross-namespace targets without a matching ReferenceGrant are ignored.
+															"""
+											properties: {
+												from: {
+													default: "Same"
+													description: """
+																	From indicates how namespaces are selected for this target selector.
+
+																	All means all namespaces watched by Envoy Gateway.
+																	Selector means namespaces watched by Envoy Gateway that match Selector.
+																	"""
+													enum: ["Same", "All", "Selector"]
+													type: "string"
+												}
+												selector: {
+													description: "Selector selects namespaces when From is set to Selector."
+													properties: {
+														matchExpressions: {
+															description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+															items: {
+																description: """
+																				A label selector requirement is a selector that contains values, a key, and an operator that
+																				relates the key and values.
+																				"""
+																properties: {
+																	key: {
+																		description: "key is the label key that the selector applies to."
+																		type:        "string"
+																	}
+																	operator: {
+																		description: """
+																						operator represents a key's relationship to a set of values.
+																						Valid operators are In, NotIn, Exists and DoesNotExist.
+																						"""
+																		type: "string"
+																	}
+																	values: {
+																		description: """
+																						values is an array of string values. If the operator is In or NotIn,
+																						the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																						the values array must be empty. This array is replaced during a strategic
+																						merge patch.
+																						"""
+																		items: type: "string"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
+																	}
+																}
+																required: ["key", "operator"]
+																type: "object"
+															}
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
+														}
+														matchLabels: {
+															additionalProperties: type: "string"
+															description: """
+																			matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+																			map is equivalent to an element of matchExpressions, whose key field is "key", the
+																			operator is "In", and the values array contains only "value". The requirements are ANDed.
+																			"""
+															type: "object"
+														}
+													}
+													type:                    "object"
+													"x-kubernetes-map-type": "atomic"
+												}
+											}
+											required: ["from"]
+											type: "object"
+											"x-kubernetes-validations": [{
+												message: "selector must be specified when from is Selector"
+												rule:    "self.from != 'Selector' || has(self.selector)"
+											}]
 										}
 									}
 									required: ["kind"]
@@ -3350,6 +4080,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 												type:        "string"
 											}
+											streamIdleTimeout: {
+												description: """
+																 The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+																 If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+																"""
+												pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+												type:    "string"
+											}
 										}
 										type: "object"
 									}
@@ -3396,6 +4134,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						}, {
 							message: "either compression or compressor can be set, not both"
 							rule:    "!has(self.compression) || !has(self.compressor)"
+						}, {
+							message: "requestBuffer cannot be used together with httpUpgrade"
+							rule:    "!has(self.requestBuffer) || !has(self.httpUpgrade) || self.httpUpgrade.size() == 0"
+						}, {
+							message: "admissionControl can only be used with HTTPRoute, GRPCRoute, or Gateway targets"
+							rule:    "!has(self.admissionControl) || ((!has(self.targetRef) || self.targetRef.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute']) && (!has(self.targetRefs) || self.targetRefs.all(ref, ref.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute'])) && (!has(self.targetSelectors) || self.targetSelectors.all(sel, sel.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute'])))"
 						}, {
 							message: "predictivePercent in preconnect policy only works with RoundRobin or Random load balancers"
 							rule:    "!((has(self.connection) && has(self.connection.preconnect) && has(self.connection.preconnect.predictivePercent)) && !(has(self.loadBalancer) && has(self.loadBalancer.type) && self.loadBalancer.type in ['Random', 'RoundRobin']))"
@@ -4019,6 +4763,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												"""
 								type: "boolean"
 							}
+							grpc: {
+								description: "GRPC provides gRPC configuration on the listener."
+								properties: enableWeb: {
+									description: """
+														EnableWeb configures the gRPC-web filter on the listener.
+														The gRPC-web filter allows clients (typically browsers) to make gRPC calls
+														using HTTP/1.1 or HTTP/2.
+
+														This is enabled by default for GRPCRoute and opt-in for HTTPRoute.
+														In general, gRPC traffic should be handled via GRPCRoute, but there are cases where
+														users want to route gRPC using HTTPRoute for its richer matching capabilities.
+														Therefore, we enable this behavior only when it is explicitly opted in.
+														"""
+									type: "boolean"
+								}
+								type: "object"
+							}
 							headers: {
 								description: "HeaderSettings provides configuration for header management."
 								properties: {
@@ -4074,10 +4835,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:      "string"
 														}
 														value: {
-															description: "Value is the value of HTTP Header to be matched."
-															maxLength:   4096
-															minLength:   1
-															type:        "string"
+															description: """
+																			Value is the value of HTTP Header to be matched.
+																			<gateway:experimental:description>
+																			Must consist of printable US-ASCII characters, optionally separated
+																			by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+																			</gateway:experimental:description>
+
+																			<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+																			"""
+															maxLength: 4096
+															minLength: 1
+															type:      "string"
 														}
 													}
 													required: ["name", "value"]
@@ -4128,10 +4897,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:      "string"
 														}
 														value: {
-															description: "Value is the value of HTTP Header to be matched."
-															maxLength:   4096
-															minLength:   1
-															type:        "string"
+															description: """
+																			Value is the value of HTTP Header to be matched.
+																			<gateway:experimental:description>
+																			Must consist of printable US-ASCII characters, optionally separated
+																			by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+																			</gateway:experimental:description>
+
+																			<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+																			"""
+															maxLength: 4096
+															minLength: 1
+															type:      "string"
 														}
 													}
 													required: ["name", "value"]
@@ -4239,10 +5016,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:      "string"
 														}
 														value: {
-															description: "Value is the value of HTTP Header to be matched."
-															maxLength:   4096
-															minLength:   1
-															type:        "string"
+															description: """
+																			Value is the value of HTTP Header to be matched.
+																			<gateway:experimental:description>
+																			Must consist of printable US-ASCII characters, optionally separated
+																			by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+																			</gateway:experimental:description>
+
+																			<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+																			"""
+															maxLength: 4096
+															minLength: 1
+															type:      "string"
 														}
 													}
 													required: ["name", "value"]
@@ -4306,10 +5091,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:      "string"
 														}
 														value: {
-															description: "Value is the value of HTTP Header to be matched."
-															maxLength:   4096
-															minLength:   1
-															type:        "string"
+															description: """
+																			Value is the value of HTTP Header to be matched.
+																			<gateway:experimental:description>
+																			Must consist of printable US-ASCII characters, optionally separated
+																			by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+																			</gateway:experimental:description>
+
+																			<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+																			"""
+															maxLength: 4096
+															minLength: 1
+															type:      "string"
 														}
 													}
 													required: ["name", "value"]
@@ -4360,10 +5153,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:      "string"
 														}
 														value: {
-															description: "Value is the value of HTTP Header to be matched."
-															maxLength:   4096
-															minLength:   1
-															type:        "string"
+															description: """
+																			Value is the value of HTTP Header to be matched.
+																			<gateway:experimental:description>
+																			Must consist of printable US-ASCII characters, optionally separated
+																			by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+																			</gateway:experimental:description>
+
+																			<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+																			"""
+															maxLength: 4096
+															minLength: 1
+															type:      "string"
 														}
 													}
 													required: ["name", "value"]
@@ -4471,10 +5272,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:      "string"
 														}
 														value: {
-															description: "Value is the value of HTTP Header to be matched."
-															maxLength:   4096
-															minLength:   1
-															type:        "string"
+															description: """
+																			Value is the value of HTTP Header to be matched.
+																			<gateway:experimental:description>
+																			Must consist of printable US-ASCII characters, optionally separated
+																			by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+																			</gateway:experimental:description>
+
+																			<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+																			"""
+															maxLength: 4096
+															minLength: 1
+															type:      "string"
 														}
 													}
 													required: ["name", "value"]
@@ -4494,6 +5303,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														PreserveXRequestID configures Envoy to keep the X-Request-ID header if passed for a request that is edge
 														(Edge request is the request from external clients to front Envoy) and not reset it, which is the current Envoy behaviour.
 														Defaults to false and cannot be combined with RequestID.
+
 														Deprecated: use RequestID=PreserveOrGenerate instead
 														"""
 										type: "boolean"
@@ -4618,6 +5428,42 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										}
 										type: "object"
 									}
+									ignoredUpgradeTypes: {
+										description: """
+														IgnoredUpgradeTypes specifies a list of upgrade types for which
+														HTTP/1.1 Upgrade requests should be ignored by Envoy instead of being
+														rejected with a 403 response. When a client sends an HTTP/1.1 request
+														with Connection: Upgrade and an Upgrade header matching one of these
+														matchers, Envoy will strip the upgrade headers and process the request
+														as a normal HTTP/1.1 request.
+
+														Example: To ignore TLS upgrade requests (RFC 2817), use a Prefix match with value "TLS/".
+														"""
+										items: {
+											description: """
+															StringMatch defines how to match any strings.
+															This is a general purpose match condition that can be used by other EG APIs
+															that need to match against a string.
+															"""
+											properties: {
+												type: {
+													default:     "Exact"
+													description: "Type specifies how to match against a string."
+													enum: ["Exact", "Prefix", "Suffix", "RegularExpression"]
+													type: "string"
+												}
+												value: {
+													description: "Value specifies the string value that the match must have."
+													maxLength:   1024
+													minLength:   1
+													type:        "string"
+												}
+											}
+											required: ["value"]
+											type: "object"
+										}
+										type: "array"
+									}
 									preserveHeaderCase: {
 										description: """
 														PreserveHeaderCase defines if Envoy should preserve the letter case of headers.
@@ -4631,6 +5477,41 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							http2: {
 								description: "HTTP2 provides HTTP/2 configuration on the listener."
 								properties: {
+									connectionKeepalive: {
+										description: "ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames."
+										properties: {
+											idleInterval: {
+												description: "IdleInterval specifies how long a connection must be idle before a PING is sent."
+												pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+												type:        "string"
+											}
+											interval: {
+												description: "Interval specifies how often to send HTTP/2 PING frames to keep the connection alive."
+												pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+												type:        "string"
+											}
+											intervalJitter: {
+												description: """
+																IntervalJitter specifies a random jitter percentage added to each interval.
+																Defaults to 15% if not specified.
+																"""
+												format:  "int32"
+												maximum: 100
+												minimum: 0
+												type:    "integer"
+											}
+											timeout: {
+												description: "Timeout specifies how long to wait for a PING response before considering the connection dead."
+												pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+												type:        "string"
+											}
+										}
+										type: "object"
+										"x-kubernetes-validations": [{
+											message: "timeout must be less than interval"
+											rule:    "!has(self.timeout) || !has(self.interval) || duration(self.timeout) < duration(self.interval)"
+										}]
+									}
 									initialConnectionWindowSize: {
 										allOf: [{
 											pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
@@ -4920,8 +5801,94 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										}
 										matchLabels: {
 											additionalProperties: type: "string"
-											description: "MatchLabels are the set of label selectors for identifying the targeted resource"
+											description: "MatchLabels are the set of label selectors for identifying the targeted resource."
 											type:        "object"
+										}
+										namespaces: {
+											description: """
+															Namespaces determines which namespaces are considered for target selection.
+
+															If unspecified, only targets in the same namespace as this policy are considered.
+
+															When specified, the effective set of namespaces is always constrained to the
+															namespaces watched by Envoy Gateway.
+
+															Selecting targets across namespaces requires a ReferenceGrant in the target
+															namespace that allows this policy kind to reference the selected target kind.
+															Cross-namespace targets without a matching ReferenceGrant are ignored.
+															"""
+											properties: {
+												from: {
+													default: "Same"
+													description: """
+																	From indicates how namespaces are selected for this target selector.
+
+																	All means all namespaces watched by Envoy Gateway.
+																	Selector means namespaces watched by Envoy Gateway that match Selector.
+																	"""
+													enum: ["Same", "All", "Selector"]
+													type: "string"
+												}
+												selector: {
+													description: "Selector selects namespaces when From is set to Selector."
+													properties: {
+														matchExpressions: {
+															description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+															items: {
+																description: """
+																				A label selector requirement is a selector that contains values, a key, and an operator that
+																				relates the key and values.
+																				"""
+																properties: {
+																	key: {
+																		description: "key is the label key that the selector applies to."
+																		type:        "string"
+																	}
+																	operator: {
+																		description: """
+																						operator represents a key's relationship to a set of values.
+																						Valid operators are In, NotIn, Exists and DoesNotExist.
+																						"""
+																		type: "string"
+																	}
+																	values: {
+																		description: """
+																						values is an array of string values. If the operator is In or NotIn,
+																						the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																						the values array must be empty. This array is replaced during a strategic
+																						merge patch.
+																						"""
+																		items: type: "string"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
+																	}
+																}
+																required: ["key", "operator"]
+																type: "object"
+															}
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
+														}
+														matchLabels: {
+															additionalProperties: type: "string"
+															description: """
+																			matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+																			map is equivalent to an element of matchExpressions, whose key field is "key", the
+																			operator is "In", and the values array contains only "value". The requirements are ANDed.
+																			"""
+															type: "object"
+														}
+													}
+													type:                    "object"
+													"x-kubernetes-map-type": "atomic"
+												}
+											}
+											required: ["from"]
+											type: "object"
+											"x-kubernetes-validations": [{
+												message: "selector must be specified when from is Selector"
+												rule:    "self.from != 'Selector' || has(self.selector)"
+											}]
 										}
 									}
 									required: ["kind"]
@@ -5049,6 +6016,39 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										description: """
 														Ciphers specifies the set of cipher suites supported when
 														negotiating TLS 1.0 - 1.2. This setting has no effect for TLS 1.3.
+														For Envoy TLS cipher suite configuration semantics and default cipher
+														lists, see the Envoy documentation:
+														https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/transport_sockets/tls/v3/common.proto#extensions-transport-sockets-tls-v3-tlsparameters
+														Supported cipher suite names:
+														- ECDHE-ECDSA-AES128-GCM-SHA256
+														- ECDHE-RSA-AES128-GCM-SHA256
+														- ECDHE-ECDSA-AES256-GCM-SHA384
+														- ECDHE-RSA-AES256-GCM-SHA384
+														- ECDHE-ECDSA-CHACHA20-POLY1305
+														- ECDHE-RSA-CHACHA20-POLY1305
+														- ECDHE-ECDSA-AES128-SHA
+														- ECDHE-RSA-AES128-SHA
+														- AES128-GCM-SHA256
+														- AES128-SHA
+														- ECDHE-ECDSA-AES256-SHA
+														- ECDHE-RSA-AES256-SHA
+														- AES256-GCM-SHA384
+														- AES256-SHA
+														Supported IANA/RFC aliases:
+														- TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+														- TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+														- TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+														- TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+														- TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
+														- TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+														- TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
+														- TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+														- TLS_RSA_WITH_AES_128_GCM_SHA256
+														- TLS_RSA_WITH_AES_128_CBC_SHA
+														- TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA
+														- TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+														- TLS_RSA_WITH_AES_256_GCM_SHA384
+														- TLS_RSA_WITH_AES_256_CBC_SHA
 														In non-FIPS Envoy Proxy builds the default cipher list is:
 														- [ECDHE-ECDSA-AES128-GCM-SHA256|ECDHE-ECDSA-CHACHA20-POLY1305]
 														- [ECDHE-RSA-AES128-GCM-SHA256|ECDHE-RSA-CHACHA20-POLY1305]
@@ -5239,10 +6239,20 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												required: ["refs"]
 												type: "object"
 											}
+											mode: {
+												description: """
+																Mode defines how the Gateway or Listener validates client certificates.
+																If not specified, defaults to RequireAndVerify.
+																"""
+												enum: ["Request", "RequireAny", "VerifyIfGiven", "RequireAndVerify"]
+												type: "string"
+											}
 											optional: {
 												description: """
 																Optional set to true accepts connections even when a client doesn't present a certificate.
 																Defaults to false, which rejects connections without a valid client certificate.
+
+																Deprecated: Use Mode instead.
 																"""
 												type: "boolean"
 											}
@@ -5412,6 +6422,26 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														- P-256
 														"""
 										items: type: "string"
+										type: "array"
+									}
+									fingerprints: {
+										description: """
+														Fingerprints specifies TLS client fingerprinting.
+														When specified, a JAX fingerprint derived from the client’s TLS handshake
+														is generated. The fingerprint can be logged in access logs or
+														forwarded to upstream services using request headers.
+
+														Fingerprinting is disabled if not specified.
+
+														Supported values are:
+														- JA3
+														- JA4
+														"""
+										items: {
+											description: "TLSFingerprintType specifies the TLS client fingerprinting mode."
+											enum: ["JA3", "JA4"]
+											type: "string"
+										}
 										type: "array"
 									}
 									maxVersion: {
@@ -5897,6 +6927,68 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 					spec: {
 						description: "Spec defines the desired state of EnvoyExtensionPolicy."
 						properties: {
+							dynamicModule: {
+								description: """
+												DynamicModule is an ordered list of dynamic module HTTP filters
+												that should be added to the envoy filter chain.
+												Each module must be registered in the EnvoyProxy resource's dynamicModules
+												allowlist.
+												Order matters, as the filters will be loaded in the order they are
+												defined in this list.
+												"""
+								items: {
+									description: """
+													DynamicModule defines a dynamic module HTTP filter to be loaded by Envoy.
+													The module must be registered in the EnvoyProxy resource's dynamicModules
+													allowlist by the infrastructure operator.
+													"""
+									properties: {
+										config: {
+											description: """
+															Config is the configuration for the dynamic module filter.
+															This is serialized as JSON and passed to the module's initialization function.
+															"""
+											"x-kubernetes-preserve-unknown-fields": true
+										}
+										filterName: {
+											description: """
+															FilterName identifies a specific filter implementation within the dynamic
+															module. A single shared library can contain multiple filter implementations.
+															This value is passed to the module's HTTP filter config init function to
+															select the appropriate implementation.
+															If not specified, defaults to an empty string.
+															"""
+											maxLength: 253
+											type:      "string"
+										}
+										name: {
+											description: """
+															Name references a dynamic module registered in the EnvoyProxy resource's
+															dynamicModules list. The referenced module must exist in the registry;
+															otherwise, the policy will be rejected.
+															"""
+											maxLength: 253
+											minLength: 1
+											pattern:   "^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$"
+											type:      "string"
+										}
+										terminalFilter: {
+											default: false
+											description: """
+															TerminalFilter indicates that this dynamic module handles requests without
+															requiring an upstream backend. The module is responsible for generating and
+															sending the response to downstream directly.
+															Defaults to false.
+															"""
+											type: "boolean"
+										}
+									}
+									required: ["name"]
+									type: "object"
+								}
+								maxItems: 16
+								type:     "array"
+							}
 							extProc: {
 								description: """
 												ExtProc is an ordered list of external processing filters
@@ -6177,6 +7269,53 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															}
 															type: "object"
 														}
+														retryBudget: {
+															description: """
+																			RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+																			RetryBudget take precedence over maxParallelRetries.
+																			"""
+															properties: {
+																minRetryConcurrency: {
+																	description: """
+																					MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+																					For example, a budget of 20% with a minimum retry concurrency of 3
+																					will allow 5 active retries while there are 25 active requests.
+																					If there are 2 active requests, there are still 3 active retries
+																					allowed because of the minimum retry concurrency.
+																					Defaults to 3.
+																					"""
+																	format: "int32"
+																	type:   "integer"
+																}
+																percent: {
+																	description: """
+																					Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+																					the sum of active requests and active pending requests.
+																					"""
+																	properties: {
+																		denominator: {
+																			default: 100
+																			format:  "int32"
+																			minimum: 1
+																			type:    "integer"
+																		}
+																		numerator: {
+																			format:  "int32"
+																			minimum: 0
+																			type:    "integer"
+																		}
+																	}
+																	required: ["numerator"]
+																	type: "object"
+																	"x-kubernetes-validations": [{
+																		message: "numerator must be less than or equal to denominator"
+																		rule:    "self.numerator <= self.denominator"
+																	}]
+																}
+															}
+															required: ["percent"]
+															type: "object"
+														}
 													}
 													type: "object"
 												}
@@ -6379,8 +7518,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		}
 																		hostname: {
 																			description: """
-																							Hostname defines the HTTP host that will be requested during health checking.
-																							Default: HTTPRoute or GRPCRoute hostname.
+																							Hostname defines the HTTP Host header used for active HTTP health checks.
+																							Host selection uses this order: this field, the associated Backend endpoint
+																							hostname if available, then the effective Route hostname.
 																							"""
 																			maxLength: 253
 																			minLength: 1
@@ -6400,6 +7540,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			minLength:   1
 																			type:        "string"
 																		}
+																		retriableStatuses: {
+																			description: """
+																							RetriableStatuses defines a list of HTTP response statuses considered retriable.
+																							Responses matching these statuses count towards the unhealthy threshold but
+																							do not result in the host being considered immediately unhealthy.
+																							The expected statuses take precedence for any range overlaps with this field.
+																							"""
+																			items: {
+																				description: "HTTPStatus defines the http status code."
+																				maximum:     599
+																				minimum:     100
+																				type:        "integer"
+																			}
+																			type: "array"
+																		}
 																	}
 																	required: ["path"]
 																	type: "object"
@@ -6417,6 +7572,26 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	description: "Interval defines the time between active health checks."
 																	pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																	type:        "string"
+																}
+																overrides: {
+																	description: """
+																					Overrides defines the configuration of the overriding health check settings for all endpoints
+																					in the backend cluster. This allows customization of port and other settings that may differ
+																					from the main service configuration.
+																					"""
+																	properties: port: {
+																		description: """
+																							Port overrides the health check port.
+																							If not set, the endpoint's serving port is used for health checks.
+																							This is useful when health checks are served on a different port than
+																							the main service port (e.g., port 443 for service, port 9090 for health checks).
+																							"""
+																		format:  "int32"
+																		maximum: 65535
+																		minimum: 1
+																		type:    "integer"
+																	}
+																	type: "object"
 																}
 																tcp: {
 																	description: """
@@ -6507,11 +7682,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type:        "string"
 																}
 																unhealthyThreshold: {
-																	default:     3
-																	description: "UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy."
-																	format:      "int32"
-																	minimum:     1
-																	type:        "integer"
+																	default: 3
+																	description: """
+																					UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+																					Without RetriableStatuses configured, any health check failure results in the host being immediately
+																					considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+																					up to this threshold before the host is marked unhealthy.
+																					"""
+																	format:  "int32"
+																	minimum: 1
+																	type:    "integer"
 																}
 															}
 															required: ["type"]
@@ -6542,6 +7722,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														passive: {
 															description: "Passive passive check configuration"
 															properties: {
+																alwaysEjectOneEndpoint: {
+																	default: false
+																	description: """
+																					AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+																					regardless of MaxEjectionPercent.
+																					"""
+																	type: "boolean"
+																}
 																baseEjectionTime: {
 																	default:     "30s"
 																	description: "BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures."
@@ -6589,6 +7777,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	default:     10
 																	description: "MaxEjectionPercent sets the maximum percentage of hosts in a cluster that can be ejected."
 																	format:      "int32"
+																	maximum:     100
+																	minimum:     0
 																	type:        "integer"
 																}
 																splitExternalLocalOriginErrors: {
@@ -6605,6 +7795,41 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												http2: {
 													description: "HTTP2 provides HTTP/2 configuration for backend connections."
 													properties: {
+														connectionKeepalive: {
+															description: "ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames."
+															properties: {
+																idleInterval: {
+																	description: "IdleInterval specifies how long a connection must be idle before a PING is sent."
+																	pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:        "string"
+																}
+																interval: {
+																	description: "Interval specifies how often to send HTTP/2 PING frames to keep the connection alive."
+																	pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:        "string"
+																}
+																intervalJitter: {
+																	description: """
+																					IntervalJitter specifies a random jitter percentage added to each interval.
+																					Defaults to 15% if not specified.
+																					"""
+																	format:  "int32"
+																	maximum: 100
+																	minimum: 0
+																	type:    "integer"
+																}
+																timeout: {
+																	description: "Timeout specifies how long to wait for a PING response before considering the connection dead."
+																	pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:        "string"
+																}
+															}
+															type: "object"
+															"x-kubernetes-validations": [{
+																message: "timeout must be less than interval"
+																rule:    "!has(self.timeout) || !has(self.interval) || duration(self.timeout) < duration(self.interval)"
+															}]
+														}
 														initialConnectionWindowSize: {
 															allOf: [{
 																pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
@@ -6667,6 +7892,65 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	the backend endpoints. Defaults to `LeastRequest`.
 																	"""
 													properties: {
+														backendUtilization: {
+															description: """
+																			BackendUtilization defines the configuration when the load balancer type is
+																			set to BackendUtilization.
+																			"""
+															properties: {
+																blackoutPeriod: {
+																	description: """
+																					A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+																					Default is 10s.
+																					"""
+																	pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:    "string"
+																}
+																errorUtilizationPenaltyPercent: {
+																	description: """
+																					ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+																					This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+
+																					For example:
+																					- 100 => 1.0x
+																					- 120 => 1.2x
+																					- 200 => 2.0x
+
+																					Must be non-negative.
+																					"""
+																	format:  "int32"
+																	minimum: 0
+																	type:    "integer"
+																}
+																keepResponseHeaders: {
+																	default: false
+																	description: """
+																					KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+																					Defaults to false.
+																					"""
+																	type: "boolean"
+																}
+																metricNamesForComputingUtilization: {
+																	description: """
+																					Metric names used to compute utilization if application_utilization is not set.
+																					For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+																					"""
+																	items: type: "string"
+																	type: "array"
+																}
+																weightExpirationPeriod: {
+																	description: "If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m."
+																	pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:        "string"
+																}
+																weightUpdatePeriod: {
+																	description: "How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s."
+																	pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:        "string"
+																}
+															}
+															type: "object"
+														}
 														consistentHash: {
 															description: """
 																			ConsistentHash defines the configuration when the load balancer type is
@@ -6785,6 +8069,47 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																rule:    "self.type == 'QueryParams' ? has(self.queryParams) : !has(self.queryParams)"
 															}]
 														}
+														dynamicModule: {
+															description: """
+																			DynamicModule defines the configuration when the load balancer type is
+																			set to DynamicModule. The referenced module must be registered in the
+																			EnvoyProxy resource's dynamicModules allowlist.
+																			"""
+															properties: {
+																config: {
+																	description: """
+																					Config is optional configuration for the module's load balancer
+																					implementation. This is serialized and passed to the module's
+																					initialization function.
+																					"""
+																	"x-kubernetes-preserve-unknown-fields": true
+																}
+																lbPolicyName: {
+																	description: """
+																					LBPolicyName identifies a specific load balancer implementation within
+																					the dynamic module. A single shared library can contain multiple LB
+																					policy implementations. This value is passed to the module's
+																					initialization function to select the appropriate implementation.
+																					"""
+																	maxLength: 253
+																	minLength: 1
+																	type:      "string"
+																}
+																name: {
+																	description: """
+																					Name references a dynamic module registered in the EnvoyProxy resource's
+																					dynamicModules list. The referenced module must exist in the registry;
+																					otherwise, the policy will be rejected.
+																					"""
+																	maxLength: 253
+																	minLength: 1
+																	pattern:   "^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$"
+																	type:      "string"
+																}
+															}
+															required: ["lbPolicyName", "name"]
+															type: "object"
+														}
 														endpointOverride: {
 															description: """
 																			EndpointOverride defines the configuration for endpoint override.
@@ -6818,7 +8143,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															description: """
 																			SlowStart defines the configuration related to the slow start load balancer policy.
 																			If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-																			Currently this is only supported for RoundRobin and LeastRequest load balancers
+																			Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
 																			"""
 															properties: window: {
 																description: """
@@ -6840,45 +8165,83 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			"ConsistentHash",
 																			"LeastRequest",
 																			"Random",
-																			"RoundRobin".
+																			"RoundRobin",
+																			"BackendUtilization",
+																			"DynamicModule".
 																			"""
-															enum: ["ConsistentHash", "LeastRequest", "Random", "RoundRobin"]
+															enum: ["ConsistentHash", "LeastRequest", "Random", "RoundRobin", "BackendUtilization", "DynamicModule"]
 															type: "string"
 														}
 														zoneAware: {
 															description: "ZoneAware defines the configuration related to the distribution of requests between locality zones."
-															properties: preferLocal: {
-																description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
-																properties: {
-																	force: {
-																		description: """
+															properties: {
+																preferLocal: {
+																	description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
+																	properties: {
+																		force: {
+																			description: """
 																							ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
 																							which maintains equal distribution among upstream endpoints while sending as much traffic as possible locally.
 																							"""
-																		properties: minEndpointsInZoneThreshold: {
-																			description: """
+																			properties: minEndpointsInZoneThreshold: {
+																				description: """
 																									MinEndpointsInZoneThreshold is the minimum number of upstream endpoints in the local zone required to honor the forceLocalZone
 																									override. This is useful for protecting zones with fewer endpoints.
 																									"""
-																			format: "int32"
-																			type:   "integer"
+																				format: "int32"
+																				type:   "integer"
+																			}
+																			type: "object"
 																		}
+																		minEndpointsThreshold: {
+																			description: "MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing."
+																			format:      "int64"
+																			type:        "integer"
+																		}
+																		percentageEnabled: {
+																			description: "Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%."
+																			format:      "int32"
+																			maximum:     100
+																			minimum:     0
+																			type:        "integer"
+																		}
+																	}
+																	type: "object"
+																}
+																weightedZones: {
+																	description: """
+																					WeightedZones configures weight-based traffic distribution across locality zones.
+																					Traffic is distributed proportionally based on the sum of all zone weights.
+																					"""
+																	items: {
+																		description: "WeightedZoneConfig defines the weight for a specific locality zone."
+																		properties: {
+																			weight: {
+																				description: """
+																								Weight defines the weight for this locality.
+																								Higher values receive more traffic. The actual traffic distribution
+																								is proportional to this value relative to other localities.
+																								"""
+																				format: "int32"
+																				type:   "integer"
+																			}
+																			zone: {
+																				description: """
+																								Zone specifies the topology zone this weight applies to.
+																								The value should match the topology.kubernetes.io/zone label
+																								of the nodes where endpoints are running.
+																								Zones not listed in the configuration receive a default weight of 1.
+																								"""
+																				type: "string"
+																			}
+																		}
+																		required: ["weight", "zone"]
 																		type: "object"
 																	}
-																	minEndpointsThreshold: {
-																		description: "MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing."
-																		format:      "int64"
-																		type:        "integer"
-																	}
-																	percentageEnabled: {
-																		description: "Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%."
-																		format:      "int32"
-																		maximum:     100
-																		minimum:     0
-																		type:        "integer"
-																	}
+																	type: "array"
+																	"x-kubernetes-list-map-keys": ["zone"]
+																	"x-kubernetes-list-type": "map"
 																}
-																type: "object"
 															}
 															type: "object"
 														}
@@ -6889,18 +8252,36 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														message: "If LoadBalancer type is consistentHash, consistentHash field needs to be set."
 														rule:    "self.type == 'ConsistentHash' ? has(self.consistentHash) : !has(self.consistentHash)"
 													}, {
-														message: "Currently SlowStart is only supported for RoundRobin and LeastRequest load balancers."
-														rule:    "self.type in ['Random', 'ConsistentHash'] ? !has(self.slowStart) : true "
+														message: "If LoadBalancer type is BackendUtilization, backendUtilization field needs to be set."
+														rule:    "self.type == 'BackendUtilization' ? has(self.backendUtilization) : !has(self.backendUtilization)"
 													}, {
-														message: "Currently ZoneAware is only supported for LeastRequest, Random, and RoundRobin load balancers."
-														rule:    "self.type == 'ConsistentHash' ? !has(self.zoneAware) : true "
+														message: "If LoadBalancer type is DynamicModule, dynamicModule field needs to be set."
+														rule:    "self.type == 'DynamicModule' ? has(self.dynamicModule) : !has(self.dynamicModule)"
+													}, {
+														message: "Currently SlowStart is only supported for RoundRobin, LeastRequest, and BackendUtilization load balancers."
+														rule:    "self.type in ['Random', 'ConsistentHash', 'DynamicModule'] ? !has(self.slowStart) : true"
+													}, {
+														message: "PreferLocal zone-aware routing is not supported for ConsistentHash load balancers. Use weightedZones instead."
+														rule:    "self.type == 'ConsistentHash' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true"
+													}, {
+														message: "PreferLocal zone-aware routing is not currently supported for BackendUtilization load balancers. Only WeightedZones can be used with BackendUtilization."
+														rule:    "self.type == 'BackendUtilization' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true"
+													}, {
+														message: "ZoneAware routing is not supported for DynamicModule load balancers."
+														rule:    "self.type == 'DynamicModule' ? !has(self.zoneAware) : true"
+													}, {
+														message: "ZoneAware PreferLocal and WeightedZones cannot be specified together."
+														rule:    "has(self.zoneAware) ? !(has(self.zoneAware.preferLocal) && has(self.zoneAware.weightedZones)) : true"
+													}, {
+														message: "EndpointOverride is not supported for DynamicModule load balancers."
+														rule:    "self.type == 'DynamicModule' ? !has(self.endpointOverride) : true"
 													}]
 												}
 												proxyProtocol: {
 													description: "ProxyProtocol enables the Proxy Protocol when communicating with the backend."
 													properties: version: {
 														description: """
-																			Version of ProxyProtol
+																			Version of ProxyProtocol
 																			Valid ProxyProtocolVersion values are
 																			"V1"
 																			"V2"
@@ -7074,6 +8455,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	description: "RequestTimeout is the time until which entire response is received from the upstream."
 																	pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																	type:        "string"
+																}
+																streamIdleTimeout: {
+																	description: """
+																					 The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+																					 If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+																					"""
+																	pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																	type:    "string"
 																}
 															}
 															type: "object"
@@ -7482,8 +8871,94 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										}
 										matchLabels: {
 											additionalProperties: type: "string"
-											description: "MatchLabels are the set of label selectors for identifying the targeted resource"
+											description: "MatchLabels are the set of label selectors for identifying the targeted resource."
 											type:        "object"
+										}
+										namespaces: {
+											description: """
+															Namespaces determines which namespaces are considered for target selection.
+
+															If unspecified, only targets in the same namespace as this policy are considered.
+
+															When specified, the effective set of namespaces is always constrained to the
+															namespaces watched by Envoy Gateway.
+
+															Selecting targets across namespaces requires a ReferenceGrant in the target
+															namespace that allows this policy kind to reference the selected target kind.
+															Cross-namespace targets without a matching ReferenceGrant are ignored.
+															"""
+											properties: {
+												from: {
+													default: "Same"
+													description: """
+																	From indicates how namespaces are selected for this target selector.
+
+																	All means all namespaces watched by Envoy Gateway.
+																	Selector means namespaces watched by Envoy Gateway that match Selector.
+																	"""
+													enum: ["Same", "All", "Selector"]
+													type: "string"
+												}
+												selector: {
+													description: "Selector selects namespaces when From is set to Selector."
+													properties: {
+														matchExpressions: {
+															description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+															items: {
+																description: """
+																				A label selector requirement is a selector that contains values, a key, and an operator that
+																				relates the key and values.
+																				"""
+																properties: {
+																	key: {
+																		description: "key is the label key that the selector applies to."
+																		type:        "string"
+																	}
+																	operator: {
+																		description: """
+																						operator represents a key's relationship to a set of values.
+																						Valid operators are In, NotIn, Exists and DoesNotExist.
+																						"""
+																		type: "string"
+																	}
+																	values: {
+																		description: """
+																						values is an array of string values. If the operator is In or NotIn,
+																						the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																						the values array must be empty. This array is replaced during a strategic
+																						merge patch.
+																						"""
+																		items: type: "string"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
+																	}
+																}
+																required: ["key", "operator"]
+																type: "object"
+															}
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
+														}
+														matchLabels: {
+															additionalProperties: type: "string"
+															description: """
+																			matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+																			map is equivalent to an element of matchExpressions, whose key field is "key", the
+																			operator is "In", and the values array contains only "value". The requirements are ANDed.
+																			"""
+															type: "object"
+														}
+													}
+													type:                    "object"
+													"x-kubernetes-map-type": "atomic"
+												}
+											}
+											required: ["from"]
+											type: "object"
+											"x-kubernetes-validations": [{
+												message: "selector must be specified when from is Selector"
+												rule:    "self.from != 'Selector' || has(self.selector)"
+											}]
 										}
 									}
 									required: ["kind"]
@@ -7532,13 +9007,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															description: "TLS configuration when connecting to the Wasm code source."
 															properties: caCertificateRef: {
 																description: """
-																					CACertificateRef contains a references to
+																					CACertificateRef contains a reference to
 																					Kubernetes objects that contain TLS certificates of
 																					the Certificate Authorities that can be used
 																					as a trust anchor to validate the certificates presented by the Wasm code source.
 
-																					Kubernetes ConfigMap and Kubernetes Secret are supported.
-																					Note: The ConfigMap or Secret must be in the same namespace as the EnvoyExtensionPolicy.
+																					Kubernetes ConfigMap, Kubernetes Secret, and Kubernetes ClusterTrustBundle are supported.
 																					"""
 																properties: {
 																	group: {
@@ -7606,10 +9080,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	"""
 													properties: {
 														pullSecretRef: {
-															description: """
-																			PullSecretRef is a reference to the secret containing the credentials to pull the image.
-																			Only support Kubernetes Secret resource from the same namespace.
-																			"""
+															description: "PullSecretRef is a reference to the secret containing the credentials to pull the image."
 															properties: {
 																group: {
 																	default: ""
@@ -7675,13 +9146,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															description: "TLS configuration when connecting to the Wasm code source."
 															properties: caCertificateRef: {
 																description: """
-																					CACertificateRef contains a references to
+																					CACertificateRef contains a reference to
 																					Kubernetes objects that contain TLS certificates of
 																					the Certificate Authorities that can be used
 																					as a trust anchor to validate the certificates presented by the Wasm code source.
 
-																					Kubernetes ConfigMap and Kubernetes Secret are supported.
-																					Note: The ConfigMap or Secret must be in the same namespace as the EnvoyExtensionPolicy.
+																					Kubernetes ConfigMap, Kubernetes Secret, and Kubernetes ClusterTrustBundle are supported.
 																					"""
 																properties: {
 																	group: {
@@ -8842,6 +10312,39 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										description: """
 														Ciphers specifies the set of cipher suites supported when
 														negotiating TLS 1.0 - 1.2. This setting has no effect for TLS 1.3.
+														For Envoy TLS cipher suite configuration semantics and default cipher
+														lists, see the Envoy documentation:
+														https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/transport_sockets/tls/v3/common.proto#extensions-transport-sockets-tls-v3-tlsparameters
+														Supported cipher suite names:
+														- ECDHE-ECDSA-AES128-GCM-SHA256
+														- ECDHE-RSA-AES128-GCM-SHA256
+														- ECDHE-ECDSA-AES256-GCM-SHA384
+														- ECDHE-RSA-AES256-GCM-SHA384
+														- ECDHE-ECDSA-CHACHA20-POLY1305
+														- ECDHE-RSA-CHACHA20-POLY1305
+														- ECDHE-ECDSA-AES128-SHA
+														- ECDHE-RSA-AES128-SHA
+														- AES128-GCM-SHA256
+														- AES128-SHA
+														- ECDHE-ECDSA-AES256-SHA
+														- ECDHE-RSA-AES256-SHA
+														- AES256-GCM-SHA384
+														- AES256-SHA
+														Supported IANA/RFC aliases:
+														- TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+														- TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+														- TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+														- TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+														- TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
+														- TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+														- TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
+														- TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+														- TLS_RSA_WITH_AES_128_GCM_SHA256
+														- TLS_RSA_WITH_AES_128_CBC_SHA
+														- TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA
+														- TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+														- TLS_RSA_WITH_AES_256_GCM_SHA384
+														- TLS_RSA_WITH_AES_256_CBC_SHA
 														In non-FIPS Envoy Proxy builds the default cipher list is:
 														- [ECDHE-ECDSA-AES128-GCM-SHA256|ECDHE-ECDSA-CHACHA20-POLY1305]
 														- [ECDHE-RSA-AES128-GCM-SHA256|ECDHE-RSA-CHACHA20-POLY1305]
@@ -8919,6 +10422,26 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														- P-256
 														"""
 										items: type: "string"
+										type: "array"
+									}
+									fingerprints: {
+										description: """
+														Fingerprints specifies TLS client fingerprinting.
+														When specified, a JAX fingerprint derived from the client’s TLS handshake
+														is generated. The fingerprint can be logged in access logs or
+														forwarded to upstream services using request headers.
+
+														Fingerprinting is disabled if not specified.
+
+														Supported values are:
+														- JA3
+														- JA4
+														"""
+										items: {
+											description: "TLSFingerprintType specifies the TLS client fingerprinting mode."
+											enum: ["JA3", "JA4"]
+											type: "string"
+										}
 										type: "array"
 									}
 									maxVersion: {
@@ -9052,6 +10575,124 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								format: "int32"
 								type:   "integer"
 							}
+							dynamicModules: {
+								description: """
+												DynamicModules defines the set of dynamic modules that are allowed to be
+												used by EnvoyExtensionPolicy resources and dynamic module load balancer
+												policies. Each entry registers a module by a logical name and specifies
+												the shared library that Envoy will load.
+
+												The EnvoyProxy owner is responsible for ensuring the module .so files are available
+												on the proxy container's filesystem (e.g., via init containers, custom images,
+												or shared volumes).
+												"""
+								items: {
+									description: """
+													DynamicModuleEntry defines a dynamic module that is registered and allowed
+													for use by EnvoyExtensionPolicy resources.
+													"""
+									properties: {
+										doNotClose: {
+											default: false
+											description: """
+															DoNotClose prevents the module from being unloaded with dlclose when no
+															more references exist. This is useful for modules that maintain global
+															state that should not be destroyed on configuration updates.
+															Defaults to false.
+															"""
+											type: "boolean"
+										}
+										loadGlobally: {
+											default: false
+											description: """
+															LoadGlobally loads the dynamic module with the RTLD_GLOBAL flag.
+															By default, modules are loaded with RTLD_LOCAL to avoid symbol conflicts.
+															Set this to true when the module needs to share symbols with other
+															dynamic libraries it loads.
+															Defaults to false.
+															"""
+											type: "boolean"
+										}
+										name: {
+											description: """
+															Name is the logical name for this module. EnvoyExtensionPolicy resources
+															reference modules by this name.
+															"""
+											maxLength: 253
+											minLength: 1
+											pattern:   "^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$"
+											type:      "string"
+										}
+										source: {
+											description: "Source defines where the dynamic module code is loaded from."
+											properties: {
+												local: {
+													description: """
+																	Local specifies a module loaded from the proxy's local filesystem
+																	by absolute path.
+																	"""
+													properties: path: {
+														description: "Path is the absolute filesystem path to the dynamic module shared library (.so file)."
+														maxLength:   4096
+														minLength:   1
+														type:        "string"
+													}
+													required: ["path"]
+													type: "object"
+												}
+												remote: {
+													description: """
+																	Remote specifies a module fetched from a remote source.
+																	The module binary is downloaded and cached by Envoy.
+																	"""
+													properties: {
+														sha256: {
+															description: "SHA256 checksum that Envoy will use to verify the downloaded module binary."
+															pattern:     "^[a-f0-9]{64}$"
+															type:        "string"
+														}
+														url: {
+															description: "URL is the HTTP or HTTPS URL of the dynamic module shared library (.so file)."
+															maxLength:   4096
+															minLength:   1
+															pattern:     "^https?://[^/?#]+(?:[/?#].*)?$"
+															type:        "string"
+														}
+													}
+													required: ["sha256", "url"]
+													type: "object"
+												}
+												type: {
+													default: "Local"
+													description: """
+																	Type is the type of the source of the dynamic module code.
+																	Defaults to Local.
+																	"""
+													enum: ["Local", "Remote"]
+													type: "string"
+												}
+											}
+											type: "object"
+											"x-kubernetes-validations": [{
+												message: "If type is Remote, remote field needs to be set."
+												rule:    "self.type == 'Remote' ? has(self.remote) : !has(self.remote)"
+											}, {
+												message: "If type is Local, local field needs to be set."
+												rule:    "self.type != 'Local' || has(self.local)"
+											}, {
+												message: "If type is Remote, local field must not be set."
+												rule:    "self.type == 'Remote' ? !has(self.local) : true"
+											}]
+										}
+									}
+									required: ["name", "source"]
+									type: "object"
+								}
+								maxItems: 16
+								type:     "array"
+								"x-kubernetes-list-map-keys": ["name"]
+								"x-kubernetes-list-type": "map"
+							}
 							extraArgs: {
 								description: """
 												ExtraArgs defines additional command line options that are provided to Envoy.
@@ -9098,11 +10739,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 
 												- envoy.filters.http.wasm
 
+												- envoy.filters.http.dynamic_modules
+
+												- envoy.filters.http.geoip
+
 												- envoy.filters.http.rbac
 
 												- envoy.filters.http.local_ratelimit
 
 												- envoy.filters.http.ratelimit
+
+												- envoy.filters.http.bandwidth_limit
 
 												- envoy.filters.http.grpc_web
 
@@ -9126,7 +10773,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															After defines the filter that should come after the filter.
 															Only one of Before or After must be set.
 															"""
-											enum: ["envoy.filters.http.custom_response", "envoy.filters.http.health_check", "envoy.filters.http.fault", "envoy.filters.http.cors", "envoy.filters.http.header_mutation", "envoy.filters.http.ext_authz", "envoy.filters.http.api_key_auth", "envoy.filters.http.basic_auth", "envoy.filters.http.oauth2", "envoy.filters.http.jwt_authn", "envoy.filters.http.stateful_session", "envoy.filters.http.buffer", "envoy.filters.http.lua", "envoy.filters.http.ext_proc", "envoy.filters.http.wasm", "envoy.filters.http.rbac", "envoy.filters.http.local_ratelimit", "envoy.filters.http.ratelimit", "envoy.filters.http.grpc_web", "envoy.filters.http.grpc_stats", "envoy.filters.http.credential_injector", "envoy.filters.http.compressor", "envoy.filters.http.dynamic_forward_proxy"]
+											enum: ["envoy.filters.http.custom_response", "envoy.filters.http.health_check", "envoy.filters.http.fault", "envoy.filters.http.cors", "envoy.filters.http.header_mutation", "envoy.filters.http.ext_authz", "envoy.filters.http.api_key_auth", "envoy.filters.http.basic_auth", "envoy.filters.http.oauth2", "envoy.filters.http.jwt_authn", "envoy.filters.http.stateful_session", "envoy.filters.http.buffer", "envoy.filters.http.lua", "envoy.filters.http.ext_proc", "envoy.filters.http.wasm", "envoy.filters.http.dynamic_modules", "envoy.filters.http.geoip", "envoy.filters.http.rbac", "envoy.filters.http.local_ratelimit", "envoy.filters.http.ratelimit", "envoy.filters.http.bandwidth_limit", "envoy.filters.http.grpc_web", "envoy.filters.http.grpc_stats", "envoy.filters.http.credential_injector", "envoy.filters.http.compressor", "envoy.filters.http.dynamic_forward_proxy"]
 											type: "string"
 										}
 										before: {
@@ -9134,12 +10781,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															Before defines the filter that should come before the filter.
 															Only one of Before or After must be set.
 															"""
-											enum: ["envoy.filters.http.custom_response", "envoy.filters.http.health_check", "envoy.filters.http.fault", "envoy.filters.http.cors", "envoy.filters.http.header_mutation", "envoy.filters.http.ext_authz", "envoy.filters.http.api_key_auth", "envoy.filters.http.basic_auth", "envoy.filters.http.oauth2", "envoy.filters.http.jwt_authn", "envoy.filters.http.stateful_session", "envoy.filters.http.buffer", "envoy.filters.http.lua", "envoy.filters.http.ext_proc", "envoy.filters.http.wasm", "envoy.filters.http.rbac", "envoy.filters.http.local_ratelimit", "envoy.filters.http.ratelimit", "envoy.filters.http.grpc_web", "envoy.filters.http.grpc_stats", "envoy.filters.http.credential_injector", "envoy.filters.http.compressor", "envoy.filters.http.dynamic_forward_proxy"]
+											enum: ["envoy.filters.http.custom_response", "envoy.filters.http.health_check", "envoy.filters.http.fault", "envoy.filters.http.cors", "envoy.filters.http.header_mutation", "envoy.filters.http.ext_authz", "envoy.filters.http.api_key_auth", "envoy.filters.http.basic_auth", "envoy.filters.http.oauth2", "envoy.filters.http.jwt_authn", "envoy.filters.http.stateful_session", "envoy.filters.http.buffer", "envoy.filters.http.lua", "envoy.filters.http.ext_proc", "envoy.filters.http.wasm", "envoy.filters.http.dynamic_modules", "envoy.filters.http.geoip", "envoy.filters.http.rbac", "envoy.filters.http.local_ratelimit", "envoy.filters.http.ratelimit", "envoy.filters.http.bandwidth_limit", "envoy.filters.http.grpc_web", "envoy.filters.http.grpc_stats", "envoy.filters.http.credential_injector", "envoy.filters.http.compressor", "envoy.filters.http.dynamic_forward_proxy"]
 											type: "string"
 										}
 										name: {
 											description: "Name of the filter."
-											enum: ["envoy.filters.http.custom_response", "envoy.filters.http.health_check", "envoy.filters.http.fault", "envoy.filters.http.cors", "envoy.filters.http.header_mutation", "envoy.filters.http.ext_authz", "envoy.filters.http.api_key_auth", "envoy.filters.http.basic_auth", "envoy.filters.http.oauth2", "envoy.filters.http.jwt_authn", "envoy.filters.http.stateful_session", "envoy.filters.http.buffer", "envoy.filters.http.lua", "envoy.filters.http.ext_proc", "envoy.filters.http.wasm", "envoy.filters.http.rbac", "envoy.filters.http.local_ratelimit", "envoy.filters.http.ratelimit", "envoy.filters.http.grpc_web", "envoy.filters.http.grpc_stats", "envoy.filters.http.credential_injector", "envoy.filters.http.compressor", "envoy.filters.http.dynamic_forward_proxy"]
+											enum: ["envoy.filters.http.custom_response", "envoy.filters.http.health_check", "envoy.filters.http.fault", "envoy.filters.http.cors", "envoy.filters.http.header_mutation", "envoy.filters.http.ext_authz", "envoy.filters.http.api_key_auth", "envoy.filters.http.basic_auth", "envoy.filters.http.oauth2", "envoy.filters.http.jwt_authn", "envoy.filters.http.stateful_session", "envoy.filters.http.buffer", "envoy.filters.http.lua", "envoy.filters.http.ext_proc", "envoy.filters.http.wasm", "envoy.filters.http.dynamic_modules", "envoy.filters.http.geoip", "envoy.filters.http.rbac", "envoy.filters.http.local_ratelimit", "envoy.filters.http.ratelimit", "envoy.filters.http.bandwidth_limit", "envoy.filters.http.grpc_web", "envoy.filters.http.grpc_stats", "envoy.filters.http.credential_injector", "envoy.filters.http.compressor", "envoy.filters.http.dynamic_forward_proxy"]
 											type: "string"
 										}
 									}
@@ -9154,6 +10801,112 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}]
 								}
 								type: "array"
+							}
+							geoIP: {
+								description: "GeoIP defines shared GeoIP provider configuration for this EnvoyProxy fleet."
+								properties: provider: {
+									description: "Provider defines the GeoIP provider configuration used by GeoIP filter instances."
+									properties: {
+										maxMind: {
+											description: "MaxMind configures the MaxMind provider."
+											properties: {
+												anonymousIpDbSource: {
+													description: "AnonymousIPDBSource configures the Anonymous IP database source."
+													properties: local: {
+														description: "Local is a database source from a local file."
+														properties: path: {
+															description: "Path is the path to the database file."
+															pattern:     "^.*\\.mmdb$"
+															type:        "string"
+														}
+														required: ["path"]
+														type: "object"
+													}
+													required: ["local"]
+													type: "object"
+												}
+												asnDbSource: {
+													description: "ASNDBSource configures the ASN database source."
+													properties: local: {
+														description: "Local is a database source from a local file."
+														properties: path: {
+															description: "Path is the path to the database file."
+															pattern:     "^.*\\.mmdb$"
+															type:        "string"
+														}
+														required: ["path"]
+														type: "object"
+													}
+													required: ["local"]
+													type: "object"
+												}
+												cityDbSource: {
+													description: "CityDBSource configures the City database source."
+													properties: local: {
+														description: "Local is a database source from a local file."
+														properties: path: {
+															description: "Path is the path to the database file."
+															pattern:     "^.*\\.mmdb$"
+															type:        "string"
+														}
+														required: ["path"]
+														type: "object"
+													}
+													required: ["local"]
+													type: "object"
+												}
+												countryDbSource: {
+													description: "CountryDBSource configures the Country database source."
+													properties: local: {
+														description: "Local is a database source from a local file."
+														properties: path: {
+															description: "Path is the path to the database file."
+															pattern:     "^.*\\.mmdb$"
+															type:        "string"
+														}
+														required: ["path"]
+														type: "object"
+													}
+													required: ["local"]
+													type: "object"
+												}
+												ispDbSource: {
+													description: "ISPDBSource configures the ISP database source."
+													properties: local: {
+														description: "Local is a database source from a local file."
+														properties: path: {
+															description: "Path is the path to the database file."
+															pattern:     "^.*\\.mmdb$"
+															type:        "string"
+														}
+														required: ["path"]
+														type: "object"
+													}
+													required: ["local"]
+													type: "object"
+												}
+											}
+											type: "object"
+											"x-kubernetes-validations": [{
+												message: "at least one MaxMind database source must be specified"
+												rule:    "has(self.cityDbSource) || has(self.countryDbSource) || has(self.asnDbSource) || has(self.ispDbSource) || has(self.anonymousIpDbSource)"
+											}]
+										}
+										type: {
+											description: "GeoIPProviderType enumerates GeoIP providers supported by Envoy Gateway."
+											enum: ["MaxMind"]
+											type: "string"
+										}
+									}
+									required: ["type"]
+									type: "object"
+									"x-kubernetes-validations": [{
+										message: "maxMind must be set when type is MaxMind"
+										rule:    "self.type == 'MaxMind' ? has(self.maxMind) : true"
+									}]
+								}
+								required: ["provider"]
+								type: "object"
 							}
 							ipFamily: {
 								description: """
@@ -9202,6 +10955,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												If a duplicate listener is detected, the newer listener (based on timestamp) will be rejected and its status will be updated with a "Accepted=False" condition.
 												"""
 								type: "boolean"
+							}
+							mergeType: {
+								description: """
+												MergeType controls how this EnvoyProxy merges with less specific configurations
+												in the hierarchy (EnvoyGateway defaults < GatewayClass < Gateway).
+												If unset, this EnvoyProxy completely replaces less specific settings.
+												Note: this field has no effect when set in EnvoyGateway's default EnvoyProxySpec.
+												"""
+								enum: ["Replace", "StrategicMerge", "JSONMerge"]
+								type: "string"
 							}
 							preserveRouteOrder: {
 								description: """
@@ -9629,7 +11392,6 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						procMount denotes the type of proc mount to use for the containers.
 																						The default value is Default which uses the container runtime defaults for
 																						readonly paths and masked paths.
-																						This requires the ProcMountType feature flag to be enabled.
 																						Note that this field cannot be set when spec.os.name is windows.
 																						"""
 																		type: "string"
@@ -12605,7 +14367,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							A failure to resolve or pull the image during pod startup will block containers from starting and may add significant latency. Failures will be retried using normal volume backoff and will be reported on the pod reason and message.
 																							The types of objects that may be mounted by this volume are defined by the container runtime implementation on a host machine and at minimum must include all valid types supported by the container image field.
 																							The OCI object gets mounted in a single directory (spec.containers[*].volumeMounts.mountPath) by merging the manifest layers in the same way as for container images.
-																							The volume will be mounted read-only (ro) and non-executable files (noexec).
+																							The volume will be mounted read-only (ro).
 																							Sub path mounts for containers are not supported (spec.containers[*].volumeMounts.subpath) before 1.33.
 																							The field spec.securityContext.fsGroupChangePolicy has no effect on this volume type.
 																							"""
@@ -12817,8 +14579,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			description: """
 																							portworxVolume represents a portworx volume attached and mounted on kubelets host machine.
 																							Deprecated: PortworxVolume is deprecated. All operations for the in-tree portworxVolume type
-																							are redirected to the pxd.portworx.com CSI driver when the CSIMigrationPortworx feature-gate
-																							is on.
+																							are redirected to the pxd.portworx.com CSI driver.
 																							"""
 																			properties: {
 																				fsType: {
@@ -14227,7 +15988,6 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						procMount denotes the type of proc mount to use for the containers.
 																						The default value is Default which uses the container runtime defaults for
 																						readonly paths and masked paths.
-																						This requires the ProcMountType feature flag to be enabled.
 																						Note that this field cannot be set when spec.os.name is windows.
 																						"""
 																		type: "string"
@@ -15784,7 +17544,6 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							procMount denotes the type of proc mount to use for the containers.
 																							The default value is Default which uses the container runtime defaults for
 																							readonly paths and masked paths.
-																							This requires the ProcMountType feature flag to be enabled.
 																							Note that this field cannot be set when spec.os.name is windows.
 																							"""
 																			type: "string"
@@ -19036,7 +20795,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							A failure to resolve or pull the image during pod startup will block containers from starting and may add significant latency. Failures will be retried using normal volume backoff and will be reported on the pod reason and message.
 																							The types of objects that may be mounted by this volume are defined by the container runtime implementation on a host machine and at minimum must include all valid types supported by the container image field.
 																							The OCI object gets mounted in a single directory (spec.containers[*].volumeMounts.mountPath) by merging the manifest layers in the same way as for container images.
-																							The volume will be mounted read-only (ro) and non-executable files (noexec).
+																							The volume will be mounted read-only (ro).
 																							Sub path mounts for containers are not supported (spec.containers[*].volumeMounts.subpath) before 1.33.
 																							The field spec.securityContext.fsGroupChangePolicy has no effect on this volume type.
 																							"""
@@ -19248,8 +21007,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			description: """
 																							portworxVolume represents a portworx volume attached and mounted on kubelets host machine.
 																							Deprecated: PortworxVolume is deprecated. All operations for the in-tree portworxVolume type
-																							are redirected to the pxd.portworx.com CSI driver when the CSIMigrationPortworx feature-gate
-																							is on.
+																							are redirected to the pxd.portworx.com CSI driver.
 																							"""
 																			properties: {
 																				fsType: {
@@ -21680,6 +23438,53 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								}
 																								type: "object"
 																							}
+																							retryBudget: {
+																								description: """
+																												RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+																												RetryBudget take precedence over maxParallelRetries.
+																												"""
+																								properties: {
+																									minRetryConcurrency: {
+																										description: """
+																														MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+																														For example, a budget of 20% with a minimum retry concurrency of 3
+																														will allow 5 active retries while there are 25 active requests.
+																														If there are 2 active requests, there are still 3 active retries
+																														allowed because of the minimum retry concurrency.
+																														Defaults to 3.
+																														"""
+																										format: "int32"
+																										type:   "integer"
+																									}
+																									percent: {
+																										description: """
+																														Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+																														the sum of active requests and active pending requests.
+																														"""
+																										properties: {
+																											denominator: {
+																												default: 100
+																												format:  "int32"
+																												minimum: 1
+																												type:    "integer"
+																											}
+																											numerator: {
+																												format:  "int32"
+																												minimum: 0
+																												type:    "integer"
+																											}
+																										}
+																										required: ["numerator"]
+																										type: "object"
+																										"x-kubernetes-validations": [{
+																											message: "numerator must be less than or equal to denominator"
+																											rule:    "self.numerator <= self.denominator"
+																										}]
+																									}
+																								}
+																								required: ["percent"]
+																								type: "object"
+																							}
 																						}
 																						type: "object"
 																					}
@@ -21882,8 +23687,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																											}
 																											hostname: {
 																												description: """
-																																Hostname defines the HTTP host that will be requested during health checking.
-																																Default: HTTPRoute or GRPCRoute hostname.
+																																Hostname defines the HTTP Host header used for active HTTP health checks.
+																																Host selection uses this order: this field, the associated Backend endpoint
+																																hostname if available, then the effective Route hostname.
 																																"""
 																												maxLength: 253
 																												minLength: 1
@@ -21903,6 +23709,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																												minLength:   1
 																												type:        "string"
 																											}
+																											retriableStatuses: {
+																												description: """
+																																RetriableStatuses defines a list of HTTP response statuses considered retriable.
+																																Responses matching these statuses count towards the unhealthy threshold but
+																																do not result in the host being considered immediately unhealthy.
+																																The expected statuses take precedence for any range overlaps with this field.
+																																"""
+																												items: {
+																													description: "HTTPStatus defines the http status code."
+																													maximum:     599
+																													minimum:     100
+																													type:        "integer"
+																												}
+																												type: "array"
+																											}
 																										}
 																										required: ["path"]
 																										type: "object"
@@ -21920,6 +23741,26 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										description: "Interval defines the time between active health checks."
 																										pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																										type:        "string"
+																									}
+																									overrides: {
+																										description: """
+																														Overrides defines the configuration of the overriding health check settings for all endpoints
+																														in the backend cluster. This allows customization of port and other settings that may differ
+																														from the main service configuration.
+																														"""
+																										properties: port: {
+																											description: """
+																																Port overrides the health check port.
+																																If not set, the endpoint's serving port is used for health checks.
+																																This is useful when health checks are served on a different port than
+																																the main service port (e.g., port 443 for service, port 9090 for health checks).
+																																"""
+																											format:  "int32"
+																											maximum: 65535
+																											minimum: 1
+																											type:    "integer"
+																										}
+																										type: "object"
 																									}
 																									tcp: {
 																										description: """
@@ -22010,11 +23851,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										type:        "string"
 																									}
 																									unhealthyThreshold: {
-																										default:     3
-																										description: "UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy."
-																										format:      "int32"
-																										minimum:     1
-																										type:        "integer"
+																										default: 3
+																										description: """
+																														UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+																														Without RetriableStatuses configured, any health check failure results in the host being immediately
+																														considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+																														up to this threshold before the host is marked unhealthy.
+																														"""
+																										format:  "int32"
+																										minimum: 1
+																										type:    "integer"
 																									}
 																								}
 																								required: ["type"]
@@ -22045,6 +23891,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							passive: {
 																								description: "Passive passive check configuration"
 																								properties: {
+																									alwaysEjectOneEndpoint: {
+																										default: false
+																										description: """
+																														AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+																														regardless of MaxEjectionPercent.
+																														"""
+																										type: "boolean"
+																									}
 																									baseEjectionTime: {
 																										default:     "30s"
 																										description: "BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures."
@@ -22092,6 +23946,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										default:     10
 																										description: "MaxEjectionPercent sets the maximum percentage of hosts in a cluster that can be ejected."
 																										format:      "int32"
+																										maximum:     100
+																										minimum:     0
 																										type:        "integer"
 																									}
 																									splitExternalLocalOriginErrors: {
@@ -22108,6 +23964,41 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					http2: {
 																						description: "HTTP2 provides HTTP/2 configuration for backend connections."
 																						properties: {
+																							connectionKeepalive: {
+																								description: "ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames."
+																								properties: {
+																									idleInterval: {
+																										description: "IdleInterval specifies how long a connection must be idle before a PING is sent."
+																										pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																										type:        "string"
+																									}
+																									interval: {
+																										description: "Interval specifies how often to send HTTP/2 PING frames to keep the connection alive."
+																										pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																										type:        "string"
+																									}
+																									intervalJitter: {
+																										description: """
+																														IntervalJitter specifies a random jitter percentage added to each interval.
+																														Defaults to 15% if not specified.
+																														"""
+																										format:  "int32"
+																										maximum: 100
+																										minimum: 0
+																										type:    "integer"
+																									}
+																									timeout: {
+																										description: "Timeout specifies how long to wait for a PING response before considering the connection dead."
+																										pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																										type:        "string"
+																									}
+																								}
+																								type: "object"
+																								"x-kubernetes-validations": [{
+																									message: "timeout must be less than interval"
+																									rule:    "!has(self.timeout) || !has(self.interval) || duration(self.timeout) < duration(self.interval)"
+																								}]
+																							}
 																							initialConnectionWindowSize: {
 																								allOf: [{
 																									pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
@@ -22170,6 +24061,65 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										the backend endpoints. Defaults to `LeastRequest`.
 																										"""
 																						properties: {
+																							backendUtilization: {
+																								description: """
+																												BackendUtilization defines the configuration when the load balancer type is
+																												set to BackendUtilization.
+																												"""
+																								properties: {
+																									blackoutPeriod: {
+																										description: """
+																														A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+																														Default is 10s.
+																														"""
+																										pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																										type:    "string"
+																									}
+																									errorUtilizationPenaltyPercent: {
+																										description: """
+																														ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+																														This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+
+																														For example:
+																														- 100 => 1.0x
+																														- 120 => 1.2x
+																														- 200 => 2.0x
+
+																														Must be non-negative.
+																														"""
+																										format:  "int32"
+																										minimum: 0
+																										type:    "integer"
+																									}
+																									keepResponseHeaders: {
+																										default: false
+																										description: """
+																														KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+																														Defaults to false.
+																														"""
+																										type: "boolean"
+																									}
+																									metricNamesForComputingUtilization: {
+																										description: """
+																														Metric names used to compute utilization if application_utilization is not set.
+																														For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+																														"""
+																										items: type: "string"
+																										type: "array"
+																									}
+																									weightExpirationPeriod: {
+																										description: "If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m."
+																										pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																										type:        "string"
+																									}
+																									weightUpdatePeriod: {
+																										description: "How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s."
+																										pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																										type:        "string"
+																									}
+																								}
+																								type: "object"
+																							}
 																							consistentHash: {
 																								description: """
 																												ConsistentHash defines the configuration when the load balancer type is
@@ -22288,6 +24238,47 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									rule:    "self.type == 'QueryParams' ? has(self.queryParams) : !has(self.queryParams)"
 																								}]
 																							}
+																							dynamicModule: {
+																								description: """
+																												DynamicModule defines the configuration when the load balancer type is
+																												set to DynamicModule. The referenced module must be registered in the
+																												EnvoyProxy resource's dynamicModules allowlist.
+																												"""
+																								properties: {
+																									config: {
+																										description: """
+																														Config is optional configuration for the module's load balancer
+																														implementation. This is serialized and passed to the module's
+																														initialization function.
+																														"""
+																										"x-kubernetes-preserve-unknown-fields": true
+																									}
+																									lbPolicyName: {
+																										description: """
+																														LBPolicyName identifies a specific load balancer implementation within
+																														the dynamic module. A single shared library can contain multiple LB
+																														policy implementations. This value is passed to the module's
+																														initialization function to select the appropriate implementation.
+																														"""
+																										maxLength: 253
+																										minLength: 1
+																										type:      "string"
+																									}
+																									name: {
+																										description: """
+																														Name references a dynamic module registered in the EnvoyProxy resource's
+																														dynamicModules list. The referenced module must exist in the registry;
+																														otherwise, the policy will be rejected.
+																														"""
+																										maxLength: 253
+																										minLength: 1
+																										pattern:   "^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$"
+																										type:      "string"
+																									}
+																								}
+																								required: ["lbPolicyName", "name"]
+																								type: "object"
+																							}
 																							endpointOverride: {
 																								description: """
 																												EndpointOverride defines the configuration for endpoint override.
@@ -22321,7 +24312,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								description: """
 																												SlowStart defines the configuration related to the slow start load balancer policy.
 																												If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-																												Currently this is only supported for RoundRobin and LeastRequest load balancers
+																												Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
 																												"""
 																								properties: window: {
 																									description: """
@@ -22343,45 +24334,83 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																												"ConsistentHash",
 																												"LeastRequest",
 																												"Random",
-																												"RoundRobin".
+																												"RoundRobin",
+																												"BackendUtilization",
+																												"DynamicModule".
 																												"""
-																								enum: ["ConsistentHash", "LeastRequest", "Random", "RoundRobin"]
+																								enum: ["ConsistentHash", "LeastRequest", "Random", "RoundRobin", "BackendUtilization", "DynamicModule"]
 																								type: "string"
 																							}
 																							zoneAware: {
 																								description: "ZoneAware defines the configuration related to the distribution of requests between locality zones."
-																								properties: preferLocal: {
-																									description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
-																									properties: {
-																										force: {
-																											description: """
+																								properties: {
+																									preferLocal: {
+																										description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
+																										properties: {
+																											force: {
+																												description: """
 																																ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
 																																which maintains equal distribution among upstream endpoints while sending as much traffic as possible locally.
 																																"""
-																											properties: minEndpointsInZoneThreshold: {
-																												description: """
+																												properties: minEndpointsInZoneThreshold: {
+																													description: """
 																																		MinEndpointsInZoneThreshold is the minimum number of upstream endpoints in the local zone required to honor the forceLocalZone
 																																		override. This is useful for protecting zones with fewer endpoints.
 																																		"""
-																												format: "int32"
-																												type:   "integer"
+																													format: "int32"
+																													type:   "integer"
+																												}
+																												type: "object"
 																											}
+																											minEndpointsThreshold: {
+																												description: "MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing."
+																												format:      "int64"
+																												type:        "integer"
+																											}
+																											percentageEnabled: {
+																												description: "Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%."
+																												format:      "int32"
+																												maximum:     100
+																												minimum:     0
+																												type:        "integer"
+																											}
+																										}
+																										type: "object"
+																									}
+																									weightedZones: {
+																										description: """
+																														WeightedZones configures weight-based traffic distribution across locality zones.
+																														Traffic is distributed proportionally based on the sum of all zone weights.
+																														"""
+																										items: {
+																											description: "WeightedZoneConfig defines the weight for a specific locality zone."
+																											properties: {
+																												weight: {
+																													description: """
+																																	Weight defines the weight for this locality.
+																																	Higher values receive more traffic. The actual traffic distribution
+																																	is proportional to this value relative to other localities.
+																																	"""
+																													format: "int32"
+																													type:   "integer"
+																												}
+																												zone: {
+																													description: """
+																																	Zone specifies the topology zone this weight applies to.
+																																	The value should match the topology.kubernetes.io/zone label
+																																	of the nodes where endpoints are running.
+																																	Zones not listed in the configuration receive a default weight of 1.
+																																	"""
+																													type: "string"
+																												}
+																											}
+																											required: ["weight", "zone"]
 																											type: "object"
 																										}
-																										minEndpointsThreshold: {
-																											description: "MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing."
-																											format:      "int64"
-																											type:        "integer"
-																										}
-																										percentageEnabled: {
-																											description: "Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%."
-																											format:      "int32"
-																											maximum:     100
-																											minimum:     0
-																											type:        "integer"
-																										}
+																										type: "array"
+																										"x-kubernetes-list-map-keys": ["zone"]
+																										"x-kubernetes-list-type": "map"
 																									}
-																									type: "object"
 																								}
 																								type: "object"
 																							}
@@ -22392,18 +24421,36 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							message: "If LoadBalancer type is consistentHash, consistentHash field needs to be set."
 																							rule:    "self.type == 'ConsistentHash' ? has(self.consistentHash) : !has(self.consistentHash)"
 																						}, {
-																							message: "Currently SlowStart is only supported for RoundRobin and LeastRequest load balancers."
-																							rule:    "self.type in ['Random', 'ConsistentHash'] ? !has(self.slowStart) : true "
+																							message: "If LoadBalancer type is BackendUtilization, backendUtilization field needs to be set."
+																							rule:    "self.type == 'BackendUtilization' ? has(self.backendUtilization) : !has(self.backendUtilization)"
 																						}, {
-																							message: "Currently ZoneAware is only supported for LeastRequest, Random, and RoundRobin load balancers."
-																							rule:    "self.type == 'ConsistentHash' ? !has(self.zoneAware) : true "
+																							message: "If LoadBalancer type is DynamicModule, dynamicModule field needs to be set."
+																							rule:    "self.type == 'DynamicModule' ? has(self.dynamicModule) : !has(self.dynamicModule)"
+																						}, {
+																							message: "Currently SlowStart is only supported for RoundRobin, LeastRequest, and BackendUtilization load balancers."
+																							rule:    "self.type in ['Random', 'ConsistentHash', 'DynamicModule'] ? !has(self.slowStart) : true"
+																						}, {
+																							message: "PreferLocal zone-aware routing is not supported for ConsistentHash load balancers. Use weightedZones instead."
+																							rule:    "self.type == 'ConsistentHash' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true"
+																						}, {
+																							message: "PreferLocal zone-aware routing is not currently supported for BackendUtilization load balancers. Only WeightedZones can be used with BackendUtilization."
+																							rule:    "self.type == 'BackendUtilization' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true"
+																						}, {
+																							message: "ZoneAware routing is not supported for DynamicModule load balancers."
+																							rule:    "self.type == 'DynamicModule' ? !has(self.zoneAware) : true"
+																						}, {
+																							message: "ZoneAware PreferLocal and WeightedZones cannot be specified together."
+																							rule:    "has(self.zoneAware) ? !(has(self.zoneAware.preferLocal) && has(self.zoneAware.weightedZones)) : true"
+																						}, {
+																							message: "EndpointOverride is not supported for DynamicModule load balancers."
+																							rule:    "self.type == 'DynamicModule' ? !has(self.endpointOverride) : true"
 																						}]
 																					}
 																					proxyProtocol: {
 																						description: "ProxyProtocol enables the Proxy Protocol when communicating with the backend."
 																						properties: version: {
 																							description: """
-																												Version of ProxyProtol
+																												Version of ProxyProtocol
 																												Valid ProxyProtocolVersion values are
 																												"V1"
 																												"V2"
@@ -22577,6 +24624,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										description: "RequestTimeout is the time until which entire response is received from the upstream."
 																										pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																										type:        "string"
+																									}
+																									streamIdleTimeout: {
+																										description: """
+																														 The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+																														 If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+																														"""
+																										pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																										type:    "string"
 																									}
 																								}
 																								type: "object"
@@ -22942,6 +24997,53 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								}
 																								type: "object"
 																							}
+																							retryBudget: {
+																								description: """
+																												RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+																												RetryBudget take precedence over maxParallelRetries.
+																												"""
+																								properties: {
+																									minRetryConcurrency: {
+																										description: """
+																														MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+																														For example, a budget of 20% with a minimum retry concurrency of 3
+																														will allow 5 active retries while there are 25 active requests.
+																														If there are 2 active requests, there are still 3 active retries
+																														allowed because of the minimum retry concurrency.
+																														Defaults to 3.
+																														"""
+																										format: "int32"
+																										type:   "integer"
+																									}
+																									percent: {
+																										description: """
+																														Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+																														the sum of active requests and active pending requests.
+																														"""
+																										properties: {
+																											denominator: {
+																												default: 100
+																												format:  "int32"
+																												minimum: 1
+																												type:    "integer"
+																											}
+																											numerator: {
+																												format:  "int32"
+																												minimum: 0
+																												type:    "integer"
+																											}
+																										}
+																										required: ["numerator"]
+																										type: "object"
+																										"x-kubernetes-validations": [{
+																											message: "numerator must be less than or equal to denominator"
+																											rule:    "self.numerator <= self.denominator"
+																										}]
+																									}
+																								}
+																								required: ["percent"]
+																								type: "object"
+																							}
 																						}
 																						type: "object"
 																					}
@@ -23144,8 +25246,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																											}
 																											hostname: {
 																												description: """
-																																Hostname defines the HTTP host that will be requested during health checking.
-																																Default: HTTPRoute or GRPCRoute hostname.
+																																Hostname defines the HTTP Host header used for active HTTP health checks.
+																																Host selection uses this order: this field, the associated Backend endpoint
+																																hostname if available, then the effective Route hostname.
 																																"""
 																												maxLength: 253
 																												minLength: 1
@@ -23165,6 +25268,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																												minLength:   1
 																												type:        "string"
 																											}
+																											retriableStatuses: {
+																												description: """
+																																RetriableStatuses defines a list of HTTP response statuses considered retriable.
+																																Responses matching these statuses count towards the unhealthy threshold but
+																																do not result in the host being considered immediately unhealthy.
+																																The expected statuses take precedence for any range overlaps with this field.
+																																"""
+																												items: {
+																													description: "HTTPStatus defines the http status code."
+																													maximum:     599
+																													minimum:     100
+																													type:        "integer"
+																												}
+																												type: "array"
+																											}
 																										}
 																										required: ["path"]
 																										type: "object"
@@ -23182,6 +25300,26 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										description: "Interval defines the time between active health checks."
 																										pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																										type:        "string"
+																									}
+																									overrides: {
+																										description: """
+																														Overrides defines the configuration of the overriding health check settings for all endpoints
+																														in the backend cluster. This allows customization of port and other settings that may differ
+																														from the main service configuration.
+																														"""
+																										properties: port: {
+																											description: """
+																																Port overrides the health check port.
+																																If not set, the endpoint's serving port is used for health checks.
+																																This is useful when health checks are served on a different port than
+																																the main service port (e.g., port 443 for service, port 9090 for health checks).
+																																"""
+																											format:  "int32"
+																											maximum: 65535
+																											minimum: 1
+																											type:    "integer"
+																										}
+																										type: "object"
 																									}
 																									tcp: {
 																										description: """
@@ -23272,11 +25410,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										type:        "string"
 																									}
 																									unhealthyThreshold: {
-																										default:     3
-																										description: "UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy."
-																										format:      "int32"
-																										minimum:     1
-																										type:        "integer"
+																										default: 3
+																										description: """
+																														UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+																														Without RetriableStatuses configured, any health check failure results in the host being immediately
+																														considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+																														up to this threshold before the host is marked unhealthy.
+																														"""
+																										format:  "int32"
+																										minimum: 1
+																										type:    "integer"
 																									}
 																								}
 																								required: ["type"]
@@ -23307,6 +25450,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							passive: {
 																								description: "Passive passive check configuration"
 																								properties: {
+																									alwaysEjectOneEndpoint: {
+																										default: false
+																										description: """
+																														AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+																														regardless of MaxEjectionPercent.
+																														"""
+																										type: "boolean"
+																									}
 																									baseEjectionTime: {
 																										default:     "30s"
 																										description: "BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures."
@@ -23354,6 +25505,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										default:     10
 																										description: "MaxEjectionPercent sets the maximum percentage of hosts in a cluster that can be ejected."
 																										format:      "int32"
+																										maximum:     100
+																										minimum:     0
 																										type:        "integer"
 																									}
 																									splitExternalLocalOriginErrors: {
@@ -23370,6 +25523,41 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					http2: {
 																						description: "HTTP2 provides HTTP/2 configuration for backend connections."
 																						properties: {
+																							connectionKeepalive: {
+																								description: "ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames."
+																								properties: {
+																									idleInterval: {
+																										description: "IdleInterval specifies how long a connection must be idle before a PING is sent."
+																										pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																										type:        "string"
+																									}
+																									interval: {
+																										description: "Interval specifies how often to send HTTP/2 PING frames to keep the connection alive."
+																										pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																										type:        "string"
+																									}
+																									intervalJitter: {
+																										description: """
+																														IntervalJitter specifies a random jitter percentage added to each interval.
+																														Defaults to 15% if not specified.
+																														"""
+																										format:  "int32"
+																										maximum: 100
+																										minimum: 0
+																										type:    "integer"
+																									}
+																									timeout: {
+																										description: "Timeout specifies how long to wait for a PING response before considering the connection dead."
+																										pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																										type:        "string"
+																									}
+																								}
+																								type: "object"
+																								"x-kubernetes-validations": [{
+																									message: "timeout must be less than interval"
+																									rule:    "!has(self.timeout) || !has(self.interval) || duration(self.timeout) < duration(self.interval)"
+																								}]
+																							}
 																							initialConnectionWindowSize: {
 																								allOf: [{
 																									pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
@@ -23432,6 +25620,65 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										the backend endpoints. Defaults to `LeastRequest`.
 																										"""
 																						properties: {
+																							backendUtilization: {
+																								description: """
+																												BackendUtilization defines the configuration when the load balancer type is
+																												set to BackendUtilization.
+																												"""
+																								properties: {
+																									blackoutPeriod: {
+																										description: """
+																														A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+																														Default is 10s.
+																														"""
+																										pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																										type:    "string"
+																									}
+																									errorUtilizationPenaltyPercent: {
+																										description: """
+																														ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+																														This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+
+																														For example:
+																														- 100 => 1.0x
+																														- 120 => 1.2x
+																														- 200 => 2.0x
+
+																														Must be non-negative.
+																														"""
+																										format:  "int32"
+																										minimum: 0
+																										type:    "integer"
+																									}
+																									keepResponseHeaders: {
+																										default: false
+																										description: """
+																														KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+																														Defaults to false.
+																														"""
+																										type: "boolean"
+																									}
+																									metricNamesForComputingUtilization: {
+																										description: """
+																														Metric names used to compute utilization if application_utilization is not set.
+																														For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+																														"""
+																										items: type: "string"
+																										type: "array"
+																									}
+																									weightExpirationPeriod: {
+																										description: "If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m."
+																										pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																										type:        "string"
+																									}
+																									weightUpdatePeriod: {
+																										description: "How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s."
+																										pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																										type:        "string"
+																									}
+																								}
+																								type: "object"
+																							}
 																							consistentHash: {
 																								description: """
 																												ConsistentHash defines the configuration when the load balancer type is
@@ -23550,6 +25797,47 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									rule:    "self.type == 'QueryParams' ? has(self.queryParams) : !has(self.queryParams)"
 																								}]
 																							}
+																							dynamicModule: {
+																								description: """
+																												DynamicModule defines the configuration when the load balancer type is
+																												set to DynamicModule. The referenced module must be registered in the
+																												EnvoyProxy resource's dynamicModules allowlist.
+																												"""
+																								properties: {
+																									config: {
+																										description: """
+																														Config is optional configuration for the module's load balancer
+																														implementation. This is serialized and passed to the module's
+																														initialization function.
+																														"""
+																										"x-kubernetes-preserve-unknown-fields": true
+																									}
+																									lbPolicyName: {
+																										description: """
+																														LBPolicyName identifies a specific load balancer implementation within
+																														the dynamic module. A single shared library can contain multiple LB
+																														policy implementations. This value is passed to the module's
+																														initialization function to select the appropriate implementation.
+																														"""
+																										maxLength: 253
+																										minLength: 1
+																										type:      "string"
+																									}
+																									name: {
+																										description: """
+																														Name references a dynamic module registered in the EnvoyProxy resource's
+																														dynamicModules list. The referenced module must exist in the registry;
+																														otherwise, the policy will be rejected.
+																														"""
+																										maxLength: 253
+																										minLength: 1
+																										pattern:   "^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$"
+																										type:      "string"
+																									}
+																								}
+																								required: ["lbPolicyName", "name"]
+																								type: "object"
+																							}
 																							endpointOverride: {
 																								description: """
 																												EndpointOverride defines the configuration for endpoint override.
@@ -23583,7 +25871,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								description: """
 																												SlowStart defines the configuration related to the slow start load balancer policy.
 																												If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-																												Currently this is only supported for RoundRobin and LeastRequest load balancers
+																												Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
 																												"""
 																								properties: window: {
 																									description: """
@@ -23605,45 +25893,83 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																												"ConsistentHash",
 																												"LeastRequest",
 																												"Random",
-																												"RoundRobin".
+																												"RoundRobin",
+																												"BackendUtilization",
+																												"DynamicModule".
 																												"""
-																								enum: ["ConsistentHash", "LeastRequest", "Random", "RoundRobin"]
+																								enum: ["ConsistentHash", "LeastRequest", "Random", "RoundRobin", "BackendUtilization", "DynamicModule"]
 																								type: "string"
 																							}
 																							zoneAware: {
 																								description: "ZoneAware defines the configuration related to the distribution of requests between locality zones."
-																								properties: preferLocal: {
-																									description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
-																									properties: {
-																										force: {
-																											description: """
+																								properties: {
+																									preferLocal: {
+																										description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
+																										properties: {
+																											force: {
+																												description: """
 																																ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
 																																which maintains equal distribution among upstream endpoints while sending as much traffic as possible locally.
 																																"""
-																											properties: minEndpointsInZoneThreshold: {
-																												description: """
+																												properties: minEndpointsInZoneThreshold: {
+																													description: """
 																																		MinEndpointsInZoneThreshold is the minimum number of upstream endpoints in the local zone required to honor the forceLocalZone
 																																		override. This is useful for protecting zones with fewer endpoints.
 																																		"""
-																												format: "int32"
-																												type:   "integer"
+																													format: "int32"
+																													type:   "integer"
+																												}
+																												type: "object"
 																											}
+																											minEndpointsThreshold: {
+																												description: "MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing."
+																												format:      "int64"
+																												type:        "integer"
+																											}
+																											percentageEnabled: {
+																												description: "Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%."
+																												format:      "int32"
+																												maximum:     100
+																												minimum:     0
+																												type:        "integer"
+																											}
+																										}
+																										type: "object"
+																									}
+																									weightedZones: {
+																										description: """
+																														WeightedZones configures weight-based traffic distribution across locality zones.
+																														Traffic is distributed proportionally based on the sum of all zone weights.
+																														"""
+																										items: {
+																											description: "WeightedZoneConfig defines the weight for a specific locality zone."
+																											properties: {
+																												weight: {
+																													description: """
+																																	Weight defines the weight for this locality.
+																																	Higher values receive more traffic. The actual traffic distribution
+																																	is proportional to this value relative to other localities.
+																																	"""
+																													format: "int32"
+																													type:   "integer"
+																												}
+																												zone: {
+																													description: """
+																																	Zone specifies the topology zone this weight applies to.
+																																	The value should match the topology.kubernetes.io/zone label
+																																	of the nodes where endpoints are running.
+																																	Zones not listed in the configuration receive a default weight of 1.
+																																	"""
+																													type: "string"
+																												}
+																											}
+																											required: ["weight", "zone"]
 																											type: "object"
 																										}
-																										minEndpointsThreshold: {
-																											description: "MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing."
-																											format:      "int64"
-																											type:        "integer"
-																										}
-																										percentageEnabled: {
-																											description: "Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%."
-																											format:      "int32"
-																											maximum:     100
-																											minimum:     0
-																											type:        "integer"
-																										}
+																										type: "array"
+																										"x-kubernetes-list-map-keys": ["zone"]
+																										"x-kubernetes-list-type": "map"
 																									}
-																									type: "object"
 																								}
 																								type: "object"
 																							}
@@ -23654,18 +25980,36 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							message: "If LoadBalancer type is consistentHash, consistentHash field needs to be set."
 																							rule:    "self.type == 'ConsistentHash' ? has(self.consistentHash) : !has(self.consistentHash)"
 																						}, {
-																							message: "Currently SlowStart is only supported for RoundRobin and LeastRequest load balancers."
-																							rule:    "self.type in ['Random', 'ConsistentHash'] ? !has(self.slowStart) : true "
+																							message: "If LoadBalancer type is BackendUtilization, backendUtilization field needs to be set."
+																							rule:    "self.type == 'BackendUtilization' ? has(self.backendUtilization) : !has(self.backendUtilization)"
 																						}, {
-																							message: "Currently ZoneAware is only supported for LeastRequest, Random, and RoundRobin load balancers."
-																							rule:    "self.type == 'ConsistentHash' ? !has(self.zoneAware) : true "
+																							message: "If LoadBalancer type is DynamicModule, dynamicModule field needs to be set."
+																							rule:    "self.type == 'DynamicModule' ? has(self.dynamicModule) : !has(self.dynamicModule)"
+																						}, {
+																							message: "Currently SlowStart is only supported for RoundRobin, LeastRequest, and BackendUtilization load balancers."
+																							rule:    "self.type in ['Random', 'ConsistentHash', 'DynamicModule'] ? !has(self.slowStart) : true"
+																						}, {
+																							message: "PreferLocal zone-aware routing is not supported for ConsistentHash load balancers. Use weightedZones instead."
+																							rule:    "self.type == 'ConsistentHash' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true"
+																						}, {
+																							message: "PreferLocal zone-aware routing is not currently supported for BackendUtilization load balancers. Only WeightedZones can be used with BackendUtilization."
+																							rule:    "self.type == 'BackendUtilization' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true"
+																						}, {
+																							message: "ZoneAware routing is not supported for DynamicModule load balancers."
+																							rule:    "self.type == 'DynamicModule' ? !has(self.zoneAware) : true"
+																						}, {
+																							message: "ZoneAware PreferLocal and WeightedZones cannot be specified together."
+																							rule:    "has(self.zoneAware) ? !(has(self.zoneAware.preferLocal) && has(self.zoneAware.weightedZones)) : true"
+																						}, {
+																							message: "EndpointOverride is not supported for DynamicModule load balancers."
+																							rule:    "self.type == 'DynamicModule' ? !has(self.endpointOverride) : true"
 																						}]
 																					}
 																					proxyProtocol: {
 																						description: "ProxyProtocol enables the Proxy Protocol when communicating with the backend."
 																						properties: version: {
 																							description: """
-																												Version of ProxyProtol
+																												Version of ProxyProtocol
 																												Valid ProxyProtocolVersion values are
 																												"V1"
 																												"V2"
@@ -23840,6 +26184,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																										type:        "string"
 																									}
+																									streamIdleTimeout: {
+																										description: """
+																														 The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+																														 If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+																														"""
+																										pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																										type:    "string"
+																									}
 																								}
 																								type: "object"
 																							}
@@ -23890,10 +26242,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							type:      "string"
 																						}
 																						value: {
-																							description: "Value is the value of HTTP Header to be matched."
-																							maxLength:   4096
-																							minLength:   1
-																							type:        "string"
+																							description: """
+																											Value is the value of HTTP Header to be matched.
+																											<gateway:experimental:description>
+																											Must consist of printable US-ASCII characters, optionally separated
+																											by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+																											</gateway:experimental:description>
+
+																											<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+																											"""
+																							maxLength: 4096
+																							minLength: 1
+																							type:      "string"
 																						}
 																					}
 																					required: ["name", "value"]
@@ -23906,6 +26266,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			host: {
 																				description: """
 																								Host define the extension service hostname.
+
 																								Deprecated: Use BackendRefs instead.
 																								"""
 																				type: "string"
@@ -23914,6 +26275,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				default: 4317
 																				description: """
 																								Port defines the port the extension service is exposed on.
+
 																								Deprecated: Use BackendRefs instead.
 																								"""
 																				format:  "int32"
@@ -23987,7 +26349,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			(2) Listeners if and only if Envoy does not find a matching route for a request.
 																			If type is defined, the accesslog settings would apply to the relevant component (as-is).
 																			"""
-															enum: ["Listener", "Route"]
+															enum: ["Listener", "Route", "Upstream"]
 															type: "string"
 														}
 													}
@@ -24020,6 +26382,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																Example: `httproute/my-ns/my-route/rule/0`
 																"""
 												type: "string"
+											}
+											enableGRPCStats: {
+												description: """
+																EnableGRPCStats enables the gRPC stats filter on listeners.
+																This is enabled by default for GRPCRoute and opt-in for HTTPRoute.
+																In general, gRPC traffic should be handled via GRPCRoute, but there are cases where
+																users want to route gRPC using HTTPRoute for its richer matching capabilities.
+																Therefore, we enable this behavior only when it is explicitly opted in.
+																"""
+												type: "boolean"
 											}
 											enablePerEndpointStats: {
 												description: """
@@ -24410,6 +26782,53 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					}
 																					type: "object"
 																				}
+																				retryBudget: {
+																					description: """
+																									RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+																									RetryBudget take precedence over maxParallelRetries.
+																									"""
+																					properties: {
+																						minRetryConcurrency: {
+																							description: """
+																											MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+																											For example, a budget of 20% with a minimum retry concurrency of 3
+																											will allow 5 active retries while there are 25 active requests.
+																											If there are 2 active requests, there are still 3 active retries
+																											allowed because of the minimum retry concurrency.
+																											Defaults to 3.
+																											"""
+																							format: "int32"
+																							type:   "integer"
+																						}
+																						percent: {
+																							description: """
+																											Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+																											the sum of active requests and active pending requests.
+																											"""
+																							properties: {
+																								denominator: {
+																									default: 100
+																									format:  "int32"
+																									minimum: 1
+																									type:    "integer"
+																								}
+																								numerator: {
+																									format:  "int32"
+																									minimum: 0
+																									type:    "integer"
+																								}
+																							}
+																							required: ["numerator"]
+																							type: "object"
+																							"x-kubernetes-validations": [{
+																								message: "numerator must be less than or equal to denominator"
+																								rule:    "self.numerator <= self.denominator"
+																							}]
+																						}
+																					}
+																					required: ["percent"]
+																					type: "object"
+																				}
 																			}
 																			type: "object"
 																		}
@@ -24612,8 +27031,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								}
 																								hostname: {
 																									description: """
-																													Hostname defines the HTTP host that will be requested during health checking.
-																													Default: HTTPRoute or GRPCRoute hostname.
+																													Hostname defines the HTTP Host header used for active HTTP health checks.
+																													Host selection uses this order: this field, the associated Backend endpoint
+																													hostname if available, then the effective Route hostname.
 																													"""
 																									maxLength: 253
 																									minLength: 1
@@ -24633,6 +27053,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									minLength:   1
 																									type:        "string"
 																								}
+																								retriableStatuses: {
+																									description: """
+																													RetriableStatuses defines a list of HTTP response statuses considered retriable.
+																													Responses matching these statuses count towards the unhealthy threshold but
+																													do not result in the host being considered immediately unhealthy.
+																													The expected statuses take precedence for any range overlaps with this field.
+																													"""
+																									items: {
+																										description: "HTTPStatus defines the http status code."
+																										maximum:     599
+																										minimum:     100
+																										type:        "integer"
+																									}
+																									type: "array"
+																								}
 																							}
 																							required: ["path"]
 																							type: "object"
@@ -24650,6 +27085,26 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							description: "Interval defines the time between active health checks."
 																							pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																							type:        "string"
+																						}
+																						overrides: {
+																							description: """
+																											Overrides defines the configuration of the overriding health check settings for all endpoints
+																											in the backend cluster. This allows customization of port and other settings that may differ
+																											from the main service configuration.
+																											"""
+																							properties: port: {
+																								description: """
+																													Port overrides the health check port.
+																													If not set, the endpoint's serving port is used for health checks.
+																													This is useful when health checks are served on a different port than
+																													the main service port (e.g., port 443 for service, port 9090 for health checks).
+																													"""
+																								format:  "int32"
+																								maximum: 65535
+																								minimum: 1
+																								type:    "integer"
+																							}
+																							type: "object"
 																						}
 																						tcp: {
 																							description: """
@@ -24740,11 +27195,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							type:        "string"
 																						}
 																						unhealthyThreshold: {
-																							default:     3
-																							description: "UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy."
-																							format:      "int32"
-																							minimum:     1
-																							type:        "integer"
+																							default: 3
+																							description: """
+																											UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+																											Without RetriableStatuses configured, any health check failure results in the host being immediately
+																											considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+																											up to this threshold before the host is marked unhealthy.
+																											"""
+																							format:  "int32"
+																							minimum: 1
+																							type:    "integer"
 																						}
 																					}
 																					required: ["type"]
@@ -24775,6 +27235,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				passive: {
 																					description: "Passive passive check configuration"
 																					properties: {
+																						alwaysEjectOneEndpoint: {
+																							default: false
+																							description: """
+																											AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+																											regardless of MaxEjectionPercent.
+																											"""
+																							type: "boolean"
+																						}
 																						baseEjectionTime: {
 																							default:     "30s"
 																							description: "BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures."
@@ -24822,6 +27290,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							default:     10
 																							description: "MaxEjectionPercent sets the maximum percentage of hosts in a cluster that can be ejected."
 																							format:      "int32"
+																							maximum:     100
+																							minimum:     0
 																							type:        "integer"
 																						}
 																						splitExternalLocalOriginErrors: {
@@ -24838,6 +27308,41 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		http2: {
 																			description: "HTTP2 provides HTTP/2 configuration for backend connections."
 																			properties: {
+																				connectionKeepalive: {
+																					description: "ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames."
+																					properties: {
+																						idleInterval: {
+																							description: "IdleInterval specifies how long a connection must be idle before a PING is sent."
+																							pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																							type:        "string"
+																						}
+																						interval: {
+																							description: "Interval specifies how often to send HTTP/2 PING frames to keep the connection alive."
+																							pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																							type:        "string"
+																						}
+																						intervalJitter: {
+																							description: """
+																											IntervalJitter specifies a random jitter percentage added to each interval.
+																											Defaults to 15% if not specified.
+																											"""
+																							format:  "int32"
+																							maximum: 100
+																							minimum: 0
+																							type:    "integer"
+																						}
+																						timeout: {
+																							description: "Timeout specifies how long to wait for a PING response before considering the connection dead."
+																							pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																							type:        "string"
+																						}
+																					}
+																					type: "object"
+																					"x-kubernetes-validations": [{
+																						message: "timeout must be less than interval"
+																						rule:    "!has(self.timeout) || !has(self.interval) || duration(self.timeout) < duration(self.interval)"
+																					}]
+																				}
 																				initialConnectionWindowSize: {
 																					allOf: [{
 																						pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
@@ -24900,6 +27405,65 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							the backend endpoints. Defaults to `LeastRequest`.
 																							"""
 																			properties: {
+																				backendUtilization: {
+																					description: """
+																									BackendUtilization defines the configuration when the load balancer type is
+																									set to BackendUtilization.
+																									"""
+																					properties: {
+																						blackoutPeriod: {
+																							description: """
+																											A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+																											Default is 10s.
+																											"""
+																							pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																							type:    "string"
+																						}
+																						errorUtilizationPenaltyPercent: {
+																							description: """
+																											ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+																											This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+
+																											For example:
+																											- 100 => 1.0x
+																											- 120 => 1.2x
+																											- 200 => 2.0x
+
+																											Must be non-negative.
+																											"""
+																							format:  "int32"
+																							minimum: 0
+																							type:    "integer"
+																						}
+																						keepResponseHeaders: {
+																							default: false
+																							description: """
+																											KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+																											Defaults to false.
+																											"""
+																							type: "boolean"
+																						}
+																						metricNamesForComputingUtilization: {
+																							description: """
+																											Metric names used to compute utilization if application_utilization is not set.
+																											For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+																											"""
+																							items: type: "string"
+																							type: "array"
+																						}
+																						weightExpirationPeriod: {
+																							description: "If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m."
+																							pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																							type:        "string"
+																						}
+																						weightUpdatePeriod: {
+																							description: "How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s."
+																							pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																							type:        "string"
+																						}
+																					}
+																					type: "object"
+																				}
 																				consistentHash: {
 																					description: """
 																									ConsistentHash defines the configuration when the load balancer type is
@@ -25018,6 +27582,47 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						rule:    "self.type == 'QueryParams' ? has(self.queryParams) : !has(self.queryParams)"
 																					}]
 																				}
+																				dynamicModule: {
+																					description: """
+																									DynamicModule defines the configuration when the load balancer type is
+																									set to DynamicModule. The referenced module must be registered in the
+																									EnvoyProxy resource's dynamicModules allowlist.
+																									"""
+																					properties: {
+																						config: {
+																							description: """
+																											Config is optional configuration for the module's load balancer
+																											implementation. This is serialized and passed to the module's
+																											initialization function.
+																											"""
+																							"x-kubernetes-preserve-unknown-fields": true
+																						}
+																						lbPolicyName: {
+																							description: """
+																											LBPolicyName identifies a specific load balancer implementation within
+																											the dynamic module. A single shared library can contain multiple LB
+																											policy implementations. This value is passed to the module's
+																											initialization function to select the appropriate implementation.
+																											"""
+																							maxLength: 253
+																							minLength: 1
+																							type:      "string"
+																						}
+																						name: {
+																							description: """
+																											Name references a dynamic module registered in the EnvoyProxy resource's
+																											dynamicModules list. The referenced module must exist in the registry;
+																											otherwise, the policy will be rejected.
+																											"""
+																							maxLength: 253
+																							minLength: 1
+																							pattern:   "^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$"
+																							type:      "string"
+																						}
+																					}
+																					required: ["lbPolicyName", "name"]
+																					type: "object"
+																				}
 																				endpointOverride: {
 																					description: """
 																									EndpointOverride defines the configuration for endpoint override.
@@ -25051,7 +27656,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					description: """
 																									SlowStart defines the configuration related to the slow start load balancer policy.
 																									If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-																									Currently this is only supported for RoundRobin and LeastRequest load balancers
+																									Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
 																									"""
 																					properties: window: {
 																						description: """
@@ -25073,45 +27678,83 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									"ConsistentHash",
 																									"LeastRequest",
 																									"Random",
-																									"RoundRobin".
+																									"RoundRobin",
+																									"BackendUtilization",
+																									"DynamicModule".
 																									"""
-																					enum: ["ConsistentHash", "LeastRequest", "Random", "RoundRobin"]
+																					enum: ["ConsistentHash", "LeastRequest", "Random", "RoundRobin", "BackendUtilization", "DynamicModule"]
 																					type: "string"
 																				}
 																				zoneAware: {
 																					description: "ZoneAware defines the configuration related to the distribution of requests between locality zones."
-																					properties: preferLocal: {
-																						description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
-																						properties: {
-																							force: {
-																								description: """
+																					properties: {
+																						preferLocal: {
+																							description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
+																							properties: {
+																								force: {
+																									description: """
 																													ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
 																													which maintains equal distribution among upstream endpoints while sending as much traffic as possible locally.
 																													"""
-																								properties: minEndpointsInZoneThreshold: {
-																									description: """
+																									properties: minEndpointsInZoneThreshold: {
+																										description: """
 																															MinEndpointsInZoneThreshold is the minimum number of upstream endpoints in the local zone required to honor the forceLocalZone
 																															override. This is useful for protecting zones with fewer endpoints.
 																															"""
-																									format: "int32"
-																									type:   "integer"
+																										format: "int32"
+																										type:   "integer"
+																									}
+																									type: "object"
 																								}
+																								minEndpointsThreshold: {
+																									description: "MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing."
+																									format:      "int64"
+																									type:        "integer"
+																								}
+																								percentageEnabled: {
+																									description: "Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%."
+																									format:      "int32"
+																									maximum:     100
+																									minimum:     0
+																									type:        "integer"
+																								}
+																							}
+																							type: "object"
+																						}
+																						weightedZones: {
+																							description: """
+																											WeightedZones configures weight-based traffic distribution across locality zones.
+																											Traffic is distributed proportionally based on the sum of all zone weights.
+																											"""
+																							items: {
+																								description: "WeightedZoneConfig defines the weight for a specific locality zone."
+																								properties: {
+																									weight: {
+																										description: """
+																														Weight defines the weight for this locality.
+																														Higher values receive more traffic. The actual traffic distribution
+																														is proportional to this value relative to other localities.
+																														"""
+																										format: "int32"
+																										type:   "integer"
+																									}
+																									zone: {
+																										description: """
+																														Zone specifies the topology zone this weight applies to.
+																														The value should match the topology.kubernetes.io/zone label
+																														of the nodes where endpoints are running.
+																														Zones not listed in the configuration receive a default weight of 1.
+																														"""
+																										type: "string"
+																									}
+																								}
+																								required: ["weight", "zone"]
 																								type: "object"
 																							}
-																							minEndpointsThreshold: {
-																								description: "MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing."
-																								format:      "int64"
-																								type:        "integer"
-																							}
-																							percentageEnabled: {
-																								description: "Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%."
-																								format:      "int32"
-																								maximum:     100
-																								minimum:     0
-																								type:        "integer"
-																							}
+																							type: "array"
+																							"x-kubernetes-list-map-keys": ["zone"]
+																							"x-kubernetes-list-type": "map"
 																						}
-																						type: "object"
 																					}
 																					type: "object"
 																				}
@@ -25122,18 +27765,36 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				message: "If LoadBalancer type is consistentHash, consistentHash field needs to be set."
 																				rule:    "self.type == 'ConsistentHash' ? has(self.consistentHash) : !has(self.consistentHash)"
 																			}, {
-																				message: "Currently SlowStart is only supported for RoundRobin and LeastRequest load balancers."
-																				rule:    "self.type in ['Random', 'ConsistentHash'] ? !has(self.slowStart) : true "
+																				message: "If LoadBalancer type is BackendUtilization, backendUtilization field needs to be set."
+																				rule:    "self.type == 'BackendUtilization' ? has(self.backendUtilization) : !has(self.backendUtilization)"
 																			}, {
-																				message: "Currently ZoneAware is only supported for LeastRequest, Random, and RoundRobin load balancers."
-																				rule:    "self.type == 'ConsistentHash' ? !has(self.zoneAware) : true "
+																				message: "If LoadBalancer type is DynamicModule, dynamicModule field needs to be set."
+																				rule:    "self.type == 'DynamicModule' ? has(self.dynamicModule) : !has(self.dynamicModule)"
+																			}, {
+																				message: "Currently SlowStart is only supported for RoundRobin, LeastRequest, and BackendUtilization load balancers."
+																				rule:    "self.type in ['Random', 'ConsistentHash', 'DynamicModule'] ? !has(self.slowStart) : true"
+																			}, {
+																				message: "PreferLocal zone-aware routing is not supported for ConsistentHash load balancers. Use weightedZones instead."
+																				rule:    "self.type == 'ConsistentHash' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true"
+																			}, {
+																				message: "PreferLocal zone-aware routing is not currently supported for BackendUtilization load balancers. Only WeightedZones can be used with BackendUtilization."
+																				rule:    "self.type == 'BackendUtilization' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true"
+																			}, {
+																				message: "ZoneAware routing is not supported for DynamicModule load balancers."
+																				rule:    "self.type == 'DynamicModule' ? !has(self.zoneAware) : true"
+																			}, {
+																				message: "ZoneAware PreferLocal and WeightedZones cannot be specified together."
+																				rule:    "has(self.zoneAware) ? !(has(self.zoneAware.preferLocal) && has(self.zoneAware.weightedZones)) : true"
+																			}, {
+																				message: "EndpointOverride is not supported for DynamicModule load balancers."
+																				rule:    "self.type == 'DynamicModule' ? !has(self.endpointOverride) : true"
 																			}]
 																		}
 																		proxyProtocol: {
 																			description: "ProxyProtocol enables the Proxy Protocol when communicating with the backend."
 																			properties: version: {
 																				description: """
-																									Version of ProxyProtol
+																									Version of ProxyProtocol
 																									Valid ProxyProtocolVersion values are
 																									"V1"
 																									"V2"
@@ -25308,6 +27969,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																							type:        "string"
 																						}
+																						streamIdleTimeout: {
+																							description: """
+																											 The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+																											 If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+																											"""
+																							pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																							type:    "string"
+																						}
 																					}
 																					type: "object"
 																				}
@@ -25358,10 +28027,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type:      "string"
 																			}
 																			value: {
-																				description: "Value is the value of HTTP Header to be matched."
-																				maxLength:   4096
-																				minLength:   1
-																				type:        "string"
+																				description: """
+																								Value is the value of HTTP Header to be matched.
+																								<gateway:experimental:description>
+																								Must consist of printable US-ASCII characters, optionally separated
+																								by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+																								</gateway:experimental:description>
+
+																								<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+																								"""
+																				maxLength: 4096
+																				minLength: 1
+																				type:      "string"
 																			}
 																		}
 																		required: ["name", "value"]
@@ -25374,6 +28051,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																host: {
 																	description: """
 																					Host define the service hostname.
+
 																					Deprecated: Use BackendRefs instead.
 																					"""
 																	type: "string"
@@ -25382,6 +28060,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	default: 4317
 																	description: """
 																					Port defines the port the service is exposed on.
+
 																					Deprecated: Use BackendRefs instead.
 																					"""
 																	format:  "int32"
@@ -25818,6 +28497,53 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		}
 																		type: "object"
 																	}
+																	retryBudget: {
+																		description: """
+																						RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+																						RetryBudget take precedence over maxParallelRetries.
+																						"""
+																		properties: {
+																			minRetryConcurrency: {
+																				description: """
+																								MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+																								For example, a budget of 20% with a minimum retry concurrency of 3
+																								will allow 5 active retries while there are 25 active requests.
+																								If there are 2 active requests, there are still 3 active retries
+																								allowed because of the minimum retry concurrency.
+																								Defaults to 3.
+																								"""
+																				format: "int32"
+																				type:   "integer"
+																			}
+																			percent: {
+																				description: """
+																								Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+																								the sum of active requests and active pending requests.
+																								"""
+																				properties: {
+																					denominator: {
+																						default: 100
+																						format:  "int32"
+																						minimum: 1
+																						type:    "integer"
+																					}
+																					numerator: {
+																						format:  "int32"
+																						minimum: 0
+																						type:    "integer"
+																					}
+																				}
+																				required: ["numerator"]
+																				type: "object"
+																				"x-kubernetes-validations": [{
+																					message: "numerator must be less than or equal to denominator"
+																					rule:    "self.numerator <= self.denominator"
+																				}]
+																			}
+																		}
+																		required: ["percent"]
+																		type: "object"
+																	}
 																}
 																type: "object"
 															}
@@ -26020,8 +28746,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					}
 																					hostname: {
 																						description: """
-																										Hostname defines the HTTP host that will be requested during health checking.
-																										Default: HTTPRoute or GRPCRoute hostname.
+																										Hostname defines the HTTP Host header used for active HTTP health checks.
+																										Host selection uses this order: this field, the associated Backend endpoint
+																										hostname if available, then the effective Route hostname.
 																										"""
 																						maxLength: 253
 																						minLength: 1
@@ -26041,6 +28768,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						minLength:   1
 																						type:        "string"
 																					}
+																					retriableStatuses: {
+																						description: """
+																										RetriableStatuses defines a list of HTTP response statuses considered retriable.
+																										Responses matching these statuses count towards the unhealthy threshold but
+																										do not result in the host being considered immediately unhealthy.
+																										The expected statuses take precedence for any range overlaps with this field.
+																										"""
+																						items: {
+																							description: "HTTPStatus defines the http status code."
+																							maximum:     599
+																							minimum:     100
+																							type:        "integer"
+																						}
+																						type: "array"
+																					}
 																				}
 																				required: ["path"]
 																				type: "object"
@@ -26058,6 +28800,26 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				description: "Interval defines the time between active health checks."
 																				pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																				type:        "string"
+																			}
+																			overrides: {
+																				description: """
+																								Overrides defines the configuration of the overriding health check settings for all endpoints
+																								in the backend cluster. This allows customization of port and other settings that may differ
+																								from the main service configuration.
+																								"""
+																				properties: port: {
+																					description: """
+																										Port overrides the health check port.
+																										If not set, the endpoint's serving port is used for health checks.
+																										This is useful when health checks are served on a different port than
+																										the main service port (e.g., port 443 for service, port 9090 for health checks).
+																										"""
+																					format:  "int32"
+																					maximum: 65535
+																					minimum: 1
+																					type:    "integer"
+																				}
+																				type: "object"
 																			}
 																			tcp: {
 																				description: """
@@ -26148,11 +28910,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type:        "string"
 																			}
 																			unhealthyThreshold: {
-																				default:     3
-																				description: "UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy."
-																				format:      "int32"
-																				minimum:     1
-																				type:        "integer"
+																				default: 3
+																				description: """
+																								UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+																								Without RetriableStatuses configured, any health check failure results in the host being immediately
+																								considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+																								up to this threshold before the host is marked unhealthy.
+																								"""
+																				format:  "int32"
+																				minimum: 1
+																				type:    "integer"
 																			}
 																		}
 																		required: ["type"]
@@ -26183,6 +28950,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	passive: {
 																		description: "Passive passive check configuration"
 																		properties: {
+																			alwaysEjectOneEndpoint: {
+																				default: false
+																				description: """
+																								AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+																								regardless of MaxEjectionPercent.
+																								"""
+																				type: "boolean"
+																			}
 																			baseEjectionTime: {
 																				default:     "30s"
 																				description: "BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures."
@@ -26230,6 +29005,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				default:     10
 																				description: "MaxEjectionPercent sets the maximum percentage of hosts in a cluster that can be ejected."
 																				format:      "int32"
+																				maximum:     100
+																				minimum:     0
 																				type:        "integer"
 																			}
 																			splitExternalLocalOriginErrors: {
@@ -26246,6 +29023,41 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															http2: {
 																description: "HTTP2 provides HTTP/2 configuration for backend connections."
 																properties: {
+																	connectionKeepalive: {
+																		description: "ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames."
+																		properties: {
+																			idleInterval: {
+																				description: "IdleInterval specifies how long a connection must be idle before a PING is sent."
+																				pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																				type:        "string"
+																			}
+																			interval: {
+																				description: "Interval specifies how often to send HTTP/2 PING frames to keep the connection alive."
+																				pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																				type:        "string"
+																			}
+																			intervalJitter: {
+																				description: """
+																								IntervalJitter specifies a random jitter percentage added to each interval.
+																								Defaults to 15% if not specified.
+																								"""
+																				format:  "int32"
+																				maximum: 100
+																				minimum: 0
+																				type:    "integer"
+																			}
+																			timeout: {
+																				description: "Timeout specifies how long to wait for a PING response before considering the connection dead."
+																				pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																				type:        "string"
+																			}
+																		}
+																		type: "object"
+																		"x-kubernetes-validations": [{
+																			message: "timeout must be less than interval"
+																			rule:    "!has(self.timeout) || !has(self.interval) || duration(self.timeout) < duration(self.interval)"
+																		}]
+																	}
 																	initialConnectionWindowSize: {
 																		allOf: [{
 																			pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
@@ -26308,6 +29120,65 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				the backend endpoints. Defaults to `LeastRequest`.
 																				"""
 																properties: {
+																	backendUtilization: {
+																		description: """
+																						BackendUtilization defines the configuration when the load balancer type is
+																						set to BackendUtilization.
+																						"""
+																		properties: {
+																			blackoutPeriod: {
+																				description: """
+																								A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+																								Default is 10s.
+																								"""
+																				pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																				type:    "string"
+																			}
+																			errorUtilizationPenaltyPercent: {
+																				description: """
+																								ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+																								This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+
+																								For example:
+																								- 100 => 1.0x
+																								- 120 => 1.2x
+																								- 200 => 2.0x
+
+																								Must be non-negative.
+																								"""
+																				format:  "int32"
+																				minimum: 0
+																				type:    "integer"
+																			}
+																			keepResponseHeaders: {
+																				default: false
+																				description: """
+																								KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+																								Defaults to false.
+																								"""
+																				type: "boolean"
+																			}
+																			metricNamesForComputingUtilization: {
+																				description: """
+																								Metric names used to compute utilization if application_utilization is not set.
+																								For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+																								"""
+																				items: type: "string"
+																				type: "array"
+																			}
+																			weightExpirationPeriod: {
+																				description: "If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m."
+																				pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																				type:        "string"
+																			}
+																			weightUpdatePeriod: {
+																				description: "How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s."
+																				pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																				type:        "string"
+																			}
+																		}
+																		type: "object"
+																	}
 																	consistentHash: {
 																		description: """
 																						ConsistentHash defines the configuration when the load balancer type is
@@ -26426,6 +29297,47 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			rule:    "self.type == 'QueryParams' ? has(self.queryParams) : !has(self.queryParams)"
 																		}]
 																	}
+																	dynamicModule: {
+																		description: """
+																						DynamicModule defines the configuration when the load balancer type is
+																						set to DynamicModule. The referenced module must be registered in the
+																						EnvoyProxy resource's dynamicModules allowlist.
+																						"""
+																		properties: {
+																			config: {
+																				description: """
+																								Config is optional configuration for the module's load balancer
+																								implementation. This is serialized and passed to the module's
+																								initialization function.
+																								"""
+																				"x-kubernetes-preserve-unknown-fields": true
+																			}
+																			lbPolicyName: {
+																				description: """
+																								LBPolicyName identifies a specific load balancer implementation within
+																								the dynamic module. A single shared library can contain multiple LB
+																								policy implementations. This value is passed to the module's
+																								initialization function to select the appropriate implementation.
+																								"""
+																				maxLength: 253
+																				minLength: 1
+																				type:      "string"
+																			}
+																			name: {
+																				description: """
+																								Name references a dynamic module registered in the EnvoyProxy resource's
+																								dynamicModules list. The referenced module must exist in the registry;
+																								otherwise, the policy will be rejected.
+																								"""
+																				maxLength: 253
+																				minLength: 1
+																				pattern:   "^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$"
+																				type:      "string"
+																			}
+																		}
+																		required: ["lbPolicyName", "name"]
+																		type: "object"
+																	}
 																	endpointOverride: {
 																		description: """
 																						EndpointOverride defines the configuration for endpoint override.
@@ -26459,7 +29371,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		description: """
 																						SlowStart defines the configuration related to the slow start load balancer policy.
 																						If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-																						Currently this is only supported for RoundRobin and LeastRequest load balancers
+																						Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
 																						"""
 																		properties: window: {
 																			description: """
@@ -26481,45 +29393,83 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"ConsistentHash",
 																						"LeastRequest",
 																						"Random",
-																						"RoundRobin".
+																						"RoundRobin",
+																						"BackendUtilization",
+																						"DynamicModule".
 																						"""
-																		enum: ["ConsistentHash", "LeastRequest", "Random", "RoundRobin"]
+																		enum: ["ConsistentHash", "LeastRequest", "Random", "RoundRobin", "BackendUtilization", "DynamicModule"]
 																		type: "string"
 																	}
 																	zoneAware: {
 																		description: "ZoneAware defines the configuration related to the distribution of requests between locality zones."
-																		properties: preferLocal: {
-																			description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
-																			properties: {
-																				force: {
-																					description: """
+																		properties: {
+																			preferLocal: {
+																				description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
+																				properties: {
+																					force: {
+																						description: """
 																										ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
 																										which maintains equal distribution among upstream endpoints while sending as much traffic as possible locally.
 																										"""
-																					properties: minEndpointsInZoneThreshold: {
-																						description: """
+																						properties: minEndpointsInZoneThreshold: {
+																							description: """
 																												MinEndpointsInZoneThreshold is the minimum number of upstream endpoints in the local zone required to honor the forceLocalZone
 																												override. This is useful for protecting zones with fewer endpoints.
 																												"""
-																						format: "int32"
-																						type:   "integer"
+																							format: "int32"
+																							type:   "integer"
+																						}
+																						type: "object"
 																					}
+																					minEndpointsThreshold: {
+																						description: "MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing."
+																						format:      "int64"
+																						type:        "integer"
+																					}
+																					percentageEnabled: {
+																						description: "Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%."
+																						format:      "int32"
+																						maximum:     100
+																						minimum:     0
+																						type:        "integer"
+																					}
+																				}
+																				type: "object"
+																			}
+																			weightedZones: {
+																				description: """
+																								WeightedZones configures weight-based traffic distribution across locality zones.
+																								Traffic is distributed proportionally based on the sum of all zone weights.
+																								"""
+																				items: {
+																					description: "WeightedZoneConfig defines the weight for a specific locality zone."
+																					properties: {
+																						weight: {
+																							description: """
+																											Weight defines the weight for this locality.
+																											Higher values receive more traffic. The actual traffic distribution
+																											is proportional to this value relative to other localities.
+																											"""
+																							format: "int32"
+																							type:   "integer"
+																						}
+																						zone: {
+																							description: """
+																											Zone specifies the topology zone this weight applies to.
+																											The value should match the topology.kubernetes.io/zone label
+																											of the nodes where endpoints are running.
+																											Zones not listed in the configuration receive a default weight of 1.
+																											"""
+																							type: "string"
+																						}
+																					}
+																					required: ["weight", "zone"]
 																					type: "object"
 																				}
-																				minEndpointsThreshold: {
-																					description: "MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing."
-																					format:      "int64"
-																					type:        "integer"
-																				}
-																				percentageEnabled: {
-																					description: "Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%."
-																					format:      "int32"
-																					maximum:     100
-																					minimum:     0
-																					type:        "integer"
-																				}
+																				type: "array"
+																				"x-kubernetes-list-map-keys": ["zone"]
+																				"x-kubernetes-list-type": "map"
 																			}
-																			type: "object"
 																		}
 																		type: "object"
 																	}
@@ -26530,18 +29480,36 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	message: "If LoadBalancer type is consistentHash, consistentHash field needs to be set."
 																	rule:    "self.type == 'ConsistentHash' ? has(self.consistentHash) : !has(self.consistentHash)"
 																}, {
-																	message: "Currently SlowStart is only supported for RoundRobin and LeastRequest load balancers."
-																	rule:    "self.type in ['Random', 'ConsistentHash'] ? !has(self.slowStart) : true "
+																	message: "If LoadBalancer type is BackendUtilization, backendUtilization field needs to be set."
+																	rule:    "self.type == 'BackendUtilization' ? has(self.backendUtilization) : !has(self.backendUtilization)"
 																}, {
-																	message: "Currently ZoneAware is only supported for LeastRequest, Random, and RoundRobin load balancers."
-																	rule:    "self.type == 'ConsistentHash' ? !has(self.zoneAware) : true "
+																	message: "If LoadBalancer type is DynamicModule, dynamicModule field needs to be set."
+																	rule:    "self.type == 'DynamicModule' ? has(self.dynamicModule) : !has(self.dynamicModule)"
+																}, {
+																	message: "Currently SlowStart is only supported for RoundRobin, LeastRequest, and BackendUtilization load balancers."
+																	rule:    "self.type in ['Random', 'ConsistentHash', 'DynamicModule'] ? !has(self.slowStart) : true"
+																}, {
+																	message: "PreferLocal zone-aware routing is not supported for ConsistentHash load balancers. Use weightedZones instead."
+																	rule:    "self.type == 'ConsistentHash' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true"
+																}, {
+																	message: "PreferLocal zone-aware routing is not currently supported for BackendUtilization load balancers. Only WeightedZones can be used with BackendUtilization."
+																	rule:    "self.type == 'BackendUtilization' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true"
+																}, {
+																	message: "ZoneAware routing is not supported for DynamicModule load balancers."
+																	rule:    "self.type == 'DynamicModule' ? !has(self.zoneAware) : true"
+																}, {
+																	message: "ZoneAware PreferLocal and WeightedZones cannot be specified together."
+																	rule:    "has(self.zoneAware) ? !(has(self.zoneAware.preferLocal) && has(self.zoneAware.weightedZones)) : true"
+																}, {
+																	message: "EndpointOverride is not supported for DynamicModule load balancers."
+																	rule:    "self.type == 'DynamicModule' ? !has(self.endpointOverride) : true"
 																}]
 															}
 															proxyProtocol: {
 																description: "ProxyProtocol enables the Proxy Protocol when communicating with the backend."
 																properties: version: {
 																	description: """
-																						Version of ProxyProtol
+																						Version of ProxyProtocol
 																						Valid ProxyProtocolVersion values are
 																						"V1"
 																						"V2"
@@ -26716,6 +29684,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																				type:        "string"
 																			}
+																			streamIdleTimeout: {
+																				description: """
+																								 The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+																								 If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+																								"""
+																				pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																				type:    "string"
+																			}
 																		}
 																		type: "object"
 																	}
@@ -26744,6 +29720,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													host: {
 														description: """
 																		Host define the provider service hostname.
+
 																		Deprecated: Use BackendRefs instead.
 																		"""
 														type: "string"
@@ -26776,10 +29753,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			type:      "string"
 																		}
 																		value: {
-																			description: "Value is the value of HTTP Header to be matched."
-																			maxLength:   4096
-																			minLength:   1
-																			type:        "string"
+																			description: """
+																							Value is the value of HTTP Header to be matched.
+																							<gateway:experimental:description>
+																							Must consist of printable US-ASCII characters, optionally separated
+																							by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+																							</gateway:experimental:description>
+
+																							<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+																							"""
+																			maxLength: 4096
+																			minLength: 1
+																			type:      "string"
 																		}
 																	}
 																	required: ["name", "value"]
@@ -26797,6 +29782,48 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"""
 																type: "object"
 															}
+															sampler: {
+																description: "Sampler controls whether spans are exported."
+																properties: {
+																	samplingPercentage: {
+																		description: """
+																						SamplingPercentage controls the percentage of traces to sample.
+																						Defaults to 100% when not set.
+																						"""
+																		properties: {
+																			denominator: {
+																				default: 100
+																				format:  "int32"
+																				minimum: 1
+																				type:    "integer"
+																			}
+																			numerator: {
+																				format:  "int32"
+																				minimum: 0
+																				type:    "integer"
+																			}
+																		}
+																		required: ["numerator"]
+																		type: "object"
+																		"x-kubernetes-validations": [{
+																			message: "numerator must be less than or equal to denominator"
+																			rule:    "self.numerator <= self.denominator"
+																		}]
+																	}
+																	type: {
+																		default:     "AlwaysOn"
+																		description: "Type is the sampler type."
+																		enum: ["AlwaysOn", "AlwaysOff", "TraceIdRatio", "ParentBasedAlwaysOn", "ParentBasedAlwaysOff", "ParentBasedTraceIdRatio"]
+																		type: "string"
+																	}
+																}
+																required: ["type"]
+																type: "object"
+																"x-kubernetes-validations": [{
+																	message: "samplingPercentage can only be set with TraceIdRatio or ParentBasedTraceIdRatio"
+																	rule:    "has(self.samplingPercentage) ? (self.type == 'TraceIdRatio' || self.type == 'ParentBasedTraceIdRatio') : true"
+																}]
+															}
 														}
 														type: "object"
 													}
@@ -26804,6 +29831,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														default: 4317
 														description: """
 																		Port defines the port the provider service is exposed on.
+
 																		Deprecated: Use BackendRefs instead.
 																		"""
 														format:  "int32"
@@ -27269,7 +30297,6 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																"credential", and the value should be the credential to be injected.
 																For example, for basic authentication, the value should be "Basic <base64 encoded username:password>".
 																for bearer token, the value should be "Bearer <token>".
-																Note: The secret must be in the same namespace as the HTTPRouteFilter.
 																"""
 											properties: {
 												group: {
@@ -27342,7 +30369,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								description: "HTTPDirectResponseFilter defines the configuration to return a fixed response."
 								properties: {
 									body: {
-										description: "Body of the direct response."
+										description: """
+														Body of the direct response.
+														Supports Envoy command operators for dynamic content (see https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#command-operators).
+														"""
 										properties: {
 											inline: {
 												description: "Inline contains the value as an inline string."
@@ -27457,10 +30487,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:      "string"
 														}
 														value: {
-															description: "Value is the value of HTTP Header to be matched."
-															maxLength:   4096
-															minLength:   1
-															type:        "string"
+															description: """
+																			Value is the value of HTTP Header to be matched.
+																			<gateway:experimental:description>
+																			Must consist of printable US-ASCII characters, optionally separated
+																			by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+																			</gateway:experimental:description>
+
+																			<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+																			"""
+															maxLength: 4096
+															minLength: 1
+															type:      "string"
 														}
 													}
 													required: ["name", "value"]
@@ -27534,10 +30572,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:      "string"
 														}
 														value: {
-															description: "Value is the value of HTTP Header to be matched."
-															maxLength:   4096
-															minLength:   1
-															type:        "string"
+															description: """
+																			Value is the value of HTTP Header to be matched.
+																			<gateway:experimental:description>
+																			Must consist of printable US-ASCII characters, optionally separated
+																			by single tabs or spaces. See: https://tools.ietf.org/html/rfc7230#section-3.2
+																			</gateway:experimental:description>
+
+																			<gateway:experimental:validation:Pattern=`^[!-~]+([\\t ]?[!-~]+)*$`>
+																			"""
+															maxLength: 4096
+															minLength: 1
+															type:      "string"
 														}
 													}
 													required: ["name", "value"]
@@ -27620,6 +30666,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							urlRewrite: {
 								description: "HTTPURLRewriteFilter define rewrites of HTTP URL components such as path and host"
 								properties: {
+									appendXForwardedHost: {
+										description: """
+														AppendXForwardedHost controls whether the original Host header value is
+														appended to the X-Forwarded-Host header when hostname rewriting is configured.
+														Defaults to true for backward compatibility.
+														"""
+										type: "boolean"
+									}
 									hostname: {
 										description: """
 														Hostname is the value to be used to replace the Host header value during
@@ -27852,40 +30906,57 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										items: {
 											description: """
 															ExtractFrom is where to fetch the key from the coming request.
-															Only one of header, param or cookie is supposed to be specified.
+															Only one of headers, params or cookies must be specified.
 															"""
 											properties: {
 												cookies: {
 													description: """
 																	Cookies is the names of the cookie to fetch the key from.
 																	If multiple cookies are specified, envoy will look for the api key in the order of the list.
-																	This field is optional, but only one of headers, params or cookies is supposed to be specified.
+																	This field is optional, but only one of headers, params or cookies must be specified.
 																	"""
-													items: type: "string"
-													type: "array"
+													items: {
+														minLength: 1
+														type:      "string"
+													}
+													minItems: 1
+													type:     "array"
 												}
 												headers: {
 													description: """
 																	Headers is the names of the header to fetch the key from.
 																	If multiple headers are specified, envoy will look for the api key in the order of the list.
-																	This field is optional, but only one of headers, params or cookies is supposed to be specified.
+																	This field is optional, but only one of headers, params or cookies must be specified.
 																	"""
-													items: type: "string"
-													type: "array"
+													items: {
+														minLength: 1
+														type:      "string"
+													}
+													minItems: 1
+													type:     "array"
 												}
 												params: {
 													description: """
 																	Params is the names of the query parameter to fetch the key from.
 																	If multiple params are specified, envoy will look for the api key in the order of the list.
-																	This field is optional, but only one of headers, params or cookies is supposed to be specified.
+																	This field is optional, but only one of headers, params or cookies must be specified.
 																	"""
-													items: type: "string"
-													type: "array"
+													items: {
+														minLength: 1
+														type:      "string"
+													}
+													minItems: 1
+													type:     "array"
 												}
 											}
 											type: "object"
+											"x-kubernetes-validations": [{
+												message: "exactly one of headers, params, or cookies must be specified"
+												rule:    "(has(self.headers) ? 1 : 0) + (has(self.params) ? 1 : 0) + (has(self.cookies) ? 1 : 0) == 1"
+											}]
 										}
-										type: "array"
+										minItems: 1
+										type:     "array"
 									}
 									forwardClientIDHeader: {
 										description: """
@@ -28011,6 +31082,92 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"""
 																pattern: "((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\/([0-9]+))|((([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\\/([0-9]+))"
 																type:    "string"
+															}
+															minItems: 1
+															type:     "array"
+														}
+														clientIPGeoLocations: {
+															description: """
+																			ClientIPGeoLocations authorizes the request based on geolocation metadata derived from the client IP.
+																			This field is supported for HTTPRoute and GRPCRoute authorization.
+																			It is not supported for TCPRoute targets.
+
+																			If multiple entries are specified,  one of the ClientIPGeoLocation entries must match for the rule to match.
+
+																			The client IP is inferred from the X-Forwarded-For header or a custom header.
+																			You can use the `ClientIPDetection` field in the `ClientTrafficPolicy` to configure the client IP detection.
+																			"""
+															items: {
+																description: "ClientIPGeoLocation specifies geolocation-based match criteria for authorization."
+																properties: {
+																	anonymous: {
+																		description: "Anonymous matches anonymous network detection signals."
+																		properties: {
+																			isAnonymous: {
+																				description: "IsAnonymous matches whether the client IP is considered anonymous."
+																				type:        "boolean"
+																			}
+																			isHosting: {
+																				description: "IsHosting matches whether the client IP belongs to a hosting provider."
+																				type:        "boolean"
+																			}
+																			isProxy: {
+																				description: "IsProxy matches whether the client IP belongs to a public proxy."
+																				type:        "boolean"
+																			}
+																			isTor: {
+																				description: "IsTor matches whether the client IP belongs to a Tor exit node."
+																				type:        "boolean"
+																			}
+																			isVPN: {
+																				description: "IsVPN matches whether the client IP is detected as VPN."
+																				type:        "boolean"
+																			}
+																		}
+																		type: "object"
+																		"x-kubernetes-validations": [{
+																			message: "at least one of isAnonymous, isVPN, isHosting, isTor, or isProxy must be specified"
+																			rule:    "has(self.isAnonymous) || has(self.isVPN) || has(self.isHosting) || has(self.isTor) || has(self.isProxy)"
+																		}]
+																	}
+																	asn: {
+																		description: "ASN is the autonomous system number associated with the client IP."
+																		format:      "int32"
+																		minimum:     1
+																		type:        "integer"
+																	}
+																	city: {
+																		description: "City is the city associated with the client IP."
+																		maxLength:   128
+																		minLength:   1
+																		type:        "string"
+																	}
+																	country: {
+																		description: "Country is the country ISO code associated with the client IP."
+																		maxLength:   2
+																		minLength:   2
+																		pattern:     "^[A-Za-z]{2}$"
+																		type:        "string"
+																	}
+																	isp: {
+																		description: "ISP is the internet service provider associated with the client IP."
+																		maxLength:   256
+																		minLength:   1
+																		type:        "string"
+																	}
+																	region: {
+																		description: "Region is the region ISO code associated with the client IP."
+																		maxLength:   16
+																		minLength:   1
+																		pattern:     "^[A-Za-z0-9-]+$"
+																		type:        "string"
+																	}
+																}
+																type: "object"
+																"x-kubernetes-validations": [{
+																	message: "at least one of country, region, city, asn, isp, or anonymous must be specified"
+																	rule:    "has(self.country) || has(self.region) || has(self.city) || has(self.asn) || has(self.isp) || has(self.anonymous)"
+																}]
 															}
 															minItems: 1
 															type:     "array"
@@ -28146,38 +31303,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																rule:    "(has(self.claims) || has(self.scopes))"
 															}]
 														}
-														sourceCIDRs: {
-															description: """
-																			SourceCIDRs are the IP CIDR ranges of the source (L4 peer IP).
-																			Valid examples are "192.168.1.0/24" or "2001:db8::/64"
-
-																			If multiple CIDR ranges are specified, one of the CIDR ranges must match
-																			the source IP for the rule to match.
-
-																			The source IP is the IP address of the peer that connected to Envoy.
-																			This IP is obtained from the TCP connection's peer address and is not
-																			affected by X-Forwarded-For or other IP detection headers.
-																			If intermediaries (load balancers, NAT) terminate or proxy TCP,
-																			the original client IP will only be available if the intermediary
-																			preserves the source address (for example by enabling the PROXY protocol
-																			or avoiding SNAT).
-																			"""
-															items: {
-																description: """
-																				CIDR defines a CIDR Address range.
-																				A CIDR can be an IPv4 address range such as "192.168.1.0/24" or an IPv6 address range such as "2001:0db8:11a3:09d7::/64".
-																				"""
-																pattern: "((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\/([0-9]+))|((([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\\/([0-9]+))"
-																type:    "string"
-															}
-															minItems: 1
-															type:     "array"
-														}
 													}
 													type: "object"
 													"x-kubernetes-validations": [{
-														message: "at least one of clientCIDRs, jwt, or headers must be specified"
-														rule:    "(has(self.clientCIDRs) || has(self.jwt) || has(self.headers))"
+														message: "at least one of clientCIDRs, jwt, headers, or clientIPGeoLocations must be specified"
+														rule:    "(has(self.clientCIDRs) || has(self.jwt) || has(self.headers) || has(self.clientIPGeoLocations))"
 													}]
 												}
 											}
@@ -28213,8 +31343,6 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														Right now, only SHA hash algorithm is supported.
 														Reference to https://httpd.apache.org/docs/2.4/programs/htpasswd.html
 														for more details.
-
-														Note: The secret must be in the same namespace as the SecurityPolicy.
 														"""
 										properties: {
 											group: {
@@ -28739,6 +31867,53 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																}
 																type: "object"
 															}
+															retryBudget: {
+																description: """
+																				RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+																				RetryBudget take precedence over maxParallelRetries.
+																				"""
+																properties: {
+																	minRetryConcurrency: {
+																		description: """
+																						MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+																						For example, a budget of 20% with a minimum retry concurrency of 3
+																						will allow 5 active retries while there are 25 active requests.
+																						If there are 2 active requests, there are still 3 active retries
+																						allowed because of the minimum retry concurrency.
+																						Defaults to 3.
+																						"""
+																		format: "int32"
+																		type:   "integer"
+																	}
+																	percent: {
+																		description: """
+																						Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+																						the sum of active requests and active pending requests.
+																						"""
+																		properties: {
+																			denominator: {
+																				default: 100
+																				format:  "int32"
+																				minimum: 1
+																				type:    "integer"
+																			}
+																			numerator: {
+																				format:  "int32"
+																				minimum: 0
+																				type:    "integer"
+																			}
+																		}
+																		required: ["numerator"]
+																		type: "object"
+																		"x-kubernetes-validations": [{
+																			message: "numerator must be less than or equal to denominator"
+																			rule:    "self.numerator <= self.denominator"
+																		}]
+																	}
+																}
+																required: ["percent"]
+																type: "object"
+															}
 														}
 														type: "object"
 													}
@@ -28941,8 +32116,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			}
 																			hostname: {
 																				description: """
-																								Hostname defines the HTTP host that will be requested during health checking.
-																								Default: HTTPRoute or GRPCRoute hostname.
+																								Hostname defines the HTTP Host header used for active HTTP health checks.
+																								Host selection uses this order: this field, the associated Backend endpoint
+																								hostname if available, then the effective Route hostname.
 																								"""
 																				maxLength: 253
 																				minLength: 1
@@ -28962,6 +32138,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				minLength:   1
 																				type:        "string"
 																			}
+																			retriableStatuses: {
+																				description: """
+																								RetriableStatuses defines a list of HTTP response statuses considered retriable.
+																								Responses matching these statuses count towards the unhealthy threshold but
+																								do not result in the host being considered immediately unhealthy.
+																								The expected statuses take precedence for any range overlaps with this field.
+																								"""
+																				items: {
+																					description: "HTTPStatus defines the http status code."
+																					maximum:     599
+																					minimum:     100
+																					type:        "integer"
+																				}
+																				type: "array"
+																			}
 																		}
 																		required: ["path"]
 																		type: "object"
@@ -28979,6 +32170,26 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		description: "Interval defines the time between active health checks."
 																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																		type:        "string"
+																	}
+																	overrides: {
+																		description: """
+																						Overrides defines the configuration of the overriding health check settings for all endpoints
+																						in the backend cluster. This allows customization of port and other settings that may differ
+																						from the main service configuration.
+																						"""
+																		properties: port: {
+																			description: """
+																								Port overrides the health check port.
+																								If not set, the endpoint's serving port is used for health checks.
+																								This is useful when health checks are served on a different port than
+																								the main service port (e.g., port 443 for service, port 9090 for health checks).
+																								"""
+																			format:  "int32"
+																			maximum: 65535
+																			minimum: 1
+																			type:    "integer"
+																		}
+																		type: "object"
 																	}
 																	tcp: {
 																		description: """
@@ -29069,11 +32280,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:        "string"
 																	}
 																	unhealthyThreshold: {
-																		default:     3
-																		description: "UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy."
-																		format:      "int32"
-																		minimum:     1
-																		type:        "integer"
+																		default: 3
+																		description: """
+																						UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+																						Without RetriableStatuses configured, any health check failure results in the host being immediately
+																						considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+																						up to this threshold before the host is marked unhealthy.
+																						"""
+																		format:  "int32"
+																		minimum: 1
+																		type:    "integer"
 																	}
 																}
 																required: ["type"]
@@ -29104,6 +32320,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															passive: {
 																description: "Passive passive check configuration"
 																properties: {
+																	alwaysEjectOneEndpoint: {
+																		default: false
+																		description: """
+																						AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+																						regardless of MaxEjectionPercent.
+																						"""
+																		type: "boolean"
+																	}
 																	baseEjectionTime: {
 																		default:     "30s"
 																		description: "BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures."
@@ -29151,6 +32375,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		default:     10
 																		description: "MaxEjectionPercent sets the maximum percentage of hosts in a cluster that can be ejected."
 																		format:      "int32"
+																		maximum:     100
+																		minimum:     0
 																		type:        "integer"
 																	}
 																	splitExternalLocalOriginErrors: {
@@ -29167,6 +32393,41 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													http2: {
 														description: "HTTP2 provides HTTP/2 configuration for backend connections."
 														properties: {
+															connectionKeepalive: {
+																description: "ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames."
+																properties: {
+																	idleInterval: {
+																		description: "IdleInterval specifies how long a connection must be idle before a PING is sent."
+																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																		type:        "string"
+																	}
+																	interval: {
+																		description: "Interval specifies how often to send HTTP/2 PING frames to keep the connection alive."
+																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																		type:        "string"
+																	}
+																	intervalJitter: {
+																		description: """
+																						IntervalJitter specifies a random jitter percentage added to each interval.
+																						Defaults to 15% if not specified.
+																						"""
+																		format:  "int32"
+																		maximum: 100
+																		minimum: 0
+																		type:    "integer"
+																	}
+																	timeout: {
+																		description: "Timeout specifies how long to wait for a PING response before considering the connection dead."
+																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																		type:        "string"
+																	}
+																}
+																type: "object"
+																"x-kubernetes-validations": [{
+																	message: "timeout must be less than interval"
+																	rule:    "!has(self.timeout) || !has(self.interval) || duration(self.timeout) < duration(self.interval)"
+																}]
+															}
 															initialConnectionWindowSize: {
 																allOf: [{
 																	pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
@@ -29229,6 +32490,65 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		the backend endpoints. Defaults to `LeastRequest`.
 																		"""
 														properties: {
+															backendUtilization: {
+																description: """
+																				BackendUtilization defines the configuration when the load balancer type is
+																				set to BackendUtilization.
+																				"""
+																properties: {
+																	blackoutPeriod: {
+																		description: """
+																						A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+																						Default is 10s.
+																						"""
+																		pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																		type:    "string"
+																	}
+																	errorUtilizationPenaltyPercent: {
+																		description: """
+																						ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+																						This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+
+																						For example:
+																						- 100 => 1.0x
+																						- 120 => 1.2x
+																						- 200 => 2.0x
+
+																						Must be non-negative.
+																						"""
+																		format:  "int32"
+																		minimum: 0
+																		type:    "integer"
+																	}
+																	keepResponseHeaders: {
+																		default: false
+																		description: """
+																						KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+																						Defaults to false.
+																						"""
+																		type: "boolean"
+																	}
+																	metricNamesForComputingUtilization: {
+																		description: """
+																						Metric names used to compute utilization if application_utilization is not set.
+																						For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+																						"""
+																		items: type: "string"
+																		type: "array"
+																	}
+																	weightExpirationPeriod: {
+																		description: "If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m."
+																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																		type:        "string"
+																	}
+																	weightUpdatePeriod: {
+																		description: "How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s."
+																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																		type:        "string"
+																	}
+																}
+																type: "object"
+															}
 															consistentHash: {
 																description: """
 																				ConsistentHash defines the configuration when the load balancer type is
@@ -29347,6 +32667,47 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	rule:    "self.type == 'QueryParams' ? has(self.queryParams) : !has(self.queryParams)"
 																}]
 															}
+															dynamicModule: {
+																description: """
+																				DynamicModule defines the configuration when the load balancer type is
+																				set to DynamicModule. The referenced module must be registered in the
+																				EnvoyProxy resource's dynamicModules allowlist.
+																				"""
+																properties: {
+																	config: {
+																		description: """
+																						Config is optional configuration for the module's load balancer
+																						implementation. This is serialized and passed to the module's
+																						initialization function.
+																						"""
+																		"x-kubernetes-preserve-unknown-fields": true
+																	}
+																	lbPolicyName: {
+																		description: """
+																						LBPolicyName identifies a specific load balancer implementation within
+																						the dynamic module. A single shared library can contain multiple LB
+																						policy implementations. This value is passed to the module's
+																						initialization function to select the appropriate implementation.
+																						"""
+																		maxLength: 253
+																		minLength: 1
+																		type:      "string"
+																	}
+																	name: {
+																		description: """
+																						Name references a dynamic module registered in the EnvoyProxy resource's
+																						dynamicModules list. The referenced module must exist in the registry;
+																						otherwise, the policy will be rejected.
+																						"""
+																		maxLength: 253
+																		minLength: 1
+																		pattern:   "^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$"
+																		type:      "string"
+																	}
+																}
+																required: ["lbPolicyName", "name"]
+																type: "object"
+															}
 															endpointOverride: {
 																description: """
 																				EndpointOverride defines the configuration for endpoint override.
@@ -29380,7 +32741,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																description: """
 																				SlowStart defines the configuration related to the slow start load balancer policy.
 																				If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-																				Currently this is only supported for RoundRobin and LeastRequest load balancers
+																				Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
 																				"""
 																properties: window: {
 																	description: """
@@ -29402,45 +32763,83 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"ConsistentHash",
 																				"LeastRequest",
 																				"Random",
-																				"RoundRobin".
+																				"RoundRobin",
+																				"BackendUtilization",
+																				"DynamicModule".
 																				"""
-																enum: ["ConsistentHash", "LeastRequest", "Random", "RoundRobin"]
+																enum: ["ConsistentHash", "LeastRequest", "Random", "RoundRobin", "BackendUtilization", "DynamicModule"]
 																type: "string"
 															}
 															zoneAware: {
 																description: "ZoneAware defines the configuration related to the distribution of requests between locality zones."
-																properties: preferLocal: {
-																	description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
-																	properties: {
-																		force: {
-																			description: """
+																properties: {
+																	preferLocal: {
+																		description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
+																		properties: {
+																			force: {
+																				description: """
 																								ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
 																								which maintains equal distribution among upstream endpoints while sending as much traffic as possible locally.
 																								"""
-																			properties: minEndpointsInZoneThreshold: {
-																				description: """
+																				properties: minEndpointsInZoneThreshold: {
+																					description: """
 																										MinEndpointsInZoneThreshold is the minimum number of upstream endpoints in the local zone required to honor the forceLocalZone
 																										override. This is useful for protecting zones with fewer endpoints.
 																										"""
-																				format: "int32"
-																				type:   "integer"
+																					format: "int32"
+																					type:   "integer"
+																				}
+																				type: "object"
 																			}
+																			minEndpointsThreshold: {
+																				description: "MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing."
+																				format:      "int64"
+																				type:        "integer"
+																			}
+																			percentageEnabled: {
+																				description: "Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%."
+																				format:      "int32"
+																				maximum:     100
+																				minimum:     0
+																				type:        "integer"
+																			}
+																		}
+																		type: "object"
+																	}
+																	weightedZones: {
+																		description: """
+																						WeightedZones configures weight-based traffic distribution across locality zones.
+																						Traffic is distributed proportionally based on the sum of all zone weights.
+																						"""
+																		items: {
+																			description: "WeightedZoneConfig defines the weight for a specific locality zone."
+																			properties: {
+																				weight: {
+																					description: """
+																									Weight defines the weight for this locality.
+																									Higher values receive more traffic. The actual traffic distribution
+																									is proportional to this value relative to other localities.
+																									"""
+																					format: "int32"
+																					type:   "integer"
+																				}
+																				zone: {
+																					description: """
+																									Zone specifies the topology zone this weight applies to.
+																									The value should match the topology.kubernetes.io/zone label
+																									of the nodes where endpoints are running.
+																									Zones not listed in the configuration receive a default weight of 1.
+																									"""
+																					type: "string"
+																				}
+																			}
+																			required: ["weight", "zone"]
 																			type: "object"
 																		}
-																		minEndpointsThreshold: {
-																			description: "MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing."
-																			format:      "int64"
-																			type:        "integer"
-																		}
-																		percentageEnabled: {
-																			description: "Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%."
-																			format:      "int32"
-																			maximum:     100
-																			minimum:     0
-																			type:        "integer"
-																		}
+																		type: "array"
+																		"x-kubernetes-list-map-keys": ["zone"]
+																		"x-kubernetes-list-type": "map"
 																	}
-																	type: "object"
 																}
 																type: "object"
 															}
@@ -29451,18 +32850,36 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															message: "If LoadBalancer type is consistentHash, consistentHash field needs to be set."
 															rule:    "self.type == 'ConsistentHash' ? has(self.consistentHash) : !has(self.consistentHash)"
 														}, {
-															message: "Currently SlowStart is only supported for RoundRobin and LeastRequest load balancers."
-															rule:    "self.type in ['Random', 'ConsistentHash'] ? !has(self.slowStart) : true "
+															message: "If LoadBalancer type is BackendUtilization, backendUtilization field needs to be set."
+															rule:    "self.type == 'BackendUtilization' ? has(self.backendUtilization) : !has(self.backendUtilization)"
 														}, {
-															message: "Currently ZoneAware is only supported for LeastRequest, Random, and RoundRobin load balancers."
-															rule:    "self.type == 'ConsistentHash' ? !has(self.zoneAware) : true "
+															message: "If LoadBalancer type is DynamicModule, dynamicModule field needs to be set."
+															rule:    "self.type == 'DynamicModule' ? has(self.dynamicModule) : !has(self.dynamicModule)"
+														}, {
+															message: "Currently SlowStart is only supported for RoundRobin, LeastRequest, and BackendUtilization load balancers."
+															rule:    "self.type in ['Random', 'ConsistentHash', 'DynamicModule'] ? !has(self.slowStart) : true"
+														}, {
+															message: "PreferLocal zone-aware routing is not supported for ConsistentHash load balancers. Use weightedZones instead."
+															rule:    "self.type == 'ConsistentHash' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true"
+														}, {
+															message: "PreferLocal zone-aware routing is not currently supported for BackendUtilization load balancers. Only WeightedZones can be used with BackendUtilization."
+															rule:    "self.type == 'BackendUtilization' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true"
+														}, {
+															message: "ZoneAware routing is not supported for DynamicModule load balancers."
+															rule:    "self.type == 'DynamicModule' ? !has(self.zoneAware) : true"
+														}, {
+															message: "ZoneAware PreferLocal and WeightedZones cannot be specified together."
+															rule:    "has(self.zoneAware) ? !(has(self.zoneAware.preferLocal) && has(self.zoneAware.weightedZones)) : true"
+														}, {
+															message: "EndpointOverride is not supported for DynamicModule load balancers."
+															rule:    "self.type == 'DynamicModule' ? !has(self.endpointOverride) : true"
 														}]
 													}
 													proxyProtocol: {
 														description: "ProxyProtocol enables the Proxy Protocol when communicating with the backend."
 														properties: version: {
 															description: """
-																				Version of ProxyProtol
+																				Version of ProxyProtocol
 																				Valid ProxyProtocolVersion values are
 																				"V1"
 																				"V2"
@@ -29636,6 +33053,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		description: "RequestTimeout is the time until which entire response is received from the upstream."
 																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																		type:        "string"
+																	}
+																	streamIdleTimeout: {
+																		description: """
+																						 The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+																						 If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+																						"""
+																		pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																		type:    "string"
 																	}
 																}
 																type: "object"
@@ -29970,6 +33395,53 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																}
 																type: "object"
 															}
+															retryBudget: {
+																description: """
+																				RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+																				RetryBudget take precedence over maxParallelRetries.
+																				"""
+																properties: {
+																	minRetryConcurrency: {
+																		description: """
+																						MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+																						For example, a budget of 20% with a minimum retry concurrency of 3
+																						will allow 5 active retries while there are 25 active requests.
+																						If there are 2 active requests, there are still 3 active retries
+																						allowed because of the minimum retry concurrency.
+																						Defaults to 3.
+																						"""
+																		format: "int32"
+																		type:   "integer"
+																	}
+																	percent: {
+																		description: """
+																						Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+																						the sum of active requests and active pending requests.
+																						"""
+																		properties: {
+																			denominator: {
+																				default: 100
+																				format:  "int32"
+																				minimum: 1
+																				type:    "integer"
+																			}
+																			numerator: {
+																				format:  "int32"
+																				minimum: 0
+																				type:    "integer"
+																			}
+																		}
+																		required: ["numerator"]
+																		type: "object"
+																		"x-kubernetes-validations": [{
+																			message: "numerator must be less than or equal to denominator"
+																			rule:    "self.numerator <= self.denominator"
+																		}]
+																	}
+																}
+																required: ["percent"]
+																type: "object"
+															}
 														}
 														type: "object"
 													}
@@ -30172,8 +33644,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			}
 																			hostname: {
 																				description: """
-																								Hostname defines the HTTP host that will be requested during health checking.
-																								Default: HTTPRoute or GRPCRoute hostname.
+																								Hostname defines the HTTP Host header used for active HTTP health checks.
+																								Host selection uses this order: this field, the associated Backend endpoint
+																								hostname if available, then the effective Route hostname.
 																								"""
 																				maxLength: 253
 																				minLength: 1
@@ -30193,6 +33666,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				minLength:   1
 																				type:        "string"
 																			}
+																			retriableStatuses: {
+																				description: """
+																								RetriableStatuses defines a list of HTTP response statuses considered retriable.
+																								Responses matching these statuses count towards the unhealthy threshold but
+																								do not result in the host being considered immediately unhealthy.
+																								The expected statuses take precedence for any range overlaps with this field.
+																								"""
+																				items: {
+																					description: "HTTPStatus defines the http status code."
+																					maximum:     599
+																					minimum:     100
+																					type:        "integer"
+																				}
+																				type: "array"
+																			}
 																		}
 																		required: ["path"]
 																		type: "object"
@@ -30210,6 +33698,26 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		description: "Interval defines the time between active health checks."
 																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																		type:        "string"
+																	}
+																	overrides: {
+																		description: """
+																						Overrides defines the configuration of the overriding health check settings for all endpoints
+																						in the backend cluster. This allows customization of port and other settings that may differ
+																						from the main service configuration.
+																						"""
+																		properties: port: {
+																			description: """
+																								Port overrides the health check port.
+																								If not set, the endpoint's serving port is used for health checks.
+																								This is useful when health checks are served on a different port than
+																								the main service port (e.g., port 443 for service, port 9090 for health checks).
+																								"""
+																			format:  "int32"
+																			maximum: 65535
+																			minimum: 1
+																			type:    "integer"
+																		}
+																		type: "object"
 																	}
 																	tcp: {
 																		description: """
@@ -30300,11 +33808,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:        "string"
 																	}
 																	unhealthyThreshold: {
-																		default:     3
-																		description: "UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy."
-																		format:      "int32"
-																		minimum:     1
-																		type:        "integer"
+																		default: 3
+																		description: """
+																						UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+																						Without RetriableStatuses configured, any health check failure results in the host being immediately
+																						considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+																						up to this threshold before the host is marked unhealthy.
+																						"""
+																		format:  "int32"
+																		minimum: 1
+																		type:    "integer"
 																	}
 																}
 																required: ["type"]
@@ -30335,6 +33848,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															passive: {
 																description: "Passive passive check configuration"
 																properties: {
+																	alwaysEjectOneEndpoint: {
+																		default: false
+																		description: """
+																						AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+																						regardless of MaxEjectionPercent.
+																						"""
+																		type: "boolean"
+																	}
 																	baseEjectionTime: {
 																		default:     "30s"
 																		description: "BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures."
@@ -30382,6 +33903,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		default:     10
 																		description: "MaxEjectionPercent sets the maximum percentage of hosts in a cluster that can be ejected."
 																		format:      "int32"
+																		maximum:     100
+																		minimum:     0
 																		type:        "integer"
 																	}
 																	splitExternalLocalOriginErrors: {
@@ -30398,6 +33921,41 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													http2: {
 														description: "HTTP2 provides HTTP/2 configuration for backend connections."
 														properties: {
+															connectionKeepalive: {
+																description: "ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames."
+																properties: {
+																	idleInterval: {
+																		description: "IdleInterval specifies how long a connection must be idle before a PING is sent."
+																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																		type:        "string"
+																	}
+																	interval: {
+																		description: "Interval specifies how often to send HTTP/2 PING frames to keep the connection alive."
+																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																		type:        "string"
+																	}
+																	intervalJitter: {
+																		description: """
+																						IntervalJitter specifies a random jitter percentage added to each interval.
+																						Defaults to 15% if not specified.
+																						"""
+																		format:  "int32"
+																		maximum: 100
+																		minimum: 0
+																		type:    "integer"
+																	}
+																	timeout: {
+																		description: "Timeout specifies how long to wait for a PING response before considering the connection dead."
+																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																		type:        "string"
+																	}
+																}
+																type: "object"
+																"x-kubernetes-validations": [{
+																	message: "timeout must be less than interval"
+																	rule:    "!has(self.timeout) || !has(self.interval) || duration(self.timeout) < duration(self.interval)"
+																}]
+															}
 															initialConnectionWindowSize: {
 																allOf: [{
 																	pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
@@ -30460,6 +34018,65 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		the backend endpoints. Defaults to `LeastRequest`.
 																		"""
 														properties: {
+															backendUtilization: {
+																description: """
+																				BackendUtilization defines the configuration when the load balancer type is
+																				set to BackendUtilization.
+																				"""
+																properties: {
+																	blackoutPeriod: {
+																		description: """
+																						A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+																						Default is 10s.
+																						"""
+																		pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																		type:    "string"
+																	}
+																	errorUtilizationPenaltyPercent: {
+																		description: """
+																						ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+																						This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+
+																						For example:
+																						- 100 => 1.0x
+																						- 120 => 1.2x
+																						- 200 => 2.0x
+
+																						Must be non-negative.
+																						"""
+																		format:  "int32"
+																		minimum: 0
+																		type:    "integer"
+																	}
+																	keepResponseHeaders: {
+																		default: false
+																		description: """
+																						KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+																						Defaults to false.
+																						"""
+																		type: "boolean"
+																	}
+																	metricNamesForComputingUtilization: {
+																		description: """
+																						Metric names used to compute utilization if application_utilization is not set.
+																						For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+																						"""
+																		items: type: "string"
+																		type: "array"
+																	}
+																	weightExpirationPeriod: {
+																		description: "If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m."
+																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																		type:        "string"
+																	}
+																	weightUpdatePeriod: {
+																		description: "How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s."
+																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																		type:        "string"
+																	}
+																}
+																type: "object"
+															}
 															consistentHash: {
 																description: """
 																				ConsistentHash defines the configuration when the load balancer type is
@@ -30578,6 +34195,47 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	rule:    "self.type == 'QueryParams' ? has(self.queryParams) : !has(self.queryParams)"
 																}]
 															}
+															dynamicModule: {
+																description: """
+																				DynamicModule defines the configuration when the load balancer type is
+																				set to DynamicModule. The referenced module must be registered in the
+																				EnvoyProxy resource's dynamicModules allowlist.
+																				"""
+																properties: {
+																	config: {
+																		description: """
+																						Config is optional configuration for the module's load balancer
+																						implementation. This is serialized and passed to the module's
+																						initialization function.
+																						"""
+																		"x-kubernetes-preserve-unknown-fields": true
+																	}
+																	lbPolicyName: {
+																		description: """
+																						LBPolicyName identifies a specific load balancer implementation within
+																						the dynamic module. A single shared library can contain multiple LB
+																						policy implementations. This value is passed to the module's
+																						initialization function to select the appropriate implementation.
+																						"""
+																		maxLength: 253
+																		minLength: 1
+																		type:      "string"
+																	}
+																	name: {
+																		description: """
+																						Name references a dynamic module registered in the EnvoyProxy resource's
+																						dynamicModules list. The referenced module must exist in the registry;
+																						otherwise, the policy will be rejected.
+																						"""
+																		maxLength: 253
+																		minLength: 1
+																		pattern:   "^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$"
+																		type:      "string"
+																	}
+																}
+																required: ["lbPolicyName", "name"]
+																type: "object"
+															}
 															endpointOverride: {
 																description: """
 																				EndpointOverride defines the configuration for endpoint override.
@@ -30611,7 +34269,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																description: """
 																				SlowStart defines the configuration related to the slow start load balancer policy.
 																				If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-																				Currently this is only supported for RoundRobin and LeastRequest load balancers
+																				Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
 																				"""
 																properties: window: {
 																	description: """
@@ -30633,45 +34291,83 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"ConsistentHash",
 																				"LeastRequest",
 																				"Random",
-																				"RoundRobin".
+																				"RoundRobin",
+																				"BackendUtilization",
+																				"DynamicModule".
 																				"""
-																enum: ["ConsistentHash", "LeastRequest", "Random", "RoundRobin"]
+																enum: ["ConsistentHash", "LeastRequest", "Random", "RoundRobin", "BackendUtilization", "DynamicModule"]
 																type: "string"
 															}
 															zoneAware: {
 																description: "ZoneAware defines the configuration related to the distribution of requests between locality zones."
-																properties: preferLocal: {
-																	description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
-																	properties: {
-																		force: {
-																			description: """
+																properties: {
+																	preferLocal: {
+																		description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
+																		properties: {
+																			force: {
+																				description: """
 																								ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
 																								which maintains equal distribution among upstream endpoints while sending as much traffic as possible locally.
 																								"""
-																			properties: minEndpointsInZoneThreshold: {
-																				description: """
+																				properties: minEndpointsInZoneThreshold: {
+																					description: """
 																										MinEndpointsInZoneThreshold is the minimum number of upstream endpoints in the local zone required to honor the forceLocalZone
 																										override. This is useful for protecting zones with fewer endpoints.
 																										"""
-																				format: "int32"
-																				type:   "integer"
+																					format: "int32"
+																					type:   "integer"
+																				}
+																				type: "object"
 																			}
+																			minEndpointsThreshold: {
+																				description: "MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing."
+																				format:      "int64"
+																				type:        "integer"
+																			}
+																			percentageEnabled: {
+																				description: "Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%."
+																				format:      "int32"
+																				maximum:     100
+																				minimum:     0
+																				type:        "integer"
+																			}
+																		}
+																		type: "object"
+																	}
+																	weightedZones: {
+																		description: """
+																						WeightedZones configures weight-based traffic distribution across locality zones.
+																						Traffic is distributed proportionally based on the sum of all zone weights.
+																						"""
+																		items: {
+																			description: "WeightedZoneConfig defines the weight for a specific locality zone."
+																			properties: {
+																				weight: {
+																					description: """
+																									Weight defines the weight for this locality.
+																									Higher values receive more traffic. The actual traffic distribution
+																									is proportional to this value relative to other localities.
+																									"""
+																					format: "int32"
+																					type:   "integer"
+																				}
+																				zone: {
+																					description: """
+																									Zone specifies the topology zone this weight applies to.
+																									The value should match the topology.kubernetes.io/zone label
+																									of the nodes where endpoints are running.
+																									Zones not listed in the configuration receive a default weight of 1.
+																									"""
+																					type: "string"
+																				}
+																			}
+																			required: ["weight", "zone"]
 																			type: "object"
 																		}
-																		minEndpointsThreshold: {
-																			description: "MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing."
-																			format:      "int64"
-																			type:        "integer"
-																		}
-																		percentageEnabled: {
-																			description: "Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%."
-																			format:      "int32"
-																			maximum:     100
-																			minimum:     0
-																			type:        "integer"
-																		}
+																		type: "array"
+																		"x-kubernetes-list-map-keys": ["zone"]
+																		"x-kubernetes-list-type": "map"
 																	}
-																	type: "object"
 																}
 																type: "object"
 															}
@@ -30682,18 +34378,36 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															message: "If LoadBalancer type is consistentHash, consistentHash field needs to be set."
 															rule:    "self.type == 'ConsistentHash' ? has(self.consistentHash) : !has(self.consistentHash)"
 														}, {
-															message: "Currently SlowStart is only supported for RoundRobin and LeastRequest load balancers."
-															rule:    "self.type in ['Random', 'ConsistentHash'] ? !has(self.slowStart) : true "
+															message: "If LoadBalancer type is BackendUtilization, backendUtilization field needs to be set."
+															rule:    "self.type == 'BackendUtilization' ? has(self.backendUtilization) : !has(self.backendUtilization)"
 														}, {
-															message: "Currently ZoneAware is only supported for LeastRequest, Random, and RoundRobin load balancers."
-															rule:    "self.type == 'ConsistentHash' ? !has(self.zoneAware) : true "
+															message: "If LoadBalancer type is DynamicModule, dynamicModule field needs to be set."
+															rule:    "self.type == 'DynamicModule' ? has(self.dynamicModule) : !has(self.dynamicModule)"
+														}, {
+															message: "Currently SlowStart is only supported for RoundRobin, LeastRequest, and BackendUtilization load balancers."
+															rule:    "self.type in ['Random', 'ConsistentHash', 'DynamicModule'] ? !has(self.slowStart) : true"
+														}, {
+															message: "PreferLocal zone-aware routing is not supported for ConsistentHash load balancers. Use weightedZones instead."
+															rule:    "self.type == 'ConsistentHash' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true"
+														}, {
+															message: "PreferLocal zone-aware routing is not currently supported for BackendUtilization load balancers. Only WeightedZones can be used with BackendUtilization."
+															rule:    "self.type == 'BackendUtilization' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true"
+														}, {
+															message: "ZoneAware routing is not supported for DynamicModule load balancers."
+															rule:    "self.type == 'DynamicModule' ? !has(self.zoneAware) : true"
+														}, {
+															message: "ZoneAware PreferLocal and WeightedZones cannot be specified together."
+															rule:    "has(self.zoneAware) ? !(has(self.zoneAware.preferLocal) && has(self.zoneAware.weightedZones)) : true"
+														}, {
+															message: "EndpointOverride is not supported for DynamicModule load balancers."
+															rule:    "self.type == 'DynamicModule' ? !has(self.endpointOverride) : true"
 														}]
 													}
 													proxyProtocol: {
 														description: "ProxyProtocol enables the Proxy Protocol when communicating with the backend."
 														properties: version: {
 															description: """
-																				Version of ProxyProtol
+																				Version of ProxyProtocol
 																				Valid ProxyProtocolVersion values are
 																				"V1"
 																				"V2"
@@ -30868,6 +34582,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																		type:        "string"
 																	}
+																	streamIdleTimeout: {
+																		description: """
+																						 The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+																						 If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+																						"""
+																		pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																		type:    "string"
+																	}
 																}
 																type: "object"
 															}
@@ -30914,6 +34636,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																For example, if the original request path is "/hello", and the path specified here is "/auth",
 																then the path of the authorization request will be "/auth/hello". If the path is not specified,
 																the path of the authorization request will be "/hello".
+																Only one of Path or PathOverride can be set.
+																"""
+												type: "string"
+											}
+											pathOverride: {
+												description: """
+																PathOverride replaces the original request path in the authorization request.
+																If set, the path will be overridden to this value during authorization.
+																For example, if the original request path is "/hello", and PathOverride is set to "/auth",
+																then the path of the authorization request will be "/auth".
+																Only one of Path or PathOverride can be set.
 																"""
 												type: "string"
 											}
@@ -30928,7 +34661,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										}, {
 											message: "BackendRefs only supports Core, multicluster.x-k8s.io, and gateway.envoyproxy.io groups."
 											rule:    "has(self.backendRefs) ? (self.backendRefs.all(f, f.group == \"\" || f.group == 'multicluster.x-k8s.io' || f.group == 'gateway.envoyproxy.io')) : true"
+										}, {
+											message: "only one of path or pathOverride can be specified"
+											rule:    "!(has(self.path) && has(self.pathOverride))"
 										}]
+									}
+									includeRouteMetadata: {
+										description: """
+														IncludeRouteMetadata sends Envoy Gateway's built-in route metadata to the
+														external authorization service as context.
+
+														This includes Envoy Gateway's built-in metadata for the selected route in
+														the "envoy-gateway" metadata namespace.
+
+														The metadata is exposed under the "resources" field as a list of route
+														resource objects. For example:
+
+														envoy-gateway:
+														  resources:
+														  - kind: HTTPRoute
+														    name: backend
+														    namespace: default
+														    annotations:
+														      foo: bar
+
+														The resource object may include fields such as kind, namespace, name,
+														sectionName, and supported route annotations.
+														"""
+										type: "boolean"
 									}
 									recomputeRoute: {
 										description: """
@@ -30938,6 +34698,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														the new matched route will be applied.
 														"""
 										type: "boolean"
+									}
+									statusOnError: {
+										description: """
+														Sets the HTTP status that is returned when the authorization service returns an error
+														or cannot be reached. Defaults to 403 Forbidden.
+														Only 4xx and 5xx status codes are supported.
+														"""
+										enum: [400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 421, 422, 423, 424, 426, 428, 429, 431, 500, 501, 502, 503, 504, 505, 506, 507, 508, 510, 511]
+										format: "int32"
+										type:   "integer"
 									}
 									timeout: {
 										description: """
@@ -31421,6 +35191,53 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			}
 																			type: "object"
 																		}
+																		retryBudget: {
+																			description: """
+																							RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+																							RetryBudget take precedence over maxParallelRetries.
+																							"""
+																			properties: {
+																				minRetryConcurrency: {
+																					description: """
+																									MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+																									For example, a budget of 20% with a minimum retry concurrency of 3
+																									will allow 5 active retries while there are 25 active requests.
+																									If there are 2 active requests, there are still 3 active retries
+																									allowed because of the minimum retry concurrency.
+																									Defaults to 3.
+																									"""
+																					format: "int32"
+																					type:   "integer"
+																				}
+																				percent: {
+																					description: """
+																									Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+																									the sum of active requests and active pending requests.
+																									"""
+																					properties: {
+																						denominator: {
+																							default: 100
+																							format:  "int32"
+																							minimum: 1
+																							type:    "integer"
+																						}
+																						numerator: {
+																							format:  "int32"
+																							minimum: 0
+																							type:    "integer"
+																						}
+																					}
+																					required: ["numerator"]
+																					type: "object"
+																					"x-kubernetes-validations": [{
+																						message: "numerator must be less than or equal to denominator"
+																						rule:    "self.numerator <= self.denominator"
+																					}]
+																				}
+																			}
+																			required: ["percent"]
+																			type: "object"
+																		}
 																	}
 																	type: "object"
 																}
@@ -31623,8 +35440,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						}
 																						hostname: {
 																							description: """
-																											Hostname defines the HTTP host that will be requested during health checking.
-																											Default: HTTPRoute or GRPCRoute hostname.
+																											Hostname defines the HTTP Host header used for active HTTP health checks.
+																											Host selection uses this order: this field, the associated Backend endpoint
+																											hostname if available, then the effective Route hostname.
 																											"""
 																							maxLength: 253
 																							minLength: 1
@@ -31644,6 +35462,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							minLength:   1
 																							type:        "string"
 																						}
+																						retriableStatuses: {
+																							description: """
+																											RetriableStatuses defines a list of HTTP response statuses considered retriable.
+																											Responses matching these statuses count towards the unhealthy threshold but
+																											do not result in the host being considered immediately unhealthy.
+																											The expected statuses take precedence for any range overlaps with this field.
+																											"""
+																							items: {
+																								description: "HTTPStatus defines the http status code."
+																								maximum:     599
+																								minimum:     100
+																								type:        "integer"
+																							}
+																							type: "array"
+																						}
 																					}
 																					required: ["path"]
 																					type: "object"
@@ -31661,6 +35494,26 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					description: "Interval defines the time between active health checks."
 																					pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																					type:        "string"
+																				}
+																				overrides: {
+																					description: """
+																									Overrides defines the configuration of the overriding health check settings for all endpoints
+																									in the backend cluster. This allows customization of port and other settings that may differ
+																									from the main service configuration.
+																									"""
+																					properties: port: {
+																						description: """
+																											Port overrides the health check port.
+																											If not set, the endpoint's serving port is used for health checks.
+																											This is useful when health checks are served on a different port than
+																											the main service port (e.g., port 443 for service, port 9090 for health checks).
+																											"""
+																						format:  "int32"
+																						maximum: 65535
+																						minimum: 1
+																						type:    "integer"
+																					}
+																					type: "object"
 																				}
 																				tcp: {
 																					description: """
@@ -31751,11 +35604,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:        "string"
 																				}
 																				unhealthyThreshold: {
-																					default:     3
-																					description: "UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy."
-																					format:      "int32"
-																					minimum:     1
-																					type:        "integer"
+																					default: 3
+																					description: """
+																									UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+																									Without RetriableStatuses configured, any health check failure results in the host being immediately
+																									considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+																									up to this threshold before the host is marked unhealthy.
+																									"""
+																					format:  "int32"
+																					minimum: 1
+																					type:    "integer"
 																				}
 																			}
 																			required: ["type"]
@@ -31786,6 +35644,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		passive: {
 																			description: "Passive passive check configuration"
 																			properties: {
+																				alwaysEjectOneEndpoint: {
+																					default: false
+																					description: """
+																									AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+																									regardless of MaxEjectionPercent.
+																									"""
+																					type: "boolean"
+																				}
 																				baseEjectionTime: {
 																					default:     "30s"
 																					description: "BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures."
@@ -31833,6 +35699,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					default:     10
 																					description: "MaxEjectionPercent sets the maximum percentage of hosts in a cluster that can be ejected."
 																					format:      "int32"
+																					maximum:     100
+																					minimum:     0
 																					type:        "integer"
 																				}
 																				splitExternalLocalOriginErrors: {
@@ -31849,6 +35717,41 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																http2: {
 																	description: "HTTP2 provides HTTP/2 configuration for backend connections."
 																	properties: {
+																		connectionKeepalive: {
+																			description: "ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames."
+																			properties: {
+																				idleInterval: {
+																					description: "IdleInterval specifies how long a connection must be idle before a PING is sent."
+																					pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																					type:        "string"
+																				}
+																				interval: {
+																					description: "Interval specifies how often to send HTTP/2 PING frames to keep the connection alive."
+																					pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																					type:        "string"
+																				}
+																				intervalJitter: {
+																					description: """
+																									IntervalJitter specifies a random jitter percentage added to each interval.
+																									Defaults to 15% if not specified.
+																									"""
+																					format:  "int32"
+																					maximum: 100
+																					minimum: 0
+																					type:    "integer"
+																				}
+																				timeout: {
+																					description: "Timeout specifies how long to wait for a PING response before considering the connection dead."
+																					pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																					type:        "string"
+																				}
+																			}
+																			type: "object"
+																			"x-kubernetes-validations": [{
+																				message: "timeout must be less than interval"
+																				rule:    "!has(self.timeout) || !has(self.interval) || duration(self.timeout) < duration(self.interval)"
+																			}]
+																		}
 																		initialConnectionWindowSize: {
 																			allOf: [{
 																				pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
@@ -31911,6 +35814,65 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					the backend endpoints. Defaults to `LeastRequest`.
 																					"""
 																	properties: {
+																		backendUtilization: {
+																			description: """
+																							BackendUtilization defines the configuration when the load balancer type is
+																							set to BackendUtilization.
+																							"""
+																			properties: {
+																				blackoutPeriod: {
+																					description: """
+																									A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+																									Default is 10s.
+																									"""
+																					pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																					type:    "string"
+																				}
+																				errorUtilizationPenaltyPercent: {
+																					description: """
+																									ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+																									This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+
+																									For example:
+																									- 100 => 1.0x
+																									- 120 => 1.2x
+																									- 200 => 2.0x
+
+																									Must be non-negative.
+																									"""
+																					format:  "int32"
+																					minimum: 0
+																					type:    "integer"
+																				}
+																				keepResponseHeaders: {
+																					default: false
+																					description: """
+																									KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+																									Defaults to false.
+																									"""
+																					type: "boolean"
+																				}
+																				metricNamesForComputingUtilization: {
+																					description: """
+																									Metric names used to compute utilization if application_utilization is not set.
+																									For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+																									"""
+																					items: type: "string"
+																					type: "array"
+																				}
+																				weightExpirationPeriod: {
+																					description: "If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m."
+																					pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																					type:        "string"
+																				}
+																				weightUpdatePeriod: {
+																					description: "How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s."
+																					pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																					type:        "string"
+																				}
+																			}
+																			type: "object"
+																		}
 																		consistentHash: {
 																			description: """
 																							ConsistentHash defines the configuration when the load balancer type is
@@ -32029,6 +35991,47 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				rule:    "self.type == 'QueryParams' ? has(self.queryParams) : !has(self.queryParams)"
 																			}]
 																		}
+																		dynamicModule: {
+																			description: """
+																							DynamicModule defines the configuration when the load balancer type is
+																							set to DynamicModule. The referenced module must be registered in the
+																							EnvoyProxy resource's dynamicModules allowlist.
+																							"""
+																			properties: {
+																				config: {
+																					description: """
+																									Config is optional configuration for the module's load balancer
+																									implementation. This is serialized and passed to the module's
+																									initialization function.
+																									"""
+																					"x-kubernetes-preserve-unknown-fields": true
+																				}
+																				lbPolicyName: {
+																					description: """
+																									LBPolicyName identifies a specific load balancer implementation within
+																									the dynamic module. A single shared library can contain multiple LB
+																									policy implementations. This value is passed to the module's
+																									initialization function to select the appropriate implementation.
+																									"""
+																					maxLength: 253
+																					minLength: 1
+																					type:      "string"
+																				}
+																				name: {
+																					description: """
+																									Name references a dynamic module registered in the EnvoyProxy resource's
+																									dynamicModules list. The referenced module must exist in the registry;
+																									otherwise, the policy will be rejected.
+																									"""
+																					maxLength: 253
+																					minLength: 1
+																					pattern:   "^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$"
+																					type:      "string"
+																				}
+																			}
+																			required: ["lbPolicyName", "name"]
+																			type: "object"
+																		}
 																		endpointOverride: {
 																			description: """
 																							EndpointOverride defines the configuration for endpoint override.
@@ -32062,7 +36065,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			description: """
 																							SlowStart defines the configuration related to the slow start load balancer policy.
 																							If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-																							Currently this is only supported for RoundRobin and LeastRequest load balancers
+																							Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
 																							"""
 																			properties: window: {
 																				description: """
@@ -32084,45 +36087,83 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							"ConsistentHash",
 																							"LeastRequest",
 																							"Random",
-																							"RoundRobin".
+																							"RoundRobin",
+																							"BackendUtilization",
+																							"DynamicModule".
 																							"""
-																			enum: ["ConsistentHash", "LeastRequest", "Random", "RoundRobin"]
+																			enum: ["ConsistentHash", "LeastRequest", "Random", "RoundRobin", "BackendUtilization", "DynamicModule"]
 																			type: "string"
 																		}
 																		zoneAware: {
 																			description: "ZoneAware defines the configuration related to the distribution of requests between locality zones."
-																			properties: preferLocal: {
-																				description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
-																				properties: {
-																					force: {
-																						description: """
+																			properties: {
+																				preferLocal: {
+																					description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
+																					properties: {
+																						force: {
+																							description: """
 																											ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
 																											which maintains equal distribution among upstream endpoints while sending as much traffic as possible locally.
 																											"""
-																						properties: minEndpointsInZoneThreshold: {
-																							description: """
+																							properties: minEndpointsInZoneThreshold: {
+																								description: """
 																													MinEndpointsInZoneThreshold is the minimum number of upstream endpoints in the local zone required to honor the forceLocalZone
 																													override. This is useful for protecting zones with fewer endpoints.
 																													"""
-																							format: "int32"
-																							type:   "integer"
+																								format: "int32"
+																								type:   "integer"
+																							}
+																							type: "object"
 																						}
+																						minEndpointsThreshold: {
+																							description: "MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing."
+																							format:      "int64"
+																							type:        "integer"
+																						}
+																						percentageEnabled: {
+																							description: "Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%."
+																							format:      "int32"
+																							maximum:     100
+																							minimum:     0
+																							type:        "integer"
+																						}
+																					}
+																					type: "object"
+																				}
+																				weightedZones: {
+																					description: """
+																									WeightedZones configures weight-based traffic distribution across locality zones.
+																									Traffic is distributed proportionally based on the sum of all zone weights.
+																									"""
+																					items: {
+																						description: "WeightedZoneConfig defines the weight for a specific locality zone."
+																						properties: {
+																							weight: {
+																								description: """
+																												Weight defines the weight for this locality.
+																												Higher values receive more traffic. The actual traffic distribution
+																												is proportional to this value relative to other localities.
+																												"""
+																								format: "int32"
+																								type:   "integer"
+																							}
+																							zone: {
+																								description: """
+																												Zone specifies the topology zone this weight applies to.
+																												The value should match the topology.kubernetes.io/zone label
+																												of the nodes where endpoints are running.
+																												Zones not listed in the configuration receive a default weight of 1.
+																												"""
+																								type: "string"
+																							}
+																						}
+																						required: ["weight", "zone"]
 																						type: "object"
 																					}
-																					minEndpointsThreshold: {
-																						description: "MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing."
-																						format:      "int64"
-																						type:        "integer"
-																					}
-																					percentageEnabled: {
-																						description: "Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%."
-																						format:      "int32"
-																						maximum:     100
-																						minimum:     0
-																						type:        "integer"
-																					}
+																					type: "array"
+																					"x-kubernetes-list-map-keys": ["zone"]
+																					"x-kubernetes-list-type": "map"
 																				}
-																				type: "object"
 																			}
 																			type: "object"
 																		}
@@ -32133,18 +36174,36 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		message: "If LoadBalancer type is consistentHash, consistentHash field needs to be set."
 																		rule:    "self.type == 'ConsistentHash' ? has(self.consistentHash) : !has(self.consistentHash)"
 																	}, {
-																		message: "Currently SlowStart is only supported for RoundRobin and LeastRequest load balancers."
-																		rule:    "self.type in ['Random', 'ConsistentHash'] ? !has(self.slowStart) : true "
+																		message: "If LoadBalancer type is BackendUtilization, backendUtilization field needs to be set."
+																		rule:    "self.type == 'BackendUtilization' ? has(self.backendUtilization) : !has(self.backendUtilization)"
 																	}, {
-																		message: "Currently ZoneAware is only supported for LeastRequest, Random, and RoundRobin load balancers."
-																		rule:    "self.type == 'ConsistentHash' ? !has(self.zoneAware) : true "
+																		message: "If LoadBalancer type is DynamicModule, dynamicModule field needs to be set."
+																		rule:    "self.type == 'DynamicModule' ? has(self.dynamicModule) : !has(self.dynamicModule)"
+																	}, {
+																		message: "Currently SlowStart is only supported for RoundRobin, LeastRequest, and BackendUtilization load balancers."
+																		rule:    "self.type in ['Random', 'ConsistentHash', 'DynamicModule'] ? !has(self.slowStart) : true"
+																	}, {
+																		message: "PreferLocal zone-aware routing is not supported for ConsistentHash load balancers. Use weightedZones instead."
+																		rule:    "self.type == 'ConsistentHash' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true"
+																	}, {
+																		message: "PreferLocal zone-aware routing is not currently supported for BackendUtilization load balancers. Only WeightedZones can be used with BackendUtilization."
+																		rule:    "self.type == 'BackendUtilization' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true"
+																	}, {
+																		message: "ZoneAware routing is not supported for DynamicModule load balancers."
+																		rule:    "self.type == 'DynamicModule' ? !has(self.zoneAware) : true"
+																	}, {
+																		message: "ZoneAware PreferLocal and WeightedZones cannot be specified together."
+																		rule:    "has(self.zoneAware) ? !(has(self.zoneAware.preferLocal) && has(self.zoneAware.weightedZones)) : true"
+																	}, {
+																		message: "EndpointOverride is not supported for DynamicModule load balancers."
+																		rule:    "self.type == 'DynamicModule' ? !has(self.endpointOverride) : true"
 																	}]
 																}
 																proxyProtocol: {
 																	description: "ProxyProtocol enables the Proxy Protocol when communicating with the backend."
 																	properties: version: {
 																		description: """
-																							Version of ProxyProtol
+																							Version of ProxyProtocol
 																							Valid ProxyProtocolVersion values are
 																							"V1"
 																							"V2"
@@ -32319,6 +36378,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																					type:        "string"
 																				}
+																				streamIdleTimeout: {
+																					description: """
+																									 The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+																									 If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+																									"""
+																					pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																					type:    "string"
+																				}
 																			}
 																			type: "object"
 																		}
@@ -32390,13 +36457,27 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												rule:    "!(has(self.remoteJWKS) && has(self.localJWKS))"
 											}]
 										}
-										maxItems: 4
+										maxItems: 16
 										minItems: 1
 										type:     "array"
 									}
 								}
 								required: ["providers"]
 								type: "object"
+							}
+							mergeType: {
+								description: """
+												MergeType determines how this configuration is merged with existing SecurityPolicy
+												configurations targeting a parent resource. When set, this configuration will be merged
+												into a parent SecurityPolicy (i.e. the one targeting a Gateway or Listener).
+												This field cannot be set when targeting a parent resource (Gateway).
+												If unset, no merging occurs, and only the most specific configuration takes effect.
+												"""
+								type: "string"
+								"x-kubernetes-validations": [{
+									message: "Replace is not a valid MergeType for SecurityPolicy"
+									rule:    "self != 'Replace'"
+								}]
 							}
 							oidc: {
 								description: "OIDC defines the configuration for the OpenID Connect (OIDC) authentication."
@@ -32658,6 +36739,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														If not specified, defaults to false.
 														"""
 										type: "boolean"
+									}
+									forwardIDToken: {
+										description: """
+														ForwardIDToken configures forwarding of the OIDC ID token to the upstream.
+
+														If the configured header is "Authorization", EG forwards the ID token using
+														the "Bearer " prefix. For any other header, EG forwards the raw token value.
+														If not specified, the ID token will not be forwarded.
+														"""
+										properties: header: {
+											description: "Header is the upstream request header that will carry the ID token."
+											minLength:   1
+											type:        "string"
+										}
+										required: ["header"]
+										type: "object"
 									}
 									logoutPath: {
 										description: """
@@ -32961,6 +37058,53 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																}
 																type: "object"
 															}
+															retryBudget: {
+																description: """
+																				RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+																				RetryBudget take precedence over maxParallelRetries.
+																				"""
+																properties: {
+																	minRetryConcurrency: {
+																		description: """
+																						MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+																						For example, a budget of 20% with a minimum retry concurrency of 3
+																						will allow 5 active retries while there are 25 active requests.
+																						If there are 2 active requests, there are still 3 active retries
+																						allowed because of the minimum retry concurrency.
+																						Defaults to 3.
+																						"""
+																		format: "int32"
+																		type:   "integer"
+																	}
+																	percent: {
+																		description: """
+																						Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+																						the sum of active requests and active pending requests.
+																						"""
+																		properties: {
+																			denominator: {
+																				default: 100
+																				format:  "int32"
+																				minimum: 1
+																				type:    "integer"
+																			}
+																			numerator: {
+																				format:  "int32"
+																				minimum: 0
+																				type:    "integer"
+																			}
+																		}
+																		required: ["numerator"]
+																		type: "object"
+																		"x-kubernetes-validations": [{
+																			message: "numerator must be less than or equal to denominator"
+																			rule:    "self.numerator <= self.denominator"
+																		}]
+																	}
+																}
+																required: ["percent"]
+																type: "object"
+															}
 														}
 														type: "object"
 													}
@@ -33163,8 +37307,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			}
 																			hostname: {
 																				description: """
-																								Hostname defines the HTTP host that will be requested during health checking.
-																								Default: HTTPRoute or GRPCRoute hostname.
+																								Hostname defines the HTTP Host header used for active HTTP health checks.
+																								Host selection uses this order: this field, the associated Backend endpoint
+																								hostname if available, then the effective Route hostname.
 																								"""
 																				maxLength: 253
 																				minLength: 1
@@ -33184,6 +37329,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				minLength:   1
 																				type:        "string"
 																			}
+																			retriableStatuses: {
+																				description: """
+																								RetriableStatuses defines a list of HTTP response statuses considered retriable.
+																								Responses matching these statuses count towards the unhealthy threshold but
+																								do not result in the host being considered immediately unhealthy.
+																								The expected statuses take precedence for any range overlaps with this field.
+																								"""
+																				items: {
+																					description: "HTTPStatus defines the http status code."
+																					maximum:     599
+																					minimum:     100
+																					type:        "integer"
+																				}
+																				type: "array"
+																			}
 																		}
 																		required: ["path"]
 																		type: "object"
@@ -33201,6 +37361,26 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		description: "Interval defines the time between active health checks."
 																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																		type:        "string"
+																	}
+																	overrides: {
+																		description: """
+																						Overrides defines the configuration of the overriding health check settings for all endpoints
+																						in the backend cluster. This allows customization of port and other settings that may differ
+																						from the main service configuration.
+																						"""
+																		properties: port: {
+																			description: """
+																								Port overrides the health check port.
+																								If not set, the endpoint's serving port is used for health checks.
+																								This is useful when health checks are served on a different port than
+																								the main service port (e.g., port 443 for service, port 9090 for health checks).
+																								"""
+																			format:  "int32"
+																			maximum: 65535
+																			minimum: 1
+																			type:    "integer"
+																		}
+																		type: "object"
 																	}
 																	tcp: {
 																		description: """
@@ -33291,11 +37471,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:        "string"
 																	}
 																	unhealthyThreshold: {
-																		default:     3
-																		description: "UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy."
-																		format:      "int32"
-																		minimum:     1
-																		type:        "integer"
+																		default: 3
+																		description: """
+																						UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+																						Without RetriableStatuses configured, any health check failure results in the host being immediately
+																						considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+																						up to this threshold before the host is marked unhealthy.
+																						"""
+																		format:  "int32"
+																		minimum: 1
+																		type:    "integer"
 																	}
 																}
 																required: ["type"]
@@ -33326,6 +37511,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															passive: {
 																description: "Passive passive check configuration"
 																properties: {
+																	alwaysEjectOneEndpoint: {
+																		default: false
+																		description: """
+																						AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+																						regardless of MaxEjectionPercent.
+																						"""
+																		type: "boolean"
+																	}
 																	baseEjectionTime: {
 																		default:     "30s"
 																		description: "BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures."
@@ -33373,6 +37566,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		default:     10
 																		description: "MaxEjectionPercent sets the maximum percentage of hosts in a cluster that can be ejected."
 																		format:      "int32"
+																		maximum:     100
+																		minimum:     0
 																		type:        "integer"
 																	}
 																	splitExternalLocalOriginErrors: {
@@ -33389,6 +37584,41 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													http2: {
 														description: "HTTP2 provides HTTP/2 configuration for backend connections."
 														properties: {
+															connectionKeepalive: {
+																description: "ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames."
+																properties: {
+																	idleInterval: {
+																		description: "IdleInterval specifies how long a connection must be idle before a PING is sent."
+																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																		type:        "string"
+																	}
+																	interval: {
+																		description: "Interval specifies how often to send HTTP/2 PING frames to keep the connection alive."
+																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																		type:        "string"
+																	}
+																	intervalJitter: {
+																		description: """
+																						IntervalJitter specifies a random jitter percentage added to each interval.
+																						Defaults to 15% if not specified.
+																						"""
+																		format:  "int32"
+																		maximum: 100
+																		minimum: 0
+																		type:    "integer"
+																	}
+																	timeout: {
+																		description: "Timeout specifies how long to wait for a PING response before considering the connection dead."
+																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																		type:        "string"
+																	}
+																}
+																type: "object"
+																"x-kubernetes-validations": [{
+																	message: "timeout must be less than interval"
+																	rule:    "!has(self.timeout) || !has(self.interval) || duration(self.timeout) < duration(self.interval)"
+																}]
+															}
 															initialConnectionWindowSize: {
 																allOf: [{
 																	pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
@@ -33451,6 +37681,65 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		the backend endpoints. Defaults to `LeastRequest`.
 																		"""
 														properties: {
+															backendUtilization: {
+																description: """
+																				BackendUtilization defines the configuration when the load balancer type is
+																				set to BackendUtilization.
+																				"""
+																properties: {
+																	blackoutPeriod: {
+																		description: """
+																						A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+																						Default is 10s.
+																						"""
+																		pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																		type:    "string"
+																	}
+																	errorUtilizationPenaltyPercent: {
+																		description: """
+																						ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+																						This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+
+																						For example:
+																						- 100 => 1.0x
+																						- 120 => 1.2x
+																						- 200 => 2.0x
+
+																						Must be non-negative.
+																						"""
+																		format:  "int32"
+																		minimum: 0
+																		type:    "integer"
+																	}
+																	keepResponseHeaders: {
+																		default: false
+																		description: """
+																						KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+																						Defaults to false.
+																						"""
+																		type: "boolean"
+																	}
+																	metricNamesForComputingUtilization: {
+																		description: """
+																						Metric names used to compute utilization if application_utilization is not set.
+																						For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+																						"""
+																		items: type: "string"
+																		type: "array"
+																	}
+																	weightExpirationPeriod: {
+																		description: "If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m."
+																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																		type:        "string"
+																	}
+																	weightUpdatePeriod: {
+																		description: "How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s."
+																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																		type:        "string"
+																	}
+																}
+																type: "object"
+															}
 															consistentHash: {
 																description: """
 																				ConsistentHash defines the configuration when the load balancer type is
@@ -33569,6 +37858,47 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	rule:    "self.type == 'QueryParams' ? has(self.queryParams) : !has(self.queryParams)"
 																}]
 															}
+															dynamicModule: {
+																description: """
+																				DynamicModule defines the configuration when the load balancer type is
+																				set to DynamicModule. The referenced module must be registered in the
+																				EnvoyProxy resource's dynamicModules allowlist.
+																				"""
+																properties: {
+																	config: {
+																		description: """
+																						Config is optional configuration for the module's load balancer
+																						implementation. This is serialized and passed to the module's
+																						initialization function.
+																						"""
+																		"x-kubernetes-preserve-unknown-fields": true
+																	}
+																	lbPolicyName: {
+																		description: """
+																						LBPolicyName identifies a specific load balancer implementation within
+																						the dynamic module. A single shared library can contain multiple LB
+																						policy implementations. This value is passed to the module's
+																						initialization function to select the appropriate implementation.
+																						"""
+																		maxLength: 253
+																		minLength: 1
+																		type:      "string"
+																	}
+																	name: {
+																		description: """
+																						Name references a dynamic module registered in the EnvoyProxy resource's
+																						dynamicModules list. The referenced module must exist in the registry;
+																						otherwise, the policy will be rejected.
+																						"""
+																		maxLength: 253
+																		minLength: 1
+																		pattern:   "^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$"
+																		type:      "string"
+																	}
+																}
+																required: ["lbPolicyName", "name"]
+																type: "object"
+															}
 															endpointOverride: {
 																description: """
 																				EndpointOverride defines the configuration for endpoint override.
@@ -33602,7 +37932,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																description: """
 																				SlowStart defines the configuration related to the slow start load balancer policy.
 																				If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-																				Currently this is only supported for RoundRobin and LeastRequest load balancers
+																				Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
 																				"""
 																properties: window: {
 																	description: """
@@ -33624,45 +37954,83 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"ConsistentHash",
 																				"LeastRequest",
 																				"Random",
-																				"RoundRobin".
+																				"RoundRobin",
+																				"BackendUtilization",
+																				"DynamicModule".
 																				"""
-																enum: ["ConsistentHash", "LeastRequest", "Random", "RoundRobin"]
+																enum: ["ConsistentHash", "LeastRequest", "Random", "RoundRobin", "BackendUtilization", "DynamicModule"]
 																type: "string"
 															}
 															zoneAware: {
 																description: "ZoneAware defines the configuration related to the distribution of requests between locality zones."
-																properties: preferLocal: {
-																	description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
-																	properties: {
-																		force: {
-																			description: """
+																properties: {
+																	preferLocal: {
+																		description: "PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone."
+																		properties: {
+																			force: {
+																				description: """
 																								ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
 																								which maintains equal distribution among upstream endpoints while sending as much traffic as possible locally.
 																								"""
-																			properties: minEndpointsInZoneThreshold: {
-																				description: """
+																				properties: minEndpointsInZoneThreshold: {
+																					description: """
 																										MinEndpointsInZoneThreshold is the minimum number of upstream endpoints in the local zone required to honor the forceLocalZone
 																										override. This is useful for protecting zones with fewer endpoints.
 																										"""
-																				format: "int32"
-																				type:   "integer"
+																					format: "int32"
+																					type:   "integer"
+																				}
+																				type: "object"
 																			}
+																			minEndpointsThreshold: {
+																				description: "MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing."
+																				format:      "int64"
+																				type:        "integer"
+																			}
+																			percentageEnabled: {
+																				description: "Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%."
+																				format:      "int32"
+																				maximum:     100
+																				minimum:     0
+																				type:        "integer"
+																			}
+																		}
+																		type: "object"
+																	}
+																	weightedZones: {
+																		description: """
+																						WeightedZones configures weight-based traffic distribution across locality zones.
+																						Traffic is distributed proportionally based on the sum of all zone weights.
+																						"""
+																		items: {
+																			description: "WeightedZoneConfig defines the weight for a specific locality zone."
+																			properties: {
+																				weight: {
+																					description: """
+																									Weight defines the weight for this locality.
+																									Higher values receive more traffic. The actual traffic distribution
+																									is proportional to this value relative to other localities.
+																									"""
+																					format: "int32"
+																					type:   "integer"
+																				}
+																				zone: {
+																					description: """
+																									Zone specifies the topology zone this weight applies to.
+																									The value should match the topology.kubernetes.io/zone label
+																									of the nodes where endpoints are running.
+																									Zones not listed in the configuration receive a default weight of 1.
+																									"""
+																					type: "string"
+																				}
+																			}
+																			required: ["weight", "zone"]
 																			type: "object"
 																		}
-																		minEndpointsThreshold: {
-																			description: "MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing."
-																			format:      "int64"
-																			type:        "integer"
-																		}
-																		percentageEnabled: {
-																			description: "Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%."
-																			format:      "int32"
-																			maximum:     100
-																			minimum:     0
-																			type:        "integer"
-																		}
+																		type: "array"
+																		"x-kubernetes-list-map-keys": ["zone"]
+																		"x-kubernetes-list-type": "map"
 																	}
-																	type: "object"
 																}
 																type: "object"
 															}
@@ -33673,18 +38041,36 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															message: "If LoadBalancer type is consistentHash, consistentHash field needs to be set."
 															rule:    "self.type == 'ConsistentHash' ? has(self.consistentHash) : !has(self.consistentHash)"
 														}, {
-															message: "Currently SlowStart is only supported for RoundRobin and LeastRequest load balancers."
-															rule:    "self.type in ['Random', 'ConsistentHash'] ? !has(self.slowStart) : true "
+															message: "If LoadBalancer type is BackendUtilization, backendUtilization field needs to be set."
+															rule:    "self.type == 'BackendUtilization' ? has(self.backendUtilization) : !has(self.backendUtilization)"
 														}, {
-															message: "Currently ZoneAware is only supported for LeastRequest, Random, and RoundRobin load balancers."
-															rule:    "self.type == 'ConsistentHash' ? !has(self.zoneAware) : true "
+															message: "If LoadBalancer type is DynamicModule, dynamicModule field needs to be set."
+															rule:    "self.type == 'DynamicModule' ? has(self.dynamicModule) : !has(self.dynamicModule)"
+														}, {
+															message: "Currently SlowStart is only supported for RoundRobin, LeastRequest, and BackendUtilization load balancers."
+															rule:    "self.type in ['Random', 'ConsistentHash', 'DynamicModule'] ? !has(self.slowStart) : true"
+														}, {
+															message: "PreferLocal zone-aware routing is not supported for ConsistentHash load balancers. Use weightedZones instead."
+															rule:    "self.type == 'ConsistentHash' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true"
+														}, {
+															message: "PreferLocal zone-aware routing is not currently supported for BackendUtilization load balancers. Only WeightedZones can be used with BackendUtilization."
+															rule:    "self.type == 'BackendUtilization' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true"
+														}, {
+															message: "ZoneAware routing is not supported for DynamicModule load balancers."
+															rule:    "self.type == 'DynamicModule' ? !has(self.zoneAware) : true"
+														}, {
+															message: "ZoneAware PreferLocal and WeightedZones cannot be specified together."
+															rule:    "has(self.zoneAware) ? !(has(self.zoneAware.preferLocal) && has(self.zoneAware.weightedZones)) : true"
+														}, {
+															message: "EndpointOverride is not supported for DynamicModule load balancers."
+															rule:    "self.type == 'DynamicModule' ? !has(self.endpointOverride) : true"
 														}]
 													}
 													proxyProtocol: {
 														description: "ProxyProtocol enables the Proxy Protocol when communicating with the backend."
 														properties: version: {
 															description: """
-																				Version of ProxyProtol
+																				Version of ProxyProtocol
 																				Valid ProxyProtocolVersion values are
 																				"V1"
 																				"V2"
@@ -33859,6 +38245,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		pattern:     "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 																		type:        "string"
 																	}
+																	streamIdleTimeout: {
+																		description: """
+																						 The stream idle timeout defines the amount of time a stream can exist without any upstream or downstream activity.
+																						 If not specified, StreamIdleTimeout is inherited from the listener-level setting, which can be configured via ClientTrafficPolicy.
+																						"""
+																		pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																		type:    "string"
+																	}
 																}
 																type: "object"
 															}
@@ -33968,6 +38362,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								"x-kubernetes-validations": [{
 									message: "only one of clientID or clientIDRef must be set"
 									rule:    "(has(self.clientID) && !has(self.clientIDRef)) || (!has(self.clientID) && has(self.clientIDRef))"
+								}, {
+									message: "forwardAccessToken cannot be true when forwardIDToken.header is Authorization"
+									rule:    "!(has(self.forwardAccessToken) && self.forwardAccessToken && has(self.forwardIDToken) && self.forwardIDToken.header.lowerAscii() == 'authorization')"
 								}]
 							}
 							targetRef: {
@@ -34140,8 +38537,94 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										}
 										matchLabels: {
 											additionalProperties: type: "string"
-											description: "MatchLabels are the set of label selectors for identifying the targeted resource"
+											description: "MatchLabels are the set of label selectors for identifying the targeted resource."
 											type:        "object"
+										}
+										namespaces: {
+											description: """
+															Namespaces determines which namespaces are considered for target selection.
+
+															If unspecified, only targets in the same namespace as this policy are considered.
+
+															When specified, the effective set of namespaces is always constrained to the
+															namespaces watched by Envoy Gateway.
+
+															Selecting targets across namespaces requires a ReferenceGrant in the target
+															namespace that allows this policy kind to reference the selected target kind.
+															Cross-namespace targets without a matching ReferenceGrant are ignored.
+															"""
+											properties: {
+												from: {
+													default: "Same"
+													description: """
+																	From indicates how namespaces are selected for this target selector.
+
+																	All means all namespaces watched by Envoy Gateway.
+																	Selector means namespaces watched by Envoy Gateway that match Selector.
+																	"""
+													enum: ["Same", "All", "Selector"]
+													type: "string"
+												}
+												selector: {
+													description: "Selector selects namespaces when From is set to Selector."
+													properties: {
+														matchExpressions: {
+															description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+															items: {
+																description: """
+																				A label selector requirement is a selector that contains values, a key, and an operator that
+																				relates the key and values.
+																				"""
+																properties: {
+																	key: {
+																		description: "key is the label key that the selector applies to."
+																		type:        "string"
+																	}
+																	operator: {
+																		description: """
+																						operator represents a key's relationship to a set of values.
+																						Valid operators are In, NotIn, Exists and DoesNotExist.
+																						"""
+																		type: "string"
+																	}
+																	values: {
+																		description: """
+																						values is an array of string values. If the operator is In or NotIn,
+																						the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																						the values array must be empty. This array is replaced during a strategic
+																						merge patch.
+																						"""
+																		items: type: "string"
+																		type:                     "array"
+																		"x-kubernetes-list-type": "atomic"
+																	}
+																}
+																required: ["key", "operator"]
+																type: "object"
+															}
+															type:                     "array"
+															"x-kubernetes-list-type": "atomic"
+														}
+														matchLabels: {
+															additionalProperties: type: "string"
+															description: """
+																			matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+																			map is equivalent to an element of matchExpressions, whose key field is "key", the
+																			operator is "In", and the values array contains only "value". The requirements are ANDed.
+																			"""
+															type: "object"
+														}
+													}
+													type:                    "object"
+													"x-kubernetes-map-type": "atomic"
+												}
+											}
+											required: ["from"]
+											type: "object"
+											"x-kubernetes-validations": [{
+												message: "selector must be specified when from is Selector"
+												rule:    "self.from != 'Selector' || has(self.selector)"
+											}]
 										}
 									}
 									required: ["kind"]

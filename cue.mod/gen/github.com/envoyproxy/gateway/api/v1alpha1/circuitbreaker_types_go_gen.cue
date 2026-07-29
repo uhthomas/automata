@@ -4,6 +4,8 @@
 
 package v1alpha1
 
+import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
+
 // CircuitBreaker defines the Circuit Breaker configuration.
 #CircuitBreaker: {
 	// The maximum number of connections that Envoy will establish to the referenced backend defined within a xRoute rule.
@@ -50,6 +52,12 @@ package v1alpha1
 	//
 	// +optional
 	perEndpoint?: null | #PerEndpointCircuitBreakers @go(PerEndpoint,*PerEndpointCircuitBreakers)
+
+	// RetryBudget provides settings for retry budget, which limits the number of retries in a given percentage.
+	// RetryBudget take precedence over maxParallelRetries.
+	//
+	// +optional
+	retryBudget?: null | #RetryBudget @go(RetryBudget,*RetryBudget)
 }
 
 // PerEndpointCircuitBreakers defines Circuit Breakers that will apply per-endpoint for an upstream cluster
@@ -61,4 +69,22 @@ package v1alpha1
 	// +kubebuilder:default=1024
 	// +optional
 	maxConnections?: null | int64 @go(MaxConnections,*int64)
+}
+
+// RetryBudget specifies the details of the retry budget configuration, like
+// the percentage of requests in the budget, and the min retry concurrency.
+#RetryBudget: {
+	// Percent specifies the limit on concurrent retries as a percentage [0, 100] of
+	// the sum of active requests and active pending requests.
+	percent: gwapiv1.#Fraction @go(Percent)
+
+	// MinRetryConcurrency specifies the minimum retry concurrency allowed for the retry budget.
+	// For example, a budget of 20% with a minimum retry concurrency of 3
+	// will allow 5 active retries while there are 25 active requests.
+	// If there are 2 active requests, there are still 3 active retries
+	// allowed because of the minimum retry concurrency.
+	// Defaults to 3.
+	//
+	// +optional
+	minRetryConcurrency?: null | uint32 @go(MinRetryConcurrency,*uint32)
 }

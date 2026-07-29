@@ -6,7 +6,7 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	gwapiv1a2 "sigs.k8s.io/gateway-api/apis/v1alpha2"
+	gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 // KindSecurityPolicy is the name of the SecurityPolicy kind.
@@ -22,22 +22,36 @@ import (
 	spec: #SecurityPolicySpec @go(Spec)
 
 	// Status defines the current status of SecurityPolicy.
-	status?: gwapiv1a2.#PolicyStatus @go(Status)
+	status?: gwapiv1.#PolicyStatus @go(Status)
 }
 
-// +kubebuilder:validation:XValidation:rule="(has(self.targetRef) && !has(self.targetRefs)) || (!has(self.targetRef) && has(self.targetRefs)) || (has(self.targetSelectors) && self.targetSelectors.size() > 0) ", message="either targetRef or targetRefs must be used"
-//
-// +kubebuilder:validation:XValidation:rule="has(self.targetRef) ? self.targetRef.group == 'gateway.networking.k8s.io' : true", message="this policy can only have a targetRef.group of gateway.networking.k8s.io"
-// +kubebuilder:validation:XValidation:rule="has(self.targetRef) ? self.targetRef.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute'] : true", message="this policy can only have a targetRef.kind of Gateway/HTTPRoute/GRPCRoute"
-// +kubebuilder:validation:XValidation:rule="has(self.targetRef) ? !has(self.targetRef.sectionName) : true",message="this policy does not yet support the sectionName field"
-// +kubebuilder:validation:XValidation:rule="has(self.targetRefs) ? self.targetRefs.all(ref, ref.group == 'gateway.networking.k8s.io') : true ", message="this policy can only have a targetRefs[*].group of gateway.networking.k8s.io"
-// +kubebuilder:validation:XValidation:rule="has(self.targetRefs) ? self.targetRefs.all(ref, ref.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute']) : true ", message="this policy can only have a targetRefs[*].kind of Gateway/HTTPRoute/GRPCRoute"
-// +kubebuilder:validation:XValidation:rule="has(self.targetRefs) ? self.targetRefs.all(ref, !has(ref.sectionName)) : true",message="this policy does not yet support the sectionName field"
-// +kubebuilder:validation:XValidation:rule="(has(self.authorization) && has(self.authorization.rules) && self.authorization.rules.exists(r, has(r.principal.jwt))) ? has(self.jwt) : true", message="if authorization.rules.principal.jwt is used, jwt must be defined"
-//
 // SecurityPolicySpec defines the desired state of SecurityPolicy.
+//
+// NOTE: SecurityPolicy can target Gateway, HTTPRoute, GRPCRoute, and TCPRoute.
+// When a SecurityPolicy targets a TCPRoute, only client-IP CIDR based authorization
+// (Authorization rules that use Principal.ClientCIDRs) is applied. Other
+// authentication/authorization features such as JWT, API Key, Basic Auth,
+// OIDC, External Authorization, or GeoIP based authorization are not applicable
+// to TCPRoute targets.
+//
+// +kubebuilder:validation:XValidation:rule="(has(self.targetRef) && !has(self.targetRefs)) || (!has(self.targetRef) && has(self.targetRefs)) || (has(self.targetSelectors) && self.targetSelectors.size() > 0) ", message="either targetRef or targetRefs must be used"
+// +kubebuilder:validation:XValidation:rule="has(self.targetRef) ? self.targetRef.group == 'gateway.networking.k8s.io' : true", message="this policy can only have a targetRef.group of gateway.networking.k8s.io"
+// +kubebuilder:validation:XValidation:rule="has(self.targetRef) ? self.targetRef.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute', 'TCPRoute'] : true", message="this policy can only have a targetRef.kind of Gateway/HTTPRoute/GRPCRoute/TCPRoute"
+// +kubebuilder:validation:XValidation:rule="has(self.targetRefs) ? self.targetRefs.all(ref, ref.group == 'gateway.networking.k8s.io') : true ", message="this policy can only have a targetRefs[*].group of gateway.networking.k8s.io"
+// +kubebuilder:validation:XValidation:rule="has(self.targetRefs) ? self.targetRefs.all(ref, ref.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute', 'TCPRoute']) : true ", message="this policy can only have a targetRefs[*].kind of Gateway/HTTPRoute/GRPCRoute/TCPRoute"
+// +kubebuilder:validation:XValidation:rule="(has(self.authorization) && has(self.authorization.rules) && self.authorization.rules.exists(r, has(r.principal.jwt))) ? has(self.jwt) : true", message="if authorization.rules.principal.jwt is used, jwt must be defined"
 #SecurityPolicySpec: {
 	#PolicyTargetReferences
+
+	// MergeType determines how this configuration is merged with existing SecurityPolicy
+	// configurations targeting a parent resource. When set, this configuration will be merged
+	// into a parent SecurityPolicy (i.e. the one targeting a Gateway or Listener).
+	// This field cannot be set when targeting a parent resource (Gateway).
+	// If unset, no merging occurs, and only the most specific configuration takes effect.
+	//
+	// +kubebuilder:validation:XValidation:rule="self != 'Replace'",message="Replace is not a valid MergeType for SecurityPolicy"
+	// +optional
+	mergeType?: null | #MergeType @go(MergeType,*MergeType)
 
 	// APIKeyAuth defines the configuration for the API Key Authentication.
 	//

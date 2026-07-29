@@ -5,15 +5,17 @@
 package v1alpha1
 
 import (
-	gwapiv1a2 "sigs.k8s.io/gateway-api/apis/v1alpha2"
+	gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
-	gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 )
+
+// SDSSecretType is the type for secrets that reference SDS configuration
+#SDSSecretType: "gateway.envoyproxy.io/sds"
 
 // DefaultDeploymentReplicas is the default number of deployment replicas.
 #DefaultDeploymentReplicas: 1
@@ -25,7 +27,7 @@ import (
 #DefaultDeploymentMemoryResourceRequests: "512Mi"
 
 // DefaultEnvoyProxyImage is the default image used by envoyproxy
-#DefaultEnvoyProxyImage: "docker.io/envoyproxy/envoy:distroless-v1.34.1"
+#DefaultEnvoyProxyImage: "docker.io/envoyproxy/envoy:distroless-v1.38.3"
 
 // DefaultShutdownManagerCPUResourceRequests for shutdown manager cpu resource
 #DefaultShutdownManagerCPUResourceRequests: "10m"
@@ -37,7 +39,7 @@ import (
 #DefaultShutdownManagerImage: "docker.io/envoyproxy/gateway-dev:latest"
 
 // DefaultRateLimitImage is the default image used by ratelimit.
-#DefaultRateLimitImage: "docker.io/envoyproxy/ratelimit:bb4dae24"
+#DefaultRateLimitImage: "docker.io/envoyproxy/ratelimit:1e50889b"
 
 // HTTPProtocol is the common-used http protocol.
 #HTTPProtocol: "http"
@@ -52,19 +54,27 @@ import (
 //
 // * "Overridden"
 //
-#PolicyConditionOverridden: gwapiv1a2.#PolicyConditionType & "Overridden"
+#PolicyConditionOverridden: gwapiv1.#PolicyConditionType & "Overridden"
 
 // PolicyReasonOverridden is used with the "Overridden" condition when the policy
 // has been overridden by another policy targeting a section within the same target.
-#PolicyReasonOverridden: gwapiv1a2.#PolicyConditionReason & "Overridden"
+#PolicyReasonOverridden: gwapiv1.#PolicyConditionReason & "Overridden"
 
 // PolicyConditionMerged indicates whether the policy has
 // been merged with another policy targeting the parent(e.g. Gateway).
-#PolicyConditionMerged: gwapiv1a2.#PolicyConditionType & "Merged"
+#PolicyConditionMerged: gwapiv1.#PolicyConditionType & "Merged"
 
 // PolicyReasonMerged is used with the "Merged" condition when the policy
 // has been merged with another policy targeting the parent(e.g. Gateway).
-#PolicyReasonMerged: gwapiv1a2.#PolicyConditionReason & "Merged"
+#PolicyReasonMerged: gwapiv1.#PolicyConditionReason & "Merged"
+
+// PolicyConditionWarning indicates that the policy configuration contains
+// non-critical issues that are accepted but requires attention.
+#PolicyConditionWarning: gwapiv1.#PolicyConditionType & "Warning"
+
+// PolicyReasonDeprecatedField is used with the "Warning" condition when the policy
+// uses deprecated fields that should be migrated to newer alternatives.
+#PolicyReasonDeprecatedField: gwapiv1.#PolicyConditionReason & "DeprecatedField"
 
 // GroupVersionKind unambiguously identifies a Kind.
 // It can be converted to k8s.io/apimachinery/pkg/runtime/schema.GroupVersionKind
@@ -118,6 +128,8 @@ import (
 	// List of initialization containers belonging to the pod.
 	// More info: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
 	//
+	// +patchMergeKey=name
+	// +patchStrategy=merge
 	// +optional
 	initContainers?: [...corev1.#Container] @go(InitContainers,[]corev1.Container)
 
@@ -187,6 +199,8 @@ import (
 	// Volumes that can be mounted by containers belonging to the pod.
 	// More info: https://kubernetes.io/docs/concepts/storage/volumes
 	//
+	// +patchMergeKey=name
+	// +patchStrategy=merge
 	// +optional
 	volumes?: [...corev1.#Volume] @go(Volumes,[]corev1.Volume)
 
@@ -195,6 +209,8 @@ import (
 	// If specified, these secrets will be passed to individual puller implementations for them to use.
 	// More info: https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod
 	//
+	// +patchMergeKey=name
+	// +patchStrategy=merge
 	// +optional
 	imagePullSecrets?: [...corev1.#LocalObjectReference] @go(ImagePullSecrets,[]corev1.LocalObjectReference)
 
@@ -209,14 +225,26 @@ import (
 	// domains. Scheduler will schedule pods in a way which abides by the constraints.
 	// All topologySpreadConstraints are ANDed.
 	//
+	// +patchMergeKey=topologyKey
+	// +patchStrategy=merge
 	// +optional
 	topologySpreadConstraints?: [...corev1.#TopologySpreadConstraint] @go(TopologySpreadConstraints,[]corev1.TopologySpreadConstraint)
+
+	// PriorityClassName indicates the importance of a Pod relative to other Pods.
+	// If a PriorityClassName is not specified, the pod priority will be default or zero if there is no default.
+	// More info: https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/
+	//
+	// +optional
+	priorityClassName?: null | string @go(PriorityClassName,*string)
 }
 
 // KubernetesContainerSpec defines the desired state of the Kubernetes container resource.
+// +kubebuilder:validation:XValidation:rule="!has(self.image) || !has(self.imageRepository)",message="Either image or imageRepository can be set."
 #KubernetesContainerSpec: {
 	// List of environment variables to set in the container.
 	//
+	// +patchMergeKey=name
+	// +patchStrategy=merge
 	// +optional
 	env?: [...corev1.#EnvVar] @go(Env,[]corev1.EnvVar)
 
@@ -233,14 +261,26 @@ import (
 	// +optional
 	securityContext?: null | corev1.#SecurityContext @go(SecurityContext,*corev1.SecurityContext)
 
-	// Image specifies the EnvoyProxy container image to be used, instead of the default image.
+	// Image specifies the EnvoyProxy container image to be used including a tag, instead of the default image.
+	// This field is mutually exclusive with ImageRepository.
 	//
+	// +kubebuilder:validation:XValidation:rule="self.matches('^[a-zA-Z0-9._-]+(:[0-9]+)?(/[a-zA-Z0-9._/-]+)?(:[a-zA-Z0-9._-]+)?(@sha256:[a-z0-9]+)?$')",message="Image must include a tag and allowed characters only (e.g., 'repo:tag')."
 	// +optional
 	image?: null | string @go(Image,*string)
+
+	// ImageRepository specifies the container image repository to be used without specifying a tag.
+	// The default tag will be used.
+	// This field is mutually exclusive with Image.
+	//
+	// +kubebuilder:validation:XValidation:rule="self.matches('^[a-zA-Z0-9._-]+(:[0-9]+)?[a-zA-Z0-9._/-]+$')",message="ImageRepository must contain only allowed characters and must not include a tag."
+	// +optional
+	imageRepository?: null | string @go(ImageRepository,*string)
 
 	// VolumeMounts are volumes to mount into the container's filesystem.
 	// Cannot be updated.
 	//
+	// +patchMergeKey=mountPath
+	// +patchStrategy=merge
 	// +optional
 	volumeMounts?: [...corev1.#VolumeMount] @go(VolumeMounts,[]corev1.VolumeMount)
 }
@@ -390,18 +430,22 @@ import (
 // XDSTranslatorHook defines the types of hooks that an Envoy Gateway extension may support
 // for the xds-translator
 //
-// +kubebuilder:validation:Enum=VirtualHost;Route;HTTPListener;Translation
+// +kubebuilder:validation:Enum=VirtualHost;Route;HTTPListener;Translation;Cluster;Endpoints
 #XDSTranslatorHook: string // #enumXDSTranslatorHook
 
 #enumXDSTranslatorHook:
 	#XDSVirtualHost |
 	#XDSRoute |
 	#XDSHTTPListener |
+	#XDSCluster |
+	#XDSEndpoints |
 	#XDSTranslation
 
 #XDSVirtualHost:  #XDSTranslatorHook & "VirtualHost"
 #XDSRoute:        #XDSTranslatorHook & "Route"
 #XDSHTTPListener: #XDSTranslatorHook & "HTTPListener"
+#XDSCluster:      #XDSTranslatorHook & "Cluster"
+#XDSEndpoints:    #XDSTranslatorHook & "Endpoints"
 #XDSTranslation:  #XDSTranslatorHook & "Translation"
 
 // StringMatch defines how to match any strings.
@@ -468,6 +512,12 @@ import (
 	//
 	// +optional
 	patch?: null | #KubernetesPatchSpec @go(Patch,*KubernetesPatchSpec)
+
+	// Name of the podDisruptionBudget.
+	// When unset, this defaults to an autogenerated name.
+	//
+	// +optional
+	name?: null | string @go(Name,*string)
 }
 
 // KubernetesHorizontalPodAutoscalerSpec defines Kubernetes Horizontal Pod Autoscaler settings of Envoy Proxy Deployment.
@@ -510,12 +560,17 @@ import (
 	//
 	// +optional
 	patch?: null | #KubernetesPatchSpec @go(Patch,*KubernetesPatchSpec)
+
+	// Name of the horizontalPodAutoScaler.
+	// When unset, this defaults to an autogenerated name.
+	//
+	// +optional
+	name?: null | string @go(Name,*string)
 }
 
 // HTTPStatus defines the http status code.
 // +kubebuilder:validation:Minimum=100
-// +kubebuilder:validation:Maximum=600
-// +kubebuilder:validation:ExclusiveMaximum=true
+// +kubebuilder:validation:Maximum=599
 #HTTPStatus: int
 
 // MergeType defines the type of merge operation
@@ -523,13 +578,17 @@ import (
 
 #enumMergeType:
 	#StrategicMerge |
-	#JSONMerge
+	#JSONMerge |
+	#Replace
 
 // StrategicMerge indicates a strategic merge patch type
 #StrategicMerge: #MergeType & "StrategicMerge"
 
 // JSONMerge indicates a JSON merge patch type
 #JSONMerge: #MergeType & "JSONMerge"
+
+// Replace type - ie no merging
+#Replace: #MergeType & "Replace"
 
 // KubernetesPatchSpec defines how to perform the patch operation.
 // Note that `value` can be an in-line YAML document, as can be seen in e.g. (the example of patching the Envoy proxy Deployment)[https://gateway.envoyproxy.io/docs/tasks/operations/customize-envoyproxy/#patching-deployment-for-envoyproxy].
@@ -548,6 +607,26 @@ import (
 // BackendRef defines how an ObjectReference that is specific to BackendRef.
 #BackendRef: {
 	gwapiv1.#BackendObjectReference
+
+	// Weight specifies the proportion of requests forwarded to the referenced
+	// backend. This is computed as weight/(sum of all weights in this
+	// BackendRefs list). For non-zero values, there may be some epsilon from
+	// the exact proportion defined here depending on the precision an
+	// implementation supports. Weight is not a percentage and the sum of
+	// weights does not need to equal 100.
+	//
+	// If only one backend is specified and it has a weight greater than 0, 100%
+	// of the traffic is forwarded to that backend. If weight is set to 0, no
+	// traffic should be forwarded for this entry. If unspecified, weight
+	// defaults to 1.
+	//
+	// Support for this field varies based on the context where used.
+	//
+	// +optional
+	// +kubebuilder:default=1
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1000000
+	weight?: null | uint32 @go(Weight,*uint32)
 
 	// Fallback indicates whether the backend is designated as a fallback.
 	// Multiple fallback backends can be configured.
@@ -587,6 +666,8 @@ import (
 
 // ClusterSettings provides the various knobs that can be set to control how traffic to a given
 // backend will be configured.
+//
+// +kubebuilder:validation:XValidation:rule="!((has(self.connection) && has(self.connection.preconnect) && has(self.connection.preconnect.predictivePercent)) && !(has(self.loadBalancer) && has(self.loadBalancer.type) && self.loadBalancer.type in ['Random', 'RoundRobin']))",message="predictivePercent in preconnect policy only works with RoundRobin or Random load balancers"
 #ClusterSettings: {
 	// LoadBalancer policy to apply when routing traffic from the gateway to
 	// the backend endpoints. Defaults to `LeastRequest`.
@@ -685,15 +766,87 @@ import (
 	// Default: TerminateConnection
 	// +optional
 	onInvalidMessage?: null | #InvalidMessageAction @go(OnInvalidMessage,*InvalidMessageAction)
+
+	// ConnectionKeepalive configures HTTP/2 connection keepalive using PING frames.
+	// +optional
+	connectionKeepalive?: null | #HTTP2KeepaliveSettings @go(ConnectionKeepalive,*HTTP2KeepaliveSettings)
 }
 
+// HTTP2KeepaliveSettings configures HTTP/2 PING-based keepalive settings.
+// +kubebuilder:validation:XValidation:rule="!has(self.timeout) || !has(self.interval) || duration(self.timeout) < duration(self.interval)",message="timeout must be less than interval"
+#HTTP2KeepaliveSettings: {
+	// Interval specifies how often to send HTTP/2 PING frames to keep the connection alive.
+	// +optional
+	interval?: null | gwapiv1.#Duration @go(Interval,*gwapiv1.Duration)
+
+	// Timeout specifies how long to wait for a PING response before considering the connection dead.
+	// +optional
+	timeout?: null | gwapiv1.#Duration @go(Timeout,*gwapiv1.Duration)
+
+	// IntervalJitter specifies a random jitter percentage added to each interval.
+	// Defaults to 15% if not specified.
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=100
+	// +optional
+	intervalJitter?: null | uint32 @go(IntervalJitter,*uint32)
+
+	// IdleInterval specifies how long a connection must be idle before a PING is sent.
+	// +optional
+	idleInterval?: null | gwapiv1.#Duration @go(IdleInterval,*gwapiv1.Duration)
+}
+
+// GRPCSettings provides gRPC configuration for listeners.
+#GRPCSettings: {
+	// EnableWeb configures the gRPC-web filter on the listener.
+	// The gRPC-web filter allows clients (typically browsers) to make gRPC calls
+	// using HTTP/1.1 or HTTP/2.
+	//
+	// This is enabled by default for GRPCRoute and opt-in for HTTPRoute.
+	// In general, gRPC traffic should be handled via GRPCRoute, but there are cases where
+	// users want to route gRPC using HTTPRoute for its richer matching capabilities.
+	// Therefore, we enable this behavior only when it is explicitly opted in.
+	//
+	// +optional
+	enableWeb?: null | bool @go(EnableWeb,*bool)
+}
+
+// ResponseOverrideSource specifies the source of responses to override.
+// +kubebuilder:validation:Enum=All;Local;Backend
+#ResponseOverrideSource: string // #enumResponseOverrideSource
+
+#enumResponseOverrideSource:
+	#ResponseOverrideSourceAll |
+	#ResponseOverrideSourceLocal |
+	#ResponseOverrideSourceBackend
+
+// ResponseOverrideSourceAll overrides both Envoy-generated and upstream responses.
+#ResponseOverrideSourceAll: #ResponseOverrideSource & "All"
+
+// ResponseOverrideSourceLocal overrides only Envoy-generated responses (e.g. auth failures, rate limits).
+#ResponseOverrideSourceLocal: #ResponseOverrideSource & "Local"
+
+// ResponseOverrideSourceBackend overrides only upstream/backend responses.
+#ResponseOverrideSourceBackend: #ResponseOverrideSource & "Backend"
+
 // ResponseOverride defines the configuration to override specific responses with a custom one.
+// +kubebuilder:validation:XValidation:rule="(has(self.response) && !has(self.redirect)) || (!has(self.response) && has(self.redirect))",message="exactly one of response or redirect must be specified"
 #ResponseOverride: {
 	// Match configuration.
 	match: #CustomResponseMatch @go(Match)
 
 	// Response configuration.
-	response: #CustomResponse @go(Response)
+	response?: null | #CustomResponse @go(Response,*CustomResponse)
+
+	// Redirect configuration
+	redirect?: null | #CustomRedirect @go(Redirect,*CustomRedirect)
+
+	// Source specifies which responses this rule applies to.
+	// Local overrides only Envoy-generated responses (e.g. auth failures).
+	// Backend overrides only upstream responses.
+	// All (default) overrides both.
+	//
+	// +optional
+	source?: null | #ResponseOverrideSource @go(Source,*ResponseOverrideSource)
 }
 
 // CustomResponseMatch defines the configuration for matching a user response to return a custom one.
@@ -759,6 +912,7 @@ import (
 	contentType?: null | string @go(ContentType,*string)
 
 	// Body of the Custom Response
+	// Supports Envoy command operators for dynamic content (see https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#command-operators).
 	//
 	// +optional
 	body?: null | #CustomResponseBody @go(Body,*CustomResponseBody)
@@ -768,6 +922,15 @@ import (
 	//
 	// +optional
 	statusCode?: null | int @go(StatusCode,*int)
+
+	// Header defines headers to add, set or remove from the response.
+	// This allows the response policy to append, add or override headers
+	// of the final response before it is sent to a downstream client.
+	// Note: Header removal is not supported for responseOverride.
+	//
+	// +optional
+	// +kubebuilder:validation:XValidation:rule="!has(self.remove) || size(self.remove) == 0",message="Remove is not supported for header in CustomResponse"
+	header?: null | gwapiv1.#HTTPHeaderFilter @go(Header,*gwapiv1.HTTPHeaderFilter)
 }
 
 // ResponseValueType defines the types of values for the response body supported by Envoy Gateway.
@@ -814,12 +977,9 @@ import (
 }
 
 // Tracing defines the configuration for tracing.
-// TODO: we'd better deprecate SamplingRate in the EnvoyProxy spec, so that we can reuse the struct.
 #Tracing: {
 	// SamplingFraction represents the fraction of requests that should be
 	// selected for tracing if no prior sampling decision has been made.
-	//
-	// This will take precedence over sampling fraction on EnvoyProxy if set.
 	//
 	// +optional
 	samplingFraction?: null | gwapiv1.#Fraction @go(SamplingFraction,*gwapiv1.Fraction)
@@ -827,6 +987,202 @@ import (
 	// CustomTags defines the custom tags to add to each span.
 	// If provider is kubernetes, pod name and namespace are added by default.
 	//
+	// Deprecated: Use Tags instead.
+	//
 	// +optional
 	customTags?: {[string]: #CustomTag} @go(CustomTags,map[string]CustomTag)
+
+	// Tags defines the custom tags to add to each span.
+	// Envoy [command operators](https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#command-operators) may be used in the value.
+	// The [format string documentation](https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#config-access-log-format-strings) provides more information.
+	// If provider is kubernetes, pod name and namespace are added by default.
+	//
+	// Same keys take precedence over CustomTags.
+	//
+	// +optional
+	tags?: {[string]: string} @go(Tags,map[string]string)
+
+	// SpanName defines the name of the span which will be used for tracing.
+	// Envoy [command operators](https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#command-operators) may be used in the value.
+	// The [format string documentation](https://www.envoyproxy.io/docs/envoy/latest/configuration/observability/access_log/usage#config-access-log-format-strings) provides more information.
+	//
+	// If not set, the span name is provider specific.
+	// e.g. Datadog use `ingress` as the default client span name,
+	// and `router <UPSTREAM_CLUSTER> egress` as the server span name.
+	//
+	// +optional
+	spanName?: null | #TracingSpanName @go(SpanName,*TracingSpanName)
+}
+
+#TracingSpanName: {
+	// Client defines operation name of the span which will be used for tracing.
+	client: string @go(Client)
+
+	// Server defines the operation name of the upstream span which will be used for tracing.
+	server: string @go(Server)
+}
+
+// CustomRedirect contains configuration for returning a custom redirect.
+#CustomRedirect: {
+	// Scheme is the scheme to be used in the value of the `Location` header in
+	// the response. When empty, the scheme of the request is used.
+	//
+	// +optional
+	// +kubebuilder:validation:Enum=http;https
+	scheme?: null | string @go(Scheme,*string)
+
+	// Hostname is the hostname to be used in the value of the `Location`
+	// header in the response.
+	// When empty, the hostname in the `Host` header of the request is used.
+	//
+	// +optional
+	hostname?: null | gwapiv1.#PreciseHostname @go(Hostname,*gwapiv1.PreciseHostname)
+
+	// Path defines parameters used to modify the path of the incoming request.
+	// The modified path is then used to construct the `Location` header. When
+	// empty, the request path is used as-is.
+	// Only ReplaceFullPath path modifier is supported currently.
+	//
+	// +optional
+	// +kubebuilder:validation:XValidation:message="only ReplaceFullPath is supported for path.type",rule="self.type == 'ReplaceFullPath'"
+	path?: null | gwapiv1.#HTTPPathModifier @go(Path,*gwapiv1.HTTPPathModifier)
+
+	// Port is the port to be used in the value of the `Location`
+	// header in the response.
+	//
+	// If redirect scheme is not-empty, the well-known port associated with the redirect scheme will be used.
+	// Specifically "http" to port 80 and "https" to port 443. If the redirect scheme does not have a
+	// well-known port or redirect scheme is empty, the listener port of the Gateway will be used.
+	//
+	// Port will not be added in the 'Location' header if scheme is HTTP and port is 80
+	// or scheme is HTTPS and port is 443.
+	//
+	// +optional
+	port?: null | int32 @go(Port,*gwapiv1.PortNumber)
+
+	// StatusCode is the HTTP status code to be used in response.
+	//
+	// +optional
+	// +kubebuilder:default=302
+	// +kubebuilder:validation:Enum=301;302
+	statusCode?: null | int @go(StatusCode,*int)
+}
+
+// HTTPHeaderFilter defines a filter that modifies the headers of an HTTP
+// request or response. Only one action for a given header name is
+// permitted. Filters specifying multiple actions of the same or different
+// type for any one header name are invalid. Configuration to set or add
+// multiple values for a header must use RFC 7230 header value formatting,
+// separating each value with a comma.
+#HTTPHeaderFilter: {
+	// Set overwrites the request with the given header (name, value)
+	// before the action.
+	//
+	// Input:
+	//   GET /foo HTTP/1.1
+	//   my-header: foo
+	//
+	// Config:
+	//   set:
+	//   - name: "my-header"
+	//     value: "bar"
+	//
+	// Output:
+	//   GET /foo HTTP/1.1
+	//   my-header: bar
+	//
+	// +optional
+	// +listType=map
+	// +listMapKey=name
+	// +kubebuilder:validation:MinItems=1
+	// +kubebuilder:validation:MaxItems=64
+	set?: [...gwapiv1.#HTTPHeader] @go(Set,[]gwapiv1.HTTPHeader)
+
+	// Add adds the given header(s) (name, value) to the request
+	// before the action. It appends to any existing values associated
+	// with the header name.
+	//
+	// Input:
+	//   GET /foo HTTP/1.1
+	//   my-header: foo
+	//
+	// Config:
+	//   add:
+	//   - name: "my-header"
+	//     value: "bar,baz"
+	//
+	// Output:
+	//   GET /foo HTTP/1.1
+	//   my-header: foo,bar,baz
+	//
+	// +optional
+	// +listType=map
+	// +listMapKey=name
+	// +kubebuilder:validation:MinItems=1
+	// +kubebuilder:validation:MaxItems=64
+	add?: [...gwapiv1.#HTTPHeader] @go(Add,[]gwapiv1.HTTPHeader)
+
+	// AddIfAbsent adds the given header(s) (name, value) to the request/response
+	// only if the header does not already exist. Unlike Add which appends to
+	// existing values, this is a no-op if the header is already present.
+	//
+	// Input:
+	//   GET /foo HTTP/1.1
+	//   my-header: foo
+	//
+	// Config:
+	//   addIfAbsent:
+	//   - name: "my-header"
+	//     value: "bar"
+	//
+	// Output:
+	//   GET /foo HTTP/1.1
+	//   my-header: foo
+	//
+	// +optional
+	// +listType=map
+	// +listMapKey=name
+	// +kubebuilder:validation:MinItems=1
+	// +kubebuilder:validation:MaxItems=64
+	addIfAbsent?: [...gwapiv1.#HTTPHeader] @go(AddIfAbsent,[]gwapiv1.HTTPHeader)
+
+	// Remove the given header(s) from the HTTP request before the action. The
+	// value of Remove is a list of HTTP header names. Note that the header
+	// names are case-insensitive (see
+	// https://datatracker.ietf.org/doc/html/rfc2616#section-4.2).
+	//
+	// Input:
+	//   GET /foo HTTP/1.1
+	//   my-header1: foo
+	//   my-header2: bar
+	//   my-header3: baz
+	//
+	// Config:
+	//   remove: ["my-header1", "my-header3"]
+	//
+	// Output:
+	//   GET /foo HTTP/1.1
+	//   my-header2: bar
+	//
+	// +optional
+	// +listType=set
+	// +kubebuilder:validation:MinItems=1
+	// +kubebuilder:validation:MaxItems=64
+	remove?: [...string] @go(Remove,[]string)
+
+	// RemoveOnMatch removes headers whose names match the specified string matchers.
+	// Matching is performed on the header name (case-insensitive).
+	//
+	// +optional
+	// +kubebuilder:validation:MinItems=1
+	// +kubebuilder:validation:MaxItems=64
+	removeOnMatch?: [...#StringMatch] @go(RemoveOnMatch,[]StringMatch)
+}
+
+// LocalObjectKeyReference selects a key from a local object.
+#LocalObjectKeyReference: {
+	gwapiv1.#LocalObjectReference
+
+	// The key to select.
+	key: string @go(Key)
 }

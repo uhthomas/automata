@@ -42,6 +42,7 @@ import (
 }
 
 // EnvoyGatewaySpec defines the desired state of Envoy Gateway.
+// +kubebuilder:validation:XValidation:rule="!(has(self.extensionManager) && has(self.extensionManagers))",message="extensionManager and extensionManagers are mutually exclusive"
 #EnvoyGatewaySpec: {
 	// Gateway defines desired Gateway API specific configuration. If unset,
 	// default configuration parameters will apply.
@@ -75,6 +76,12 @@ import (
 	// +optional
 	telemetry?: null | #EnvoyGatewayTelemetry @go(Telemetry,*EnvoyGatewayTelemetry)
 
+	// XDSServer defines the configuration for the Envoy Gateway xDS gRPC server.
+	// If unspecified, default connection keepalive settings will be used.
+	//
+	// +optional
+	xdsServer?: null | #XDSServer @go(XDSServer,*XDSServer)
+
 	// RateLimit defines the configuration associated with the Rate Limit service
 	// deployed by Envoy Gateway required to implement the Global Rate limiting
 	// functionality. The specific rate limit service used here is the reference
@@ -86,14 +93,92 @@ import (
 
 	// ExtensionManager defines an extension manager to register for the Envoy Gateway Control Plane.
 	//
+	// Warning: Enabling an Extension Server may lead to complete security compromise of your system.
+	// Users that control the Extension Server can inject arbitrary configuration to proxies,
+	// leading to high Confidentiality, Integrity and Availability risks.
+	//
 	// +optional
 	extensionManager?: null | #ExtensionManager @go(ExtensionManager,*ExtensionManager)
+
+	// ExtensionManagers defines multiple extension managers to register for the Envoy Gateway Control Plane.
+	// Each extension's output becomes the next extension's input, enabling sequential chaining.
+	// Each entry must have a unique Name field for identification.
+	// This field is mutually exclusive with ExtensionManager.
+	//
+	// Warning: Enabling Extension Servers may lead to complete security compromise of your system.
+	// Users that control Extension Servers can inject arbitrary configuration to proxies,
+	// leading to high Confidentiality, Integrity and Availability risks.
+	//
+	// +optional
+	// +kubebuilder:validation:MinItems=1
+	extensionManagers?: [...#ExtensionManager] @go(ExtensionManagers,[]ExtensionManager)
 
 	// ExtensionAPIs defines the settings related to specific Gateway API Extensions
 	// implemented by Envoy Gateway
 	//
 	// +optional
 	extensionApis?: null | #ExtensionAPISettings @go(ExtensionAPIs,*ExtensionAPISettings)
+
+	// GatewayAPI defines feature flags for experimental Gateway API resources.
+	// These APIs live under the gateway.networking.x-k8s.io group and are opt-in.
+	//
+	// +optional
+	gatewayAPI?: null | #GatewayAPISettings @go(GatewayAPI,*GatewayAPISettings)
+
+	// RuntimeFlags defines the runtime flags for Envoy Gateway.
+	// Unlike ExtensionAPIs, these flags are temporary and will be removed in future releases once the related features are stable.
+	runtimeFlags?: null | #RuntimeFlags @go(RuntimeFlags,*RuntimeFlags)
+
+	// EnvoyProxy defines the default EnvoyProxy configuration that applies
+	// to all managed Envoy Proxy fleet. This is an optional field and when
+	// provided, the settings from this EnvoyProxySpec serve as the base
+	// defaults for all Envoy Proxy instances.
+	//
+	// The hierarchy for EnvoyProxy configuration is (highest to lowest priority):
+	// 1. Gateway-level EnvoyProxy (referenced via Gateway.spec.infrastructure.parametersRef)
+	// 2. GatewayClass-level EnvoyProxy (referenced via GatewayClass.spec.parametersRef)
+	// 3. This EnvoyProxy default spec
+	//
+	// The merge strategy for a more specific EnvoyProxy is controlled by its
+	// spec.mergeType field. If mergeType is unset, the more specific EnvoyProxy
+	// completely replaces less specific settings.
+	// Note: mergeType has no effect in this default EnvoyProxySpec.
+	//
+	// +optional
+	envoyProxy?: null | #EnvoyProxySpec @go(EnvoyProxy,*EnvoyProxySpec)
+}
+
+// GatewayAPI defines an experimental Gateway API resource that can be enabled.
+// +enum
+// +kubebuilder:validation:Enum=XBackendTrafficPolicy
+#GatewayAPI: string
+
+// GatewayAPISettings provides a mechanism to opt into experimental Gateway API resources.
+// These APIs are experimental today and are subject to change or removal as they mature.
+#GatewayAPISettings: {
+	enabled?: [...#GatewayAPI] @go(Enabled,[]GatewayAPI)
+}
+
+// RuntimeFlag defines a runtime flag used to guard breaking changes or risky experimental features in new Envoy Gateway releases.
+// A runtime flag may be enabled or disabled by default and can be toggled through the EnvoyGateway resource.
+// +enum
+// +kubebuilder:validation:Enum=XDSNameSchemeV2
+#RuntimeFlag: string // #enumRuntimeFlag
+
+#enumRuntimeFlag:
+	#XDSNameSchemeV2
+
+// XDSNameSchemeV2 indicates that the xds name scheme v2 is used.
+// * The listener name will be generated using the protocol and port of the listener.
+#XDSNameSchemeV2: #RuntimeFlag & "XDSNameSchemeV2"
+
+// RuntimeFlags provide a mechanism to guard breaking changes or risky experimental features in new Envoy Gateway releases.
+// Each flag may be enabled or disabled by default and can be toggled through the EnvoyGateway resource.
+// The names of these flags will be included in the release notes alongside an explanation of the change.
+// Please note that these flags are temporary and will be removed in future releases once the related features are stable.
+#RuntimeFlags: {
+	enabled?: [...#RuntimeFlag] @go(Enabled,[]RuntimeFlag)
+	disabled?: [...#RuntimeFlag] @go(Disabled,[]RuntimeFlag)
 }
 
 #KubernetesClient: {
@@ -116,18 +201,41 @@ import (
 	burst?: null | int32 @go(Burst,*int32)
 }
 
+// XDSServer defines configuration values for the xDS gRPC server.
+#XDSServer: {
+	// MaxConnectionAge is the maximum age of an active connection before Envoy Gateway will initiate a graceful close.
+	// If unspecified, Envoy Gateway randomly selects a value between 10h and 12h to stagger reconnects across replicas.
+	//
+	// +optional
+	maxConnectionAge?: null | gwapiv1.#Duration @go(MaxConnectionAge,*gwapiv1.Duration)
+
+	// MaxConnectionAgeGrace is the grace period granted after reaching MaxConnectionAge before the connection is forcibly closed.
+	// The default grace period is 2m.
+	//
+	// +optional
+	maxConnectionAgeGrace?: null | gwapiv1.#Duration @go(MaxConnectionAgeGrace,*gwapiv1.Duration)
+}
+
 // LeaderElection defines the desired leader election settings.
 #LeaderElection: {
 	// LeaseDuration defines the time non-leader contenders will wait before attempting to claim leadership.
-	// It's based on the timestamp of the last acknowledged signal. The default setting is 15 seconds.
+	// It's based on the timestamp of the last acknowledged signal.
+	// The default setting is 15 seconds.
+	//
+	// +optional
 	leaseDuration?: null | gwapiv1.#Duration @go(LeaseDuration,*gwapiv1.Duration)
 
 	// RenewDeadline represents the time frame within which the current leader will attempt to renew its leadership
-	// status before relinquishing its position. The default setting is 10 seconds.
+	// status before relinquishing its position.
+	// The default setting is 10 seconds.
+	//
+	// +optional
 	renewDeadline?: null | gwapiv1.#Duration @go(RenewDeadline,*gwapiv1.Duration)
 
 	// RetryPeriod denotes the interval at which LeaderElector clients should perform action retries.
 	// The default setting is 2 seconds.
+	//
+	// +optional
 	retryPeriod?: null | gwapiv1.#Duration @go(RetryPeriod,*gwapiv1.Duration)
 
 	// Disable provides the option to turn off leader election, which is enabled by default.
@@ -139,6 +247,9 @@ import (
 #EnvoyGatewayTelemetry: {
 	// Metrics defines metrics configuration for envoy gateway.
 	metrics?: null | #EnvoyGatewayMetrics @go(Metrics,*EnvoyGatewayMetrics)
+
+	// Traces defines traces configuration for envoy gateway.
+	traces?: null | #EnvoyGatewayTraces @go(Traces,*EnvoyGatewayTraces)
 }
 
 // EnvoyGatewayLogging defines logging for Envoy Gateway.
@@ -149,10 +260,28 @@ import (
 	//
 	// +kubebuilder:default={default: info}
 	level?: {[string]: #LogLevel} @go(Level,map[EnvoyGatewayLogComponent]LogLevel)
+
+	// Encoder defines the log encoder format.
+	// If unspecified, defaults to "Text".
+	//
+	// +optional
+	encoder?: null | #EnvoyGatewayLogEncoder @go(Encoder,*EnvoyGatewayLogEncoder)
 }
 
+#EnvoyGatewayLogEncoder: string // #enumEnvoyGatewayLogEncoder
+
+#enumEnvoyGatewayLogEncoder:
+	#EnvoyGatewayLogEncoderText |
+	#EnvoyGatewayLogEncoderJSON
+
+// EnvoyGatewayLogEncoderText defines the "Text" log encoder.
+#EnvoyGatewayLogEncoderText: #EnvoyGatewayLogEncoder & "Text"
+
+// EnvoyGatewayLogEncoderJSON defines the "JSON" log encoder.
+#EnvoyGatewayLogEncoderJSON: #EnvoyGatewayLogEncoder & "JSON"
+
 // EnvoyGatewayLogComponent defines a component that supports a configured logging level.
-// +kubebuilder:validation:Enum=default;provider;gateway-api;xds-translator;xds-server;infrastructure;global-ratelimit
+// +kubebuilder:validation:Enum=default;provider;gateway-api;xds-translator;xds-server;xds;infrastructure;global-ratelimit
 #EnvoyGatewayLogComponent: string // #enumEnvoyGatewayLogComponent
 
 #enumEnvoyGatewayLogComponent:
@@ -161,6 +290,7 @@ import (
 	#LogComponentGatewayAPIRunner |
 	#LogComponentXdsTranslatorRunner |
 	#LogComponentXdsServerRunner |
+	#LogComponentXdsRunner |
 	#LogComponentInfrastructureRunner |
 	#LogComponentGlobalRateLimitRunner
 
@@ -180,6 +310,9 @@ import (
 // LogComponentXdsServerRunner defines the "xds-server" runner component.
 #LogComponentXdsServerRunner: #EnvoyGatewayLogComponent & "xds-server"
 
+// LogComponentXdsRunner defines the "xds" runner component.
+#LogComponentXdsRunner: #EnvoyGatewayLogComponent & "xds"
+
 // LogComponentInfrastructureRunner defines the "infrastructure" runner component.
 #LogComponentInfrastructureRunner: #EnvoyGatewayLogComponent & "infrastructure"
 
@@ -191,7 +324,7 @@ import (
 	// ControllerName defines the name of the Gateway API controller. If unspecified,
 	// defaults to "gateway.envoyproxy.io/gatewayclass-controller". See the following
 	// for additional details:
-	//   https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1.GatewayClass
+	//   https://gateway-api.sigs.k8s.io/reference/1.4/spec/#gatewayclass
 	//
 	// +optional
 	controllerName?: string @go(ControllerName)
@@ -201,11 +334,22 @@ import (
 #ExtensionAPISettings: {
 	// EnableEnvoyPatchPolicy enables Envoy Gateway to
 	// reconcile and implement the EnvoyPatchPolicy resources.
+	//
+	// Warning: Enabling `EnvoyPatchPolicy` may lead to complete security compromise of your system.
+	// Users with `EnvoyPatchPolicy` permissions can inject arbitrary configuration to proxies,
+	// leading to high Confidentiality, Integrity and Availability risks.
 	enableEnvoyPatchPolicy: bool @go(EnableEnvoyPatchPolicy)
 
 	// EnableBackend enables Envoy Gateway to
 	// reconcile and implement the Backend resources.
 	enableBackend: bool @go(EnableBackend)
+
+	// DisableLua determines if Lua EnvoyExtensionPolicies should be disabled.
+	// If set to true, the Lua EnvoyExtensionPolicy feature will be disabled.
+	disableLua: bool @go(DisableLua)
+
+	// EnableSDSSecretRef enables read SDS(Secret Discovery Service) settings from a secret(with type gateway.envoyproxy.io/sds).
+	enableSDSSecretRef: bool @go(EnableSDSSecretRef)
 }
 
 // EnvoyGatewayProvider defines the desired configuration of a provider.
@@ -245,6 +389,11 @@ import (
 	// +optional
 	rateLimitHpa?: null | #KubernetesHorizontalPodAutoscalerSpec @go(RateLimitHpa,*KubernetesHorizontalPodAutoscalerSpec)
 
+	// RateLimitPDB allows to control the pod disruption budget of rate limit service.
+	//
+	// +optional
+	rateLimitPDB?: null | #KubernetesPodDisruptionBudgetSpec @go(RateLimitPDB,*KubernetesPodDisruptionBudgetSpec)
+
 	// Watch holds configuration of which input resources should be watched and reconciled.
 	// +optional
 	watch?: null | #KubernetesWatchMode @go(Watch,*KubernetesWatchMode)
@@ -252,7 +401,6 @@ import (
 	// Deploy holds configuration of how output managed resources such as the Envoy Proxy data plane
 	// should be deployed
 	// +optional
-	// +notImplementedHide
 	deploy?: null | #KubernetesDeployMode @go(Deploy,*KubernetesDeployMode)
 
 	// LeaderElection specifies the configuration for leader election.
@@ -270,6 +418,16 @@ import (
 	// TopologyInjector defines the configuration for topology injector MutatatingWebhookConfiguration
 	// +optional
 	proxyTopologyInjector?: null | #EnvoyGatewayTopologyInjector @go(TopologyInjector,*EnvoyGatewayTopologyInjector)
+
+	// CacheSyncPeriod determines the minimum frequency at which watched resources are synced.
+	// Note that a sync in the provider layer will not lead to a full reconciliation (including translation),
+	// unless there are actual changes in the provider resources.
+	// This option can be used to protect against missed events or issues in Envoy Gateway where resources
+	// are not requeued when they should be, at the cost of increased resource consumption.
+	// Learn more about the implications of this option: https://pkg.go.dev/sigs.k8s.io/controller-runtime/pkg/cache#Options
+	// Default: 10 hours
+	// +optional
+	cacheSyncPeriod?: null | gwapiv1.#Duration @go(CacheSyncPeriod,*gwapiv1.Duration)
 }
 
 // KubernetesWatchModeTypeNamespaces indicates that the namespace watch mode is used.
@@ -292,24 +450,32 @@ import (
 
 	// Namespaces holds the list of namespaces that Envoy Gateway will watch for namespaced scoped
 	// resources such as Gateway, HTTPRoute and Service.
+	// The namespace where Envoy Gateway runs is always included so Envoy Gateway can reconcile its
+	// own managed infrastructure resources.
 	// Note that Envoy Gateway will continue to reconcile relevant cluster scoped resources such as
 	// GatewayClass that it is linked to. Precisely one of Namespaces and NamespaceSelector must be set.
 	namespaces?: [...string] @go(Namespaces,[]string)
 
 	// NamespaceSelector holds the label selector used to dynamically select namespaces.
 	// Envoy Gateway will watch for namespaces matching the specified label selector.
+	// The namespace where Envoy Gateway runs is always included so Envoy Gateway can reconcile its
+	// own managed infrastructure resources.
 	// Precisely one of Namespaces and NamespaceSelector must be set.
 	namespaceSelector?: null | metav1.#LabelSelector @go(NamespaceSelector,*metav1.LabelSelector)
 }
 
 // KubernetesDeployModeTypeControllerNamespace indicates that the controller namespace is used for the infra proxy deployments.
-#KubernetesDeployModeTypeControllerNamespace: "ControllerNamespace"
+#KubernetesDeployModeTypeControllerNamespace: #KubernetesDeployModeType & "ControllerNamespace"
 
 // KubernetesDeployModeTypeGatewayNamespace indicates that the gateway namespace is used for the infra proxy deployments.
-#KubernetesDeployModeTypeGatewayNamespace: "GatewayNamespace"
+#KubernetesDeployModeTypeGatewayNamespace: #KubernetesDeployModeType & "GatewayNamespace"
 
 // KubernetesDeployModeType defines the type of KubernetesDeployMode
-#KubernetesDeployModeType: string
+#KubernetesDeployModeType: string // #enumKubernetesDeployModeType
+
+#enumKubernetesDeployModeType:
+	#KubernetesDeployModeTypeControllerNamespace |
+	#KubernetesDeployModeTypeGatewayNamespace
 
 // KubernetesDeployMode holds configuration for how to deploy managed resources such as the Envoy Proxy
 // data plane fleet.
@@ -400,7 +566,27 @@ import (
 }
 
 // EnvoyGatewayHostInfrastructureProvider defines configuration for the Host Infrastructure provider.
-#EnvoyGatewayHostInfrastructureProvider: {}
+#EnvoyGatewayHostInfrastructureProvider: {
+	// ConfigHome is the directory for configuration files.
+	// Defaults to ~/.config/envoy-gateway
+	// +optional
+	configHome?: null | string @go(ConfigHome,*string)
+
+	// DataHome is the directory for persistent data (Envoy binaries).
+	// Defaults to ~/.local/share/envoy-gateway
+	// +optional
+	dataHome?: null | string @go(DataHome,*string)
+
+	// StateHome is the directory for persistent state (logs).
+	// Defaults to ~/.local/state/envoy-gateway
+	// +optional
+	stateHome?: null | string @go(StateHome,*string)
+
+	// RuntimeDir is the directory for ephemeral runtime files.
+	// Defaults to /tmp/envoy-gateway-${UID}
+	// +optional
+	runtimeDir?: null | string @go(RuntimeDir,*string)
+}
 
 // RateLimit defines the configuration associated with the Rate Limit Service
 // used for Global Rate Limiting.
@@ -412,9 +598,9 @@ import (
 
 	// Timeout specifies the timeout period for the proxy to access the ratelimit server
 	// If not set, timeout is 20ms.
+	//
 	// +optional
-	// +kubebuilder:validation:Format=duration
-	timeout?: null | metav1.#Duration @go(Timeout,*metav1.Duration)
+	timeout?: null | gwapiv1.#Duration @go(Timeout,*gwapiv1.Duration)
 
 	// FailClosed is a switch used to control the flow of traffic
 	// when the response from the ratelimit server cannot be obtained.
@@ -510,6 +696,7 @@ import (
 // RateLimitRedisSettings defines the configuration for connecting to redis database.
 #RateLimitRedisSettings: {
 	// URL of the Redis Database.
+	// This can reference a single Redis host or a comma delimited list for Sentinel and Cluster deployments of Redis.
 	url: string @go(URL)
 
 	// TLS defines TLS configuration for connecting to redis database.
@@ -521,6 +708,12 @@ import (
 // ExtensionManager defines the configuration for registering an extension manager to
 // the Envoy Gateway control plane.
 #ExtensionManager: {
+	// Name is a unique identifier for this extension manager. Required when using
+	// the plural ExtensionManagers field. Used for logging, metrics, and error identification.
+	//
+	// +optional
+	name?: string @go(Name)
+
 	// Resources defines the set of K8s resources the extension will handle as route
 	// filter resources
 	//
@@ -528,10 +721,19 @@ import (
 	resources?: [...#GroupVersionKind] @go(Resources,[]GroupVersionKind)
 
 	// PolicyResources defines the set of K8S resources the extension server will handle
-	// as directly attached GatewayAPI policies
+	// as directly attached Gateway API policies. Only policies in the same namespace as
+	// the target Gateway resources are supported. Cross-namespace attachments are not supported.
 	//
 	// +optional
 	policyResources?: [...#GroupVersionKind] @go(PolicyResources,[]GroupVersionKind)
+
+	// BackendResources defines the set of K8s resources the extension will handle as
+	// custom backendRef resources. These resources can be referenced in HTTPRoute
+	// backendRefs to enable support for custom backend types (e.g., S3, Lambda, etc.)
+	// that are not natively supported by Envoy Gateway.
+	//
+	// +optional
+	backendResources?: [...#GroupVersionKind] @go(BackendResources,[]GroupVersionKind)
 
 	// Hooks defines the set of hooks the extension supports
 	//
@@ -578,6 +780,64 @@ import (
 #XDSTranslatorHooks: {
 	pre?: [...#XDSTranslatorHook] @go(Pre,[]XDSTranslatorHook)
 	post?: [...#XDSTranslatorHook] @go(Post,[]XDSTranslatorHook)
+
+	// Translation defines the configuration for the translation hook.
+	translation?: null | #TranslationConfig @go(Translation,*TranslationConfig)
+}
+
+// TranslationConfig defines the configuration for the translation hook.
+#TranslationConfig: {
+	// Listener defines the configuration for the listener translation hook.
+	//
+	// +optional
+	listener?: null | #ListenerTranslationConfig @go(Listener,*ListenerTranslationConfig)
+
+	// Route defines the configuration for the route translation hook.
+	//
+	// +optional
+	route?: null | #RouteTranslationConfig @go(Route,*RouteTranslationConfig)
+
+	// Cluster defines the configuration for the cluster translation hook.
+	//
+	// +optional
+	cluster?: null | #ClusterTranslationConfig @go(Cluster,*ClusterTranslationConfig)
+
+	// Secret defines the configuration for the secret translation hook.
+	//
+	// +optional
+	secret?: null | #SecretTranslationConfig @go(Secret,*SecretTranslationConfig)
+}
+
+#ListenerTranslationConfig: {
+	// IncludeAll defines whether all listeners should be included in the translation hook.
+	// Default is false.
+	//
+	// +optional
+	includeAll?: null | bool @go(IncludeAll,*bool)
+}
+
+#RouteTranslationConfig: {
+	// IncludeAll defines whether all routes should be included in the translation hook.
+	// Default is false.
+	//
+	// +optional
+	includeAll?: null | bool @go(IncludeAll,*bool)
+}
+
+#ClusterTranslationConfig: {
+	// IncludeAll defines whether all clusters should be included in the translation hook.
+	// Default is true for backward compatibility.
+	//
+	// +optional
+	includeAll?: null | bool @go(IncludeAll,*bool)
+}
+
+#SecretTranslationConfig: {
+	// IncludeAll defines whether all secrets should be included in the translation hook.
+	// Default is true for backward compatibility.
+	//
+	// +optional
+	includeAll?: null | bool @go(IncludeAll,*bool)
 }
 
 // ExtensionService defines the configuration for connecting to a registered extension service.
@@ -585,12 +845,14 @@ import (
 	#BackendEndpoint
 
 	// Host define the extension service hostname.
+	//
 	// Deprecated: use the appropriate transport attribute instead (FQDN,IP,Unix)
 	//
 	// +optional
 	host?: string @go(Host)
 
 	// Port defines the port the extension service is exposed on.
+	//
 	// Deprecated: use the appropriate transport attribute instead (FQDN,IP,Unix)
 	//
 	// +optional
@@ -615,11 +877,19 @@ import (
 #ExtensionTLS: {
 	// CertificateRef is a reference to a Kubernetes Secret with a CA certificate in a key named "tls.crt".
 	//
-	// The CA certificate is used by Envoy Gateway the verify the server certificate presented by the extension server.
-	// At this time, Envoy Gateway does not support Client Certificate authentication of Envoy Gateway towards the extension server (mTLS).
+	// The CA certificate is used by Envoy Gateway to verify the server certificate presented by the extension server.
 	//
 	// +kubebuilder:validation:Required
 	certificateRef: gwapiv1.#SecretObjectReference @go(CertificateRef)
+
+	// ClientCertificateRef is a reference to a Kubernetes Secret with a client certificate and key
+	// for client certificate authentication (mTLS). The secret must contain both "tls.crt" and "tls.key" keys.
+	//
+	// When specified, Envoy Gateway will present this client certificate to the extension server
+	// for mTLS authentication. If not specified, only server certificate validation is performed.
+	//
+	// +optional
+	clientCertificateRef?: null | gwapiv1.#SecretObjectReference @go(ClientCertificateRef,*gwapiv1.SecretObjectReference)
 }
 
 // GRPCStatus defines grpc status codes as defined in https://github.com/grpc/grpc/blob/master/doc/statuscodes.md.

@@ -4,20 +4,32 @@
 
 package v1alpha1
 
-import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+import (
+	gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+)
 
 // LoadBalancer defines the load balancer policy to be applied.
 // +union
 //
 // +kubebuilder:validation:XValidation:rule="self.type == 'ConsistentHash' ? has(self.consistentHash) : !has(self.consistentHash)",message="If LoadBalancer type is consistentHash, consistentHash field needs to be set."
-// +kubebuilder:validation:XValidation:rule="self.type in ['Random', 'ConsistentHash'] ? !has(self.slowStart) : true ",message="Currently SlowStart is only supported for RoundRobin and LeastRequest load balancers."
+// +kubebuilder:validation:XValidation:rule="self.type == 'BackendUtilization' ? has(self.backendUtilization) : !has(self.backendUtilization)",message="If LoadBalancer type is BackendUtilization, backendUtilization field needs to be set."
+// +kubebuilder:validation:XValidation:rule="self.type == 'DynamicModule' ? has(self.dynamicModule) : !has(self.dynamicModule)",message="If LoadBalancer type is DynamicModule, dynamicModule field needs to be set."
+// +kubebuilder:validation:XValidation:rule="self.type in ['Random', 'ConsistentHash', 'DynamicModule'] ? !has(self.slowStart) : true",message="Currently SlowStart is only supported for RoundRobin, LeastRequest, and BackendUtilization load balancers."
+// +kubebuilder:validation:XValidation:rule="self.type == 'ConsistentHash' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true",message="PreferLocal zone-aware routing is not supported for ConsistentHash load balancers. Use weightedZones instead."
+// +kubebuilder:validation:XValidation:rule="self.type == 'BackendUtilization' && has(self.zoneAware) ? !has(self.zoneAware.preferLocal) : true",message="PreferLocal zone-aware routing is not currently supported for BackendUtilization load balancers. Only WeightedZones can be used with BackendUtilization."
+// +kubebuilder:validation:XValidation:rule="self.type == 'DynamicModule' ? !has(self.zoneAware) : true",message="ZoneAware routing is not supported for DynamicModule load balancers."
+// +kubebuilder:validation:XValidation:rule="has(self.zoneAware) ? !(has(self.zoneAware.preferLocal) && has(self.zoneAware.weightedZones)) : true",message="ZoneAware PreferLocal and WeightedZones cannot be specified together."
+// +kubebuilder:validation:XValidation:rule="self.type == 'DynamicModule' ? !has(self.endpointOverride) : true",message="EndpointOverride is not supported for DynamicModule load balancers."
 #LoadBalancer: {
 	// Type decides the type of Load Balancer policy.
 	// Valid LoadBalancerType values are
 	// "ConsistentHash",
 	// "LeastRequest",
 	// "Random",
-	// "RoundRobin".
+	// "RoundRobin",
+	// "BackendUtilization",
+	// "DynamicModule".
 	//
 	// +unionDiscriminator
 	type: #LoadBalancerType @go(Type)
@@ -28,23 +40,52 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// +optional
 	consistentHash?: null | #ConsistentHash @go(ConsistentHash,*ConsistentHash)
 
+	// BackendUtilization defines the configuration when the load balancer type is
+	// set to BackendUtilization.
+	//
+	// +optional
+	backendUtilization?: null | #BackendUtilization @go(BackendUtilization,*BackendUtilization)
+
+	// DynamicModule defines the configuration when the load balancer type is
+	// set to DynamicModule. The referenced module must be registered in the
+	// EnvoyProxy resource's dynamicModules allowlist.
+	//
+	// +optional
+	// +notImplementedHide
+	dynamicModule?: null | #DynamicModuleLBPolicy @go(DynamicModule,*DynamicModuleLBPolicy)
+
+	// EndpointOverride defines the configuration for endpoint override.
+	// When specified, the load balancer will attempt to route requests to endpoints
+	// based on the override information extracted from request headers or metadata.
+	//  If the override endpoints are not available, the configured load balancer policy will be used as fallback.
+	//
+	// +optional
+	endpointOverride?: null | #EndpointOverride @go(EndpointOverride,*EndpointOverride)
+
 	// SlowStart defines the configuration related to the slow start load balancer policy.
 	// If set, during slow start window, traffic sent to the newly added hosts will gradually increase.
-	// Currently this is only supported for RoundRobin and LeastRequest load balancers
+	// Supported for RoundRobin, LeastRequest, and BackendUtilization load balancers.
 	//
 	// +optional
 	slowStart?: null | #SlowStart @go(SlowStart,*SlowStart)
+
+	// ZoneAware defines the configuration related to the distribution of requests between locality zones.
+	//
+	// +optional
+	zoneAware?: null | #ZoneAware @go(ZoneAware,*ZoneAware)
 }
 
 // LoadBalancerType specifies the types of LoadBalancer.
-// +kubebuilder:validation:Enum=ConsistentHash;LeastRequest;Random;RoundRobin
+// +kubebuilder:validation:Enum=ConsistentHash;LeastRequest;Random;RoundRobin;BackendUtilization;DynamicModule
 #LoadBalancerType: string // #enumLoadBalancerType
 
 #enumLoadBalancerType:
 	#ConsistentHashLoadBalancerType |
 	#LeastRequestLoadBalancerType |
 	#RandomLoadBalancerType |
-	#RoundRobinLoadBalancerType
+	#RoundRobinLoadBalancerType |
+	#BackendUtilizationLoadBalancerType |
+	#DynamicModuleLoadBalancerType
 
 // ConsistentHashLoadBalancerType load balancer policy.
 #ConsistentHashLoadBalancerType: #LoadBalancerType & "ConsistentHash"
@@ -58,30 +99,52 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // RoundRobinLoadBalancerType load balancer policy.
 #RoundRobinLoadBalancerType: #LoadBalancerType & "RoundRobin"
 
+// BackendUtilizationLoadBalancerType load balancer policy.
+#BackendUtilizationLoadBalancerType: #LoadBalancerType & "BackendUtilization"
+
+// DynamicModuleLoadBalancerType load balancer policy.
+// +notImplementedHide
+#DynamicModuleLoadBalancerType: #LoadBalancerType & "DynamicModule"
+
 // ConsistentHash defines the configuration related to the consistent hash
 // load balancer policy.
 // +union
 //
 // +kubebuilder:validation:XValidation:rule="self.type == 'Header' ? has(self.header) : !has(self.header)",message="If consistent hash type is header, the header field must be set."
+// +kubebuilder:validation:XValidation:rule="self.type == 'Headers' ? has(self.headers) : !has(self.headers)",message="If consistent hash type is headers, the headers field must be set."
 // +kubebuilder:validation:XValidation:rule="self.type == 'Cookie' ? has(self.cookie) : !has(self.cookie)",message="If consistent hash type is cookie, the cookie field must be set."
+// +kubebuilder:validation:XValidation:rule="self.type == 'QueryParams' ? has(self.queryParams) : !has(self.queryParams)",message="If consistent hash type is queryParams, the queryParams field must be set."
 #ConsistentHash: {
 	// ConsistentHashType defines the type of input to hash on. Valid Type values are
 	// "SourceIP",
 	// "Header",
+	// "Headers",
 	// "Cookie".
+	// "QueryParams".
 	//
 	// +unionDiscriminator
 	type: #ConsistentHashType @go(Type)
 
 	// Header configures the header hash policy when the consistent hash type is set to Header.
 	//
+	// Deprecated: use Headers instead
 	// +optional
 	header?: null | #Header @go(Header,*Header)
+
+	// Headers configures the header hash policy for each header, when the consistent hash type is set to Headers.
+	//
+	// +optional
+	headers?: [...#Header] @go(Headers,[]*Header)
 
 	// Cookie configures the cookie hash policy when the consistent hash type is set to Cookie.
 	//
 	// +optional
 	cookie?: null | #Cookie @go(Cookie,*Cookie)
+
+	// QueryParams configures the query parameter hash policy when the consistent hash type is set to QueryParams.
+	//
+	// +optional
+	queryParams?: [...#QueryParam] @go(QueryParams,[]*QueryParam)
 
 	// The table size for consistent hashing, must be prime number limited to 5000011.
 	//
@@ -99,6 +162,13 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	name: string @go(Name)
 }
 
+// QueryParam defines the query parameter name hashing configuration for consistent hash based
+// load balancing.
+#QueryParam: {
+	// Name of the query param to hash.
+	name: string @go(Name)
+}
+
 // Cookie defines the cookie hashing configuration for consistent hash based
 // load balancing.
 #Cookie: {
@@ -113,7 +183,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Max-Age attribute value.
 	//
 	// +optional
-	ttl?: null | metav1.#Duration @go(TTL,*metav1.Duration)
+	ttl?: null | gwapiv1.#Duration @go(TTL,*gwapiv1.Duration)
 
 	// Additional Attributes to set for the generated cookie.
 	//
@@ -121,23 +191,120 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	attributes?: {[string]: string} @go(Attributes,map[string]string)
 }
 
+// BackendUtilization defines configuration for Envoy's Backend Utilization policy.
+// It uses Open Resource Cost Application (ORCA) load metrics reported by endpoints to make load balancing decisions.
+// These metrics are typically sent by the backend service in response headers or trailers.
+//
+// The backend should report these metrics in header/trailer as one of the following formats:
+// - Binary: `endpoint-load-metrics-bin` with base64-encoded serialized `OrcaLoadReport` proto.
+// - JSON: `endpoint-load-metrics` with JSON-encoded `OrcaLoadReport` proto, e.g., `JSON {"cpu_utilization": 0.3}`.
+// - TEXT: `endpoint-load-metrics` with comma-separated key-value pairs, e.g., `TEXT cpu=0.3,mem=0.8`.
+//
+// By default, Envoy Gateway removes these ORCA response headers/trailers before sending the response to the client
+// (see KeepResponseHeaders). If you need the downstream client to see them, set KeepResponseHeaders to true.
+//
+// See Envoy proto: envoy.extensions.load_balancing_policies.client_side_weighted_round_robin.v3.ClientSideWeightedRoundRobin
+// See ORCA Load Report proto: xds.data.orca.v3.orca_load_report.proto
+#BackendUtilization: {
+	// A given endpoint must report load metrics continuously for at least this long before the endpoint weight will be used.
+	// Default is 10s.
+	// +optional
+	blackoutPeriod?: null | gwapiv1.#Duration @go(BlackoutPeriod,*gwapiv1.Duration)
+
+	// If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m.
+	// +optional
+	weightExpirationPeriod?: null | gwapiv1.#Duration @go(WeightExpirationPeriod,*gwapiv1.Duration)
+
+	// How often endpoint weights are recalculated. Values less than 100ms are capped at 100ms. Default 1s.
+	// +optional
+	weightUpdatePeriod?: null | gwapiv1.#Duration @go(WeightUpdatePeriod,*gwapiv1.Duration)
+
+	// ErrorUtilizationPenaltyPercent adjusts endpoint weights based on the error rate (eps/qps).
+	// This is expressed as a percentage-based integer where 100 represents 1.0, 150 represents 1.5, etc.
+	//
+	// For example:
+	// - 100 => 1.0x
+	// - 120 => 1.2x
+	// - 200 => 2.0x
+	//
+	// Must be non-negative.
+	// +kubebuilder:validation:Minimum=0
+	// +optional
+	errorUtilizationPenaltyPercent?: null | uint32 @go(ErrorUtilizationPenaltyPercent,*uint32)
+
+	// Metric names used to compute utilization if application_utilization is not set.
+	// For map fields in ORCA proto, use the form "<map_field>.<key>", e.g., "named_metrics.foo".
+	// +optional
+	metricNamesForComputingUtilization?: [...string] @go(MetricNamesForComputingUtilization,[]string)
+
+	// KeepResponseHeaders keeps the ORCA load report headers/trailers before sending the response to the client.
+	// Defaults to false.
+	// +optional
+	// +kubebuilder:default=false
+	keepResponseHeaders?: null | bool @go(KeepResponseHeaders,*bool)
+}
+
+// DynamicModuleLBPolicy configures a custom load balancing algorithm
+// implemented as a dynamic module (runtime-loaded shared library).
+// The module must be registered in the EnvoyProxy resource's dynamicModules allowlist.
+//
+// See https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/load_balancing_policies/dynamic_modules/v3/dynamic_modules.proto
+//
+// +notImplementedHide
+#DynamicModuleLBPolicy: {
+	// Name references a dynamic module registered in the EnvoyProxy resource's
+	// dynamicModules list. The referenced module must exist in the registry;
+	// otherwise, the policy will be rejected.
+	//
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=253
+	// +kubebuilder:validation:Pattern=`^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$`
+	name: string @go(Name)
+
+	// LBPolicyName identifies a specific load balancer implementation within
+	// the dynamic module. A single shared library can contain multiple LB
+	// policy implementations. This value is passed to the module's
+	// initialization function to select the appropriate implementation.
+	//
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=253
+	lbPolicyName: string @go(LBPolicyName)
+
+	// Config is optional configuration for the module's load balancer
+	// implementation. This is serialized and passed to the module's
+	// initialization function.
+	//
+	// +optional
+	config?: null | apiextensionsv1.#JSON @go(Config,*apiextensionsv1.JSON)
+}
+
 // ConsistentHashType defines the type of input to hash on.
-// +kubebuilder:validation:Enum=SourceIP;Header;Cookie
+// +kubebuilder:validation:Enum=SourceIP;Header;Headers;Cookie;QueryParams
 #ConsistentHashType: string // #enumConsistentHashType
 
 #enumConsistentHashType:
 	#SourceIPConsistentHashType |
 	#HeaderConsistentHashType |
-	#CookieConsistentHashType
+	#HeadersConsistentHashType |
+	#CookieConsistentHashType |
+	#QueryParamsConsistentHashType
 
 // SourceIPConsistentHashType hashes based on the source IP address.
 #SourceIPConsistentHashType: #ConsistentHashType & "SourceIP"
 
 // HeaderConsistentHashType hashes based on a request header.
+//
+// Deprecated: use HeadersConsistentHashType instead
 #HeaderConsistentHashType: #ConsistentHashType & "Header"
+
+// HeadersConsistentHashType hashes based on multiple request headers.
+#HeadersConsistentHashType: #ConsistentHashType & "Headers"
 
 // CookieConsistentHashType hashes based on a cookie.
 #CookieConsistentHashType: #ConsistentHashType & "Cookie"
+
+// QueryParamsConsistentHashType hashes based on a multiple query parameter.
+#QueryParamsConsistentHashType: #ConsistentHashType & "QueryParams"
 
 // SlowStart defines the configuration related to the slow start load balancer policy.
 #SlowStart: {
@@ -146,5 +313,89 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Currently only supports linear growth of traffic. For additional details,
 	// see https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/cluster/v3/cluster.proto#config-cluster-v3-cluster-slowstartconfig
 	// +kubebuilder:validation:Required
-	window?: null | metav1.#Duration @go(Window,*metav1.Duration)
+	window?: null | gwapiv1.#Duration @go(Window,*gwapiv1.Duration)
+}
+
+// ZoneAware defines the configuration related to the distribution of requests between locality zones.
+#ZoneAware: {
+	// PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone.
+	//
+	// +optional
+	preferLocal?: null | #PreferLocalZone @go(PreferLocal,*PreferLocalZone)
+
+	// WeightedZones configures weight-based traffic distribution across locality zones.
+	// Traffic is distributed proportionally based on the sum of all zone weights.
+	//
+	// +optional
+	// +listType=map
+	// +listMapKey=zone
+	weightedZones?: [...#WeightedZoneConfig] @go(WeightedZones,[]WeightedZoneConfig)
+}
+
+// PreferLocalZone configures zone-aware routing to prefer sending traffic to the local locality zone.
+#PreferLocalZone: {
+	// ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
+	// which maintains equal distribution among upstream endpoints while sending as much traffic as possible locally.
+	//
+	// +optional
+	force?: null | #ForceLocalZone @go(Force,*ForceLocalZone)
+
+	// MinEndpointsThreshold is the minimum number of total upstream endpoints across all zones required to enable zone-aware routing.
+	//
+	// +optional
+	minEndpointsThreshold?: null | uint64 @go(MinEndpointsThreshold,*uint64)
+
+	// Configures percentage of requests that will be considered for zone aware routing if zone aware routing is configured. If not specified, Envoy defaults to 100%.
+	//
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=100
+	// +optional
+	percentageEnabled?: null | uint32 @go(PercentageEnabled,*uint32)
+}
+
+// ForceLocalZone defines override configuration for forcing all traffic to stay within the local zone instead of the default behavior
+// which maintains equal distribution among upstream endpoints while sending as much traffic as possible locally.
+#ForceLocalZone: {
+	// MinEndpointsInZoneThreshold is the minimum number of upstream endpoints in the local zone required to honor the forceLocalZone
+	// override. This is useful for protecting zones with fewer endpoints.
+	//
+	// +optional
+	minEndpointsInZoneThreshold?: null | uint32 @go(MinEndpointsInZoneThreshold,*uint32)
+}
+
+// WeightedZoneConfig defines the weight for a specific locality zone.
+#WeightedZoneConfig: {
+	// Zone specifies the topology zone this weight applies to.
+	// The value should match the topology.kubernetes.io/zone label
+	// of the nodes where endpoints are running.
+	// Zones not listed in the configuration receive a default weight of 1.
+	zone: string @go(Zone)
+
+	// Weight defines the weight for this locality.
+	// Higher values receive more traffic. The actual traffic distribution
+	// is proportional to this value relative to other localities.
+	weight: uint32 @go(Weight)
+}
+
+// EndpointOverride defines the configuration for endpoint override.
+// This allows endpoint picking to be implemented based on request headers or metadata.
+// It extracts selected override endpoints from the specified sources (request headers, metadata, etc.).
+// If no valid endpoint in the override list, then the configured load balancing policy is used as fallback.
+#EndpointOverride: {
+	// ExtractFrom defines the sources to extract endpoint override information from.
+	//
+	// +kubebuilder:validation:MinItems=1
+	// +kubebuilder:validation:MaxItems=10
+	extractFrom: [...#EndpointOverrideExtractFrom] @go(ExtractFrom,[]EndpointOverrideExtractFrom)
+}
+
+// EndpointOverrideExtractFrom defines a source to extract endpoint override information from.
+#EndpointOverrideExtractFrom: {
+	// Header defines the header to get the override endpoint addresses.
+	// The header value must specify at least one endpoint in `IP:Port` format or multiple endpoints in `IP:Port,IP:Port,...` format.
+	// For example `10.0.0.5:8080` or `[2600:4040:5204::1574:24ae]:80`.
+	// The IPv6 address is enclosed in square brackets.
+	//
+	// +optional
+	header?: null | string @go(Header,*string)
 }

@@ -18,7 +18,7 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	// see https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/jwt_authn_filter.html.
 	//
 	// +kubebuilder:validation:MinItems=1
-	// +kubebuilder:validation:MaxItems=4
+	// +kubebuilder:validation:MaxItems=16
 	providers: [...#JWTProvider] @go(Providers,[]JWTProvider)
 }
 
@@ -86,6 +86,14 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 }
 
 // RemoteJWKS defines how to fetch and cache JSON Web Key Sets (JWKS) from a remote HTTP/HTTPS endpoint.
+//
+// BackendRefs is used to specify the address of the Remote JWKS.
+// If the BackendRefs is not specified, the URI field is used to determine the address of the Remote JWKS.
+//
+// TLS configuration can be specified in a BackendTLSConfig resource and target the BackendRefs.
+//
+// Other settings for the connection to the remote JWKS can be specified in the BackendSettings resource.
+//
 // +kubebuilder:validation:XValidation:rule="!has(self.backendRef)",message="BackendRefs must be used, backendRef is not supported."
 // +kubebuilder:validation:XValidation:rule="has(self.backendSettings)? (has(self.backendSettings.retry)?(has(self.backendSettings.retry.perRetry)? !has(self.backendSettings.retry.perRetry.timeout):true):true):true",message="Retry timeout is not supported."
 // +kubebuilder:validation:XValidation:rule="has(self.backendSettings)? (has(self.backendSettings.retry)?(has(self.backendSettings.retry.retryOn)? !has(self.backendSettings.retry.retryOn.httpStatusCodes):true):true):true",message="HTTPStatusCodes is not supported."
@@ -98,6 +106,10 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=253
 	uri: string @go(URI)
+
+	// +kubebuilder:default="300s"
+	// +optional
+	cacheDuration?: null | gwapiv1.#Duration @go(CacheDuration,*gwapiv1.Duration)
 }
 
 // LocalJWKSType defines the types of values for Local JWKS.

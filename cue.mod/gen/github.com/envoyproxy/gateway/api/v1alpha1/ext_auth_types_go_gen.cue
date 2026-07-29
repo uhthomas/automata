@@ -4,6 +4,8 @@
 
 package v1alpha1
 
+import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
+
 // ExtAuth defines the configuration for External Authorization.
 //
 // +kubebuilder:validation:XValidation:rule="(has(self.grpc) || has(self.http))",message="one of grpc or http must be specified"
@@ -36,11 +38,18 @@ package v1alpha1
 	// +optional
 	bodyToExtAuth?: null | #BodyToExtAuth @go(BodyToExtAuth,*BodyToExtAuth)
 
+	// Timeout defines the timeout for requests to the external authorization service.
+	// If not specified, defaults to 10 seconds.
+	// +optional
+	timeout?: null | gwapiv1.#Duration @go(Timeout,*gwapiv1.Duration)
+
 	// FailOpen is a switch used to control the behavior when a response from the External Authorization service cannot be obtained.
 	// If FailOpen is set to true, the system allows the traffic to pass through.
 	// Otherwise, if it is set to false or not set (defaulting to false),
 	// the system blocks the traffic and returns a HTTP 5xx error, reflecting a fail-closed approach.
 	// This setting determines whether to prioritize accessibility over strict security in case of authorization service failure.
+	//
+	// If set to true, the External Authorization will also be bypassed if its configuration is invalid.
 	//
 	// +optional
 	// +kubebuilder:default=false
@@ -53,14 +62,106 @@ package v1alpha1
 	//
 	// +optional
 	recomputeRoute?: null | bool @go(RecomputeRoute,*bool)
+
+	// IncludeRouteMetadata sends Envoy Gateway's built-in route metadata to the
+	// external authorization service as context.
+	//
+	// This includes Envoy Gateway's built-in metadata for the selected route in
+	// the "envoy-gateway" metadata namespace.
+	//
+	// The metadata is exposed under the "resources" field as a list of route
+	// resource objects. For example:
+	//
+	// envoy-gateway:
+	//   resources:
+	//   - kind: HTTPRoute
+	//     name: backend
+	//     namespace: default
+	//     annotations:
+	//       foo: bar
+	//
+	// The resource object may include fields such as kind, namespace, name,
+	// sectionName, and supported route annotations.
+	//
+	// +optional
+	includeRouteMetadata?: null | bool @go(IncludeRouteMetadata,*bool)
+
+	// ContextExtensions are analogous to http_request.headers, however these
+	// contents will not be sent to the upstream server. This provides an
+	// extension mechanism for sending additional information to the auth server
+	// without modifying the proto definition. It maps to the internal opaque
+	// context in the filter chain.
+	//
+	// +optional
+	// +patchMergeKey=name
+	// +patchStrategy=merge
+	// +listType=map
+	// +listMapKey=name
+	contextExtensions?: [...#ContextExtension] @go(ContextExtensions,[]*ContextExtension)
+
+	// Sets the HTTP status that is returned when the authorization service returns an error
+	// or cannot be reached. Defaults to 403 Forbidden.
+	// Only 4xx and 5xx status codes are supported.
+	//
+	// +optional
+	// +kubebuilder:validation:Enum=400;401;402;403;404;405;406;407;408;409;410;411;412;413;414;415;416;417;421;422;423;424;426;428;429;431;500;501;502;503;504;505;506;507;508;510;511
+	statusOnError?: null | int32 @go(StatusOnError,*int32)
+}
+
+// ContextExtensionValueType defines the types of values for ContextExtension supported by Envoy Gateway.
+//
+// +kubebuilder:validation:Enum=Value;ValueRef
+#ContextExtensionValueType: string // #enumContextExtensionValueType
+
+#enumContextExtensionValueType:
+	#ContextExtensionValueTypeValue |
+	#ContextExtensionValueTypeValueRef
+
+// ContextExtensionValueTypeValue defines the "Value" ContextExtension type.
+#ContextExtensionValueTypeValue: #ContextExtensionValueType & "Value"
+
+// ContextExtensionValueTypeValueRef defines the "ValueRef" ContextExtension type.
+#ContextExtensionValueTypeValueRef: #ContextExtensionValueType & "ValueRef"
+
+// ContextExtension is analogous to http_request.headers, however these
+// contents will not be sent to the upstream server. This provides an
+// extension mechanism for sending additional information to the auth server
+// without modifying the proto definition. It maps to the internal opaque
+// context in the filter chain.
+//
+// +kubebuilder:validation:XValidation:rule="(self.type == 'Value' && has(self.value) && !has(self.valueRef)) || (self.type == 'ValueRef' && !has(self.value) && has(self.valueRef))",message="Exactly one of value or valueRef must be set with correct type."
+#ContextExtension: {
+	// Name of the context extension.
+	name: string @go(Name)
+
+	// Type is the type of method to use to read the ContextExtension value.
+	// Valid values are Value and ValueRef, default is Value.
+	//
+	// +kubebuilder:default=Value
+	// +unionDiscriminator
+	// +required
+	type: #ContextExtensionValueType @go(Type)
+
+	// Value of the context extension.
+	//
+	// +optional
+	// +unionMember
+	value?: null | string @go(Value,*string)
+
+	// ValueRef for the context extension's value.
+	//
+	// +kubebuilder:validation:XValidation:rule="self.kind in ['ConfigMap', 'Secret'] && self.group in ['', 'v1']",message="Only a reference to an object of kind ConfigMap or Secret belonging to default v1 API group is supported."
+	// +optional
+	// +unionMember
+	valueRef?: null | #LocalObjectKeyReference @go(ValueRef,*LocalObjectKeyReference)
 }
 
 // GRPCExtAuthService defines the gRPC External Authorization service
 // The authorization request message is defined in
 // https://www.envoyproxy.io/docs/envoy/latest/api-v3/service/auth/v3/external_auth.proto
 // +kubebuilder:validation:XValidation:message="backendRef or backendRefs needs to be set",rule="has(self.backendRef) || self.backendRefs.size() > 0"
-// +kubebuilder:validation:XValidation:message="BackendRefs only supports Service and Backend kind.",rule="has(self.backendRefs) ? self.backendRefs.all(f, f.kind == 'Service' || f.kind == 'Backend') : true"
-// +kubebuilder:validation:XValidation:message="BackendRefs only supports Core and gateway.envoyproxy.io group.",rule="has(self.backendRefs) ? (self.backendRefs.all(f, f.group == \"\" || f.group == 'gateway.envoyproxy.io')) : true"
+// +kubebuilder:validation:XValidation:message="BackendRefs only supports Service, ServiceImport, and Backend kind.",rule="has(self.backendRefs) ? self.backendRefs.all(f, f.kind == 'Service' || f.kind == 'ServiceImport' || f.kind == 'Backend') : true"
+// +kubebuilder:validation:XValidation:message="BackendRefs only supports Core, multicluster.x-k8s.io, and gateway.envoyproxy.io groups.",rule="has(self.backendRefs) ? (self.backendRefs.all(f, f.group == \"\" || f.group == 'multicluster.x-k8s.io' || f.group == 'gateway.envoyproxy.io')) : true"
 #GRPCExtAuthService: {
 	#BackendCluster
 }
@@ -68,8 +169,9 @@ package v1alpha1
 // HTTPExtAuthService defines the HTTP External Authorization service
 //
 // +kubebuilder:validation:XValidation:message="backendRef or backendRefs needs to be set",rule="has(self.backendRef) || self.backendRefs.size() > 0"
-// +kubebuilder:validation:XValidation:message="BackendRefs only supports Service and Backend kind.",rule="has(self.backendRefs) ? self.backendRefs.all(f, f.kind == 'Service' || f.kind == 'Backend') : true"
-// +kubebuilder:validation:XValidation:message="BackendRefs only supports Core and gateway.envoyproxy.io group.",rule="has(self.backendRefs) ? (self.backendRefs.all(f, f.group == \"\" || f.group == 'gateway.envoyproxy.io')) : true"
+// +kubebuilder:validation:XValidation:message="BackendRefs only supports Service, ServiceImport, and Backend kind.",rule="has(self.backendRefs) ? self.backendRefs.all(f, f.kind == 'Service' || f.kind == 'ServiceImport' || f.kind == 'Backend') : true"
+// +kubebuilder:validation:XValidation:message="BackendRefs only supports Core, multicluster.x-k8s.io, and gateway.envoyproxy.io groups.",rule="has(self.backendRefs) ? (self.backendRefs.all(f, f.group == \"\" || f.group == 'multicluster.x-k8s.io' || f.group == 'gateway.envoyproxy.io')) : true"
+// +kubebuilder:validation:XValidation:message="only one of path or pathOverride can be specified",rule="!(has(self.path) && has(self.pathOverride))"
 #HTTPExtAuthService: {
 	#BackendCluster
 
@@ -81,8 +183,18 @@ package v1alpha1
 	// For example, if the original request path is "/hello", and the path specified here is "/auth",
 	// then the path of the authorization request will be "/auth/hello". If the path is not specified,
 	// the path of the authorization request will be "/hello".
+	// Only one of Path or PathOverride can be set.
 	// +optional
 	path?: null | string @go(Path,*string)
+
+	// PathOverride replaces the original request path in the authorization request.
+	// If set, the path will be overridden to this value during authorization.
+	// For example, if the original request path is "/hello", and PathOverride is set to "/auth",
+	// then the path of the authorization request will be "/auth".
+	// Only one of Path or PathOverride can be set.
+	//
+	// +optional
+	pathOverride?: null | string @go(PathOverride,*string)
 
 	// HeadersToBackend are the authorization response headers that will be added
 	// to the original client request before sending it to the backend server.

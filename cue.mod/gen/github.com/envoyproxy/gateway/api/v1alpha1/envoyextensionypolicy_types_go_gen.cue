@@ -6,13 +6,15 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	gwapiv1a2 "sigs.k8s.io/gateway-api/apis/v1alpha2"
+	gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 // KindEnvoyExtensionPolicy is the name of the EnvoyExtensionPolicy kind.
 #KindEnvoyExtensionPolicy: "EnvoyExtensionPolicy"
 
 // EnvoyExtensionPolicy allows the user to configure various envoy extensibility options for the Gateway.
+// +genclient
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 #EnvoyExtensionPolicy: {
 	metav1.#TypeMeta
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta)
@@ -21,7 +23,7 @@ import (
 	spec: #EnvoyExtensionPolicySpec @go(Spec)
 
 	// Status defines the current status of EnvoyExtensionPolicy.
-	status?: gwapiv1a2.#PolicyStatus @go(Status)
+	status?: gwapiv1.#PolicyStatus @go(Status)
 }
 
 // EnvoyExtensionPolicySpec defines the desired state of EnvoyExtensionPolicy.
@@ -29,10 +31,8 @@ import (
 // +kubebuilder:validation:XValidation:rule="(has(self.targetRef) && !has(self.targetRefs)) || (!has(self.targetRef) && has(self.targetRefs)) || (has(self.targetSelectors) && self.targetSelectors.size() > 0) ", message="either targetRef or targetRefs must be used"
 // +kubebuilder:validation:XValidation:rule="has(self.targetRef) ? self.targetRef.group == 'gateway.networking.k8s.io' : true", message="this policy can only have a targetRef.group of gateway.networking.k8s.io"
 // +kubebuilder:validation:XValidation:rule="has(self.targetRef) ? self.targetRef.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute'] : true", message="this policy can only have a targetRef.kind of Gateway/HTTPRoute/GRPCRoute/TCPRoute/UDPRoute/TLSRoute"
-// +kubebuilder:validation:XValidation:rule="has(self.targetRef) ? !has(self.targetRef.sectionName) : true",message="this policy does not yet support the sectionName field"
 // +kubebuilder:validation:XValidation:rule="has(self.targetRefs) ? self.targetRefs.all(ref, ref.group == 'gateway.networking.k8s.io') : true ", message="this policy can only have a targetRefs[*].group of gateway.networking.k8s.io"
 // +kubebuilder:validation:XValidation:rule="has(self.targetRefs) ? self.targetRefs.all(ref, ref.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute']) : true ", message="this policy can only have a targetRefs[*].kind of Gateway/HTTPRoute/GRPCRoute/TCPRoute/UDPRoute/TLSRoute"
-// +kubebuilder:validation:XValidation:rule="has(self.targetRefs) ? self.targetRefs.all(ref, !has(ref.sectionName)) : true",message="this policy does not yet support the sectionName field"
 #EnvoyExtensionPolicySpec: {
 	#PolicyTargetReferences
 
@@ -57,9 +57,21 @@ import (
 	// +kubebuilder:validation:MaxItems=16
 	// +optional
 	lua?: [...#Lua] @go(Lua,[]Lua)
+
+	// DynamicModule is an ordered list of dynamic module HTTP filters
+	// that should be added to the envoy filter chain.
+	// Each module must be registered in the EnvoyProxy resource's dynamicModules
+	// allowlist.
+	// Order matters, as the filters will be loaded in the order they are
+	// defined in this list.
+	//
+	// +kubebuilder:validation:MaxItems=16
+	// +optional
+	dynamicModule?: [...#DynamicModule] @go(DynamicModule,[]DynamicModule)
 }
 
 // EnvoyExtensionPolicyList contains a list of EnvoyExtensionPolicy resources.
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 #EnvoyExtensionPolicyList: {
 	metav1.#TypeMeta
 	metadata?: metav1.#ListMeta @go(ListMeta)

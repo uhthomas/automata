@@ -9,6 +9,8 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 // ProxyTracing defines the tracing configuration for a proxy.
 // +kubebuilder:validation:XValidation:message="only one of SamplingRate or SamplingFraction can be specified",rule="!(has(self.samplingRate) && has(self.samplingFraction))"
 #ProxyTracing: {
+	#Tracing
+
 	// SamplingRate controls the rate at which traffic will be
 	// selected for tracing if no prior sampling decision has been made.
 	// Defaults to 100, valid values [0-100]. 100 indicates 100% sampling.
@@ -20,21 +22,6 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	// +kubebuilder:validation:Maximum=100
 	// +optional
 	samplingRate?: null | uint32 @go(SamplingRate,*uint32)
-
-	// SamplingFraction represents the fraction of requests that should be
-	// selected for tracing if no prior sampling decision has been made.
-	//
-	// Only one of SamplingRate or SamplingFraction may be specified.
-	// If neither field is specified, all requests will be sampled.
-	//
-	// +optional
-	samplingFraction?: null | gwapiv1.#Fraction @go(SamplingFraction,*gwapiv1.Fraction)
-
-	// CustomTags defines the custom tags to add to each span.
-	// If provider is kubernetes, pod name and namespace are added by default.
-	//
-	// +optional
-	customTags?: {[string]: #CustomTag} @go(CustomTags,map[string]CustomTag)
 
 	// Provider defines the tracing provider.
 	provider: #TracingProvider @go(Provider)
@@ -58,6 +45,7 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 // +kubebuilder:validation:XValidation:message="BackendRefs must be used, backendRef is not supported.",rule="!has(self.backendRef)"
 // +kubebuilder:validation:XValidation:message="BackendRefs only support Service and Backend kind.",rule="has(self.backendRefs) ? self.backendRefs.all(f, f.kind == 'Service' || f.kind == 'Backend') : true"
 // +kubebuilder:validation:XValidation:message="BackendRefs only support Core and gateway.envoyproxy.io group.",rule="has(self.backendRefs) ? (self.backendRefs.all(f, f.group == \"\" || f.group == 'gateway.envoyproxy.io')) : true"
+// +kubebuilder:validation:XValidation:message="openTelemetry can only be used with type OpenTelemetry",rule="has(self.openTelemetry) ? self.type == 'OpenTelemetry' : true"
 #TracingProvider: {
 	#BackendCluster
 
@@ -67,12 +55,14 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	type: #TracingProviderType @go(Type)
 
 	// Host define the provider service hostname.
+	//
 	// Deprecated: Use BackendRefs instead.
 	//
 	// +optional
 	host?: null | string @go(Host,*string)
 
 	// Port defines the port the provider service is exposed on.
+	//
 	// Deprecated: Use BackendRefs instead.
 	//
 	// +optional
@@ -80,9 +70,24 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	// +kubebuilder:default=4317
 	port?: int32 @go(Port)
 
+	// ServiceName defines the service name to use in tracing configuration.
+	// If not set, Envoy Gateway will use a default service name set as
+	// "name.namespace" (e.g., "my-gateway.default").
+	// Note: This field is only supported for OpenTelemetry and Datadog tracing providers.
+	// For Zipkin, the service name in traces is always derived from the Envoy --service-cluster flag
+	// (typically "namespace/name" format). Setting this field has no effect for Zipkin.
+	//
+	// +optional
+	// +kubebuilder:validation:XValidation:message="serviceName cannot be empty if provided",rule="self != \"\""
+	serviceName?: null | string @go(ServiceName,*string)
+
 	// Zipkin defines the Zipkin tracing provider configuration
 	// +optional
 	zipkin?: null | #ZipkinTracingProvider @go(Zipkin,*ZipkinTracingProvider)
+
+	// OpenTelemetry defines the OpenTelemetry tracing provider configuration
+	// +optional
+	openTelemetry?: null | #OpenTelemetryTracingProvider @go(OpenTelemetry,*OpenTelemetryTracingProvider)
 }
 
 #CustomTagType: string // #enumCustomTagType
@@ -159,4 +164,69 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	// client and server spans sharing the same span context should be disabled.
 	// +optional
 	disableSharedSpanContext?: null | bool @go(DisableSharedSpanContext,*bool)
+}
+
+// OpenTelemetryTracingProvider defines the OpenTelemetry tracing provider configuration.
+#OpenTelemetryTracingProvider: {
+	// Headers is a list of additional headers to send with OTLP export requests.
+	// These headers are added as gRPC initial metadata for the OTLP gRPC service.
+	// +optional
+	// +kubebuilder:validation:MinItems=1
+	// +kubebuilder:validation:MaxItems=32
+	headers?: [...gwapiv1.#HTTPHeader] @go(Headers,[]gwapiv1.HTTPHeader)
+
+	// ResourceAttributes is a set of labels that describe the source of traces.
+	// It's recommended to follow semantic conventions: https://opentelemetry.io/docs/reference/specification/resource/semantic_conventions/
+	// +optional
+	resourceAttributes?: {[string]: string} @go(ResourceAttributes,map[string]string)
+
+	// Sampler controls whether spans are exported.
+	// +optional
+	sampler?: null | #OTelSampler @go(Sampler,*OTelSampler)
+}
+
+// OTelSamplerType specifies the sampler type.
+// Values correspond to the OTEL_TRACES_SAMPLER environment variable.
+// +kubebuilder:validation:Enum=AlwaysOn;AlwaysOff;TraceIdRatio;ParentBasedAlwaysOn;ParentBasedAlwaysOff;ParentBasedTraceIdRatio
+#OTelSamplerType: string // #enumOTelSamplerType
+
+#enumOTelSamplerType:
+	#OTelSamplerTypeAlwaysOn |
+	#OTelSamplerTypeAlwaysOff |
+	#OTelSamplerTypeTraceIDRatio |
+	#OTelSamplerTypeParentBasedAlwaysOn |
+	#OTelSamplerTypeParentBasedAlwaysOff |
+	#OTelSamplerTypeParentBasedTraceIDRatio
+
+// OTelSamplerTypeAlwaysOn exports all spans.
+#OTelSamplerTypeAlwaysOn: #OTelSamplerType & "AlwaysOn"
+
+// OTelSamplerTypeAlwaysOff drops all spans.
+#OTelSamplerTypeAlwaysOff: #OTelSamplerType & "AlwaysOff"
+
+// OTelSamplerTypeTraceIDRatio exports a percentage of spans based on trace ID.
+#OTelSamplerTypeTraceIDRatio: #OTelSamplerType & "TraceIdRatio"
+
+// OTelSamplerTypeParentBasedAlwaysOn respects the parent span's sampling decision, sampling when no parent exists.
+#OTelSamplerTypeParentBasedAlwaysOn: #OTelSamplerType & "ParentBasedAlwaysOn"
+
+// OTelSamplerTypeParentBasedAlwaysOff respects the parent span's sampling decision, dropping when no parent exists.
+#OTelSamplerTypeParentBasedAlwaysOff: #OTelSamplerType & "ParentBasedAlwaysOff"
+
+// OTelSamplerTypeParentBasedTraceIDRatio respects the parent span's sampling decision, using trace ID ratio when no parent exists.
+#OTelSamplerTypeParentBasedTraceIDRatio: #OTelSamplerType & "ParentBasedTraceIdRatio"
+
+// OTelSampler configures the OpenTelemetry sampler.
+// Type maps to OTEL_TRACES_SAMPLER.
+//
+// +kubebuilder:validation:XValidation:message="samplingPercentage can only be set with TraceIdRatio or ParentBasedTraceIdRatio",rule="has(self.samplingPercentage) ? (self.type == 'TraceIdRatio' || self.type == 'ParentBasedTraceIdRatio') : true"
+#OTelSampler: {
+	// Type is the sampler type.
+	// +kubebuilder:default=AlwaysOn
+	type: #OTelSamplerType @go(Type)
+
+	// SamplingPercentage controls the percentage of traces to sample.
+	// Defaults to 100% when not set.
+	// +optional
+	samplingPercentage?: null | gwapiv1.#Fraction @go(SamplingPercentage,*gwapiv1.Fraction)
 }

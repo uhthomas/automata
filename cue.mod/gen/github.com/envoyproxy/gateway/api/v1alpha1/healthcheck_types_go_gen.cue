@@ -4,7 +4,7 @@
 
 package v1alpha1
 
-import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 
 // HealthCheck configuration to decide which endpoints
 // are healthy and can be used for routing.
@@ -38,10 +38,9 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	// Interval defines the time between passive health checks.
 	//
-	// +kubebuilder:validation:Format=duration
 	// +kubebuilder:default="3s"
 	// +optional
-	interval?: null | metav1.#Duration @go(Interval,*metav1.Duration)
+	interval?: null | gwapiv1.#Duration @go(Interval,*gwapiv1.Duration)
 
 	// ConsecutiveLocalOriginFailures sets the number of consecutive local origin failures triggering ejection.
 	// Parameter takes effect only when split_external_local_origin_errors is set to true.
@@ -52,7 +51,6 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	// ConsecutiveGatewayErrors sets the number of consecutive gateway errors triggering ejection.
 	//
-	// +kubebuilder:default=0
 	// +optional
 	consecutiveGatewayErrors?: null | uint32 @go(ConsecutiveGatewayErrors,*uint32)
 
@@ -64,16 +62,33 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	// BaseEjectionTime defines the base duration for which a host will be ejected on consecutive failures.
 	//
-	// +kubebuilder:validation:Format=duration
 	// +kubebuilder:default="30s"
 	// +optional
-	baseEjectionTime?: null | metav1.#Duration @go(BaseEjectionTime,*metav1.Duration)
+	baseEjectionTime?: null | gwapiv1.#Duration @go(BaseEjectionTime,*gwapiv1.Duration)
 
 	// MaxEjectionPercent sets the maximum percentage of hosts in a cluster that can be ejected.
 	//
 	// +kubebuilder:default=10
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=100
 	// +optional
 	maxEjectionPercent?: null | int32 @go(MaxEjectionPercent,*int32)
+
+	// FailurePercentageThreshold sets the failure percentage threshold for outlier detection.
+	// If the failure percentage of a given host is greater than or equal to this value, it will be ejected.
+	// Defaults to 85.
+	//
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=100
+	// +optional
+	failurePercentageThreshold?: null | uint32 @go(FailurePercentageThreshold,*uint32)
+
+	// AlwaysEjectOneEndpoint defines whether at least one host should be ejected,
+	// regardless of MaxEjectionPercent.
+	//
+	// +kubebuilder:default=false
+	// +optional
+	alwaysEjectOneEndpoint?: null | bool @go(AlwaysEjectOneEndpoint,*bool)
 }
 
 // ActiveHealthCheck defines the active health check configuration.
@@ -86,19 +101,26 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 #ActiveHealthCheck: {
 	// Timeout defines the time to wait for a health check response.
 	//
-	// +kubebuilder:validation:Format=duration
 	// +kubebuilder:default="1s"
 	// +optional
-	timeout?: null | metav1.#Duration @go(Timeout,*metav1.Duration)
+	timeout?: null | gwapiv1.#Duration @go(Timeout,*gwapiv1.Duration)
 
 	// Interval defines the time between active health checks.
 	//
-	// +kubebuilder:validation:Format=duration
 	// +kubebuilder:default="3s"
 	// +optional
-	interval?: null | metav1.#Duration @go(Interval,*metav1.Duration)
+	interval?: null | gwapiv1.#Duration @go(Interval,*gwapiv1.Duration)
+
+	// InitialJitter defines the maximum time Envoy will wait before the first health check.
+	// Envoy will randomly select a value between 0 and the initial jitter value.
+	//
+	// +optional
+	initialJitter?: null | gwapiv1.#Duration @go(InitialJitter,*gwapiv1.Duration)
 
 	// UnhealthyThreshold defines the number of unhealthy health checks required before a backend host is marked unhealthy.
+	// Without RetriableStatuses configured, any health check failure results in the host being immediately
+	// considered unhealthy. When RetriableStatuses is set, health checks returning those statuses are retried
+	// up to this threshold before the host is marked unhealthy.
 	//
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:default=3
@@ -131,6 +153,12 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// It's optional, and can only be used if the specified type is GRPC.
 	// +optional
 	grpc?: null | #GRPCActiveHealthChecker @go(GRPC,*GRPCActiveHealthChecker)
+
+	// Overrides defines the configuration of the overriding health check settings for all endpoints
+	// in the backend cluster. This allows customization of port and other settings that may differ
+	// from the main service configuration.
+	// +optional
+	overrides?: null | #HealthCheckOverrides @go(Overrides,*HealthCheckOverrides)
 }
 
 // ActiveHealthCheckerType is the type of health checker.
@@ -153,6 +181,16 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 // HTTPActiveHealthChecker defines the settings of http health check.
 #HTTPActiveHealthChecker: {
+	// Hostname defines the HTTP Host header used for active HTTP health checks.
+	// Host selection uses this order: this field, the associated Backend endpoint
+	// hostname if available, then the effective Route hostname.
+	//
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=253
+	// +kubebuilder:validation:Pattern=`^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$`
+	// +optional
+	hostname?: null | string @go(Hostname,*string)
+
 	// Path defines the HTTP path that will be requested during health checking.
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=1024
@@ -167,6 +205,13 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Defaults to 200 only
 	// +optional
 	expectedStatuses?: [...#HTTPStatus] @go(ExpectedStatuses,[]HTTPStatus)
+
+	// RetriableStatuses defines a list of HTTP response statuses considered retriable.
+	// Responses matching these statuses count towards the unhealthy threshold but
+	// do not result in the host being considered immediately unhealthy.
+	// The expected statuses take precedence for any range overlaps with this field.
+	// +optional
+	retriableStatuses?: [...#HTTPStatus] @go(RetriableStatuses,[]HTTPStatus)
 
 	// ExpectedResponse defines a list of HTTP expected responses to match.
 	// +optional
@@ -191,6 +236,19 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// server and not to a specific service.
 	// +optional
 	service?: null | string @go(Service,*string)
+}
+
+// HealthCheckOverrides allows overriding default health check behavior for specific use cases.
+#HealthCheckOverrides: {
+	// Port overrides the health check port.
+	// If not set, the endpoint's serving port is used for health checks.
+	// This is useful when health checks are served on a different port than
+	// the main service port (e.g., port 443 for service, port 9090 for health checks).
+	//
+	// +optional
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=65535
+	port?: int32 @go(Port)
 }
 
 // ActiveHealthCheckPayloadType is the type of the payload.

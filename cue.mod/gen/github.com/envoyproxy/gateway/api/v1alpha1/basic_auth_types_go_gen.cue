@@ -20,8 +20,6 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	// Right now, only SHA hash algorithm is supported.
 	// Reference to https://httpd.apache.org/docs/2.4/programs/htpasswd.html
 	// for more details.
-	//
-	// Note: The secret must be in the same namespace as the SecurityPolicy.
 	users: gwapiv1.#SecretObjectReference @go(Users)
 
 	// This field specifies the header name to forward a successfully authenticated user to

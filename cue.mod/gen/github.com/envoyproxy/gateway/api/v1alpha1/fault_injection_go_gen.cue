@@ -4,7 +4,7 @@
 
 package v1alpha1
 
-import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 
 // FaultInjection defines the fault injection policy to be applied. This configuration can be used to
 // inject delays and abort requests to mimic failure scenarios such as service failures and overloads
@@ -28,7 +28,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// FixedDelay specifies the fixed delay duration
 	//
 	// +required
-	fixedDelay?: null | metav1.#Duration @go(FixedDelay,*metav1.Duration)
+	fixedDelay: gwapiv1.#Duration @go(FixedDelay,*gwapiv1.Duration)
 
 	// Percentage specifies the percentage of requests to be delayed. Default 100%, if set 0, no requests will be delayed. Accuracy to 0.0001%.
 	// +optional
@@ -52,6 +52,8 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// GrpcStatus specifies the GRPC status code to be returned
 	//
 	// +optional
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=16
 	grpcStatus?: null | int32 @go(GrpcStatus,*int32)
 
 	// Percentage specifies the percentage of requests to be aborted. Default 100%, if set 0, no requests will be aborted. Accuracy to 0.0001%.

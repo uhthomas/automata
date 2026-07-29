@@ -4,6 +4,8 @@
 
 package v1alpha1
 
+import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
+
 #MetricSinkType: string // #enumMetricSinkType
 
 #enumMetricSinkType:
@@ -43,6 +45,31 @@ package v1alpha1
 	//
 	// +optional
 	enableRequestResponseSizesStats?: null | bool @go(EnableRequestResponseSizesStats,*bool)
+
+	// EnableGRPCStats enables the gRPC stats filter on listeners.
+	// This is enabled by default for GRPCRoute and opt-in for HTTPRoute.
+	// In general, gRPC traffic should be handled via GRPCRoute, but there are cases where
+	// users want to route gRPC using HTTPRoute for its richer matching capabilities.
+	// Therefore, we enable this behavior only when it is explicitly opted in.
+	//
+	// +optional
+	enableGRPCStats?: null | bool @go(EnableGRPCStats,*bool)
+
+	// ClusterStatName defines the value of cluster alt_stat_name, determining how cluster stats are named.
+	// For more details, see envoy docs: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/cluster/v3/cluster.proto.html
+	// The supported operators for this pattern are:
+	// `%ROUTE_NAME%`: name of Gateway API xRoute resource
+	// `%ROUTE_NAMESPACE%`: namespace of Gateway API xRoute resource
+	// `%ROUTE_KIND%`: kind of Gateway API xRoute resource
+	// `%ROUTE_RULE_NAME%`: name of the Gateway API xRoute section
+	// `%ROUTE_RULE_NUMBER%`: name of the Gateway API xRoute section
+	// `%BACKEND_REFS%`: names of all backends referenced in `<NAMESPACE>/<NAME>|<NAMESPACE>/<NAME>|...` format
+	// Only xDS Clusters created for HTTPRoute and GRPCRoute are currently supported.
+	// Default: `%ROUTE_KIND%/%ROUTE_NAMESPACE%/%ROUTE_NAME%/rule/%ROUTE_RULE_NUMBER%`
+	// Example: `httproute/my-ns/my-route/rule/0`
+	//
+	// +optional
+	clusterStatName?: null | string @go(ClusterStatName,*string)
 }
 
 // ProxyMetricSink defines the sink of metrics.
@@ -74,12 +101,14 @@ package v1alpha1
 	#BackendCluster
 
 	// Host define the service hostname.
+	//
 	// Deprecated: Use BackendRefs instead.
 	//
 	// +optional
 	host?: null | string @go(Host,*string)
 
 	// Port defines the port the service is exposed on.
+	//
 	// Deprecated: Use BackendRefs instead.
 	//
 	// +optional
@@ -87,6 +116,31 @@ package v1alpha1
 	// +kubebuilder:validation:Maximum=65535
 	// +kubebuilder:default=4317
 	port?: int32 @go(Port)
+
+	// ReportCountersAsDeltas configures the OpenTelemetry sink to report
+	// counters as delta temporality instead of cumulative.
+	//
+	// +optional
+	reportCountersAsDeltas?: null | bool @go(ReportCountersAsDeltas,*bool)
+
+	// ReportHistogramsAsDeltas configures the OpenTelemetry sink to report
+	// histograms as delta temporality instead of cumulative.
+	// Required for backends like Elastic that drop cumulative histograms.
+	//
+	// +optional
+	reportHistogramsAsDeltas?: null | bool @go(ReportHistogramsAsDeltas,*bool)
+
+	// Headers is a list of additional headers to send with OTLP export requests.
+	// These headers are added as gRPC initial metadata for the OTLP gRPC service.
+	// +optional
+	// +kubebuilder:validation:MinItems=1
+	// +kubebuilder:validation:MaxItems=32
+	headers?: [...gwapiv1.#HTTPHeader] @go(Headers,[]gwapiv1.HTTPHeader)
+
+	// ResourceAttributes is a set of labels that describe the source of metrics.
+	// It's recommended to follow semantic conventions: https://opentelemetry.io/docs/reference/specification/resource/semantic_conventions/
+	// +optional
+	resourceAttributes?: {[string]: string} @go(ResourceAttributes,map[string]string)
 }
 
 #ProxyPrometheusProvider: {

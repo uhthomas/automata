@@ -4,14 +4,14 @@
 
 package v1alpha1
 
-import (
-	gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-)
+import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 
 #OIDCClientSecretKey: "client-secret"
+#OIDCClientIDKey:     "client-id"
 
 // OIDC defines the configuration for the OpenID Connect (OIDC) authentication.
+// +kubebuilder:validation:XValidation:rule="(has(self.clientID) && !has(self.clientIDRef)) || (!has(self.clientID) && has(self.clientIDRef))", message="only one of clientID or clientIDRef must be set"
+// +kubebuilder:validation:XValidation:rule="!(has(self.forwardAccessToken) && self.forwardAccessToken && has(self.forwardIDToken) && self.forwardIDToken.header.lowerAscii() == 'authorization')", message="forwardAccessToken cannot be true when forwardIDToken.header is Authorization"
 #OIDC: {
 	// The OIDC Provider configuration.
 	provider: #OIDCProvider @go(Provider)
@@ -19,8 +19,20 @@ import (
 	// The client ID to be used in the OIDC
 	// [Authentication Request](https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest).
 	//
+	// Only one of clientID or clientIDRef must be set.
+	// +optional
 	// +kubebuilder:validation:MinLength=1
-	clientID: string @go(ClientID)
+	clientID?: null | string @go(ClientID,*string)
+
+	// The Kubernetes secret which contains the client ID to be used in the
+	// [Authentication Request](https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest).
+	// Exactly one of clientID or clientIDRef must be set.
+	// This is an Opaque secret. The client ID should be stored in the key "client-id".
+	//
+	// Only one of clientID or clientIDRef must be set.
+	//
+	// +optional
+	clientIDRef?: null | gwapiv1.#SecretObjectReference @go(ClientIDRef,*gwapiv1.SecretObjectReference)
 
 	// The Kubernetes secret which contains the OIDC client secret to be used in the
 	// [Authentication Request](https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest).
@@ -35,6 +47,12 @@ import (
 	// If not specified, uses a randomly generated suffix
 	// +optional
 	cookieNames?: null | #OIDCCookieNames @go(CookieNames,*OIDCCookieNames)
+
+	// CookieConfigs allows setting the SameSite attribute for OIDC cookies.
+	// By default, its unset.
+	//
+	// +optional
+	cookieConfig?: null | #OIDCCookieConfig @go(CookieConfig,*OIDCCookieConfig)
 
 	// The optional domain to set the access and ID token cookies on.
 	// If not set, the cookies will default to the host of the request, not including the subdomains.
@@ -61,6 +79,11 @@ import (
 	// If not specified, uses the default redirect URI "%REQ(x-forwarded-proto)%://%REQ(:authority)%/oauth2/callback"
 	redirectURL?: null | string @go(RedirectURL,*string)
 
+	// Any request that matches any of the provided matchers (with either tokens that are expired or missing tokens) will not be redirected to the OIDC Provider.
+	// This behavior can be useful for AJAX or machine requests.
+	// +optional
+	denyRedirect?: null | #OIDCDenyRedirect @go(DenyRedirect,*OIDCDenyRedirect)
+
 	// The path to log a user out, clearing their credential cookies.
 	//
 	// If not specified, uses a default logout path "/logout"
@@ -72,6 +95,14 @@ import (
 	// +optional
 	forwardAccessToken?: null | bool @go(ForwardAccessToken,*bool)
 
+	// ForwardIDToken configures forwarding of the OIDC ID token to the upstream.
+	//
+	// If the configured header is "Authorization", EG forwards the ID token using
+	// the "Bearer " prefix. For any other header, EG forwards the raw token value.
+	// If not specified, the ID token will not be forwarded.
+	// +optional
+	forwardIDToken?: null | #OIDCTokenForwarding @go(ForwardIDToken,*OIDCTokenForwarding)
+
 	// DefaultTokenTTL is the default lifetime of the id token and access token.
 	// Please note that Envoy will always use the expiry time from the response
 	// of the authorization server if it is provided. This field is only used when
@@ -82,14 +113,15 @@ import (
 	// OAuth flow will fail.
 	//
 	// +optional
-	defaultTokenTTL?: null | metav1.#Duration @go(DefaultTokenTTL,*metav1.Duration)
+	defaultTokenTTL?: null | gwapiv1.#Duration @go(DefaultTokenTTL,*gwapiv1.Duration)
 
 	// RefreshToken indicates whether the Envoy should automatically refresh the
 	// id token and access token when they expire.
 	// When set to true, the Envoy will use the refresh token to get a new id token
 	// and access token when they expire.
 	//
-	// If not specified, defaults to false.
+	// If not specified, defaults to true.
+	// +kubebuilder:default=true
 	// +optional
 	refreshToken?: null | bool @go(RefreshToken,*bool)
 
@@ -99,11 +131,47 @@ import (
 	//
 	// If not specified, defaults to 604800s (one week).
 	// Note: this field is only applicable when the "refreshToken" field is set to true.
+	//
 	// +optional
-	defaultRefreshTokenTTL?: null | metav1.#Duration @go(DefaultRefreshTokenTTL,*metav1.Duration)
+	defaultRefreshTokenTTL?: null | gwapiv1.#Duration @go(DefaultRefreshTokenTTL,*gwapiv1.Duration)
+
+	// CSRFTokenTTL defines how long the CSRF token generated during the OAuth2 authorization flow remains valid.
+	//
+	// This duration determines the lifetime of the CSRF cookie, which is validated against the CSRF token
+	// in the "state" parameter when the provider redirects back to the callback endpoint.
+	//
+	// If omitted, Envoy Gateway defaults the token expiration to 10 minutes.
+	//
+	// +optional
+	csrfTokenTTL?: null | gwapiv1.#Duration @go(CSRFTokenTTL,*gwapiv1.Duration)
+
+	// Disable token encryption. When set to true, both the access token and the ID token will be stored in plain text.
+	// This option should only be used in secure environments where token encryption is not required.
+	// Default is false (tokens are encrypted).
+	// +optional
+	disableTokenEncryption?: null | bool @go(DisableTokenEncryption,*bool)
+
+	// Skips OIDC authentication when the request contains a header that will be extracted by the JWT filter. Unless
+	// explicitly stated otherwise in the extractFrom field, this will be the "Authorization: Bearer ..." header.
+	//
+	// The passThroughAuthHeader option is typically used for non-browser clients that may not be able to handle OIDC
+	// redirects and wish to directly supply a token instead.
+	//
+	// If not specified, defaults to false.
+	// +optional
+	passThroughAuthHeader?: null | bool @go(PassThroughAuthHeader,*bool)
 }
 
 // OIDCProvider defines the OIDC Provider configuration.
+//
+// BackendRefs is used to specify the address of the OIDC Provider.
+// If the BackendRefs is not specified, The host and port of the OIDC Provider's token endpoint
+// will be used as the address of the OIDC Provider.
+//
+// TLS configuration can be specified in a BackendTLSConfig resource and target the BackendRefs.
+//
+// Other settings for the connection to the OIDC Provider can be specified in the BackendSettings resource.
+//
 // +kubebuilder:validation:XValidation:rule="!has(self.backendRef)",message="BackendRefs must be used, backendRef is not supported."
 // +kubebuilder:validation:XValidation:rule="has(self.backendSettings)? (has(self.backendSettings.retry)?(has(self.backendSettings.retry.perRetry)? !has(self.backendSettings.retry.perRetry.timeout):true):true):true",message="Retry timeout is not supported."
 // +kubebuilder:validation:XValidation:rule="has(self.backendSettings)? (has(self.backendSettings.retry)?(has(self.backendSettings.retry.retryOn)? !has(self.backendSettings.retry.retryOn.httpStatusCodes):true):true):true",message="HTTPStatusCodes is not supported."
@@ -128,6 +196,30 @@ import (
 	//
 	// +optional
 	tokenEndpoint?: null | string @go(TokenEndpoint,*string)
+
+	// The OIDC Provider's [end session endpoint](https://openid.net/specs/openid-connect-core-1_0.html#RPLogout).
+	//
+	// If the end session endpoint is provided, EG will use it to log out the user from the OIDC Provider when the user accesses the logout path.
+	// EG will also try to discover the end session endpoint from the provider's [Well-Known Configuration Endpoint](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse) when authorizationEndpoint or tokenEndpoint is not provided.
+	// +optional
+	endSessionEndpoint?: null | string @go(EndSessionEndpoint,*string)
+}
+
+// OIDCDenyRedirect defines headers to match against the request to deny redirect to the OIDC Provider.
+#OIDCDenyRedirect: {
+	// Defines the headers to match against the request to deny redirect to the OIDC Provider.
+	// +kubebuilder:validation:MinItems=1
+	// +kubebuilder:validation:MaxItems=16
+	headers: [...#OIDCDenyRedirectHeader] @go(Headers,[]OIDCDenyRedirectHeader)
+}
+
+// OIDCDenyRedirectHeader defines how a header is matched
+#OIDCDenyRedirectHeader: {
+	// Specifies the name of the header in the request.
+	// +kubebuilder:validation:MinLength=1
+	name: string @go(Name)
+
+	#StringMatch
 }
 
 // OIDCCookieNames defines the names of cookies to use in the Envoy OIDC filter.
@@ -143,4 +235,34 @@ import (
 	// If not specified, defaults to "IdToken-(randomly generated uid)"
 	// +optional
 	idToken?: null | string @go(IDToken,*string)
+}
+
+// OIDCTokenForwarding defines how an OIDC token is forwarded upstream.
+#OIDCTokenForwarding: {
+	// Header is the upstream request header that will carry the ID token.
+	// +kubebuilder:validation:MinLength=1
+	header: string @go(Header)
+}
+
+#SameSite: string // #enumSameSite
+
+#enumSameSite:
+	#SameSiteLax |
+	#SameSiteStrict |
+	#SameSiteNone
+
+// SameSiteLax specifies the "Lax" SameSite policy.
+#SameSiteLax: #SameSite & "Lax"
+
+// SameSiteStrict specifies the "Strict" SameSite policy.
+#SameSiteStrict: #SameSite & "Strict"
+
+// SameSiteNone specifies the "None" SameSite policy. Requires a Secure cookie.
+#SameSiteNone: #SameSite & "None"
+
+// OIDCCookieConfig defines the cookie configuration for OAuth2 cookies.
+#OIDCCookieConfig: {
+	// +optional
+	// +kubebuilder:validation:Enum=Lax;Strict;None
+	sameSite?: null | string @go(SameSite,*string)
 }

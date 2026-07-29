@@ -6,7 +6,7 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	gwapiv1a2 "sigs.k8s.io/gateway-api/apis/v1alpha2"
+	gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 )
 
@@ -20,6 +20,8 @@ import (
 // +kubebuilder:resource:categories=envoy-gateway,shortName=btp
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
+// +genclient
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 #BackendTrafficPolicy: {
 	metav1.#TypeMeta
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta)
@@ -28,7 +30,7 @@ import (
 	spec: #BackendTrafficPolicySpec @go(Spec)
 
 	// status defines the current status of BackendTrafficPolicy.
-	status?: gwapiv1a2.#PolicyStatus @go(Status)
+	status?: gwapiv1.#PolicyStatus @go(Status)
 }
 
 // BackendTrafficPolicySpec defines the desired state of BackendTrafficPolicy.
@@ -36,10 +38,11 @@ import (
 // +kubebuilder:validation:XValidation:rule="(has(self.targetRef) && !has(self.targetRefs)) || (!has(self.targetRef) && has(self.targetRefs)) || (has(self.targetSelectors) && self.targetSelectors.size() > 0) ", message="either targetRef or targetRefs must be used"
 // +kubebuilder:validation:XValidation:rule="has(self.targetRef) ? self.targetRef.group == 'gateway.networking.k8s.io' : true ", message="this policy can only have a targetRef.group of gateway.networking.k8s.io"
 // +kubebuilder:validation:XValidation:rule="has(self.targetRef) ? self.targetRef.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute'] : true", message="this policy can only have a targetRef.kind of Gateway/HTTPRoute/GRPCRoute/TCPRoute/UDPRoute/TLSRoute"
-// +kubebuilder:validation:XValidation:rule="has(self.targetRef) ? !has(self.targetRef.sectionName) : true",message="this policy does not yet support the sectionName field"
 // +kubebuilder:validation:XValidation:rule="has(self.targetRefs) ? self.targetRefs.all(ref, ref.group == 'gateway.networking.k8s.io') : true ", message="this policy can only have a targetRefs[*].group of gateway.networking.k8s.io"
 // +kubebuilder:validation:XValidation:rule="has(self.targetRefs) ? self.targetRefs.all(ref, ref.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute']) : true ", message="this policy can only have a targetRefs[*].kind of Gateway/HTTPRoute/GRPCRoute/TCPRoute/UDPRoute/TLSRoute"
-// +kubebuilder:validation:XValidation:rule="has(self.targetRefs) ? self.targetRefs.all(ref, !has(ref.sectionName)) : true",message="this policy does not yet support the sectionName field"
+// +kubebuilder:validation:XValidation:rule="!has(self.compression) || !has(self.compressor)", message="either compression or compressor can be set, not both"
+// +kubebuilder:validation:XValidation:rule="!has(self.requestBuffer) || !has(self.httpUpgrade) || self.httpUpgrade.size() == 0", message="requestBuffer cannot be used together with httpUpgrade"
+// +kubebuilder:validation:XValidation:rule="!has(self.admissionControl) || ((!has(self.targetRef) || self.targetRef.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute']) && (!has(self.targetRefs) || self.targetRefs.all(ref, ref.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute'])) && (!has(self.targetSelectors) || self.targetSelectors.all(sel, sel.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute'])))", message="admissionControl can only be used with HTTPRoute, GRPCRoute, or Gateway targets"
 #BackendTrafficPolicySpec: {
 	#PolicyTargetReferences
 
@@ -50,6 +53,8 @@ import (
 	// into a parent BackendTrafficPolicy (i.e. the one targeting a Gateway or Listener).
 	// This field cannot be set when targeting a parent resource (Gateway).
 	// If unset, no merging occurs, and only the most specific configuration takes effect.
+	//
+	// +kubebuilder:validation:XValidation:rule="self != 'Replace'",message="Replace is not a valid MergeType for BackendTrafficPolicySpec"
 	// +optional
 	mergeType?: null | #MergeType @go(MergeType,*MergeType)
 
@@ -58,10 +63,21 @@ import (
 	// +optional
 	rateLimit?: null | #RateLimitSpec @go(RateLimit,*RateLimitSpec)
 
+	// BandwidthLimit allows the user to limit the bandwidth of traffic
+	// sent to and received from the backend.
+	// +optional
+	bandwidthLimit?: null | #BandwidthLimitSpec @go(BandwidthLimit,*BandwidthLimitSpec)
+
 	// FaultInjection defines the fault injection policy to be applied. This configuration can be used to
 	// inject delays and abort requests to mimic failure scenarios such as service failures and overloads
 	// +optional
 	faultInjection?: null | #FaultInjection @go(FaultInjection,*FaultInjection)
+
+	// AdmissionControl defines the admission control policy to be applied. This configuration
+	// probabilistically rejects requests based on the success rate of previous requests in a
+	// configurable sliding time window.
+	// +optional
+	admissionControl?: null | #AdmissionControl @go(AdmissionControl,*AdmissionControl)
 
 	// UseClientProtocol configures Envoy to prefer sending requests to backends using
 	// the same HTTP protocol that the incoming request used. Defaults to false, which means
@@ -72,23 +88,40 @@ import (
 
 	// The compression config for the http streams.
 	//
-	// +optional
-	compression?: [...null | #Compression] @go(Compression,[]*Compression)
-
-	// ResponseOverride defines the configuration to override specific responses with a custom one.
-	// If multiple configurations are specified, the first one to match wins.
-	//
-	// +optional
-	responseOverride?: [...null | #ResponseOverride] @go(ResponseOverride,[]*ResponseOverride)
-
-	// HTTPUpgrade defines the configuration for HTTP protocol upgrades.
-	// If not specified, the default upgrade configuration(websocket) will be used.
+	// Deprecated: Use Compressor instead.
 	//
 	// +patchMergeKey=type
 	// +patchStrategy=merge
 	//
 	// +optional
-	httpUpgrade?: [...null | #ProtocolUpgradeConfig] @go(HTTPUpgrade,[]*ProtocolUpgradeConfig)
+	compression?: [...#Compression] @go(Compression,[]*Compression)
+
+	// The compressor config for the http streams.
+	// This provides more granular control over compression configuration.
+	// Order matters: The first compressor in the list is preferred when q-values in Accept-Encoding are equal.
+	//
+	// +patchMergeKey=type
+	// +patchStrategy=merge
+	//
+	// +optional
+	compressor?: [...#Compression] @go(Compressor,[]*Compression)
+
+	// ResponseOverride defines the configuration to override specific responses with a custom one.
+	// If multiple configurations are specified, the first one to match wins.
+	//
+	// +optional
+	responseOverride?: [...#ResponseOverride] @go(ResponseOverride,[]*ResponseOverride)
+
+	// HTTPUpgrade defines the configuration for HTTP protocol upgrades.
+	// If not specified, the default upgrade configuration (websocket) will be used.
+	// However, if requestBuffer is configured, the default upgrade configuration
+	// will be ignored.
+	//
+	// +patchMergeKey=type
+	// +patchStrategy=merge
+	//
+	// +optional
+	httpUpgrade?: [...#ProtocolUpgradeConfig] @go(HTTPUpgrade,[]*ProtocolUpgradeConfig)
 
 	// RequestBuffer allows the gateway to buffer and fully receive each request from a client before continuing to send the request
 	// upstream to the backends. This can be helpful to shield your backend servers from slow clients, and also to enforce a maximum size per request
@@ -99,7 +132,9 @@ import (
 	// When enabling this option, you should also configure your connection buffer size to account for these request buffers. There will also be an
 	// increase in memory usage for Envoy that should be accounted for in your deployment settings.
 	//
-	// +notImplementedHide
+	// Request buffering is incompatible with streaming APIs and protocol upgrades such as gRPC streaming and WebSocket. Do not enable this option
+	// on routes that need those protocols, because requests can hang instead of being forwarded upstream.
+	//
 	// +optional
 	requestBuffer?: null | #RequestBuffer @go(RequestBuffer,*RequestBuffer)
 
@@ -108,21 +143,66 @@ import (
 	//
 	// +optional
 	telemetry?: null | #BackendTelemetry @go(Telemetry,*BackendTelemetry)
+
+	// RoutingType can be set to "Service" to use the Service Cluster IP for routing to the backend,
+	// or it can be set to "Endpoint" to use Endpoint routing.
+	// When specified, this overrides the EnvoyProxy-level setting for the relevant targetRefs.
+	// If not specified, the EnvoyProxy-level setting is used.
+	//
+	// +optional
+	routingType?: null | #RoutingType @go(RoutingType,*RoutingType)
 }
 
 #BackendTelemetry: {
 	// Tracing configures the tracing settings for the backend or HTTPRoute.
 	//
+	// This takes precedence over EnvoyProxy tracing when set.
+	//
 	// +optional
 	tracing?: null | #Tracing @go(Tracing,*Tracing)
+
+	// Metrics defines metrics configuration for the backend or Route.
+	//
+	// +optional
+	metrics?: null | #BackendMetrics @go(Metrics,*BackendMetrics)
 }
 
+#BackendMetrics: {
+	// RouteStatName defines the value of the Route stat_prefix, determining how the route stats are named.
+	// For more details, see envoy docs: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route_components.proto#config-route-v3-route
+	// The supported operators for this pattern are:
+	// %ROUTE_NAME%: name of Gateway API xRoute resource
+	// %ROUTE_NAMESPACE%: namespace of Gateway API xRoute resource
+	// %ROUTE_KIND%: kind of Gateway API xRoute resource
+	// Example: %ROUTE_KIND%/%ROUTE_NAMESPACE%/%ROUTE_NAME% => httproute/my-ns/my-route
+	// Disabled by default.
+	//
+	// +optional
+	routeStatName?: null | string @go(RouteStatName,*string)
+}
+
+// ProtocolUpgradeConfig specifies the configuration for protocol upgrades.
+//
+// +kubebuilder:validation:XValidation:rule="!has(self.connect) || self.type == 'CONNECT'",message="The connect configuration is only allowed when the type is CONNECT."
 #ProtocolUpgradeConfig: {
 	// Type is the case-insensitive type of protocol upgrade.
 	// e.g. `websocket`, `CONNECT`, `spdy/3.1` etc.
 	//
 	// +kubebuilder:validation:Required
 	type: string @go(Type)
+
+	// Connect specifies the configuration for the CONNECT config.
+	// This is allowed only when type is CONNECT.
+	//
+	// +optional
+	connect?: null | #ConnectConfig @go(Connect,*ConnectConfig)
+}
+
+#ConnectConfig: {
+	// Terminate the CONNECT request, and forwards the payload as raw TCP data.
+	//
+	// +optional
+	terminate?: null | bool @go(Terminate,*bool)
 }
 
 #RequestBuffer: {
@@ -133,13 +213,13 @@ import (
 	//
 	// +kubebuilder:validation:XIntOrString
 	// +kubebuilder:validation:Pattern="^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-	// +notImplementedHide
 	limit?: resource.#Quantity @go(Limit)
 }
 
 // BackendTrafficPolicyList contains a list of BackendTrafficPolicy resources.
 //
 // +kubebuilder:object:root=true
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 #BackendTrafficPolicyList: {
 	metav1.#TypeMeta
 	metadata?: metav1.#ListMeta @go(ListMeta)

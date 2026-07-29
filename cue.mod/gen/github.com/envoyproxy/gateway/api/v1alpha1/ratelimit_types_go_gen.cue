@@ -4,14 +4,17 @@
 
 package v1alpha1
 
+import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
+
 // RateLimitSpec defines the desired state of RateLimitSpec.
-// +union
 #RateLimitSpec: {
 	// Type decides the scope for the RateLimits.
 	// Valid RateLimitType values are "Global" or "Local".
 	//
-	// +unionDiscriminator
-	type: #RateLimitType @go(Type)
+	// Deprecated: Use Global and/or Local fields directly instead. Both can be specified simultaneously for combined rate limiting.
+	//
+	// +optional
+	type?: null | #RateLimitType @go(Type,*RateLimitType)
 
 	// Global defines global rate limit configuration.
 	//
@@ -51,7 +54,7 @@ package v1alpha1
 	// matches two rules, one rate limited and one not, the final decision will be
 	// to rate limit the request.
 	//
-	// +kubebuilder:validation:MaxItems=64
+	// +kubebuilder:validation:MaxItems=256
 	rules: [...#RateLimitRule] @go(Rules,[]RateLimitRule)
 }
 
@@ -64,9 +67,28 @@ package v1alpha1
 	//
 	// +optional
 	// +kubebuilder:validation:MaxItems=16
-	// +kubebuilder:validation:XValidation:rule="self.all(foo, !has(foo.cost) || !has(foo.cost.response))", message="response cost is not supported for Local Rate Limits"
+	// +kubebuilder:validation:XValidation:rule="self.all(r, !has(r.cost) || !has(r.cost.response))", message="response cost is not supported for Local Rate Limits"
 	rules?: [...#RateLimitRule] @go(Rules,[]RateLimitRule)
 }
+
+// XRateLimitHeadersOption controls whether X-RateLimit response headers are sent for a rate limit rule.
+// Valid values are "Off" and "DraftVersion03".
+// This allows per-rule override of the global X-RateLimit header setting in ClientTrafficPolicy.
+//
+// +kubebuilder:validation:Enum=Off;DraftVersion03
+#XRateLimitHeadersOption: string // #enumXRateLimitHeadersOption
+
+#enumXRateLimitHeadersOption:
+	#XRateLimitHeadersOptionDisabled |
+	#XRateLimitHeadersOptionDraftVersion03
+
+// XRateLimitHeadersOptionDisabled disables X-RateLimit headers for this rate limit rule,
+// regardless of the global ClientTrafficPolicy setting.
+#XRateLimitHeadersOptionDisabled: #XRateLimitHeadersOption & "Off"
+
+// XRateLimitHeadersOptionDraftVersion03 enables X-RateLimit headers using RFC draft version 03
+// for this rate limit rule, regardless of the global ClientTrafficPolicy setting.
+#XRateLimitHeadersOptionDraftVersion03: #XRateLimitHeadersOption & "DraftVersion03"
 
 // RateLimitRule defines the semantics for matching attributes
 // from the incoming requests, and setting limits for them.
@@ -110,6 +132,23 @@ package v1alpha1
 	//
 	// +optional
 	shared?: null | bool @go(Shared,*bool)
+
+	// ShadowMode indicates whether this rate-limit rule runs in shadow mode.
+	// When enabled, all rate-limiting operations are performed (cache lookups,
+	// counter updates, telemetry generation), but the outcome is never enforced.
+	// The request always succeeds, even if the configured limit is exceeded.
+	//
+	// Only supported for Global Rate Limits.
+	//
+	// +optional
+	shadowMode?: null | bool @go(ShadowMode,*bool)
+
+	// XRateLimitHeaders controls whether X-RateLimit response headers are emitted for this rate limit rule.
+	// When set, this overrides the global DisableRateLimitHeaders setting in ClientTrafficPolicy for this rule.
+	// If not set, the rule inherits the listener-level setting (default behavior).
+	//
+	// +optional
+	xRateLimitHeaders?: null | #XRateLimitHeadersOption @go(XRateLimitHeaders,*XRateLimitHeadersOption)
 }
 
 #RateLimitCost: {
@@ -193,21 +232,98 @@ package v1alpha1
 // RateLimitSelectCondition specifies the attributes within the traffic flow that can
 // be used to select a subset of clients to be ratelimited.
 // All the individual conditions must hold True for the overall condition to hold True.
+// And, at least one of headers or methods or path or sourceCIDR or queryParams condition must be specified.
+//
+// +kubebuilder:validation:XValidation:rule="has(self.headers) || has(self.methods) || has(self.path) || has(self.sourceCIDR) || has(self.queryParams)",message="at least one of headers, methods, path, sourceCIDR or queryParams must be specified"
 #RateLimitSelectCondition: {
 	// Headers is a list of request headers to match. Multiple header values are ANDed together,
 	// meaning, a request MUST match all the specified headers.
-	// At least one of headers or sourceCIDR condition must be specified.
 	//
 	// +optional
-	// +kubebuilder:validation:MaxItems=16
+	// +kubebuilder:validation:MaxItems=64
 	headers?: [...#HeaderMatch] @go(Headers,[]HeaderMatch)
 
+	// Methods is a list of request methods to match. Multiple method values are ORed together,
+	// meaning, a request can match any one of the specified methods. If not specified, it matches all methods.
+	//
+	// +optional
+	methods?: [...#MethodMatch] @go(Methods,[]MethodMatch)
+
+	// Path is the request path to match.
+	// Support Exact, PathPrefix and RegularExpression match types.
+	//
+	// +optional
+	path?: null | #PathMatch @go(Path,*PathMatch)
+
 	// SourceCIDR is the client IP Address range to match on.
-	// At least one of headers or sourceCIDR condition must be specified.
 	//
 	// +optional
 	sourceCIDR?: null | #SourceMatch @go(SourceCIDR,*SourceMatch)
+
+	// QueryParams is a list of query parameters to match. Multiple query parameter values are ANDed together,
+	// meaning, a request MUST match all the specified query parameters.
+	//
+	// +optional
+	// +kubebuilder:validation:MaxItems=16
+	queryParams?: [...#QueryParamMatch] @go(QueryParams,[]QueryParamMatch)
 }
+
+// QueryParamMatch defines the match attributes within the query parameters of the request.
+// +k8s:deepcopy-gen=true
+#QueryParamMatch: {
+	// Type specifies how to match against the value of the query parameter.
+	//
+	// +optional
+	// +kubebuilder:default=Exact
+	type?: null | #QueryParamMatchType @go(Type,*QueryParamMatchType)
+
+	// Name of the query parameter.
+	//
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=256
+	name: string @go(Name)
+
+	// Value of the query parameter.
+	// Do not set this field when Type="Distinct", implying matching on any/all unique
+	// values within the query parameter.
+	//
+	// +optional
+	// +kubebuilder:validation:MaxLength=1024
+	value?: null | string @go(Value,*string)
+
+	// Invert specifies whether the value match result will be inverted.
+	// Do not set this field when Type="Distinct", implying matching on any/all unique
+	// values within the query parameter.
+	//
+	// +optional
+	// +kubebuilder:default=false
+	invert?: null | bool @go(Invert,*bool)
+}
+
+// QueryParamMatchType specifies the semantics of how query parameter values should be compared.
+// Valid QueryParamMatchType values are "Exact", "RegularExpression", and "Distinct".
+//
+// +kubebuilder:validation:Enum=Exact;RegularExpression;Distinct
+#QueryParamMatchType: string // #enumQueryParamMatchType
+
+#enumQueryParamMatchType:
+	#QueryParamMatchExact |
+	#QueryParamMatchRegularExpression |
+	#QueryParamMatchDistinct
+
+// QueryParamMatchExact matches the exact value of the Value field against the value of
+// the specified query parameter.
+#QueryParamMatchExact: #QueryParamMatchType & "Exact"
+
+// QueryParamMatchRegularExpression matches a regular expression against the value of the
+// specified query parameter. The regex string must adhere to the syntax documented in
+// https://github.com/google/re2/wiki/Syntax.
+#QueryParamMatchRegularExpression: #QueryParamMatchType & "RegularExpression"
+
+// QueryParamMatchDistinct matches any and all possible unique values encountered in the
+// specified query parameter. Note that each unique value will receive its own rate limit
+// bucket.
+#QueryParamMatchDistinct: #QueryParamMatchType & "Distinct"
 
 // +kubebuilder:validation:Enum=Exact;Distinct
 #SourceMatchType: string // #enumSourceMatchType
@@ -232,9 +348,18 @@ package v1alpha1
 	// Value is the IP CIDR that represents the range of Source IP Addresses of the client.
 	// These could also be the intermediate addresses through which the request has flown through and is part of the  `X-Forwarded-For` header.
 	// For example, `192.168.0.1/32`, `192.168.0.0/24`, `001:db8::/64`.
+	//
+	// +kubebuilder:validation:Required
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=256
 	value: string @go(Value)
+
+	// Invert specifies whether the source range match result will be inverted.
+	// When true, the rule matches when the client IP is not in the specified range(s).
+	//
+	// +optional
+	// +kubebuilder:default=false
+	invert?: null | bool @go(Invert,*bool)
 }
 
 // HeaderMatch defines the match attributes within the HTTP Headers of the request.
@@ -295,23 +420,64 @@ package v1alpha1
 // bucket.
 #HeaderMatchDistinct: #HeaderMatchType & "Distinct"
 
+// MethodMatch defines the matching criteria for the HTTP method of a request.
+#MethodMatch: {
+	// Value specifies the HTTP method.
+	value: gwapiv1.#HTTPMethod @go(Value)
+
+	// Invert specifies whether the value match result will be inverted.
+	//
+	// +optional
+	// +kubebuilder:default=false
+	invert?: null | bool @go(Invert,*bool)
+}
+
+// PathMatch defines the matching criteria for the HTTP path of a request.
+#PathMatch: {
+	// Type specifies how to match against the value of the path.
+	//
+	// +optional
+	// +kubebuilder:default=PathPrefix
+	type?: null | gwapiv1.#PathMatchType @go(Type,*gwapiv1.PathMatchType)
+
+	// Value specifies the HTTP path.
+	//
+	// +kubebuilder:default="/"
+	// +kubebuilder:validation:MaxLength=1024
+	value: string @go(Value)
+
+	// Invert specifies whether the value match result will be inverted.
+	//
+	// +optional
+	// +kubebuilder:default=false
+	invert?: null | bool @go(Invert,*bool)
+}
+
 // RateLimitValue defines the limits for rate limiting.
 #RateLimitValue: {
-	requests: uint           @go(Requests)
+	// Requests is the number of requests (or cost units, when used with
+	// cost-based rate limiting) allowed per Unit.
+	//
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=4294967295
+	// +kubebuilder:validation:Format=int64
+	requests: uint32         @go(Requests)
 	unit:     #RateLimitUnit @go(Unit)
 }
 
 // RateLimitUnit specifies the intervals for setting rate limits.
-// Valid RateLimitUnit values are "Second", "Minute", "Hour", and "Day".
+// Valid RateLimitUnit values are "Second", "Minute", "Hour", "Day", "Month" and "Year".
 //
-// +kubebuilder:validation:Enum=Second;Minute;Hour;Day
+// +kubebuilder:validation:Enum=Second;Minute;Hour;Day;Month;Year
 #RateLimitUnit: string // #enumRateLimitUnit
 
 #enumRateLimitUnit:
 	#RateLimitUnitSecond |
 	#RateLimitUnitMinute |
 	#RateLimitUnitHour |
-	#RateLimitUnitDay
+	#RateLimitUnitDay |
+	#RateLimitUnitMonth |
+	#RateLimitUnitYear
 
 // RateLimitUnitSecond specifies the rate limit interval to be 1 second.
 #RateLimitUnitSecond: #RateLimitUnit & "Second"
@@ -324,3 +490,9 @@ package v1alpha1
 
 // RateLimitUnitDay specifies the rate limit interval to be 1 day.
 #RateLimitUnitDay: #RateLimitUnit & "Day"
+
+// RateLimitUnitMonth specifies the rate limit interval to be 1 month.
+#RateLimitUnitMonth: #RateLimitUnit & "Month"
+
+// RateLimitUnitYear specifies the rate limit interval to be 1 year.
+#RateLimitUnitYear: #RateLimitUnit & "Year"

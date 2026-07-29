@@ -13,14 +13,19 @@ import (
 #KindEnvoyProxy: "EnvoyProxy"
 
 // EnvoyProxy is the schema for the envoyproxies API.
+// +genclient
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 #EnvoyProxy: {
 	metav1.#TypeMeta
+
+	// +optional
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta)
 
 	// EnvoyProxySpec defines the desired state of EnvoyProxy.
-	spec?: #EnvoyProxySpec @go(Spec)
+	spec: #EnvoyProxySpec @go(Spec)
 
 	// EnvoyProxyStatus defines the actual state of EnvoyProxy.
+	// +optional
 	status?: #EnvoyProxyStatus @go(Status)
 }
 
@@ -92,13 +97,19 @@ import (
 	// If unspecified, the default filter order is applied.
 	// Default filter order is:
 	//
+	// - envoy.filters.http.custom_response
+	//
 	// - envoy.filters.http.health_check
 	//
 	// - envoy.filters.http.fault
 	//
 	// - envoy.filters.http.cors
 	//
+	// - envoy.filters.http.header_mutation
+	//
 	// - envoy.filters.http.ext_authz
+	//
+	// - envoy.filters.http.api_key_auth
 	//
 	// - envoy.filters.http.basic_auth
 	//
@@ -108,11 +119,17 @@ import (
 	//
 	// - envoy.filters.http.stateful_session
 	//
+	// - envoy.filters.http.buffer
+	//
 	// - envoy.filters.http.lua
 	//
 	// - envoy.filters.http.ext_proc
 	//
 	// - envoy.filters.http.wasm
+	//
+	// - envoy.filters.http.dynamic_modules
+	//
+	// - envoy.filters.http.geoip
 	//
 	// - envoy.filters.http.rbac
 	//
@@ -120,7 +137,17 @@ import (
 	//
 	// - envoy.filters.http.ratelimit
 	//
-	// - envoy.filters.http.custom_response
+	// - envoy.filters.http.bandwidth_limit
+	//
+	// - envoy.filters.http.grpc_web
+	//
+	// - envoy.filters.http.grpc_stats
+	//
+	// - envoy.filters.http.credential_injector
+	//
+	// - envoy.filters.http.compressor
+	//
+	// - envoy.filters.http.dynamic_forward_proxy
 	//
 	// - envoy.filters.http.router
 	//
@@ -146,13 +173,81 @@ import (
 	ipFamily?: null | #IPFamily @go(IPFamily,*IPFamily)
 
 	// PreserveRouteOrder determines if the order of matching for HTTPRoutes is determined by Gateway-API
-	// specification (https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1.HTTPRouteRule)
+	// specification (https://gateway-api.sigs.k8s.io/reference/1.4/spec/#httprouterule)
 	// or preserves the order defined by users in the HTTPRoute's HTTPRouteRule list.
 	// Default: False
 	//
 	// +optional
 	preserveRouteOrder?: null | bool @go(PreserveRouteOrder,*bool)
+
+	// LuaValidation determines strictness of the Lua script validation for Lua EnvoyExtensionPolicies
+	// Default: Strict
+	// +optional
+	luaValidation?: null | #LuaValidation @go(LuaValidation,*LuaValidation)
+
+	// DynamicModules defines the set of dynamic modules that are allowed to be
+	// used by EnvoyExtensionPolicy resources and dynamic module load balancer
+	// policies. Each entry registers a module by a logical name and specifies
+	// the shared library that Envoy will load.
+	//
+	// The EnvoyProxy owner is responsible for ensuring the module .so files are available
+	// on the proxy container's filesystem (e.g., via init containers, custom images,
+	// or shared volumes).
+	//
+	// +kubebuilder:validation:MaxItems=16
+	// +listType=map
+	// +listMapKey=name
+	// +optional
+	dynamicModules?: [...#DynamicModuleEntry] @go(DynamicModules,[]DynamicModuleEntry)
+
+	// GeoIP defines shared GeoIP provider configuration for this EnvoyProxy fleet.
+	//
+	// +optional
+	geoIP?: null | #EnvoyProxyGeoIP @go(GeoIP,*EnvoyProxyGeoIP)
+
+	// MergeType controls how this EnvoyProxy merges with less specific configurations
+	// in the hierarchy (EnvoyGateway defaults < GatewayClass < Gateway).
+	// If unset, this EnvoyProxy completely replaces less specific settings.
+	// Note: this field has no effect when set in EnvoyGateway's default EnvoyProxySpec.
+	// +kubebuilder:validation:Enum=Replace;StrategicMerge;JSONMerge
+	// +optional
+	mergeType?: null | #MergeType @go(MergeType,*MergeType)
 }
+
+// EnvoyProxyGeoIP defines shared GeoIP provider settings for EnvoyProxy.
+#EnvoyProxyGeoIP: {
+	// Provider defines the GeoIP provider configuration used by GeoIP filter instances.
+	provider: #GeoIPProvider @go(Provider)
+}
+
+// +kubebuilder:validation:Enum=Strict;InsecureSyntax;Disabled
+#LuaValidation: string // #enumLuaValidation
+
+#enumLuaValidation:
+	#LuaValidationStrict |
+	#LuaValidationInsecureSyntax |
+	#LuaValidationDisabled
+
+// LuaValidationStrict is the default level and checks for issues during script execution.
+// Recommended if your scripts only use the standard Envoy Lua stream handle API and no external libraries.
+// For supported APIs, see: https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/lua_filter#stream-handle-api
+// INFO: This validation mode executes Lua scripts from EnvoyExtensionPolicy (EEP) resources in the gateway controller.
+// Since the Gateway controller watches EEPs across all namespaces (or namespaces matching the configured selector),
+// unprivileged users can create EEPs in their namespaces and cause arbitrary Lua code to execute in the Gateway controller process.
+// Security measures are in place to prevent unsafe Lua code from accessing critical system resources on the controller
+// and fail validation, preventing the unsafe code from flowing to the data plane proxy.
+#LuaValidationStrict: #LuaValidation & "Strict"
+
+// LuaValidationInsecureSyntax checks for Lua syntax errors only.
+// Useful if your scripts use external libraries other than the standard Envoy Lua stream handle API.
+// WARNING: This mode does NOT offer any runtime validations, so no security measures are applied to validate Lua code safety.
+// Not recommended unless you completely trust all EnvoyExtensionPolicy resources.
+#LuaValidationInsecureSyntax: #LuaValidation & "InsecureSyntax"
+
+// LuaValidationDisabled disables all Lua script validations.
+// WARNING: This mode does NOT offer any runtime or syntax validations, so no security measures are applied to validate Lua code safety.
+// Not recommended unless you completely trust all EnvoyExtensionPolicy resources.
+#LuaValidationDisabled: #LuaValidation & "Disabled"
 
 // RoutingType defines the type of routing of this Envoy proxy.
 #RoutingType: string // #enumRoutingType
@@ -196,30 +291,40 @@ import (
 }
 
 // EnvoyFilter defines the type of Envoy HTTP filter.
-// +kubebuilder:validation:Enum=envoy.filters.http.health_check;envoy.filters.http.fault;envoy.filters.http.cors;envoy.filters.http.ext_authz;envoy.filters.http.api_key_auth;envoy.filters.http.basic_auth;envoy.filters.http.oauth2;envoy.filters.http.jwt_authn;envoy.filters.http.stateful_session;envoy.filters.http.lua;envoy.filters.http.ext_proc;envoy.filters.http.wasm;envoy.filters.http.rbac;envoy.filters.http.local_ratelimit;envoy.filters.http.ratelimit;envoy.filters.http.custom_response;envoy.filters.http.compressor
+// +kubebuilder:validation:Enum=envoy.filters.http.custom_response;envoy.filters.http.health_check;envoy.filters.http.fault;envoy.filters.http.cors;envoy.filters.http.header_mutation;envoy.filters.http.ext_authz;envoy.filters.http.api_key_auth;envoy.filters.http.basic_auth;envoy.filters.http.oauth2;envoy.filters.http.jwt_authn;envoy.filters.http.stateful_session;envoy.filters.http.buffer;envoy.filters.http.lua;envoy.filters.http.ext_proc;envoy.filters.http.wasm;envoy.filters.http.dynamic_modules;envoy.filters.http.geoip;envoy.filters.http.rbac;envoy.filters.http.local_ratelimit;envoy.filters.http.ratelimit;envoy.filters.http.bandwidth_limit;envoy.filters.http.grpc_web;envoy.filters.http.grpc_stats;envoy.filters.http.credential_injector;envoy.filters.http.compressor;envoy.filters.http.dynamic_forward_proxy
 #EnvoyFilter: string // #enumEnvoyFilter
 
 #enumEnvoyFilter:
+	#EnvoyFilterCustomResponse |
 	#EnvoyFilterHealthCheck |
 	#EnvoyFilterFault |
 	#EnvoyFilterCORS |
+	#EnvoyFilterHeaderMutation |
 	#EnvoyFilterExtAuthz |
 	#EnvoyFilterAPIKeyAuth |
 	#EnvoyFilterBasicAuth |
 	#EnvoyFilterOAuth2 |
 	#EnvoyFilterJWTAuthn |
 	#EnvoyFilterSessionPersistence |
+	#EnvoyFilterBuffer |
+	#EnvoyFilterLua |
 	#EnvoyFilterExtProc |
 	#EnvoyFilterWasm |
-	#EnvoyFilterLua |
+	#EnvoyFilterDynamicModules |
+	#EnvoyFilterGeoIP |
 	#EnvoyFilterRBAC |
 	#EnvoyFilterLocalRateLimit |
 	#EnvoyFilterRateLimit |
-	#EnvoyFilterCustomResponse |
+	#EnvoyFilterBandwidthLimit |
+	#EnvoyFilterGRPCWeb |
+	#EnvoyFilterGRPCStats |
 	#EnvoyFilterCredentialInjector |
 	#EnvoyFilterCompressor |
-	#EnvoyFilterRouter |
-	#EnvoyFilterBuffer
+	#EnvoyFilterDynamicForwardProxy |
+	#EnvoyFilterRouter
+
+// EnvoyFilterCustomResponse defines the Envoy HTTP custom response filter.
+#EnvoyFilterCustomResponse: #EnvoyFilter & "envoy.filters.http.custom_response"
 
 // EnvoyFilterHealthCheck defines the Envoy HTTP health check filter.
 #EnvoyFilterHealthCheck: #EnvoyFilter & "envoy.filters.http.health_check"
@@ -229,6 +334,9 @@ import (
 
 // EnvoyFilterCORS defines the Envoy HTTP CORS filter.
 #EnvoyFilterCORS: #EnvoyFilter & "envoy.filters.http.cors"
+
+// EnvoyFilterHeaderMutation defines the Envoy HTTP header mutation filter
+#EnvoyFilterHeaderMutation: #EnvoyFilter & "envoy.filters.http.header_mutation"
 
 // EnvoyFilterExtAuthz defines the Envoy HTTP external authorization filter.
 #EnvoyFilterExtAuthz: #EnvoyFilter & "envoy.filters.http.ext_authz"
@@ -249,14 +357,23 @@ import (
 // EnvoyFilterSessionPersistence defines the Envoy HTTP session persistence filter.
 #EnvoyFilterSessionPersistence: #EnvoyFilter & "envoy.filters.http.stateful_session"
 
+// EnvoyFilterBuffer defines the Envoy HTTP buffer filter
+#EnvoyFilterBuffer: #EnvoyFilter & "envoy.filters.http.buffer"
+
+// EnvoyFilterLua defines the Envoy HTTP Lua filter.
+#EnvoyFilterLua: #EnvoyFilter & "envoy.filters.http.lua"
+
 // EnvoyFilterExtProc defines the Envoy HTTP external process filter.
 #EnvoyFilterExtProc: #EnvoyFilter & "envoy.filters.http.ext_proc"
 
 // EnvoyFilterWasm defines the Envoy HTTP WebAssembly filter.
 #EnvoyFilterWasm: #EnvoyFilter & "envoy.filters.http.wasm"
 
-// EnvoyFilterLua defines the Envoy HTTP Lua filter.
-#EnvoyFilterLua: #EnvoyFilter & "envoy.filters.http.lua"
+// EnvoyFilterDynamicModules defines the Envoy HTTP dynamic modules filter.
+#EnvoyFilterDynamicModules: #EnvoyFilter & "envoy.filters.http.dynamic_modules"
+
+// EnvoyFilterGeoIP defines the Envoy HTTP GeoIP filter.
+#EnvoyFilterGeoIP: #EnvoyFilter & "envoy.filters.http.geoip"
 
 // EnvoyFilterRBAC defines the Envoy RBAC filter.
 #EnvoyFilterRBAC: #EnvoyFilter & "envoy.filters.http.rbac"
@@ -267,8 +384,14 @@ import (
 // EnvoyFilterRateLimit defines the Envoy HTTP rate limit filter.
 #EnvoyFilterRateLimit: #EnvoyFilter & "envoy.filters.http.ratelimit"
 
-// EnvoyFilterCustomResponse defines the Envoy HTTP custom response filter.
-#EnvoyFilterCustomResponse: #EnvoyFilter & "envoy.filters.http.custom_response"
+// EnvoyFilterBandwidthLimit defines the Envoy HTTP bandwidth limit filter.
+#EnvoyFilterBandwidthLimit: #EnvoyFilter & "envoy.filters.http.bandwidth_limit"
+
+// EnvoyFilterGRPCWeb defines the Envoy HTTP gRPC-web filter.
+#EnvoyFilterGRPCWeb: #EnvoyFilter & "envoy.filters.http.grpc_web"
+
+// EnvoyFilterGRPCStats defines the Envoy HTTP gRPC stats filter.
+#EnvoyFilterGRPCStats: #EnvoyFilter & "envoy.filters.http.grpc_stats"
 
 // EnvoyFilterCredentialInjector defines the Envoy HTTP credential injector filter.
 #EnvoyFilterCredentialInjector: #EnvoyFilter & "envoy.filters.http.credential_injector"
@@ -276,11 +399,29 @@ import (
 // EnvoyFilterCompressor defines the Envoy HTTP compressor filter.
 #EnvoyFilterCompressor: #EnvoyFilter & "envoy.filters.http.compressor"
 
+// EnvoyFilterDynamicForwardProxy defines the Envoy HTTP dynamic forward proxy filter.
+#EnvoyFilterDynamicForwardProxy: #EnvoyFilter & "envoy.filters.http.dynamic_forward_proxy"
+
 // EnvoyFilterRouter defines the Envoy HTTP router filter.
 #EnvoyFilterRouter: #EnvoyFilter & "envoy.filters.http.router"
 
-// EnvoyFilterBuffer defines the Envoy HTTP buffer filter
-#EnvoyFilterBuffer: #EnvoyFilter & "envoy.filters.http.buffer"
+// StatFormatterRouteName defines the Route Name formatter for stats
+#StatFormatterRouteName: "%ROUTE_NAME%"
+
+// StatFormatterRouteNamespace defines the Route Name formatter for stats
+#StatFormatterRouteNamespace: "%ROUTE_NAMESPACE%"
+
+// StatFormatterRouteKind defines the Route Name formatter for stats
+#StatFormatterRouteKind: "%ROUTE_KIND%"
+
+// StatFormatterRouteRuleName defines the Route Name formatter for stats
+#StatFormatterRouteRuleName: "%ROUTE_RULE_NAME%"
+
+// StatFormatterRouteRuleNumber defines the Route Name formatter for stats
+#StatFormatterRouteRuleNumber: "%ROUTE_RULE_NUMBER%"
+
+// StatFormatterBackendRefs defines the Route Name formatter for stats
+#StatFormatterBackendRefs: "%BACKEND_REFS%"
 
 #ProxyTelemetry: {
 	// AccessLogs defines accesslog parameters for managed proxies.
@@ -295,17 +436,81 @@ import (
 
 	// Metrics defines metrics configuration for managed proxies.
 	metrics?: null | #ProxyMetrics @go(Metrics,*ProxyMetrics)
+
+	// RequestID configures Envoy request ID behavior.
+	// +optional
+	requestID?: null | #RequestIDSettings @go(RequestID,*RequestIDSettings)
 }
+
+// EnvoyProxyProviderType defines the types of providers supported by Envoy Proxy.
+//
+// +kubebuilder:validation:Enum=Kubernetes;Host
+#EnvoyProxyProviderType: string // #enumEnvoyProxyProviderType
+
+#enumEnvoyProxyProviderType:
+	#EnvoyProxyProviderTypeKubernetes |
+	#EnvoyProxyProviderTypeHost
+
+// EnvoyProxyProviderTypeKubernetes defines the "Kubernetes" provider.
+#EnvoyProxyProviderTypeKubernetes: #EnvoyProxyProviderType & "Kubernetes"
+
+// EnvoyProxyProviderTypeHost defines the "Host" provider.
+#EnvoyProxyProviderTypeHost: #EnvoyProxyProviderType & "Host"
+
+// RequestIDSettings defines configuration for Envoy's UUID request ID extension.
+#RequestIDSettings: {
+	// Tracing configures Envoy's behavior for the UUID request ID extension,
+	// including whether the trace sampling decision is packed into the UUID and
+	// whether `X-Request-ID` is used for trace sampling decisions.
+	//
+	// When omitted, the default behavior is `PackAndSample`, which alters the UUID
+	// to contain the trace sampling decision and uses `X-Request-ID` for stable
+	// trace sampling.
+	//
+	// +optional
+	tracing?: null | #RequestIDExtensionAction @go(Tracing,*RequestIDExtensionAction)
+}
+
+// RequestIDExtensionAction defines how the UUID request ID extension behaves
+// with respect to packing the trace reason into the UUID and using the
+// request ID for trace sampling decisions.
+//
+// +kubebuilder:validation:Enum=PackAndSample;Sample;Pack;Disable
+#RequestIDExtensionAction: string // #enumRequestIDExtensionAction
+
+#enumRequestIDExtensionAction:
+	#RequestIDExtensionActionPackAndSample |
+	#RequestIDExtensionActionSample |
+	#RequestIDExtensionActionPack |
+	#RequestIDExtensionActionDisable
+
+// PackAndSample enables both behaviors:
+// - Alters the UUID to contain the trace sampling decision
+// - Uses `X-Request-ID` for trace sampling
+#RequestIDExtensionActionPackAndSample: #RequestIDExtensionAction & "PackAndSample"
+
+// Sample uses `X-Request-ID` for trace sampling decisions, but does NOT alter
+// the UUID to pack the trace sampling decision.
+#RequestIDExtensionActionSample: #RequestIDExtensionAction & "Sample"
+
+// Pack alters the UUID to contain the trace sampling decision, but does NOT
+// use `X-Request-ID` for trace sampling decisions.
+#RequestIDExtensionActionPack: #RequestIDExtensionAction & "Pack"
+
+// Disable disables both behaviors:
+// - Does not alter the UUID
+// - Does not use `X-Request-ID` for trace sampling
+#RequestIDExtensionActionDisable: #RequestIDExtensionAction & "Disable"
 
 // EnvoyProxyProvider defines the desired state of a resource provider.
 // +union
 #EnvoyProxyProvider: {
 	// Type is the type of resource provider to use. A resource provider provides
 	// infrastructure resources for running the data plane, e.g. Envoy proxy, and
-	// optional auxiliary control planes. Supported types are "Kubernetes".
+	// optional auxiliary control planes. Supported types are "Kubernetes"and "Host".
 	//
 	// +unionDiscriminator
-	type: #ProviderType @go(Type)
+	type: #EnvoyProxyProviderType @go(Type)
 
 	// Kubernetes defines the desired state of the Kubernetes resource provider.
 	// Kubernetes provides infrastructure resources for running the data plane,
@@ -314,6 +519,14 @@ import (
 	//
 	// +optional
 	kubernetes?: null | #EnvoyProxyKubernetesProvider @go(Kubernetes,*EnvoyProxyKubernetesProvider)
+
+	// Host provides runtime deployment of the data plane as a child process on the
+	// host environment.
+	// If unspecified and type is "Host", default settings for the custom provider
+	// are applied.
+	//
+	// +optional
+	host?: null | #EnvoyProxyHostProvider @go(Host,*EnvoyProxyHostProvider)
 }
 
 // ShutdownConfig defines configuration for graceful envoy shutdown process.
@@ -322,13 +535,13 @@ import (
 	// If unspecified, defaults to 60 seconds.
 	//
 	// +optional
-	drainTimeout?: null | metav1.#Duration @go(DrainTimeout,*metav1.Duration)
+	drainTimeout?: null | gwapiv1.#Duration @go(DrainTimeout,*gwapiv1.Duration)
 
 	// MinDrainDuration defines the minimum drain duration allowing time for endpoint deprogramming to complete.
 	// If unspecified, defaults to 10 seconds.
 	//
 	// +optional
-	minDrainDuration?: null | metav1.#Duration @go(MinDrainDuration,*metav1.Duration)
+	minDrainDuration?: null | gwapiv1.#Duration @go(MinDrainDuration,*gwapiv1.Duration)
 }
 
 // +kubebuilder:validation:XValidation:rule="((has(self.envoyDeployment) && !has(self.envoyDaemonSet)) || (!has(self.envoyDeployment) && has(self.envoyDaemonSet))) || (!has(self.envoyDeployment) && !has(self.envoyDaemonSet))",message="only one of envoyDeployment or envoyDaemonSet can be specified"
@@ -372,6 +585,26 @@ import (
 	// EnvoyPDB allows to control the pod disruption budget of an Envoy Proxy.
 	// +optional
 	envoyPDB?: null | #KubernetesPodDisruptionBudgetSpec @go(EnvoyPDB,*KubernetesPodDisruptionBudgetSpec)
+
+	// EnvoyServiceAccount defines the desired state of the Envoy service account resource.
+	envoyServiceAccount?: null | #KubernetesServiceAccountSpec @go(EnvoyServiceAccount,*KubernetesServiceAccountSpec)
+}
+
+// EnvoyProxyHostProvider defines configuration for the "Host" resource provider.
+#EnvoyProxyHostProvider: {
+	// EnvoyVersion is the version of Envoy to use. If unspecified, the version
+	// against which Envoy Gateway is built will be used.
+	//
+	// +optional
+	envoyVersion?: null | string @go(EnvoyVersion,*string)
+}
+
+#KubernetesServiceAccountSpec: {
+	// Name of the Service Account.
+	// When unset, this defaults to an autogenerated name.
+	//
+	// +optional
+	name?: null | string @go(Name,*string)
 }
 
 // ProxyLogging defines logging parameters for managed proxies.
@@ -470,11 +703,40 @@ import (
 // JSONPatch applies the provided JSONPatches to the default bootstrap.
 #BootstrapTypeJSONPatch: #BootstrapType & "JSONPatch"
 
-// EnvoyProxyStatus defines the observed state of EnvoyProxy. This type is not implemented
-// until https://github.com/envoyproxy/gateway/issues/1007 is fixed.
-#EnvoyProxyStatus: {}
+// EnvoyProxyStatus defines the observed state of EnvoyProxy.
+#EnvoyProxyStatus: {
+	// Ancestors represent the status information for all the GatewayClass or Gateway
+	// reference this EnvoyProxy with ParametersReference.
+	//
+	// +optional
+	// +notImplementedHide
+	ancestors?: [...#EnvoyProxyAncestorStatus] @go(Ancestors,[]EnvoyProxyAncestorStatus)
+}
+
+#EnvoyProxyAncestorStatus: {
+	// AncestorRef corresponds a GatewayClass or Gateway use this EnvoyProxy with ParametersReference.
+	// +required
+	ancestorRef: gwapiv1.#ParentReference @go(AncestorRef)
+}
+
+#EnvoyProxyConditionType: string // #enumEnvoyProxyConditionType
+
+#enumEnvoyProxyConditionType:
+	#EnvoyProxyConditionAccepted
+
+#EnvoyProxyConditionAccepted: #EnvoyProxyConditionType & "Accepted"
+
+#EnvoyProxyConditionReason: string // #enumEnvoyProxyConditionReason
+
+#enumEnvoyProxyConditionReason:
+	#EnvoyProxyReasonAccepted |
+	#EnvoyProxyReasonInvalidParameters
+
+#EnvoyProxyReasonAccepted:          #EnvoyProxyConditionReason & "Accepted"
+#EnvoyProxyReasonInvalidParameters: #EnvoyProxyConditionReason & "InvalidParameters"
 
 // EnvoyProxyList contains a list of EnvoyProxy
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 #EnvoyProxyList: {
 	metav1.#TypeMeta
 	metadata?: metav1.#ListMeta @go(ListMeta)

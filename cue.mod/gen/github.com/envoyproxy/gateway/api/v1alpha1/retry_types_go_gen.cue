@@ -4,7 +4,7 @@
 
 package v1alpha1
 
-import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 
 // Retry defines the retry strategy to be applied.
 #Retry: {
@@ -14,6 +14,13 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:default=2
 	numRetries?: null | int32 @go(NumRetries,*int32)
+
+	// NumAttemptsPerPriority defines the number of requests (initial attempt + retries)
+	// that should be sent to the same priority before switching to a different one.
+	// If not specified or set to 0, all requests are sent to the highest priority that is healthy.
+	//
+	// +optional
+	numAttemptsPerPriority?: null | int32 @go(NumAttemptsPerPriority,*int32)
 
 	// RetryOn specifies the retry trigger condition.
 	//
@@ -41,13 +48,14 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 }
 
 // TriggerEnum specifies the conditions that trigger retries.
-// +kubebuilder:validation:Enum={"5xx","gateway-error","reset","connect-failure","retriable-4xx","refused-stream","retriable-status-codes","cancelled","deadline-exceeded","internal","resource-exhausted","unavailable"}
+// +kubebuilder:validation:Enum={"5xx","gateway-error","reset","reset-before-request","connect-failure","retriable-4xx","refused-stream","retriable-status-codes","cancelled","deadline-exceeded","internal","resource-exhausted","unavailable"}
 #TriggerEnum: string // #enumTriggerEnum
 
 #enumTriggerEnum:
 	#Error5XX |
 	#GatewayError |
 	#Reset |
+	#ResetBeforeRequest |
 	#ConnectFailure |
 	#Retriable4XX |
 	#RefusedStream |
@@ -67,6 +75,9 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 // The upstream server does not respond at all (disconnect/reset/read timeout.)
 #Reset: #TriggerEnum & "reset"
+
+// Like reset, but only retry if the request headers have not been sent to the upstream server.
+#ResetBeforeRequest: #TriggerEnum & "reset-before-request"
 
 // Connection failure to the upstream server (connect timeout, etc.). (Included in *5xx*)
 #ConnectFailure: #TriggerEnum & "connect-failure"
@@ -100,8 +111,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Timeout is the timeout per retry attempt.
 	//
 	// +optional
-	// +kubebuilder:validation:Format=duration
-	timeout?: null | metav1.#Duration @go(Timeout,*metav1.Duration)
+	timeout?: null | gwapiv1.#Duration @go(Timeout,*gwapiv1.Duration)
 
 	// Backoff is the backoff policy to be applied per retry attempt. gateway uses a fully jittered exponential
 	// back-off algorithm for retries. For additional details,
@@ -114,13 +124,12 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 #BackOffPolicy: {
 	// BaseInterval is the base interval between retries.
 	//
-	// +kubebuilder:validation:Format=duration
-	baseInterval?: null | metav1.#Duration @go(BaseInterval,*metav1.Duration)
+	// +optional
+	baseInterval?: null | gwapiv1.#Duration @go(BaseInterval,*gwapiv1.Duration)
 
 	// MaxInterval is the maximum interval between retries. This parameter is optional, but must be greater than or equal to the base_interval if set.
 	// The default is 10 times the base_interval
 	//
 	// +optional
-	// +kubebuilder:validation:Format=duration
-	maxInterval?: null | metav1.#Duration @go(MaxInterval,*metav1.Duration)
+	maxInterval?: null | gwapiv1.#Duration @go(MaxInterval,*gwapiv1.Duration)
 }

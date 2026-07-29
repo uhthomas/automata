@@ -8,7 +8,7 @@ import (
 
 #Name:      "envoy-gateway"
 #Namespace: #Name
-#Version:   "1.7.1"
+#Version:   "1.8.2"
 
 #List: v1.#List & {
 	apiVersion: "v1"

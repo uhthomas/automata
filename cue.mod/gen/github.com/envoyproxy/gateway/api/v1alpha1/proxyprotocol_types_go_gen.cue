@@ -7,7 +7,7 @@ package v1alpha1
 // ProxyProtocol defines the configuration related to the proxy protocol
 // when communicating with the backend.
 #ProxyProtocol: {
-	// Version of ProxyProtol
+	// Version of ProxyProtocol
 	// Valid ProxyProtocolVersion values are
 	// "V1"
 	// "V2"
