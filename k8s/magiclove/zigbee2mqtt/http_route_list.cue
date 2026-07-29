@@ -15,6 +15,8 @@ import gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 	metadata: name: "\(#Name)-http"
 	spec: {
 		parentRefs: [{
+			group:       "gateway.networking.k8s.io"
+			kind:        "ListenerSet"
 			name:        #Name
 			sectionName: "http"
 		}]
@@ -32,6 +34,8 @@ import gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 	metadata: name: "\(#Name)-https"
 	spec: {
 		parentRefs: [{
+			group:       "gateway.networking.k8s.io"
+			kind:        "ListenerSet"
 			name:        #Name
 			sectionName: "https"
 		}]

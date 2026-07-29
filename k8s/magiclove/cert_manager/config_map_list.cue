@@ -18,9 +18,10 @@ import (
 
 #ConfigMapList: items: [{
 	data: "config.yaml": yaml.Marshal(certmanagercontrollerv1alpha1.#ControllerConfiguration & {
-		apiVersion:       "controller.config.cert-manager.io/v1alpha1"
-		kind:             "ControllerConfiguration"
-		enableGatewayAPI: true
+		apiVersion:                  "controller.config.cert-manager.io/v1alpha1"
+		kind:                        "ControllerConfiguration"
+		enableGatewayAPI:            true
+		enableGatewayAPIListenerSet: true
 		logging: {
 			flushFrequency: "5s"
 			verbosity:      2

@@ -27,7 +27,7 @@ import (
 #List: items: list.Concat(_items)
 
 _items: [
-	#GatewayList.items,
+	#ListenerSetList.items,
 	#HTTPRouteList.items,
 	#PersistentVolumeClaimList.items,
 	#PersistentVolumeList.items,

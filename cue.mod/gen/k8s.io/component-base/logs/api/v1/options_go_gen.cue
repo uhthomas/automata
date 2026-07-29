@@ -37,10 +37,10 @@ package v1
 // certain global defaults.
 #LoggingOptions: {
 	// ErrorStream can be used to override the os.Stderr default.
-	ErrorStream: _
+	ErrorStream: _ @go(,io.Writer)
 
 	// InfoStream can be used to override the os.Stdout default.
-	InfoStream: _
+	InfoStream: _ @go(,io.Writer)
 }
 
 _#parameters: {

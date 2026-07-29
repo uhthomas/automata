@@ -1,0 +1,44 @@
+package envoy_gateway_system
+
+import (
+	"encoding/yaml"
+
+	envoygatewayv1 "github.com/envoyproxy/gateway/api/v1alpha1"
+	"k8s.io/api/core/v1"
+)
+
+#ConfigMapList: v1.#ConfigMapList & {
+	apiVersion: "v1"
+	kind:       "ConfigMapList"
+	items: [...{
+		apiVersion: "v1"
+		kind:       "ConfigMap"
+	}]
+}
+
+#ConfigMapList: items: [{
+	data: "config.yaml": yaml.Marshal({
+		apiVersion: "gateway.envoyproxy.io/v1alpha1"
+		kind:       "EnvoyGateway"
+		extensionApis: {}
+		gateway: controllerName: "gateway.envoyproxy.io/gatewayclass-controller"
+		logging: level: default: "info"
+		provider: {
+			kubernetes: {
+				deploy: type: envoygatewayv1.#KubernetesDeployModeTypeGatewayNamespace
+				rateLimitDeployment: {
+					container: image: "docker.io/envoyproxy/ratelimit:1e50889b"
+					patch: {
+						type: "StrategicMerge"
+						value: spec: template: spec: containers: [{
+							imagePullPolicy: "IfNotPresent"
+							name:            "envoy-ratelimit"
+						}]
+					}
+				}
+				shutdownManager: image: "docker.io/envoyproxy/gateway:v\(#Version)"
+			}
+			type: "Kubernetes"
+		}
+	})
+}]

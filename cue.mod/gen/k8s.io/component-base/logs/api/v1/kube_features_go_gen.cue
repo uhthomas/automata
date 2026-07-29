@@ -9,15 +9,12 @@ import "k8s.io/component-base/featuregate"
 // owner: @pohly
 // kep: https://kep.k8s.io/3077
 // alpha: v1.24
+// beta: v1.30
 //
 // Enables looking up a logger from a context.Context instead of using
 // the global fallback logger and manipulating the logger that is
 // used by a call chain.
 #ContextualLogging: featuregate.#Feature & "ContextualLogging"
-
-// contextualLoggingDefault must remain false while in alpha. It can
-// become true in beta.
-_#contextualLoggingDefault: false
 
 // Allow fine-tuning of experimental, alpha-quality logging options.
 //
@@ -25,6 +22,10 @@ _#contextualLoggingDefault: false
 // we want to avoid a proliferation of feature gates. This feature gate:
 // - will guard *a group* of logging options whose quality level is alpha.
 // - will never graduate to beta or stable.
+//
+// IMPORTANT: Unlike typical feature gates, LoggingAlphaOptions is NOT affected by
+// emulation version changes. Its behavior remains constant regardless of the
+// emulation version being used.
 #LoggingAlphaOptions: featuregate.#Feature & "LoggingAlphaOptions"
 
 // Allow fine-tuning of experimental, beta-quality logging options.
@@ -34,6 +35,10 @@ _#contextualLoggingDefault: false
 // - will guard *a group* of logging options whose quality level is beta.
 // - is thus *introduced* as beta
 // - will never graduate to stable.
+//
+// IMPORTANT: Unlike typical feature gates, LoggingBetaOptions is NOT affected by
+// emulation version changes. Its behavior remains constant regardless of the
+// emulation version being used.
 #LoggingBetaOptions: featuregate.#Feature & "LoggingBetaOptions"
 
 // Stable logging options. Always enabled.

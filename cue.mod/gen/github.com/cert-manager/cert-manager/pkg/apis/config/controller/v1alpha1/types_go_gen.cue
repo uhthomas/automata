@@ -18,6 +18,7 @@ import (
 	kubeConfig?: string @go(KubeConfig)
 
 	// apiServerHost is used to override the API server connection address.
+	//
 	// Deprecated: use `kubeConfig` instead.
 	apiServerHost?: string @go(APIServerHost)
 
@@ -30,7 +31,7 @@ import (
 
 	// If set, this limits the scope of cert-manager to a single namespace and
 	// ClusterIssuers are disabled. If not specified, all namespaces will be
-	// watched"
+	// watched
 	namespace?: string @go(Namespace)
 
 	// Namespace to store resources owned by cluster scoped resources such as ClusterIssuer in.
@@ -71,11 +72,16 @@ import (
 	// as of 1.15).
 	enableGatewayAPI?: null | bool @go(EnableGatewayAPI,*bool)
 
+	// Specifies whether the ListenerSet controller should be enabled with-in cert-manager.
+	// This along with ListenerSet feature gate enabled allows the user to consume ListenerSet
+	// for self-service TLS.
+	enableGatewayAPIListenerSet?: null | bool @go(EnableGatewayAPIListenerSet,*bool)
+
 	// Specify which annotations should/shouldn't be copied from Certificate to
 	// CertificateRequest and Order, as well as from CertificateSigningRequest to
 	// Order, by passing a list of annotation key prefixes. A prefix starting with
 	// a dash(-) specifies an annotation that shouldn't be copied. Example:
-	// '*,-kubectl.kuberenetes.io/'- all annotations will be copied apart from the
+	// '*,-kubectl.kubernetes.io/'- all annotations will be copied apart from the
 	// ones where the key is prefixed with 'kubectl.kubernetes.io/'.
 	copiedAnnotationPrefixes?: [...string] @go(CopiedAnnotationPrefixes,[]string)
 
@@ -120,6 +126,14 @@ import (
 
 	// acmeDNS01Config configures the behaviour of the ACME DNS01 challenge solver
 	acmeDNS01Config?: #ACMEDNS01Config @go(ACMEDNS01Config)
+
+	// pemSizeLimitsConfig configures the maximum sizes for PEM-encoded data
+	pemSizeLimitsConfig?: #PEMSizeLimitsConfig @go(PEMSizeLimitsConfig)
+
+	// CertificateRequestMinimumBackoffDuration configures the initial backoff duration
+	// when a certificate request fails. This duration is exponentially increased
+	// (up to a maximum of 32 hours) based on the number of consecutive failures.
+	certificateRequestMinimumBackoffDuration?: null | sharedv1alpha1.#Duration @go(CertificateRequestMinimumBackoffDuration,*sharedv1alpha1.Duration)
 }
 
 #LeaderElectionConfig: {
@@ -144,9 +158,13 @@ import (
 	// not specified on the ingress resource.
 	defaultIssuerGroup?: string @go(DefaultIssuerGroup)
 
-	// The annotation consumed by the ingress-shim controller to indicate a ingress
+	// The annotation consumed by the ingress-shim controller to indicate an ingress
 	// is requesting a certificate
 	defaultAutoCertificateAnnotations?: [...string] @go(DefaultAutoCertificateAnnotations,[]string)
+
+	// ExtraCertificateAnnotations is a list of annotations which should be copied from
+	// and ingress-like object to a Certificate.
+	extraCertificateAnnotations?: [...string] @go(ExtraCertificateAnnotations,[]string)
 }
 
 #ACMEHTTP01Config: {
@@ -205,4 +223,22 @@ import (
 	// token is served at the challenge URL. This should be a valid duration
 	// string, for example 180s or 1h
 	checkRetryPeriod?: null | sharedv1alpha1.#Duration @go(CheckRetryPeriod,*sharedv1alpha1.Duration)
+}
+
+#PEMSizeLimitsConfig: {
+	// Maximum size for a single PEM-encoded certificate (in bytes).
+	// Defaults to 36500 bytes.
+	maxCertificateSize?: null | int32 @go(MaxCertificateSize,*int32)
+
+	// Maximum size for a single PEM-encoded private key (in bytes).
+	// Defaults to 13000 bytes.
+	maxPrivateKeySize?: null | int32 @go(MaxPrivateKeySize,*int32)
+
+	// Maximum size for a PEM-encoded certificate chain (in bytes).
+	// Defaults to 95000 bytes.
+	maxChainLength?: null | int32 @go(MaxChainLength,*int32)
+
+	// Maximum size for PEM-encoded certificate bundles (in bytes).
+	// Defaults to 330000 bytes.
+	maxBundleSize?: null | int32 @go(MaxBundleSize,*int32)
 }

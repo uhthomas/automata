@@ -19,6 +19,8 @@ import (
 	metadata: name: "\(gateway)-http"
 	spec: {
 		parentRefs: [{
+			group:       "gateway.networking.k8s.io"
+			kind:        "ListenerSet"
 			name:        gateway
 			sectionName: "http"
 		}]
@@ -36,6 +38,8 @@ import (
 	metadata: name: "\(gateway)-https"
 	spec: {
 		parentRefs: [{
+			group:       "gateway.networking.k8s.io"
+			kind:        "ListenerSet"
 			name:        gateway
 			sectionName: "https"
 		}]

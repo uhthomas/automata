@@ -28,7 +28,7 @@ _items: [
 	valkey.#List.items,
 	#ClusterList.items,
 	#ExternalSecretList.items,
-	#GatewayList.items,
+	#ListenerSetList.items,
 	#HTTPRouteList.items,
 	#KanidmOAuth2ClientList.items,
 	#NamespaceList.items,

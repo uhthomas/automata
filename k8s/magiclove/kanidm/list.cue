@@ -25,7 +25,7 @@ import (
 
 _items: [
 	#BackendTLSPolicyList.items,
-	#GatewayList.items,
+	#ListenerSetList.items,
 	#HTTPRouteList.items,
 	#KanidmGroupList.items,
 	#KanidmList.items,

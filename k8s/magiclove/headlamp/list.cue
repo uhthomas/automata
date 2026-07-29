@@ -43,7 +43,7 @@ _items: [
 	#CiliumNetworkPolicyList.items,
 	#ClusterRoleBindingList.items,
 	#DeploymentList.items,
-	#GatewayList.items,
+	#ListenerSetList.items,
 	#HTTPRouteList.items,
 	#KanidmOAuth2ClientList.items,
 	#NamespaceList.items,

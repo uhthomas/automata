@@ -43,7 +43,7 @@ _items: [
 	// #CiliumNetworkPolicyList.items,
 	#ConfigMapList.items,
 	#DeploymentList.items,
-	#GatewayList.items,
+	#ListenerSetList.items,
 	#HTTPRouteList.items,
 	#NamespaceList.items,
 	#ServiceList.items,

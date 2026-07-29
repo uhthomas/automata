@@ -12,6 +12,5 @@ import envoygatewayv1 "github.com/envoyproxy/gateway/api/v1alpha1"
 }
 
 #EnvoyProxyList: items: [{
-	metadata: name:      "\(#Name)-default"
-	spec: mergeGateways: true
+	metadata: name: "\(#Name)-default"
 }]

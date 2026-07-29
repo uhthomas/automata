@@ -13,6 +13,7 @@ import (
 	"github.com/uhthomas/automata/k8s/magiclove/default"
 	"github.com/uhthomas/automata/k8s/magiclove/descheduler"
 	"github.com/uhthomas/automata/k8s/magiclove/envoy_gateway"
+	"github.com/uhthomas/automata/k8s/magiclove/envoy_gateway_system"
 	"github.com/uhthomas/automata/k8s/magiclove/external_dns"
 	"github.com/uhthomas/automata/k8s/magiclove/external_secrets"
 	"github.com/uhthomas/automata/k8s/magiclove/fluent_bit"
@@ -94,6 +95,7 @@ _items: [
 	default.#List.items,
 	descheduler.#List.items,
 	envoy_gateway.#List.items,
+	envoy_gateway_system.#List.items,
 	external_dns.#List.items,
 	external_secrets.#List.items,
 	fluent_bit.#List.items,

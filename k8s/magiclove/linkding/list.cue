@@ -40,7 +40,7 @@ _image: tag: "\(#Version)-plus"
 #List: items: list.Concat(_items)
 
 _items: [
-	#GatewayList.items,
+	#ListenerSetList.items,
 	#HTTPRouteList.items,
 	#NamespaceList.items,
 	#ServiceList.items,

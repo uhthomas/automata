@@ -40,7 +40,7 @@ _image: tools.#Image & {
 _items: [
 	#DeploymentList.items,
 	#ExternalSecretList.items,
-	#GatewayList.items,
+	#ListenerSetList.items,
 	#HTTPRouteList.items,
 	#NamespaceList.items,
 	#ServiceList.items,

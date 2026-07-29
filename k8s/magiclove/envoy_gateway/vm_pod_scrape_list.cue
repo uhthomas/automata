@@ -17,6 +17,9 @@ import operatorv1beta1 "github.com/VictoriaMetrics/operator/api/operator/v1beta1
 			port: "metrics"
 			path: "/stats/prometheus"
 		}]
-		selector: matchLabels: "gateway.envoyproxy.io/owning-gatewayclass": "envoy-gateway"
+		selector: matchLabels: {
+			"app.kubernetes.io/component":  "proxy"
+			"app.kubernetes.io/managed-by": "envoy-gateway"
+		}
 	}
 }]

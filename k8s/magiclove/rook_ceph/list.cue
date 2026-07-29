@@ -41,7 +41,7 @@ import (
 	#ConfigMapList.items,
 	#CustomResourceDefinitionList.items,
 	#DeploymentList.items,
-	#GatewayList.items,
+	#ListenerSetList.items,
 	#HTTPRouteList.items,
 	#NamespaceList.items,
 	#RoleBindingList.items,

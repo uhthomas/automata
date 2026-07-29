@@ -32,7 +32,7 @@ import (
 _items: [
 	#ConfigMapList.items,
 	#ExternalSecretList.items,
-	#GatewayList.items,
+	#ListenerSetList.items,
 	#HTTPRouteList.items,
 	#NamespaceList.items,
 	#ServiceList.items,

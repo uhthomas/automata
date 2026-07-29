@@ -16,7 +16,7 @@ import (
 	items: [...{
 		metadata: {
 			name:      string | *#Name
-			namespace: #Namespace
+			namespace: string | *#Namespace
 			labels: {
 				"app.kubernetes.io/name":    #Name
 				"app.kubernetes.io/version": #Version
@@ -28,20 +28,8 @@ import (
 #List: items: list.Concat(_items)
 
 _items: [
-	#CertificateList.items,
-	#ClusterRoleBindingList.items,
-	#ClusterRoleList.items,
-	#ConfigMapList.items,
-	#CustomResourceDefinitionList.items,
-	#DeploymentList.items,
-	#EnvoyProxyList.items,
-	#IssuerList.items,
-	#MutatingWebhookConfigurationList.items,
 	#NamespaceList.items,
-	#RoleBindingList.items,
-	#RoleList.items,
-	#ServiceAccountList.items,
-	#ServiceList.items,
+	#EnvoyProxyList.items,
+	#GatewayList.items,
 	#VMPodScrapeList.items,
-	#VMServiceScrapeList.items,
 ]

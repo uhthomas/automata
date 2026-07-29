@@ -25,7 +25,7 @@ import (
 
 _items: [
 	#ExternalSecretList.items,
-	#GatewayList.items,
+	#ListenerSetList.items,
 	#HTTPRouteList.items,
 	#NamespaceList.items,
 	#PersistentVolumeClaimList.items,

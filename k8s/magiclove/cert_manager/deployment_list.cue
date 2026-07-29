@@ -120,6 +120,7 @@ _#FeatureGates: {
 						{
 							let featureGates = _#FeatureGates & {features: [
 								"ExperimentalGatewayAPISupport",
+								"ListenerSets",
 								"ServerSideApply",
 							]}
 							"--feature-gates=\(featureGates.value)"

@@ -31,11 +31,17 @@ _#allBetaGate: #Feature & "AllBeta"
 	// LockToDefault indicates that the feature is locked to its default and cannot be changed
 	LockToDefault: bool
 
-	// PreRelease indicates the maturity level of the feature
+	// PreRelease indicates the current maturity level of the feature
 	PreRelease: _#prerelease
 }
 
+#VersionedSpecs: [...#FeatureSpec]
+
+#PromotionVersionMapping: [string]: string
+
 _#prerelease: string
+
+#PreAlpha: _#prerelease & "PRE-ALPHA"
 
 // Values for PreRelease.
 #Alpha: _#prerelease & "ALPHA"
@@ -51,3 +57,8 @@ _#prerelease: string
 // MutableFeatureGate parses and stores flag gates for known features from
 // a string like feature1=true,feature2=false,...
 #MutableFeatureGate: _
+
+// MutableVersionedFeatureGate parses and stores flag gates for known features from
+// a string like feature1=true,feature2=false,...
+// MutableVersionedFeatureGate sets options based on the emulated version of the featured gate.
+#MutableVersionedFeatureGate: _

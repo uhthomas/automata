@@ -47,13 +47,27 @@ import "k8s.io/apimachinery/pkg/api/resource"
 
 // FormatOptions contains options for the different logging formats.
 #FormatOptions: {
+	// [Alpha] Text contains options for logging format "text".
+	// Only available when the LoggingAlphaOptions feature gate is enabled.
+	text?: #TextOptions @go(Text)
+
 	// [Alpha] JSON contains options for logging format "json".
 	// Only available when the LoggingAlphaOptions feature gate is enabled.
 	json?: #JSONOptions @go(JSON)
 }
 
+// TextOptions contains options for logging format "text".
+#TextOptions: {
+	#OutputRoutingOptions
+}
+
 // JSONOptions contains options for logging format "json".
 #JSONOptions: {
+	#OutputRoutingOptions
+}
+
+// OutputRoutingOptions contains options that are supported by both "text" and "json".
+#OutputRoutingOptions: {
 	// [Alpha] SplitStream redirects error messages to stderr while
 	// info messages go to stdout, with buffering. The default is to write
 	// both to stdout, without buffering. Only available when

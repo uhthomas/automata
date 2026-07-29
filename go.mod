@@ -9,7 +9,7 @@ require (
 	github.com/VictoriaMetrics/operator/api v0.66.1
 	github.com/backube/snapscheduler v1.2.0
 	github.com/backube/volsync v0.8.0
-	github.com/cert-manager/cert-manager v1.15.3
+	github.com/cert-manager/cert-manager v1.20.1
 	github.com/cilium/cilium v1.18.1
 	github.com/cloudnative-pg/cloudnative-pg v1.25.1
 	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
@@ -23,7 +23,7 @@ require (
 	k8s.io/api v0.36.2
 	k8s.io/apiextensions-apiserver v0.36.2
 	k8s.io/client-go v12.0.0+incompatible
-	k8s.io/kube-aggregator v0.30.1
+	k8s.io/kube-aggregator v0.35.2
 	k8s.io/kubernetes v1.34.0
 	sigs.k8s.io/external-dns v0.14.2
 	sigs.k8s.io/gateway-api v1.5.1
@@ -112,14 +112,14 @@ require (
 	github.com/go-openapi/strfmt v0.26.3 // indirect
 	github.com/go-openapi/swag v0.24.1 // indirect
 	github.com/go-openapi/validate v0.26.0 // indirect
-	github.com/go-test/deep v1.1.0 // indirect
+	github.com/go-test/deep v1.1.1 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/btree v1.1.3 // indirect
 	github.com/google/cel-go v0.26.0 // indirect
-	github.com/google/gnostic-models v0.7.0 // indirect
+	github.com/google/gnostic-models v0.7.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/go-jsonnet v0.21.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -138,7 +138,7 @@ require (
 	github.com/hashicorp/go-secure-stdlib/strutil v0.1.2 // indirect
 	github.com/hashicorp/go-sockaddr v1.0.7 // indirect
 	github.com/hashicorp/hcl v1.0.1-vault-7 // indirect
-	github.com/hashicorp/vault/api v1.20.0 // indirect
+	github.com/hashicorp/vault/api v1.22.0 // indirect
 	github.com/hashicorp/vault/api/auth/approle v0.8.0 // indirect
 	github.com/hashicorp/vault/api/auth/kubernetes v0.8.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
@@ -258,7 +258,7 @@ require (
 	k8s.io/component-base v0.36.2 // indirect
 	k8s.io/component-helpers v0.34.0 // indirect
 	k8s.io/klog/v2 v2.140.0 // indirect
-	k8s.io/kms v0.34.0 // indirect
+	k8s.io/kms v0.35.2 // indirect
 	k8s.io/kube-openapi v0.30.0 // indirect
 	k8s.io/kubectl v0.36.2 // indirect
 	k8s.io/metrics v0.36.2 // indirect

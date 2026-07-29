@@ -32,7 +32,7 @@ import (
 _items: [
 	#ConfigMapList.items,
 	#ExternalSecretList.items,
-	#GatewayList.items,
+	#ListenerSetList.items,
 	#GrafanaDashboardList.items,
 	#GrafanaDatasourceList.items,
 	#GrafanaList.items,
