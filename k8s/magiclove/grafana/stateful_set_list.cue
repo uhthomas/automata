@@ -14,6 +14,10 @@ import (
 	}]
 }
 #StatefulSetList: items: [{
+	metadata: annotations: {
+		"configmap.reloader.stakater.com/reload": #Name
+		"secret.reloader.stakater.com/reload":    "grafana-kanidm-oauth2-credentials"
+	}
 	spec: {
 		selector: matchLabels: "app.kubernetes.io/name": #Name
 		template: {

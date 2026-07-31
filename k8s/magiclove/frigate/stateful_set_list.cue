@@ -15,6 +15,7 @@ import (
 }
 
 #StatefulSetList: items: [{
+	metadata: annotations: "reloader.stakater.com/auto": "true"
 	spec: {
 		selector: matchLabels: "app.kubernetes.io/name": #Name
 		template: {
