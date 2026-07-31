@@ -11,4 +11,9 @@ import "k8s.io/api/core/v1"
 	}]
 }
 
-#NamespaceList: items: [{metadata: name: #Name}]
+#NamespaceList: items: [{
+	metadata: {
+		name: #Name
+		labels: "pod-security.kubernetes.io/enforce": "baseline"
+	}
+}]
