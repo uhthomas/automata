@@ -40,6 +40,7 @@ import (
 	"github.com/uhthomas/automata/k8s/magiclove/onepassword_connect"
 	"github.com/uhthomas/automata/k8s/magiclove/ping_exporter"
 	"github.com/uhthomas/automata/k8s/magiclove/redlib"
+	"github.com/uhthomas/automata/k8s/magiclove/reloader"
 	"github.com/uhthomas/automata/k8s/magiclove/rook_ceph"
 	"github.com/uhthomas/automata/k8s/magiclove/scrutiny"
 	"github.com/uhthomas/automata/k8s/magiclove/smartctl_exporter"
@@ -122,6 +123,7 @@ _items: [
 	onepassword_connect.#List.items,
 	ping_exporter.#List.items,
 	redlib.#List.items,
+	reloader.#List.items,
 	rook_ceph.#List.items,
 	scrutiny.#List.items,
 	smartctl_exporter.#List.items,
