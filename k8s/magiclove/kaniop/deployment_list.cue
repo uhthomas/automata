@@ -16,6 +16,7 @@ import (
 
 #DeploymentList: items: [{
 	spec: {
+		replicas:             1
 		revisionHistoryLimit: 3
 		selector: matchLabels: "app.kubernetes.io/name": #Name
 		template: {
@@ -47,6 +48,15 @@ import (
 					}, {
 						name:  "IDM_RECONCILE_INTERVAL_SECONDS"
 						value: "60"
+					}, {
+						name:  "CLUSTER_DOMAIN"
+						value: "cluster.local"
+					}, {
+						name: "POD_NAME"
+						valueFrom: fieldRef: fieldPath: "metadata.name"
+					}, {
+						name: "POD_NAMESPACE"
+						valueFrom: fieldRef: fieldPath: "metadata.namespace"
 					}]
 					readinessProbe: {
 						httpGet: {
@@ -80,6 +90,7 @@ import (
 }, {
 	metadata: name: "\(#Name)-webhook"
 	spec: {
+		replicas: 1
 		selector: matchLabels: "app.kubernetes.io/name": "\(#Name)-webhook"
 		template: {
 			metadata: labels: "app.kubernetes.io/name": "\(#Name)-webhook"

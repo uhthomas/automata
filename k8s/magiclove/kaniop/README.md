@@ -4,8 +4,9 @@
 
 ```sh
 ❯ helm template kaniop oci://ghcr.io/pando85/helm-charts/kaniop \
-    --version 0.5.8 \
+    --version 0.11.1 \
     -n kaniop \
+    --no-hooks \
     --set metrics.enabled=true \
     --set metrics.prometheusRules.enabled=true \
     --set webhook.enabled=true \
@@ -17,7 +18,7 @@
 CRDs:
 
 ```sh
-❯ helm show crds oci://ghcr.io/pando85/helm-charts/kaniop --version 0.5.8 > crds.yaml
+❯ helm show crds oci://ghcr.io/pando85/helm-charts/kaniop --version 0.11.1 > crds.yaml
 ❯ cue import -l "strings.ToLower(kind)" --list crds.yaml
 ```
 

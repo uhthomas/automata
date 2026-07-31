@@ -136,6 +136,49 @@ import admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
 		}, {
 			expression: "!has(object.spec.secretRotation) || !object.spec.public"
 			message:    "Public clients cannot have secret rotation (no secrets to rotate)."
+		}, {
+			expression: "!has(object.spec.secretKeyAliases) || !object.spec.public"
+			message:    "Public clients cannot have secret key aliases (no secrets to alias)."
+		}, {
+			expression: """
+				!has(object.spec.secretKeyAliases) || !has(object.spec.secretKeyAliases.clientId) || object.spec.secretKeyAliases.clientId.all(
+				  alias,
+				  alias.matches('^[a-zA-Z0-9._-]+$') && alias.size() > 0 && alias.size() <= 253
+				)
+				"""
+			message: "clientId aliases must be valid Kubernetes Secret key names (alphanumeric, '.', '-', '_' with max length 253)."
+		}, {
+			expression: """
+				!has(object.spec.secretKeyAliases) || !has(object.spec.secretKeyAliases.clientSecret) || object.spec.secretKeyAliases.clientSecret.all(
+				  alias,
+				  alias.matches('^[a-zA-Z0-9._-]+$') && alias.size() > 0 && alias.size() <= 253
+				)
+				"""
+			message: "clientSecret aliases must be valid Kubernetes Secret key names (alphanumeric, '.', '-', '_' with max length 253)."
+		}, {
+			expression: """
+				!has(object.spec.secretKeyAliases) || !has(object.spec.secretKeyAliases.clientId) || object.spec.secretKeyAliases.clientId.all(
+				  alias,
+				  alias != 'CLIENT_ID'
+				)
+				"""
+			message: "clientId aliases cannot use the canonical key name CLIENT_ID."
+		}, {
+			expression: """
+				!has(object.spec.secretKeyAliases) || !has(object.spec.secretKeyAliases.clientSecret) || object.spec.secretKeyAliases.clientSecret.all(
+				  alias,
+				  alias != 'CLIENT_SECRET'
+				)
+				"""
+			message: "clientSecret aliases cannot use the canonical key name CLIENT_SECRET."
+		}, {
+			expression: """
+				!has(object.spec.secretKeyAliases) || !has(object.spec.secretKeyAliases.clientId) || !has(object.spec.secretKeyAliases.clientSecret) || object.spec.secretKeyAliases.clientId.all(
+				  alias,
+				  !object.spec.secretKeyAliases.clientSecret.exists(alias2, alias2 == alias)
+				)
+				"""
+			message: "clientId and clientSecret aliases cannot overlap."
 		}]
 	}
 }, {
@@ -145,7 +188,7 @@ import admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
 			apiGroups: ["kaniop.rs"]
 			apiVersions: ["v1beta1"]
 			operations: ["CREATE", "UPDATE"]
-			resources: ["kanidmpersonsaccounts"]
+			resources: ["kanidmpersonaccounts"]
 		}]
 		validations: [{
 			expression: """

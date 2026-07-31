@@ -49,7 +49,7 @@ import (
 			apiGroups: ["kaniop.rs"]
 			apiVersions: ["v1beta1"]
 			operations: ["CREATE"]
-			resources: ["kanidmpersonsaccounts"]
+			resources: ["kanidmpersonaccounts"]
 		}]
 		failurePolicy:  admissionregistrationv1.#Fail
 		sideEffects:    admissionregistrationv1.#SideEffectClassNone

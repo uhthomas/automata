@@ -12,18 +12,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 }
 
 #CustomResourceDefinitionList: items: [{
+	apiVersion: "apiextensions.k8s.io/v1"
+	kind:       "CustomResourceDefinition"
 	metadata: name: "kanidms.kaniop.rs"
 	spec: {
 		group: "kaniop.rs"
 		names: {
-			categories: [
-				"kaniop",
-			]
+			categories: ["kaniop"]
 			kind:   "Kanidm"
 			plural: "kanidms"
-			shortNames: [
-				"idm",
-			]
+			shortNames: ["idm"]
 			singular: "kanidm"
 		}
 		scope: "Namespaced"
@@ -58,23 +56,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				properties: {
 					spec: {
 						description: """
-										Specification of the desired behavior of the Kanidm cluster. More info:
-										https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-										"""
+	Specification of the desired behavior of the Kanidm cluster. More info:
+	https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+	"""
 						properties: {
+							automountServiceAccountToken: {
+								description: """
+	AutomountServiceAccountToken indicates whether a service account token should be automatically mounted.
+	If not specified, defaults to true (the token is mounted).
+	Setting this to false is recommended for security-sensitive applications.
+	More info: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+	"""
+								nullable: true
+								type:     "boolean"
+							}
 							containers: {
 								description: """
-												Containers allows injecting additional containers or modifying operator generated
-												containers. This can be used to allow adding an authentication proxy to the Pods or to
-												change the behavior of an operator generated container. Containers described here modify
-												an operator generated container if they share the same name and modifications are done
-												via a strategic merge patch.
+	Containers allows injecting additional containers or modifying operator generated
+	containers. This can be used to allow adding an authentication proxy to the Pods or to
+	change the behavior of an operator generated container. Containers described here modify
+	an operator generated container if they share the same name and modifications are done
+	via a strategic merge patch.
 
-												The name of container managed by the operator is: kanidm
+	The name of container managed by the operator is: kanidm
 
-												Overriding containers is entirely outside the scope of what the maintainers will support
-												and by doing so, you accept that this behaviour may break at any time without notice.
-												"""
+	Overriding containers is entirely outside the scope of what the maintainers will support
+	and by doing so, you accept that this behaviour may break at any time without notice.
+	"""
 								items: {
 									description: "A single application container that you want to run within a pod."
 									properties: {
@@ -120,7 +128,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:        "boolean"
 																	}
 																}
-																required: ["key", "name"]
+																required: [
+																	"key",
+																	"name",
+																]
 																type: "object"
 															}
 															fieldRef: {
@@ -174,7 +185,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:        "boolean"
 																	}
 																}
-																required: ["key", "name"]
+																required: [
+																	"key",
+																	"name",
+																]
 																type: "object"
 															}
 														}
@@ -274,7 +288,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type:        "string"
 																			}
 																		}
-																		required: ["name", "value"]
+																		required: [
+																			"name",
+																			"value",
+																		]
 																		type: "object"
 																	}
 																	type: "array"
@@ -356,7 +373,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type:        "string"
 																			}
 																		}
-																		required: ["name", "value"]
+																		required: [
+																			"name",
+																			"value",
+																		]
 																		type: "object"
 																	}
 																	type: "array"
@@ -435,10 +455,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														service: {
 															description: """
-																			Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+	Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
 
-																			If this is not specified, the default behavior is defined by gRPC.
-																			"""
+	If this is not specified, the default behavior is defined by gRPC.
+	"""
 															type: "string"
 														}
 													}
@@ -466,7 +486,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:        "string"
 																	}
 																}
-																required: ["name", "value"]
+																required: [
+																	"name",
+																	"value",
+																]
 																type: "object"
 															}
 															type: "array"
@@ -594,10 +617,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														service: {
 															description: """
-																			Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+	Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
 
-																			If this is not specified, the default behavior is defined by gRPC.
-																			"""
+	If this is not specified, the default behavior is defined by gRPC.
+	"""
 															type: "string"
 														}
 													}
@@ -625,7 +648,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:        "string"
 																	}
 																}
-																required: ["name", "value"]
+																required: [
+																	"name",
+																	"value",
+																]
 																type: "object"
 															}
 															type: "array"
@@ -703,7 +729,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:        "string"
 													}
 												}
-												required: ["resourceName", "restartPolicy"]
+												required: [
+													"resourceName",
+													"restartPolicy",
+												]
 												type: "object"
 											}
 											type: "array"
@@ -713,12 +742,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											properties: {
 												claims: {
 													description: """
-																	Claims lists the names of resources, defined in spec.resourceClaims, that are used by this container.
+	Claims lists the names of resources, defined in spec.resourceClaims, that are used by this container.
 
-																	This is an alpha field and requires enabling the DynamicResourceAllocation feature gate.
+	This is an alpha field and requires enabling the DynamicResourceAllocation feature gate.
 
-																	This field is immutable. It can only be set for containers.
-																	"""
+	This field is immutable. It can only be set for containers.
+	"""
 													items: {
 														description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
 														properties: {
@@ -739,44 +768,44 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												limits: {
 													additionalProperties: {
 														description: """
-																		Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
+	Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
 
-																		The serialization format is:
+	The serialization format is:
 
-																		``` <quantity>        ::= <signedNumber><suffix>
+	``` <quantity>        ::= <signedNumber><suffix>
 
-																		\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
+	\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
 
-																		<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
+	<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
 
-																		\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
+	\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
 
-																		<decimalSI>       ::= m | "" | k | M | G | T | P | E
+	<decimalSI>       ::= m | "" | k | M | G | T | P | E
 
-																		\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
+	\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
 
-																		<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
+	<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
 
-																		No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
+	No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
 
-																		When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
+	When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
 
-																		Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
+	Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
 
-																		- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
+	- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
 
-																		The sign will be omitted unless the number is negative.
+	The sign will be omitted unless the number is negative.
 
-																		Examples:
+	Examples:
 
-																		- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
+	- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
 
-																		Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
+	Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
 
-																		Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
+	Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
 
-																		This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
-																		"""
+	This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
+	"""
 														"x-kubernetes-int-or-string": true
 													}
 													description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
@@ -785,44 +814,44 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												requests: {
 													additionalProperties: {
 														description: """
-																		Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
+	Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
 
-																		The serialization format is:
+	The serialization format is:
 
-																		``` <quantity>        ::= <signedNumber><suffix>
+	``` <quantity>        ::= <signedNumber><suffix>
 
-																		\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
+	\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
 
-																		<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
+	<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
 
-																		\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
+	\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
 
-																		<decimalSI>       ::= m | "" | k | M | G | T | P | E
+	<decimalSI>       ::= m | "" | k | M | G | T | P | E
 
-																		\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
+	\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
 
-																		<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
+	<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
 
-																		No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
+	No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
 
-																		When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
+	When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
 
-																		Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
+	Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
 
-																		- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
+	- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
 
-																		The sign will be omitted unless the number is negative.
+	The sign will be omitted unless the number is negative.
 
-																		Examples:
+	Examples:
 
-																		- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
+	- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
 
-																		Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
+	Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
 
-																		Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
+	Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
 
-																		This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
-																		"""
+	This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
+	"""
 														"x-kubernetes-int-or-string": true
 													}
 													description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. Requests cannot exceed Limits. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
@@ -851,11 +880,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														type: {
 															description: """
-																			type indicates which kind of AppArmor profile will be applied. Valid options are:
-																			  Localhost - a profile pre-loaded on the node.
-																			  RuntimeDefault - the container runtime's default profile.
-																			  Unconfined - no AppArmor enforcement.
-																			"""
+	type indicates which kind of AppArmor profile will be applied. Valid options are:
+	  Localhost - a profile pre-loaded on the node.
+	  RuntimeDefault - the container runtime's default profile.
+	  Unconfined - no AppArmor enforcement.
+	"""
 															type: "string"
 														}
 													}
@@ -935,10 +964,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														type: {
 															description: """
-																			type indicates which kind of seccomp profile will be applied. Valid options are:
+	type indicates which kind of seccomp profile will be applied. Valid options are:
 
-																			Localhost - a profile defined in a file on the node should be used. RuntimeDefault - the container runtime default profile should be used. Unconfined - no profile should be applied.
-																			"""
+	Localhost - a profile defined in a file on the node should be used. RuntimeDefault - the container runtime default profile should be used. Unconfined - no profile should be applied.
+	"""
 															type: "string"
 														}
 													}
@@ -997,10 +1026,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														service: {
 															description: """
-																			Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+	Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
 
-																			If this is not specified, the default behavior is defined by gRPC.
-																			"""
+	If this is not specified, the default behavior is defined by gRPC.
+	"""
 															type: "string"
 														}
 													}
@@ -1028,7 +1057,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:        "string"
 																	}
 																}
-																required: ["name", "value"]
+																required: [
+																	"name",
+																	"value",
+																]
 																type: "object"
 															}
 															type: "array"
@@ -1126,7 +1158,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:        "string"
 													}
 												}
-												required: ["devicePath", "name"]
+												required: [
+													"devicePath",
+													"name",
+												]
 												type: "object"
 											}
 											type: "array"
@@ -1154,16 +1189,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													recursiveReadOnly: {
 														description: """
-																		RecursiveReadOnly specifies whether read-only mounts should be handled recursively.
+	RecursiveReadOnly specifies whether read-only mounts should be handled recursively.
 
-																		If ReadOnly is false, this field has no meaning and must be unspecified.
+	If ReadOnly is false, this field has no meaning and must be unspecified.
 
-																		If ReadOnly is true, and this field is set to Disabled, the mount is not made recursively read-only.  If this field is set to IfPossible, the mount is made recursively read-only, if it is supported by the container runtime.  If this field is set to Enabled, the mount is made recursively read-only if it is supported by the container runtime, otherwise the pod will not be started and an error will be generated to indicate the reason.
+	If ReadOnly is true, and this field is set to Disabled, the mount is not made recursively read-only.  If this field is set to IfPossible, the mount is made recursively read-only, if it is supported by the container runtime.  If this field is set to Enabled, the mount is made recursively read-only if it is supported by the container runtime, otherwise the pod will not be started and an error will be generated to indicate the reason.
 
-																		If this field is set to IfPossible or Enabled, MountPropagation must be set to None (or be unspecified, which defaults to None).
+	If this field is set to IfPossible or Enabled, MountPropagation must be set to None (or be unspecified, which defaults to None).
 
-																		If this field is not specified, it is treated as an equivalent of Disabled.
-																		"""
+	If this field is not specified, it is treated as an equivalent of Disabled.
+	"""
 														type: "string"
 													}
 													subPath: {
@@ -1175,7 +1210,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:        "string"
 													}
 												}
-												required: ["mountPath", "name"]
+												required: [
+													"mountPath",
+													"name",
+												]
 												type: "object"
 											}
 											type: "array"
@@ -1194,10 +1232,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							disableUpgradeChecks: {
 								default: false
 								description: """
-												Before starting an upgrade, perform pre-upgrade checks to ensure that data can be
-												safely migrated to the new version. If pre-checks fail, image change is disallowed.
-												If set to true, upgrade pre-checks are skipped. Defaults to false.
-												"""
+	Before starting an upgrade, perform pre-upgrade checks to ensure that data can be
+	safely migrated to the new version. If pre-checks fail, image change is disallowed.
+	If set to true, upgrade pre-checks are skipped. Defaults to false.
+	"""
 								type: "boolean"
 							}
 							dnsConfig: {
@@ -1242,14 +1280,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							domain: {
 								description: """
-												The DNS domain name of the server. This is used in a number of security-critical
-												contexts such as webauthn, so it *must* match your DNS hostname. It is used to
-												create security principal names such as `william@idm.example.com` so that in a
-												(future) trust configuration it is possible to have unique Security Principal
-												Names (spns) throughout the topology.
+	The DNS domain name of the server. This is used in a number of security-critical
+	contexts such as webauthn, so it *must* match your DNS hostname. It is used to
+	create security principal names such as `william@idm.example.com` so that in a
+	(future) trust configuration it is possible to have unique Security Principal
+	Names (spns) throughout the topology.
 
-												This cannot be changed after creation.
-												"""
+	This cannot be changed after creation.
+	"""
 								type: "string"
 								"x-kubernetes-validations": [{
 									message: "Domain cannot be changed."
@@ -1259,12 +1297,55 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									rule:    "self.matches(r'^([a-z0-9]([-a-z0-9]*[a-z0-9])?\\.)*[a-z0-9]([-a-z0-9]*[a-z0-9])?$')"
 								}]
 							}
+							domainAppearance: {
+								description: """
+	Domain appearance customization settings.
+	Allows customizing the display name and site image (logo) shown on the Kanidm signin page.
+	"""
+								nullable: true
+								properties: {
+									displayName: {
+										description: "Display name shown when logged in. Defaults to \"Kanidm <hostname>\" if not specified."
+										nullable:    true
+										type:        "string"
+									}
+									image: {
+										description: """
+	Optional site image (logo) for the signin page.
+	Uses same pattern as OAuth2 client images.
+	"""
+										nullable: true
+										properties: url: {
+											description: """
+	URL to fetch the image from (HTTP/HTTPS only).
+	The operator will periodically check this URL for changes using HEAD requests
+	and re-download the image when changes are detected.
+	"""
+											type: "string"
+										}
+										required: ["url"]
+										type: "object"
+									}
+								}
+								type: "object"
+							}
+							enableServiceLinks: {
+								default: false
+								description: """
+	EnableServiceLinks indicates whether information about services should be injected into pod's
+	environment variables, matching the syntax of Docker links.
+	Defaults to false for security reasons (prevents service environment variable injection).
+	Set to true only if you need Kubernetes to inject service information as environment variables.
+	More info: https://kubernetes.io/docs/concepts/services-networking/service/#environment-variables
+	"""
+								type: "boolean"
+							}
 							env: {
 								description: """
-												List of environment variables to set in the `kanidm` container.
-												This can be used to set Kanidm configuration options.
-												More info: https://kanidm.github.io/kanidm/master/server_configuration.html
-												"""
+	List of environment variables to set in the `kanidm` container.
+	This can be used to set Kanidm configuration options.
+	More info: https://kanidm.github.io/kanidm/master/server_configuration.html
+	"""
 								items: {
 									description: "EnvVar represents an environment variable present in a Container."
 									properties: {
@@ -1295,7 +1376,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:        "boolean"
 														}
 													}
-													required: ["key", "name"]
+													required: [
+														"key",
+														"name",
+													]
 													type: "object"
 												}
 												fieldRef: {
@@ -1349,7 +1433,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:        "boolean"
 														}
 													}
-													required: ["key", "name"]
+													required: [
+														"key",
+														"name",
+													]
 													type: "object"
 												}
 											}
@@ -1365,21 +1452,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							externalReplicationNodes: {
 								default: []
 								description: """
-												List of external replication nodes. This is used to configure replication between
-												different Kanidm clusters.
+	List of external replication nodes. This is used to configure replication between
+	different Kanidm clusters.
 
-												**WARNING**: `admin` and `idm_admin` passwords are going to be reset.
-												"""
+	**WARNING**: `admin` and `idm_admin` passwords are going to be reset.
+	"""
 								items: {
 									properties: {
 										automaticRefresh: {
 											default: false
 											description: """
-															Select external replication node as the primary node. This means that if database conflicts
-															occur the content of the primary will take precedence over the rest of the nodes.
-															Note: just one external replication node or replication group can be selected as primary.
-															Defaults to false.
-															"""
+	Select external replication node as the primary node. This means that if database conflicts
+	occur the content of the primary will take precedence over the rest of the nodes.
+	Note: just one external replication node or replication group can be selected as primary.
+	Defaults to false.
+	"""
 											type: "boolean"
 										}
 										certificate: {
@@ -1398,7 +1485,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "boolean"
 												}
 											}
-											required: ["key", "name"]
+											required: [
+												"key",
+												"name",
+											]
 											type: "object"
 										}
 										hostname: {
@@ -1417,26 +1507,2759 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										type: {
 											default:     "mutual-pull"
 											description: "Defines the type of replication to use. Defaults to MutualPull."
-											enum: ["mutual-pull", "allow-pull", "pull"]
+											enum: [
+												"mutual-pull",
+												"allow-pull",
+												"pull",
+											]
 											type: "string"
 										}
 									}
-									required: ["certificate", "hostname", "name", "port"]
+									required: [
+										"certificate",
+										"hostname",
+										"name",
+										"port",
+									]
 									type: "object"
 								}
 								maxItems: 100
 								type:     "array"
 							}
+							gateway: {
+								description: """
+	Gateway API configuration for the Kanidm cluster.
+
+	Allows configuring an HTTPRoute for Gateway API-based ingress routing.
+	The HTTPRoute will route traffic to the Kanidm service using the specified parentRefs
+	to attach to Gateway(s).
+	Both ingress and gateway can be configured simultaneously for migration scenarios.
+	"""
+								nullable: true
+								properties: {
+									annotations: {
+										additionalProperties: type: "string"
+										description: """
+	Annotations is an unstructured key value map stored with a resource that may be set by
+	external tools to store and retrieve arbitrary metadata.
+	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
+	"""
+										nullable: true
+										type:     "object"
+									}
+									backendTlsPolicy: {
+										description: """
+	BackendTLSPolicy configuration for TLS validation between the Gateway and Kanidm backend service.
+	When specified, creates a BackendTLSPolicy resource to validate TLS connections from the Gateway
+	to the Kanidm service (port 8443). This is required when using TLS between Gateway and backend.
+	When unspecified, no BackendTLSPolicy is created.
+	"""
+										nullable: true
+										properties: {
+											annotations: {
+												additionalProperties: type: "string"
+												description: """
+	Annotations is an unstructured key value map stored with a resource that may be set by
+	external tools to store and retrieve arbitrary metadata.
+	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
+	"""
+												nullable: true
+												type:     "object"
+											}
+											validation: {
+												description: "Validation contains backend TLS validation configuration."
+												properties: {
+													caCertificateRefs: {
+														description: """
+	CACertificateRefs references CA certificates for validation.
+	When specified, these certificates are used to validate the backend TLS connection.
+	Useful for private/internal certificates not in the system trust store.
+	"""
+														items: {
+															properties: {
+																group: {
+																	description: """
+	Group is the group of the referent.
+	When unspecified, defaults to "" (core API group).
+	"""
+																	nullable: true
+																	type:     "string"
+																}
+																kind: {
+																	description: """
+	Kind is the kind of the referent.
+	When unspecified, defaults to "Secret".
+	"""
+																	nullable: true
+																	type:     "string"
+																}
+																name: {
+																	description: "Name of the referent (the Secret containing the CA certificate)."
+																	type:        "string"
+																}
+															}
+															required: ["name"]
+															type: "object"
+														}
+														nullable: true
+														type:     "array"
+													}
+													hostname: {
+														description: """
+	Hostname is the hostname used for TLS validation.
+	When unspecified, defaults to the Kanidm domain (spec.domain).
+	"""
+														nullable: true
+														type:     "string"
+													}
+													wellKnownCaCertificates: {
+														description: """
+	WellKnownCACertificates specifies the type of CA certificates to use for validation.
+	When specified as "System", uses the system's trusted CA certificates.
+	This is the most common option for public certificates (e.g., Let's Encrypt).
+	"""
+														nullable: true
+														type:     "string"
+													}
+												}
+												type: "object"
+											}
+										}
+										required: ["validation"]
+										type: "object"
+									}
+									hostnames: {
+										description: """
+	Hostnames defines a set of hostnames that should match against the HTTP Host
+	header to select a HTTPRoute used to process the request.
+	When unspecified, defaults to the Kanidm domain (spec.domain).
+	"""
+										items: type: "string"
+										nullable: true
+										type:     "array"
+									}
+									parentRefs: {
+										description: """
+	ParentRefs references the Gateway(s) that this HTTPRoute should be attached to.
+	Each ParentRef must reference a Gateway in the same namespace as the HTTPRoute.
+	"""
+										items: {
+											properties: {
+												group: {
+													description: """
+	Group is the group of the referent.
+	When unspecified, defaults to "gateway.networking.k8s.io".
+	"""
+													nullable: true
+													type:     "string"
+												}
+												kind: {
+													description: """
+	Kind is the kind of the referent.
+	When unspecified, defaults to "Gateway".
+	"""
+													nullable: true
+													type:     "string"
+												}
+												name: {
+													description: "Name of the referent."
+													type:        "string"
+												}
+												namespace: {
+													description: "Namespace of the referent. When unspecified, this refers to the local namespace."
+													nullable:    true
+													type:        "string"
+												}
+												port: {
+													description: "Port is the network port this Route targets."
+													format:      "uint32"
+													minimum:     0.0
+													nullable:    true
+													type:        "integer"
+												}
+												sectionName: {
+													description: """
+	SectionName is the name of a section within the target resource.
+	When specified, this must refer to a named section within the target resource,
+	such as a specific listener on a Gateway.
+	"""
+													nullable: true
+													type:     "string"
+												}
+											}
+											required: ["name"]
+											type: "object"
+										}
+										minItems: 1
+										type:     "array"
+										"x-kubernetes-validations": [{
+											message: "At least one ParentRef is required"
+											rule:    "self.size() > 0"
+										}]
+									}
+									rules: {
+										description: """
+	Rules defines a list of HTTPRoute rules.
+	Each rule consists of conditions for matching an HTTP request,
+	filters for processing it, and backend references for forwarding the request.
+	When unspecified, a default rule is created that routes all traffic to the Kanidm service.
+	This field allows customization of routing behavior, including session persistence,
+	timeouts, filters, and advanced matching conditions.
+	Note: The sessionPersistence field in rules is experimental and requires
+	Gateway API experimental channel support from the implementation.
+	"""
+										items: {
+											description: """
+	HTTPRouteRule defines semantics for matching an HTTP request based on
+	conditions (matches), processing it (filters), and forwarding the request to
+	an API object (backendRefs).
+	"""
+											properties: {
+												backendRefs: {
+													description: """
+	BackendRefs defines the backend(s) where matching requests should be
+	sent.
+
+	Failure behavior here depends on how many BackendRefs are specified and
+	how many are invalid.
+
+	If *all* entries in BackendRefs are invalid, and there are also no filters
+	specified in this route rule, *all* traffic which matches this rule MUST
+	receive a 500 status code.
+
+	See the HTTPBackendRef definition for the rules about what makes a single
+	HTTPBackendRef invalid.
+
+	When a HTTPBackendRef is invalid, 500 status codes MUST be returned for
+	requests that would have otherwise been routed to an invalid backend. If
+	multiple backends are specified, and some are invalid, the proportion of
+	requests that would otherwise have been routed to an invalid backend
+	MUST receive a 500 status code.
+
+	For example, if two backends are specified with equal weights, and one is
+	invalid, 50 percent of traffic must receive a 500. Implementations may
+	choose how that 50 percent is determined.
+
+	When a HTTPBackendRef refers to a Service that has no ready endpoints,
+	implementations SHOULD return a 503 for requests to that backend instead.
+	If an implementation chooses to do this, all of the above rules for 500 responses
+	MUST also apply for responses that return a 503.
+
+	Support: Core for Kubernetes Service
+
+	Support: Extended for Kubernetes ServiceImport
+
+	Support: Implementation-specific for any other resource
+
+	Support for weight: Core
+	"""
+													items: {
+														description: """
+	HTTPBackendRef defines how a HTTPRoute forwards a HTTP request.
+
+	Note that when a namespace different than the local namespace is specified, a
+	ReferenceGrant object is required in the referent namespace to allow that
+	namespace's owner to accept the reference. See the ReferenceGrant
+	documentation for details.
+	"""
+														properties: {
+															filters: {
+																description: """
+	Filters defined at this level should be executed if and only if the
+	request is being forwarded to the backend defined here.
+
+	Support: Implementation-specific (For broader support of filters, use the
+	Filters field in HTTPRouteRule.)
+	"""
+																items: {
+																	description: """
+	HTTPRouteFilter defines processing steps that must be completed during the
+	request or response lifecycle. HTTPRouteFilters are meant as an extension
+	point to express processing that may be done in Gateway implementations. Some
+	examples include request or response modification, implementing
+	authentication strategies, rate-limiting, and traffic shaping. API
+	guarantee/conformance is defined based on the type of the filter.
+	"""
+																	properties: {
+																		cors: {
+																			description: """
+	CORS defines a schema for a filter that responds to the
+	cross-origin request based on HTTP response header.
+
+	Support: Extended
+	"""
+																			nullable: true
+																			properties: {
+																				allowCredentials: {
+																					description: """
+	AllowCredentials indicates whether the actual cross-origin request allows
+	to include credentials.
+
+	When set to true, the gateway will include the `Access-Control-Allow-Credentials`
+	response header with value true (case-sensitive).
+
+	When set to false or omitted the gateway will omit the header
+	`Access-Control-Allow-Credentials` entirely (this is the standard CORS
+	behavior).
+
+	Support: Extended
+	"""
+																					nullable: true
+																					type:     "boolean"
+																				}
+																				allowHeaders: {
+																					description: """
+	AllowHeaders indicates which HTTP request headers are supported for
+	accessing the requested resource.
+
+	Header names are not case-sensitive.
+
+	Multiple header names in the value of the `Access-Control-Allow-Headers`
+	response header are separated by a comma (",").
+
+	When the `AllowHeaders` field is configured with one or more headers, the
+	gateway must return the `Access-Control-Allow-Headers` response header
+	which value is present in the `AllowHeaders` field.
+
+	If any header name in the `Access-Control-Request-Headers` request header
+	is not included in the list of header names specified by the response
+	header `Access-Control-Allow-Headers`, it will present an error on the
+	client side.
+
+	If any header name in the `Access-Control-Allow-Headers` response header
+	does not recognize by the client, it will also occur an error on the
+	client side.
+
+	A wildcard indicates that the requests with all HTTP headers are allowed.
+	If config contains the wildcard "*" in allowHeaders and the request is
+	not credentialed, the `Access-Control-Allow-Headers` response header
+	can either use the `*` wildcard or the value of
+	Access-Control-Request-Headers from the request.
+
+	When the request is credentialed, the gateway must not specify the `*`
+	wildcard in the `Access-Control-Allow-Headers` response header. When
+	also the `AllowCredentials` field is true and `AllowHeaders` field
+	is specified with the `*` wildcard, the gateway must specify one or more
+	HTTP headers in the value of the `Access-Control-Allow-Headers` response
+	header. The value of the header `Access-Control-Allow-Headers` is same as
+	the `Access-Control-Request-Headers` header provided by the client. If
+	the header `Access-Control-Request-Headers` is not included in the
+	request, the gateway will omit the `Access-Control-Allow-Headers`
+	response header, instead of specifying the `*` wildcard.
+
+	Support: Extended
+	"""
+																					items: type: "string"
+																					nullable: true
+																					type:     "array"
+																				}
+																				allowMethods: {
+																					description: """
+	AllowMethods indicates which HTTP methods are supported for accessing the
+	requested resource.
+
+	Valid values are any method defined by RFC9110, along with the special
+	value `*`, which represents all HTTP methods are allowed.
+
+	Method names are case-sensitive, so these values are also case-sensitive.
+	(See <https://www.rfc-editor.org/rfc/rfc2616#section-5.1.1)>
+
+	Multiple method names in the value of the `Access-Control-Allow-Methods`
+	response header are separated by a comma (",").
+
+	A CORS-safelisted method is a method that is `GET`, `HEAD`, or `POST`.
+	(See <https://fetch.spec.whatwg.org/#cors-safelisted-method)> The
+	CORS-safelisted methods are always allowed, regardless of whether they
+	are specified in the `AllowMethods` field.
+
+	When the `AllowMethods` field is configured with one or more methods, the
+	gateway must return the `Access-Control-Allow-Methods` response header
+	which value is present in the `AllowMethods` field.
+
+	If the HTTP method of the `Access-Control-Request-Method` request header
+	is not included in the list of methods specified by the response header
+	`Access-Control-Allow-Methods`, it will present an error on the client
+	side.
+
+	If config contains the wildcard "*" in allowMethods and the request is
+	not credentialed, the `Access-Control-Allow-Methods` response header
+	can either use the `*` wildcard or the value of
+	Access-Control-Request-Method from the request.
+
+	When the request is credentialed, the gateway must not specify the `*`
+	wildcard in the `Access-Control-Allow-Methods` response header. When
+	also the `AllowCredentials` field is true and `AllowMethods` field
+	specified with the `*` wildcard, the gateway must specify one HTTP method
+	in the value of the Access-Control-Allow-Methods response header. The
+	value of the header `Access-Control-Allow-Methods` is same as the
+	`Access-Control-Request-Method` header provided by the client. If the
+	header `Access-Control-Request-Method` is not included in the request,
+	the gateway will omit the `Access-Control-Allow-Methods` response header,
+	instead of specifying the `*` wildcard.
+
+	Support: Extended
+	"""
+																					items: type: "string"
+																					nullable: true
+																					type:     "array"
+																				}
+																				allowOrigins: {
+																					description: """
+	AllowOrigins indicates whether the response can be shared with requested
+	resource from the given `Origin`.
+
+	The `Origin` consists of a scheme and a host, with an optional port, and
+	takes the form `<scheme>://<host>(:<port>)`.
+
+	Valid values for scheme are: `http` and `https`.
+
+	Valid values for port are any integer between 1 and 65535 (the list of
+	available TCP/UDP ports). Note that, if not included, port `80` is
+	assumed for `http` scheme origins, and port `443` is assumed for `https`
+	origins. This may affect origin matching.
+
+	The host part of the origin may contain the wildcard character `*`. These
+	wildcard characters behave as follows:
+
+	* `*` is a greedy match to the _left_, including any number of
+	  DNS labels to the left of its position. This also means that
+	  `*` will include any number of period `.` characters to the
+	  left of its position.
+	* A wildcard by itself matches all hosts.
+
+	An origin value that includes _only_ the `*` character indicates requests
+	from all `Origin`s are allowed.
+
+	When the `AllowOrigins` field is configured with multiple origins, it
+	means the server supports clients from multiple origins. If the request
+	`Origin` matches the configured allowed origins, the gateway must return
+	the given `Origin` and sets value of the header
+	`Access-Control-Allow-Origin` same as the `Origin` header provided by the
+	client.
+
+	The status code of a successful response to a "preflight" request is
+	always an OK status (i.e., 204 or 200).
+
+	If the request `Origin` does not match the configured allowed origins,
+	the gateway returns 204/200 response but doesn't set the relevant
+	cross-origin response headers. Alternatively, the gateway responds with
+	403 status to the "preflight" request is denied, coupled with omitting
+	the CORS headers. The cross-origin request fails on the client side.
+	Therefore, the client doesn't attempt the actual cross-origin request.
+
+	Conversely, if the request `Origin` matches one of the configured
+	allowed origins, the gateway sets the response header
+	`Access-Control-Allow-Origin` to the same value as the `Origin`
+	header provided by the client.
+
+	When config has the wildcard ("*") in allowOrigins, and the request
+	is not credentialed (e.g., it is a preflight request), the
+	`Access-Control-Allow-Origin` response header either contains the
+	wildcard as well or the Origin from the request.
+
+	When the request is credentialed, the gateway must not specify the `*`
+	wildcard in the `Access-Control-Allow-Origin` response header. When
+	also the `AllowCredentials` field is true and `AllowOrigins` field
+	specified with the `*` wildcard, the gateway must return a single origin
+	in the value of the `Access-Control-Allow-Origin` response header,
+	instead of specifying the `*` wildcard. The value of the header
+	`Access-Control-Allow-Origin` is same as the `Origin` header provided by
+	the client.
+
+	Support: Extended
+	"""
+																					items: type: "string"
+																					nullable: true
+																					type:     "array"
+																				}
+																				exposeHeaders: {
+																					description: """
+	ExposeHeaders indicates which HTTP response headers can be exposed
+	to client-side scripts in response to a cross-origin request.
+
+	A CORS-safelisted response header is an HTTP header in a CORS response
+	that it is considered safe to expose to the client scripts.
+	The CORS-safelisted response headers include the following headers:
+	`Cache-Control`
+	`Content-Language`
+	`Content-Length`
+	`Content-Type`
+	`Expires`
+	`Last-Modified`
+	`Pragma`
+	(See <https://fetch.spec.whatwg.org/#cors-safelisted-response-header-name)>
+	The CORS-safelisted response headers are exposed to client by default.
+
+	When an HTTP header name is specified using the `ExposeHeaders` field,
+	this additional header will be exposed as part of the response to the
+	client.
+
+	Header names are not case-sensitive.
+
+	Multiple header names in the value of the `Access-Control-Expose-Headers`
+	response header are separated by a comma (",").
+
+	A wildcard indicates that the responses with all HTTP headers are exposed
+	to clients. The `Access-Control-Expose-Headers` response header can only
+	use `*` wildcard as value when the request is not credentialed.
+
+	When the `exposeHeaders` config field contains the "*" wildcard and
+	the request is credentialed, the gateway cannot use the `*` wildcard in
+	the `Access-Control-Expose-Headers` response header.
+
+	Support: Extended
+	"""
+																					items: type: "string"
+																					nullable: true
+																					type:     "array"
+																				}
+																				maxAge: {
+																					description: """
+	MaxAge indicates the duration (in seconds) for the client to cache the
+	results of a "preflight" request.
+
+	The information provided by the `Access-Control-Allow-Methods` and
+	`Access-Control-Allow-Headers` response headers can be cached by the
+	client until the time specified by `Access-Control-Max-Age` elapses.
+
+	The default value of `Access-Control-Max-Age` response header is 5
+	(seconds).
+
+	When the `MaxAge` field is unspecified, the gateway sets the response
+	header "Access-Control-Max-Age: 5" by default.
+	"""
+																					format:   "int32"
+																					nullable: true
+																					type:     "integer"
+																				}
+																			}
+																			type: "object"
+																		}
+																		extensionRef: {
+																			description: """
+	ExtensionRef is an optional, implementation-specific extension to the
+	"filter" behavior.  For example, resource "myroutefilter" in group
+	"networking.example.net"). ExtensionRef MUST NOT be used for core and
+	extended filters.
+
+	This filter can be used multiple times within the same rule.
+
+	Support: Implementation-specific
+	"""
+																			nullable: true
+																			properties: {
+																				group: {
+																					description: """
+	Group is the group of the referent. For example, "gateway.networking.k8s.io".
+	When unspecified or empty string, core API group is inferred.
+	"""
+																					type: "string"
+																				}
+																				kind: {
+																					description: "Kind is kind of the referent. For example \"HTTPRoute\" or \"Service\"."
+																					type:        "string"
+																				}
+																				name: {
+																					description: "Name is the name of the referent."
+																					type:        "string"
+																				}
+																			}
+																			required: [
+																				"group",
+																				"kind",
+																				"name",
+																			]
+																			type: "object"
+																		}
+																		requestHeaderModifier: {
+																			description: """
+	RequestHeaderModifier defines a schema for a filter that modifies request
+	headers.
+
+	Support: Core
+	"""
+																			nullable: true
+																			properties: {
+																				add: {
+																					description: """
+	Add adds the given header(s) (name, value) to the request
+	before the action. It appends to any existing values associated
+	with the header name.
+
+	Input:
+	  GET /foo HTTP/1.1
+	  my-header: foo
+
+	Config:
+	  add:
+	  - name: "my-header"
+	    value: "bar,baz"
+
+	Output:
+	  GET /foo HTTP/1.1
+	  my-header: foo,bar,baz
+	"""
+																					items: {
+																						description: "HTTPHeader represents an HTTP Header name and value as defined by RFC 7230."
+																						properties: {
+																							name: {
+																								description: """
+	Name is the name of the HTTP Header to be matched. Name matching MUST be
+	case-insensitive. (See <https://tools.ietf.org/html/rfc7230#section-3.2).>
+
+	If multiple entries specify equivalent header names, the first entry with
+	an equivalent name MUST be considered for a match. Subsequent entries
+	with an equivalent header name MUST be ignored. Due to the
+	case-insensitivity of header names, "foo" and "Foo" are considered
+	equivalent.
+	"""
+																								type: "string"
+																							}
+																							value: {
+																								description: "Value is the value of HTTP Header to be matched."
+																								type:        "string"
+																							}
+																						}
+																						required: [
+																							"name",
+																							"value",
+																						]
+																						type: "object"
+																					}
+																					nullable: true
+																					type:     "array"
+																				}
+																				remove: {
+																					description: """
+	Remove the given header(s) from the HTTP request before the action. The
+	value of Remove is a list of HTTP header names. Note that the header
+	names are case-insensitive (see
+	<https://datatracker.ietf.org/doc/html/rfc2616#section-4.2).>
+
+	Input:
+	  GET /foo HTTP/1.1
+	  my-header1: foo
+	  my-header2: bar
+	  my-header3: baz
+
+	Config:
+	  remove: ["my-header1", "my-header3"]
+
+	Output:
+	  GET /foo HTTP/1.1
+	  my-header2: bar
+	"""
+																					items: type: "string"
+																					nullable: true
+																					type:     "array"
+																				}
+																				set: {
+																					description: """
+	Set overwrites the request with the given header (name, value)
+	before the action.
+
+	Input:
+	  GET /foo HTTP/1.1
+	  my-header: foo
+
+	Config:
+	  set:
+	  - name: "my-header"
+	    value: "bar"
+
+	Output:
+	  GET /foo HTTP/1.1
+	  my-header: bar
+	"""
+																					items: {
+																						description: "HTTPHeader represents an HTTP Header name and value as defined by RFC 7230."
+																						properties: {
+																							name: {
+																								description: """
+	Name is the name of the HTTP Header to be matched. Name matching MUST be
+	case-insensitive. (See <https://tools.ietf.org/html/rfc7230#section-3.2).>
+
+	If multiple entries specify equivalent header names, the first entry with
+	an equivalent name MUST be considered for a match. Subsequent entries
+	with an equivalent header name MUST be ignored. Due to the
+	case-insensitivity of header names, "foo" and "Foo" are considered
+	equivalent.
+	"""
+																								type: "string"
+																							}
+																							value: {
+																								description: "Value is the value of HTTP Header to be matched."
+																								type:        "string"
+																							}
+																						}
+																						required: [
+																							"name",
+																							"value",
+																						]
+																						type: "object"
+																					}
+																					nullable: true
+																					type:     "array"
+																				}
+																			}
+																			type: "object"
+																		}
+																		requestMirror: {
+																			description: """
+	RequestMirror defines a schema for a filter that mirrors requests.
+	Requests are sent to the specified destination, but responses from
+	that destination are ignored.
+
+	This filter can be used multiple times within the same rule. Note that
+	not all implementations will be able to support mirroring to multiple
+	backends.
+
+	Support: Extended
+	"""
+																			nullable: true
+																			properties: {
+																				backendRef: {
+																					description: """
+	BackendRef references a resource where mirrored requests are sent.
+
+	Mirrored requests must be sent only to a single destination endpoint
+	within this BackendRef, irrespective of how many endpoints are present
+	within this BackendRef.
+
+	If the referent cannot be found, this BackendRef is invalid and must be
+	dropped from the Gateway. The controller must ensure the "ResolvedRefs"
+	condition on the Route status is set to `status: False` and not configure
+	this backend in the underlying implementation.
+
+	If there is a cross-namespace reference to an *existing* object
+	that is not allowed by a ReferenceGrant, the controller must ensure the
+	"ResolvedRefs"  condition on the Route is set to `status: False`,
+	with the "RefNotPermitted" reason and not configure this backend in the
+	underlying implementation.
+
+	In either error case, the Message of the `ResolvedRefs` Condition
+	should be used to provide more detail about the problem.
+
+	Support: Extended for Kubernetes Service
+
+	Support: Implementation-specific for any other resource
+	"""
+																					properties: {
+																						group: {
+																							description: """
+	Group is the group of the referent. For example, "gateway.networking.k8s.io".
+	When unspecified or empty string, core API group is inferred.
+	"""
+																							nullable: true
+																							type:     "string"
+																						}
+																						kind: {
+																							description: """
+	Kind is the Kubernetes resource kind of the referent. For example
+	"Service".
+
+	Defaults to "Service" when not specified.
+
+	ExternalName services can refer to CNAME DNS records that may live
+	outside of the cluster and as such are difficult to reason about in
+	terms of conformance. They also may not be safe to forward to (see
+	CVE-2021-25740 for more information). Implementations SHOULD NOT
+	support ExternalName Services.
+
+	Support: Core (Services with a type other than ExternalName)
+
+	Support: Implementation-specific (Services with type ExternalName)
+	"""
+																							nullable: true
+																							type:     "string"
+																						}
+																						name: {
+																							description: "Name is the name of the referent."
+																							type:        "string"
+																						}
+																						namespace: {
+																							description: """
+	Namespace is the namespace of the backend. When unspecified, the local
+	namespace is inferred.
+
+	Note that when a namespace different than the local namespace is specified,
+	a ReferenceGrant object is required in the referent namespace to allow that
+	namespace's owner to accept the reference. See the ReferenceGrant
+	documentation for details.
+
+	Support: Core
+	"""
+																							nullable: true
+																							type:     "string"
+																						}
+																						port: {
+																							description: """
+	Port specifies the destination port number to use for this resource.
+	Port is required when the referent is a Kubernetes Service. In this
+	case, the port number is the service port number, not the target port.
+	For other resources, destination port might be derived from the referent
+	resource or this field.
+	"""
+																							format:   "int32"
+																							nullable: true
+																							type:     "integer"
+																						}
+																					}
+																					required: ["name"]
+																					type: "object"
+																				}
+																				fraction: {
+																					description: """
+	Fraction represents the fraction of requests that should be
+	mirrored to BackendRef.
+
+	Only one of Fraction or Percent may be specified. If neither field
+	is specified, 100% of requests will be mirrored.
+	"""
+																					nullable: true
+																					properties: {
+																						denominator: {
+																							format:   "int32"
+																							nullable: true
+																							type:     "integer"
+																						}
+																						numerator: {
+																							format: "int32"
+																							type:   "integer"
+																						}
+																					}
+																					required: ["numerator"]
+																					type: "object"
+																				}
+																				percent: {
+																					description: """
+	Percent represents the percentage of requests that should be
+	mirrored to BackendRef. Its minimum value is 0 (indicating 0% of
+	requests) and its maximum value is 100 (indicating 100% of requests).
+
+	Only one of Fraction or Percent may be specified. If neither field
+	is specified, 100% of requests will be mirrored.
+	"""
+																					format:   "int32"
+																					nullable: true
+																					type:     "integer"
+																				}
+																			}
+																			required: ["backendRef"]
+																			type: "object"
+																		}
+																		requestRedirect: {
+																			description: """
+	RequestRedirect defines a schema for a filter that responds to the
+	request with an HTTP redirection.
+
+	Support: Core
+	"""
+																			nullable: true
+																			properties: {
+																				hostname: {
+																					description: """
+	Hostname is the hostname to be used in the value of the `Location`
+	header in the response.
+	When empty, the hostname in the `Host` header of the request is used.
+
+	Support: Core
+	"""
+																					nullable: true
+																					type:     "string"
+																				}
+																				path: {
+																					description: """
+	Path defines parameters used to modify the path of the incoming request.
+	The modified path is then used to construct the `Location` header. When
+	empty, the request path is used as-is.
+
+	Support: Extended
+	"""
+																					nullable: true
+																					properties: {
+																						replaceFullPath: {
+																							description: """
+	ReplaceFullPath specifies the value with which to replace the full path
+	of a request during a rewrite or redirect.
+	"""
+																							nullable: true
+																							type:     "string"
+																						}
+																						replacePrefixMatch: {
+																							description: """
+	ReplacePrefixMatch specifies the value with which to replace the prefix
+	match of a request during a rewrite or redirect. For example, a request
+	to "/foo/bar" with a prefix match of "/foo" and a ReplacePrefixMatch
+	of "/xyz" would be modified to "/xyz/bar".
+
+	Note that this matches the behavior of the PathPrefix match type. This
+	matches full path elements. A path element refers to the list of labels
+	in the path split by the `/` separator. When specified, a trailing `/` is
+	ignored. For example, the paths `/abc`, `/abc/`, and `/abc/def` would all
+	match the prefix `/abc`, but the path `/abcd` would not.
+
+	ReplacePrefixMatch is only compatible with a `PathPrefix` HTTPRouteMatch.
+	Using any other HTTPRouteMatch type on the same HTTPRouteRule will result in
+	the implementation setting the Accepted Condition for the Route to `status: False`.
+
+	Request Path | Prefix Match | Replace Prefix | Modified Path
+	"""
+																							nullable: true
+																							type:     "string"
+																						}
+																						type: {
+																							description: """
+	Type defines the type of path modifier. Additional types may be
+	added in a future release of the API.
+
+	Note that values may be added to this enum, implementations
+	must ensure that unknown values will not cause a crash.
+
+	Unknown values here must result in the implementation setting the
+	Accepted Condition for the Route to `status: False`, with a
+	Reason of `UnsupportedValue`.
+	"""
+																							enum: [
+																								"ReplaceFullPath",
+																								"ReplacePrefixMatch",
+																							]
+																							type: "string"
+																						}
+																					}
+																					required: ["type"]
+																					type: "object"
+																				}
+																				port: {
+																					description: """
+	Port is the port to be used in the value of the `Location`
+	header in the response.
+
+	If no port is specified, the redirect port MUST be derived using the
+	following rules:
+
+	* If redirect scheme is not-empty, the redirect port MUST be the well-known
+	  port associated with the redirect scheme. Specifically "http" to port 80
+	  and "https" to port 443. If the redirect scheme does not have a
+	  well-known port, the listener port of the Gateway SHOULD be used.
+	* If redirect scheme is empty, the redirect port MUST be the Gateway
+	  Listener port.
+
+	Implementations SHOULD NOT add the port number in the 'Location'
+	header in the following cases:
+
+	* A Location header that will use HTTP (whether that is determined via
+	  the Listener protocol or the Scheme field) _and_ use port 80.
+	* A Location header that will use HTTPS (whether that is determined via
+	  the Listener protocol or the Scheme field) _and_ use port 443.
+
+	Support: Extended
+	"""
+																					format:   "int32"
+																					nullable: true
+																					type:     "integer"
+																				}
+																				scheme: {
+																					description: """
+	Scheme is the scheme to be used in the value of the `Location` header in
+	the response. When empty, the scheme of the request is used.
+
+	Scheme redirects can affect the port of the redirect, for more information,
+	refer to the documentation for the port field of this filter.
+
+	Note that values may be added to this enum, implementations
+	must ensure that unknown values will not cause a crash.
+
+	Unknown values here must result in the implementation setting the
+	Accepted Condition for the Route to `status: False`, with a
+	Reason of `UnsupportedValue`.
+
+	Support: Extended
+	"""
+																					enum: [
+																						"http",
+																						"https", null,
+																					]
+																					nullable: true
+																					type:     "string"
+																				}
+																				statusCode: {
+																					description: """
+	StatusCode is the HTTP status code to be used in response.
+
+	Note that values may be added to this enum, implementations
+	must ensure that unknown values will not cause a crash.
+
+	Unknown values here must result in the implementation setting the
+	Accepted Condition for the Route to `status: False`, with a
+	Reason of `UnsupportedValue`.
+
+	Support: Core
+	"""
+																					format:   "int64"
+																					nullable: true
+																					type:     "integer"
+																				}
+																			}
+																			type: "object"
+																		}
+																		responseHeaderModifier: {
+																			description: """
+	ResponseHeaderModifier defines a schema for a filter that modifies response
+	headers.
+
+	Support: Extended
+	"""
+																			nullable: true
+																			properties: {
+																				add: {
+																					description: """
+	Add adds the given header(s) (name, value) to the request
+	before the action. It appends to any existing values associated
+	with the header name.
+
+	Input:
+	  GET /foo HTTP/1.1
+	  my-header: foo
+
+	Config:
+	  add:
+	  - name: "my-header"
+	    value: "bar,baz"
+
+	Output:
+	  GET /foo HTTP/1.1
+	  my-header: foo,bar,baz
+	"""
+																					items: {
+																						description: "HTTPHeader represents an HTTP Header name and value as defined by RFC 7230."
+																						properties: {
+																							name: {
+																								description: """
+	Name is the name of the HTTP Header to be matched. Name matching MUST be
+	case-insensitive. (See <https://tools.ietf.org/html/rfc7230#section-3.2).>
+
+	If multiple entries specify equivalent header names, the first entry with
+	an equivalent name MUST be considered for a match. Subsequent entries
+	with an equivalent header name MUST be ignored. Due to the
+	case-insensitivity of header names, "foo" and "Foo" are considered
+	equivalent.
+	"""
+																								type: "string"
+																							}
+																							value: {
+																								description: "Value is the value of HTTP Header to be matched."
+																								type:        "string"
+																							}
+																						}
+																						required: [
+																							"name",
+																							"value",
+																						]
+																						type: "object"
+																					}
+																					nullable: true
+																					type:     "array"
+																				}
+																				remove: {
+																					description: """
+	Remove the given header(s) from the HTTP request before the action. The
+	value of Remove is a list of HTTP header names. Note that the header
+	names are case-insensitive (see
+	<https://datatracker.ietf.org/doc/html/rfc2616#section-4.2).>
+
+	Input:
+	  GET /foo HTTP/1.1
+	  my-header1: foo
+	  my-header2: bar
+	  my-header3: baz
+
+	Config:
+	  remove: ["my-header1", "my-header3"]
+
+	Output:
+	  GET /foo HTTP/1.1
+	  my-header2: bar
+	"""
+																					items: type: "string"
+																					nullable: true
+																					type:     "array"
+																				}
+																				set: {
+																					description: """
+	Set overwrites the request with the given header (name, value)
+	before the action.
+
+	Input:
+	  GET /foo HTTP/1.1
+	  my-header: foo
+
+	Config:
+	  set:
+	  - name: "my-header"
+	    value: "bar"
+
+	Output:
+	  GET /foo HTTP/1.1
+	  my-header: bar
+	"""
+																					items: {
+																						description: "HTTPHeader represents an HTTP Header name and value as defined by RFC 7230."
+																						properties: {
+																							name: {
+																								description: """
+	Name is the name of the HTTP Header to be matched. Name matching MUST be
+	case-insensitive. (See <https://tools.ietf.org/html/rfc7230#section-3.2).>
+
+	If multiple entries specify equivalent header names, the first entry with
+	an equivalent name MUST be considered for a match. Subsequent entries
+	with an equivalent header name MUST be ignored. Due to the
+	case-insensitivity of header names, "foo" and "Foo" are considered
+	equivalent.
+	"""
+																								type: "string"
+																							}
+																							value: {
+																								description: "Value is the value of HTTP Header to be matched."
+																								type:        "string"
+																							}
+																						}
+																						required: [
+																							"name",
+																							"value",
+																						]
+																						type: "object"
+																					}
+																					nullable: true
+																					type:     "array"
+																				}
+																			}
+																			type: "object"
+																		}
+																		type: {
+																			description: """
+	Type identifies the type of filter to apply. As with other API fields,
+	types are classified into three conformance levels:
+
+	- Core: Filter types and their corresponding configuration defined by
+	  "Support: Core" in this package, e.g. "RequestHeaderModifier". All
+	  implementations must support core filters.
+
+	- Extended: Filter types and their corresponding configuration defined by
+	  "Support: Extended" in this package, e.g. "RequestMirror". Implementers
+	  are encouraged to support extended filters.
+
+	- Implementation-specific: Filters that are defined and supported by
+	  specific vendors.
+	  In the future, filters showing convergence in behavior across multiple
+	  implementations will be considered for inclusion in extended or core
+	  conformance levels. Filter-specific configuration for such filters
+	  is specified using the ExtensionRef field. `Type` should be set to
+	  "ExtensionRef" for custom filters.
+
+	Implementers are encouraged to define custom implementation types to
+	extend the core API with implementation-specific behavior.
+
+	If a reference to a custom filter type cannot be resolved, the filter
+	MUST NOT be skipped. Instead, requests that would have been processed by
+	that filter MUST receive a HTTP error response.
+
+	Note that values may be added to this enum, implementations
+	must ensure that unknown values will not cause a crash.
+
+	Unknown values here must result in the implementation setting the
+	Accepted Condition for the Route to `status: False`, with a
+	Reason of `UnsupportedValue`.
+	"""
+																			enum: [
+																				"RequestHeaderModifier",
+																				"ResponseHeaderModifier",
+																				"RequestMirror",
+																				"RequestRedirect",
+																				"URLRewrite",
+																				"ExtensionRef",
+																				"CORS",
+																			]
+																			type: "string"
+																		}
+																		urlRewrite: {
+																			description: """
+	URLRewrite defines a schema for a filter that modifies a request during forwarding.
+
+	Support: Extended
+	"""
+																			nullable: true
+																			properties: {
+																				hostname: {
+																					description: """
+	Hostname is the value to be used to replace the Host header value during
+	forwarding.
+
+	Support: Extended
+	"""
+																					nullable: true
+																					type:     "string"
+																				}
+																				path: {
+																					description: """
+	Path defines a path rewrite.
+
+	Support: Extended
+	"""
+																					nullable: true
+																					properties: {
+																						replaceFullPath: {
+																							description: """
+	ReplaceFullPath specifies the value with which to replace the full path
+	of a request during a rewrite or redirect.
+	"""
+																							nullable: true
+																							type:     "string"
+																						}
+																						replacePrefixMatch: {
+																							description: """
+	ReplacePrefixMatch specifies the value with which to replace the prefix
+	match of a request during a rewrite or redirect. For example, a request
+	to "/foo/bar" with a prefix match of "/foo" and a ReplacePrefixMatch
+	of "/xyz" would be modified to "/xyz/bar".
+
+	Note that this matches the behavior of the PathPrefix match type. This
+	matches full path elements. A path element refers to the list of labels
+	in the path split by the `/` separator. When specified, a trailing `/` is
+	ignored. For example, the paths `/abc`, `/abc/`, and `/abc/def` would all
+	match the prefix `/abc`, but the path `/abcd` would not.
+
+	ReplacePrefixMatch is only compatible with a `PathPrefix` HTTPRouteMatch.
+	Using any other HTTPRouteMatch type on the same HTTPRouteRule will result in
+	the implementation setting the Accepted Condition for the Route to `status: False`.
+
+	Request Path | Prefix Match | Replace Prefix | Modified Path
+	"""
+																							nullable: true
+																							type:     "string"
+																						}
+																						type: {
+																							description: """
+	Type defines the type of path modifier. Additional types may be
+	added in a future release of the API.
+
+	Note that values may be added to this enum, implementations
+	must ensure that unknown values will not cause a crash.
+
+	Unknown values here must result in the implementation setting the
+	Accepted Condition for the Route to `status: False`, with a
+	Reason of `UnsupportedValue`.
+	"""
+																							enum: [
+																								"ReplaceFullPath",
+																								"ReplacePrefixMatch",
+																							]
+																							type: "string"
+																						}
+																					}
+																					required: ["type"]
+																					type: "object"
+																				}
+																			}
+																			type: "object"
+																		}
+																	}
+																	required: ["type"]
+																	type: "object"
+																}
+																nullable: true
+																type:     "array"
+															}
+															group: {
+																description: """
+	Group is the group of the referent. For example, "gateway.networking.k8s.io".
+	When unspecified or empty string, core API group is inferred.
+	"""
+																nullable: true
+																type:     "string"
+															}
+															kind: {
+																description: """
+	Kind is the Kubernetes resource kind of the referent. For example
+	"Service".
+
+	Defaults to "Service" when not specified.
+
+	ExternalName services can refer to CNAME DNS records that may live
+	outside of the cluster and as such are difficult to reason about in
+	terms of conformance. They also may not be safe to forward to (see
+	CVE-2021-25740 for more information). Implementations SHOULD NOT
+	support ExternalName Services.
+
+	Support: Core (Services with a type other than ExternalName)
+
+	Support: Implementation-specific (Services with type ExternalName)
+	"""
+																nullable: true
+																type:     "string"
+															}
+															name: {
+																description: "Name is the name of the referent."
+																type:        "string"
+															}
+															namespace: {
+																description: """
+	Namespace is the namespace of the backend. When unspecified, the local
+	namespace is inferred.
+
+	Note that when a namespace different than the local namespace is specified,
+	a ReferenceGrant object is required in the referent namespace to allow that
+	namespace's owner to accept the reference. See the ReferenceGrant
+	documentation for details.
+
+	Support: Core
+	"""
+																nullable: true
+																type:     "string"
+															}
+															port: {
+																description: """
+	Port specifies the destination port number to use for this resource.
+	Port is required when the referent is a Kubernetes Service. In this
+	case, the port number is the service port number, not the target port.
+	For other resources, destination port might be derived from the referent
+	resource or this field.
+	"""
+																format:   "int32"
+																nullable: true
+																type:     "integer"
+															}
+															weight: {
+																description: """
+	Weight specifies the proportion of requests forwarded to the referenced
+	backend. This is computed as weight/(sum of all weights in this
+	BackendRefs list). For non-zero values, there may be some epsilon from
+	the exact proportion defined here depending on the precision an
+	implementation supports. Weight is not a percentage and the sum of
+	weights does not need to equal 100.
+
+	If only one backend is specified and it has a weight greater than 0, 100%
+	of the traffic is forwarded to that backend. If weight is set to 0, no
+	traffic should be forwarded for this entry. If unspecified, weight
+	defaults to 1.
+
+	Support for this field varies based on the context where used.
+	"""
+																format:   "int32"
+																nullable: true
+																type:     "integer"
+															}
+														}
+														required: ["name"]
+														type: "object"
+													}
+													nullable: true
+													type:     "array"
+												}
+												filters: {
+													description: """
+	Filters define the filters that are applied to requests that match
+	this rule.
+
+	Wherever possible, implementations SHOULD implement filters in the order
+	they are specified.
+
+	Implementations MAY choose to implement this ordering strictly, rejecting
+	any combination or order of filters that cannot be supported. If implementations
+	choose a strict interpretation of filter ordering, they MUST clearly document
+	that behavior.
+
+	To reject an invalid combination or order of filters, implementations SHOULD
+	consider the Route Rules with this configuration invalid. If all Route Rules
+	in a Route are invalid, the entire Route would be considered invalid. If only
+	a portion of Route Rules are invalid, implementations MUST set the
+	"PartiallyInvalid" condition for the Route.
+
+	Conformance-levels at this level are defined based on the type of filter:
+
+	- ALL core filters MUST be supported by all implementations.
+	- Implementers are encouraged to support extended filters.
+	- Implementation-specific custom filters have no API guarantees across
+	  implementations.
+
+	Specifying the same filter multiple times is not supported unless explicitly
+	indicated in the filter.
+
+	All filters are expected to be compatible with each other except for the
+	URLRewrite and RequestRedirect filters, which may not be combined. If an
+	implementation cannot support other combinations of filters, they must clearly
+	document that limitation. In cases where incompatible or unsupported
+	filters are specified and cause the `Accepted` condition to be set to status
+	`False`, implementations may use the `IncompatibleFilters` reason to specify
+	this configuration error.
+
+	Support: Core
+	"""
+													items: {
+														description: """
+	HTTPRouteFilter defines processing steps that must be completed during the
+	request or response lifecycle. HTTPRouteFilters are meant as an extension
+	point to express processing that may be done in Gateway implementations. Some
+	examples include request or response modification, implementing
+	authentication strategies, rate-limiting, and traffic shaping. API
+	guarantee/conformance is defined based on the type of the filter.
+	"""
+														properties: {
+															cors: {
+																description: """
+	CORS defines a schema for a filter that responds to the
+	cross-origin request based on HTTP response header.
+
+	Support: Extended
+	"""
+																nullable: true
+																properties: {
+																	allowCredentials: {
+																		description: """
+	AllowCredentials indicates whether the actual cross-origin request allows
+	to include credentials.
+
+	When set to true, the gateway will include the `Access-Control-Allow-Credentials`
+	response header with value true (case-sensitive).
+
+	When set to false or omitted the gateway will omit the header
+	`Access-Control-Allow-Credentials` entirely (this is the standard CORS
+	behavior).
+
+	Support: Extended
+	"""
+																		nullable: true
+																		type:     "boolean"
+																	}
+																	allowHeaders: {
+																		description: """
+	AllowHeaders indicates which HTTP request headers are supported for
+	accessing the requested resource.
+
+	Header names are not case-sensitive.
+
+	Multiple header names in the value of the `Access-Control-Allow-Headers`
+	response header are separated by a comma (",").
+
+	When the `AllowHeaders` field is configured with one or more headers, the
+	gateway must return the `Access-Control-Allow-Headers` response header
+	which value is present in the `AllowHeaders` field.
+
+	If any header name in the `Access-Control-Request-Headers` request header
+	is not included in the list of header names specified by the response
+	header `Access-Control-Allow-Headers`, it will present an error on the
+	client side.
+
+	If any header name in the `Access-Control-Allow-Headers` response header
+	does not recognize by the client, it will also occur an error on the
+	client side.
+
+	A wildcard indicates that the requests with all HTTP headers are allowed.
+	If config contains the wildcard "*" in allowHeaders and the request is
+	not credentialed, the `Access-Control-Allow-Headers` response header
+	can either use the `*` wildcard or the value of
+	Access-Control-Request-Headers from the request.
+
+	When the request is credentialed, the gateway must not specify the `*`
+	wildcard in the `Access-Control-Allow-Headers` response header. When
+	also the `AllowCredentials` field is true and `AllowHeaders` field
+	is specified with the `*` wildcard, the gateway must specify one or more
+	HTTP headers in the value of the `Access-Control-Allow-Headers` response
+	header. The value of the header `Access-Control-Allow-Headers` is same as
+	the `Access-Control-Request-Headers` header provided by the client. If
+	the header `Access-Control-Request-Headers` is not included in the
+	request, the gateway will omit the `Access-Control-Allow-Headers`
+	response header, instead of specifying the `*` wildcard.
+
+	Support: Extended
+	"""
+																		items: type: "string"
+																		nullable: true
+																		type:     "array"
+																	}
+																	allowMethods: {
+																		description: """
+	AllowMethods indicates which HTTP methods are supported for accessing the
+	requested resource.
+
+	Valid values are any method defined by RFC9110, along with the special
+	value `*`, which represents all HTTP methods are allowed.
+
+	Method names are case-sensitive, so these values are also case-sensitive.
+	(See <https://www.rfc-editor.org/rfc/rfc2616#section-5.1.1)>
+
+	Multiple method names in the value of the `Access-Control-Allow-Methods`
+	response header are separated by a comma (",").
+
+	A CORS-safelisted method is a method that is `GET`, `HEAD`, or `POST`.
+	(See <https://fetch.spec.whatwg.org/#cors-safelisted-method)> The
+	CORS-safelisted methods are always allowed, regardless of whether they
+	are specified in the `AllowMethods` field.
+
+	When the `AllowMethods` field is configured with one or more methods, the
+	gateway must return the `Access-Control-Allow-Methods` response header
+	which value is present in the `AllowMethods` field.
+
+	If the HTTP method of the `Access-Control-Request-Method` request header
+	is not included in the list of methods specified by the response header
+	`Access-Control-Allow-Methods`, it will present an error on the client
+	side.
+
+	If config contains the wildcard "*" in allowMethods and the request is
+	not credentialed, the `Access-Control-Allow-Methods` response header
+	can either use the `*` wildcard or the value of
+	Access-Control-Request-Method from the request.
+
+	When the request is credentialed, the gateway must not specify the `*`
+	wildcard in the `Access-Control-Allow-Methods` response header. When
+	also the `AllowCredentials` field is true and `AllowMethods` field
+	specified with the `*` wildcard, the gateway must specify one HTTP method
+	in the value of the Access-Control-Allow-Methods response header. The
+	value of the header `Access-Control-Allow-Methods` is same as the
+	`Access-Control-Request-Method` header provided by the client. If the
+	header `Access-Control-Request-Method` is not included in the request,
+	the gateway will omit the `Access-Control-Allow-Methods` response header,
+	instead of specifying the `*` wildcard.
+
+	Support: Extended
+	"""
+																		items: type: "string"
+																		nullable: true
+																		type:     "array"
+																	}
+																	allowOrigins: {
+																		description: """
+	AllowOrigins indicates whether the response can be shared with requested
+	resource from the given `Origin`.
+
+	The `Origin` consists of a scheme and a host, with an optional port, and
+	takes the form `<scheme>://<host>(:<port>)`.
+
+	Valid values for scheme are: `http` and `https`.
+
+	Valid values for port are any integer between 1 and 65535 (the list of
+	available TCP/UDP ports). Note that, if not included, port `80` is
+	assumed for `http` scheme origins, and port `443` is assumed for `https`
+	origins. This may affect origin matching.
+
+	The host part of the origin may contain the wildcard character `*`. These
+	wildcard characters behave as follows:
+
+	* `*` is a greedy match to the _left_, including any number of
+	  DNS labels to the left of its position. This also means that
+	  `*` will include any number of period `.` characters to the
+	  left of its position.
+	* A wildcard by itself matches all hosts.
+
+	An origin value that includes _only_ the `*` character indicates requests
+	from all `Origin`s are allowed.
+
+	When the `AllowOrigins` field is configured with multiple origins, it
+	means the server supports clients from multiple origins. If the request
+	`Origin` matches the configured allowed origins, the gateway must return
+	the given `Origin` and sets value of the header
+	`Access-Control-Allow-Origin` same as the `Origin` header provided by the
+	client.
+
+	The status code of a successful response to a "preflight" request is
+	always an OK status (i.e., 204 or 200).
+
+	If the request `Origin` does not match the configured allowed origins,
+	the gateway returns 204/200 response but doesn't set the relevant
+	cross-origin response headers. Alternatively, the gateway responds with
+	403 status to the "preflight" request is denied, coupled with omitting
+	the CORS headers. The cross-origin request fails on the client side.
+	Therefore, the client doesn't attempt the actual cross-origin request.
+
+	Conversely, if the request `Origin` matches one of the configured
+	allowed origins, the gateway sets the response header
+	`Access-Control-Allow-Origin` to the same value as the `Origin`
+	header provided by the client.
+
+	When config has the wildcard ("*") in allowOrigins, and the request
+	is not credentialed (e.g., it is a preflight request), the
+	`Access-Control-Allow-Origin` response header either contains the
+	wildcard as well or the Origin from the request.
+
+	When the request is credentialed, the gateway must not specify the `*`
+	wildcard in the `Access-Control-Allow-Origin` response header. When
+	also the `AllowCredentials` field is true and `AllowOrigins` field
+	specified with the `*` wildcard, the gateway must return a single origin
+	in the value of the `Access-Control-Allow-Origin` response header,
+	instead of specifying the `*` wildcard. The value of the header
+	`Access-Control-Allow-Origin` is same as the `Origin` header provided by
+	the client.
+
+	Support: Extended
+	"""
+																		items: type: "string"
+																		nullable: true
+																		type:     "array"
+																	}
+																	exposeHeaders: {
+																		description: """
+	ExposeHeaders indicates which HTTP response headers can be exposed
+	to client-side scripts in response to a cross-origin request.
+
+	A CORS-safelisted response header is an HTTP header in a CORS response
+	that it is considered safe to expose to the client scripts.
+	The CORS-safelisted response headers include the following headers:
+	`Cache-Control`
+	`Content-Language`
+	`Content-Length`
+	`Content-Type`
+	`Expires`
+	`Last-Modified`
+	`Pragma`
+	(See <https://fetch.spec.whatwg.org/#cors-safelisted-response-header-name)>
+	The CORS-safelisted response headers are exposed to client by default.
+
+	When an HTTP header name is specified using the `ExposeHeaders` field,
+	this additional header will be exposed as part of the response to the
+	client.
+
+	Header names are not case-sensitive.
+
+	Multiple header names in the value of the `Access-Control-Expose-Headers`
+	response header are separated by a comma (",").
+
+	A wildcard indicates that the responses with all HTTP headers are exposed
+	to clients. The `Access-Control-Expose-Headers` response header can only
+	use `*` wildcard as value when the request is not credentialed.
+
+	When the `exposeHeaders` config field contains the "*" wildcard and
+	the request is credentialed, the gateway cannot use the `*` wildcard in
+	the `Access-Control-Expose-Headers` response header.
+
+	Support: Extended
+	"""
+																		items: type: "string"
+																		nullable: true
+																		type:     "array"
+																	}
+																	maxAge: {
+																		description: """
+	MaxAge indicates the duration (in seconds) for the client to cache the
+	results of a "preflight" request.
+
+	The information provided by the `Access-Control-Allow-Methods` and
+	`Access-Control-Allow-Headers` response headers can be cached by the
+	client until the time specified by `Access-Control-Max-Age` elapses.
+
+	The default value of `Access-Control-Max-Age` response header is 5
+	(seconds).
+
+	When the `MaxAge` field is unspecified, the gateway sets the response
+	header "Access-Control-Max-Age: 5" by default.
+	"""
+																		format:   "int32"
+																		nullable: true
+																		type:     "integer"
+																	}
+																}
+																type: "object"
+															}
+															extensionRef: {
+																description: """
+	ExtensionRef is an optional, implementation-specific extension to the
+	"filter" behavior.  For example, resource "myroutefilter" in group
+	"networking.example.net"). ExtensionRef MUST NOT be used for core and
+	extended filters.
+
+	This filter can be used multiple times within the same rule.
+
+	Support: Implementation-specific
+	"""
+																nullable: true
+																properties: {
+																	group: {
+																		description: """
+	Group is the group of the referent. For example, "gateway.networking.k8s.io".
+	When unspecified or empty string, core API group is inferred.
+	"""
+																		type: "string"
+																	}
+																	kind: {
+																		description: "Kind is kind of the referent. For example \"HTTPRoute\" or \"Service\"."
+																		type:        "string"
+																	}
+																	name: {
+																		description: "Name is the name of the referent."
+																		type:        "string"
+																	}
+																}
+																required: [
+																	"group",
+																	"kind",
+																	"name",
+																]
+																type: "object"
+															}
+															requestHeaderModifier: {
+																description: """
+	RequestHeaderModifier defines a schema for a filter that modifies request
+	headers.
+
+	Support: Core
+	"""
+																nullable: true
+																properties: {
+																	add: {
+																		description: """
+	Add adds the given header(s) (name, value) to the request
+	before the action. It appends to any existing values associated
+	with the header name.
+
+	Input:
+	  GET /foo HTTP/1.1
+	  my-header: foo
+
+	Config:
+	  add:
+	  - name: "my-header"
+	    value: "bar,baz"
+
+	Output:
+	  GET /foo HTTP/1.1
+	  my-header: foo,bar,baz
+	"""
+																		items: {
+																			description: "HTTPHeader represents an HTTP Header name and value as defined by RFC 7230."
+																			properties: {
+																				name: {
+																					description: """
+	Name is the name of the HTTP Header to be matched. Name matching MUST be
+	case-insensitive. (See <https://tools.ietf.org/html/rfc7230#section-3.2).>
+
+	If multiple entries specify equivalent header names, the first entry with
+	an equivalent name MUST be considered for a match. Subsequent entries
+	with an equivalent header name MUST be ignored. Due to the
+	case-insensitivity of header names, "foo" and "Foo" are considered
+	equivalent.
+	"""
+																					type: "string"
+																				}
+																				value: {
+																					description: "Value is the value of HTTP Header to be matched."
+																					type:        "string"
+																				}
+																			}
+																			required: [
+																				"name",
+																				"value",
+																			]
+																			type: "object"
+																		}
+																		nullable: true
+																		type:     "array"
+																	}
+																	remove: {
+																		description: """
+	Remove the given header(s) from the HTTP request before the action. The
+	value of Remove is a list of HTTP header names. Note that the header
+	names are case-insensitive (see
+	<https://datatracker.ietf.org/doc/html/rfc2616#section-4.2).>
+
+	Input:
+	  GET /foo HTTP/1.1
+	  my-header1: foo
+	  my-header2: bar
+	  my-header3: baz
+
+	Config:
+	  remove: ["my-header1", "my-header3"]
+
+	Output:
+	  GET /foo HTTP/1.1
+	  my-header2: bar
+	"""
+																		items: type: "string"
+																		nullable: true
+																		type:     "array"
+																	}
+																	set: {
+																		description: """
+	Set overwrites the request with the given header (name, value)
+	before the action.
+
+	Input:
+	  GET /foo HTTP/1.1
+	  my-header: foo
+
+	Config:
+	  set:
+	  - name: "my-header"
+	    value: "bar"
+
+	Output:
+	  GET /foo HTTP/1.1
+	  my-header: bar
+	"""
+																		items: {
+																			description: "HTTPHeader represents an HTTP Header name and value as defined by RFC 7230."
+																			properties: {
+																				name: {
+																					description: """
+	Name is the name of the HTTP Header to be matched. Name matching MUST be
+	case-insensitive. (See <https://tools.ietf.org/html/rfc7230#section-3.2).>
+
+	If multiple entries specify equivalent header names, the first entry with
+	an equivalent name MUST be considered for a match. Subsequent entries
+	with an equivalent header name MUST be ignored. Due to the
+	case-insensitivity of header names, "foo" and "Foo" are considered
+	equivalent.
+	"""
+																					type: "string"
+																				}
+																				value: {
+																					description: "Value is the value of HTTP Header to be matched."
+																					type:        "string"
+																				}
+																			}
+																			required: [
+																				"name",
+																				"value",
+																			]
+																			type: "object"
+																		}
+																		nullable: true
+																		type:     "array"
+																	}
+																}
+																type: "object"
+															}
+															requestMirror: {
+																description: """
+	RequestMirror defines a schema for a filter that mirrors requests.
+	Requests are sent to the specified destination, but responses from
+	that destination are ignored.
+
+	This filter can be used multiple times within the same rule. Note that
+	not all implementations will be able to support mirroring to multiple
+	backends.
+
+	Support: Extended
+	"""
+																nullable: true
+																properties: {
+																	backendRef: {
+																		description: """
+	BackendRef references a resource where mirrored requests are sent.
+
+	Mirrored requests must be sent only to a single destination endpoint
+	within this BackendRef, irrespective of how many endpoints are present
+	within this BackendRef.
+
+	If the referent cannot be found, this BackendRef is invalid and must be
+	dropped from the Gateway. The controller must ensure the "ResolvedRefs"
+	condition on the Route status is set to `status: False` and not configure
+	this backend in the underlying implementation.
+
+	If there is a cross-namespace reference to an *existing* object
+	that is not allowed by a ReferenceGrant, the controller must ensure the
+	"ResolvedRefs"  condition on the Route is set to `status: False`,
+	with the "RefNotPermitted" reason and not configure this backend in the
+	underlying implementation.
+
+	In either error case, the Message of the `ResolvedRefs` Condition
+	should be used to provide more detail about the problem.
+
+	Support: Extended for Kubernetes Service
+
+	Support: Implementation-specific for any other resource
+	"""
+																		properties: {
+																			group: {
+																				description: """
+	Group is the group of the referent. For example, "gateway.networking.k8s.io".
+	When unspecified or empty string, core API group is inferred.
+	"""
+																				nullable: true
+																				type:     "string"
+																			}
+																			kind: {
+																				description: """
+	Kind is the Kubernetes resource kind of the referent. For example
+	"Service".
+
+	Defaults to "Service" when not specified.
+
+	ExternalName services can refer to CNAME DNS records that may live
+	outside of the cluster and as such are difficult to reason about in
+	terms of conformance. They also may not be safe to forward to (see
+	CVE-2021-25740 for more information). Implementations SHOULD NOT
+	support ExternalName Services.
+
+	Support: Core (Services with a type other than ExternalName)
+
+	Support: Implementation-specific (Services with type ExternalName)
+	"""
+																				nullable: true
+																				type:     "string"
+																			}
+																			name: {
+																				description: "Name is the name of the referent."
+																				type:        "string"
+																			}
+																			namespace: {
+																				description: """
+	Namespace is the namespace of the backend. When unspecified, the local
+	namespace is inferred.
+
+	Note that when a namespace different than the local namespace is specified,
+	a ReferenceGrant object is required in the referent namespace to allow that
+	namespace's owner to accept the reference. See the ReferenceGrant
+	documentation for details.
+
+	Support: Core
+	"""
+																				nullable: true
+																				type:     "string"
+																			}
+																			port: {
+																				description: """
+	Port specifies the destination port number to use for this resource.
+	Port is required when the referent is a Kubernetes Service. In this
+	case, the port number is the service port number, not the target port.
+	For other resources, destination port might be derived from the referent
+	resource or this field.
+	"""
+																				format:   "int32"
+																				nullable: true
+																				type:     "integer"
+																			}
+																		}
+																		required: ["name"]
+																		type: "object"
+																	}
+																	fraction: {
+																		description: """
+	Fraction represents the fraction of requests that should be
+	mirrored to BackendRef.
+
+	Only one of Fraction or Percent may be specified. If neither field
+	is specified, 100% of requests will be mirrored.
+	"""
+																		nullable: true
+																		properties: {
+																			denominator: {
+																				format:   "int32"
+																				nullable: true
+																				type:     "integer"
+																			}
+																			numerator: {
+																				format: "int32"
+																				type:   "integer"
+																			}
+																		}
+																		required: ["numerator"]
+																		type: "object"
+																	}
+																	percent: {
+																		description: """
+	Percent represents the percentage of requests that should be
+	mirrored to BackendRef. Its minimum value is 0 (indicating 0% of
+	requests) and its maximum value is 100 (indicating 100% of requests).
+
+	Only one of Fraction or Percent may be specified. If neither field
+	is specified, 100% of requests will be mirrored.
+	"""
+																		format:   "int32"
+																		nullable: true
+																		type:     "integer"
+																	}
+																}
+																required: ["backendRef"]
+																type: "object"
+															}
+															requestRedirect: {
+																description: """
+	RequestRedirect defines a schema for a filter that responds to the
+	request with an HTTP redirection.
+
+	Support: Core
+	"""
+																nullable: true
+																properties: {
+																	hostname: {
+																		description: """
+	Hostname is the hostname to be used in the value of the `Location`
+	header in the response.
+	When empty, the hostname in the `Host` header of the request is used.
+
+	Support: Core
+	"""
+																		nullable: true
+																		type:     "string"
+																	}
+																	path: {
+																		description: """
+	Path defines parameters used to modify the path of the incoming request.
+	The modified path is then used to construct the `Location` header. When
+	empty, the request path is used as-is.
+
+	Support: Extended
+	"""
+																		nullable: true
+																		properties: {
+																			replaceFullPath: {
+																				description: """
+	ReplaceFullPath specifies the value with which to replace the full path
+	of a request during a rewrite or redirect.
+	"""
+																				nullable: true
+																				type:     "string"
+																			}
+																			replacePrefixMatch: {
+																				description: """
+	ReplacePrefixMatch specifies the value with which to replace the prefix
+	match of a request during a rewrite or redirect. For example, a request
+	to "/foo/bar" with a prefix match of "/foo" and a ReplacePrefixMatch
+	of "/xyz" would be modified to "/xyz/bar".
+
+	Note that this matches the behavior of the PathPrefix match type. This
+	matches full path elements. A path element refers to the list of labels
+	in the path split by the `/` separator. When specified, a trailing `/` is
+	ignored. For example, the paths `/abc`, `/abc/`, and `/abc/def` would all
+	match the prefix `/abc`, but the path `/abcd` would not.
+
+	ReplacePrefixMatch is only compatible with a `PathPrefix` HTTPRouteMatch.
+	Using any other HTTPRouteMatch type on the same HTTPRouteRule will result in
+	the implementation setting the Accepted Condition for the Route to `status: False`.
+
+	Request Path | Prefix Match | Replace Prefix | Modified Path
+	"""
+																				nullable: true
+																				type:     "string"
+																			}
+																			type: {
+																				description: """
+	Type defines the type of path modifier. Additional types may be
+	added in a future release of the API.
+
+	Note that values may be added to this enum, implementations
+	must ensure that unknown values will not cause a crash.
+
+	Unknown values here must result in the implementation setting the
+	Accepted Condition for the Route to `status: False`, with a
+	Reason of `UnsupportedValue`.
+	"""
+																				enum: [
+																					"ReplaceFullPath",
+																					"ReplacePrefixMatch",
+																				]
+																				type: "string"
+																			}
+																		}
+																		required: ["type"]
+																		type: "object"
+																	}
+																	port: {
+																		description: """
+	Port is the port to be used in the value of the `Location`
+	header in the response.
+
+	If no port is specified, the redirect port MUST be derived using the
+	following rules:
+
+	* If redirect scheme is not-empty, the redirect port MUST be the well-known
+	  port associated with the redirect scheme. Specifically "http" to port 80
+	  and "https" to port 443. If the redirect scheme does not have a
+	  well-known port, the listener port of the Gateway SHOULD be used.
+	* If redirect scheme is empty, the redirect port MUST be the Gateway
+	  Listener port.
+
+	Implementations SHOULD NOT add the port number in the 'Location'
+	header in the following cases:
+
+	* A Location header that will use HTTP (whether that is determined via
+	  the Listener protocol or the Scheme field) _and_ use port 80.
+	* A Location header that will use HTTPS (whether that is determined via
+	  the Listener protocol or the Scheme field) _and_ use port 443.
+
+	Support: Extended
+	"""
+																		format:   "int32"
+																		nullable: true
+																		type:     "integer"
+																	}
+																	scheme: {
+																		description: """
+	Scheme is the scheme to be used in the value of the `Location` header in
+	the response. When empty, the scheme of the request is used.
+
+	Scheme redirects can affect the port of the redirect, for more information,
+	refer to the documentation for the port field of this filter.
+
+	Note that values may be added to this enum, implementations
+	must ensure that unknown values will not cause a crash.
+
+	Unknown values here must result in the implementation setting the
+	Accepted Condition for the Route to `status: False`, with a
+	Reason of `UnsupportedValue`.
+
+	Support: Extended
+	"""
+																		enum: [
+																			"http",
+																			"https", null,
+																		]
+																		nullable: true
+																		type:     "string"
+																	}
+																	statusCode: {
+																		description: """
+	StatusCode is the HTTP status code to be used in response.
+
+	Note that values may be added to this enum, implementations
+	must ensure that unknown values will not cause a crash.
+
+	Unknown values here must result in the implementation setting the
+	Accepted Condition for the Route to `status: False`, with a
+	Reason of `UnsupportedValue`.
+
+	Support: Core
+	"""
+																		format:   "int64"
+																		nullable: true
+																		type:     "integer"
+																	}
+																}
+																type: "object"
+															}
+															responseHeaderModifier: {
+																description: """
+	ResponseHeaderModifier defines a schema for a filter that modifies response
+	headers.
+
+	Support: Extended
+	"""
+																nullable: true
+																properties: {
+																	add: {
+																		description: """
+	Add adds the given header(s) (name, value) to the request
+	before the action. It appends to any existing values associated
+	with the header name.
+
+	Input:
+	  GET /foo HTTP/1.1
+	  my-header: foo
+
+	Config:
+	  add:
+	  - name: "my-header"
+	    value: "bar,baz"
+
+	Output:
+	  GET /foo HTTP/1.1
+	  my-header: foo,bar,baz
+	"""
+																		items: {
+																			description: "HTTPHeader represents an HTTP Header name and value as defined by RFC 7230."
+																			properties: {
+																				name: {
+																					description: """
+	Name is the name of the HTTP Header to be matched. Name matching MUST be
+	case-insensitive. (See <https://tools.ietf.org/html/rfc7230#section-3.2).>
+
+	If multiple entries specify equivalent header names, the first entry with
+	an equivalent name MUST be considered for a match. Subsequent entries
+	with an equivalent header name MUST be ignored. Due to the
+	case-insensitivity of header names, "foo" and "Foo" are considered
+	equivalent.
+	"""
+																					type: "string"
+																				}
+																				value: {
+																					description: "Value is the value of HTTP Header to be matched."
+																					type:        "string"
+																				}
+																			}
+																			required: [
+																				"name",
+																				"value",
+																			]
+																			type: "object"
+																		}
+																		nullable: true
+																		type:     "array"
+																	}
+																	remove: {
+																		description: """
+	Remove the given header(s) from the HTTP request before the action. The
+	value of Remove is a list of HTTP header names. Note that the header
+	names are case-insensitive (see
+	<https://datatracker.ietf.org/doc/html/rfc2616#section-4.2).>
+
+	Input:
+	  GET /foo HTTP/1.1
+	  my-header1: foo
+	  my-header2: bar
+	  my-header3: baz
+
+	Config:
+	  remove: ["my-header1", "my-header3"]
+
+	Output:
+	  GET /foo HTTP/1.1
+	  my-header2: bar
+	"""
+																		items: type: "string"
+																		nullable: true
+																		type:     "array"
+																	}
+																	set: {
+																		description: """
+	Set overwrites the request with the given header (name, value)
+	before the action.
+
+	Input:
+	  GET /foo HTTP/1.1
+	  my-header: foo
+
+	Config:
+	  set:
+	  - name: "my-header"
+	    value: "bar"
+
+	Output:
+	  GET /foo HTTP/1.1
+	  my-header: bar
+	"""
+																		items: {
+																			description: "HTTPHeader represents an HTTP Header name and value as defined by RFC 7230."
+																			properties: {
+																				name: {
+																					description: """
+	Name is the name of the HTTP Header to be matched. Name matching MUST be
+	case-insensitive. (See <https://tools.ietf.org/html/rfc7230#section-3.2).>
+
+	If multiple entries specify equivalent header names, the first entry with
+	an equivalent name MUST be considered for a match. Subsequent entries
+	with an equivalent header name MUST be ignored. Due to the
+	case-insensitivity of header names, "foo" and "Foo" are considered
+	equivalent.
+	"""
+																					type: "string"
+																				}
+																				value: {
+																					description: "Value is the value of HTTP Header to be matched."
+																					type:        "string"
+																				}
+																			}
+																			required: [
+																				"name",
+																				"value",
+																			]
+																			type: "object"
+																		}
+																		nullable: true
+																		type:     "array"
+																	}
+																}
+																type: "object"
+															}
+															type: {
+																description: """
+	Type identifies the type of filter to apply. As with other API fields,
+	types are classified into three conformance levels:
+
+	- Core: Filter types and their corresponding configuration defined by
+	  "Support: Core" in this package, e.g. "RequestHeaderModifier". All
+	  implementations must support core filters.
+
+	- Extended: Filter types and their corresponding configuration defined by
+	  "Support: Extended" in this package, e.g. "RequestMirror". Implementers
+	  are encouraged to support extended filters.
+
+	- Implementation-specific: Filters that are defined and supported by
+	  specific vendors.
+	  In the future, filters showing convergence in behavior across multiple
+	  implementations will be considered for inclusion in extended or core
+	  conformance levels. Filter-specific configuration for such filters
+	  is specified using the ExtensionRef field. `Type` should be set to
+	  "ExtensionRef" for custom filters.
+
+	Implementers are encouraged to define custom implementation types to
+	extend the core API with implementation-specific behavior.
+
+	If a reference to a custom filter type cannot be resolved, the filter
+	MUST NOT be skipped. Instead, requests that would have been processed by
+	that filter MUST receive a HTTP error response.
+
+	Note that values may be added to this enum, implementations
+	must ensure that unknown values will not cause a crash.
+
+	Unknown values here must result in the implementation setting the
+	Accepted Condition for the Route to `status: False`, with a
+	Reason of `UnsupportedValue`.
+	"""
+																enum: [
+																	"RequestHeaderModifier",
+																	"ResponseHeaderModifier",
+																	"RequestMirror",
+																	"RequestRedirect",
+																	"URLRewrite",
+																	"ExtensionRef",
+																	"CORS",
+																]
+																type: "string"
+															}
+															urlRewrite: {
+																description: """
+	URLRewrite defines a schema for a filter that modifies a request during forwarding.
+
+	Support: Extended
+	"""
+																nullable: true
+																properties: {
+																	hostname: {
+																		description: """
+	Hostname is the value to be used to replace the Host header value during
+	forwarding.
+
+	Support: Extended
+	"""
+																		nullable: true
+																		type:     "string"
+																	}
+																	path: {
+																		description: """
+	Path defines a path rewrite.
+
+	Support: Extended
+	"""
+																		nullable: true
+																		properties: {
+																			replaceFullPath: {
+																				description: """
+	ReplaceFullPath specifies the value with which to replace the full path
+	of a request during a rewrite or redirect.
+	"""
+																				nullable: true
+																				type:     "string"
+																			}
+																			replacePrefixMatch: {
+																				description: """
+	ReplacePrefixMatch specifies the value with which to replace the prefix
+	match of a request during a rewrite or redirect. For example, a request
+	to "/foo/bar" with a prefix match of "/foo" and a ReplacePrefixMatch
+	of "/xyz" would be modified to "/xyz/bar".
+
+	Note that this matches the behavior of the PathPrefix match type. This
+	matches full path elements. A path element refers to the list of labels
+	in the path split by the `/` separator. When specified, a trailing `/` is
+	ignored. For example, the paths `/abc`, `/abc/`, and `/abc/def` would all
+	match the prefix `/abc`, but the path `/abcd` would not.
+
+	ReplacePrefixMatch is only compatible with a `PathPrefix` HTTPRouteMatch.
+	Using any other HTTPRouteMatch type on the same HTTPRouteRule will result in
+	the implementation setting the Accepted Condition for the Route to `status: False`.
+
+	Request Path | Prefix Match | Replace Prefix | Modified Path
+	"""
+																				nullable: true
+																				type:     "string"
+																			}
+																			type: {
+																				description: """
+	Type defines the type of path modifier. Additional types may be
+	added in a future release of the API.
+
+	Note that values may be added to this enum, implementations
+	must ensure that unknown values will not cause a crash.
+
+	Unknown values here must result in the implementation setting the
+	Accepted Condition for the Route to `status: False`, with a
+	Reason of `UnsupportedValue`.
+	"""
+																				enum: [
+																					"ReplaceFullPath",
+																					"ReplacePrefixMatch",
+																				]
+																				type: "string"
+																			}
+																		}
+																		required: ["type"]
+																		type: "object"
+																	}
+																}
+																type: "object"
+															}
+														}
+														required: ["type"]
+														type: "object"
+													}
+													nullable: true
+													type:     "array"
+												}
+												matches: {
+													description: """
+	Matches define conditions used for matching the rule against incoming
+	HTTP requests. Each match is independent, i.e. this rule will be matched
+	if **any** one of the matches is satisfied.
+
+	For example, take the following matches configuration:
+
+	```text
+	matches:
+	- path:
+	    value: "/foo"
+	  headers:
+	  - name: "version"
+	    value: "v2"
+	- path:
+	    value: "/v2/foo"
+	```
+
+	For a request to match against this rule, a request must satisfy
+	EITHER of the two conditions:
+
+	- path prefixed with `/foo` AND contains the header `version: v2`
+	- path prefix of `/v2/foo`
+
+	See the documentation for HTTPRouteMatch on how to specify multiple
+	match conditions that should be ANDed together.
+
+	If no matches are specified, the default is a prefix
+	path match on "/", which has the effect of matching every
+	HTTP request.
+
+	Proxy or Load Balancer routing configuration generated from HTTPRoutes
+	MUST prioritize matches based on the following criteria, continuing on
+	ties. Across all rules specified on applicable Routes, precedence must be
+	given to the match having:
+
+	* "Exact" path match.
+	* "Prefix" path match with largest number of characters.
+	* Method match.
+	* Largest number of header matches.
+	* Largest number of query param matches.
+
+	Note: The precedence of RegularExpression path matches are implementation-specific.
+
+	If ties still exist across multiple Routes, matching precedence MUST be
+	determined in order of the following criteria, continuing on ties:
+
+	* The oldest Route based on creation timestamp.
+	* The Route appearing first in alphabetical order by
+	  "{namespace}/{name}".
+
+	If ties still exist within an HTTPRoute, matching precedence MUST be granted
+	to the FIRST matching rule (in list order) with a match meeting the above
+	criteria.
+
+	When no rules matching a request have been successfully attached to the
+	parent a request is coming from, a HTTP 404 status code MUST be returned.
+	"""
+													items: {
+														description: """
+	HTTPRouteMatch defines the predicate used to match requests to a given
+	action. Multiple match types are ANDed together, i.e. the match will
+	evaluate to true only if all conditions are satisfied.
+
+	For example, the match below will match a HTTP request only if its path
+	starts with `/foo` AND it contains the `version: v1` header:
+
+	```text
+	match:
+
+	\tpath:
+	\t  value: "/foo"
+	\theaders:
+	\t- name: "version"
+	\t  value "v1"
+	```
+	"""
+														properties: {
+															headers: {
+																description: """
+	Headers specifies HTTP request header matchers. Multiple match values are
+	ANDed together, meaning, a request must match all the specified headers
+	to select the route.
+	"""
+																items: {
+																	description: """
+	HTTPHeaderMatch describes how to select a HTTP route by matching HTTP request
+	headers.
+	"""
+																	properties: {
+																		name: {
+																			description: """
+	Name is the name of the HTTP Header to be matched. Name matching MUST be
+	case-insensitive. (See <https://tools.ietf.org/html/rfc7230#section-3.2).>
+
+	If multiple entries specify equivalent header names, only the first
+	entry with an equivalent name MUST be considered for a match. Subsequent
+	entries with an equivalent header name MUST be ignored. Due to the
+	case-insensitivity of header names, "foo" and "Foo" are considered
+	equivalent.
+
+	When a header is repeated in an HTTP request, it is
+	implementation-specific behavior as to how this is represented.
+	Generally, proxies should follow the guidance from the RFC:
+	<https://www.rfc-editor.org/rfc/rfc7230.html#section-3.2.2> regarding
+	processing a repeated header, with special handling for "Set-Cookie".
+	"""
+																			type: "string"
+																		}
+																		type: {
+																			description: """
+	Type specifies how to match against the value of the header.
+
+	Support: Core (Exact)
+
+	Support: Implementation-specific (RegularExpression)
+
+	Since RegularExpression HeaderMatchType has implementation-specific
+	conformance, implementations can support POSIX, PCRE or any other dialects
+	of regular expressions. Please read the implementation's documentation to
+	determine the supported dialect.
+	"""
+																			enum: [
+																				"Exact",
+																				"RegularExpression", null,
+																			]
+																			nullable: true
+																			type:     "string"
+																		}
+																		value: {
+																			description: "Value is the value of HTTP Header to be matched."
+																			type:        "string"
+																		}
+																	}
+																	required: [
+																		"name",
+																		"value",
+																	]
+																	type: "object"
+																}
+																nullable: true
+																type:     "array"
+															}
+															method: {
+																description: """
+	Method specifies HTTP method matcher.
+	When specified, this route will be matched only if the request has the
+	specified method.
+
+	Support: Extended
+	"""
+																enum: [
+																	"GET",
+																	"HEAD",
+																	"POST",
+																	"PUT",
+																	"DELETE",
+																	"CONNECT",
+																	"OPTIONS",
+																	"TRACE",
+																	"PATCH", null,
+																]
+																nullable: true
+																type:     "string"
+															}
+															path: {
+																description: """
+	Path specifies a HTTP request path matcher. If this field is not
+	specified, a default prefix match on the "/" path is provided.
+	"""
+																nullable: true
+																properties: {
+																	type: {
+																		description: """
+	Type specifies how to match against the path Value.
+
+	Support: Core (Exact, PathPrefix)
+
+	Support: Implementation-specific (RegularExpression)
+	"""
+																		enum: [
+																			"Exact",
+																			"PathPrefix",
+																			"RegularExpression", null,
+																		]
+																		nullable: true
+																		type:     "string"
+																	}
+																	value: {
+																		description: "Value of the HTTP path to match against."
+																		nullable:    true
+																		type:        "string"
+																	}
+																}
+																type: "object"
+															}
+															queryParams: {
+																description: """
+	QueryParams specifies HTTP query parameter matchers. Multiple match
+	values are ANDed together, meaning, a request must match all the
+	specified query parameters to select the route.
+
+	Support: Extended
+	"""
+																items: {
+																	description: """
+	HTTPQueryParamMatch describes how to select a HTTP route by matching HTTP
+	query parameters.
+	"""
+																	properties: {
+																		name: {
+																			description: """
+	Name is the name of the HTTP query param to be matched. This must be an
+	exact string match. (See
+	<https://tools.ietf.org/html/rfc7230#section-2.7.3).>
+
+	If multiple entries specify equivalent query param names, only the first
+	entry with an equivalent name MUST be considered for a match. Subsequent
+	entries with an equivalent query param name MUST be ignored.
+
+	If a query param is repeated in an HTTP request, the behavior is
+	purposely left undefined, since different data planes have different
+	capabilities. However, it is *recommended* that implementations should
+	match against the first value of the param if the data plane supports it,
+	as this behavior is expected in other load balancing contexts outside of
+	the Gateway API.
+
+	Users SHOULD NOT route traffic based on repeated query params to guard
+	themselves against potential differences in the implementations.
+	"""
+																			type: "string"
+																		}
+																		type: {
+																			description: """
+	Type specifies how to match against the value of the query parameter.
+
+	Support: Extended (Exact)
+
+	Support: Implementation-specific (RegularExpression)
+
+	Since RegularExpression QueryParamMatchType has Implementation-specific
+	conformance, implementations can support POSIX, PCRE or any other
+	dialects of regular expressions. Please read the implementation's
+	documentation to determine the supported dialect.
+	"""
+																			enum: [
+																				"Exact",
+																				"RegularExpression", null,
+																			]
+																			nullable: true
+																			type:     "string"
+																		}
+																		value: {
+																			description: "Value is the value of HTTP query param to be matched."
+																			type:        "string"
+																		}
+																	}
+																	required: [
+																		"name",
+																		"value",
+																	]
+																	type: "object"
+																}
+																nullable: true
+																type:     "array"
+															}
+														}
+														type: "object"
+													}
+													nullable: true
+													type:     "array"
+												}
+												name: {
+													description: """
+	Name is the name of the route rule. This name MUST be unique within a Route if it is set.
+
+	Support: Extended
+	"""
+													nullable: true
+													type:     "string"
+												}
+												timeouts: {
+													description: """
+	Timeouts defines the timeouts that can be configured for an HTTP request.
+
+	Support: Extended
+	"""
+													nullable: true
+													properties: {
+														backendRequest: {
+															description: """
+	BackendRequest specifies a timeout for an individual request from the gateway
+	to a backend. This covers the time from when the request first starts being
+	sent from the gateway to when the full response has been received from the backend.
+
+	Setting a timeout to the zero duration (e.g. "0s") SHOULD disable the timeout
+	completely. Implementations that cannot completely disable the timeout MUST
+	instead interpret the zero duration as the longest possible value to which
+	the timeout can be set.
+
+	An entire client HTTP transaction with a gateway, covered by the Request timeout,
+	may result in more than one call from the gateway to the destination backend,
+	for example, if automatic retries are supported.
+
+	The value of BackendRequest must be a Gateway API Duration string as defined by
+	GEP-2257.  When this field is unspecified, its behavior is implementation-specific;
+	when specified, the value of BackendRequest must be no more than the value of the
+	Request timeout (since the Request timeout encompasses the BackendRequest timeout).
+
+	Support: Extended
+	"""
+															nullable: true
+															type:     "string"
+														}
+														request: {
+															description: """
+	Request specifies the maximum duration for a gateway to respond to an HTTP request.
+	If the gateway has not been able to respond before this deadline is met, the gateway
+	MUST return a timeout error.
+
+	For example, setting the `rules.timeouts.request` field to the value `10s` in an
+	`HTTPRoute` will cause a timeout if a client request is taking longer than 10 seconds
+	to complete.
+
+	Setting a timeout to the zero duration (e.g. "0s") SHOULD disable the timeout
+	completely. Implementations that cannot completely disable the timeout MUST
+	instead interpret the zero duration as the longest possible value to which
+	the timeout can be set.
+
+	This timeout is intended to cover as close to the whole request-response transaction
+	as possible although an implementation MAY choose to start the timeout after the entire
+	request stream has been received instead of immediately after the transaction is
+	initiated by the client.
+
+	The value of Request is a Gateway API Duration string as defined by GEP-2257. When this
+	field is unspecified, request timeout behavior is implementation-specific.
+
+	Support: Extended
+	"""
+															nullable: true
+															type:     "string"
+														}
+													}
+													type: "object"
+												}
+											}
+											type: "object"
+										}
+										nullable: true
+										type:     "array"
+									}
+								}
+								required: ["parentRefs"]
+								type: "object"
+							}
 							groupNamespaceSelector: {
 								description: """
-												Namespaces to match for KanidmGroups discovery.
+	Namespaces to match for KanidmGroups discovery.
 
-												- Not defined (default): matches only the current namespace where this Kanidm resource is deployed
-												- Empty selector `{}`: matches all namespaces in the cluster
-												- Selector with labels: matches namespaces with matching labels
+	- Not defined (default): matches only the current namespace where this Kanidm resource is deployed
+	- Empty selector `{}`: matches all namespaces in the cluster
+	- Selector with labels: matches namespaces with matching labels
 
-												Example for all namespaces: `groupNamespaceSelector: {}`
-												"""
+	Example for all namespaces: `groupNamespaceSelector: {}`
+	"""
 								nullable: true
 								properties: {
 									matchExpressions: {
@@ -1458,7 +4281,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type: "array"
 												}
 											}
-											required: ["key", "operator"]
+											required: [
+												"key",
+												"operator",
+											]
 											type: "object"
 										}
 										type: "array"
@@ -1494,87 +4320,98 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							hostNetwork: {
 								description: """
-												Use the host's network namespace if true.
+	Use the host's network namespace if true.
 
-												Make sure to understand the security implications if you want to enable it
-												(https://kubernetes.io/docs/concepts/configuration/overview/).
+	Make sure to understand the security implications if you want to enable it
+	(https://kubernetes.io/docs/concepts/configuration/overview/).
 
-												When hostNetwork is enabled, this will set the DNS policy to ClusterFirstWithHostNet
-												automatically.
-												"""
+	When hostNetwork is enabled, this will set the DNS policy to ClusterFirstWithHostNet
+	automatically.
+	"""
+								nullable: true
+								type:     "boolean"
+							}
+							hostUsers: {
+								description: """
+	HostUsers controls how the user namespace is configured for the pod.
+	If set to true, the pod will use the host's user namespace.
+	If set to false or not specified, the pod will use a user namespace configured by the runtime.
+	This feature requires support in the container runtime and Kubernetes 1.27+.
+	More info: https://kubernetes.io/docs/concepts/workloads/pods/user-namespaces/
+	"""
 								nullable: true
 								type:     "boolean"
 							}
 							image: {
 								default: "kanidm/server:latest"
 								description: """
-												Container image name. More info: https://kubernetes.io/docs/concepts/containers/images
-												This field is optional to allow higher level config management to default or override
-												container images in workload controllers like StatefulSets.
-												"""
+	Container image name. More info: https://kubernetes.io/docs/concepts/containers/images
+	This field is optional to allow higher level config management to default or override
+	container images in workload controllers like StatefulSets.
+	"""
 								type: "string"
 							}
 							imagePullPolicy: {
 								description: """
-												Image pull policy. One of Always, Never, IfNotPresent. Defaults to Always if :latest tag
-												is specified, or IfNotPresent otherwise. Cannot be updated.
-												More info: https://kubernetes.io/docs/concepts/containers/images#updating-images
-												"""
+	Image pull policy. One of Always, Never, IfNotPresent. Defaults to Always if :latest tag
+	is specified, or IfNotPresent otherwise. Cannot be updated.
+	More info: https://kubernetes.io/docs/concepts/containers/images#updating-images
+	"""
 								nullable: true
 								type:     "string"
 							}
 							ingress: {
 								description: """
-												Ingress configuration for the Kanidm cluster.
+	Ingress configuration for the Kanidm cluster.
 
-												The domain specified in the Kanidm spec will be used as the ingress host.
-												TLS is required and must be configured at the ingress controller level (termination or
-												passthrough).
-												When running multiple replicas, configure session affinity on your ingress controller to
-												ensure proper session handling.
-												"""
+	The domain specified in the Kanidm spec will be used as the ingress host.
+	TLS is required and must be configured at the ingress controller level (termination or
+	passthrough).
+	When running multiple replicas, configure session affinity on your ingress controller to
+	ensure proper session handling.
+	"""
 								nullable: true
 								properties: {
 									annotations: {
 										additionalProperties: type: "string"
 										description: """
-														Annotations is an unstructured key value map stored with a resource that may be set by
-														external tools to store and retrieve arbitrary metadata. They are not queryable and should
-														be preserved when modifying objects.
-														More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
-														"""
+	Annotations is an unstructured key value map stored with a resource that may be set by
+	external tools to store and retrieve arbitrary metadata. They are not queryable and should
+	be preserved when modifying objects.
+	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
+	"""
 										nullable: true
 										type:     "object"
 									}
 									extraTlsHosts: {
 										description: """
-														Additional Subject Alternative Names (SANs) to include in the TLS certificate.
-														The main domain from the Kanidm spec is automatically included.
-														This does not add additional hosts to the ingress resource, only certificate SANs.
-														"""
+	Additional Subject Alternative Names (SANs) to include in the TLS certificate.
+	The main domain from the Kanidm spec is automatically included.
+	This does not add additional hosts to the ingress resource, only certificate SANs.
+	"""
 										items: type: "string"
 										nullable: true
 										type:     "array"
 									}
 									ingressClassName: {
 										description: """
-														ingressClassName is the name of an IngressClass cluster resource. Ingress controller
-														implementations use this field to know whether they should be serving this Ingress resource,
-														by a transitive connection (controller -\\> IngressClass -\\> Ingress resource). Although the
-														`kubernetes.io/ingress.class` annotation (simple constant name) was never formally defined,
-														it was widely supported by Ingress controllers to create a direct binding between Ingress
-														controller and Ingress resources. Newly created Ingress resources should prefer using the
-														field. However, even though the annotation is officially deprecated, for backwards
-														compatibility reasons, ingress controllers should still honor that annotation if present.
-														"""
+	ingressClassName is the name of an IngressClass cluster resource. Ingress controller
+	implementations use this field to know whether they should be serving this Ingress resource,
+	by a transitive connection (controller -\\> IngressClass -\\> Ingress resource). Although the
+	`kubernetes.io/ingress.class` annotation (simple constant name) was never formally defined,
+	it was widely supported by Ingress controllers to create a direct binding between Ingress
+	controller and Ingress resources. Newly created Ingress resources should prefer using the
+	field. However, even though the annotation is officially deprecated, for backwards
+	compatibility reasons, ingress controllers should still honor that annotation if present.
+	"""
 										nullable: true
 										type:     "string"
 									}
 									tlsSecretName: {
 										description: """
-														Defines the name of the secret that contains the TLS private key and certificate for the
-														server. If not defined, the default will be the Kanidm name appended with `-tls`.
-														"""
+	Defines the name of the secret that contains the TLS private key and certificate for the
+	server. If not defined, the default will be the Kanidm name appended with `-tls`.
+	"""
 										nullable: true
 										type:     "string"
 										"x-kubernetes-validations": [{
@@ -1587,18 +4424,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							initContainers: {
 								description: """
-												InitContainers allows injecting initContainers to the Pod definition. Those can be used to
-												e.g. fetch secrets for injection into the Kanidm configuration from external sources.
-												Any errors during the execution of an initContainer will lead to a restart of the Pod.
-												More info: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
-												InitContainers described here modify an operator generated init containers if they share
-												the same name and modifications are done via a strategic merge patch.
+	InitContainers allows injecting initContainers to the Pod definition. Those can be used to
+	e.g. fetch secrets for injection into the Kanidm configuration from external sources.
+	Any errors during the execution of an initContainer will lead to a restart of the Pod.
+	More info: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+	InitContainers described here modify an operator generated init containers if they share
+	the same name and modifications are done via a strategic merge patch.
 
-												The names of init container name managed by the operator are: * init-config-reloader.
+	The names of init container name managed by the operator are: * init-config-reloader.
 
-												Overriding init containers is entirely outside the scope of what the maintainers will
-												support and by doing so, you accept that this behaviour may break at any time without notice.
-												"""
+	Overriding init containers is entirely outside the scope of what the maintainers will
+	support and by doing so, you accept that this behaviour may break at any time without notice.
+	"""
 								items: {
 									description: "A single application container that you want to run within a pod."
 									properties: {
@@ -1644,7 +4481,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:        "boolean"
 																	}
 																}
-																required: ["key", "name"]
+																required: [
+																	"key",
+																	"name",
+																]
 																type: "object"
 															}
 															fieldRef: {
@@ -1698,7 +4538,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:        "boolean"
 																	}
 																}
-																required: ["key", "name"]
+																required: [
+																	"key",
+																	"name",
+																]
 																type: "object"
 															}
 														}
@@ -1798,7 +4641,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type:        "string"
 																			}
 																		}
-																		required: ["name", "value"]
+																		required: [
+																			"name",
+																			"value",
+																		]
 																		type: "object"
 																	}
 																	type: "array"
@@ -1880,7 +4726,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type:        "string"
 																			}
 																		}
-																		required: ["name", "value"]
+																		required: [
+																			"name",
+																			"value",
+																		]
 																		type: "object"
 																	}
 																	type: "array"
@@ -1959,10 +4808,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														service: {
 															description: """
-																			Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+	Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
 
-																			If this is not specified, the default behavior is defined by gRPC.
-																			"""
+	If this is not specified, the default behavior is defined by gRPC.
+	"""
 															type: "string"
 														}
 													}
@@ -1990,7 +4839,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:        "string"
 																	}
 																}
-																required: ["name", "value"]
+																required: [
+																	"name",
+																	"value",
+																]
 																type: "object"
 															}
 															type: "array"
@@ -2118,10 +4970,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														service: {
 															description: """
-																			Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+	Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
 
-																			If this is not specified, the default behavior is defined by gRPC.
-																			"""
+	If this is not specified, the default behavior is defined by gRPC.
+	"""
 															type: "string"
 														}
 													}
@@ -2149,7 +5001,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:        "string"
 																	}
 																}
-																required: ["name", "value"]
+																required: [
+																	"name",
+																	"value",
+																]
 																type: "object"
 															}
 															type: "array"
@@ -2227,7 +5082,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:        "string"
 													}
 												}
-												required: ["resourceName", "restartPolicy"]
+												required: [
+													"resourceName",
+													"restartPolicy",
+												]
 												type: "object"
 											}
 											type: "array"
@@ -2237,12 +5095,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											properties: {
 												claims: {
 													description: """
-																	Claims lists the names of resources, defined in spec.resourceClaims, that are used by this container.
+	Claims lists the names of resources, defined in spec.resourceClaims, that are used by this container.
 
-																	This is an alpha field and requires enabling the DynamicResourceAllocation feature gate.
+	This is an alpha field and requires enabling the DynamicResourceAllocation feature gate.
 
-																	This field is immutable. It can only be set for containers.
-																	"""
+	This field is immutable. It can only be set for containers.
+	"""
 													items: {
 														description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
 														properties: {
@@ -2263,44 +5121,44 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												limits: {
 													additionalProperties: {
 														description: """
-																		Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
+	Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
 
-																		The serialization format is:
+	The serialization format is:
 
-																		``` <quantity>        ::= <signedNumber><suffix>
+	``` <quantity>        ::= <signedNumber><suffix>
 
-																		\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
+	\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
 
-																		<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
+	<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
 
-																		\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
+	\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
 
-																		<decimalSI>       ::= m | "" | k | M | G | T | P | E
+	<decimalSI>       ::= m | "" | k | M | G | T | P | E
 
-																		\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
+	\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
 
-																		<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
+	<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
 
-																		No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
+	No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
 
-																		When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
+	When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
 
-																		Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
+	Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
 
-																		- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
+	- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
 
-																		The sign will be omitted unless the number is negative.
+	The sign will be omitted unless the number is negative.
 
-																		Examples:
+	Examples:
 
-																		- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
+	- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
 
-																		Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
+	Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
 
-																		Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
+	Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
 
-																		This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
-																		"""
+	This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
+	"""
 														"x-kubernetes-int-or-string": true
 													}
 													description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
@@ -2309,44 +5167,44 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												requests: {
 													additionalProperties: {
 														description: """
-																		Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
+	Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
 
-																		The serialization format is:
+	The serialization format is:
 
-																		``` <quantity>        ::= <signedNumber><suffix>
+	``` <quantity>        ::= <signedNumber><suffix>
 
-																		\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
+	\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
 
-																		<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
+	<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
 
-																		\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
+	\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
 
-																		<decimalSI>       ::= m | "" | k | M | G | T | P | E
+	<decimalSI>       ::= m | "" | k | M | G | T | P | E
 
-																		\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
+	\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
 
-																		<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
+	<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
 
-																		No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
+	No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
 
-																		When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
+	When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
 
-																		Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
+	Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
 
-																		- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
+	- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
 
-																		The sign will be omitted unless the number is negative.
+	The sign will be omitted unless the number is negative.
 
-																		Examples:
+	Examples:
 
-																		- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
+	- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
 
-																		Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
+	Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
 
-																		Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
+	Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
 
-																		This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
-																		"""
+	This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
+	"""
 														"x-kubernetes-int-or-string": true
 													}
 													description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. Requests cannot exceed Limits. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
@@ -2375,11 +5233,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														type: {
 															description: """
-																			type indicates which kind of AppArmor profile will be applied. Valid options are:
-																			  Localhost - a profile pre-loaded on the node.
-																			  RuntimeDefault - the container runtime's default profile.
-																			  Unconfined - no AppArmor enforcement.
-																			"""
+	type indicates which kind of AppArmor profile will be applied. Valid options are:
+	  Localhost - a profile pre-loaded on the node.
+	  RuntimeDefault - the container runtime's default profile.
+	  Unconfined - no AppArmor enforcement.
+	"""
 															type: "string"
 														}
 													}
@@ -2459,10 +5317,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														type: {
 															description: """
-																			type indicates which kind of seccomp profile will be applied. Valid options are:
+	type indicates which kind of seccomp profile will be applied. Valid options are:
 
-																			Localhost - a profile defined in a file on the node should be used. RuntimeDefault - the container runtime default profile should be used. Unconfined - no profile should be applied.
-																			"""
+	Localhost - a profile defined in a file on the node should be used. RuntimeDefault - the container runtime default profile should be used. Unconfined - no profile should be applied.
+	"""
 															type: "string"
 														}
 													}
@@ -2521,10 +5379,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														service: {
 															description: """
-																			Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+	Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
 
-																			If this is not specified, the default behavior is defined by gRPC.
-																			"""
+	If this is not specified, the default behavior is defined by gRPC.
+	"""
 															type: "string"
 														}
 													}
@@ -2552,7 +5410,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:        "string"
 																	}
 																}
-																required: ["name", "value"]
+																required: [
+																	"name",
+																	"value",
+																]
 																type: "object"
 															}
 															type: "array"
@@ -2650,7 +5511,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:        "string"
 													}
 												}
-												required: ["devicePath", "name"]
+												required: [
+													"devicePath",
+													"name",
+												]
 												type: "object"
 											}
 											type: "array"
@@ -2678,16 +5542,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													recursiveReadOnly: {
 														description: """
-																		RecursiveReadOnly specifies whether read-only mounts should be handled recursively.
+	RecursiveReadOnly specifies whether read-only mounts should be handled recursively.
 
-																		If ReadOnly is false, this field has no meaning and must be unspecified.
+	If ReadOnly is false, this field has no meaning and must be unspecified.
 
-																		If ReadOnly is true, and this field is set to Disabled, the mount is not made recursively read-only.  If this field is set to IfPossible, the mount is made recursively read-only, if it is supported by the container runtime.  If this field is set to Enabled, the mount is made recursively read-only if it is supported by the container runtime, otherwise the pod will not be started and an error will be generated to indicate the reason.
+	If ReadOnly is true, and this field is set to Disabled, the mount is not made recursively read-only.  If this field is set to IfPossible, the mount is made recursively read-only, if it is supported by the container runtime.  If this field is set to Enabled, the mount is made recursively read-only if it is supported by the container runtime, otherwise the pod will not be started and an error will be generated to indicate the reason.
 
-																		If this field is set to IfPossible or Enabled, MountPropagation must be set to None (or be unspecified, which defaults to None).
+	If this field is set to IfPossible or Enabled, MountPropagation must be set to None (or be unspecified, which defaults to None).
 
-																		If this field is not specified, it is treated as an equivalent of Disabled.
-																		"""
+	If this field is not specified, it is treated as an equivalent of Disabled.
+	"""
 														type: "string"
 													}
 													subPath: {
@@ -2699,7 +5563,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type:        "string"
 													}
 												}
-												required: ["mountPath", "name"]
+												required: [
+													"mountPath",
+													"name",
+												]
 												type: "object"
 											}
 											type: "array"
@@ -2718,53 +5585,946 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							ipFamily: {
 								default: "ipv4"
 								description: """
-												IP family for bind addresses. Defaults to IPv4.
+	IP family for bind addresses. Defaults to IPv4.
 
-												- `ipv4`: Uses 0.0.0.0 for bind addresses (default)
-												- `ipv6`: Uses [::] for bind addresses
-												"""
-								enum: ["ipv4", "ipv6"]
+	- `ipv4`: Uses 0.0.0.0 for bind addresses (default)
+	- `ipv6`: Uses [::] for bind addresses
+	"""
+								enum: [
+									"ipv4",
+									"ipv6",
+								]
 								type: "string"
 							}
 							ldapPortName: {
 								description: """
-												Defines the port name used for the LDAP service. If not defined, LDAP service will not be
-												configured. Service port will be `3636`.
+	Defines the port name used for the LDAP service. If not defined, LDAP service will not be
+	configured. Service port will be `3636`.
 
-												StartTLS is not supported due to security risks such as credential leakage and MITM attacks
-												that are fundamental in how StartTLS works. StartTLS can not be repaired to prevent this.
-												LDAPS is the only secure method of communicating to any LDAP server. Kanidm will use its
-												certificates for both HTTPS and LDAPS.
-												"""
+	StartTLS is not supported due to security risks such as credential leakage and MITM attacks
+	that are fundamental in how StartTLS works. StartTLS can not be repaired to prevent this.
+	LDAPS is the only secure method of communicating to any LDAP server. Kanidm will use its
+	certificates for both HTTPS and LDAPS.
+	"""
 								nullable: true
 								type:     "string"
 							}
 							logLevel: {
 								default:     "info"
 								description: "Log level for Kanidm."
-								enum: ["trace", "debug", "info"]
+								enum: [
+									"trace",
+									"debug",
+									"info",
+								]
 								type: "string"
+							}
+							mailSender: {
+								description: """
+	Mail sender configuration for sending emails (password reset links, notifications).
+	When enabled, the operator automatically creates a service account in Kanidm's
+	`idm_message_senders` group, generates an API token, and deploys the `kanidm-mail-sender`
+	component.
+	"""
+								nullable: true
+								properties: {
+									affinity: {
+										description: "Optional affinity rules for the mail sender deployment."
+										nullable:    true
+										properties: {
+											nodeAffinity: {
+												description: "Describes node affinity scheduling rules for the pod."
+												properties: {
+													preferredDuringSchedulingIgnoredDuringExecution: {
+														description: "The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified by this field, but it may choose a node that violates one or more of the expressions. The node that is most preferred is the one with the greatest sum of weights, i.e. for each node that meets all of the scheduling requirements (resource request, requiredDuringScheduling affinity expressions, etc.), compute a sum by iterating through the elements of this field and adding \"weight\" to the sum if the node matches the corresponding matchExpressions; the node(s) with the highest sum are the most preferred."
+														items: {
+															description: "An empty preferred scheduling term matches all objects with implicit weight 0 (i.e. it's a no-op). A null preferred scheduling term matches no objects (i.e. is also a no-op)."
+															properties: {
+																preference: {
+																	description: "A node selector term, associated with the corresponding weight."
+																	properties: {
+																		matchExpressions: {
+																			description: "A list of node selector requirements by node's labels."
+																			items: {
+																				description: "A node selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																				properties: {
+																					key: {
+																						description: "The label key that the selector applies to."
+																						type:        "string"
+																					}
+																					operator: {
+																						description: "Represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt."
+																						type:        "string"
+																					}
+																					values: {
+																						description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer. This array is replaced during a strategic merge patch."
+																						items: type: "string"
+																						type: "array"
+																					}
+																				}
+																				required: [
+																					"key",
+																					"operator",
+																				]
+																				type: "object"
+																			}
+																			type: "array"
+																		}
+																		matchFields: {
+																			description: "A list of node selector requirements by node's fields."
+																			items: {
+																				description: "A node selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																				properties: {
+																					key: {
+																						description: "The label key that the selector applies to."
+																						type:        "string"
+																					}
+																					operator: {
+																						description: "Represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt."
+																						type:        "string"
+																					}
+																					values: {
+																						description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer. This array is replaced during a strategic merge patch."
+																						items: type: "string"
+																						type: "array"
+																					}
+																				}
+																				required: [
+																					"key",
+																					"operator",
+																				]
+																				type: "object"
+																			}
+																			type: "array"
+																		}
+																	}
+																	type: "object"
+																}
+																weight: {
+																	description: "Weight associated with matching the corresponding nodeSelectorTerm, in the range 1-100."
+																	format:      "int32"
+																	type:        "integer"
+																}
+															}
+															required: [
+																"preference",
+																"weight",
+															]
+															type: "object"
+														}
+														type: "array"
+													}
+													requiredDuringSchedulingIgnoredDuringExecution: {
+														description: "If the affinity requirements specified by this field are not met at scheduling time, the pod will not be scheduled onto the node. If the affinity requirements specified by this field cease to be met at some point during pod execution (e.g. due to an update), the system may or may not try to eventually evict the pod from its node."
+														properties: nodeSelectorTerms: {
+															description: "Required. A list of node selector terms. The terms are ORed."
+															items: {
+																description: "A null or empty node selector term matches no objects. The requirements of them are ANDed. The TopologySelectorTerm type implements a subset of the NodeSelectorTerm."
+																properties: {
+																	matchExpressions: {
+																		description: "A list of node selector requirements by node's labels."
+																		items: {
+																			description: "A node selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																			properties: {
+																				key: {
+																					description: "The label key that the selector applies to."
+																					type:        "string"
+																				}
+																				operator: {
+																					description: "Represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt."
+																					type:        "string"
+																				}
+																				values: {
+																					description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer. This array is replaced during a strategic merge patch."
+																					items: type: "string"
+																					type: "array"
+																				}
+																			}
+																			required: [
+																				"key",
+																				"operator",
+																			]
+																			type: "object"
+																		}
+																		type: "array"
+																	}
+																	matchFields: {
+																		description: "A list of node selector requirements by node's fields."
+																		items: {
+																			description: "A node selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																			properties: {
+																				key: {
+																					description: "The label key that the selector applies to."
+																					type:        "string"
+																				}
+																				operator: {
+																					description: "Represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt."
+																					type:        "string"
+																				}
+																				values: {
+																					description: "An array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer. This array is replaced during a strategic merge patch."
+																					items: type: "string"
+																					type: "array"
+																				}
+																			}
+																			required: [
+																				"key",
+																				"operator",
+																			]
+																			type: "object"
+																		}
+																		type: "array"
+																	}
+																}
+																type: "object"
+															}
+															type: "array"
+														}
+														required: ["nodeSelectorTerms"]
+														type: "object"
+													}
+												}
+												type: "object"
+											}
+											podAffinity: {
+												description: "Describes pod affinity scheduling rules (e.g. co-locate this pod in the same node, zone, etc. as some other pod(s))."
+												properties: {
+													preferredDuringSchedulingIgnoredDuringExecution: {
+														description: "The scheduler will prefer to schedule pods to nodes that satisfy the affinity expressions specified by this field, but it may choose a node that violates one or more of the expressions. The node that is most preferred is the one with the greatest sum of weights, i.e. for each node that meets all of the scheduling requirements (resource request, requiredDuringScheduling affinity expressions, etc.), compute a sum by iterating through the elements of this field and adding \"weight\" to the sum if the node has pods which matches the corresponding podAffinityTerm; the node(s) with the highest sum are the most preferred."
+														items: {
+															description: "The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most preferred node(s)"
+															properties: {
+																podAffinityTerm: {
+																	description: "Required. A pod affinity term, associated with the corresponding weight."
+																	properties: {
+																		labelSelector: {
+																			description: "A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods."
+																			properties: {
+																				matchExpressions: {
+																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																					items: {
+																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																						properties: {
+																							key: {
+																								description: "key is the label key that the selector applies to."
+																								type:        "string"
+																							}
+																							operator: {
+																								description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																								type:        "string"
+																							}
+																							values: {
+																								description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																								items: type: "string"
+																								type: "array"
+																							}
+																						}
+																						required: [
+																							"key",
+																							"operator",
+																						]
+																						type: "object"
+																					}
+																					type: "array"
+																				}
+																				matchLabels: {
+																					additionalProperties: type: "string"
+																					description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																					type:        "object"
+																				}
+																			}
+																			type: "object"
+																		}
+																		matchLabelKeys: {
+																			description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `labelSelector` as `key in (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both matchLabelKeys and labelSelector. Also, matchLabelKeys cannot be set when labelSelector isn't set. This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default)."
+																			items: type: "string"
+																			type: "array"
+																		}
+																		mismatchLabelKeys: {
+																			description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `labelSelector` as `key notin (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both mismatchLabelKeys and labelSelector. Also, mismatchLabelKeys cannot be set when labelSelector isn't set. This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default)."
+																			items: type: "string"
+																			type: "array"
+																		}
+																		namespaceSelector: {
+																			description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																			properties: {
+																				matchExpressions: {
+																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																					items: {
+																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																						properties: {
+																							key: {
+																								description: "key is the label key that the selector applies to."
+																								type:        "string"
+																							}
+																							operator: {
+																								description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																								type:        "string"
+																							}
+																							values: {
+																								description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																								items: type: "string"
+																								type: "array"
+																							}
+																						}
+																						required: [
+																							"key",
+																							"operator",
+																						]
+																						type: "object"
+																					}
+																					type: "array"
+																				}
+																				matchLabels: {
+																					additionalProperties: type: "string"
+																					description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																					type:        "object"
+																				}
+																			}
+																			type: "object"
+																		}
+																		namespaces: {
+																			description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
+																			items: type: "string"
+																			type: "array"
+																		}
+																		topologyKey: {
+																			description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching the labelSelector in the specified namespaces, where co-located is defined as running on a node whose value of the label with key topologyKey matches that of any node on which any of the selected pods is running. Empty topologyKey is not allowed."
+																			type:        "string"
+																		}
+																	}
+																	required: ["topologyKey"]
+																	type: "object"
+																}
+																weight: {
+																	description: "weight associated with matching the corresponding podAffinityTerm, in the range 1-100."
+																	format:      "int32"
+																	type:        "integer"
+																}
+															}
+															required: [
+																"podAffinityTerm",
+																"weight",
+															]
+															type: "object"
+														}
+														type: "array"
+													}
+													requiredDuringSchedulingIgnoredDuringExecution: {
+														description: "If the affinity requirements specified by this field are not met at scheduling time, the pod will not be scheduled onto the node. If the affinity requirements specified by this field cease to be met at some point during pod execution (e.g. due to a pod label update), the system may or may not try to eventually evict the pod from its node. When there are multiple elements, the lists of nodes corresponding to each podAffinityTerm are intersected, i.e. all terms must be satisfied."
+														items: {
+															description: "Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) that this pod should be co-located (affinity) or not co-located (anti-affinity) with, where co-located is defined as running on a node whose value of the label with key <topologyKey> matches that of any node on which a pod of the set of pods is running"
+															properties: {
+																labelSelector: {
+																	description: "A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods."
+																	properties: {
+																		matchExpressions: {
+																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																			items: {
+																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																				properties: {
+																					key: {
+																						description: "key is the label key that the selector applies to."
+																						type:        "string"
+																					}
+																					operator: {
+																						description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																						type:        "string"
+																					}
+																					values: {
+																						description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																						items: type: "string"
+																						type: "array"
+																					}
+																				}
+																				required: [
+																					"key",
+																					"operator",
+																				]
+																				type: "object"
+																			}
+																			type: "array"
+																		}
+																		matchLabels: {
+																			additionalProperties: type: "string"
+																			description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																			type:        "object"
+																		}
+																	}
+																	type: "object"
+																}
+																matchLabelKeys: {
+																	description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `labelSelector` as `key in (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both matchLabelKeys and labelSelector. Also, matchLabelKeys cannot be set when labelSelector isn't set. This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default)."
+																	items: type: "string"
+																	type: "array"
+																}
+																mismatchLabelKeys: {
+																	description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `labelSelector` as `key notin (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both mismatchLabelKeys and labelSelector. Also, mismatchLabelKeys cannot be set when labelSelector isn't set. This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default)."
+																	items: type: "string"
+																	type: "array"
+																}
+																namespaceSelector: {
+																	description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																	properties: {
+																		matchExpressions: {
+																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																			items: {
+																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																				properties: {
+																					key: {
+																						description: "key is the label key that the selector applies to."
+																						type:        "string"
+																					}
+																					operator: {
+																						description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																						type:        "string"
+																					}
+																					values: {
+																						description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																						items: type: "string"
+																						type: "array"
+																					}
+																				}
+																				required: [
+																					"key",
+																					"operator",
+																				]
+																				type: "object"
+																			}
+																			type: "array"
+																		}
+																		matchLabels: {
+																			additionalProperties: type: "string"
+																			description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																			type:        "object"
+																		}
+																	}
+																	type: "object"
+																}
+																namespaces: {
+																	description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
+																	items: type: "string"
+																	type: "array"
+																}
+																topologyKey: {
+																	description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching the labelSelector in the specified namespaces, where co-located is defined as running on a node whose value of the label with key topologyKey matches that of any node on which any of the selected pods is running. Empty topologyKey is not allowed."
+																	type:        "string"
+																}
+															}
+															required: ["topologyKey"]
+															type: "object"
+														}
+														type: "array"
+													}
+												}
+												type: "object"
+											}
+											podAntiAffinity: {
+												description: "Describes pod anti-affinity scheduling rules (e.g. avoid putting this pod in the same node, zone, etc. as some other pod(s))."
+												properties: {
+													preferredDuringSchedulingIgnoredDuringExecution: {
+														description: "The scheduler will prefer to schedule pods to nodes that satisfy the anti-affinity expressions specified by this field, but it may choose a node that violates one or more of the expressions. The node that is most preferred is the one with the greatest sum of weights, i.e. for each node that meets all of the scheduling requirements (resource request, requiredDuringScheduling anti-affinity expressions, etc.), compute a sum by iterating through the elements of this field and adding \"weight\" to the sum if the node has pods which matches the corresponding podAffinityTerm; the node(s) with the highest sum are the most preferred."
+														items: {
+															description: "The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most preferred node(s)"
+															properties: {
+																podAffinityTerm: {
+																	description: "Required. A pod affinity term, associated with the corresponding weight."
+																	properties: {
+																		labelSelector: {
+																			description: "A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods."
+																			properties: {
+																				matchExpressions: {
+																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																					items: {
+																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																						properties: {
+																							key: {
+																								description: "key is the label key that the selector applies to."
+																								type:        "string"
+																							}
+																							operator: {
+																								description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																								type:        "string"
+																							}
+																							values: {
+																								description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																								items: type: "string"
+																								type: "array"
+																							}
+																						}
+																						required: [
+																							"key",
+																							"operator",
+																						]
+																						type: "object"
+																					}
+																					type: "array"
+																				}
+																				matchLabels: {
+																					additionalProperties: type: "string"
+																					description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																					type:        "object"
+																				}
+																			}
+																			type: "object"
+																		}
+																		matchLabelKeys: {
+																			description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `labelSelector` as `key in (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both matchLabelKeys and labelSelector. Also, matchLabelKeys cannot be set when labelSelector isn't set. This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default)."
+																			items: type: "string"
+																			type: "array"
+																		}
+																		mismatchLabelKeys: {
+																			description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `labelSelector` as `key notin (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both mismatchLabelKeys and labelSelector. Also, mismatchLabelKeys cannot be set when labelSelector isn't set. This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default)."
+																			items: type: "string"
+																			type: "array"
+																		}
+																		namespaceSelector: {
+																			description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																			properties: {
+																				matchExpressions: {
+																					description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																					items: {
+																						description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																						properties: {
+																							key: {
+																								description: "key is the label key that the selector applies to."
+																								type:        "string"
+																							}
+																							operator: {
+																								description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																								type:        "string"
+																							}
+																							values: {
+																								description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																								items: type: "string"
+																								type: "array"
+																							}
+																						}
+																						required: [
+																							"key",
+																							"operator",
+																						]
+																						type: "object"
+																					}
+																					type: "array"
+																				}
+																				matchLabels: {
+																					additionalProperties: type: "string"
+																					description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																					type:        "object"
+																				}
+																			}
+																			type: "object"
+																		}
+																		namespaces: {
+																			description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
+																			items: type: "string"
+																			type: "array"
+																		}
+																		topologyKey: {
+																			description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching the labelSelector in the specified namespaces, where co-located is defined as running on a node whose value of the label with key topologyKey matches that of any node on which any of the selected pods is running. Empty topologyKey is not allowed."
+																			type:        "string"
+																		}
+																	}
+																	required: ["topologyKey"]
+																	type: "object"
+																}
+																weight: {
+																	description: "weight associated with matching the corresponding podAffinityTerm, in the range 1-100."
+																	format:      "int32"
+																	type:        "integer"
+																}
+															}
+															required: [
+																"podAffinityTerm",
+																"weight",
+															]
+															type: "object"
+														}
+														type: "array"
+													}
+													requiredDuringSchedulingIgnoredDuringExecution: {
+														description: "If the anti-affinity requirements specified by this field are not met at scheduling time, the pod will not be scheduled onto the node. If the anti-affinity requirements specified by this field cease to be met at some point during pod execution (e.g. due to a pod label update), the system may or may not try to eventually evict the pod from its node. When there are multiple elements, the lists of nodes corresponding to each podAffinityTerm are intersected, i.e. all terms must be satisfied."
+														items: {
+															description: "Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) that this pod should be co-located (affinity) or not co-located (anti-affinity) with, where co-located is defined as running on a node whose value of the label with key <topologyKey> matches that of any node on which a pod of the set of pods is running"
+															properties: {
+																labelSelector: {
+																	description: "A label query over a set of resources, in this case pods. If it's null, this PodAffinityTerm matches with no Pods."
+																	properties: {
+																		matchExpressions: {
+																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																			items: {
+																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																				properties: {
+																					key: {
+																						description: "key is the label key that the selector applies to."
+																						type:        "string"
+																					}
+																					operator: {
+																						description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																						type:        "string"
+																					}
+																					values: {
+																						description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																						items: type: "string"
+																						type: "array"
+																					}
+																				}
+																				required: [
+																					"key",
+																					"operator",
+																				]
+																				type: "object"
+																			}
+																			type: "array"
+																		}
+																		matchLabels: {
+																			additionalProperties: type: "string"
+																			description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																			type:        "object"
+																		}
+																	}
+																	type: "object"
+																}
+																matchLabelKeys: {
+																	description: "MatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `labelSelector` as `key in (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both matchLabelKeys and labelSelector. Also, matchLabelKeys cannot be set when labelSelector isn't set. This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default)."
+																	items: type: "string"
+																	type: "array"
+																}
+																mismatchLabelKeys: {
+																	description: "MismatchLabelKeys is a set of pod label keys to select which pods will be taken into consideration. The keys are used to lookup values from the incoming pod labels, those key-value labels are merged with `labelSelector` as `key notin (value)` to select the group of existing pods which pods will be taken into consideration for the incoming pod's pod (anti) affinity. Keys that don't exist in the incoming pod labels will be ignored. The default value is empty. The same key is forbidden to exist in both mismatchLabelKeys and labelSelector. Also, mismatchLabelKeys cannot be set when labelSelector isn't set. This is a beta field and requires enabling MatchLabelKeysInPodAffinity feature gate (enabled by default)."
+																	items: type: "string"
+																	type: "array"
+																}
+																namespaceSelector: {
+																	description: "A label query over the set of namespaces that the term applies to. The term is applied to the union of the namespaces selected by this field and the ones listed in the namespaces field. null selector and null or empty namespaces list means \"this pod's namespace\". An empty selector ({}) matches all namespaces."
+																	properties: {
+																		matchExpressions: {
+																			description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+																			items: {
+																				description: "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values."
+																				properties: {
+																					key: {
+																						description: "key is the label key that the selector applies to."
+																						type:        "string"
+																					}
+																					operator: {
+																						description: "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist."
+																						type:        "string"
+																					}
+																					values: {
+																						description: "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch."
+																						items: type: "string"
+																						type: "array"
+																					}
+																				}
+																				required: [
+																					"key",
+																					"operator",
+																				]
+																				type: "object"
+																			}
+																			type: "array"
+																		}
+																		matchLabels: {
+																			additionalProperties: type: "string"
+																			description: "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed."
+																			type:        "object"
+																		}
+																	}
+																	type: "object"
+																}
+																namespaces: {
+																	description: "namespaces specifies a static list of namespace names that the term applies to. The term is applied to the union of the namespaces listed in this field and the ones selected by namespaceSelector. null or empty namespaces list and null namespaceSelector means \"this pod's namespace\"."
+																	items: type: "string"
+																	type: "array"
+																}
+																topologyKey: {
+																	description: "This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods matching the labelSelector in the specified namespaces, where co-located is defined as running on a node whose value of the label with key topologyKey matches that of any node on which any of the selected pods is running. Empty topologyKey is not allowed."
+																	type:        "string"
+																}
+															}
+															required: ["topologyKey"]
+															type: "object"
+														}
+														type: "array"
+													}
+												}
+												type: "object"
+											}
+										}
+										type: "object"
+									}
+									connectTimeoutSeconds: {
+										description: """
+	Optional SMTP connection timeout in seconds.
+	Defaults to 15 seconds.
+	"""
+										format:   "int32"
+										nullable: true
+										type:     "integer"
+									}
+									credentialsSecret: {
+										description: """
+	Kubernetes secret containing SMTP credentials (username and password).
+	The secret must have keys for username and password (defaults to "username" and "password").
+	"""
+										properties: {
+											name: {
+												description: "Name of the Kubernetes secret containing SMTP credentials."
+												type:        "string"
+											}
+											passwordKey: {
+												default: "password"
+												description: """
+	Key in the secret containing the SMTP password.
+	Defaults to "password".
+	"""
+												type: "string"
+											}
+											usernameKey: {
+												default: "username"
+												description: """
+	Key in the secret containing the SMTP username.
+	Defaults to "username".
+	"""
+												type: "string"
+											}
+										}
+										required: ["name"]
+										type: "object"
+									}
+									fromAddress: {
+										description: """
+	Email address used as the "From" address in sent emails.
+	Example: `kanidm@example.com`
+	"""
+										type: "string"
+									}
+									image: {
+										description: """
+	Optional custom image for the mail sender deployment.
+	Defaults to `kanidm/tools:<version>` matching the Kanidm server image version.
+	"""
+										nullable: true
+										type:     "string"
+									}
+									nodeSelector: {
+										additionalProperties: type: "string"
+										description: "Optional node selector for the mail sender deployment."
+										nullable:    true
+										type:        "object"
+									}
+									queuePollIntervalSeconds: {
+										description: """
+	Optional queue polling interval in seconds.
+	How often the mail sender checks Kanidm's message queue.
+	Defaults to 5 seconds.
+	"""
+										format:   "int32"
+										nullable: true
+										type:     "integer"
+									}
+									relay: {
+										description: """
+	SMTP relay URL for sending emails.
+	Must be a valid SMTP URL: `smtp://hostname:port` or `smtps://hostname` (default port 465).
+	Example: `smtps://smtp.example.com` or `smtp://smtp.example.com:587`
+	"""
+										type: "string"
+									}
+									replyToAddress: {
+										description: """
+	Optional email address for the "Reply-To" header.
+	Example: `admin@example.com`
+	"""
+										nullable: true
+										type:     "string"
+									}
+									resources: {
+										description: "Optional resource requirements for the mail sender deployment."
+										nullable:    true
+										properties: {
+											claims: {
+												description: """
+	Claims lists the names of resources, defined in spec.resourceClaims, that are used by this container.
+
+	This is an alpha field and requires enabling the DynamicResourceAllocation feature gate.
+
+	This field is immutable. It can only be set for containers.
+	"""
+												items: {
+													description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
+													properties: {
+														name: {
+															description: "Name must match the name of one entry in pod.spec.resourceClaims of the Pod where this field is used. It makes that resource available inside a container."
+															type:        "string"
+														}
+														request: {
+															description: "Request is the name chosen for a request in the referenced claim. If empty, everything from the claim is made available, otherwise only the result of this request."
+															type:        "string"
+														}
+													}
+													required: ["name"]
+													type: "object"
+												}
+												type: "array"
+											}
+											limits: {
+												additionalProperties: {
+													description: """
+	Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
+
+	The serialization format is:
+
+	``` <quantity>        ::= <signedNumber><suffix>
+
+	\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
+
+	<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
+
+	\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
+
+	<decimalSI>       ::= m | "" | k | M | G | T | P | E
+
+	\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
+
+	<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
+
+	No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
+
+	When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
+
+	Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
+
+	- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
+
+	The sign will be omitted unless the number is negative.
+
+	Examples:
+
+	- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
+
+	Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
+
+	Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
+
+	This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
+	"""
+													"x-kubernetes-int-or-string": true
+												}
+												description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
+												type:        "object"
+											}
+											requests: {
+												additionalProperties: {
+													description: """
+	Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
+
+	The serialization format is:
+
+	``` <quantity>        ::= <signedNumber><suffix>
+
+	\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
+
+	<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
+
+	\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
+
+	<decimalSI>       ::= m | "" | k | M | G | T | P | E
+
+	\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
+
+	<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
+
+	No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
+
+	When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
+
+	Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
+
+	- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
+
+	The sign will be omitted unless the number is negative.
+
+	Examples:
+
+	- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
+
+	Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
+
+	Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
+
+	This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
+	"""
+													"x-kubernetes-int-or-string": true
+												}
+												description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. Requests cannot exceed Limits. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
+												type:        "object"
+											}
+										}
+										type: "object"
+									}
+									tolerations: {
+										description: "Optional tolerations for the mail sender deployment."
+										items: {
+											description: "The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect> using the matching operator <operator>."
+											properties: {
+												effect: {
+													description: "Effect indicates the taint effect to match. Empty means match all taint effects. When specified, allowed values are NoSchedule, PreferNoSchedule and NoExecute."
+													type:        "string"
+												}
+												key: {
+													description: "Key is the taint key that the toleration applies to. Empty means match all taint keys. If the key is empty, operator must be Exists; this combination means to match all values and all keys."
+													type:        "string"
+												}
+												operator: {
+													description: "Operator represents a key's relationship to the value. Valid operators are Exists and Equal. Defaults to Equal. Exists is equivalent to wildcard for value, so that a pod can tolerate all taints of a particular category."
+													type:        "string"
+												}
+												tolerationSeconds: {
+													description: "TolerationSeconds represents the period of time the toleration (which must be of effect NoExecute, otherwise this field is ignored) tolerates the taint. By default, it is not set, which means tolerate the taint forever (do not evict). Zero and negative values will be treated as 0 (evict immediately) by the system."
+													format:      "int64"
+													type:        "integer"
+												}
+												value: {
+													description: "Value is the taint value the toleration matches to. If the operator is Exists, the value should be empty, otherwise just a regular string."
+													type:        "string"
+												}
+											}
+											type: "object"
+										}
+										nullable: true
+										type:     "array"
+									}
+								}
+								required: [
+									"credentialsSecret",
+									"fromAddress",
+									"relay",
+								]
+								type: "object"
 							}
 							minReadySeconds: {
 								description: """
-												Minimum number of seconds for which a newly created Pod should be ready without any of its
-												container crashing for it to be considered available. Defaults to 0 (pod will be considered
-												available as soon as it is ready)
-												"""
+	Minimum number of seconds for which a newly created Pod should be ready without any of its
+	container crashing for it to be considered available. Defaults to 0 (pod will be considered
+	available as soon as it is ready)
+	"""
 								format:   "int32"
 								nullable: true
 								type:     "integer"
 							}
 							oauth2ClientNamespaceSelector: {
 								description: """
-												Namespaces to match for KanidmOAuth2Clients discovery.
+	Namespaces to match for KanidmOAuth2Clients discovery.
 
-												- Not defined (default): matches only the current namespace where this Kanidm resource is deployed
-												- Empty selector `{}`: matches all namespaces in the cluster
-												- Selector with labels: matches namespaces with matching labels
+	- Not defined (default): matches only the current namespace where this Kanidm resource is deployed
+	- Empty selector `{}`: matches all namespaces in the cluster
+	- Selector with labels: matches namespaces with matching labels
 
-												Example for all namespaces: `oauth2ClientNamespaceSelector: {}`
-												"""
+	Example for all namespaces: `oauth2ClientNamespaceSelector: {}`
+	"""
 								nullable: true
 								properties: {
 									matchExpressions: {
@@ -2786,7 +6546,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type: "array"
 												}
 											}
-											required: ["key", "operator"]
+											required: [
+												"key",
+												"operator",
+											]
 											type: "object"
 										}
 										type: "array"
@@ -2801,27 +6564,27 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							origin: {
 								description: """
-												The origin for webauthn. This is the url to the server,
-												with the port included if it is non-standard (any port
-												except 443). This must match or be a descendent of the
-												domain name you configure above. If these two items are
-												not consistent, the server WILL refuse to start!
-												origin = "https://idm.example.com"
-												# OR
-												origin = "https://idm.example.com:8443"
+	The origin for webauthn. This is the url to the server,
+	with the port included if it is non-standard (any port
+	except 443). This must match or be a descendent of the
+	domain name you configure above. If these two items are
+	not consistent, the server WILL refuse to start!
+	origin = "https://idm.example.com"
+	# OR
+	origin = "https://idm.example.com:8443"
 
-												Defaults to `https://<domain>` if not specified.
-												"""
+	Defaults to `https://<domain>` if not specified.
+	"""
 								nullable: true
 								type:     "string"
 							}
 							persistentVolumeClaimRetentionPolicy: {
 								description: """
-												The field controls if and how PVCs are deleted during the lifecycle of a StatefulSet.
-												The default behavior is all PVCs are retained.
-												This is a beta field from 1.27. It requires enabling the StatefulSetAutoDeletePVC feature
-												gate.
-												"""
+	The field controls if and how PVCs are deleted during the lifecycle of a StatefulSet.
+	The default behavior is all PVCs are retained.
+	This is a beta field from 1.27. It requires enabling the StatefulSetAutoDeletePVC feature
+	gate.
+	"""
 								nullable: true
 								properties: {
 									whenDeleted: {
@@ -2837,14 +6600,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							personNamespaceSelector: {
 								description: """
-												Namespaces to match for KanidmPersonAccounts discovery.
+	Namespaces to match for KanidmPersonAccounts discovery.
 
-												- Not defined (default): matches only the current namespace where this Kanidm resource is deployed
-												- Empty selector `{}`: matches all namespaces in the cluster
-												- Selector with labels: matches namespaces with matching labels
+	- Not defined (default): matches only the current namespace where this Kanidm resource is deployed
+	- Empty selector `{}`: matches all namespaces in the cluster
+	- Selector with labels: matches namespaces with matching labels
 
-												Example for all namespaces: `personNamespaceSelector: {}`
-												"""
+	Example for all namespaces: `personNamespaceSelector: {}`
+	"""
 								nullable: true
 								properties: {
 									matchExpressions: {
@@ -2866,7 +6629,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type: "array"
 												}
 											}
-											required: ["key", "operator"]
+											required: [
+												"key",
+												"operator",
+											]
 											type: "object"
 										}
 										type: "array"
@@ -2886,53 +6652,53 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							regionIngress: {
 								description: """
-												Region-specific ingress configuration for multi-region deployments.
+	Region-specific ingress configuration for multi-region deployments.
 
-												Allows defining ingress settings for a specific region, using a subdomain of the main
-												Kanidm domain.
-												TLS is required and must be configured at the ingress controller level (termination or
-												passthrough).
-												For multi-region deployments, configure session affinity on your ingress controller to ensure proper session handling.
-												"""
+	Allows defining ingress settings for a specific region, using a subdomain of the main
+	Kanidm domain.
+	TLS is required and must be configured at the ingress controller level (termination or
+	passthrough).
+	For multi-region deployments, configure session affinity on your ingress controller to ensure proper session handling.
+	"""
 								nullable: true
 								properties: {
 									annotations: {
 										additionalProperties: type: "string"
 										description: """
-														Annotations is an unstructured key value map stored with a resource that may be set by
-														external tools to store and retrieve arbitrary metadata. They are not queryable and should
-														be preserved when modifying objects.
-														More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
-														"""
+	Annotations is an unstructured key value map stored with a resource that may be set by
+	external tools to store and retrieve arbitrary metadata. They are not queryable and should
+	be preserved when modifying objects.
+	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
+	"""
 										nullable: true
 										type:     "object"
 									}
 									ingressClassName: {
 										description: """
-														ingressClassName is the name of an IngressClass cluster resource. Ingress controller
-														implementations use this field to know whether they should be serving this Ingress resource,
-														by a transitive connection (controller -\\> IngressClass -\\> Ingress resource). Although the
-														`kubernetes.io/ingress.class` annotation (simple constant name) was never formally defined,
-														it was widely supported by Ingress controllers to create a direct binding between Ingress
-														controller and Ingress resources. Newly created Ingress resources should prefer using the
-														field. However, even though the annotation is officially deprecated, for backwards
-														compatibility reasons, ingress controllers should still honor that annotation if present.
-														"""
+	ingressClassName is the name of an IngressClass cluster resource. Ingress controller
+	implementations use this field to know whether they should be serving this Ingress resource,
+	by a transitive connection (controller -\\> IngressClass -\\> Ingress resource). Although the
+	`kubernetes.io/ingress.class` annotation (simple constant name) was never formally defined,
+	it was widely supported by Ingress controllers to create a direct binding between Ingress
+	controller and Ingress resources. Newly created Ingress resources should prefer using the
+	field. However, even though the annotation is officially deprecated, for backwards
+	compatibility reasons, ingress controllers should still honor that annotation if present.
+	"""
 										nullable: true
 										type:     "string"
 									}
 									region: {
 										description: """
-														Region identifier for this ingress. Used as a subdomain of the main Kanidm domain to route
-														traffic for a specific region.
-														"""
+	Region identifier for this ingress. Used as a subdomain of the main Kanidm domain to route
+	traffic for a specific region.
+	"""
 										type: "string"
 									}
 									tlsSecretName: {
 										description: """
-														Defines the name of the secret that contains the TLS private key and certificate for the
-														server. If not defined, the default will be the Kanidm name appended with `-region-tls`.
-														"""
+	Defines the name of the secret that contains the TLS private key and certificate for the
+	server. If not defined, the default will be the Kanidm name appended with `-region-tls`.
+	"""
 										nullable: true
 										type:     "string"
 										"x-kubernetes-validations": [{
@@ -2946,9 +6712,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							replicaGroups: {
 								description: """
-												Different group of replicas with specific configuration as role, resources, affinity rules, and more.
-												Each group will be deployed as a separate StatefulSet.
-												"""
+	Different group of replicas with specific configuration as role, resources, affinity rules, and more.
+	Each group will be deployed as a separate StatefulSet.
+	"""
 								items: {
 									properties: {
 										affinity: {
@@ -2985,7 +6751,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							type: "array"
 																						}
 																					}
-																					required: ["key", "operator"]
+																					required: [
+																						"key",
+																						"operator",
+																					]
 																					type: "object"
 																				}
 																				type: "array"
@@ -3009,7 +6778,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							type: "array"
 																						}
 																					}
-																					required: ["key", "operator"]
+																					required: [
+																						"key",
+																						"operator",
+																					]
 																					type: "object"
 																				}
 																				type: "array"
@@ -3023,7 +6795,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:        "integer"
 																	}
 																}
-																required: ["preference", "weight"]
+																required: [
+																	"preference",
+																	"weight",
+																]
 																type: "object"
 															}
 															type: "array"
@@ -3054,7 +6829,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						type: "array"
 																					}
 																				}
-																				required: ["key", "operator"]
+																				required: [
+																					"key",
+																					"operator",
+																				]
 																				type: "object"
 																			}
 																			type: "array"
@@ -3078,7 +6856,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						type: "array"
 																					}
 																				}
-																				required: ["key", "operator"]
+																				required: [
+																					"key",
+																					"operator",
+																				]
 																				type: "object"
 																			}
 																			type: "array"
@@ -3127,7 +6908,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									type: "array"
 																								}
 																							}
-																							required: ["key", "operator"]
+																							required: [
+																								"key",
+																								"operator",
+																							]
 																							type: "object"
 																						}
 																						type: "array"
@@ -3172,7 +6956,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									type: "array"
 																								}
 																							}
-																							required: ["key", "operator"]
+																							required: [
+																								"key",
+																								"operator",
+																							]
 																							type: "object"
 																						}
 																						type: "array"
@@ -3204,7 +6991,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:        "integer"
 																	}
 																}
-																required: ["podAffinityTerm", "weight"]
+																required: [
+																	"podAffinityTerm",
+																	"weight",
+																]
 																type: "object"
 															}
 															type: "array"
@@ -3236,7 +7026,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							type: "array"
 																						}
 																					}
-																					required: ["key", "operator"]
+																					required: [
+																						"key",
+																						"operator",
+																					]
 																					type: "object"
 																				}
 																				type: "array"
@@ -3281,7 +7074,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							type: "array"
 																						}
 																					}
-																					required: ["key", "operator"]
+																					required: [
+																						"key",
+																						"operator",
+																					]
 																					type: "object"
 																				}
 																				type: "array"
@@ -3345,7 +7141,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									type: "array"
 																								}
 																							}
-																							required: ["key", "operator"]
+																							required: [
+																								"key",
+																								"operator",
+																							]
 																							type: "object"
 																						}
 																						type: "array"
@@ -3390,7 +7189,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									type: "array"
 																								}
 																							}
-																							required: ["key", "operator"]
+																							required: [
+																								"key",
+																								"operator",
+																							]
 																							type: "object"
 																						}
 																						type: "array"
@@ -3422,7 +7224,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:        "integer"
 																	}
 																}
-																required: ["podAffinityTerm", "weight"]
+																required: [
+																	"podAffinityTerm",
+																	"weight",
+																]
 																type: "object"
 															}
 															type: "array"
@@ -3454,7 +7259,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							type: "array"
 																						}
 																					}
-																					required: ["key", "operator"]
+																					required: [
+																						"key",
+																						"operator",
+																					]
 																					type: "object"
 																				}
 																				type: "array"
@@ -3499,7 +7307,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							type: "array"
 																						}
 																					}
-																					required: ["key", "operator"]
+																					required: [
+																						"key",
+																						"operator",
+																					]
 																					type: "object"
 																				}
 																				type: "array"
@@ -3546,14 +7357,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										primaryNode: {
 											default: false
 											description: """
-															If true, the first pod of the StatefulSet will be considered as the primary node.
-															The rest of the nodes are considered as secondary nodes.
-															This means that if database issues occur the content of the primary will take precedence
-															over the rest of the nodes.
-															This is only valid for the WriteReplica role and can only be set to true for one
-															replica group or external replication node.
-															Defaults to false.
-															"""
+	If true, the first pod of the StatefulSet will be considered as the primary node.
+	The rest of the nodes are considered as secondary nodes.
+	This means that if database issues occur the content of the primary will take precedence
+	over the rest of the nodes.
+	This is only valid for the WriteReplica role and can only be set to true for one
+	replica group or external replication node.
+	Defaults to false.
+	"""
 											type: "boolean"
 										}
 										replicas: {
@@ -3567,12 +7378,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											properties: {
 												claims: {
 													description: """
-																	Claims lists the names of resources, defined in spec.resourceClaims, that are used by this container.
+	Claims lists the names of resources, defined in spec.resourceClaims, that are used by this container.
 
-																	This is an alpha field and requires enabling the DynamicResourceAllocation feature gate.
+	This is an alpha field and requires enabling the DynamicResourceAllocation feature gate.
 
-																	This field is immutable. It can only be set for containers.
-																	"""
+	This field is immutable. It can only be set for containers.
+	"""
 													items: {
 														description: "ResourceClaim references one entry in PodSpec.ResourceClaims."
 														properties: {
@@ -3593,44 +7404,44 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												limits: {
 													additionalProperties: {
 														description: """
-																		Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
+	Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
 
-																		The serialization format is:
+	The serialization format is:
 
-																		``` <quantity>        ::= <signedNumber><suffix>
+	``` <quantity>        ::= <signedNumber><suffix>
 
-																		\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
+	\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
 
-																		<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
+	<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
 
-																		\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
+	\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
 
-																		<decimalSI>       ::= m | "" | k | M | G | T | P | E
+	<decimalSI>       ::= m | "" | k | M | G | T | P | E
 
-																		\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
+	\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
 
-																		<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
+	<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
 
-																		No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
+	No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
 
-																		When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
+	When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
 
-																		Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
+	Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
 
-																		- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
+	- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
 
-																		The sign will be omitted unless the number is negative.
+	The sign will be omitted unless the number is negative.
 
-																		Examples:
+	Examples:
 
-																		- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
+	- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
 
-																		Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
+	Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
 
-																		Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
+	Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
 
-																		This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
-																		"""
+	This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
+	"""
 														"x-kubernetes-int-or-string": true
 													}
 													description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
@@ -3639,44 +7450,44 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												requests: {
 													additionalProperties: {
 														description: """
-																		Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
+	Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
 
-																		The serialization format is:
+	The serialization format is:
 
-																		``` <quantity>        ::= <signedNumber><suffix>
+	``` <quantity>        ::= <signedNumber><suffix>
 
-																		\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
+	\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
 
-																		<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
+	<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
 
-																		\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
+	\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
 
-																		<decimalSI>       ::= m | "" | k | M | G | T | P | E
+	<decimalSI>       ::= m | "" | k | M | G | T | P | E
 
-																		\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
+	\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
 
-																		<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
+	<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
 
-																		No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
+	No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
 
-																		When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
+	When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
 
-																		Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
+	Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
 
-																		- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
+	- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
 
-																		The sign will be omitted unless the number is negative.
+	The sign will be omitted unless the number is negative.
 
-																		Examples:
+	Examples:
 
-																		- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
+	- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
 
-																		Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
+	Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
 
-																		Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
+	Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
 
-																		This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
-																		"""
+	This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
+	"""
 														"x-kubernetes-int-or-string": true
 													}
 													description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. Requests cannot exceed Limits. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
@@ -3688,53 +7499,57 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										role: {
 											default:     "write_replica"
 											description: "The Kanidm role of each node in the replica group."
-											enum: ["write_replica", "write_replica_no_ui", "read_only_replica"]
+											enum: [
+												"write_replica",
+												"write_replica_no_ui",
+												"read_only_replica",
+											]
 											type: "string"
 										}
 										services: {
 											description: """
-															Service configuration for the replica group.
-															- If not specified, pods use the default StatefulSet DNS for internal communication.
-															- If specified, a Kubernetes Service of type LoadBalancer is created to expose replica
-															  group pods externally.
-															  This enables cross-cluster or multi-region access to replicas.
-															"""
+	Service configuration for the replica group.
+	- If not specified, pods use the default StatefulSet DNS for internal communication.
+	- If specified, a Kubernetes Service of type LoadBalancer is created to expose replica
+	  group pods externally.
+	  This enables cross-cluster or multi-region access to replicas.
+	"""
 											nullable: true
 											properties: {
 												additionalLabels: {
 													additionalProperties: type: "string"
 													description: """
-																	Map of string keys and values that can be used to organize and categorize (scope and
-																	select) objects. May match selectors of replication controllers and services.
-																	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels
-																	"""
+	Map of string keys and values that can be used to organize and categorize (scope and
+	select) objects. May match selectors of replication controllers and services.
+	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels
+	"""
 													nullable: true
 													type:     "object"
 												}
 												annotationsTemplate: {
 													additionalProperties: type: "string"
 													description: """
-																	Annotations to apply to each Service for replica group pods.
+	Annotations to apply to each Service for replica group pods.
 
-																	Available template variables:
-																	- `{replica_index}`: Index of the pod in the replica group
-																	- `{pod_name}`: Name of the pod
-																	- `{domain}`: Domain name
-																	"""
+	Available template variables:
+	- `{replica_index}`: Index of the pod in the replica group
+	- `{pod_name}`: Name of the pod
+	- `{domain}`: Domain name
+	"""
 													nullable: true
 													type:     "object"
 												}
 												replicationHostnameTemplate: {
 													description: """
-																	Hostname template for each Service created for replica group pods.
+	Hostname template for each Service created for replica group pods.
 
-																	Available template variables:
-																	- `{replica_index}`: Index of the pod in the replica group
-																	- `{pod_name}`: Name of the pod
-																	- `{domain}`: Domain name
+	Available template variables:
+	- `{replica_index}`: Index of the pod in the replica group
+	- `{pod_name}`: Name of the pod
+	- `{domain}`: Domain name
 
-																	If not set, the replication hostname defaults to the Service's external IP.
-																	"""
+	If not set, the replication hostname defaults to the Service's external IP.
+	"""
 													nullable: true
 													type:     "string"
 												}
@@ -3744,12 +7559,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										statefulSetAnnotations: {
 											additionalProperties: type: "string"
 											description: """
-															Annotations to add to the StatefulSet created for this replica group.
+	Annotations to add to the StatefulSet created for this replica group.
 
-															Each replica group gets its own StatefulSet; these annotations are applied only to the
-															StatefulSet for this group.
-															More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
-															"""
+	Each replica group gets its own StatefulSet; these annotations are applied only to the
+	StatefulSet for this group.
+	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
+	"""
 											nullable: true
 											type:     "object"
 										}
@@ -3812,7 +7627,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			type: "array"
 																		}
 																	}
-																	required: ["key", "operator"]
+																	required: [
+																		"key",
+																		"operator",
+																	]
 																	type: "object"
 																}
 																type: "array"
@@ -3827,10 +7645,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													matchLabelKeys: {
 														description: """
-																		MatchLabelKeys is a set of pod label keys to select the pods over which spreading will be calculated. The keys are used to lookup values from the incoming pod labels, those key-value labels are ANDed with labelSelector to select the group of existing pods over which spreading will be calculated for the incoming pod. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. MatchLabelKeys cannot be set when LabelSelector isn't set. Keys that don't exist in the incoming pod labels will be ignored. A null or empty list means only match against labelSelector.
+	MatchLabelKeys is a set of pod label keys to select the pods over which spreading will be calculated. The keys are used to lookup values from the incoming pod labels, those key-value labels are ANDed with labelSelector to select the group of existing pods over which spreading will be calculated for the incoming pod. The same key is forbidden to exist in both MatchLabelKeys and LabelSelector. MatchLabelKeys cannot be set when LabelSelector isn't set. Keys that don't exist in the incoming pod labels will be ignored. A null or empty list means only match against labelSelector.
 
-																		This is a beta field and requires the MatchLabelKeysInPodTopologySpread feature gate to be enabled (enabled by default).
-																		"""
+	This is a beta field and requires the MatchLabelKeysInPodTopologySpread feature gate to be enabled (enabled by default).
+	"""
 														items: type: "string"
 														type: "array"
 													}
@@ -3841,27 +7659,27 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													minDomains: {
 														description: """
-																		MinDomains indicates a minimum number of eligible domains. When the number of eligible domains with matching topology keys is less than minDomains, Pod Topology Spread treats "global minimum" as 0, and then the calculation of Skew is performed. And when the number of eligible domains with matching topology keys equals or greater than minDomains, this value has no effect on scheduling. As a result, when the number of eligible domains is less than minDomains, scheduler won't schedule more than maxSkew Pods to those domains. If value is nil, the constraint behaves as if MinDomains is equal to 1. Valid values are integers greater than 0. When value is not nil, WhenUnsatisfiable must be DoNotSchedule.
+	MinDomains indicates a minimum number of eligible domains. When the number of eligible domains with matching topology keys is less than minDomains, Pod Topology Spread treats "global minimum" as 0, and then the calculation of Skew is performed. And when the number of eligible domains with matching topology keys equals or greater than minDomains, this value has no effect on scheduling. As a result, when the number of eligible domains is less than minDomains, scheduler won't schedule more than maxSkew Pods to those domains. If value is nil, the constraint behaves as if MinDomains is equal to 1. Valid values are integers greater than 0. When value is not nil, WhenUnsatisfiable must be DoNotSchedule.
 
-																		For example, in a 3-zone cluster, MaxSkew is set to 2, MinDomains is set to 5 and pods with the same labelSelector spread as 2/2/2: | zone1 | zone2 | zone3 | |  P P  |  P P  |  P P  | The number of domains is less than 5(MinDomains), so "global minimum" is treated as 0. In this situation, new pod with the same labelSelector cannot be scheduled, because computed skew will be 3(3 - 0) if new Pod is scheduled to any of the three zones, it will violate MaxSkew.
-																		"""
+	For example, in a 3-zone cluster, MaxSkew is set to 2, MinDomains is set to 5 and pods with the same labelSelector spread as 2/2/2: | zone1 | zone2 | zone3 | |  P P  |  P P  |  P P  | The number of domains is less than 5(MinDomains), so "global minimum" is treated as 0. In this situation, new pod with the same labelSelector cannot be scheduled, because computed skew will be 3(3 - 0) if new Pod is scheduled to any of the three zones, it will violate MaxSkew.
+	"""
 														format: "int32"
 														type:   "integer"
 													}
 													nodeAffinityPolicy: {
 														description: """
-																		NodeAffinityPolicy indicates how we will treat Pod's nodeAffinity/nodeSelector when calculating pod topology spread skew. Options are: - Honor: only nodes matching nodeAffinity/nodeSelector are included in the calculations. - Ignore: nodeAffinity/nodeSelector are ignored. All nodes are included in the calculations.
+	NodeAffinityPolicy indicates how we will treat Pod's nodeAffinity/nodeSelector when calculating pod topology spread skew. Options are: - Honor: only nodes matching nodeAffinity/nodeSelector are included in the calculations. - Ignore: nodeAffinity/nodeSelector are ignored. All nodes are included in the calculations.
 
-																		If this value is nil, the behavior is equivalent to the Honor policy. This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
-																		"""
+	If this value is nil, the behavior is equivalent to the Honor policy. This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
+	"""
 														type: "string"
 													}
 													nodeTaintsPolicy: {
 														description: """
-																		NodeTaintsPolicy indicates how we will treat node taints when calculating pod topology spread skew. Options are: - Honor: nodes without taints, along with tainted nodes for which the incoming pod has a toleration, are included. - Ignore: node taints are ignored. All nodes are included.
+	NodeTaintsPolicy indicates how we will treat node taints when calculating pod topology spread skew. Options are: - Honor: nodes without taints, along with tainted nodes for which the incoming pod has a toleration, are included. - Ignore: node taints are ignored. All nodes are included.
 
-																		If this value is nil, the behavior is equivalent to the Ignore policy. This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
-																		"""
+	If this value is nil, the behavior is equivalent to the Ignore policy. This is a beta-level feature default enabled by the NodeInclusionPolicyInPodTopologySpread feature flag.
+	"""
 														type: "string"
 													}
 													topologyKey: {
@@ -3870,22 +7688,29 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													whenUnsatisfiable: {
 														description: """
-																		WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,
-																		  but giving higher precedence to topologies that would help reduce the
-																		  skew.
-																		A constraint is considered "Unsatisfiable" for an incoming pod if and only if every possible node assignment for that pod would violate "MaxSkew" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field.
-																		"""
+	WhenUnsatisfiable indicates how to deal with a pod if it doesn't satisfy the spread constraint. - DoNotSchedule (default) tells the scheduler not to schedule it. - ScheduleAnyway tells the scheduler to schedule the pod in any location,
+	  but giving higher precedence to topologies that would help reduce the
+	  skew.
+	A constraint is considered "Unsatisfiable" for an incoming pod if and only if every possible node assignment for that pod would violate "MaxSkew" on some topology. For example, in a 3-zone cluster, MaxSkew is set to 1, and pods with the same labelSelector spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule, incoming pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1). In other words, the cluster can still be imbalanced, but scheduler won't make it *more* imbalanced. It's a required field.
+	"""
 														type: "string"
 													}
 												}
-												required: ["maxSkew", "topologyKey", "whenUnsatisfiable"]
+												required: [
+													"maxSkew",
+													"topologyKey",
+													"whenUnsatisfiable",
+												]
 												type: "object"
 											}
 											nullable: true
 											type:     "array"
 										}
 									}
-									required: ["name", "replicas"]
+									required: [
+										"name",
+										"replicas",
+									]
 									type: "object"
 								}
 								maxItems: 100
@@ -3896,11 +7721,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									rule:    "self.size() > 0"
 								}]
 							}
+							runtimeClassName: {
+								description: """
+	RuntimeClassName refers to a RuntimeClass object in the node.k8s.io API group,
+	which should be used to run the pods in this Kanidm cluster.
+	If no RuntimeClass resource matches the named class, the pod will not be run.
+	If unset or empty, the "legacy" RuntimeClass will be used, which is an implicit
+	class with an empty definition that uses the default runtime handler.
+	More info: https://kubernetes.io/docs/concepts/containers/runtime-class/
+	"""
+								nullable: true
+								type:     "string"
+							}
 							securityContext: {
 								description: """
-												SecurityContext holds pod-level security attributes and common container settings.
-												This defaults to the default PodSecurityContext.
-												"""
+	SecurityContext holds pod-level security attributes and common container settings.
+	This defaults to the default PodSecurityContext.
+	"""
 								nullable: true
 								properties: {
 									appArmorProfile: {
@@ -3912,11 +7749,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											type: {
 												description: """
-																type indicates which kind of AppArmor profile will be applied. Valid options are:
-																  Localhost - a profile pre-loaded on the node.
-																  RuntimeDefault - the container runtime's default profile.
-																  Unconfined - no AppArmor enforcement.
-																"""
+	type indicates which kind of AppArmor profile will be applied. Valid options are:
+	  Localhost - a profile pre-loaded on the node.
+	  RuntimeDefault - the container runtime's default profile.
+	  Unconfined - no AppArmor enforcement.
+	"""
 												type: "string"
 											}
 										}
@@ -3925,12 +7762,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									fsGroup: {
 										description: """
-														A special supplemental group that applies to all containers in a pod. Some volume types allow the Kubelet to change the ownership of that volume to be owned by the pod:
+	A special supplemental group that applies to all containers in a pod. Some volume types allow the Kubelet to change the ownership of that volume to be owned by the pod:
 
-														1. The owning GID will be the FSGroup 2. The setgid bit is set (new files created in the volume will be owned by FSGroup) 3. The permission bits are OR'd with rw-rw----
+	1. The owning GID will be the FSGroup 2. The setgid bit is set (new files created in the volume will be owned by FSGroup) 3. The permission bits are OR'd with rw-rw----
 
-														If unset, the Kubelet will not modify the ownership and permissions of any volume. Note that this field cannot be set when spec.os.name is windows.
-														"""
+	If unset, the Kubelet will not modify the ownership and permissions of any volume. Note that this field cannot be set when spec.os.name is windows.
+	"""
 										format: "int64"
 										type:   "integer"
 									}
@@ -3954,18 +7791,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									seLinuxChangePolicy: {
 										description: """
-														seLinuxChangePolicy defines how the container's SELinux label is applied to all volumes used by the Pod. It has no effect on nodes that do not support SELinux or to volumes does not support SELinux. Valid values are "MountOption" and "Recursive".
+	seLinuxChangePolicy defines how the container's SELinux label is applied to all volumes used by the Pod. It has no effect on nodes that do not support SELinux or to volumes does not support SELinux. Valid values are "MountOption" and "Recursive".
 
-														"Recursive" means relabeling of all files on all Pod volumes by the container runtime. This may be slow for large volumes, but allows mixing privileged and unprivileged Pods sharing the same volume on the same node.
+	"Recursive" means relabeling of all files on all Pod volumes by the container runtime. This may be slow for large volumes, but allows mixing privileged and unprivileged Pods sharing the same volume on the same node.
 
-														"MountOption" mounts all eligible Pod volumes with `-o context` mount option. This requires all Pods that share the same volume to use the same SELinux label. It is not possible to share the same volume among privileged and unprivileged Pods. Eligible volumes are in-tree FibreChannel and iSCSI volumes, and all CSI volumes whose CSI driver announces SELinux support by setting spec.seLinuxMount: true in their CSIDriver instance. Other volumes are always re-labelled recursively. "MountOption" value is allowed only when SELinuxMount feature gate is enabled.
+	"MountOption" mounts all eligible Pod volumes with `-o context` mount option. This requires all Pods that share the same volume to use the same SELinux label. It is not possible to share the same volume among privileged and unprivileged Pods. Eligible volumes are in-tree FibreChannel and iSCSI volumes, and all CSI volumes whose CSI driver announces SELinux support by setting spec.seLinuxMount: true in their CSIDriver instance. Other volumes are always re-labelled recursively. "MountOption" value is allowed only when SELinuxMount feature gate is enabled.
 
-														If not specified and SELinuxMount feature gate is enabled, "MountOption" is used. If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes and "Recursive" for all other volumes.
+	If not specified and SELinuxMount feature gate is enabled, "MountOption" is used. If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes and "Recursive" for all other volumes.
 
-														This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
+	This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
 
-														All Pods that use the same volume should use the same seLinuxChangePolicy, otherwise some pods can get stuck in ContainerCreating state. Note that this field cannot be set when spec.os.name is windows.
-														"""
+	All Pods that use the same volume should use the same seLinuxChangePolicy, otherwise some pods can get stuck in ContainerCreating state. Note that this field cannot be set when spec.os.name is windows.
+	"""
 										type: "string"
 									}
 									seLinuxOptions: {
@@ -3999,10 +7836,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											type: {
 												description: """
-																type indicates which kind of seccomp profile will be applied. Valid options are:
+	type indicates which kind of seccomp profile will be applied. Valid options are:
 
-																Localhost - a profile defined in a file on the node should be used. RuntimeDefault - the container runtime default profile should be used. Unconfined - no profile should be applied.
-																"""
+	Localhost - a profile defined in a file on the node should be used. RuntimeDefault - the container runtime default profile should be used. Unconfined - no profile should be applied.
+	"""
 												type: "string"
 											}
 										}
@@ -4035,7 +7872,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "string"
 												}
 											}
-											required: ["name", "value"]
+											required: [
+												"name",
+												"value",
+											]
 											type: "object"
 										}
 										type: "array"
@@ -4072,41 +7912,41 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									additionalLabels: {
 										additionalProperties: type: "string"
 										description: """
-														Map of string keys and values that can be used to organize and categorize (scope and
-														select) objects. May match selectors of replication controllers and services.
-														More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels
-														"""
+	Map of string keys and values that can be used to organize and categorize (scope and
+	select) objects. May match selectors of replication controllers and services.
+	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels
+	"""
 										nullable: true
 										type:     "object"
 									}
 									annotations: {
 										additionalProperties: type: "string"
 										description: """
-														Annotations is an unstructured key value map stored with a resource that may be set by
-														external tools to store and retrieve arbitrary metadata. They are not queryable and should
-														be preserved when modifying objects.
-														More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
-														"""
+	Annotations is an unstructured key value map stored with a resource that may be set by
+	external tools to store and retrieve arbitrary metadata. They are not queryable and should
+	be preserved when modifying objects.
+	More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
+	"""
 										nullable: true
 										type:     "object"
 									}
 									type: {
 										description: """
-														Specify the Service's type where the Kanidm Service is exposed
-														Please note that some Ingress controllers like https://github.com/kubernetes/ingress-gce
-														forces you to expose your Service on a NodePort
-														Defaults to ClusterIP. Valid options are ExternalName, ClusterIP, NodePort, and
-														LoadBalancer. "ClusterIP" allocates a cluster-internal IP address for load-balancing to
-														endpoints. Endpoints are determined by the selector or if that is not specified, by manual
-														construction of an Endpoints object or EndpointSlice objects. If clusterIP is "None",
-														no virtual IP is allocated and the endpoints are published as a set of endpoints rather
-														than a virtual IP. "NodePort" builds on ClusterIP and allocates a port on every node which
-														routes to the same endpoints as the clusterIP. "LoadBalancer" builds on NodePort and creates
-														an external load-balancer (if supported in the current cloud) which routes to the same
-														endpoints as the clusterIP. "ExternalName" aliases this service to the specified
-														externalName. Several other fields do not apply to ExternalName services.
-														More info: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
-														"""
+	Specify the Service's type where the Kanidm Service is exposed
+	Please note that some Ingress controllers like https://github.com/kubernetes/ingress-gce
+	forces you to expose your Service on a NodePort
+	Defaults to ClusterIP. Valid options are ExternalName, ClusterIP, NodePort, and
+	LoadBalancer. "ClusterIP" allocates a cluster-internal IP address for load-balancing to
+	endpoints. Endpoints are determined by the selector or if that is not specified, by manual
+	construction of an Endpoints object or EndpointSlice objects. If clusterIP is "None",
+	no virtual IP is allocated and the endpoints are published as a set of endpoints rather
+	than a virtual IP. "NodePort" builds on ClusterIP and allocates a port on every node which
+	routes to the same endpoints as the clusterIP. "LoadBalancer" builds on NodePort and creates
+	an external load-balancer (if supported in the current cloud) which routes to the same
+	endpoints as the clusterIP. "ExternalName" aliases this service to the specified
+	externalName. Several other fields do not apply to ExternalName services.
+	More info: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+	"""
 										nullable: true
 										type:     "string"
 									}
@@ -4115,14 +7955,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							serviceAccountNamespaceSelector: {
 								description: """
-												Namespaces to match for KanidmServiceAccounts discovery.
+	Namespaces to match for KanidmServiceAccounts discovery.
 
-												- Not defined (default): matches only the current namespace where this Kanidm resource is deployed
-												- Empty selector `{}`: matches all namespaces in the cluster
-												- Selector with labels: matches namespaces with matching labels
+	- Not defined (default): matches only the current namespace where this Kanidm resource is deployed
+	- Empty selector `{}`: matches all namespaces in the cluster
+	- Selector with labels: matches namespaces with matching labels
 
-												Example for all namespaces: `serviceAccountNamespaceSelector: {}`
-												"""
+	Example for all namespaces: `serviceAccountNamespaceSelector: {}`
+	"""
 								nullable: true
 								properties: {
 									matchExpressions: {
@@ -4144,7 +7984,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type: "array"
 												}
 											}
-											required: ["key", "operator"]
+											required: [
+												"key",
+												"operator",
+											]
 											type: "object"
 										}
 										type: "array"
@@ -4159,27 +8002,27 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							storage: {
 								description: """
-												StorageSpec defines the configured storage for a group Kanidm servers.
-												If no storage option is specified, then by default an
-												[EmptyDir](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir) will be used.
+	StorageSpec defines the configured storage for a group Kanidm servers.
+	If no storage option is specified, then by default an
+	[EmptyDir](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir) will be used.
 
-												If multiple storage options are specified, priority will be given as follows:
-												 1. emptyDir
-												 2. ephemeral
-												 3. volumeClaimTemplate
+	If multiple storage options are specified, priority will be given as follows:
+	 1. emptyDir
+	 2. ephemeral
+	 3. volumeClaimTemplate
 
-												Note: Kaniop does not resize PVCs until Kubernetes fix
-												[KEP-4650](https://github.com/kubernetes/enhancements/issues/4650).
-												Although, StatefulSet will be recreated if the PVC is resized.
-												"""
+	Note: Kaniop does not resize PVCs until Kubernetes fix
+	[KEP-4650](https://github.com/kubernetes/enhancements/issues/4650).
+	Although, StatefulSet will be recreated if the PVC is resized.
+	"""
 								nullable: true
 								properties: {
 									emptyDir: {
 										description: """
-														EmptyDirVolumeSource to be used by the StatefulSet. If specified, it takes precedence over
-														`ephemeral` and `volumeClaimTemplate`.
-														More info: https://kubernetes.io/docs/concepts/storage/volumes/#emptydir
-														"""
+	EmptyDirVolumeSource to be used by the StatefulSet. If specified, it takes precedence over
+	`ephemeral` and `volumeClaimTemplate`.
+	More info: https://kubernetes.io/docs/concepts/storage/volumes/#emptydir
+	"""
 										nullable: true
 										properties: {
 											medium: {
@@ -4196,20 +8039,20 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									ephemeral: {
 										description: """
-														EphemeralVolumeSource to be used by the StatefulSet.
-														More info: https://kubernetes.io/docs/concepts/storage/ephemeral-volumes/#generic-ephemeral-volumes
-														"""
+	EphemeralVolumeSource to be used by the StatefulSet.
+	More info: https://kubernetes.io/docs/concepts/storage/ephemeral-volumes/#generic-ephemeral-volumes
+	"""
 										nullable: true
 										properties: volumeClaimTemplate: {
 											description: """
-																Will be used to create a stand-alone PVC to provision the volume. The pod in which this EphemeralVolumeSource is embedded will be the owner of the PVC, i.e. the PVC will be deleted together with the pod.  The name of the PVC will be `<pod name>-<volume name>` where `<volume name>` is the name from the `PodSpec.Volumes` array entry. Pod validation will reject the pod if the concatenated name is not valid for a PVC (for example, too long).
+	Will be used to create a stand-alone PVC to provision the volume. The pod in which this EphemeralVolumeSource is embedded will be the owner of the PVC, i.e. the PVC will be deleted together with the pod.  The name of the PVC will be `<pod name>-<volume name>` where `<volume name>` is the name from the `PodSpec.Volumes` array entry. Pod validation will reject the pod if the concatenated name is not valid for a PVC (for example, too long).
 
-																An existing PVC with that name that is not owned by the pod will *not* be used for the pod to avoid using an unrelated volume by mistake. Starting the pod is then blocked until the unrelated PVC is removed. If such a pre-created PVC is meant to be used by the pod, the PVC has to updated with an owner reference to the pod once the pod exists. Normally this should not be necessary, but it may be useful when manually reconstructing a broken cluster.
+	An existing PVC with that name that is not owned by the pod will *not* be used for the pod to avoid using an unrelated volume by mistake. Starting the pod is then blocked until the unrelated PVC is removed. If such a pre-created PVC is meant to be used by the pod, the PVC has to updated with an owner reference to the pod once the pod exists. Normally this should not be necessary, but it may be useful when manually reconstructing a broken cluster.
 
-																This field is read-only and no changes will be made by Kubernetes to the PVC after it has been created.
+	This field is read-only and no changes will be made by Kubernetes to the PVC after it has been created.
 
-																Required, must not be nil.
-																"""
+	Required, must not be nil.
+	"""
 											properties: {
 												metadata: {
 													description: "May contain labels and annotations that will be copied into the PVC when creating it. No other fields are allowed and will be rejected during validation."
@@ -4221,10 +8064,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														creationTimestamp: {
 															description: """
-																				CreationTimestamp is a timestamp representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations. Clients may not set this value. It is represented in RFC3339 form and is in UTC.
+	CreationTimestamp is a timestamp representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations. Clients may not set this value. It is represented in RFC3339 form and is in UTC.
 
-																				Populated by the system. Read-only. Null for lists. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-																				"""
+	Populated by the system. Read-only. Null for lists. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	"""
 															format: "date-time"
 															type:   "string"
 														}
@@ -4235,10 +8078,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														deletionTimestamp: {
 															description: """
-																				DeletionTimestamp is RFC 3339 date and time at which this resource will be deleted. This field is set by the server when a graceful deletion is requested by the user, and is not directly settable by a client. The resource is expected to be deleted (no longer visible from resource lists, and not reachable by name) after the time in this field, once the finalizers list is empty. As long as the finalizers list contains items, deletion is blocked. Once the deletionTimestamp is set, this value may not be unset or be set further into the future, although it may be shortened or the resource may be deleted prior to this time. For example, a user may request that a pod is deleted in 30 seconds. The Kubelet will react by sending a graceful termination signal to the containers in the pod. After that 30 seconds, the Kubelet will send a hard termination signal (SIGKILL) to the container and after cleanup, remove the pod from the API. In the presence of network partitions, this object may still exist after this timestamp, until an administrator or automated process can determine the resource is fully terminated. If not set, graceful deletion of the object has not been requested.
+	DeletionTimestamp is RFC 3339 date and time at which this resource will be deleted. This field is set by the server when a graceful deletion is requested by the user, and is not directly settable by a client. The resource is expected to be deleted (no longer visible from resource lists, and not reachable by name) after the time in this field, once the finalizers list is empty. As long as the finalizers list contains items, deletion is blocked. Once the deletionTimestamp is set, this value may not be unset or be set further into the future, although it may be shortened or the resource may be deleted prior to this time. For example, a user may request that a pod is deleted in 30 seconds. The Kubelet will react by sending a graceful termination signal to the containers in the pod. After that 30 seconds, the Kubelet will send a hard termination signal (SIGKILL) to the container and after cleanup, remove the pod from the API. In the presence of network partitions, this object may still exist after this timestamp, until an administrator or automated process can determine the resource is fully terminated. If not set, graceful deletion of the object has not been requested.
 
-																				Populated by the system when a graceful deletion is requested. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-																				"""
+	Populated by the system when a graceful deletion is requested. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	"""
 															format: "date-time"
 															type:   "string"
 														}
@@ -4249,12 +8092,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														generateName: {
 															description: """
-																				GenerateName is an optional prefix, used by the server, to generate a unique name ONLY IF the Name field has not been provided. If this field is used, the name returned to the client will be different than the name passed. This value will also be combined with a unique suffix. The provided value has the same validation rules as the Name field, and may be truncated by the length of the suffix required to make the value unique on the server.
+	GenerateName is an optional prefix, used by the server, to generate a unique name ONLY IF the Name field has not been provided. If this field is used, the name returned to the client will be different than the name passed. This value will also be combined with a unique suffix. The provided value has the same validation rules as the Name field, and may be truncated by the length of the suffix required to make the value unique on the server.
 
-																				If this field is specified and the generated name exists, the server will return a 409.
+	If this field is specified and the generated name exists, the server will return a 409.
 
-																				Applied only if Name is not specified. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#idempotency
-																				"""
+	Applied only if Name is not specified. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#idempotency
+	"""
 															type: "string"
 														}
 														generation: {
@@ -4312,10 +8155,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														namespace: {
 															description: """
-																				Namespace defines the space within which each name must be unique. An empty namespace is equivalent to the "default" namespace, but "default" is the canonical representation. Not all objects are required to be scoped to a namespace - the value of this field for those objects will be empty.
+	Namespace defines the space within which each name must be unique. An empty namespace is equivalent to the "default" namespace, but "default" is the canonical representation. Not all objects are required to be scoped to a namespace - the value of this field for those objects will be empty.
 
-																				Must be a DNS_LABEL. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces
-																				"""
+	Must be a DNS_LABEL. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces
+	"""
 															type: "string"
 														}
 														ownerReferences: {
@@ -4348,17 +8191,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:        "string"
 																	}
 																}
-																required: ["apiVersion", "kind", "name", "uid"]
+																required: [
+																	"apiVersion",
+																	"kind",
+																	"name",
+																	"uid",
+																]
 																type: "object"
 															}
 															type: "array"
 														}
 														resourceVersion: {
 															description: """
-																				An opaque value that represents the internal version of this object that can be used by clients to determine when objects have changed. May be used for optimistic concurrency, change detection, and the watch operation on a resource or set of resources. Clients must treat these values as opaque and passed unmodified back to the server. They may only be valid for a particular resource or set of resources.
+	An opaque value that represents the internal version of this object that can be used by clients to determine when objects have changed. May be used for optimistic concurrency, change detection, and the watch operation on a resource or set of resources. Clients must treat these values as opaque and passed unmodified back to the server. They may only be valid for a particular resource or set of resources.
 
-																				Populated by the system. Read-only. Value must be treated as opaque by clients and . More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
-																				"""
+	Populated by the system. Read-only. Value must be treated as opaque by clients and . More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+	"""
 															type: "string"
 														}
 														selfLink: {
@@ -4367,10 +8215,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														}
 														uid: {
 															description: """
-																				UID is the unique in time and space value for this object. It is typically generated by the server on successful creation of a resource and is not allowed to change on PUT operations.
+	UID is the unique in time and space value for this object. It is typically generated by the server on successful creation of a resource and is not allowed to change on PUT operations.
 
-																				Populated by the system. Read-only. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
-																				"""
+	Populated by the system. Read-only. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
+	"""
 															type: "string"
 														}
 													}
@@ -4400,20 +8248,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type:        "string"
 																}
 															}
-															required: ["kind", "name"]
+															required: [
+																"kind",
+																"name",
+															]
 															type: "object"
 														}
 														dataSourceRef: {
 															description: """
-																				dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volume is desired. This may be any object from a non-empty API group (non core object) or a PersistentVolumeClaim object. When this field is specified, volume binding will only succeed if the type of the specified object matches some installed volume populator or dynamic provisioner. This field will replace the functionality of the dataSource field and as such if both fields are non-empty, they must have the same value. For backwards compatibility, when namespace isn't specified in dataSourceRef, both fields (dataSource and dataSourceRef) will be set to the same value automatically if one of them is empty and the other is non-empty. When namespace is specified in dataSourceRef, dataSource isn't set to the same value and must be empty. There are three important differences between dataSource and dataSourceRef: * While dataSource only allows two specific types of objects, dataSourceRef
-																				  allows any non-core object, as well as PersistentVolumeClaim objects.
-																				* While dataSource ignores disallowed values (dropping them), dataSourceRef
-																				  preserves all values, and generates an error if a disallowed value is
-																				  specified.
-																				* While dataSource only allows local objects, dataSourceRef allows objects
-																				  in any namespaces.
-																				(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled. (Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
-																				"""
+	dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volume is desired. This may be any object from a non-empty API group (non core object) or a PersistentVolumeClaim object. When this field is specified, volume binding will only succeed if the type of the specified object matches some installed volume populator or dynamic provisioner. This field will replace the functionality of the dataSource field and as such if both fields are non-empty, they must have the same value. For backwards compatibility, when namespace isn't specified in dataSourceRef, both fields (dataSource and dataSourceRef) will be set to the same value automatically if one of them is empty and the other is non-empty. When namespace is specified in dataSourceRef, dataSource isn't set to the same value and must be empty. There are three important differences between dataSource and dataSourceRef: * While dataSource only allows two specific types of objects, dataSourceRef
+	  allows any non-core object, as well as PersistentVolumeClaim objects.
+	* While dataSource ignores disallowed values (dropping them), dataSourceRef
+	  preserves all values, and generates an error if a disallowed value is
+	  specified.
+	* While dataSource only allows local objects, dataSourceRef allows objects
+	  in any namespaces.
+	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled. (Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+	"""
 															properties: {
 																apiGroup: {
 																	description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
@@ -4432,7 +8283,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type:        "string"
 																}
 															}
-															required: ["kind", "name"]
+															required: [
+																"kind",
+																"name",
+															]
 															type: "object"
 														}
 														resources: {
@@ -4441,44 +8295,44 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																limits: {
 																	additionalProperties: {
 																		description: """
-																							Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
+	Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
 
-																							The serialization format is:
+	The serialization format is:
 
-																							``` <quantity>        ::= <signedNumber><suffix>
+	``` <quantity>        ::= <signedNumber><suffix>
 
-																							\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
+	\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
 
-																							<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
+	<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
 
-																							\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
+	\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
 
-																							<decimalSI>       ::= m | "" | k | M | G | T | P | E
+	<decimalSI>       ::= m | "" | k | M | G | T | P | E
 
-																							\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
+	\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
 
-																							<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
+	<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
 
-																							No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
+	No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
 
-																							When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
+	When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
 
-																							Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
+	Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
 
-																							- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
+	- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
 
-																							The sign will be omitted unless the number is negative.
+	The sign will be omitted unless the number is negative.
 
-																							Examples:
+	Examples:
 
-																							- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
+	- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
 
-																							Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
+	Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
 
-																							Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
+	Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
 
-																							This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
-																							"""
+	This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
+	"""
 																		"x-kubernetes-int-or-string": true
 																	}
 																	description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
@@ -4487,44 +8341,44 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																requests: {
 																	additionalProperties: {
 																		description: """
-																							Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
+	Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
 
-																							The serialization format is:
+	The serialization format is:
 
-																							``` <quantity>        ::= <signedNumber><suffix>
+	``` <quantity>        ::= <signedNumber><suffix>
 
-																							\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
+	\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
 
-																							<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
+	<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
 
-																							\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
+	\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
 
-																							<decimalSI>       ::= m | "" | k | M | G | T | P | E
+	<decimalSI>       ::= m | "" | k | M | G | T | P | E
 
-																							\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
+	\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
 
-																							<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
+	<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
 
-																							No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
+	No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
 
-																							When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
+	When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
 
-																							Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
+	Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
 
-																							- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
+	- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
 
-																							The sign will be omitted unless the number is negative.
+	The sign will be omitted unless the number is negative.
 
-																							Examples:
+	Examples:
 
-																							- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
+	- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
 
-																							Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
+	Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
 
-																							Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
+	Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
 
-																							This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
-																							"""
+	This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
+	"""
 																		"x-kubernetes-int-or-string": true
 																	}
 																	description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. Requests cannot exceed Limits. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
@@ -4555,7 +8409,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type: "array"
 																			}
 																		}
-																		required: ["key", "operator"]
+																		required: [
+																			"key",
+																			"operator",
+																		]
 																		type: "object"
 																	}
 																	type: "array"
@@ -4595,17 +8452,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									volumeClaimTemplate: {
 										description: """
-														Defines the PVC spec to be used by the Kanidm StatefulSets. The easiest way to use a volume
-														that cannot be automatically provisioned is to use a label selector alongside manually
-														created PersistentVolumes.
-														"""
+	Defines the PVC spec to be used by the Kanidm StatefulSets. The easiest way to use a volume
+	that cannot be automatically provisioned is to use a label selector alongside manually
+	created PersistentVolumes.
+	"""
 										nullable: true
 										properties: {
 											metadata: {
 												description: """
-																Standard object's metadata. More info:
-																https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-																"""
+	Standard object's metadata. More info:
+	https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	"""
 												nullable: true
 												properties: {
 													annotations: {
@@ -4615,10 +8472,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													creationTimestamp: {
 														description: """
-																		CreationTimestamp is a timestamp representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations. Clients may not set this value. It is represented in RFC3339 form and is in UTC.
+	CreationTimestamp is a timestamp representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations. Clients may not set this value. It is represented in RFC3339 form and is in UTC.
 
-																		Populated by the system. Read-only. Null for lists. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-																		"""
+	Populated by the system. Read-only. Null for lists. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	"""
 														format: "date-time"
 														type:   "string"
 													}
@@ -4629,10 +8486,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													deletionTimestamp: {
 														description: """
-																		DeletionTimestamp is RFC 3339 date and time at which this resource will be deleted. This field is set by the server when a graceful deletion is requested by the user, and is not directly settable by a client. The resource is expected to be deleted (no longer visible from resource lists, and not reachable by name) after the time in this field, once the finalizers list is empty. As long as the finalizers list contains items, deletion is blocked. Once the deletionTimestamp is set, this value may not be unset or be set further into the future, although it may be shortened or the resource may be deleted prior to this time. For example, a user may request that a pod is deleted in 30 seconds. The Kubelet will react by sending a graceful termination signal to the containers in the pod. After that 30 seconds, the Kubelet will send a hard termination signal (SIGKILL) to the container and after cleanup, remove the pod from the API. In the presence of network partitions, this object may still exist after this timestamp, until an administrator or automated process can determine the resource is fully terminated. If not set, graceful deletion of the object has not been requested.
+	DeletionTimestamp is RFC 3339 date and time at which this resource will be deleted. This field is set by the server when a graceful deletion is requested by the user, and is not directly settable by a client. The resource is expected to be deleted (no longer visible from resource lists, and not reachable by name) after the time in this field, once the finalizers list is empty. As long as the finalizers list contains items, deletion is blocked. Once the deletionTimestamp is set, this value may not be unset or be set further into the future, although it may be shortened or the resource may be deleted prior to this time. For example, a user may request that a pod is deleted in 30 seconds. The Kubelet will react by sending a graceful termination signal to the containers in the pod. After that 30 seconds, the Kubelet will send a hard termination signal (SIGKILL) to the container and after cleanup, remove the pod from the API. In the presence of network partitions, this object may still exist after this timestamp, until an administrator or automated process can determine the resource is fully terminated. If not set, graceful deletion of the object has not been requested.
 
-																		Populated by the system when a graceful deletion is requested. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-																		"""
+	Populated by the system when a graceful deletion is requested. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	"""
 														format: "date-time"
 														type:   "string"
 													}
@@ -4643,12 +8500,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													generateName: {
 														description: """
-																		GenerateName is an optional prefix, used by the server, to generate a unique name ONLY IF the Name field has not been provided. If this field is used, the name returned to the client will be different than the name passed. This value will also be combined with a unique suffix. The provided value has the same validation rules as the Name field, and may be truncated by the length of the suffix required to make the value unique on the server.
+	GenerateName is an optional prefix, used by the server, to generate a unique name ONLY IF the Name field has not been provided. If this field is used, the name returned to the client will be different than the name passed. This value will also be combined with a unique suffix. The provided value has the same validation rules as the Name field, and may be truncated by the length of the suffix required to make the value unique on the server.
 
-																		If this field is specified and the generated name exists, the server will return a 409.
+	If this field is specified and the generated name exists, the server will return a 409.
 
-																		Applied only if Name is not specified. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#idempotency
-																		"""
+	Applied only if Name is not specified. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#idempotency
+	"""
 														type: "string"
 													}
 													generation: {
@@ -4706,10 +8563,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													namespace: {
 														description: """
-																		Namespace defines the space within which each name must be unique. An empty namespace is equivalent to the "default" namespace, but "default" is the canonical representation. Not all objects are required to be scoped to a namespace - the value of this field for those objects will be empty.
+	Namespace defines the space within which each name must be unique. An empty namespace is equivalent to the "default" namespace, but "default" is the canonical representation. Not all objects are required to be scoped to a namespace - the value of this field for those objects will be empty.
 
-																		Must be a DNS_LABEL. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces
-																		"""
+	Must be a DNS_LABEL. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces
+	"""
 														type: "string"
 													}
 													ownerReferences: {
@@ -4742,17 +8599,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type:        "string"
 																}
 															}
-															required: ["apiVersion", "kind", "name", "uid"]
+															required: [
+																"apiVersion",
+																"kind",
+																"name",
+																"uid",
+															]
 															type: "object"
 														}
 														type: "array"
 													}
 													resourceVersion: {
 														description: """
-																		An opaque value that represents the internal version of this object that can be used by clients to determine when objects have changed. May be used for optimistic concurrency, change detection, and the watch operation on a resource or set of resources. Clients must treat these values as opaque and passed unmodified back to the server. They may only be valid for a particular resource or set of resources.
+	An opaque value that represents the internal version of this object that can be used by clients to determine when objects have changed. May be used for optimistic concurrency, change detection, and the watch operation on a resource or set of resources. Clients must treat these values as opaque and passed unmodified back to the server. They may only be valid for a particular resource or set of resources.
 
-																		Populated by the system. Read-only. Value must be treated as opaque by clients and . More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
-																		"""
+	Populated by the system. Read-only. Value must be treated as opaque by clients and . More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+	"""
 														type: "string"
 													}
 													selfLink: {
@@ -4761,10 +8623,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}
 													uid: {
 														description: """
-																		UID is the unique in time and space value for this object. It is typically generated by the server on successful creation of a resource and is not allowed to change on PUT operations.
+	UID is the unique in time and space value for this object. It is typically generated by the server on successful creation of a resource and is not allowed to change on PUT operations.
 
-																		Populated by the system. Read-only. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
-																		"""
+	Populated by the system. Read-only. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
+	"""
 														type: "string"
 													}
 												}
@@ -4772,9 +8634,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											spec: {
 												description: """
-																spec defines the desired characteristics of a volume requested by a pod author. More info:
-																https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
-																"""
+	spec defines the desired characteristics of a volume requested by a pod author. More info:
+	https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
+	"""
 												nullable: true
 												properties: {
 													accessModes: {
@@ -4798,20 +8660,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type:        "string"
 															}
 														}
-														required: ["kind", "name"]
+														required: [
+															"kind",
+															"name",
+														]
 														type: "object"
 													}
 													dataSourceRef: {
 														description: """
-																		dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volume is desired. This may be any object from a non-empty API group (non core object) or a PersistentVolumeClaim object. When this field is specified, volume binding will only succeed if the type of the specified object matches some installed volume populator or dynamic provisioner. This field will replace the functionality of the dataSource field and as such if both fields are non-empty, they must have the same value. For backwards compatibility, when namespace isn't specified in dataSourceRef, both fields (dataSource and dataSourceRef) will be set to the same value automatically if one of them is empty and the other is non-empty. When namespace is specified in dataSourceRef, dataSource isn't set to the same value and must be empty. There are three important differences between dataSource and dataSourceRef: * While dataSource only allows two specific types of objects, dataSourceRef
-																		  allows any non-core object, as well as PersistentVolumeClaim objects.
-																		* While dataSource ignores disallowed values (dropping them), dataSourceRef
-																		  preserves all values, and generates an error if a disallowed value is
-																		  specified.
-																		* While dataSource only allows local objects, dataSourceRef allows objects
-																		  in any namespaces.
-																		(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled. (Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
-																		"""
+	dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volume is desired. This may be any object from a non-empty API group (non core object) or a PersistentVolumeClaim object. When this field is specified, volume binding will only succeed if the type of the specified object matches some installed volume populator or dynamic provisioner. This field will replace the functionality of the dataSource field and as such if both fields are non-empty, they must have the same value. For backwards compatibility, when namespace isn't specified in dataSourceRef, both fields (dataSource and dataSourceRef) will be set to the same value automatically if one of them is empty and the other is non-empty. When namespace is specified in dataSourceRef, dataSource isn't set to the same value and must be empty. There are three important differences between dataSource and dataSourceRef: * While dataSource only allows two specific types of objects, dataSourceRef
+	  allows any non-core object, as well as PersistentVolumeClaim objects.
+	* While dataSource ignores disallowed values (dropping them), dataSourceRef
+	  preserves all values, and generates an error if a disallowed value is
+	  specified.
+	* While dataSource only allows local objects, dataSourceRef allows objects
+	  in any namespaces.
+	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled. (Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+	"""
 														properties: {
 															apiGroup: {
 																description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
@@ -4830,7 +8695,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type:        "string"
 															}
 														}
-														required: ["kind", "name"]
+														required: [
+															"kind",
+															"name",
+														]
 														type: "object"
 													}
 													resources: {
@@ -4839,44 +8707,44 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															limits: {
 																additionalProperties: {
 																	description: """
-																					Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
+	Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
 
-																					The serialization format is:
+	The serialization format is:
 
-																					``` <quantity>        ::= <signedNumber><suffix>
+	``` <quantity>        ::= <signedNumber><suffix>
 
-																					\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
+	\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
 
-																					<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
+	<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
 
-																					\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
+	\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
 
-																					<decimalSI>       ::= m | "" | k | M | G | T | P | E
+	<decimalSI>       ::= m | "" | k | M | G | T | P | E
 
-																					\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
+	\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
 
-																					<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
+	<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
 
-																					No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
+	No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
 
-																					When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
+	When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
 
-																					Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
+	Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
 
-																					- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
+	- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
 
-																					The sign will be omitted unless the number is negative.
+	The sign will be omitted unless the number is negative.
 
-																					Examples:
+	Examples:
 
-																					- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
+	- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
 
-																					Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
+	Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
 
-																					Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
+	Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
 
-																					This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
-																					"""
+	This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
+	"""
 																	"x-kubernetes-int-or-string": true
 																}
 																description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
@@ -4885,44 +8753,44 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															requests: {
 																additionalProperties: {
 																	description: """
-																					Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
+	Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
 
-																					The serialization format is:
+	The serialization format is:
 
-																					``` <quantity>        ::= <signedNumber><suffix>
+	``` <quantity>        ::= <signedNumber><suffix>
 
-																					\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
+	\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
 
-																					<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
+	<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
 
-																					\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
+	\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
 
-																					<decimalSI>       ::= m | "" | k | M | G | T | P | E
+	<decimalSI>       ::= m | "" | k | M | G | T | P | E
 
-																					\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
+	\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
 
-																					<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
+	<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
 
-																					No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
+	No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
 
-																					When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
+	When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
 
-																					Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
+	Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
 
-																					- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
+	- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
 
-																					The sign will be omitted unless the number is negative.
+	The sign will be omitted unless the number is negative.
 
-																					Examples:
+	Examples:
 
-																					- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
+	- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
 
-																					Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
+	Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
 
-																					Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
+	Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
 
-																					This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
-																					"""
+	This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
+	"""
 																	"x-kubernetes-int-or-string": true
 																}
 																description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. Requests cannot exceed Limits. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
@@ -4953,7 +8821,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			type: "array"
 																		}
 																	}
-																	required: ["key", "operator"]
+																	required: [
+																		"key",
+																		"operator",
+																	]
 																	type: "object"
 																}
 																type: "array"
@@ -4993,10 +8864,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							tlsSecretName: {
 								description: """
-												Specifies the name of the secret holding the TLS private key and certificate for the server.
-												If not provided, the ingress secret will be used. The server will not start if the secret
-												is missing.
-												"""
+	Specifies the name of the secret holding the TLS private key and certificate for the server.
+	If not provided, the ingress secret will be used. The server will not start if the secret
+	is missing.
+	"""
 								nullable: true
 								type:     "string"
 								"x-kubernetes-validations": [{
@@ -5006,11 +8877,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							volumeMounts: {
 								description: """
-												VolumeMounts allows the configuration of additional VolumeMounts.
+	VolumeMounts allows the configuration of additional VolumeMounts.
 
-												VolumeMounts will be appended to other VolumeMounts in the kanidm' container, that are
-												generated as a result of StorageSpec objects.
-												"""
+	VolumeMounts will be appended to other VolumeMounts in the kanidm' container, that are
+	generated as a result of StorageSpec objects.
+	"""
 								items: {
 									description: "VolumeMount describes a mounting of a Volume within a container."
 									properties: {
@@ -5032,16 +8903,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										}
 										recursiveReadOnly: {
 											description: """
-															RecursiveReadOnly specifies whether read-only mounts should be handled recursively.
+	RecursiveReadOnly specifies whether read-only mounts should be handled recursively.
 
-															If ReadOnly is false, this field has no meaning and must be unspecified.
+	If ReadOnly is false, this field has no meaning and must be unspecified.
 
-															If ReadOnly is true, and this field is set to Disabled, the mount is not made recursively read-only.  If this field is set to IfPossible, the mount is made recursively read-only, if it is supported by the container runtime.  If this field is set to Enabled, the mount is made recursively read-only if it is supported by the container runtime, otherwise the pod will not be started and an error will be generated to indicate the reason.
+	If ReadOnly is true, and this field is set to Disabled, the mount is not made recursively read-only.  If this field is set to IfPossible, the mount is made recursively read-only, if it is supported by the container runtime.  If this field is set to Enabled, the mount is made recursively read-only if it is supported by the container runtime, otherwise the pod will not be started and an error will be generated to indicate the reason.
 
-															If this field is set to IfPossible or Enabled, MountPropagation must be set to None (or be unspecified, which defaults to None).
+	If this field is set to IfPossible or Enabled, MountPropagation must be set to None (or be unspecified, which defaults to None).
 
-															If this field is not specified, it is treated as an equivalent of Disabled.
-															"""
+	If this field is not specified, it is treated as an equivalent of Disabled.
+	"""
 											type: "string"
 										}
 										subPath: {
@@ -5053,7 +8924,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											type:        "string"
 										}
 									}
-									required: ["mountPath", "name"]
+									required: [
+										"mountPath",
+										"name",
+									]
 									type: "object"
 								}
 								nullable: true
@@ -5061,10 +8935,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							volumes: {
 								description: """
-												Volumes allows the configuration of additional volumes on the output StatefulSet
-												definition. Volumes specified will be appended to other volumes that are generated as a
-												result of StorageSpec objects.
-												"""
+	Volumes allows the configuration of additional volumes on the output StatefulSet
+	definition. Volumes specified will be appended to other volumes that are generated as a
+	result of StorageSpec objects.
+	"""
 								items: {
 									description: "Volume represents a named volume in a pod that may be accessed by any container in the pod."
 									properties: {
@@ -5120,7 +8994,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "boolean"
 												}
 											}
-											required: ["diskName", "diskURI"]
+											required: [
+												"diskName",
+												"diskURI",
+											]
 											type: "object"
 										}
 										azureFile: {
@@ -5139,7 +9016,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "string"
 												}
 											}
-											required: ["secretName", "shareName"]
+											required: [
+												"secretName",
+												"shareName",
+											]
 											type: "object"
 										}
 										cephfs: {
@@ -5234,7 +9114,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type:        "string"
 															}
 														}
-														required: ["key", "path"]
+														required: [
+															"key",
+															"path",
+														]
 														type: "object"
 													}
 													type: "array"
@@ -5367,31 +9250,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										}
 										ephemeral: {
 											description: """
-															ephemeral represents a volume that is handled by a cluster storage driver. The volume's lifecycle is tied to the pod that defines it - it will be created before the pod starts, and deleted when the pod is removed.
+	ephemeral represents a volume that is handled by a cluster storage driver. The volume's lifecycle is tied to the pod that defines it - it will be created before the pod starts, and deleted when the pod is removed.
 
-															Use this if: a) the volume is only needed while the pod runs, b) features of normal volumes like restoring from snapshot or capacity
-															   tracking are needed,
-															c) the storage driver is specified through a storage class, and d) the storage driver supports dynamic volume provisioning through
-															   a PersistentVolumeClaim (see EphemeralVolumeSource for more
-															   information on the connection between this volume type
-															   and PersistentVolumeClaim).
+	Use this if: a) the volume is only needed while the pod runs, b) features of normal volumes like restoring from snapshot or capacity
+	   tracking are needed,
+	c) the storage driver is specified through a storage class, and d) the storage driver supports dynamic volume provisioning through
+	   a PersistentVolumeClaim (see EphemeralVolumeSource for more
+	   information on the connection between this volume type
+	   and PersistentVolumeClaim).
 
-															Use PersistentVolumeClaim or one of the vendor-specific APIs for volumes that persist for longer than the lifecycle of an individual pod.
+	Use PersistentVolumeClaim or one of the vendor-specific APIs for volumes that persist for longer than the lifecycle of an individual pod.
 
-															Use CSI for light-weight local ephemeral volumes if the CSI driver is meant to be used that way - see the documentation of the driver for more information.
+	Use CSI for light-weight local ephemeral volumes if the CSI driver is meant to be used that way - see the documentation of the driver for more information.
 
-															A pod can use both types of ephemeral volumes and persistent volumes at the same time.
-															"""
+	A pod can use both types of ephemeral volumes and persistent volumes at the same time.
+	"""
 											properties: volumeClaimTemplate: {
 												description: """
-																	Will be used to create a stand-alone PVC to provision the volume. The pod in which this EphemeralVolumeSource is embedded will be the owner of the PVC, i.e. the PVC will be deleted together with the pod.  The name of the PVC will be `<pod name>-<volume name>` where `<volume name>` is the name from the `PodSpec.Volumes` array entry. Pod validation will reject the pod if the concatenated name is not valid for a PVC (for example, too long).
+	Will be used to create a stand-alone PVC to provision the volume. The pod in which this EphemeralVolumeSource is embedded will be the owner of the PVC, i.e. the PVC will be deleted together with the pod.  The name of the PVC will be `<pod name>-<volume name>` where `<volume name>` is the name from the `PodSpec.Volumes` array entry. Pod validation will reject the pod if the concatenated name is not valid for a PVC (for example, too long).
 
-																	An existing PVC with that name that is not owned by the pod will *not* be used for the pod to avoid using an unrelated volume by mistake. Starting the pod is then blocked until the unrelated PVC is removed. If such a pre-created PVC is meant to be used by the pod, the PVC has to updated with an owner reference to the pod once the pod exists. Normally this should not be necessary, but it may be useful when manually reconstructing a broken cluster.
+	An existing PVC with that name that is not owned by the pod will *not* be used for the pod to avoid using an unrelated volume by mistake. Starting the pod is then blocked until the unrelated PVC is removed. If such a pre-created PVC is meant to be used by the pod, the PVC has to updated with an owner reference to the pod once the pod exists. Normally this should not be necessary, but it may be useful when manually reconstructing a broken cluster.
 
-																	This field is read-only and no changes will be made by Kubernetes to the PVC after it has been created.
+	This field is read-only and no changes will be made by Kubernetes to the PVC after it has been created.
 
-																	Required, must not be nil.
-																	"""
+	Required, must not be nil.
+	"""
 												properties: {
 													metadata: {
 														description: "May contain labels and annotations that will be copied into the PVC when creating it. No other fields are allowed and will be rejected during validation."
@@ -5403,10 +9286,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															}
 															creationTimestamp: {
 																description: """
-																					CreationTimestamp is a timestamp representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations. Clients may not set this value. It is represented in RFC3339 form and is in UTC.
+	CreationTimestamp is a timestamp representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations. Clients may not set this value. It is represented in RFC3339 form and is in UTC.
 
-																					Populated by the system. Read-only. Null for lists. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-																					"""
+	Populated by the system. Read-only. Null for lists. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	"""
 																format: "date-time"
 																type:   "string"
 															}
@@ -5417,10 +9300,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															}
 															deletionTimestamp: {
 																description: """
-																					DeletionTimestamp is RFC 3339 date and time at which this resource will be deleted. This field is set by the server when a graceful deletion is requested by the user, and is not directly settable by a client. The resource is expected to be deleted (no longer visible from resource lists, and not reachable by name) after the time in this field, once the finalizers list is empty. As long as the finalizers list contains items, deletion is blocked. Once the deletionTimestamp is set, this value may not be unset or be set further into the future, although it may be shortened or the resource may be deleted prior to this time. For example, a user may request that a pod is deleted in 30 seconds. The Kubelet will react by sending a graceful termination signal to the containers in the pod. After that 30 seconds, the Kubelet will send a hard termination signal (SIGKILL) to the container and after cleanup, remove the pod from the API. In the presence of network partitions, this object may still exist after this timestamp, until an administrator or automated process can determine the resource is fully terminated. If not set, graceful deletion of the object has not been requested.
+	DeletionTimestamp is RFC 3339 date and time at which this resource will be deleted. This field is set by the server when a graceful deletion is requested by the user, and is not directly settable by a client. The resource is expected to be deleted (no longer visible from resource lists, and not reachable by name) after the time in this field, once the finalizers list is empty. As long as the finalizers list contains items, deletion is blocked. Once the deletionTimestamp is set, this value may not be unset or be set further into the future, although it may be shortened or the resource may be deleted prior to this time. For example, a user may request that a pod is deleted in 30 seconds. The Kubelet will react by sending a graceful termination signal to the containers in the pod. After that 30 seconds, the Kubelet will send a hard termination signal (SIGKILL) to the container and after cleanup, remove the pod from the API. In the presence of network partitions, this object may still exist after this timestamp, until an administrator or automated process can determine the resource is fully terminated. If not set, graceful deletion of the object has not been requested.
 
-																					Populated by the system when a graceful deletion is requested. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-																					"""
+	Populated by the system when a graceful deletion is requested. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+	"""
 																format: "date-time"
 																type:   "string"
 															}
@@ -5431,12 +9314,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															}
 															generateName: {
 																description: """
-																					GenerateName is an optional prefix, used by the server, to generate a unique name ONLY IF the Name field has not been provided. If this field is used, the name returned to the client will be different than the name passed. This value will also be combined with a unique suffix. The provided value has the same validation rules as the Name field, and may be truncated by the length of the suffix required to make the value unique on the server.
+	GenerateName is an optional prefix, used by the server, to generate a unique name ONLY IF the Name field has not been provided. If this field is used, the name returned to the client will be different than the name passed. This value will also be combined with a unique suffix. The provided value has the same validation rules as the Name field, and may be truncated by the length of the suffix required to make the value unique on the server.
 
-																					If this field is specified and the generated name exists, the server will return a 409.
+	If this field is specified and the generated name exists, the server will return a 409.
 
-																					Applied only if Name is not specified. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#idempotency
-																					"""
+	Applied only if Name is not specified. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#idempotency
+	"""
 																type: "string"
 															}
 															generation: {
@@ -5494,10 +9377,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															}
 															namespace: {
 																description: """
-																					Namespace defines the space within which each name must be unique. An empty namespace is equivalent to the "default" namespace, but "default" is the canonical representation. Not all objects are required to be scoped to a namespace - the value of this field for those objects will be empty.
+	Namespace defines the space within which each name must be unique. An empty namespace is equivalent to the "default" namespace, but "default" is the canonical representation. Not all objects are required to be scoped to a namespace - the value of this field for those objects will be empty.
 
-																					Must be a DNS_LABEL. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces
-																					"""
+	Must be a DNS_LABEL. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces
+	"""
 																type: "string"
 															}
 															ownerReferences: {
@@ -5530,17 +9413,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			type:        "string"
 																		}
 																	}
-																	required: ["apiVersion", "kind", "name", "uid"]
+																	required: [
+																		"apiVersion",
+																		"kind",
+																		"name",
+																		"uid",
+																	]
 																	type: "object"
 																}
 																type: "array"
 															}
 															resourceVersion: {
 																description: """
-																					An opaque value that represents the internal version of this object that can be used by clients to determine when objects have changed. May be used for optimistic concurrency, change detection, and the watch operation on a resource or set of resources. Clients must treat these values as opaque and passed unmodified back to the server. They may only be valid for a particular resource or set of resources.
+	An opaque value that represents the internal version of this object that can be used by clients to determine when objects have changed. May be used for optimistic concurrency, change detection, and the watch operation on a resource or set of resources. Clients must treat these values as opaque and passed unmodified back to the server. They may only be valid for a particular resource or set of resources.
 
-																					Populated by the system. Read-only. Value must be treated as opaque by clients and . More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
-																					"""
+	Populated by the system. Read-only. Value must be treated as opaque by clients and . More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+	"""
 																type: "string"
 															}
 															selfLink: {
@@ -5549,10 +9437,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															}
 															uid: {
 																description: """
-																					UID is the unique in time and space value for this object. It is typically generated by the server on successful creation of a resource and is not allowed to change on PUT operations.
+	UID is the unique in time and space value for this object. It is typically generated by the server on successful creation of a resource and is not allowed to change on PUT operations.
 
-																					Populated by the system. Read-only. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
-																					"""
+	Populated by the system. Read-only. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
+	"""
 																type: "string"
 															}
 														}
@@ -5582,20 +9470,23 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:        "string"
 																	}
 																}
-																required: ["kind", "name"]
+																required: [
+																	"kind",
+																	"name",
+																]
 																type: "object"
 															}
 															dataSourceRef: {
 																description: """
-																					dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volume is desired. This may be any object from a non-empty API group (non core object) or a PersistentVolumeClaim object. When this field is specified, volume binding will only succeed if the type of the specified object matches some installed volume populator or dynamic provisioner. This field will replace the functionality of the dataSource field and as such if both fields are non-empty, they must have the same value. For backwards compatibility, when namespace isn't specified in dataSourceRef, both fields (dataSource and dataSourceRef) will be set to the same value automatically if one of them is empty and the other is non-empty. When namespace is specified in dataSourceRef, dataSource isn't set to the same value and must be empty. There are three important differences between dataSource and dataSourceRef: * While dataSource only allows two specific types of objects, dataSourceRef
-																					  allows any non-core object, as well as PersistentVolumeClaim objects.
-																					* While dataSource ignores disallowed values (dropping them), dataSourceRef
-																					  preserves all values, and generates an error if a disallowed value is
-																					  specified.
-																					* While dataSource only allows local objects, dataSourceRef allows objects
-																					  in any namespaces.
-																					(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled. (Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
-																					"""
+	dataSourceRef specifies the object from which to populate the volume with data, if a non-empty volume is desired. This may be any object from a non-empty API group (non core object) or a PersistentVolumeClaim object. When this field is specified, volume binding will only succeed if the type of the specified object matches some installed volume populator or dynamic provisioner. This field will replace the functionality of the dataSource field and as such if both fields are non-empty, they must have the same value. For backwards compatibility, when namespace isn't specified in dataSourceRef, both fields (dataSource and dataSourceRef) will be set to the same value automatically if one of them is empty and the other is non-empty. When namespace is specified in dataSourceRef, dataSource isn't set to the same value and must be empty. There are three important differences between dataSource and dataSourceRef: * While dataSource only allows two specific types of objects, dataSourceRef
+	  allows any non-core object, as well as PersistentVolumeClaim objects.
+	* While dataSource ignores disallowed values (dropping them), dataSourceRef
+	  preserves all values, and generates an error if a disallowed value is
+	  specified.
+	* While dataSource only allows local objects, dataSourceRef allows objects
+	  in any namespaces.
+	(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled. (Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+	"""
 																properties: {
 																	apiGroup: {
 																		description: "APIGroup is the group for the resource being referenced. If APIGroup is not specified, the specified Kind must be in the core API group. For any other third-party types, APIGroup is required."
@@ -5614,7 +9505,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:        "string"
 																	}
 																}
-																required: ["kind", "name"]
+																required: [
+																	"kind",
+																	"name",
+																]
 																type: "object"
 															}
 															resources: {
@@ -5623,44 +9517,44 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	limits: {
 																		additionalProperties: {
 																			description: """
-																								Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
+	Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
 
-																								The serialization format is:
+	The serialization format is:
 
-																								``` <quantity>        ::= <signedNumber><suffix>
+	``` <quantity>        ::= <signedNumber><suffix>
 
-																								\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
+	\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
 
-																								<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
+	<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
 
-																								\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
+	\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
 
-																								<decimalSI>       ::= m | "" | k | M | G | T | P | E
+	<decimalSI>       ::= m | "" | k | M | G | T | P | E
 
-																								\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
+	\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
 
-																								<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
+	<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
 
-																								No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
+	No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
 
-																								When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
+	When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
 
-																								Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
+	Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
 
-																								- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
+	- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
 
-																								The sign will be omitted unless the number is negative.
+	The sign will be omitted unless the number is negative.
 
-																								Examples:
+	Examples:
 
-																								- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
+	- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
 
-																								Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
+	Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
 
-																								Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
+	Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
 
-																								This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
-																								"""
+	This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
+	"""
 																			"x-kubernetes-int-or-string": true
 																		}
 																		description: "Limits describes the maximum amount of compute resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
@@ -5669,44 +9563,44 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	requests: {
 																		additionalProperties: {
 																			description: """
-																								Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
+	Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and AsInt64() accessors.
 
-																								The serialization format is:
+	The serialization format is:
 
-																								``` <quantity>        ::= <signedNumber><suffix>
+	``` <quantity>        ::= <signedNumber><suffix>
 
-																								\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
+	\t(Note that <suffix> may be empty, from the "" case in <decimalSI>.)
 
-																								<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
+	<digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
 
-																								\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
+	\t(International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
 
-																								<decimalSI>       ::= m | "" | k | M | G | T | P | E
+	<decimalSI>       ::= m | "" | k | M | G | T | P | E
 
-																								\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
+	\t(Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
 
-																								<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
+	<decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber> ```
 
-																								No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
+	No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
 
-																								When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
+	When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
 
-																								Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
+	Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
 
-																								- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
+	- No precision is lost - No fractional digits will be emitted - The exponent (or suffix) is as large as possible.
 
-																								The sign will be omitted unless the number is negative.
+	The sign will be omitted unless the number is negative.
 
-																								Examples:
+	Examples:
 
-																								- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
+	- 1.5 will be serialized as "1500m" - 1.5Gi will be serialized as "1536Mi"
 
-																								Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
+	Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
 
-																								Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
+	Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
 
-																								This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
-																								"""
+	This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
+	"""
 																			"x-kubernetes-int-or-string": true
 																		}
 																		description: "Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. Requests cannot exceed Limits. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"
@@ -5737,7 +9631,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type: "array"
 																				}
 																			}
-																			required: ["key", "operator"]
+																			required: [
+																				"key",
+																				"operator",
+																			]
 																			type: "object"
 																		}
 																		type: "array"
@@ -5910,7 +9807,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "boolean"
 												}
 											}
-											required: ["endpoints", "path"]
+											required: [
+												"endpoints",
+												"path",
+											]
 											type: "object"
 										}
 										hostPath: {
@@ -5930,12 +9830,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										}
 										image: {
 											description: """
-															image represents an OCI object (a container image or artifact) pulled and mounted on the kubelet's host machine. The volume is resolved at pod startup depending on which PullPolicy value is provided:
+	image represents an OCI object (a container image or artifact) pulled and mounted on the kubelet's host machine. The volume is resolved at pod startup depending on which PullPolicy value is provided:
 
-															- Always: the kubelet always attempts to pull the reference. Container creation will fail If the pull fails. - Never: the kubelet never pulls the reference and only uses a local image or artifact. Container creation will fail if the reference isn't present. - IfNotPresent: the kubelet pulls if the reference isn't already present on disk. Container creation will fail if the reference isn't present and the pull fails.
+	- Always: the kubelet always attempts to pull the reference. Container creation will fail If the pull fails. - Never: the kubelet never pulls the reference and only uses a local image or artifact. Container creation will fail if the reference isn't present. - IfNotPresent: the kubelet pulls if the reference isn't already present on disk. Container creation will fail if the reference isn't present and the pull fails.
 
-															The volume gets re-resolved if the pod gets deleted and recreated, which means that new remote content will become available on pod recreation. A failure to resolve or pull the image during pod startup will block containers from starting and may add significant latency. Failures will be retried using normal volume backoff and will be reported on the pod reason and message. The types of objects that may be mounted by this volume are defined by the container runtime implementation on a host machine and at minimum must include all valid types supported by the container image field. The OCI object gets mounted in a single directory (spec.containers[*].volumeMounts.mountPath) by merging the manifest layers in the same way as for container images. The volume will be mounted read-only (ro) and non-executable files (noexec). Sub path mounts for containers are not supported (spec.containers[*].volumeMounts.subpath). The field spec.securityContext.fsGroupChangePolicy has no effect on this volume type.
-															"""
+	The volume gets re-resolved if the pod gets deleted and recreated, which means that new remote content will become available on pod recreation. A failure to resolve or pull the image during pod startup will block containers from starting and may add significant latency. Failures will be retried using normal volume backoff and will be reported on the pod reason and message. The types of objects that may be mounted by this volume are defined by the container runtime implementation on a host machine and at minimum must include all valid types supported by the container image field. The OCI object gets mounted in a single directory (spec.containers[*].volumeMounts.mountPath) by merging the manifest layers in the same way as for container images. The volume will be mounted read-only (ro) and non-executable files (noexec). Sub path mounts for containers are not supported (spec.containers[*].volumeMounts.subpath). The field spec.securityContext.fsGroupChangePolicy has no effect on this volume type.
+	"""
 											properties: {
 												pullPolicy: {
 													description: "Policy for pulling OCI objects. Possible values are: Always: the kubelet always attempts to pull the reference. Container creation will fail If the pull fails. Never: the kubelet never pulls the reference and only uses a local image or artifact. Container creation will fail if the reference isn't present. IfNotPresent: the kubelet pulls if the reference isn't already present on disk. Container creation will fail if the reference isn't present and the pull fails. Defaults to Always if :latest tag is specified, or IfNotPresent otherwise."
@@ -6003,7 +9903,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "string"
 												}
 											}
-											required: ["iqn", "lun", "targetPortal"]
+											required: [
+												"iqn",
+												"lun",
+												"targetPortal",
+											]
 											type: "object"
 										}
 										name: {
@@ -6026,7 +9930,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "string"
 												}
 											}
-											required: ["path", "server"]
+											required: [
+												"path",
+												"server",
+											]
 											type: "object"
 										}
 										persistentVolumeClaim: {
@@ -6093,14 +10000,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														properties: {
 															clusterTrustBundle: {
 																description: """
-																				ClusterTrustBundle allows a pod to access the `.spec.trustBundle` field of ClusterTrustBundle objects in an auto-updating file.
+	ClusterTrustBundle allows a pod to access the `.spec.trustBundle` field of ClusterTrustBundle objects in an auto-updating file.
 
-																				Alpha, gated by the ClusterTrustBundleProjection feature gate.
+	Alpha, gated by the ClusterTrustBundleProjection feature gate.
 
-																				ClusterTrustBundle objects can either be selected by name, or by the combination of signer name and a label selector.
+	ClusterTrustBundle objects can either be selected by name, or by the combination of signer name and a label selector.
 
-																				Kubelet performs aggressive normalization of the PEM contents written into the pod filesystem.  Esoteric PEM features such as inter-block comments and block headers are stripped.  Certificates are deduplicated. The ordering of certificates within the file is arbitrary, and Kubelet may change the order over time.
-																				"""
+	Kubelet performs aggressive normalization of the PEM contents written into the pod filesystem.  Esoteric PEM features such as inter-block comments and block headers are stripped.  Certificates are deduplicated. The ordering of certificates within the file is arbitrary, and Kubelet may change the order over time.
+	"""
 																properties: {
 																	labelSelector: {
 																		description: "Select all ClusterTrustBundles that match this label selector.  Only has effect if signerName is set.  Mutually-exclusive with name.  If unset, interpreted as \"match nothing\".  If set but empty, interpreted as \"match everything\"."
@@ -6124,7 +10031,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							type: "array"
 																						}
 																					}
-																					required: ["key", "operator"]
+																					required: [
+																						"key",
+																						"operator",
+																					]
 																					type: "object"
 																				}
 																				type: "array"
@@ -6179,7 +10089,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:        "string"
 																				}
 																			}
-																			required: ["key", "path"]
+																			required: [
+																				"key",
+																				"path",
+																			]
 																			type: "object"
 																		}
 																		type: "array"
@@ -6277,7 +10190,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:        "string"
 																				}
 																			}
-																			required: ["key", "path"]
+																			required: [
+																				"key",
+																				"path",
+																			]
 																			type: "object"
 																		}
 																		type: "array"
@@ -6350,7 +10266,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "string"
 												}
 											}
-											required: ["registry", "volume"]
+											required: [
+												"registry",
+												"volume",
+											]
 											type: "object"
 										}
 										rbd: {
@@ -6395,7 +10314,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "string"
 												}
 											}
-											required: ["image", "monitors"]
+											required: [
+												"image",
+												"monitors",
+											]
 											type: "object"
 										}
 										scaleIO: {
@@ -6447,7 +10369,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type:        "string"
 												}
 											}
-											required: ["gateway", "secretRef", "system"]
+											required: [
+												"gateway",
+												"secretRef",
+												"system",
+											]
 											type: "object"
 										}
 										secret: {
@@ -6477,7 +10403,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type:        "string"
 															}
 														}
-														required: ["key", "path"]
+														required: [
+															"key",
+															"path",
+														]
 														type: "object"
 													}
 													type: "array"
@@ -6555,22 +10484,25 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type:     "array"
 							}
 						}
-						required: ["domain", "replicaGroups"]
+						required: [
+							"domain",
+							"replicaGroups",
+						]
 						type: "object"
 					}
 					status: {
 						description: """
-										Most recent observed status of the Kanidm cluster. Read-only.
-										More info:
-										https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-										"""
+	Most recent observed status of the Kanidm cluster. Read-only.
+	More info:
+	https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+	"""
 						nullable: true
 						properties: {
 							availableReplicas: {
 								description: """
-												Total number of available pods (ready for at least minReadySeconds) targeted by this Kanidm
-												deployment.
-												"""
+	Total number of available pods (ready for at least minReadySeconds) targeted by this Kanidm
+	deployment.
+	"""
 								format: "int32"
 								type:   "integer"
 							}
@@ -6605,11 +10537,102 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											type:        "string"
 										}
 									}
-									required: ["lastTransitionTime", "message", "reason", "status", "type"]
+									required: [
+										"lastTransitionTime",
+										"message",
+										"reason",
+										"status",
+										"type",
+									]
 									type: "object"
 								}
 								nullable: true
 								type:     "array"
+							}
+							domainAppearanceImage: {
+								description: "Status of the domain appearance image."
+								nullable:    true
+								properties: {
+									contentHash: {
+										description: "Hash of the image content (SHA-256, for validation)."
+										nullable:    true
+										type:        "string"
+									}
+									contentLength: {
+										description: "Content-Length from the last fetch."
+										format:      "uint64"
+										minimum:     0.0
+										nullable:    true
+										type:        "integer"
+									}
+									etag: {
+										description: "ETag header from the last fetch (for change detection)."
+										nullable:    true
+										type:        "string"
+									}
+									lastModified: {
+										description: "Last-Modified header from the last fetch."
+										nullable:    true
+										type:        "string"
+									}
+									url: {
+										description: "The URL from which the image was last fetched."
+										type:        "string"
+									}
+								}
+								required: ["url"]
+								type: "object"
+							}
+							mailSender: {
+								description: "Status of the mail sender deployment."
+								nullable:    true
+								properties: {
+									configMapName: {
+										description: """
+	Name of the ConfigMap containing mail sender configuration.
+	Format: `<kanidm-name>-mail-sender-config`
+	"""
+										type: "string"
+									}
+									deploymentName: {
+										description: """
+	Name of the Deployment running the mail sender.
+	Format: `<kanidm-name>-mail-sender`
+	"""
+										type: "string"
+									}
+									ready: {
+										description: "Whether the mail sender deployment is ready."
+										type:        "boolean"
+									}
+									serviceAccountName: {
+										description: """
+	Name of the service account in Kanidm for mail sending.
+	Format: `<kanidm-name>-mail-sender`
+	"""
+										type: "string"
+									}
+									tokenId: {
+										description: "The unique identifier for the API token in Kanidm, used for management operations."
+										nullable:    true
+										type:        "string"
+									}
+									tokenSecretName: {
+										description: """
+	Name of the Kubernetes secret containing the API token.
+	Format: `<kanidm-name>-mail-sender-token`
+	"""
+										type: "string"
+									}
+								}
+								required: [
+									"configMapName",
+									"deploymentName",
+									"ready",
+									"serviceAccountName",
+									"tokenSecretName",
+								]
+								type: "object"
 							}
 							replicaColumn: {
 								description: "Ready vs desired replicas."
@@ -6625,7 +10648,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										}
 										state: {
 											description: "The current state of the replica."
-											enum: ["ready", "pending", "certificateExpiring", "certificateHostInvalid"]
+											enum: [
+												"ready",
+												"pending",
+												"certificateExpiring",
+												"certificateHostInvalid",
+											]
 											type: "string"
 										}
 										statefulsetName: {
@@ -6633,7 +10661,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											type:        "string"
 										}
 									}
-									required: ["podName", "state", "statefulsetName"]
+									required: [
+										"podName",
+										"state",
+										"statefulsetName",
+									]
 									type: "object"
 								}
 								type: "array"
@@ -6655,9 +10687,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							updatedReplicas: {
 								description: """
-												Total number of non-terminated pods targeted by this Kanidm cluster that have the
-												desired version spec.
-												"""
+	Total number of non-terminated pods targeted by this Kanidm cluster that have the
+	desired version spec.
+	"""
 								format: "int32"
 								type:   "integer"
 							}
@@ -6667,26 +10699,40 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								properties: {
 									compatibilityResult: {
 										default: "compatible"
-										enum: ["compatible", "incompatible"]
+										enum: [
+											"compatible",
+											"incompatible",
+										]
 										type: "string"
 									}
 									imageTag: type: "string"
 									upgradeCheckResult: {
-										enum: ["passed", "failed"]
+										enum: [
+											"passed",
+											"failed",
+										]
 										type: "string"
 									}
 								}
-								required: ["imageTag", "upgradeCheckResult"]
+								required: [
+									"imageTag",
+									"upgradeCheckResult",
+								]
 								type: "object"
 							}
 						}
-						required: ["availableReplicas", "replicaColumn", "replicaStatuses", "replicas", "unavailableReplicas", "updatedReplicas"]
+						required: [
+							"availableReplicas",
+							"replicaColumn",
+							"replicaStatuses",
+							"replicas",
+							"unavailableReplicas",
+							"updatedReplicas",
+						]
 						type: "object"
 					}
 				}
-				required: [
-					"spec",
-				]
+				required: ["spec"]
 				title: "Kanidm"
 				type:  "object"
 			}
@@ -6696,18 +10742,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 		}]
 	}
 }, {
+	apiVersion: "apiextensions.k8s.io/v1"
+	kind:       "CustomResourceDefinition"
 	metadata: name: "kanidmgroups.kaniop.rs"
 	spec: {
 		group: "kaniop.rs"
 		names: {
-			categories: [
-				"kaniop",
-			]
+			categories: ["kaniop"]
 			kind:   "KanidmGroup"
 			plural: "kanidmgroups"
-			shortNames: [
-				"kg",
-			]
+			shortNames: ["kg"]
 			singular: "kanidmgroup"
 		}
 		scope: "Namespaced"
@@ -6739,90 +10783,95 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				properties: {
 					spec: {
 						description: """
-										Groups are a collection of other entities that exist within Kanidm.
-										More info:
-										https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-										"""
+	Groups are a collection of other entities that exist within Kanidm.
+	More info:
+	https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+	"""
 						properties: {
 							accountPolicy: {
 								description: """
-												Account policy settings for the group.
+	Account policy settings for the group.
 
-												When set, the operator will enable account policy on this group and configure the specified
-												settings. Account policy defines security requirements that accounts must meet when they are
-												members of this group.
+	When set, the operator will enable account policy on this group and configure the specified
+	settings. Account policy defines security requirements that accounts must meet when they are
+	members of this group.
 
-												When an account is affected by multiple policies, the strictest component from each policy
-												is applied.
+	When an account is affected by multiple policies, the strictest component from each policy
+	is applied.
 
-												More info: https://kanidm.github.io/kanidm/stable/accounts/account_policy.html
-												"""
+	More info: https://kanidm.github.io/kanidm/stable/accounts/account_policy.html
+	"""
 								nullable: true
 								properties: {
 									allowPrimaryCredFallback: {
 										description: """
-														Allow authenticating with the primary account password when logging in via LDAP.
-														If both an LDAP and primary password are specified, Kanidm will only accept the LDAP
-														password.
-														"""
+	Allow authenticating with the primary account password when logging in via LDAP.
+	If both an LDAP and primary password are specified, Kanidm will only accept the LDAP
+	password.
+	"""
 										nullable: true
 										type:     "boolean"
 									}
 									authSessionExpiry: {
 										description: """
-														Maximum length in seconds that an authentication session may exist for.
-														After this time, the user must reauthenticate.
+	Maximum length in seconds that an authentication session may exist for.
+	After this time, the user must reauthenticate.
 
-														This value provides a difficult balance - forcing frequent re-authentications can frustrate
-														and annoy users. However extremely long sessions allow a stolen or disclosed session
-														token/device to read data for an extended period.
-														"""
+	This value provides a difficult balance - forcing frequent re-authentications can frustrate
+	and annoy users. However extremely long sessions allow a stolen or disclosed session
+	token/device to read data for an extended period.
+	"""
 										format:   "uint32"
-										minimum:  0
+										minimum:  0.0
 										nullable: true
 										type:     "integer"
 									}
 									credentialTypeMinimum: {
 										description: """
-														Minimum security strength of credentials that may be assigned to accounts affected by this
-														policy. In order from weakest to strongest: any < mfa < passkey < attested_passkey.
+	Minimum security strength of credentials that may be assigned to accounts affected by this
+	policy. In order from weakest to strongest: any < mfa < passkey < attested_passkey.
 
-														`attested_passkey` requires configuring `webauthnAttestationCaList`.
-														"""
-										enum: ["any", "mfa", "passkey", "attested_passkey"]
+	`attested_passkey` requires configuring `webauthnAttestationCaList`.
+	"""
+										enum: [
+											"any",
+											"mfa",
+											"passkey",
+											"attested_passkey",
+										]
 										nullable: true
 										type:     "string"
 									}
 									limitSearchMaxFilterTest: {
 										description: "Maximum number of filter tests allowed in a search operation."
 										format:      "uint32"
-										minimum:     0
+										minimum:     0.0
 										nullable:    true
 										type:        "integer"
 									}
 									limitSearchMaxResults: {
 										description: "Maximum number of results returned from a search operation."
 										format:      "uint32"
-										minimum:     0
+										minimum:     0.0
 										nullable:    true
 										type:        "integer"
 									}
 									passwordMinimumLength: {
 										description: "Minimum length for passwords (if they are allowed by credential_type_minimum)."
 										format:      "uint32"
-										minimum:     0
+										minimum:     0.0
 										nullable:    true
 										type:        "integer"
 									}
 									privilegeExpiry: {
 										description: """
-														Maximum length in seconds that privileges will exist after reauthentication for a read/write
-														session. After this time, the session returns to read-only mode.
+	Maximum length in seconds that privileges will exist after reauthentication for a read/write
+	session. After this time, the session returns to read-only mode.
 
-														Maximum allowed value is 3600 (1 hour).
-														"""
+	Maximum allowed value is 3600 (1 hour).
+	"""
 										format:   "uint32"
-										minimum:  0
+										minimum:  0.0
 										nullable: true
 										type:     "integer"
 										"x-kubernetes-validations": [{
@@ -6832,14 +10881,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									webauthnAttestationCaList: {
 										description: """
-														WebAuthn attestation CA list. This is the list of certificate authorities and device AAGUIDs
-														that must be used by members of this policy. This allows limiting devices to specific models.
+	WebAuthn attestation CA list. This is the list of certificate authorities and device AAGUIDs
+	that must be used by members of this policy. This allows limiting devices to specific models.
 
-														Generate this list using `fido-mds-tool` from the webauthn-rs project.
+	Generate this list using `fido-mds-tool` from the webauthn-rs project.
 
-														More info:
-														https://kanidm.github.io/kanidm/stable/accounts/account_policy.html#setting-webauthn-attestation-ca-lists
-														"""
+	More info:
+	https://kanidm.github.io/kanidm/stable/accounts/account_policy.html#setting-webauthn-attestation-ca-lists
+	"""
 										nullable: true
 										type:     "string"
 									}
@@ -6853,11 +10902,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							kanidmName: {
 								description: """
-												The name of the entity in Kanidm. If not specified, the Kubernetes resource name is used.
-												Use this field to manage Kanidm entities with names that don't conform to Kubernetes naming rules
-												(e.g., entities with underscores like `idm_admin` or `idm_all_persons`).
-												This field is immutable and cannot be changed after creation.
-												"""
+	The name of the entity in Kanidm. If not specified, the Kubernetes resource name is used.
+	Use this field to manage Kanidm entities with names that don't conform to Kubernetes naming rules
+	(e.g., entities with underscores like `idm_admin` or `idm_all_persons`).
+	This field is immutable and cannot be changed after creation.
+	"""
 								nullable: true
 								type:     "string"
 								"x-kubernetes-validations": [{
@@ -6867,16 +10916,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							kanidmRef: {
 								description: """
-												KanidmRef is a reference to a Kanidm object in the same cluster. It is used to specify where
-												the object is stored.
-												"""
+	KanidmRef is a reference to a Kanidm object in the same cluster. It is used to specify where
+	the object is stored.
+	"""
 								properties: {
 									name: type: "string"
 									namespace: {
 										description: """
-														For cross-namespace resources. Reference Kanidm namespace. If omitted, the namespace of the
-														resource will be used.
-														"""
+	For cross-namespace resources. Reference Kanidm namespace. If omitted, the namespace of the
+	resource will be used.
+	"""
 										nullable: true
 										type:     "string"
 									}
@@ -6890,38 +10939,38 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							mail: {
 								description: """
-												Set the exact list of mail addresses that this group is associated with. The first mail
-												address in the list is the `primary` and the remainder are aliases. Setting an empty list
-												will clear the mail attribute.
-												"""
+	Set the exact list of mail addresses that this group is associated with. The first mail
+	address in the list is the `primary` and the remainder are aliases. Setting an empty list
+	will clear the mail attribute.
+	"""
 								items: type: "string"
 								nullable: true
 								type:     "array"
 							}
 							members: {
 								description: """
-												Name or SPN of group members. Set the exact list of members that this group should contain,
-												removing any not listed in the set operation.
-												If you want to manage members from the database, do not set them here.
-												"""
+	Name or SPN of group members. Set the exact list of members that this group should contain,
+	removing any not listed in the set operation.
+	If you want to manage members from the database, do not set them here.
+	"""
 								items: type: "string"
 								nullable: true
 								type:     "array"
 							}
 							posixAttributes: {
 								description: """
-												POSIX attributes for the group account. When specified, the operator will activate them.
-												If omitted, the operator retains the attributes in the database but ceases to manage them.
-												"""
+	POSIX attributes for the group account. When specified, the operator will activate them.
+	If omitted, the operator retains the attributes in the database but ceases to manage them.
+	"""
 								nullable: true
 								properties: gidnumber: {
 									description: """
-														The group ID number (GID) for the group account.
+	The group ID number (GID) for the group account.
 
-														If omitted, Kanidm will generate it automatically.
-														"""
+	If omitted, Kanidm will generate it automatically.
+	"""
 									format:   "uint32"
-									minimum:  0
+									minimum:  0.0
 									nullable: true
 									type:     "integer"
 								}
@@ -6933,11 +10982,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 					}
 					status: {
 						description: """
-										Most recent observed status of the Kanidm Group. Read-only.
+	Most recent observed status of the Kanidm Group. Read-only.
 
-										More info:
-										https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-										"""
+	More info:
+	https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+	"""
 						nullable: true
 						properties: {
 							conditions: {
@@ -6971,7 +11020,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											type:        "string"
 										}
 									}
-									required: ["lastTransitionTime", "message", "reason", "status", "type"]
+									required: [
+										"lastTransitionTime",
+										"message",
+										"reason",
+										"status",
+										"type",
+									]
 									type: "object"
 								}
 								nullable: true
@@ -6979,20 +11034,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							gid: {
 								format:   "uint32"
-								minimum:  0
+								minimum:  0.0
 								nullable: true
 								type:     "integer"
 							}
 							kanidmRef: type: "string"
 							ready: type:     "boolean"
 						}
-						required: ["kanidmRef", "ready"]
+						required: [
+							"kanidmRef",
+							"ready",
+						]
 						type: "object"
 					}
 				}
-				required: [
-					"spec",
-				]
+				required: ["spec"]
 				title: "KanidmGroup"
 				type:  "object"
 			}
@@ -7002,18 +11058,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 		}]
 	}
 }, {
+	apiVersion: "apiextensions.k8s.io/v1"
+	kind:       "CustomResourceDefinition"
 	metadata: name: "kanidmoauth2clients.kaniop.rs"
 	spec: {
 		group: "kaniop.rs"
 		names: {
-			categories: [
-				"kaniop",
-			]
+			categories: ["kaniop"]
 			kind:   "KanidmOAuth2Client"
 			plural: "kanidmoauth2clients"
-			shortNames: [
-				"oauth2",
-			]
+			shortNames: ["oauth2"]
 			singular: "kanidmoauth2client"
 		}
 		scope: "Namespaced"
@@ -7048,32 +11102,32 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				properties: {
 					spec: {
 						description: """
-										The KanidmOAuth2Client custom resource definition (CRD) defines an OAuth2 client integration in
-										Kanidm. This resource allows you to configure OAuth2 clients that can interact with the Kanidm
-										authorization server. The CRD supports various configurations, including scope maps,
-										claim maps, and other OAuth2 client settings.
-										More info:
-										https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-										"""
+	The KanidmOAuth2Client custom resource definition (CRD) defines an OAuth2 client integration in
+	Kanidm. This resource allows you to configure OAuth2 clients that can interact with the Kanidm
+	authorization server. The CRD supports various configurations, including scope maps,
+	claim maps, and other OAuth2 client settings.
+	More info:
+	https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+	"""
 						properties: {
 							allowInsecureClientDisablePkce: {
 								description: """
-												Disable PKCE on this oauth2 client to work around insecure clients that may not support it.
-												You should request the client to enable PKCE!
+	Disable PKCE on this oauth2 client to work around insecure clients that may not support it.
+	You should request the client to enable PKCE!
 
-												Public clients cannot disable PKCE.
-												PKCE is enabled by default.
-												"""
+	Public clients cannot disable PKCE.
+	PKCE is enabled by default.
+	"""
 								nullable: true
 								type:     "boolean"
 							}
 							allowLocalhostRedirect: {
 								description: """
-												Allow public clients to redirect to localhost.
+	Allow public clients to redirect to localhost.
 
-												Just public clients can allow localhost redirect.
-												Disabled by default.
-												"""
+	Just public clients can allow localhost redirect.
+	Disabled by default.
+	"""
 								nullable: true
 								type:     "boolean"
 							}
@@ -7081,25 +11135,29 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								description: "Mapping from a group to a custom claims that it provides to members."
 								items: {
 									description: """
-													Some OAuth2 services may consume custom claims from an id token for access control or other
-													policy decisions. Each custom claim is a key:values set, where there can be many values
-													associated to a claim name. Different applications may expect these values to be formatted
-													(joined) in different ways.
+	Some OAuth2 services may consume custom claims from an id token for access control or other
+	policy decisions. Each custom claim is a key:values set, where there can be many values
+	associated to a claim name. Different applications may expect these values to be formatted
+	(joined) in different ways.
 
-													Claim values are mapped based on membership to groups. When an account is a member of multiple
-													groups that would receive the same claim, the values of these maps are merged.
-													"""
+	Claim values are mapped based on membership to groups. When an account is a member of multiple
+	groups that would receive the same claim, the values of these maps are merged.
+	"""
 									properties: {
 										joinStrategy: {
 											default: "array"
 											description: """
-															The strategy to join the values together.
-															Possible strategies to join the values of a claim map:
-															`csv` -> "value_a,value_b"
-															`ssv` -> "value_a value_b"
-															`array` -> ["value_a", "value_b"]
-															"""
-											enum: ["csv", "ssv", "array"]
+	The strategy to join the values together.
+	Possible strategies to join the values of a claim map:
+	`csv` -> "value_a,value_b"
+	`ssv` -> "value_a value_b"
+	`array` -> ["value_a", "value_b"]
+	"""
+											enum: [
+												"csv",
+												"ssv",
+												"array",
+											]
 											type: "string"
 										}
 										name: {
@@ -7119,17 +11177,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														type: "array"
 													}
 												}
-												required: ["group", "values"]
+												required: [
+													"group",
+													"values",
+												]
 												type: "object"
 											}
 											type: "array"
 										}
 									}
-									required: ["name", "valuesMap"]
+									required: [
+										"name",
+										"valuesMap",
+									]
 									type: "object"
 								}
 								nullable: true
 								type:     "array"
+							}
+							disableConsentPrompt: {
+								description: """
+	Disable the consent prompt for this OAuth2 client. This allows skipping the user
+	consent screen for well-known admin-managed applications. When enabled, users will
+	not be prompted to grant consent when authorizing with this client.
+
+	Disabled by default.
+	"""
+								nullable: true
+								type:     "boolean"
 							}
 							displayname: {
 								description: "Set the display name for the OAuth2 client."
@@ -7137,20 +11212,20 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							image: {
 								description: """
-												Optional URL to an image for the OAuth2 client application.
-												The image will be downloaded and set in Kanidm for display in the application portal.
-												Constraints:
-												- Maximum size: 256 KB
-												- Maximum dimensions: 1024 x 1024 pixels
-												- Supported formats: png, jpg, gif, svg, webp
-												"""
+	Optional URL to an image for the OAuth2 client application.
+	The image will be downloaded and set in Kanidm for display in the application portal.
+	Constraints:
+	- Maximum size: 256 KB
+	- Maximum dimensions: 1024 x 1024 pixels
+	- Supported formats: png, jpg, gif, svg, webp
+	"""
 								nullable: true
 								properties: url: {
 									description: """
-														URL to fetch the image from (HTTP/HTTPS only).
-														The operator will periodically check this URL for changes using HEAD requests
-														and re-download the image when changes are detected.
-														"""
+	URL to fetch the image from (HTTP/HTTPS only).
+	The operator will periodically check this URL for changes using HEAD requests
+	and re-download the image when changes are detected.
+	"""
 									type: "string"
 								}
 								required: ["url"]
@@ -7158,22 +11233,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							jwtLegacyCryptoEnable: {
 								description: """
-												Enable legacy signing crypto on this oauth2 client. This defaults to being disabled.
-												You only need to enable this for openid clients that do not support modern cryptographic
-												operations.
+	Enable legacy signing crypto on this oauth2 client. This defaults to being disabled.
+	You only need to enable this for openid clients that do not support modern cryptographic
+	operations.
 
-												Disabled by default.
-												"""
+	Disabled by default.
+	"""
 								nullable: true
 								type:     "boolean"
 							}
 							kanidmName: {
 								description: """
-												The name of the entity in Kanidm. If not specified, the Kubernetes resource name is used.
-												Use this field to manage Kanidm entities with names that don't conform to Kubernetes naming rules
-												(e.g., entities with underscores like `idm_admin` or `idm_all_persons`).
-												This field is immutable and cannot be changed after creation.
-												"""
+	The name of the entity in Kanidm. If not specified, the Kubernetes resource name is used.
+	Use this field to manage Kanidm entities with names that don't conform to Kubernetes naming rules
+	(e.g., entities with underscores like `idm_admin` or `idm_all_persons`).
+	This field is immutable and cannot be changed after creation.
+	"""
 								nullable: true
 								type:     "string"
 								"x-kubernetes-validations": [{
@@ -7183,16 +11258,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							kanidmRef: {
 								description: """
-												KanidmRef is a reference to a Kanidm object in the same cluster. It is used to specify where
-												the object is stored.
-												"""
+	KanidmRef is a reference to a Kanidm object in the same cluster. It is used to specify where
+	the object is stored.
+	"""
 								properties: {
 									name: type: "string"
 									namespace: {
 										description: """
-														For cross-namespace resources. Reference Kanidm namespace. If omitted, the namespace of the
-														resource will be used.
-														"""
+	For cross-namespace resources. Reference Kanidm namespace. If omitted, the namespace of the
+	resource will be used.
+	"""
 										nullable: true
 										type:     "string"
 									}
@@ -7206,34 +11281,34 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							origin: {
 								description: """
-												Set the landing page (home page) of the client. The landing page is where users will be
-												redirected to from the Kanidm application portal.
-												"""
+	Set the landing page (home page) of the client. The landing page is where users will be
+	redirected to from the Kanidm application portal.
+	"""
 								type: "string"
 							}
 							preferShortUsername: {
 								description: """
-												Use the 'name' attribute instead of 'spn' for the preferred_username.
+	Use the 'name' attribute instead of 'spn' for the preferred_username.
 
-												Disabled by default.
-												"""
+	Disabled by default.
+	"""
 								nullable: true
 								type:     "boolean"
 							}
 							public: {
 								default: false
 								description: """
-												Create a new OAuth2 public client that requires PKCE. You should prefer using confidential
-												client types if possible over public ones.
+	Create a new OAuth2 public client that requires PKCE. You should prefer using confidential
+	client types if possible over public ones.
 
-												Public clients have many limitations and can not access all API's of OAuth2. For example
-												rfc7662 token introspection requires client authentication.
+	Public clients have many limitations and can not access all API's of OAuth2. For example
+	rfc7662 token introspection requires client authentication.
 
-												This cannot be changed after creation. Default value is false.
-												This field is immutable.
-												If public is false, the operator will create a secret containing the client secret with
-												the name `<oauth2-client-name>-kanidm-oauth2-credentials` in the same namespace as the OAuth2 client.
-												"""
+	This cannot be changed after creation. Default value is false.
+	This field is immutable.
+	If public is false, the operator will create a secret containing the client secret with
+	the name `<oauth2-client-name>-kanidm-oauth2-credentials` in the same namespace as the OAuth2 client.
+	"""
 								type: "boolean"
 								"x-kubernetes-validations": [{
 									message: "Public cannot be changed."
@@ -7247,21 +11322,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							scopeMap: {
 								description: """
-												Main scope map for the OAuth2 client. For an authorization to proceed, all scopes requested
-												by the client must be available in the final scope set that is granted to the account.
-												"""
+	Main scope map for the OAuth2 client. For an authorization to proceed, all scopes requested
+	by the client must be available in the final scope set that is granted to the account.
+	"""
 								items: {
 									description: """
-													The `KanidmScopeMap` struct represents a mapping of a group to a set of OAuth2 scopes in Kanidm.
+	The `KanidmScopeMap` struct represents a mapping of a group to a set of OAuth2 scopes in Kanidm.
 
-													Scope maps in Kanidm are used to define the permissions that a client application can request on
-													behalf of a user. These scopes determine what resources the client can access and what
-													operations it can perform.
+	Scope maps in Kanidm are used to define the permissions that a client application can request on
+	behalf of a user. These scopes determine what resources the client can access and what
+	operations it can perform.
 
-													These provide a set of scopes if a user is a member of a specific group within Kanidm. This
-													allows you to create a relationship between the scopes of a service, and the groups/roles in
-													Kanidm which can be specific to that service.
-													"""
+	These provide a set of scopes if a user is a member of a specific group within Kanidm. This
+	allows you to create a relationship between the scopes of a service, and the groups/roles in
+	Kanidm which can be specific to that service.
+	"""
 									properties: {
 										group: {
 											description: "Group name or SPN. Members of this group will be granted the scopes defined in the `scopes` field."
@@ -7269,41 +11344,74 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										}
 										scopes: {
 											description: """
-															A scope is a string that represents a specific permission or set of permissions that a
-															client application can request from an authorization server. Scopes define the level of
-															access that the client application is granted to the user's resources.
+	A scope is a string that represents a specific permission or set of permissions that a
+	client application can request from an authorization server. Scopes define the level of
+	access that the client application is granted to the user's resources.
 
-															OpenID Connect allows a number of scopes that affect the content of the resulting authorization
-															token. If one of the following scopes is requested by the OpenID client, then the associated
-															claims may be added to the authorization token. It is not guaranteed that all of the associated
-															claims will be added.
+	OpenID Connect allows a number of scopes that affect the content of the resulting authorization
+	token. If one of the following scopes is requested by the OpenID client, then the associated
+	claims may be added to the authorization token. It is not guaranteed that all of the associated
+	claims will be added.
 
-															- `profile`: name, family_name, given_name, middle_name, nickname, preferred_username, profile,
-															   picture, website, gender, birthdate, zoneinfo, locale, and updated_at
-															- `email`: email, email_verified
-															- `address`: address
-															- `phone`: phone_number, phone_number_verified
-															- `groups`: groups
+	- `profile`: name, family_name, given_name, middle_name, nickname, preferred_username, profile,
+	   picture, website, gender, birthdate, zoneinfo, locale, and updated_at
+	- `email`: email, email_verified
+	- `address`: address
+	- `phone`: phone_number, phone_number_verified
+	- `groups`: groups
 
-															If you are creating an OpenID Connect (OIDC) client, you MUST provide a scope map containing `openid`.
-															Without this, OpenID Connect clients WILL NOT WORK!
-															"""
+	If you are creating an OpenID Connect (OIDC) client, you MUST provide a scope map containing `openid`.
+	Without this, OpenID Connect clients WILL NOT WORK!
+	"""
 											items: type: "string"
 											type: "array"
 										}
 									}
-									required: ["group", "scopes"]
+									required: [
+										"group",
+										"scopes",
+									]
 									type: "object"
 								}
 								nullable: true
 								type:     "array"
 							}
+							secretKeyAliases: {
+								description: """
+	Aliases for the canonical secret keys (CLIENT_ID and CLIENT_SECRET).
+	Allows consumers that require different fixed key names to access the same credentials.
+	The canonical keys CLIENT_ID and CLIENT_SECRET are always present.
+	Only applies to confidential clients (public: false).
+	"""
+								nullable: true
+								properties: {
+									clientId: {
+										description: """
+	Aliases for the CLIENT_ID key.
+	Each alias will be added as an additional key containing the same client ID value.
+	"""
+										items: type: "string"
+										nullable: true
+										type:     "array"
+									}
+									clientSecret: {
+										description: """
+	Aliases for the CLIENT_SECRET key.
+	Each alias will be added as an additional key containing the same client secret value.
+	"""
+										items: type: "string"
+										nullable: true
+										type:     "array"
+									}
+								}
+								type: "object"
+							}
 							secretRotation: {
 								description: """
-												Automatic rotation configuration for the OAuth2 client secret. Only applies to confidential
-												clients (public: false). When enabled, the operator will regenerate the client secret
-												periodically based on the configured rotation period.
-												"""
+	Automatic rotation configuration for the OAuth2 client secret. Only applies to confidential
+	clients (public: false). When enabled, the operator will regenerate the client secret
+	periodically based on the configured rotation period.
+	"""
 								nullable: true
 								properties: {
 									enabled: {
@@ -7314,11 +11422,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									periodDays: {
 										default: 90
 										description: """
-														Rotation period in days. Secrets will be rotated when they are older than this period.
-														Defaults to 90 days.
-														"""
+	Rotation period in days. Secrets will be rotated when they are older than this period.
+	Defaults to 90 days.
+	"""
 										format:  "uint32"
-										minimum: 0
+										minimum: 0.0
 										type:    "integer"
 									}
 								}
@@ -7326,29 +11434,29 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							secretTemplate: {
 								description: """
-												Template applied to the Secret created for confidential clients (public: false).
-												Allows attaching custom annotations and labels to the generated Secret. The operator's own
-												labels and annotations take precedence over any conflicting keys in the template.
-												Changes to this template are enforced on the next reconciliation, overwriting any manual
-												modifications made to the Secret
-												"""
+	Template applied to the Secret created for confidential clients (public: false).
+	Allows attaching custom annotations and labels to the generated Secret. The operator's own
+	labels and annotations take precedence over any conflicting keys in the template.
+	Changes to this template are enforced on the next reconciliation, overwriting any manual
+	modifications made to the Secret
+	"""
 								nullable: true
 								properties: {
 									annotations: {
 										additionalProperties: type: "string"
 										description: """
-														Annotations to add to the object. The operator's own annotations take precedence over
-														any keys specified here.
-														"""
+	Annotations to add to the object. The operator's own annotations take precedence over
+	any keys specified here.
+	"""
 										nullable: true
 										type:     "object"
 									}
 									labels: {
 										additionalProperties: type: "string"
 										description: """
-														Labels to add to the object. The operator's own labels take precedence over any keys
-														specified here.
-														"""
+	Labels to add to the object. The operator's own labels take precedence over any keys
+	specified here.
+	"""
 										nullable: true
 										type:     "object"
 									}
@@ -7357,35 +11465,35 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							strictRedirectUrl: {
 								description: """
-												Enable strict validation of redirect URLs. Previously redirect URLs only validated the
-												origin of the URL matched. When enabled, redirect URLs must match exactly.
+	Enable strict validation of redirect URLs. Previously redirect URLs only validated the
+	origin of the URL matched. When enabled, redirect URLs must match exactly.
 
-												Enabled by default.
-												"""
+	Enabled by default.
+	"""
 								nullable: true
 								type:     "boolean"
 							}
 							supScopeMap: {
 								description: """
-												Supplementary scope maps for the OAuth2 client. These function the same as scope maps where
-												membership of a group provides a set of scopes to the account.
-												However these scopes are NOT consulted during authorization decisions made by Kanidm.
-												These scopes exist to allow optional properties to be provided (such as personal
-												information about a subset of accounts to be revealed) or so that the service may make its
-												own authorization decisions based on the provided scopes.
-												"""
+	Supplementary scope maps for the OAuth2 client. These function the same as scope maps where
+	membership of a group provides a set of scopes to the account.
+	However these scopes are NOT consulted during authorization decisions made by Kanidm.
+	These scopes exist to allow optional properties to be provided (such as personal
+	information about a subset of accounts to be revealed) or so that the service may make its
+	own authorization decisions based on the provided scopes.
+	"""
 								items: {
 									description: """
-													The `KanidmScopeMap` struct represents a mapping of a group to a set of OAuth2 scopes in Kanidm.
+	The `KanidmScopeMap` struct represents a mapping of a group to a set of OAuth2 scopes in Kanidm.
 
-													Scope maps in Kanidm are used to define the permissions that a client application can request on
-													behalf of a user. These scopes determine what resources the client can access and what
-													operations it can perform.
+	Scope maps in Kanidm are used to define the permissions that a client application can request on
+	behalf of a user. These scopes determine what resources the client can access and what
+	operations it can perform.
 
-													These provide a set of scopes if a user is a member of a specific group within Kanidm. This
-													allows you to create a relationship between the scopes of a service, and the groups/roles in
-													Kanidm which can be specific to that service.
-													"""
+	These provide a set of scopes if a user is a member of a specific group within Kanidm. This
+	allows you to create a relationship between the scopes of a service, and the groups/roles in
+	Kanidm which can be specific to that service.
+	"""
 									properties: {
 										group: {
 											description: "Group name or SPN. Members of this group will be granted the scopes defined in the `scopes` field."
@@ -7393,45 +11501,53 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										}
 										scopes: {
 											description: """
-															A scope is a string that represents a specific permission or set of permissions that a
-															client application can request from an authorization server. Scopes define the level of
-															access that the client application is granted to the user's resources.
+	A scope is a string that represents a specific permission or set of permissions that a
+	client application can request from an authorization server. Scopes define the level of
+	access that the client application is granted to the user's resources.
 
-															OpenID Connect allows a number of scopes that affect the content of the resulting authorization
-															token. If one of the following scopes is requested by the OpenID client, then the associated
-															claims may be added to the authorization token. It is not guaranteed that all of the associated
-															claims will be added.
+	OpenID Connect allows a number of scopes that affect the content of the resulting authorization
+	token. If one of the following scopes is requested by the OpenID client, then the associated
+	claims may be added to the authorization token. It is not guaranteed that all of the associated
+	claims will be added.
 
-															- `profile`: name, family_name, given_name, middle_name, nickname, preferred_username, profile,
-															   picture, website, gender, birthdate, zoneinfo, locale, and updated_at
-															- `email`: email, email_verified
-															- `address`: address
-															- `phone`: phone_number, phone_number_verified
-															- `groups`: groups
+	- `profile`: name, family_name, given_name, middle_name, nickname, preferred_username, profile,
+	   picture, website, gender, birthdate, zoneinfo, locale, and updated_at
+	- `email`: email, email_verified
+	- `address`: address
+	- `phone`: phone_number, phone_number_verified
+	- `groups`: groups
 
-															If you are creating an OpenID Connect (OIDC) client, you MUST provide a scope map containing `openid`.
-															Without this, OpenID Connect clients WILL NOT WORK!
-															"""
+	If you are creating an OpenID Connect (OIDC) client, you MUST provide a scope map containing `openid`.
+	Without this, OpenID Connect clients WILL NOT WORK!
+	"""
 											items: type: "string"
 											type: "array"
 										}
 									}
-									required: ["group", "scopes"]
+									required: [
+										"group",
+										"scopes",
+									]
 									type: "object"
 								}
 								nullable: true
 								type:     "array"
 							}
 						}
-						required: ["displayname", "kanidmRef", "origin", "redirectUrl"]
+						required: [
+							"displayname",
+							"kanidmRef",
+							"origin",
+							"redirectUrl",
+						]
 						type: "object"
 					}
 					status: {
 						description: """
-										Most recent observed status of the Kanidm Group. Read-only.
-										More info:
-										https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-										"""
+	Most recent observed status of the Kanidm Group. Read-only.
+	More info:
+	https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+	"""
 						nullable: true
 						properties: {
 							claimsMap: {
@@ -7470,7 +11586,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											type:        "string"
 										}
 									}
-									required: ["lastTransitionTime", "message", "reason", "status", "type"]
+									required: [
+										"lastTransitionTime",
+										"message",
+										"reason",
+										"status",
+										"type",
+									]
 									type: "object"
 								}
 								nullable: true
@@ -7488,7 +11610,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									contentLength: {
 										description: "Content-Length from the last fetch."
 										format:      "uint64"
-										minimum:     0
+										minimum:     0.0
 										nullable:    true
 										type:        "integer"
 									}
@@ -7532,13 +11654,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type:     "array"
 							}
 						}
-						required: ["kanidmRef", "ready"]
+						required: [
+							"kanidmRef",
+							"ready",
+						]
 						type: "object"
 					}
 				}
-				required: [
-					"spec",
-				]
+				required: ["spec"]
 				title: "KanidmOAuth2Client"
 				type:  "object"
 			}
@@ -7548,18 +11671,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 		}]
 	}
 }, {
-	metadata: name: "kanidmpersonsaccounts.kaniop.rs"
+	apiVersion: "apiextensions.k8s.io/v1"
+	kind:       "CustomResourceDefinition"
+	metadata: name: "kanidmpersonaccounts.kaniop.rs"
 	spec: {
 		group: "kaniop.rs"
 		names: {
-			categories: [
-				"kaniop",
-			]
+			categories: ["kaniop"]
 			kind:   "KanidmPersonAccount"
-			plural: "kanidmpersonsaccounts"
-			shortNames: [
-				"person",
-			]
+			plural: "kanidmpersonaccounts"
+			shortNames: ["person"]
 			singular: "kanidmpersonaccount"
 		}
 		scope: "Namespaced"
@@ -7591,32 +11712,32 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				properties: {
 					spec: {
 						description: """
-										A person represents a human's account in Kanidm. The majority of your users will be a person who
-										will use this account in their daily activities. These entries may contain personally
-										identifying information that is considered by Kanidm to be sensitive. Because of this, there
-										are default limits to who may access these data.
-										More info:
-										https://kanidm.github.io/kanidm/master/accounts/people_accounts.html
-										"""
+	A person represents a human's account in Kanidm. The majority of your users will be a person who
+	will use this account in their daily activities. These entries may contain personally
+	identifying information that is considered by Kanidm to be sensitive. Because of this, there
+	are default limits to who may access these data.
+	More info:
+	https://kanidm.github.io/kanidm/master/accounts/people_accounts.html
+	"""
 						properties: {
 							credentialsTokenTtl: {
 								default: 3600
 								description: """
-												If credentials are not defined, Kaniop will generate a link accessible when describing
-												the person account. This link will be valid for the number of seconds defined here.
-												The default is 3600 seconds (1 hour).
-												"""
+	If credentials are not defined, Kaniop will generate a link accessible when describing
+	the person account. This link will be valid for the number of seconds defined here.
+	The default is 3600 seconds (1 hour).
+	"""
 								format:  "uint32"
-								minimum: 0
+								minimum: 0.0
 								type:    "integer"
 							}
 							kanidmName: {
 								description: """
-												The name of the entity in Kanidm. If not specified, the Kubernetes resource name is used.
-												Use this field to manage Kanidm entities with names that don't conform to Kubernetes naming rules
-												(e.g., entities with underscores like `idm_admin` or `idm_all_persons`).
-												This field is immutable and cannot be changed after creation.
-												"""
+	The name of the entity in Kanidm. If not specified, the Kubernetes resource name is used.
+	Use this field to manage Kanidm entities with names that don't conform to Kubernetes naming rules
+	(e.g., entities with underscores like `idm_admin` or `idm_all_persons`).
+	This field is immutable and cannot be changed after creation.
+	"""
 								nullable: true
 								type:     "string"
 								"x-kubernetes-validations": [{
@@ -7626,16 +11747,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							kanidmRef: {
 								description: """
-												KanidmRef is a reference to a Kanidm object in the same cluster. It is used to specify where
-												the object is stored.
-												"""
+	KanidmRef is a reference to a Kanidm object in the same cluster. It is used to specify where
+	the object is stored.
+	"""
 								properties: {
 									name: type: "string"
 									namespace: {
 										description: """
-														For cross-namespace resources. Reference Kanidm namespace. If omitted, the namespace of the
-														resource will be used.
-														"""
+	For cross-namespace resources. Reference Kanidm namespace. If omitted, the namespace of the
+	resource will be used.
+	"""
 										nullable: true
 										type:     "string"
 									}
@@ -7649,29 +11770,29 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							personAttributes: {
 								description: """
-												Attributes that personally identify a person account.
+	Attributes that personally identify a person account.
 
-												The attributes defined here are set by the operator. If you want to manage those attributes
-												from the database, do not set them here.
-												Additionally, if you unset them here, they will be kept in the database.
-												"""
+	The attributes defined here are set by the operator. If you want to manage those attributes
+	from the database, do not set them here.
+	Additionally, if you unset them here, they will be kept in the database.
+	"""
 								properties: {
 									accountExpire: {
 										description: """
-														Set an accounts expiry time.
+	Set an accounts expiry time.
 
-														If omitted, the account will not expire.
-														"""
+	If omitted, the account will not expire.
+	"""
 										format:   "date-time"
 										nullable: true
 										type:     "string"
 									}
 									accountValidFrom: {
 										description: """
-														Set an account valid from time.
+	Set an account valid from time.
 
-														If omitted, the account will be valid from the time of creation.
-														"""
+	If omitted, the account will be valid from the time of creation.
+	"""
 										format:   "date-time"
 										nullable: true
 										type:     "string"
@@ -7687,9 +11808,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									mail: {
 										description: """
-														Set the mail address, can be set multiple times for multiple addresses. The first listed
-														mail address is the 'primary'.
-														"""
+	Set the mail address, can be set multiple times for multiple addresses. The first listed
+	mail address is the 'primary'.
+	"""
 										items: type: "string"
 										nullable: true
 										type:     "array"
@@ -7700,33 +11821,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							posixAttributes: {
 								description: """
-												POSIX attributes for the person account. When specified, the operator will activate them.
-												If omitted, the operator retains the attributes in the database but ceases to manage them.
-												"""
+	POSIX attributes for the person account. When specified, the operator will activate them.
+	If omitted, the operator retains the attributes in the database but ceases to manage them.
+	"""
 								nullable: true
 								properties: {
 									gidnumber: {
 										description: """
-														The group ID number (GID) for the person account. In Kanidm there is no difference between
-														a UID and a GID number.
+	The group ID number (GID) for the person account. In Kanidm there is no difference between
+	a UID and a GID number.
 
-														If omitted, Kanidm will generate it automatically.
+	If omitted, Kanidm will generate it automatically.
 
-														More info:
-														https://kanidm.github.io/kanidm/stable/accounts/posix_accounts_and_groups.html#uid-and-gid-numbers
-														"""
+	More info:
+	https://kanidm.github.io/kanidm/stable/accounts/posix_accounts_and_groups.html#uid-and-gid-numbers
+	"""
 										format:   "uint32"
-										minimum:  0
+										minimum:  0.0
 										nullable: true
 										type:     "integer"
 									}
 									loginshell: {
 										description: """
-														The login shell for the person account.
+	The login shell for the person account.
 
-														This sets the default shell that will be used when the user logs in via SSH or other
-														mechanisms that require a shell. Common values include /bin/bash, /bin/zsh, /bin/sh.
-														"""
+	This sets the default shell that will be used when the user logs in via SSH or other
+	mechanisms that require a shell. Common values include /bin/bash, /bin/zsh, /bin/sh.
+	"""
 										nullable: true
 										type:     "string"
 									}
@@ -7734,15 +11855,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type: "object"
 							}
 						}
-						required: ["kanidmRef", "personAttributes"]
+						required: [
+							"kanidmRef",
+							"personAttributes",
+						]
 						type: "object"
 					}
 					status: {
 						description: """
-										Most recent observed status of the Kanidm Person Account. Read-only.
-										More info:
-										https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-										"""
+	Most recent observed status of the Kanidm Person Account. Read-only.
+	More info:
+	https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+	"""
 						nullable: true
 						properties: {
 							conditions: {
@@ -7776,7 +11900,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											type:        "string"
 										}
 									}
-									required: ["lastTransitionTime", "message", "reason", "status", "type"]
+									required: [
+										"lastTransitionTime",
+										"message",
+										"reason",
+										"status",
+										"type",
+									]
 									type: "object"
 								}
 								nullable: true
@@ -7784,20 +11914,21 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							gid: {
 								format:   "uint32"
-								minimum:  0
+								minimum:  0.0
 								nullable: true
 								type:     "integer"
 							}
 							kanidmRef: type: "string"
 							ready: type:     "boolean"
 						}
-						required: ["kanidmRef", "ready"]
+						required: [
+							"kanidmRef",
+							"ready",
+						]
 						type: "object"
 					}
 				}
-				required: [
-					"spec",
-				]
+				required: ["spec"]
 				title: "KanidmPersonAccount"
 				type:  "object"
 			}
@@ -7807,18 +11938,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 		}]
 	}
 }, {
+	apiVersion: "apiextensions.k8s.io/v1"
+	kind:       "CustomResourceDefinition"
 	metadata: name: "kanidmserviceaccounts.kaniop.rs"
 	spec: {
 		group: "kaniop.rs"
 		names: {
-			categories: [
-				"kaniop",
-			]
+			categories: ["kaniop"]
 			kind:   "KanidmServiceAccount"
 			plural: "kanidmserviceaccounts"
-			shortNames: [
-				"kanidmsa",
-			]
+			shortNames: ["kanidmsa"]
 			singular: "kanidmserviceaccount"
 		}
 		scope: "Namespaced"
@@ -7850,20 +11979,20 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 				properties: {
 					spec: {
 						description: """
-										A service account represents a non-human account in Kanidm used for programmatic access and
-										integrations. Service accounts can have API tokens generated and associated with them for
-										identification and granting extended access rights. These accounts are managed by delegated
-										administrators and can have expiry times and other auditing information attached.
-										More info:
-										https://kanidm.github.io/kanidm/master/accounts/service_accounts.html
-										"""
+	A service account represents a non-human account in Kanidm used for programmatic access and
+	integrations. Service accounts can have API tokens generated and associated with them for
+	identification and granting extended access rights. These accounts are managed by delegated
+	administrators and can have expiry times and other auditing information attached.
+	More info:
+	https://kanidm.github.io/kanidm/master/accounts/service_accounts.html
+	"""
 						properties: {
 							apiTokenRotation: {
 								description: """
-												Automatic rotation configuration for API tokens. When enabled, the operator will rotate
-												API tokens periodically by destroying and recreating them. This results in new token values
-												being written to their associated Kubernetes secrets.
-												"""
+	Automatic rotation configuration for API tokens. When enabled, the operator will rotate
+	API tokens periodically by destroying and recreating them. This results in new token values
+	being written to their associated Kubernetes secrets.
+	"""
 								nullable: true
 								properties: {
 									enabled: {
@@ -7874,11 +12003,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									periodDays: {
 										default: 90
 										description: """
-														Rotation period in days. Secrets will be rotated when they are older than this period.
-														Defaults to 90 days.
-														"""
+	Rotation period in days. Secrets will be rotated when they are older than this period.
+	Defaults to 90 days.
+	"""
 										format:  "uint32"
-										minimum: 0
+										minimum: 0.0
 										type:    "integer"
 									}
 								}
@@ -7886,48 +12015,51 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							apiTokens: {
 								description: """
-												API tokens to be associated with the service account. If omitted, no tokens will be
-												associated. If specified, the operator will ensure that the tokens exist with the
-												specified attributes. If the tokens already exist, they will be updated to match the
-												specified attributes. If the tokens are removed from the spec, they will be deleted from
-												the service account.
-												"""
+	API tokens to be associated with the service account. If omitted, no tokens will be
+	associated. If specified, the operator will ensure that the tokens exist with the
+	specified attributes. If the tokens already exist, they will be updated to match the
+	specified attributes. If the tokens are removed from the spec, they will be deleted from
+	the service account.
+	"""
 								items: {
 									description: """
-													API token configuration for service account authentication.
+	API token configuration for service account authentication.
 
-													API tokens can be used for identification of the service account and for granting extended
-													access rights. Tokens can be read-only or read-write, and can have expiry times and other
-													auditing information attached.
-													"""
+	API tokens can be used for identification of the service account and for granting extended
+	access rights. Tokens can be read-only or read-write, and can have expiry times and other
+	auditing information attached.
+	"""
 									properties: {
 										expiry: {
 											description: """
-															An optional rfc3339 time of the format "YYYY-MM-DDTHH:MM:SS+TZ",
-															"2020-09-25T11:22:02+10:00". After this time the api token will no longer be valid.
-															"""
+	An optional rfc3339 time of the format "YYYY-MM-DDTHH:MM:SS+TZ",
+	"2020-09-25T11:22:02+10:00". After this time the api token will no longer be valid.
+	"""
 											format:   "date-time"
 											nullable: true
 											type:     "string"
 										}
 										label: {
 											description: """
-															A string describing the token. This is not used to identify the token, it is only for human
-															description of the tokens purpose.
-															"""
+	A string describing the token. This is not used to identify the token, it is only for human
+	description of the tokens purpose.
+	"""
 											type: "string"
 										}
 										purpose: {
 											default:     "readonly"
 											description: "The purpose of the API token."
-											enum: ["readonly", "readwrite"]
+											enum: [
+												"readonly",
+												"readwrite",
+											]
 											type: "string"
 										}
 										secretName: {
 											description: """
-															The name of the Kubernetes secret where the token value is stored.
-															**WARNING**: A change to this field will result in a token rotation.
-															"""
+	The name of the Kubernetes secret where the token value is stored.
+	**WARNING**: A change to this field will result in a token rotation.
+	"""
 											nullable: true
 											type:     "string"
 										}
@@ -7940,10 +12072,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							credentialsRotation: {
 								description: """
-												Automatic rotation configuration for the credentials secret. Only applies when
-												generate_credentials is true. When enabled, the operator will regenerate the password
-												periodically based on the configured rotation period.
-												"""
+	Automatic rotation configuration for the credentials secret. Only applies when
+	generate_credentials is true. When enabled, the operator will regenerate the password
+	periodically based on the configured rotation period.
+	"""
 								nullable: true
 								properties: {
 									enabled: {
@@ -7954,11 +12086,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									periodDays: {
 										default: 90
 										description: """
-														Rotation period in days. Secrets will be rotated when they are older than this period.
-														Defaults to 90 days.
-														"""
+	Rotation period in days. Secrets will be rotated when they are older than this period.
+	Defaults to 90 days.
+	"""
 										format:  "uint32"
-										minimum: 0
+										minimum: 0.0
 										type:    "integer"
 									}
 								}
@@ -7967,20 +12099,20 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							generateCredentials: {
 								default: false
 								description: """
-												Whether to generate credentials for the service account. If true, the operator will create
-												a Kubernetes secret containing the service account's password. If false, no secret
-												will be created. Defaults to false.
-												Secret name: `{{ name }}-kanidm-service-account-credentials`
-												"""
+	Whether to generate credentials for the service account. If true, the operator will create
+	a Kubernetes secret containing the service account's password. If false, no secret
+	will be created. Defaults to false.
+	Secret name: `{{ name }}-kanidm-service-account-credentials`
+	"""
 								type: "boolean"
 							}
 							kanidmName: {
 								description: """
-												The name of the entity in Kanidm. If not specified, the Kubernetes resource name is used.
-												Use this field to manage Kanidm entities with names that don't conform to Kubernetes naming rules
-												(e.g., entities with underscores like `idm_admin` or `idm_all_persons`).
-												This field is immutable and cannot be changed after creation.
-												"""
+	The name of the entity in Kanidm. If not specified, the Kubernetes resource name is used.
+	Use this field to manage Kanidm entities with names that don't conform to Kubernetes naming rules
+	(e.g., entities with underscores like `idm_admin` or `idm_all_persons`).
+	This field is immutable and cannot be changed after creation.
+	"""
 								nullable: true
 								type:     "string"
 								"x-kubernetes-validations": [{
@@ -7990,16 +12122,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							kanidmRef: {
 								description: """
-												KanidmRef is a reference to a Kanidm object in the same cluster. It is used to specify where
-												the object is stored.
-												"""
+	KanidmRef is a reference to a Kanidm object in the same cluster. It is used to specify where
+	the object is stored.
+	"""
 								properties: {
 									name: type: "string"
 									namespace: {
 										description: """
-														For cross-namespace resources. Reference Kanidm namespace. If omitted, the namespace of the
-														resource will be used.
-														"""
+	For cross-namespace resources. Reference Kanidm namespace. If omitted, the namespace of the
+	resource will be used.
+	"""
 										nullable: true
 										type:     "string"
 									}
@@ -8013,33 +12145,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							posixAttributes: {
 								description: """
-												POSIX attributes for the service account. When specified, the operator will activate them.
-												If omitted, the operator retains the attributes in the database but ceases to manage them.
-												"""
+	POSIX attributes for the service account. When specified, the operator will activate them.
+	If omitted, the operator retains the attributes in the database but ceases to manage them.
+	"""
 								nullable: true
 								properties: {
 									gidnumber: {
 										description: """
-														The group ID number (GID) for the person account. In Kanidm there is no difference between
-														a UID and a GID number.
+	The group ID number (GID) for the person account. In Kanidm there is no difference between
+	a UID and a GID number.
 
-														If omitted, Kanidm will generate it automatically.
+	If omitted, Kanidm will generate it automatically.
 
-														More info:
-														https://kanidm.github.io/kanidm/stable/accounts/posix_accounts_and_groups.html#uid-and-gid-numbers
-														"""
+	More info:
+	https://kanidm.github.io/kanidm/stable/accounts/posix_accounts_and_groups.html#uid-and-gid-numbers
+	"""
 										format:   "uint32"
-										minimum:  0
+										minimum:  0.0
 										nullable: true
 										type:     "integer"
 									}
 									loginshell: {
 										description: """
-														The login shell for the person account.
+	The login shell for the person account.
 
-														This sets the default shell that will be used when the user logs in via SSH or other
-														mechanisms that require a shell. Common values include /bin/bash, /bin/zsh, /bin/sh.
-														"""
+	This sets the default shell that will be used when the user logs in via SSH or other
+	mechanisms that require a shell. Common values include /bin/bash, /bin/zsh, /bin/sh.
+	"""
 										nullable: true
 										type:     "string"
 									}
@@ -8048,29 +12180,29 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							serviceAccountAttributes: {
 								description: """
-												Attributes that personally identify a service account.
+	Attributes that personally identify a service account.
 
-												The attributes defined here are set by the operator. If you want to manage those attributes
-												from the database, do not set them here.
-												Additionally, if you unset them here, they will be kept in the database.
-												"""
+	The attributes defined here are set by the operator. If you want to manage those attributes
+	from the database, do not set them here.
+	Additionally, if you unset them here, they will be kept in the database.
+	"""
 								properties: {
 									accountExpire: {
 										description: """
-														Set an accounts expiry time.
+	Set an accounts expiry time.
 
-														If omitted, the account will not expire.
-														"""
+	If omitted, the account will not expire.
+	"""
 										format:   "date-time"
 										nullable: true
 										type:     "string"
 									}
 									accountValidFrom: {
 										description: """
-														Set an account valid from time.
+	Set an account valid from time.
 
-														If omitted, the account will be valid from the time of creation.
-														"""
+	If omitted, the account will be valid from the time of creation.
+	"""
 										format:   "date-time"
 										nullable: true
 										type:     "string"
@@ -8085,27 +12217,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									mail: {
 										description: """
-														Set the mail address, can be set multiple times for multiple addresses. The first listed
-														mail address is the 'primary'.
-														"""
+	Set the mail address, can be set multiple times for multiple addresses. The first listed
+	mail address is the 'primary'.
+	"""
 										items: type: "string"
 										nullable: true
 										type:     "array"
 									}
 								}
-								required: ["displayname", "entryManagedBy"]
+								required: [
+									"displayname",
+									"entryManagedBy",
+								]
 								type: "object"
 							}
 						}
-						required: ["kanidmRef", "serviceAccountAttributes"]
+						required: [
+							"kanidmRef",
+							"serviceAccountAttributes",
+						]
 						type: "object"
 					}
 					status: {
 						description: """
-										Most recent observed status of the Kanidm Service Account. Read-only.
-										More info:
-										https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-										"""
+	Most recent observed status of the Kanidm Service Account. Read-only.
+	More info:
+	https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+	"""
 						nullable: true
 						properties: {
 							apiTokens: {
@@ -8120,7 +12258,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										label: type: "string"
 										purpose: {
 											default: "readonly"
-											enum: ["readonly", "readwrite"]
+											enum: [
+												"readonly",
+												"readwrite",
+											]
 											type: "string"
 										}
 										secretName: {
@@ -8132,7 +12273,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											type:        "string"
 										}
 									}
-									required: ["label", "tokenId"]
+									required: [
+										"label",
+										"tokenId",
+									]
 									type: "object"
 								}
 								type: "array"
@@ -8168,7 +12312,13 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											type:        "string"
 										}
 									}
-									required: ["lastTransitionTime", "message", "reason", "status", "type"]
+									required: [
+										"lastTransitionTime",
+										"message",
+										"reason",
+										"status",
+										"type",
+									]
 									type: "object"
 								}
 								nullable: true
@@ -8180,20 +12330,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 							gid: {
 								format:   "uint32"
-								minimum:  0
+								minimum:  0.0
 								nullable: true
 								type:     "integer"
 							}
 							kanidmRef: type: "string"
 							ready: type:     "boolean"
 						}
-						required: ["apiTokens", "kanidmRef", "ready"]
+						required: [
+							"apiTokens",
+							"kanidmRef",
+							"ready",
+						]
 						type: "object"
 					}
 				}
-				required: [
-					"spec",
-				]
+				required: ["spec"]
 				title: "KanidmServiceAccount"
 				type:  "object"
 			}

@@ -25,11 +25,19 @@ import (
 		verbs: ["get", "list", "watch"]
 	}, {
 		apiGroups: [v1.#GroupName]
-		resources: ["pods/exec", "secrets", "services"]
+		resources: ["pods", "pods/exec"]
+		verbs: ["get", "list", "watch", "create"]
+	}, {
+		apiGroups: [v1.#GroupName]
+		resources: ["secrets", "services"]
 		verbs: ["*"]
 	}, {
 		apiGroups: ["apps"]
-		resources: ["statefulsets"]
+		resources: ["statefulsets", "deployments"]
+		verbs: ["*"]
+	}, {
+		apiGroups: [v1.#GroupName]
+		resources: ["configmaps"]
 		verbs: ["*"]
 	}, {
 		apiGroups: ["events.k8s.io"]
@@ -39,5 +47,13 @@ import (
 		apiGroups: ["networking.k8s.io"]
 		resources: ["ingresses"]
 		verbs: ["*"]
+	}, {
+		apiGroups: ["gateway.networking.k8s.io"]
+		resources: ["httproutes", "backendtlspolicies"]
+		verbs: ["*"]
+	}, {
+		apiGroups: ["coordination.k8s.io"]
+		resources: ["leases"]
+		verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 	}]
 }]
