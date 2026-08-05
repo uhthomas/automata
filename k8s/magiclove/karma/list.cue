@@ -16,7 +16,7 @@ import (
 
 _image: tools.#Image & {
 	name:   "ghcr.io/prymitive/karma"
-	tag:    "0.129"
+	tag:    "0.132"
 	digest: "sha256:e3982b38c6a178777aa2a49286a56bf04edc1850e7542cc3d9d55307738b8c64"
 }
 
