@@ -6,8 +6,10 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-#Name:    "recyclarr"
-#Version: "7.2.2"
+#Name: "recyclarr"
+
+// renovate: datasource=docker depName=ghcr.io/recyclarr/recyclarr
+#Version: "8.7.0"
 
 #List: v1.#List & {
 	apiVersion: "v1"
@@ -26,6 +28,7 @@ import (
 #List: items: list.Concat(_items)
 
 _items: [
+	#PersistentVolumeClaimList.items,
 	#ConfigMapList.items,
 	#CronJobList.items,
 	#ExternalSecretList.items,

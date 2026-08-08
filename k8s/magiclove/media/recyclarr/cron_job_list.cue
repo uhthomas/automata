@@ -15,8 +15,8 @@ import (
 }
 
 #CronJobList: items: [{
-	let configDirectory = "/etc/\(#Name)"
-	let configPath = "\(configDirectory)/config.yaml"
+	let configDirectory = "/config"
+	let configPath = "\(configDirectory)/recyclarr.yml"
 	spec: {
 		schedule:          "0 0 * * *" // every day
 		concurrencyPolicy: batchv1.#ForbidConcurrent
@@ -26,6 +26,9 @@ import (
 				configMap: name: #Name
 			}, {
 				name: "config"
+				persistentVolumeClaim: claimName: #Name
+			}, {
+				name: "data"
 				emptyDir: {}
 			}, {
 				name: "tmp"
@@ -35,7 +38,7 @@ import (
 			//
 			// https://github.com/cue-lang/cue/issues/2316
 			initContainers: [{
-				let initConfigPath = "/tmp/init/config.yaml"
+				let initConfigPath = "/config-init/recyclarr.yml"
 				name:  "copy-config"
 				image: "alpine:3.17.2@sha256:e2e16842c9b54d985bf1ef9242a313f36b856181f188de21313820e177002501"
 				command: ["cp"]
@@ -43,11 +46,11 @@ import (
 				volumeMounts: [{
 					name:      "config-init"
 					mountPath: initConfigPath
-					subPath:   "config.yaml"
+					subPath:   "recyclarr.yml"
+					readOnly:  true
 				}, {
 					name:      "config"
 					mountPath: configDirectory
-					subPath:   "config.yaml"
 				}]
 				imagePullPolicy: v1.#PullIfNotPresent
 				securityContext: {
@@ -62,7 +65,6 @@ import (
 				volumeMounts: [{
 					name:      "config"
 					mountPath: configDirectory
-					subPath:   "config.yaml"
 				}, {
 					name:      "tmp"
 					mountPath: "/tmp"
@@ -89,6 +91,12 @@ import (
 					name:  "COMPlus_EnableDiagnostics"
 					value: "0"
 				}, {
+					name:  "RECYCLARR_CONFIG_DIR"
+					value: configDirectory
+				}, {
+					name:  "RECYCLARR_DATA_DIR"
+					value: "/data"
+				}, {
 					name: "RADARR_API_KEY"
 					valueFrom: secretKeyRef: {
 						name: #Name
@@ -104,7 +112,12 @@ import (
 				volumeMounts: [{
 					name:      "config"
 					mountPath: configDirectory
-					subPath:   "config.yaml"
+				}, {
+					name:      "data"
+					mountPath: "/data"
+				}, {
+					name:      "tmp"
+					mountPath: "/tmp"
 				}]
 				imagePullPolicy: v1.#PullIfNotPresent
 				securityContext: {
