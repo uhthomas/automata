@@ -24,7 +24,7 @@ require (
 	k8s.io/apiextensions-apiserver v0.35.2
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/kube-aggregator v0.30.1
-	k8s.io/kubernetes v1.34.0
+	k8s.io/kubernetes v1.34.2
 	sigs.k8s.io/external-dns v0.14.2
 	sigs.k8s.io/gateway-api v1.5.1
 )
@@ -44,6 +44,7 @@ require (
 	github.com/go-openapi/swag/stringutils v0.25.5 // indirect
 	github.com/go-openapi/swag/typeutils v0.25.5 // indirect
 	github.com/go-openapi/swag/yamlutils v0.25.5 // indirect
+	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
 	github.com/itchyny/gojq v0.12.18 // indirect
 	github.com/itchyny/timefmt-go v0.1.7 // indirect
 	github.com/oklog/ulid/v2 v2.1.1 // indirect
