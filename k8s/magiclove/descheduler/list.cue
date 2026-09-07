@@ -9,7 +9,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=github-releases depName=kubernetes-sigs/descheduler extractVersion=^v(?<version>.*)$
-#Version: "0.35.1"
+#Version: "0.36.0"
 
 #List: v1.#List & {
 	apiVersion: "v1"
