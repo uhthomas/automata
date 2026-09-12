@@ -45,7 +45,7 @@ import (
 				containers: [{
 					name: "server"
 					// image: "ghcr.io/immich-app/immich-server:v\(#Version)"
-					image: "ghcr.io/immich-app/immich-server:main@sha256:3ed2831bd7f5bb78fa82541985ddedcbe2cffdfc3a58e340fe735c7e370f242d"
+					image: "ghcr.io/immich-app/immich-server:main@sha256:40433d0e65745f30038f84835f2ba3a597142cfbe823774efbcbf3ea185cee96"
 					ports: [{
 						name:          "http"
 						containerPort: 2283
