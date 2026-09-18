@@ -26,7 +26,7 @@ import (
 				}]
 				initContainers: [{
 					name:  "copy-config"
-					image: "alpine:3.17.2@sha256:e2e16842c9b54d985bf1ef9242a313f36b856181f188de21313820e177002501"
+					image: "alpine:3.24.2@sha256:d56c381f961d307a21b3ca004cf1e3910f106644aefb1f43e654c8a56c4fd395"
 					command: ["cp"]
 					args: ["/etc/zigbee2mqtt/configuration.yaml", "/app/data/configuration.yaml"]
 					resources: limits: {
