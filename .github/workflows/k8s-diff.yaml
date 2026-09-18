@@ -8,7 +8,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.base.sha }}
-      - uses: cue-lang/setup-cue@v1.0.0
+      - uses: cue-lang/setup-cue@b0e30e540a2dae47304ebf16586a5b2db023b61c # v2.0.0
       - run: cue export ./k8s/magiclove/list.cue > list.json
       - uses: actions/upload-artifact@v3
         with:
@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: cue-lang/setup-cue@v1.0.0
+      - uses: cue-lang/setup-cue@b0e30e540a2dae47304ebf16586a5b2db023b61c # v2.0.0
       - run: cue export ./k8s/magiclove/list.cue > list.json
       - uses: actions/upload-artifact@v3
         with:
