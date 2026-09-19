@@ -10,7 +10,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=docker depName=ghcr.io/pando85/kaniop
-#Version: "0.5.9"
+#Version: "0.16.4"
 
 #List: v1.#List & {
 	apiVersion: "v1"
