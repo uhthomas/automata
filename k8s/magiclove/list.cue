@@ -19,6 +19,7 @@ import (
 	"github.com/uhthomas/automata/k8s/magiclove/fluent_bit"
 	"github.com/uhthomas/automata/k8s/magiclove/frigate"
 	"github.com/uhthomas/automata/k8s/magiclove/fstrim"
+	"github.com/uhthomas/automata/k8s/magiclove/flux_system"
 	"github.com/uhthomas/automata/k8s/magiclove/gateway_api"
 	"github.com/uhthomas/automata/k8s/magiclove/grafana"
 	"github.com/uhthomas/automata/k8s/magiclove/grafana_operator"
@@ -61,6 +62,9 @@ import (
 #List: v1.#List & {
 	apiVersion: "v1"
 	kind:       "List"
+	items: [...{
+		metadata: annotations: "kustomize.toolkit.fluxcd.io/prune": "enabled" | *"disabled"
+	}]
 }
 
 _#KindWeight: {
@@ -80,10 +84,8 @@ _#KindWeight: {
 })
 
 _items: [
-	magiclove.#ApplySetList.items,
 	magiclove.#ClusterIssuerList.items,
 	magiclove.#ClusterSecretStoreList.items,
-	magiclove.#CustomResourceDefinitionList.items,
 	magiclove.#GatewayClassList.items,
 	backup.#List.items,
 	ceph_csi_operator.#List.items,
@@ -102,6 +104,7 @@ _items: [
 	fluent_bit.#List.items,
 	frigate.#List.items,
 	fstrim.#List.items,
+	flux_system.#List.items,
 	gateway_api.#List.items,
 	grafana.#List.items,
 	grafana_operator.#List.items,

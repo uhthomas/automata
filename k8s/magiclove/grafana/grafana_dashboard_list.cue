@@ -127,7 +127,7 @@ let dashboards = {
 		instanceSelector: matchLabels: "app.kubernetes.io/name": #Name
 		folder: folderName
 
-		let datasourceDashboards = [1860, 17446]
+		let datasourceDashboards = [1860, 17446, 23233]
 
 		datasources: [if list.Contains(datasourceDashboards, dashboardRef) {
 			inputName:      "DS_PROMETHEUS"

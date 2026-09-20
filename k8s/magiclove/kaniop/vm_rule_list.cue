@@ -59,15 +59,6 @@ import operatorv1beta1 "github.com/VictoriaMetrics/operator/api/operator/v1beta1
 			expr:  "increase(kaniop_reconcile_deploy_delete_create_total[10m]) > 2"
 			"for": "2m"
 			labels: severity: "warning"
-		}, {
-			alert: "KaniopK8sApiErrors"
-			annotations: {
-				description: "4|5xx API responses detected in the last 5 minutes."
-				summary:     "Kaniop Kubernetes API errors"
-			}
-			expr:  #"sum by(status) (increase(kaniop_kubernetes_client_http_requests_total{status=~"[4-5].."}[5m])) > 0"#
-			"for": "2m"
-			labels: severity: "warning"
 		}]
 	}]
 }]

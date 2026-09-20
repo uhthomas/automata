@@ -34,7 +34,7 @@ import (
 					}]
 					resources: limits: {
 						(v1.#ResourceCPU):    "400m"
-						(v1.#ResourceMemory): "256Mi"
+						(v1.#ResourceMemory): "384Mi"
 					}
 					volumeMounts: [{
 						name:      "data"

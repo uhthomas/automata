@@ -39,6 +39,16 @@ import operatorv1beta1 "github.com/VictoriaMetrics/operator/api/operator/v1beta1
 	{{- end -}}
 	"""
 
+#DiscordNotificationConfig: {
+	send_resolved: true
+	webhook_url_secret: {
+		name: "\(#Name)-discord-webhook-url"
+		key:  "webhook-url"
+	}
+	title:   #NotificationTitle
+	message: #DiscordNotificationMessage
+}
+
 #PushoverNotificationMessage: """
 	{{- range $index, $alert := .Alerts -}}
 		{{- if $index }}{{ "\\n\\n" }}{{ end -}}
@@ -73,6 +83,9 @@ import operatorv1beta1 "github.com/VictoriaMetrics/operator/api/operator/v1beta1
 			routes: [{
 				receiver: "discard"
 				matchers: ["alertname=~\"^(InfoInhibitor|Watchdog)$\""]
+			}, {
+				receiver: "discord"
+				matchers: ["severity=\"info\""]
 			}]
 		}
 		inhibit_rules: [{
@@ -83,16 +96,11 @@ import operatorv1beta1 "github.com/VictoriaMetrics/operator/api/operator/v1beta1
 		receivers: [{
 			name: "discard"
 		}, {
+			name: "discord"
+			discord_configs: [#DiscordNotificationConfig]
+		}, {
 			name: "default"
-			discord_configs: [{
-				send_resolved: true
-				webhook_url_secret: {
-					name: "\(#Name)-discord-webhook-url"
-					key:  "webhook-url"
-				}
-				title:   #NotificationTitle
-				message: #DiscordNotificationMessage
-			}]
+			discord_configs: [#DiscordNotificationConfig]
 			pushover_configs: [{
 				send_resolved: true
 				user_key: {

@@ -3,11 +3,18 @@
 Please follow the documentation for `onepassword-connect` as it is a
 prerequisite.
 
-## Apply
+## Deploy
 
 ```sh
-cue export ./k8s/magiclove/list.cue | KUBECTL_APPLYSET=true kubectl apply -f - --server-side --force-conflicts --applyset=applyset/automata --prune
+./hack/k8s-deploy.sh main
 ```
+
+The command renders and validates the complete graph, publishes it as an OCI
+artifact, and asks Flux to reconcile that artifact. Restore production without
+publishing a new artifact with `./hack/k8s-reconcile.sh main`.
+
+Do not invoke `kubectl apply` directly or pipe a partial CUE export to the
+cluster.
 
 ## Talos Upgrades
 

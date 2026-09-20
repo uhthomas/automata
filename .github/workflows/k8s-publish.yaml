@@ -1,0 +1,75 @@
+name: Publish magiclove cluster manifests
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/k8s-publish.yaml
+      - cue.mod/**
+      - hack/k8s-push.sh
+      - k8s/**
+  push:
+    paths:
+      - .github/workflows/k8s-publish.yaml
+      - cue.mod/**
+      - hack/k8s-push.sh
+      - k8s/**
+
+permissions:
+  contents: read
+
+concurrency:
+  group: k8s-magiclove-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up CUE
+        uses: cue-lang/setup-cue@v1.0.1
+        with:
+          version: v0.16.1
+
+      - name: Render delivery artifact
+        run: cue export k8s/magiclove/list.cue --expression '#List' --out json >/dev/null
+
+  publish:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up CUE
+        uses: cue-lang/setup-cue@v1.0.1
+        with:
+          version: v0.16.1
+
+      - name: Set up Flux
+        uses: fluxcd/flux2/action@v2.9.3
+        with:
+          version: 2.9.3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Select artifact tag
+        id: artifact
+        shell: sh
+        run: |
+          tag=$(printf '%s' "$GITHUB_REF_NAME" | tr '[:upper:]/' '[:lower:]-')
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Publish delivery artifact
+        run: ./hack/k8s-push.sh "${{ steps.artifact.outputs.tag }}"

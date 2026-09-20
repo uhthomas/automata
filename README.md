@@ -1,17 +1,14 @@
 # Automata
 
-[![K8s](https://github.com/uhthomas/automata/actions/workflows/k8s.yaml/badge.svg)](https://github.com/uhthomas/automata/actions/workflows/k8s.yaml)
+[![K8s](https://github.com/uhthomas/automata/actions/workflows/k8s-publish.yaml/badge.svg)](https://github.com/uhthomas/automata/actions/workflows/k8s-publish.yaml)
 
 Monorepo and automation for owned infrastructure.
 
 ## Getting started
 
-### Prerequisites
-
-* [Bazel](https://build.bazel)
-
-### Apply manifests
+### Deploy manifests
 
 ```sh
-bazel run //k8s:objects.apply
+./hack/k8s-deploy.sh main 
 ```
+
