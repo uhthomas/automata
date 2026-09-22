@@ -1,6 +1,17 @@
 machine:
   install:
     image: factory.talos.dev/metal-installer-secureboot/99f2ec7632e7e2481285246d09778abcdb684515a6492edf6563526ca6dcb07f:v1.14.1
+  udev:
+    rules:
+      # Reduce max discard size to prevent stalls.
+      - >-
+        ACTION=="add|change", SUBSYSTEM=="block", ENV{DEVTYPE}=="disk",
+        ATTR{wwid}=="eui.343335304e9159920025384100000001",
+        ATTR{queue/discard_max_bytes}="67108864"
+      - >-
+        ACTION=="add|change", SUBSYSTEM=="block", KERNEL=="dm-*",
+        ATTR{dm/name}=="luks2-EPHEMERAL|luks2-STATE", ATTR{queue/discard_max_bytes}!="0",
+        ATTR{queue/discard_max_bytes}="67108864"
 ---
 apiVersion: v1alpha1
 kind: FilesystemTrimConfig

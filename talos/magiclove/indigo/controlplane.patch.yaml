@@ -6,6 +6,15 @@ machine:
       - >-
         ACTION=="add|change", SUBSYSTEM=="scsi_disk",
         ATTRS{wwid}=="naa.55cd2e404b7d1aba", ATTR{cache_type}="write through"
+      # Reduce max discard size to prevent stalls.
+      - >-
+        ACTION=="add|change", SUBSYSTEM=="block", ENV{DEVTYPE}=="disk",
+        ATTRS{wwid}=="naa.55cd2e404b7d1aba",
+        ATTR{queue/discard_max_bytes}="67108864"
+      - >-
+        ACTION=="add|change", SUBSYSTEM=="block", KERNEL=="dm-*",
+        ATTR{dm/name}=="luks2-EPHEMERAL|luks2-STATE", ATTR{queue/discard_max_bytes}!="0",
+        ATTR{queue/discard_max_bytes}="67108864"
 ---
 apiVersion: v1alpha1
 kind: FilesystemTrimConfig
