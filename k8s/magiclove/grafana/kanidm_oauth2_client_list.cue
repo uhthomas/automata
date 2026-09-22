@@ -21,7 +21,7 @@ package grafana
 		preferShortUsername: true
 		scopeMap: [{
 			group: "grafana-users"
-			scopes: ["openid", "profile", "email", "groups"]
+			scopes: ["openid", "profile", "email", "groups_spn"]
 		}]
 	}
 }]

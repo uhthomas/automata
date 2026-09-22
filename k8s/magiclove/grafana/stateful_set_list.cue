@@ -16,7 +16,7 @@ import (
 #StatefulSetList: items: [{
 	metadata: annotations: {
 		"configmap.reloader.stakater.com/reload": #Name
-		"secret.reloader.stakater.com/reload":    "grafana-kanidm-oauth2-credentials"
+		"secret.reloader.stakater.com/reload":    "\(#Name),grafana-kanidm-oauth2-credentials"
 	}
 	spec: {
 		selector: matchLabels: "app.kubernetes.io/name": #Name
@@ -40,13 +40,13 @@ import (
 					env: [{
 						name: "GF_SECURITY_ADMIN_USER"
 						valueFrom: secretKeyRef: {
-							name: "grafana"
+							name: #Name
 							key:  "username"
 						}
 					}, {
 						name: "GF_SECURITY_ADMIN_PASSWORD"
 						valueFrom: secretKeyRef: {
-							name: "grafana"
+							name: #Name
 							key:  "password"
 						}
 					}, {

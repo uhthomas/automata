@@ -35,17 +35,18 @@ import "k8s.io/api/core/v1"
 
 		[auth]
 		oauth_auto_login = true
+		disable_login_form = true
 
 		[auth.generic_oauth]
 		enabled = true
 		name = Kanidm
 		allow_sign_up = true
-		scopes = openid profile email groups
+		scopes = openid profile email groups_spn
 		auth_url = https://kanidm-magiclove.hipparcos.net/ui/oauth2
 		token_url = https://kanidm-magiclove.hipparcos.net/oauth2/token
 		api_url = https://kanidm-magiclove.hipparcos.net/oauth2/openid/grafana/userinfo
 		use_pkce = true
-		role_attribute_path = contains(groups[*], 'admins') && 'Admin' || 'Viewer'
+		role_attribute_path = contains(groups[*], 'grafana-admins@kanidm-magiclove.hipparcos.net') && 'Admin' || 'Viewer'
 
 		"""
 }]

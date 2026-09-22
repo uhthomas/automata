@@ -14,6 +14,7 @@ import "k8s.io/api/core/v1"
 #PersistentVolumeList: items: [{
 	metadata: name: "backup-sana"
 	spec: {
+		mountOptions: ["discard"]
 		capacity: storage: "2Ti"
 		csi: {
 			driver:       "rook-ceph.rbd.csi.ceph.com"

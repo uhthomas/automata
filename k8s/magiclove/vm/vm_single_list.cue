@@ -18,7 +18,7 @@ import (
 	spec: {
 		storage: {
 			storageClassName: "rook-ceph-nvme"
-			resources: requests: (v1.#ResourceStorage): "96Gi"
+			resources: requests: (v1.#ResourceStorage): "128Gi"
 			accessModes: [v1.#ReadWriteOnce]
 		}
 		resources: limits: {

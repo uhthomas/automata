@@ -72,4 +72,4 @@ jobs:
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
       - name: Publish delivery artifact
-        run: ./hack/k8s-push.sh "${{ steps.artifact.outputs.tag }}"
+        run: ./hack/k8s-push.sh magiclove "${{ steps.artifact.outputs.tag }}"

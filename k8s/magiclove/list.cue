@@ -18,7 +18,6 @@ import (
 	"github.com/uhthomas/automata/k8s/magiclove/external_secrets"
 	"github.com/uhthomas/automata/k8s/magiclove/fluent_bit"
 	"github.com/uhthomas/automata/k8s/magiclove/frigate"
-	"github.com/uhthomas/automata/k8s/magiclove/fstrim"
 	"github.com/uhthomas/automata/k8s/magiclove/flux_system"
 	"github.com/uhthomas/automata/k8s/magiclove/gateway_api"
 	"github.com/uhthomas/automata/k8s/magiclove/grafana"
@@ -103,7 +102,6 @@ _items: [
 	external_secrets.#List.items,
 	fluent_bit.#List.items,
 	frigate.#List.items,
-	fstrim.#List.items,
 	flux_system.#List.items,
 	gateway_api.#List.items,
 	grafana.#List.items,

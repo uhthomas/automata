@@ -14,6 +14,7 @@ import "k8s.io/api/core/v1"
 #PersistentVolumeList: items: [{
 	metadata: name: "vm-vmsingle-vm"
 	spec: {
+		mountOptions: ["discard"]
 		capacity: storage: "96Gi"
 		csi: {
 			driver:       "rook-ceph.rbd.csi.ceph.com"
@@ -42,6 +43,7 @@ import "k8s.io/api/core/v1"
 }, {
 	metadata: name: "vm-vmalertmanager-vm-db-vmalertmanager-vm-0"
 	spec: {
+		mountOptions: ["discard"]
 		capacity: storage: "512Mi"
 		csi: {
 			driver:       "rook-ceph.rbd.csi.ceph.com"

@@ -1,0 +1,18 @@
+machine:
+  install:
+    image: factory.talos.dev/metal-installer-secureboot/db2a3ef17dd9e0f81b486f517c01fd7a46c43ef0d9dcdd20a70f851fbefa00da:v1.14.1
+  udev:
+    rules:
+      - >-
+        ACTION=="add|change", SUBSYSTEM=="scsi_disk",
+        ATTRS{wwid}=="naa.55cd2e404b7ccbd8", ATTR{cache_type}="write through"
+---
+apiVersion: v1alpha1
+kind: FilesystemTrimConfig
+interval: 24h
+---
+apiVersion: v1alpha1
+kind: VolumeConfig
+name: EPHEMERAL
+encryption:
+  allowDiscards: true

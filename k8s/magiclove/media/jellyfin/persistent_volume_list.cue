@@ -14,6 +14,7 @@ import "k8s.io/api/core/v1"
 #PersistentVolumeList: items: [{
 	metadata: name: "media-config-jellyfin-0"
 	spec: {
+		mountOptions: ["discard"]
 		capacity: storage: "4Gi"
 		csi: {
 			driver:       "rook-ceph.rbd.csi.ceph.com"
@@ -42,6 +43,7 @@ import "k8s.io/api/core/v1"
 }, {
 	metadata: name: "media-data-jellyfin-0"
 	spec: {
+		mountOptions: ["discard"]
 		capacity: storage: "6Gi"
 		csi: {
 			driver:       "rook-ceph.rbd.csi.ceph.com"

@@ -24,8 +24,8 @@ import "k8s.io/api/core/v1"
 	spec: {
 		accessModes: [v1.#ReadWriteOnce]
 		storageClassName: "rook-ceph-nvme"
-		resources: requests: (v1.#ResourceStorage): "96Gi"
-		volumeName: "vm-vmsingle-vm"
+		resources:        #VMSingleList.items[0].spec.storage.resources
+		volumeName:       "vm-vmsingle-vm"
 	}
 }, {
 	metadata: {

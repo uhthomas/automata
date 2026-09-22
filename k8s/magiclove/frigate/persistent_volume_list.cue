@@ -14,6 +14,7 @@ import "k8s.io/api/core/v1"
 #PersistentVolumeList: items: [{
 	metadata: name: "frigate-config-dir-frigate-0"
 	spec: {
+		mountOptions: ["discard"]
 		capacity: storage: "1Gi"
 		csi: {
 			driver:       "rook-ceph.rbd.csi.ceph.com"
@@ -42,6 +43,7 @@ import "k8s.io/api/core/v1"
 }, {
 	metadata: name: "frigate-media-frigate-0"
 	spec: {
+		mountOptions: ["discard"]
 		capacity: storage: "1Ti"
 		csi: {
 			driver:       "rook-ceph.rbd.csi.ceph.com"

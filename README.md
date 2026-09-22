@@ -9,6 +9,7 @@ Monorepo and automation for owned infrastructure.
 ### Deploy manifests
 
 ```sh
-./hack/k8s-deploy.sh main 
+./hack/k8s-deploy.sh magiclove
 ```
 
+The optional second argument selects the OCI tag and defaults to `main`.

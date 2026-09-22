@@ -51,7 +51,7 @@ Kustomization itself does not delete the cluster.
 pushes the result with the Flux CLI:
 
 ```sh
-./hack/k8s-push.sh dev-$USER
+./hack/k8s-push.sh magiclove dev-$USER
 ```
 
 The workflow in `.github/workflows/k8s-publish.yaml` validates the render on
@@ -69,12 +69,22 @@ Install `cue`, `jq`, and the Flux CLI, then authenticate the Flux CLI to GHCR
 using the Docker credential store. Pick a tag for your local branch and deploy:
 
 ```sh
-./hack/k8s-deploy.sh dev-$USER
+./hack/k8s-deploy.sh magiclove dev-$USER
 # Edit and repeat deploy as needed.
-./hack/k8s-reconcile.sh main
+./hack/k8s-reconcile.sh magiclove main
 ```
 
 `k8s-deploy.sh` is just `k8s-push.sh` followed by `k8s-reconcile.sh`.
+All three scripts accept `<cluster> [tag]`, with the tag defaulting to `main`.
 Reconciliation patches `OCIRepository/magiclove` to the requested tag and asks
 Flux to reconcile it immediately. Do not use `kubectl apply` or send a partial
 CUE export to the cluster.
+
+The normal deploy waits up to ten minutes for reconciliation. On failure or
+interruption, cleanup only resumes the Kustomization with `--wait=false` and a
+ten-second timeout; it does not wait for deployment readiness. Cleanup reports
+resume failures and preserves the original exit status (130 for Ctrl+C).
+Interrupting cleanup again terminates it without starting another resume.
+
+Run `python3 hack/k8s-reconcile-test.py` to test failure and signal handling
+with mocked commands, without publishing an artifact or contacting a cluster.

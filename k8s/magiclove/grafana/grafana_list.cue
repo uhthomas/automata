@@ -15,11 +15,11 @@ import grafanav1beta1 "github.com/grafana/grafana-operator/v5/api/v1beta1"
 	spec: external: {
 		url: "http://\(#Name).\(#Namespace)"
 		adminUser: {
-			name: "grafana"
+			name: #Name
 			key:  "username"
 		}
 		adminPassword: {
-			name: "grafana"
+			name: #Name
 			key:  "password"
 		}
 		tenantNamespace: "default"

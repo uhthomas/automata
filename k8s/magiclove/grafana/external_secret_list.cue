@@ -1,10 +1,10 @@
 package grafana
 
-import externalsecretsv1beta1 "github.com/external-secrets/external-secrets/apis/externalsecrets/v1beta1"
+import corev1 "k8s.io/api/core/v1"
 
-#ExternalSecretList: externalsecretsv1beta1.#ExternalSecretList & {
-	apiVersion: "external-secrets.io/v1"
-	kind:       "ExternalSecretList"
+#ExternalSecretList: corev1.#List & {
+	apiVersion: "v1"
+	kind:       "List"
 	items: [...{
 		apiVersion: "external-secrets.io/v1"
 		kind:       "ExternalSecret"
@@ -13,23 +13,26 @@ import externalsecretsv1beta1 "github.com/external-secrets/external-secrets/apis
 
 #ExternalSecretList: items: [{
 	spec: {
-		secretStoreRef: {
-			name: "onepassword"
-			kind: "ClusterSecretStore"
-		}
-		target: template: metadata: {
-			annotations: {}
-			labels: {}
+		refreshPolicy: "OnChange"
+		target: {
+			immutable: true
+			template: {
+				metadata: {
+					annotations: {}
+					labels: {}
+				}
+				engineVersion: "v2"
+				data: {
+					username: "admin"
+					password: "{{ .password }}"
+				}
+			}
 		}
 		dataFrom: [{
-			extract: {
-				key:      "grafana"
-				property: "username"
-			}
-		}, {
-			extract: {
-				key:      "grafana"
-				property: "password"
+			sourceRef: generatorRef: {
+				apiVersion: "generators.external-secrets.io/v1alpha1"
+				kind:       "Password"
+				name:       #Name
 			}
 		}]
 	}

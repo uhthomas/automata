@@ -1,0 +1,13 @@
+machine:
+  install:
+    image: factory.talos.dev/metal-installer-secureboot/99f2ec7632e7e2481285246d09778abcdb684515a6492edf6563526ca6dcb07f:v1.14.1
+---
+apiVersion: v1alpha1
+kind: FilesystemTrimConfig
+interval: 24h
+---
+apiVersion: v1alpha1
+kind: VolumeConfig
+name: EPHEMERAL
+encryption:
+  allowDiscards: true

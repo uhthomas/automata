@@ -1,0 +1,16 @@
+customization:
+  extraKernelArgs:
+    - iommu=pt
+    - initcall_blacklist=acpi_cpufreq_init
+    - amd_pstate=active
+    - amd_iommu=on
+    - pci=realloc=off
+    - pcie_aspm.policy=performance
+    - preempt=full
+    - threadirqs
+  systemExtensions:
+    officialExtensions:
+      - siderolabs/amd-ucode
+      - siderolabs/nonfree-kmod-nvidia-production
+      - siderolabs/nvidia-container-toolkit-production
+  bootloader: sd-boot

@@ -20,12 +20,17 @@ import (
 		template: {
 			metadata: labels: "app.kubernetes.io/name": #Name
 			spec: {
+				volumes: [{
+					name: "custom-resource-state"
+					configMap: name: #Name
+				}]
 				containers: [{
 					name:  #Name
 					image: "registry.k8s.io/kube-state-metrics/kube-state-metrics:v\(#Version)"
 					args: [
 						"--pod=$(POD_NAME)",
 						"--pod-namespace=$(POD_NAMESPACE)",
+						"--custom-resource-state-config-file=/etc/kube-state-metrics/custom-resource-state.yaml",
 					]
 					ports: [{
 						name:          "http-metrics"
@@ -43,8 +48,13 @@ import (
 					}]
 					resources: limits: {
 						(v1.#ResourceCPU):    "50m"
-						(v1.#ResourceMemory): "64Mi"
+						(v1.#ResourceMemory): "256Mi"
 					}
+					volumeMounts: [{
+						name:      "custom-resource-state"
+						mountPath: "/etc/kube-state-metrics"
+						readOnly:  true
+					}]
 					livenessProbe: {
 						httpGet: {
 							path: "/healthz"

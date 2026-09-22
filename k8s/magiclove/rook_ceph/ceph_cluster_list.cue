@@ -16,6 +16,10 @@ import (
 
 #CephClusterList: items: [{
 	spec: {
+		cephConfig: osd: {
+			bdev_enable_discard:        "true"
+			bdev_async_discard_threads: "1"
+		}
 		cephVersion: {
 			image:            "quay.io/ceph/ceph:v\(#CephVersion)"
 			allowUnsupported: false

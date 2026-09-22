@@ -109,5 +109,17 @@ import (
 		apiGroups: [rbacv1.#GroupName]
 		resources: ["clusterrolebindings", "clusterroles", "rolebindings", "roles"]
 		verbs: ["list", "watch"]
+	}, {
+		verbs: ["list", "watch"]
+		apiGroups: ["apiextensions.k8s.io"]
+		resources: ["customresourcedefinitions"]
+	}, {
+		verbs: ["list", "watch"]
+		apiGroups: ["kustomize.toolkit.fluxcd.io"]
+		resources: ["kustomizations"]
+	}, {
+		verbs: ["list", "watch"]
+		apiGroups: ["source.toolkit.fluxcd.io"]
+		resources: ["ocirepositories"]
 	}]
 }]

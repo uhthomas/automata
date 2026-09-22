@@ -1,16 +1,20 @@
 name: k8s-diff
 on: [pull_request]
+permissions:
+  contents: read
 jobs:
   base:
     name: Base
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.base.sha }}
-      - uses: cue-lang/setup-cue@v1.0.0
-      - run: cue export ./k8s/magiclove/list.cue > list.json
-      - uses: actions/upload-artifact@v3
+      - uses: cue-lang/setup-cue@v1.0.1
+        with:
+          version: v0.16.1
+      - run: cue export ./k8s/magiclove/list.cue --expression '#List' --out json > list.json
+      - uses: actions/upload-artifact@v4
         with:
           name: base
           path: list.json
@@ -18,25 +22,33 @@ jobs:
     name: Head
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: cue-lang/setup-cue@v1.0.0
-      - run: cue export ./k8s/magiclove/list.cue > list.json
-      - uses: actions/upload-artifact@v3
+      - uses: actions/checkout@v5
         with:
-          name: base
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: cue-lang/setup-cue@v1.0.1
+        with:
+          version: v0.16.1
+      - run: cue export ./k8s/magiclove/list.cue --expression '#List' --out json > list.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: head
           path: list.json
   compare:
     name: Compare
     needs: [base, head]
+    permissions:
+      contents: read
+      pull-requests: write
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/download-artifact@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: 16
-      - run: npm install json-diff
+          node-version: 24
+      - run: npm install --no-save --ignore-scripts json-diff
       - name: Comment diff on PR
-        uses: actions/github-script@v6
+        uses: actions/github-script@v8
         with:
           script: |
             const { diffString } = require("json-diff")
@@ -49,12 +61,13 @@ jobs:
             const base = reduce(baseList)
             const head = reduce(headList)
 
-            const sort = o => Object.fromEntries(Object.entries(o).sort())
+            const sort = o => Object.fromEntries(Object.entries(o ?? {}).sort())
 
             const results = []
             for (const name of new Set([...Object.keys(base), ...Object.keys(head)])) {
               const result = diffString(sort(base[name]), sort(head[name]), {
-                outputKeys: ["apiVersion", "kind", "name", "namespace"]
+                outputKeys: ["apiVersion", "kind", "name", "namespace"],
+                color: false
               })
               if (result) {
                 results.push({
@@ -69,11 +82,7 @@ jobs:
               return
             }
 
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: results.map(v => {
+            const body = results.map(v => {
                 const added = v.result.split("\n").filter(line => line.startsWith("+")).length
                 const deleted = v.result.split("\n").filter(line => line.startsWith("-")).length
                 return `${v.name} \${\\color{green}+${added}}\$ \${\\color{red}-${deleted}}\$
@@ -82,4 +91,17 @@ jobs:
             ${v.result}
             \`\`\``
               }).join("\n")
-            })
+
+            await core.summary.addRaw(body.slice(0, 900000)).write()
+
+            try {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body.length <= 60000 ? body : `Rendered diff is too large for a comment. See the [workflow summary](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}).`
+              })
+            } catch (error) {
+              if (error.status !== 403) throw error
+              core.warning("Cannot comment with this token; the diff is available in the workflow summary.")
+            }

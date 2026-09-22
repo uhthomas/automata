@@ -33,6 +33,7 @@ import (
 _items: [
 	#ClusterRoleBindingList.items,
 	#ClusterRoleList.items,
+	#ConfigMapList.items,
 	#NamespaceList.items,
 	#RoleBindingList.items,
 	#RoleList.items,

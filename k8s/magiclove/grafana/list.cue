@@ -39,6 +39,7 @@ _items: [
 	#KanidmOAuth2ClientList.items,
 	#HTTPRouteList.items,
 	#NamespaceList.items,
+	#PasswordList.items,
 	#ServiceList.items,
 	#StatefulSetList.items,
 	#VMServiceScrapeList.items,

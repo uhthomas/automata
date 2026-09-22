@@ -14,6 +14,7 @@ import "k8s.io/api/core/v1"
 #PersistentVolumeList: items: [{
 	metadata: name: "backup-lola"
 	spec: {
+		mountOptions: ["discard"]
 		capacity: storage: "250Gi"
 		csi: {
 			driver:       "rook-ceph.rbd.csi.ceph.com"
