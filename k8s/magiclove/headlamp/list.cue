@@ -12,7 +12,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=github-releases depName=kubernetes-sigs/headlamp extractVersion=^v(?<version>.*)$
-#Version: "0.43.0"
+#Version: "0.45.0"
 
 _image: tools.#Image & {
 	name:   "ghcr.io/headlamp-k8s/headlamp"
