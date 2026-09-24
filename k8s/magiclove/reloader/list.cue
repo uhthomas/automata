@@ -15,7 +15,7 @@ import (
 #ChartVersion: "2.2.12"
 
 // renovate: datasource=github-releases depName=stakater/Reloader extractVersion=^v(?<version>.*)$
-#Version: "1.4.17"
+#Version: "1.4.22"
 
 _image: tools.#Image & {
 	name:   "ghcr.io/stakater/reloader"
