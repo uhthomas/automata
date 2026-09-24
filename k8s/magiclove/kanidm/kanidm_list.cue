@@ -14,7 +14,7 @@ import "k8s.io/api/core/v1"
 #KanidmList: items: [{
 	spec: {
 		domain:          "kanidm-magiclove.hipparcos.net"
-		image:           "kanidm/server:1.10.4"
+		image:           "kanidm/server:1.11.2"
 		imagePullPolicy: "IfNotPresent"
 		securityContext: {
 			runAsUser:           1000
