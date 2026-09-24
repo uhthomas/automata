@@ -8,7 +8,7 @@ require (
 	github.com/NVIDIA/gpu-operator v1.11.1
 	github.com/VictoriaMetrics/operator/api v0.66.1
 	github.com/backube/snapscheduler v1.2.0
-	github.com/backube/volsync v0.8.0
+	github.com/backube/volsync v0.16.0
 	github.com/cert-manager/cert-manager v1.20.1
 	github.com/cilium/cilium v1.18.1
 	github.com/cloudnative-pg/cloudnative-pg v1.25.1
@@ -17,7 +17,7 @@ require (
 	github.com/external-secrets/external-secrets v0.9.11
 	github.com/grafana/grafana-operator/v5 v5.22.2
 	github.com/jodevsa/wireguard-operator v1.2.21-0.20240509203524-1d1bef4d0d82
-	github.com/kubernetes-csi/external-snapshotter/client/v8 v8.2.0
+	github.com/kubernetes-csi/external-snapshotter/client/v8 v8.4.0
 	github.com/prometheus/prometheus v0.303.1
 	github.com/rook/rook/pkg/apis v0.0.0-20250829210302-107bb8176eeb
 	k8s.io/api v0.36.2
@@ -256,13 +256,13 @@ require (
 	k8s.io/apiserver v0.36.2 // indirect
 	k8s.io/cli-runtime v0.36.2 // indirect
 	k8s.io/component-base v0.36.2 // indirect
-	k8s.io/component-helpers v0.34.0 // indirect
+	k8s.io/component-helpers v0.35.2 // indirect
 	k8s.io/klog/v2 v2.140.0 // indirect
 	k8s.io/kms v0.35.2 // indirect
 	k8s.io/kube-openapi v0.30.0 // indirect
 	k8s.io/kubectl v0.36.2 // indirect
 	k8s.io/metrics v0.36.2 // indirect
-	k8s.io/utils v0.0.0-20260210185600-b8788abfbbc2 // indirect
+	k8s.io/utils v0.0.0-20260319190234-28399d86e0b5 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.34.0 // indirect
 	sigs.k8s.io/controller-runtime v0.24.1 // indirect
 	sigs.k8s.io/descheduler v0.34.0
