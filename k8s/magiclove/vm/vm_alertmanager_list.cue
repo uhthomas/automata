@@ -6,7 +6,7 @@ import (
 )
 
 // renovate: datasource=github-releases depName=prometheus/alertmanager extractVersion=^v(?<version>.*)$
-#AlertmanagerVersion: "0.33.1"
+#AlertmanagerVersion: "0.34.1"
 
 #VMAlertmanagerList: operatorv1beta1.#VMAlertmanagerList & {
 	apiVersion: "operator.victoriametrics.com/v1beta1"
