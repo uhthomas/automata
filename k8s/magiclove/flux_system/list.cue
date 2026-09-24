@@ -10,7 +10,7 @@ import (
 #Namespace: "\(#Name)-system"
 
 // renovate: datasource=github-releases depName=fluxcd/flux2 extractVersion=^v(?<version>.*)$
-#Version: "2.9.3"
+#Version: "2.9.5"
 
 // These are the component versions shipped by Flux #Version.
 #SourceControllerVersion:    "1.9.3"
