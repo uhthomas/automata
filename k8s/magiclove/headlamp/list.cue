@@ -16,8 +16,8 @@ import (
 
 _image: tools.#Image & {
 	name:   "ghcr.io/headlamp-k8s/headlamp"
-	tag:    "v0.43.0"
-	digest: "sha256:5d03caa26df7a715079405df2949907160518750b9b62b6bf4de8d1a6142c541"
+	tag:    "v0.45.0"
+	digest: "sha256:db3f0e0fc58d358d41daa3fe7fc852437552c7ee873c3645470f7b86a8e0db49"
 }
 
 _image: tag: "v\(#Version)"
