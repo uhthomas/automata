@@ -33,14 +33,14 @@ require (
 	github.com/KimMachineGun/automemlimit v0.7.5 // indirect
 	github.com/alecthomas/kong v1.14.0 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
-	github.com/go-openapi/swag/cmdutils v0.24.0 // indirect
+	github.com/go-openapi/swag/cmdutils v0.25.4 // indirect
 	github.com/go-openapi/swag/conv v0.26.1 // indirect
 	github.com/go-openapi/swag/fileutils v0.26.0 // indirect
 	github.com/go-openapi/swag/jsonname v0.26.1 // indirect
 	github.com/go-openapi/swag/jsonutils v0.26.1 // indirect
 	github.com/go-openapi/swag/loading v0.26.1 // indirect
 	github.com/go-openapi/swag/mangling v0.26.0 // indirect
-	github.com/go-openapi/swag/netutils v0.24.0 // indirect
+	github.com/go-openapi/swag/netutils v0.25.4 // indirect
 	github.com/go-openapi/swag/stringutils v0.26.1 // indirect
 	github.com/go-openapi/swag/typeutils v0.26.1 // indirect
 	github.com/go-openapi/swag/yamlutils v0.26.1 // indirect
@@ -110,7 +110,7 @@ require (
 	github.com/go-openapi/runtime v0.29.3 // indirect
 	github.com/go-openapi/spec v0.22.6 // indirect
 	github.com/go-openapi/strfmt v0.26.3 // indirect
-	github.com/go-openapi/swag v0.24.1 // indirect
+	github.com/go-openapi/swag v0.25.4 // indirect
 	github.com/go-openapi/validate v0.26.0 // indirect
 	github.com/go-test/deep v1.1.1 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
@@ -322,4 +322,4 @@ exclude github.com/kubernetes-incubator/external-storage v0.20.4-openstorage-rc2
 
 replace github.com/crunchydata/postgres-operator => github.com/crunchydata/postgres-operator v1.3.3-0.20230629151007-94ebcf2df74d
 
-replace github.com/openshift/api => github.com/openshift/api v0.0.0-20240401200911-ab1b479a063f
+replace github.com/openshift/api => github.com/openshift/api v0.0.0-20260925090845-44bef346c3f0
