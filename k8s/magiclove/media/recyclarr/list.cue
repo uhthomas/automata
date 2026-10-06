@@ -9,7 +9,7 @@ import (
 #Name: "recyclarr"
 
 // renovate: datasource=docker depName=ghcr.io/recyclarr/recyclarr
-#Version: "8.7.0"
+#Version: "8.7.3"
 
 #List: v1.#List & {
 	apiVersion: "v1"
