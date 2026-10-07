@@ -10,7 +10,7 @@ import (
 #Namespace: "cilium"
 
 // renovate: datasource=github-releases depName=cilium/hubble extractVersion=^v(?<version>.*)$
-#Version: "0.13.3"
+#Version: "1.20.2"
 
 #List: v1.#List & {
 	apiVersion: "v1"
