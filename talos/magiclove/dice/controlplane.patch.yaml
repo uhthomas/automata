@@ -13,9 +13,10 @@ machine:
         ATTR{dm/name}=="luks2-EPHEMERAL|luks2-STATE", ATTR{queue/discard_max_bytes}!="0",
         ATTR{queue/discard_max_bytes}="67108864"
 ---
+# Disable periodic trim, including the Talos 1.14 generated default.
 apiVersion: v1alpha1
 kind: FilesystemTrimConfig
-interval: 24h
+$patch: delete
 ---
 apiVersion: v1alpha1
 kind: VolumeConfig
