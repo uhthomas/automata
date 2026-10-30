@@ -10,7 +10,7 @@ import (
 #Namespace: #Name
 
 // renovate: datasource=github-releases depName=grafana/grafana extractVersion=^v(?<version>.*)$
-#Version: "12.1.0"
+#Version: "13.3.0"
 
 #List: v1.#List & {
 	apiVersion: "v1"
@@ -30,7 +30,7 @@ import (
 #List: items: list.Concat(_items)
 
 _items: [
-	#ConfigMapList.items,
+	#DeploymentList.items,
 	#ExternalSecretList.items,
 	#ListenerSetList.items,
 	#GrafanaDashboardList.items,
@@ -40,7 +40,7 @@ _items: [
 	#HTTPRouteList.items,
 	#NamespaceList.items,
 	#PasswordList.items,
+	#PersistentVolumeClaimList.items,
 	#ServiceList.items,
-	#StatefulSetList.items,
 	#VMServiceScrapeList.items,
 ]

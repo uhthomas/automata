@@ -48,10 +48,6 @@ import grafanav1beta1 "github.com/grafana/grafana-operator/v5/api/v1beta1"
 			url:    "http://victoria-logs.victoria-logs"
 		}
 		instanceSelector: matchLabels: "app.kubernetes.io/name": #Name
-		plugins: [{
-			name:    "victoriametrics-logs-datasource"
-			version: "0.26.3"
-		}]
 	}
 }, {
 	metadata: name: "\(#Name)-victoriametrics-ds"
@@ -63,9 +59,5 @@ import grafanav1beta1 "github.com/grafana/grafana-operator/v5/api/v1beta1"
 			url:    "http://vmsingle-vm.vm:8429"
 		}
 		instanceSelector: matchLabels: "app.kubernetes.io/name": #Name
-		plugins: [{
-			name:    "victoriametrics-metrics-datasource"
-			version: "0.23.3"
-		}]
 	}
 }]
