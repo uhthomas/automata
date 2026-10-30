@@ -7,7 +7,7 @@ import (
 )
 
 #Name:    "sabnzbd"
-#Version: "4.4.0"
+#Version: "5.1.3"
 
 #List: v1.#List & {
 	apiVersion: "v1"

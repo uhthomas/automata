@@ -29,7 +29,7 @@ import (
 				}]
 				containers: [{
 					name:  #Name
-					image: "ghcr.io/onedr0p/sabnzbd:\(#Version)"
+					image: "ghcr.io/home-operations/sabnzbd:\(#Version)@sha256:c89b0322721c3eba47221e5f916505e7e742684651f73c5215717340b6b5402f"
 					ports: [{
 						name:          "http"
 						containerPort: 8080
