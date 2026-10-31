@@ -99,9 +99,8 @@ import (
 					}, {
 						name:      "data"
 						mountPath: "/data"
-					},
-						// subPath: "data"
-					]
+						subPath:   "data"
+					}]
 					readinessProbe: tcpSocket: port: "smb"
 					startupProbe: {
 						tcpSocket: port: "smb"
