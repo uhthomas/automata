@@ -85,7 +85,7 @@ import (
 						containerPort: 445
 					}]
 					resources: {
-						limits: (v1.#ResourceMemory): "256Mi"
+						limits: (v1.#ResourceMemory): "1Gi"
 						requests: (v1.#ResourceCPU):  "100m"
 					}
 					volumeMounts: [{
@@ -99,7 +99,9 @@ import (
 					}, {
 						name:      "data"
 						mountPath: "/data"
-					}]
+					},
+						// subPath: "data"
+					]
 					readinessProbe: tcpSocket: port: "smb"
 					startupProbe: {
 						tcpSocket: port: "smb"

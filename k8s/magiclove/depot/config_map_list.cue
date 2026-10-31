@@ -24,6 +24,9 @@ import "k8s.io/api/core/v1"
 		smb ports = 445
 		server min protocol = SMB3_00
 		server multi channel support = yes
+		# Advertise the reachable service IP, with multiple channels on this interface.
+		# Keep wildcard listening: the LoadBalancer IP is not assigned inside the pod.
+		interfaces = "192.168.135.1/24;if_index=65,capability=RSS"
 		passdb backend = tdbsam
 		private dir = /var/lib/samba/private
 		state directory = /var/lib/samba/state

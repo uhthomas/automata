@@ -20,6 +20,3 @@ sudo mkdir -p /depot2
 sudo mount -t cifs //depot-magiclove.hipparcos.net/depot /depot2 \
   -o "credentials=/etc/samba/depot2.credentials,vers=3.1.1,multichannel,max_channels=4,uid=$(id -u),gid=$(id -g)"
 ```
-
-The client needs LAN access to the service. Check `/proc/fs/cifs/DebugData`
-to confirm whether additional SMB channels were established.
