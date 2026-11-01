@@ -16,6 +16,8 @@ import (
 #Name:      "backup"
 #Namespace: #Name
 
+#SambaImage: "ghcr.io/uhthomas/uhthomas/samba:bd3b035dfed35f2749892201f002331525c0af67"
+
 #List: v1.#List & {
 	apiVersion: "v1"
 	kind:       "List"
@@ -25,8 +27,11 @@ import (
 #List: items: list.Concat(_items)
 
 _items: [
+	#ConfigMapList.items,
 	#DeploymentList.items,
+	#ExternalSecretList.items,
 	#NamespaceList.items,
+	#PasswordList.items,
 	#ServiceList.items,
 	breakfast.#List.items,
 	immich_unwind.#List.items,
