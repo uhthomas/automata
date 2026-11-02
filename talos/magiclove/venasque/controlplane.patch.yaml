@@ -23,3 +23,6 @@ kind: VolumeConfig
 name: EPHEMERAL
 encryption:
   allowDiscards: true
+  options:
+    - no_read_workqueue
+    - no_write_workqueue
