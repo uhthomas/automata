@@ -10,7 +10,7 @@ require (
 	github.com/backube/snapscheduler v1.2.0
 	github.com/backube/volsync v0.8.0
 	github.com/cert-manager/cert-manager v1.20.1
-	github.com/cilium/cilium v1.18.1
+	github.com/cilium/cilium v1.18.9
 	github.com/cloudnative-pg/cloudnative-pg v1.25.1
 	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
 	github.com/envoyproxy/gateway v1.8.2
@@ -75,7 +75,7 @@ require (
 	github.com/cilium/ebpf v0.21.0 // indirect
 	github.com/cilium/hive v0.0.0-20250611195437-5a5dacdfb354 // indirect
 	github.com/cilium/proxy v0.0.0-20250623105955-2136f59a4ea1 // indirect
-	github.com/cilium/statedb v0.4.5 // indirect
+	github.com/cilium/statedb v0.4.6 // indirect
 	github.com/cilium/stream v0.0.1 // indirect
 	github.com/cloudnative-pg/barman-cloud v0.1.0 // indirect
 	github.com/cloudnative-pg/machinery v0.1.0 // indirect
@@ -207,7 +207,7 @@ require (
 	github.com/valyala/gozstd v1.24.0 // indirect
 	github.com/valyala/histogram v1.2.0 // indirect
 	github.com/valyala/quicktemplate v1.8.0 // indirect
-	github.com/vishvananda/netlink v1.3.1 // indirect
+	github.com/vishvananda/netlink v1.3.2-0.20250926155043-cd3cb2e12c97 // indirect
 	github.com/vishvananda/netns v0.0.5 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/xlab/treeprint v1.2.0 // indirect
@@ -262,7 +262,7 @@ require (
 	k8s.io/kube-openapi v0.30.0 // indirect
 	k8s.io/kubectl v0.36.2 // indirect
 	k8s.io/metrics v0.36.2 // indirect
-	k8s.io/utils v0.0.0-20260210185600-b8788abfbbc2 // indirect
+	k8s.io/utils v0.0.0-20260319190234-28399d86e0b5 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.34.0 // indirect
 	sigs.k8s.io/controller-runtime v0.24.1 // indirect
 	sigs.k8s.io/descheduler v0.34.0
