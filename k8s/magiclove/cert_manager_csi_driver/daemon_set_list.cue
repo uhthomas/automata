@@ -42,7 +42,7 @@ import (
 					}]
 				}, {
 					name:  "liveness-probe"
-					image: "k8s.gcr.io/sig-storage/livenessprobe:v2.6.0"
+					image: "registry.k8s.io/sig-storage/livenessprobe:v2.6.0"
 					args: [
 						"--csi-address=/plugin/csi.sock",
 						"--probe-timeout=3s",
