@@ -58,7 +58,7 @@ jobs:
           version: 2.9.3
 
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
