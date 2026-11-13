@@ -20,6 +20,7 @@ import (
 		template: {
 			metadata: labels: "app.kubernetes.io/name": #Name
 			spec: {
+				automountServiceAccountToken: true
 				volumes: [{
 					name: "config"
 					configMap: {
@@ -29,6 +30,9 @@ import (
 				}, {
 					name: "certs"
 					secret: secretName: #Name
+				}, {
+					name: "wasm-cache"
+					emptyDir: {}
 				}]
 				containers: [{
 					name:  "envoy-gateway"
@@ -63,6 +67,15 @@ import (
 							fieldPath:  "metadata.namespace"
 						}
 					}, {
+						name: "ENVOY_GATEWAY_SERVICE_ACCOUNT"
+						valueFrom: fieldRef: {
+							apiVersion: "v1"
+							fieldPath:  "spec.serviceAccountName"
+						}
+					}, {
+						name:  "ENVOY_GATEWAY_FULLNAME"
+						value: #Name
+					}, {
 						name:  "KUBERNETES_CLUSTER_DOMAIN"
 						value: "cluster.local"
 					}]
@@ -78,11 +91,22 @@ import (
 						name:      "certs"
 						mountPath: "/certs"
 						readOnly:  true
+					}, {
+						name:      "wasm-cache"
+						mountPath: "/var/lib/eg/wasm"
 					}]
 
 					let probe = {httpGet: port: "health"}
 
-					livenessProbe: probe & {httpGet: path: "/healthz"}
+					startupProbe: probe & {
+						httpGet: path: "/healthz"
+						periodSeconds:    1
+						failureThreshold: 30
+					}
+					livenessProbe: probe & {
+						httpGet: path: "/healthz"
+						periodSeconds: 20
+					}
 					readinessProbe: probe & {httpGet: path: "/readyz"}
 
 					imagePullPolicy: v1.#PullIfNotPresent

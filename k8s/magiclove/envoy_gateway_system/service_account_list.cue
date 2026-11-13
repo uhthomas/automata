@@ -11,4 +11,4 @@ import "k8s.io/api/core/v1"
 	}]
 }
 
-#ServiceAccountList: items: [{}]
+#ServiceAccountList: items: [{automountServiceAccountToken: false}]

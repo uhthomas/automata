@@ -30,6 +30,7 @@ import (
 }
 
 // EnvoyProxySpec defines the desired state of EnvoyProxy.
+// +kubebuilder:validation:XValidation:message="mergeGateways and mergeBackends cannot both be enabled",rule="!(has(self.mergeGateways) && self.mergeGateways && has(self.mergeBackends))"
 #EnvoyProxySpec: {
 	// Provider defines the desired resource provider and provider-specific configuration.
 	// If unspecified, the "Kubernetes" resource provider is used with default configuration
@@ -84,8 +85,21 @@ import (
 	// This means that the port, protocol and hostname tuple must be unique for every listener.
 	// If a duplicate listener is detected, the newer listener (based on timestamp) will be rejected and its status will be updated with a "Accepted=False" condition.
 	//
+	// Mutually exclusive with MergeBackends.
+	//
 	// +optional
 	mergeGateways?: null | bool @go(MergeGateways,*bool)
+
+	// MergeBackends configures cluster deduplication: routes that reference the same backend
+	// share a single Envoy cluster instead of Envoy Gateway generating one cluster per route
+	// rule. This reduces xDS size, active health-check traffic, and stats cardinality, and
+	// improves upstream connection pooling.
+	//
+	// Disabled when unset; specifying this field at all (even without further configuration)
+	// enables it. Mutually exclusive with MergeGateways.
+	//
+	// +optional
+	mergeBackends?: null | #MergeBackendsConfig @go(MergeBackends,*MergeBackendsConfig)
 
 	// Shutdown defines configuration for graceful envoy shutdown process.
 	//
@@ -173,7 +187,7 @@ import (
 	ipFamily?: null | #IPFamily @go(IPFamily,*IPFamily)
 
 	// PreserveRouteOrder determines if the order of matching for HTTPRoutes is determined by Gateway-API
-	// specification (https://gateway-api.sigs.k8s.io/reference/1.4/spec/#httprouterule)
+	// specification (https://gateway-api.sigs.k8s.io/reference/api-spec/main/spec/#httprouterule)
 	// or preserves the order defined by users in the HTTPRoute's HTTPRouteRule list.
 	// Default: False
 	//
@@ -212,6 +226,19 @@ import (
 	// +kubebuilder:validation:Enum=Replace;StrategicMerge;JSONMerge
 	// +optional
 	mergeType?: null | #MergeType @go(MergeType,*MergeType)
+}
+
+// MergeBackendsConfig configures backend cluster deduplication (MergeBackends). Its mere
+// presence on EnvoyProxySpec enables it; a backendRef is only merged into a shared cluster when
+// safe to do so, otherwise it falls back to a dedicated per-route cluster.
+#MergeBackendsConfig: {
+	// Selector restricts cluster deduplication to backends whose target Service, ServiceImport,
+	// or Backend resource matches this label selector. When unset, every otherwise-eligible
+	// backend is merged. Use this to opt individual backends into deduplication gradually
+	// instead of enabling it for every backend at once.
+	//
+	// +optional
+	selector?: null | metav1.#LabelSelector @go(Selector,*metav1.LabelSelector)
 }
 
 // EnvoyProxyGeoIP defines shared GeoIP provider settings for EnvoyProxy.
@@ -291,7 +318,7 @@ import (
 }
 
 // EnvoyFilter defines the type of Envoy HTTP filter.
-// +kubebuilder:validation:Enum=envoy.filters.http.custom_response;envoy.filters.http.health_check;envoy.filters.http.fault;envoy.filters.http.cors;envoy.filters.http.header_mutation;envoy.filters.http.ext_authz;envoy.filters.http.api_key_auth;envoy.filters.http.basic_auth;envoy.filters.http.oauth2;envoy.filters.http.jwt_authn;envoy.filters.http.stateful_session;envoy.filters.http.buffer;envoy.filters.http.lua;envoy.filters.http.ext_proc;envoy.filters.http.wasm;envoy.filters.http.dynamic_modules;envoy.filters.http.geoip;envoy.filters.http.rbac;envoy.filters.http.local_ratelimit;envoy.filters.http.ratelimit;envoy.filters.http.bandwidth_limit;envoy.filters.http.grpc_web;envoy.filters.http.grpc_stats;envoy.filters.http.credential_injector;envoy.filters.http.compressor;envoy.filters.http.dynamic_forward_proxy
+// +kubebuilder:validation:Enum=envoy.filters.http.custom_response;envoy.filters.http.health_check;envoy.filters.http.fault;envoy.filters.http.cors;envoy.filters.http.csrf;envoy.filters.http.header_mutation;envoy.filters.http.ext_authz;envoy.filters.http.api_key_auth;envoy.filters.http.basic_auth;envoy.filters.http.oauth2;envoy.filters.http.jwt_authn;envoy.filters.http.stateful_session;envoy.filters.http.buffer;envoy.filters.http.lua;envoy.filters.http.ext_proc;envoy.filters.http.wasm;envoy.filters.http.dynamic_modules;envoy.filters.http.geoip;envoy.filters.http.rbac;envoy.filters.http.local_ratelimit;envoy.filters.http.ratelimit;envoy.filters.http.bandwidth_limit;envoy.filters.http.grpc_web;envoy.filters.http.grpc_stats;envoy.filters.http.credential_injector;envoy.filters.http.compressor;envoy.filters.http.dynamic_forward_proxy
 #EnvoyFilter: string // #enumEnvoyFilter
 
 #enumEnvoyFilter:
@@ -299,6 +326,7 @@ import (
 	#EnvoyFilterHealthCheck |
 	#EnvoyFilterFault |
 	#EnvoyFilterCORS |
+	#EnvoyFilterCSRF |
 	#EnvoyFilterHeaderMutation |
 	#EnvoyFilterExtAuthz |
 	#EnvoyFilterAPIKeyAuth |
@@ -334,6 +362,9 @@ import (
 
 // EnvoyFilterCORS defines the Envoy HTTP CORS filter.
 #EnvoyFilterCORS: #EnvoyFilter & "envoy.filters.http.cors"
+
+// EnvoyFilterCSRF defines the Envoy HTTP CSRF filter.
+#EnvoyFilterCSRF: #EnvoyFilter & "envoy.filters.http.csrf"
 
 // EnvoyFilterHeaderMutation defines the Envoy HTTP header mutation filter
 #EnvoyFilterHeaderMutation: #EnvoyFilter & "envoy.filters.http.header_mutation"
@@ -440,6 +471,10 @@ import (
 	// RequestID configures Envoy request ID behavior.
 	// +optional
 	requestID?: null | #RequestIDSettings @go(RequestID,*RequestIDSettings)
+
+	// HealthCheckLog defines health check event logging for xRoute-backed clusters.
+	// +optional
+	healthCheckLog?: null | #ProxyHealthCheckLog @go(HealthCheckLog,*ProxyHealthCheckLog)
 }
 
 // EnvoyProxyProviderType defines the types of providers supported by Envoy Proxy.
@@ -507,7 +542,7 @@ import (
 #EnvoyProxyProvider: {
 	// Type is the type of resource provider to use. A resource provider provides
 	// infrastructure resources for running the data plane, e.g. Envoy proxy, and
-	// optional auxiliary control planes. Supported types are "Kubernetes"and "Host".
+	// optional auxiliary control planes. Supported types are "Kubernetes" and "Host".
 	//
 	// +unionDiscriminator
 	type: #EnvoyProxyProviderType @go(Type)
@@ -531,6 +566,12 @@ import (
 
 // ShutdownConfig defines configuration for graceful envoy shutdown process.
 #ShutdownConfig: {
+	// HealthCheckFailureDelay defines the delay before failing health checks during the graceful drain process.
+	// If unspecified, defaults to 0 seconds.
+	//
+	// +optional
+	healthCheckFailureDelay?: null | gwapiv1.#Duration @go(HealthCheckFailureDelay,*gwapiv1.Duration)
+
 	// DrainTimeout defines the graceful drain timeout. This should be less than the pod's terminationGracePeriodSeconds.
 	// If unspecified, defaults to 60 seconds.
 	//
@@ -571,6 +612,9 @@ import (
 	envoyService?: null | #KubernetesServiceSpec @go(EnvoyService,*KubernetesServiceSpec)
 
 	// EnvoyHpa defines the Horizontal Pod Autoscaler settings for Envoy Proxy Deployment.
+	// If the HPA is set, the Replicas field from EnvoyDeployment will be ignored, and the
+	// number of replicas is solely managed by the HPA. Use MinReplicas to control the
+	// lower bound of the replica count instead.
 	//
 	// +optional
 	envoyHpa?: null | #KubernetesHorizontalPodAutoscalerSpec @go(EnvoyHpa,*KubernetesHorizontalPodAutoscalerSpec)
@@ -722,18 +766,26 @@ import (
 #EnvoyProxyConditionType: string // #enumEnvoyProxyConditionType
 
 #enumEnvoyProxyConditionType:
-	#EnvoyProxyConditionAccepted
+	#EnvoyProxyConditionAccepted |
+	#EnvoyProxyConditionWarning
 
 #EnvoyProxyConditionAccepted: #EnvoyProxyConditionType & "Accepted"
+#EnvoyProxyConditionWarning:  #EnvoyProxyConditionType & "Warning"
 
 #EnvoyProxyConditionReason: string // #enumEnvoyProxyConditionReason
 
 #enumEnvoyProxyConditionReason:
 	#EnvoyProxyReasonAccepted |
-	#EnvoyProxyReasonInvalidParameters
+	#EnvoyProxyReasonInvalidParameters |
+	#EnvoyProxyReasonPatchDisabled
 
 #EnvoyProxyReasonAccepted:          #EnvoyProxyConditionReason & "Accepted"
 #EnvoyProxyReasonInvalidParameters: #EnvoyProxyConditionReason & "InvalidParameters"
+
+// EnvoyProxyReasonPatchDisabled indicates that one or more Kubernetes resource
+// `patch` fields configured on this EnvoyProxy were ignored because patching is
+// disabled in the EnvoyGateway configuration.
+#EnvoyProxyReasonPatchDisabled: #EnvoyProxyConditionReason & "PatchDisabled"
 
 // EnvoyProxyList contains a list of EnvoyProxy
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

@@ -1,10 +1,13 @@
 package gateway_api
 
-import "k8s.io/api/core/v1"
+import (
+	"list"
+	"k8s.io/api/core/v1"
+)
 
 #Name: "gateway-api"
 
-#Version: "1.5.1"
+#Version: "1.6.1"
 
 #List: v1.#List & {
 	apiVersion: "v1"
@@ -17,4 +20,8 @@ import "k8s.io/api/core/v1"
 	}]
 }
 
-#List: items: #CustomResourceDefinitionList.items
+#List: items: list.Concat([
+	#CustomResourceDefinitionList.items,
+	#ValidatingAdmissionPolicyList.items,
+	#ValidatingAdmissionPolicyBindingList.items,
+])

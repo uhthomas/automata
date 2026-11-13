@@ -27,6 +27,8 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 }
 
 // AuthorizationRule defines a single authorization rule.
+//
+// +kubebuilder:validation:XValidation:rule="has(self.principal) || has(self.cel)",message="at least one of principal or cel must be specified"
 #AuthorizationRule: {
 	// Name is a user-friendly name for the rule.
 	// If not specified, Envoy Gateway will generate a unique name for the rule.
@@ -49,17 +51,62 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	// If there are multiple principal types, all principals must match for the rule to match.
 	// For example, if there are two principals: one for client IP and one for JWT claim,
 	// the rule will match only if both the client IP and the JWT claim match.
-	principal: #Principal @go(Principal)
+	//
+	// +optional
+	principal?: null | #Principal @go(Principal,*Principal)
+
+	// CEL specifies a Common Expression Language expression to evaluate for the
+	// request. If specified, the expression must evaluate to true for the rule to match.
+	//
+	// The expression can use Envoy attributes exposed to the CEL runtime.
+	// Request attributes, such as request.path, request.url_path, request.host,
+	// request.scheme, request.method, request.headers, and request.query, are
+	// generally available during authorization. Connection attributes, such as
+	// source.address, source.port, destination.address, destination.port,
+	// connection.mtls, and connection.requested_server_name, may also be used.
+	// Dynamic metadata and filter state produced by earlier filters may also be
+	// available through attributes such as metadata and filter_state.
+	// Response attributes are only available after the request completes and
+	// should not be used for authorization decisions.
+	//
+	// For more details, see:
+	// https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/advanced/attributes
+	//
+	// The rule matches only when the expression evaluates to a boolean true.
+	// Non-boolean results, false, null, and CEL evaluation errors are treated as
+	// no match.
+	//
+	// Examples:
+	// `request.headers['x-tenant'] == 'team-a'`
+	// `request.method == 'POST' && request.path.startsWith('/admin')`
+	//
+	// +optional
+	cel?: null | #CELExpression @go(CEL,*CELExpression)
 }
 
+// CELExpression specifies a CEL expression.
+//
+// +kubebuilder:validation:MinLength=1
+// +kubebuilder:validation:MaxLength=4096
+#CELExpression: string
+
 // Operation specifies the operation of a request.
+//
+// +kubebuilder:validation:XValidation:rule="has(self.methods) || has(self.path)",message="at least one of methods or path must be specified"
 #Operation: {
 	// Methods are the HTTP methods of the request.
 	// If multiple methods are specified, all specified methods are allowed or denied, based on the action of the rule.
 	//
+	// +optional
 	// +kubebuilder:validation:MinItems=1
 	// +kubebuilder:validation:MaxItems=16
-	methods: [...gwapiv1.#HTTPMethod] @go(Methods,[]gwapiv1.HTTPMethod)
+	methods?: [...gwapiv1.#HTTPMethod] @go(Methods,[]gwapiv1.HTTPMethod)
+
+	// Path is the HTTP path of the request.
+	// Support Exact, PathPrefix and RegularExpression match types.
+	//
+	// +optional
+	path?: null | #PathMatch @go(Path,*PathMatch)
 }
 
 // Principal specifies the client identity of a request.
@@ -112,7 +159,8 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	//
 	// If multiple entries are specified,  one of the ClientIPGeoLocation entries must match for the rule to match.
 	//
-	// The client IP is inferred from the X-Forwarded-For header or a custom header.
+	// The client IP is inferred from the X-Forwarded-For header, a custom header, or the
+	// direct downstream connection source address (the TCP peer of the connection terminated by Envoy).
 	// You can use the `ClientIPDetection` field in the `ClientTrafficPolicy` to configure the client IP detection.
 	//
 	// +optional

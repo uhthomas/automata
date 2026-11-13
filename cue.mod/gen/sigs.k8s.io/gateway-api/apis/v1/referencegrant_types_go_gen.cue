@@ -29,8 +29,8 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	metadata?: metav1.#ObjectMeta @go(ObjectMeta)
 
 	// Spec defines the desired state of ReferenceGrant.
-	// +optional
-	spec?: #ReferenceGrantSpec @go(Spec)
+	// +required
+	spec: #ReferenceGrantSpec @go(Spec)
 }
 
 // +kubebuilder:object:root=true

@@ -68,6 +68,7 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	// +optional
 	// +kubebuilder:validation:MaxItems=16
 	// +kubebuilder:validation:XValidation:rule="self.all(r, !has(r.cost) || !has(r.cost.response))", message="response cost is not supported for Local Rate Limits"
+	// +kubebuilder:validation:XValidation:rule="self.all(r, !has(r.limit.fromMetadata))", message="limit fromMetadata is not supported for Local Rate Limits"
 	rules?: [...#RateLimitRule] @go(Rules,[]RateLimitRule)
 }
 
@@ -240,7 +241,7 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	// meaning, a request MUST match all the specified headers.
 	//
 	// +optional
-	// +kubebuilder:validation:MaxItems=64
+	// +kubebuilder:validation:MaxItems=128
 	headers?: [...#HeaderMatch] @go(Headers,[]HeaderMatch)
 
 	// Methods is a list of request methods to match. Multiple method values are ORed together,
@@ -458,17 +459,45 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	// Requests is the number of requests (or cost units, when used with
 	// cost-based rate limiting) allowed per Unit.
 	//
-	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=4294967295
 	// +kubebuilder:validation:Format=int64
 	requests: uint32         @go(Requests)
 	unit:     #RateLimitUnit @go(Unit)
+
+	// FromMetadata sources the limit value from per-request dynamic metadata.
+	// When the referenced metadata value is present, it overrides Requests/Unit for that
+	// request; otherwise Requests/Unit are used as the default.
+	//
+	// The referenced metadata value must be a struct containing an integer "requests_per_unit"
+	// property and a "unit" property with a value parseable to a RateLimitUnit. An upstream
+	// filter (e.g. ext_proc) is responsible for writing this struct into dynamic metadata.
+	//
+	// Only supported for Global Rate Limits.
+	//
+	// +optional
+	fromMetadata?: null | #RateLimitValueMetadata @go(FromMetadata,*RateLimitValueMetadata)
+}
+
+// RateLimitValueMetadata specifies the dynamic metadata to retrieve the limit value from.
+#RateLimitValueMetadata: {
+	// Namespace is the namespace of the dynamic metadata.
+	//
+	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:MinLength=1
+	namespace: string @go(Namespace)
+
+	// Key is the key to retrieve the limit value from within the namespaced filter metadata.
+	//
+	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:MinLength=1
+	key: string @go(Key)
 }
 
 // RateLimitUnit specifies the intervals for setting rate limits.
-// Valid RateLimitUnit values are "Second", "Minute", "Hour", "Day", "Month" and "Year".
+// Valid RateLimitUnit values are "Second", "Minute", "Hour", "Day", "Week", "Month" and "Year".
 //
-// +kubebuilder:validation:Enum=Second;Minute;Hour;Day;Month;Year
+// +kubebuilder:validation:Enum=Second;Minute;Hour;Day;Week;Month;Year
 #RateLimitUnit: string // #enumRateLimitUnit
 
 #enumRateLimitUnit:
@@ -476,6 +505,7 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	#RateLimitUnitMinute |
 	#RateLimitUnitHour |
 	#RateLimitUnitDay |
+	#RateLimitUnitWeek |
 	#RateLimitUnitMonth |
 	#RateLimitUnitYear
 
@@ -490,6 +520,9 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 
 // RateLimitUnitDay specifies the rate limit interval to be 1 day.
 #RateLimitUnitDay: #RateLimitUnit & "Day"
+
+// RateLimitUnitWeek specifies the rate limit interval to be 1 week.
+#RateLimitUnitWeek: #RateLimitUnit & "Week"
 
 // RateLimitUnitMonth specifies the rate limit interval to be 1 month.
 #RateLimitUnitMonth: #RateLimitUnit & "Month"

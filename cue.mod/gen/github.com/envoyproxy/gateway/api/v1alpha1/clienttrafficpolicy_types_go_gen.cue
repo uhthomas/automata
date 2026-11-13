@@ -31,9 +31,9 @@ import (
 //
 // +kubebuilder:validation:XValidation:rule="(has(self.targetRef) && !has(self.targetRefs)) || (!has(self.targetRef) && has(self.targetRefs)) || (has(self.targetSelectors) && self.targetSelectors.size() > 0) ", message="either targetRef or targetRefs must be used"
 // +kubebuilder:validation:XValidation:rule="has(self.targetRef) ? self.targetRef.group == 'gateway.networking.k8s.io' : true", message="this policy can only have a targetRef.group of gateway.networking.k8s.io"
-// +kubebuilder:validation:XValidation:rule="has(self.targetRef) ? self.targetRef.kind == 'Gateway' : true", message="this policy can only have a targetRef.kind of Gateway"
+// +kubebuilder:validation:XValidation:rule="has(self.targetRef) ? self.targetRef.kind in ['Gateway', 'ListenerSet'] : true", message="this policy can only have a targetRef.kind of Gateway or ListenerSet"
 // +kubebuilder:validation:XValidation:rule="has(self.targetRefs) ? self.targetRefs.all(ref, ref.group == 'gateway.networking.k8s.io') : true", message="this policy can only have a targetRefs[*].group of gateway.networking.k8s.io"
-// +kubebuilder:validation:XValidation:rule="has(self.targetRefs) ? self.targetRefs.all(ref, ref.kind == 'Gateway') : true", message="this policy can only have a targetRefs[*].kind of Gateway"
+// +kubebuilder:validation:XValidation:rule="has(self.targetRefs) ? self.targetRefs.all(ref, ref.kind in ['Gateway', 'ListenerSet']) : true", message="this policy can only have a targetRefs[*].kind of Gateway or ListenerSet"
 #ClientTrafficPolicySpec: {
 	#PolicyTargetReferences
 
@@ -189,6 +189,11 @@ import (
 	//
 	// +optional
 	lateResponseHeaders?: null | #HTTPHeaderFilter @go(LateResponseHeaders,*HTTPHeaderFilter)
+
+	// Host enables managing how the Host/Authority header set by clients can be normalized.
+	//
+	// +optional
+	host?: null | #HostSettings @go(Host,*HostSettings)
 }
 
 // WithUnderscoresAction configures the action to take when an HTTP header with underscores
@@ -313,7 +318,8 @@ import (
 
 // ClientIPDetectionSettings provides configuration for determining the original client IP address for requests.
 //
-// +kubebuilder:validation:XValidation:rule="!(has(self.xForwardedFor) && has(self.customHeader))",message="customHeader cannot be used in conjunction with xForwardedFor"
+// Exactly one of XForwardedFor, CustomHeader, or DirectSourceIP must be set.
+// +kubebuilder:validation:XValidation:rule="[has(self.xForwardedFor), has(self.customHeader), has(self.directSourceIP)].filter(x, x).size() == 1",message="exactly one of xForwardedFor, customHeader, or directSourceIP must be set"
 #ClientIPDetectionSettings: {
 	// XForwardedForSettings provides configuration for using X-Forwarded-For headers for determining the client IP address.
 	//
@@ -327,7 +333,25 @@ import (
 	//
 	// +optional
 	customHeader?: null | #CustomHeaderExtensionSettings @go(CustomHeader,*CustomHeaderExtensionSettings)
+
+	// DirectSourceIP configures the geoip filter to use the downstream connection
+	// source address (the TCP peer of the connection terminated by Envoy) as the client IP.
+	//
+	// Use this in L4-transparent topologies where a load balancer preserves the original
+	// client source IP at TCP level and does not populate XFF or a custom header — for
+	// example, AWS NLB with target-type=instance + externalTrafficPolicy=Local, or
+	// Azure Standard Load Balancer.
+	//
+	// Mutually exclusive with XForwardedFor and CustomHeader.
+	//
+	// +optional
+	directSourceIP?: null | #DirectSourceIPSettings @go(DirectSourceIP,*DirectSourceIPSettings)
 }
+
+// DirectSourceIPSettings configures client IP detection from the downstream
+// connection source address. It currently has no fields; its presence opts the listener
+// into using the TCP peer address as the client IP.
+#DirectSourceIPSettings: {}
 
 // XForwardedForSettings provides configuration for using X-Forwarded-For headers for determining the client IP address.
 // Refer to https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_conn_man/headers#x-forwarded-for
@@ -360,6 +384,14 @@ import (
 	// +optional
 	// +kubebuilder:validation:MinItems=1
 	trustedCIDRs?: [...#CIDR] @go(TrustedCIDRs,[]CIDR)
+
+	// DisableXForwardedForAppend configures Envoy Proxy to stop appending the downstream address
+	// to the X-Forwarded-For header.
+	//
+	// This only disables the automatic append behavior. It does not remove or sanitize
+	// an incoming X-Forwarded-For header.
+	// +optional
+	disableXForwardedForAppend?: null | bool @go(DisableXForwardedForAppend,*bool)
 }
 
 // CustomHeaderExtensionSettings provides configuration for determining the client IP address for a request based on

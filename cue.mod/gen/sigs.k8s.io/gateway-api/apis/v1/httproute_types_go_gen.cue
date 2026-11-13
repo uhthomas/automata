@@ -103,6 +103,11 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// +kubebuilder:validation:MinItems=1
 	// +kubebuilder:validation:MaxItems=16
 	// +kubebuilder:default={{matches: {{path: {type: "PathPrefix", value: "/"}}}}}
+	// <gateway:util:excludeFromCRD>
+	// Validates that the total number of matches across all rules does not exceed 128.
+	// CEL does not support aggregate functions like sum() over lists, so each of the
+	// (up to 16) rules is checked individually and their match counts are summed explicitly.
+	// </gateway:util:excludeFromCRD>
 	// +kubebuilder:validation:XValidation:message="While 16 rules and 64 matches per rule are allowed, the total number of matches across all rules in a route must be less than 128",rule="(self.size() > 0 ? self[0].matches.size() : 0) + (self.size() > 1 ? self[1].matches.size() : 0) + (self.size() > 2 ? self[2].matches.size() : 0) + (self.size() > 3 ? self[3].matches.size() : 0) + (self.size() > 4 ? self[4].matches.size() : 0) + (self.size() > 5 ? self[5].matches.size() : 0) + (self.size() > 6 ? self[6].matches.size() : 0) + (self.size() > 7 ? self[7].matches.size() : 0) + (self.size() > 8 ? self[8].matches.size() : 0) + (self.size() > 9 ? self[9].matches.size() : 0) + (self.size() > 10 ? self[10].matches.size() : 0) + (self.size() > 11 ? self[11].matches.size() : 0) + (self.size() > 12 ? self[12].matches.size() : 0) + (self.size() > 13 ? self[13].matches.size() : 0) + (self.size() > 14 ? self[14].matches.size() : 0) + (self.size() > 15 ? self[15].matches.size() : 0) <= 128"
 	rules?: [...#HTTPRouteRule] @go(Rules,[]HTTPRouteRule)
 }
@@ -366,7 +371,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended
 	//
 	// +optional
-	// +listType=atomic
+	// +listType=set
 	codes?: [...#HTTPRouteRetryStatusCode] @go(Codes,[]HTTPRouteRetryStatusCode)
 
 	// Attempts specifies the maximum number of times an individual request
@@ -381,6 +386,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended
 	//
 	// +optional
+	// +kubebuilder:validation:Minimum:=1
 	attempts?: int @go(Attempts,*int)
 
 	// Backoff specifies the minimum duration a Gateway should wait between
@@ -1332,6 +1338,11 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended for Kubernetes Service
 	//
 	// Support: Implementation-specific for any other resource
+	//
+	// If the backend service requires TLS, use BackendTLSPolicy to tell the
+	// implementation to supply the TLS details to be used to connect to that
+	// backend.
+	//
 	// +required
 	backendRef: #BackendObjectReference @go(BackendRef)
 
@@ -1385,7 +1396,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// An origin value that includes _only_ the `*` character indicates requests
 	// from all `Origin`s are allowed.
 	//
-	// When the `AllowOrigins` field is configured with multiple origins, it
+	// When the `allowOrigins` field is configured with multiple origins, it
 	// means the server supports clients from multiple origins. If the request
 	// `Origin` matches the configured allowed origins, the gateway must return
 	// the given `Origin` and sets value of the header
@@ -1407,19 +1418,15 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// `Access-Control-Allow-Origin` to the same value as the `Origin`
 	// header provided by the client.
 	//
-	// When config has the wildcard ("*") in allowOrigins, and the request
-	// is not credentialed (e.g., it is a preflight request), the
-	// `Access-Control-Allow-Origin` response header either contains the
-	// wildcard as well or the Origin from the request.
+	// If the configuration contains the wildcard `*` in `allowOrigins` and
+	// `allowCredentials` is set to `false`, the `Access-Control-Allow-Origin`
+	// response header may either contain the wildcard `*` or echo the value
+	// of the `Origin` request header.
 	//
-	// When the request is credentialed, the gateway must not specify the `*`
-	// wildcard in the `Access-Control-Allow-Origin` response header. When
-	// also the `AllowCredentials` field is true and `AllowOrigins` field
-	// specified with the `*` wildcard, the gateway must return a single origin
-	// in the value of the `Access-Control-Allow-Origin` response header,
-	// instead of specifying the `*` wildcard. The value of the header
-	// `Access-Control-Allow-Origin` is same as the `Origin` header provided by
-	// the client.
+	// If the configuration contains the wildcard `*` in `allowOrigins` and
+	// `allowCredentials` is set to `true`, the gateway must not return `*`
+	// in the `Access-Control-Allow-Origin` response header. Instead, it must
+	// return a single origin matching the value of the `Origin` request header.
 	//
 	// Support: Extended
 	// +listType=set
@@ -1458,32 +1465,29 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// A CORS-safelisted method is a method that is `GET`, `HEAD`, or `POST`.
 	// (See https://fetch.spec.whatwg.org/#cors-safelisted-method) The
 	// CORS-safelisted methods are always allowed, regardless of whether they
-	// are specified in the `AllowMethods` field.
+	// are specified in the `allowMethods` field.
 	//
-	// When the `AllowMethods` field is configured with one or more methods, the
+	// When the `allowMethods` field is configured with one or more methods, the
 	// gateway must return the `Access-Control-Allow-Methods` response header
-	// which value is present in the `AllowMethods` field.
+	// which value is present in the `allowMethods` field.
 	//
 	// If the HTTP method of the `Access-Control-Request-Method` request header
 	// is not included in the list of methods specified by the response header
 	// `Access-Control-Allow-Methods`, it will present an error on the client
 	// side.
 	//
-	// If config contains the wildcard "*" in allowMethods and the request is
-	// not credentialed, the `Access-Control-Allow-Methods` response header
-	// can either use the `*` wildcard or the value of
-	// Access-Control-Request-Method from the request.
+	// If the configuration contains the wildcard `*` in `allowMethods` and
+	// `allowCredentials` is set to `false`, the `Access-Control-Allow-Methods`
+	// response header may either contain the wildcard `*` or echo the value
+	// of the `Access-Control-Request-Method` request header.
 	//
-	// When the request is credentialed, the gateway must not specify the `*`
-	// wildcard in the `Access-Control-Allow-Methods` response header. When
-	// also the `AllowCredentials` field is true and `AllowMethods` field
-	// specified with the `*` wildcard, the gateway must specify one HTTP method
-	// in the value of the Access-Control-Allow-Methods response header. The
-	// value of the header `Access-Control-Allow-Methods` is same as the
-	// `Access-Control-Request-Method` header provided by the client. If the
-	// header `Access-Control-Request-Method` is not included in the request,
-	// the gateway will omit the `Access-Control-Allow-Methods` response header,
-	// instead of specifying the `*` wildcard.
+	// If the configuration contains the wildcard `*` in `allowMethods` and
+	// `allowCredentials` is set to `true`, the gateway must not return `*`
+	// in the `Access-Control-Allow-Methods` response header. Instead, it must
+	// return a single HTTP method matching the value of the
+	// `Access-Control-Request-Method` request header.
+	// If the `Access-Control-Request-Method` header is not present in the request,
+	// the gateway must omit the `Access-Control-Allow-Methods` response header.
 	//
 	// Support: Extended
 	//
@@ -1501,9 +1505,9 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Multiple header names in the value of the `Access-Control-Allow-Headers`
 	// response header are separated by a comma (",").
 	//
-	// When the `AllowHeaders` field is configured with one or more headers, the
+	// When the `allowHeaders` field is configured with one or more headers, the
 	// gateway must return the `Access-Control-Allow-Headers` response header
-	// which value is present in the `AllowHeaders` field.
+	// which value is present in the `allowHeaders` field.
 	//
 	// If any header name in the `Access-Control-Request-Headers` request header
 	// is not included in the list of header names specified by the response
@@ -1515,21 +1519,20 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// client side.
 	//
 	// A wildcard indicates that the requests with all HTTP headers are allowed.
-	// If config contains the wildcard "*" in allowHeaders and the request is
-	// not credentialed, the `Access-Control-Allow-Headers` response header
-	// can either use the `*` wildcard or the value of
-	// Access-Control-Request-Headers from the request.
 	//
-	// When the request is credentialed, the gateway must not specify the `*`
-	// wildcard in the `Access-Control-Allow-Headers` response header. When
-	// also the `AllowCredentials` field is true and `AllowHeaders` field
-	// is specified with the `*` wildcard, the gateway must specify one or more
-	// HTTP headers in the value of the `Access-Control-Allow-Headers` response
-	// header. The value of the header `Access-Control-Allow-Headers` is same as
-	// the `Access-Control-Request-Headers` header provided by the client. If
-	// the header `Access-Control-Request-Headers` is not included in the
-	// request, the gateway will omit the `Access-Control-Allow-Headers`
-	// response header, instead of specifying the `*` wildcard.
+	// If the configuration contains the wildcard `*` in `allowHeaders` and
+	// `allowCredentials` is set to `false`, the `Access-Control-Allow-Headers`
+	// response header may either contain the wildcard `*` or echo the value
+	// of the `Access-Control-Request-Headers` request header.
+	//
+	// If the configuration contains the wildcard `*` in `allowHeaders` and
+	// `allowCredentials` is set to `true`, the gateway must not return `*`
+	// in the `Access-Control-Allow-Headers` response header. Instead, it must
+	// return one or more header names matching the value of the
+	// `Access-Control-Request-Headers` request header.
+	// If the `Access-Control-Request-Headers` header is not present in the
+	// request, the gateway must omit the `Access-Control-Allow-Headers`
+	// response header.
 	//
 	// Support: Extended
 	//
@@ -1555,7 +1558,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// (See https://fetch.spec.whatwg.org/#cors-safelisted-response-header-name)
 	// The CORS-safelisted response headers are exposed to client by default.
 	//
-	// When an HTTP header name is specified using the `ExposeHeaders` field,
+	// When an HTTP header name is specified using the `exposeHeaders` field,
 	// this additional header will be exposed as part of the response to the
 	// client.
 	//
@@ -1565,12 +1568,15 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// response header are separated by a comma (",").
 	//
 	// A wildcard indicates that the responses with all HTTP headers are exposed
-	// to clients. The `Access-Control-Expose-Headers` response header can only
-	// use `*` wildcard as value when the request is not credentialed.
+	// to clients.
 	//
-	// When the `exposeHeaders` config field contains the "*" wildcard and
-	// the request is credentialed, the gateway cannot use the `*` wildcard in
-	// the `Access-Control-Expose-Headers` response header.
+	// If the configuration contains the wildcard `*` in `exposeHeaders` and
+	// `allowCredentials` is set to `false`, the `Access-Control-Expose-Headers`
+	// response header can contain the wildcard `*`.
+	//
+	// If the configuration contains the wildcard `*` in `exposeHeaders` and
+	// `allowCredentials` is set to `true`, the gateway cannot use the `*`
+	// in the `Access-Control-Expose-Headers` response header.
 	//
 	// Support: Extended
 	//

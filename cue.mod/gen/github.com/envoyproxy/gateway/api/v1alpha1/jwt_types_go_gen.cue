@@ -7,10 +7,31 @@ package v1alpha1
 import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 
 // JWT defines the configuration for JSON Web Token (JWT) authentication.
+//
+// +kubebuilder:validation:XValidation:rule="!(has(self.optional) && has(self.failOpen))",message="optional and failOpen cannot both be set; failOpen already tolerates a missing JWT"
 #JWT: {
 	// Optional determines whether a missing JWT is acceptable, defaulting to false if not specified.
-	// Note: Even if optional is set to true, JWT authentication will still fail if an invalid JWT is presented.
+	// Note: Even if optional is set to true, JWT authentication will still fail if an invalid JWT
+	// is presented. See FailOpen if this is necessary for your use case.
+	//
+	// +optional
 	optional?: null | bool @go(Optional,*bool)
+
+	// FailOpen lets a request pass JWT authentication even when its JWT is
+	// missing or invalid, rather than being rejected. This helps when a header
+	// that clients use to carry a JWT may also legitimately hold a non-JWT value
+	// that the backend relies on.
+	//
+	// A valid JWT is still verified and its claims forwarded as usual; only the
+	// rejection of requests with a missing or invalid JWT is relaxed. Because this
+	// does not enforce authentication on its own, pair it with an Authorization
+	// policy when access needs to be restricted.
+	//
+	// This is broader than Optional (which tolerates a missing JWT but still
+	// rejects an invalid one) and takes precedence over it.
+	//
+	// +optional
+	failOpen?: null | bool @go(FailOpen,*bool)
 
 	// Providers defines the JSON Web Token (JWT) authentication provider type.
 	// When multiple JWT providers are specified, the JWT is considered valid if
@@ -110,6 +131,15 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	// +kubebuilder:default="300s"
 	// +optional
 	cacheDuration?: null | gwapiv1.#Duration @go(CacheDuration,*gwapiv1.Duration)
+
+	// FailedRefetchDuration is the duration Envoy waits before re-fetching the JWKS
+	// after a failed fetch.
+	// This does not control retries within a single fetch attempt (see BackendSettings.Retry),
+	// only the interval between fetch attempts after a failure.
+	// If not specified, Envoy's default of 1 second is used.
+	//
+	// +optional
+	failedRefetchDuration?: null | gwapiv1.#Duration @go(FailedRefetchDuration,*gwapiv1.Duration)
 }
 
 // LocalJWKSType defines the types of values for Local JWKS.

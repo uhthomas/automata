@@ -1,30 +1,12 @@
-# Envoy Gateway
+# Envoy Gateway data plane
 
-[https://gateway.envoyproxy.io/](https://gateway.envoyproxy.io/)
+The `public` Gateway and its EnvoyProxy live in the `envoy-gateway` namespace.
+Application namespaces attach listeners using ListenerSets. Gateway Namespace
+deployment mode keeps the shared Envoy data plane beside the Gateway.
 
-[https://github.com/envoyproxy/gateway](https://github.com/envoyproxy/gateway)
+See [the controller update instructions](../envoy_gateway_system/README.md) for
+Helm rendering, CRD updates and the patched Envoy image override.
 
-The certgen job has been removed, cert-manager is used instead.
-
-[https://gateway.envoyproxy.io/docs/install/custom-cert/](https://gateway.envoyproxy.io/docs/install/custom-cert/)
-
-```sh
-❯ helm template eg oci://docker.io/envoyproxy/gateway-helm --version v1.8.2 -n envoy-gateway --set crds.enabled=false > out.yaml
-❯ cue import -l "strings.ToLower(kind)" --list out.yaml
-```
-
-Gateway API CRDs are managed separately in `k8s/magiclove/gateway_api`, so the
-chart's CRD subchart is disabled above. Envoy Gateway extension CRDs are
-sourced from the release `install.yaml`:
-
-```sh
-❯ curl -sL https://github.com/envoyproxy/gateway/releases/download/v1.8.2/install.yaml -o install.yaml
-❯ yq 'select(.kind == "CustomResourceDefinition" and (.metadata.name | test("gateway.envoyproxy.io")))' install.yaml > eg-crds.yaml
-❯ cue import -l "strings.ToLower(kind)" --list eg-crds.yaml
-```
-
-[https://github.com/envoyproxy/gateway/releases/tag/v1.8.2](https://github.com/envoyproxy/gateway/releases/tag/v1.8.2)
-
-The merged deployment strategy is used to save resources.
-
-[https://gateway.envoyproxy.io/docs/tasks/operations/deployment-mode/#merged-gateways-deployment](https://gateway.envoyproxy.io/docs/tasks/operations/deployment-mode/#merged-gateways-deployment)
+There are currently no Envoy OIDC SecurityPolicies in this cluster. Any future
+OIDC policies should retain the default token-cookie encryption: Envoy decrypts
+cookies before downstream JWT verification and forwarding to applications.

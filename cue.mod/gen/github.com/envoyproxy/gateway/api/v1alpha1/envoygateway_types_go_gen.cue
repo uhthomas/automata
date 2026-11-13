@@ -8,6 +8,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
+	corev1 "k8s.io/api/core/v1"
 )
 
 // KindEnvoyGateway is the name of the EnvoyGateway kind.
@@ -162,15 +163,40 @@ import (
 // RuntimeFlag defines a runtime flag used to guard breaking changes or risky experimental features in new Envoy Gateway releases.
 // A runtime flag may be enabled or disabled by default and can be toggled through the EnvoyGateway resource.
 // +enum
-// +kubebuilder:validation:Enum=XDSNameSchemeV2
+// +kubebuilder:validation:Enum=XDSNameSchemeV2;EndpointSliceIndex;PerResourceSystemCASecret;EnvoyProxyPatch
 #RuntimeFlag: string // #enumRuntimeFlag
 
 #enumRuntimeFlag:
-	#XDSNameSchemeV2
+	#XDSNameSchemeV2 |
+	#EndpointSliceIndex |
+	#PerResourceSystemCASecret |
+	#EnvoyProxyPatch
 
 // XDSNameSchemeV2 indicates that the xds name scheme v2 is used.
 // * The listener name will be generated using the protocol and port of the listener.
 #XDSNameSchemeV2: #RuntimeFlag & "XDSNameSchemeV2"
+
+// EndpointSliceIndex indicates that field indexes are used to look up EndpointSlices by backend.
+// It is enabled by default to reduce CPU usage for EndpointSlice lookups in large clusters.
+// If the additional controller memory usage for the indexes becomes a concern,
+// consider disabling this flag.
+#EndpointSliceIndex: #RuntimeFlag & "EndpointSliceIndex"
+
+// PerResourceSystemCASecret restores the pre-1.x behavior of emitting one SDS secret per
+// BackendTLSPolicy or Backend resource that uses WellKnownCACertificates: System, instead
+// of sharing a single system_ca_certificates secret across all of them.
+// Disabled by default (i.e. the shared secret is used). Enable this flag to opt out during
+// upgrades — Envoy must warm the new system_ca_certificates secret before clusters can use
+// it, which may cause a brief disruption to new connections on first enable.
+#PerResourceSystemCASecret: #RuntimeFlag & "PerResourceSystemCASecret"
+
+// EnvoyProxyPatch enables applying the Kubernetes resource `patch` fields configured on
+// EnvoyProxy's Kubernetes provider settings. It is enabled by default to preserve
+// pre-existing behavior. Because EnvoyProxy is commonly namespace-scoped and
+// tenant-authored, a patch may grant arbitrary access to resources applied by Envoy
+// Gateway's more privileged ServiceAccount; disable this flag in multi-tenant clusters
+// where tenants can author their own EnvoyProxy resources.
+#EnvoyProxyPatch: #RuntimeFlag & "EnvoyProxyPatch"
 
 // RuntimeFlags provide a mechanism to guard breaking changes or risky experimental features in new Envoy Gateway releases.
 // Each flag may be enabled or disabled by default and can be toggled through the EnvoyGateway resource.
@@ -214,6 +240,23 @@ import (
 	//
 	// +optional
 	maxConnectionAgeGrace?: null | gwapiv1.#Duration @go(MaxConnectionAgeGrace,*gwapiv1.Duration)
+
+	// MaxReceiveMessageSize defines the maximum size of a single xDS message that the xDS gRPC
+	// server will accept from an Envoy proxy.
+	//
+	// Envoy's requests grow with the number of resources it holds: on every stream (re)connect,
+	// the first delta xDS request for each resource type echoes back the name and version of
+	// every resource the proxy currently has. At a large enough scale this exceeds the 4MiB
+	// default, and the stream fails immediately with "received message larger than max", leaving
+	// the proxy stuck on its last known-good configuration.
+	//
+	// Note this limit applies only to what Envoy Gateway receives; the configuration it sends to
+	// Envoy is not bounded by it.
+	//
+	// If unspecified, defaults to 32MiB.
+	//
+	// +optional
+	maxReceiveMessageSize?: null | resource.#Quantity @go(MaxReceiveMessageSize,*resource.Quantity)
 }
 
 // LeaderElection defines the desired leader election settings.
@@ -324,7 +367,7 @@ import (
 	// ControllerName defines the name of the Gateway API controller. If unspecified,
 	// defaults to "gateway.envoyproxy.io/gatewayclass-controller". See the following
 	// for additional details:
-	//   https://gateway-api.sigs.k8s.io/reference/1.4/spec/#gatewayclass
+	//   https://gateway-api.sigs.k8s.io/reference/api-spec/main/spec/#gatewayclass
 	//
 	// +optional
 	controllerName?: string @go(ControllerName)
@@ -346,7 +389,20 @@ import (
 
 	// DisableLua determines if Lua EnvoyExtensionPolicies should be disabled.
 	// If set to true, the Lua EnvoyExtensionPolicy feature will be disabled.
-	disableLua: bool @go(DisableLua)
+	// This field is mutually exclusive with EnableLua.
+	//
+	// Deprecated: Use EnableLua instead. This field will be removed in a future release.
+	//
+	// +optional
+	disableLua?: null | bool @go(DisableLua,*bool)
+
+	// EnableLua enables the Lua EnvoyExtensionPolicy feature.
+	// If set to true, the Lua EnvoyExtensionPolicy feature will be enabled.
+	// By default, Lua policies are disabled.
+	// This field is mutually exclusive with DisableLua.
+	//
+	// +optional
+	enableLua?: bool @go(EnableLua)
 
 	// EnableSDSSecretRef enables read SDS(Secret Discovery Service) settings from a secret(with type gateway.envoyproxy.io/sds).
 	enableSDSSecretRef: bool @go(EnableSDSSecretRef)
@@ -374,8 +430,8 @@ import (
 	custom?: null | #EnvoyGatewayCustomProvider @go(Custom,*EnvoyGatewayCustomProvider)
 }
 
-// EnvoyGatewayKubernetesProvider defines configuration for the Kubernetes provider.
-#EnvoyGatewayKubernetesProvider: {
+// EnvoyGatewayKubernetesInfrastructureConfiguration defines configuration for the Kubernetes infrastructure provider.
+#EnvoyGatewayKubernetesInfrastructureConfiguration: {
 	// RateLimitDeployment defines the desired state of the Envoy ratelimit deployment resource.
 	// If unspecified, default settings for the managed Envoy ratelimit deployment resource
 	// are applied.
@@ -394,30 +450,33 @@ import (
 	// +optional
 	rateLimitPDB?: null | #KubernetesPodDisruptionBudgetSpec @go(RateLimitPDB,*KubernetesPodDisruptionBudgetSpec)
 
-	// Watch holds configuration of which input resources should be watched and reconciled.
-	// +optional
-	watch?: null | #KubernetesWatchMode @go(Watch,*KubernetesWatchMode)
-
 	// Deploy holds configuration of how output managed resources such as the Envoy Proxy data plane
 	// should be deployed
 	// +optional
 	deploy?: null | #KubernetesDeployMode @go(Deploy,*KubernetesDeployMode)
+
+	// ShutdownManager defines the configuration for the shutdown manager.
+	// +optional
+	shutdownManager?: null | #ShutdownManager @go(ShutdownManager,*ShutdownManager)
+
+	// TopologyInjector defines the configuration for topology injector MutatatingWebhookConfiguration
+	// +optional
+	proxyTopologyInjector?: null | #EnvoyGatewayTopologyInjector @go(TopologyInjector,*EnvoyGatewayTopologyInjector)
+}
+
+// EnvoyGatewayKubernetesConfiguration defines configuration for how Envoy Gateway communicates with the Kubernetes API server.
+#EnvoyGatewayKubernetesConfiguration: {
+	// Watch holds configuration of which input resources should be watched and reconciled.
+	// +optional
+	watch?: null | #KubernetesWatchMode @go(Watch,*KubernetesWatchMode)
 
 	// LeaderElection specifies the configuration for leader election.
 	// If it's not set up, leader election will be active by default, using Kubernetes' standard settings.
 	// +optional
 	leaderElection?: null | #LeaderElection @go(LeaderElection,*LeaderElection)
 
-	// ShutdownManager defines the configuration for the shutdown manager.
-	// +optional
-	shutdownManager?: null | #ShutdownManager @go(ShutdownManager,*ShutdownManager)
-
 	// Client holds the configuration for the Kubernetes client.
 	client?: null | #KubernetesClient @go(Client,*KubernetesClient)
-
-	// TopologyInjector defines the configuration for topology injector MutatatingWebhookConfiguration
-	// +optional
-	proxyTopologyInjector?: null | #EnvoyGatewayTopologyInjector @go(TopologyInjector,*EnvoyGatewayTopologyInjector)
 
 	// CacheSyncPeriod determines the minimum frequency at which watched resources are synced.
 	// Note that a sync in the provider layer will not lead to a full reconciliation (including translation),
@@ -428,6 +487,13 @@ import (
 	// Default: 10 hours
 	// +optional
 	cacheSyncPeriod?: null | gwapiv1.#Duration @go(CacheSyncPeriod,*gwapiv1.Duration)
+}
+
+// EnvoyGatewayKubernetesProvider defines configuration for the Kubernetes provider.
+#EnvoyGatewayKubernetesProvider: {
+	#EnvoyGatewayKubernetesInfrastructureConfiguration
+
+	#EnvoyGatewayKubernetesConfiguration
 }
 
 // KubernetesWatchModeTypeNamespaces indicates that the namespace watch mode is used.
@@ -510,18 +576,22 @@ import (
 
 // ResourceProviderType defines the types of custom resource providers supported by Envoy Gateway.
 //
-// +kubebuilder:validation:Enum=File
+// +kubebuilder:validation:Enum=File;Kubernetes
 #ResourceProviderType: string // #enumResourceProviderType
 
 #enumResourceProviderType:
-	#ResourceProviderTypeFile
+	#ResourceProviderTypeFile |
+	#ResourceProviderTypeKubernetes
 
 // ResourceProviderTypeFile defines the "File" provider.
 #ResourceProviderTypeFile: #ResourceProviderType & "File"
 
+// ResourceProviderTypeKubernetes defines the "Kubernetes" provider.
+#ResourceProviderTypeKubernetes: #ResourceProviderType & "Kubernetes"
+
 // EnvoyGatewayResourceProvider defines configuration for the Custom Resource provider.
 #EnvoyGatewayResourceProvider: {
-	// Type is the type of resource provider to use. Supported types are "File".
+	// Type is the type of resource provider to use. Supported types are "File" or "Kubernetes".
 	//
 	// +unionDiscriminator
 	type: #ResourceProviderType @go(Type)
@@ -531,6 +601,11 @@ import (
 	//
 	// +optional
 	file?: null | #EnvoyGatewayFileResourceProvider @go(File,*EnvoyGatewayFileResourceProvider)
+
+	// Kubernetes defines the configuration of the Kubernetes provider. This provider retrieves Envoy configuration
+	// from a Kubernetes API.
+	// +optional
+	kubernetes?: null | #EnvoyGatewayKubernetesCustomProvider @go(Kubernetes,*EnvoyGatewayKubernetesCustomProvider)
 }
 
 // EnvoyGatewayFileResourceProvider defines configuration for the File Resource provider.
@@ -540,20 +615,29 @@ import (
 	paths: [...string] @go(Paths,[]string)
 }
 
+// EnvoyGatewayKubernetesCustomProvider defines configuration for the Kubernetes provider when using a Custom provider.
+#EnvoyGatewayKubernetesCustomProvider: {
+	#EnvoyGatewayKubernetesConfiguration
+}
+
 // InfrastructureProviderType defines the types of custom infrastructure providers supported by Envoy Gateway.
 //
-// +kubebuilder:validation:Enum=Host
+// +kubebuilder:validation:Enum=Host;Remote
 #InfrastructureProviderType: string // #enumInfrastructureProviderType
 
 #enumInfrastructureProviderType:
-	#InfrastructureProviderTypeHost
+	#InfrastructureProviderTypeHost |
+	#InfrastructureProviderTypeRemote
 
 // InfrastructureProviderTypeHost defines the "Host" provider.
 #InfrastructureProviderTypeHost: #InfrastructureProviderType & "Host"
 
+// InfrastructureProviderTypeRemote defines the "Remote" provider.
+#InfrastructureProviderTypeRemote: #InfrastructureProviderType & "Remote"
+
 // EnvoyGatewayInfrastructureProvider defines configuration for the Custom Infrastructure provider.
 #EnvoyGatewayInfrastructureProvider: {
-	// Type is the type of infrastructure providers to use. Supported types are "Host".
+	// Type is the type of infrastructure providers to use. Supported types are "Host" or "Remote".
 	//
 	// +unionDiscriminator
 	type: #InfrastructureProviderType @go(Type)
@@ -563,6 +647,12 @@ import (
 	//
 	// +optional
 	host?: null | #EnvoyGatewayHostInfrastructureProvider @go(Host,*EnvoyGatewayHostInfrastructureProvider)
+
+	// Remote defines the configuration of the Remote provider. Remotes defers
+	// runtime deployment of the data plane to aW remote infrastructure manager.
+	//
+	// +optional
+	remote?: null | #EnvoyGatewayRemoteInfrastructureProvider @go(Remote,*EnvoyGatewayRemoteInfrastructureProvider)
 }
 
 // EnvoyGatewayHostInfrastructureProvider defines configuration for the Host Infrastructure provider.
@@ -586,6 +676,15 @@ import (
 	// Defaults to /tmp/envoy-gateway-${UID}
 	// +optional
 	runtimeDir?: null | string @go(RuntimeDir,*string)
+}
+
+// EnvoyGatewayRemoteInfrastructureProvider defines configuration for the Remote Infrastructure provider.
+#EnvoyGatewayRemoteInfrastructureProvider: {
+	// Service defines the configuration of the remote infrastructure service that the Envoy
+	// Gateway Control Plane will call through the infrastructure manager.
+	//
+	// +kubebuilder:validation:Required
+	service?: null | #ExtensionService @go(Service,*ExtensionService)
 }
 
 // RateLimit defines the configuration associated with the Rate Limit Service
@@ -694,15 +793,40 @@ import (
 }
 
 // RateLimitRedisSettings defines the configuration for connecting to redis database.
+// +kubebuilder:validation:XValidation:rule="has(self.url) != has(self.urlRef)",message="exactly one of url or urlRef must be set"
 #RateLimitRedisSettings: {
 	// URL of the Redis Database.
 	// This can reference a single Redis host or a comma delimited list for Sentinel and Cluster deployments of Redis.
-	url: string @go(URL)
+	// Mutually exclusive with URLRef.
+	//
+	// +optional
+	url?: null | string @go(URL,*string)
+
+	// URLRef sources the Redis URL from a Kubernetes Secret key. Use this for GitOps
+	// flows where the Redis endpoint is provisioned by an external controller.
+	// The referenced Secret must exist in the namespace of the Envoy Gateway rate limit
+	// deployment. Mutually exclusive with URL.
+	//
+	// +optional
+	urlRef?: null | #RedisURLSource @go(URLRef,*RedisURLSource)
 
 	// TLS defines TLS configuration for connecting to redis database.
 	//
 	// +optional
 	tls?: null | #RedisTLSSettings @go(TLS,*RedisTLSSettings)
+}
+
+// RedisURLSource specifies where to source the Redis URL from.
+// +kubebuilder:validation:XValidation:rule="!has(self.secretKeyRef.optional) || !self.secretKeyRef.optional",message="urlRef.secretKeyRef.optional must not be true; the Secret is required"
+#RedisURLSource: {
+	// SecretKeyRef references the Secret and key that hold the Redis URL.
+	// The Secret must be in the same namespace as the Envoy Gateway rate limit deployment.
+	// The reference is always required: optional must not be set to true, otherwise
+	// the rate limit pod could start with an unset REDIS_URL instead of waiting for
+	// the externally provisioned Secret.
+	//
+	// +kubebuilder:validation:Required
+	secretKeyRef?: null | corev1.#SecretKeySelector @go(SecretKeyRef,*corev1.SecretKeySelector)
 }
 
 // ExtensionManager defines the configuration for registering an extension manager to

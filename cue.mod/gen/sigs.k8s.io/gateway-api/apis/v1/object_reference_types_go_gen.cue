@@ -84,6 +84,10 @@ package v1
 // be rejected by the implementation, with appropriate Conditions set
 // on the containing object.
 //
+// If the backend service requires TLS, use BackendTLSPolicy to tell the
+// implementation to supply the TLS details to be used to connect to that
+// backend.
+//
 // +kubebuilder:validation:XValidation:message="Must have port for Service reference",rule="(size(self.group) == 0 && self.kind == 'Service') ? has(self.port) : true"
 #BackendObjectReference: {
 	// Group is the group of the referent. For example, "gateway.networking.k8s.io".

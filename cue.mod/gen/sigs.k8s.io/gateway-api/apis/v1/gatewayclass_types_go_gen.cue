@@ -23,6 +23,9 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 // Gateway is not deleted while in use.
 //
 // GatewayClass is a Cluster level resource.
+//
+// A GatewayClass name SHOULD be compliant with RFC 1035, consisting of a maximum of 63 lower case alphanumeric
+// characters or hyphens ('-'), and MUST start and end with an alphanumeric character.
 #GatewayClass: {
 	metav1.#TypeMeta
 

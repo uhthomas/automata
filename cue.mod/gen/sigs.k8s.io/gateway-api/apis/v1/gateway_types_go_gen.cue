@@ -8,6 +8,8 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 // Gateway represents an instance of a service-traffic handling infrastructure
 // by binding Listeners to a set of IP addresses.
+// A Gateway name SHOULD be compliant with RFC 1035, consisting of a maximum of 63 lower case alphanumeric
+// characters or hyphens ('-'), and MUST start and end with an alphanumeric character.
 #Gateway: {
 	metav1.#TypeMeta
 
@@ -172,6 +174,12 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// For example, if Listeners are defined for "foo.example.com" and "*.example.com", a
 	// request to "foo.example.com" SHOULD only be routed using routes attached
 	// to the "foo.example.com" Listener (and not the "*.example.com" Listener).
+	//
+	// If traffic to a Gateway does not match any Listener's hostname (or if
+	// the Listener does not specify a hostname and the request does not match
+	// any attached Route), the request MUST be rejected. The specific mechanism
+	// for rejection depends on the protocol: HTTP returns a 404 status code,
+	// while gRPC returns an Unimplemented status code.
 	//
 	// This concept is known as "Listener Isolation", and it is an Extended feature
 	// of Gateway API. Implementations that do not support Listener Isolation MUST
@@ -755,7 +763,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//
 	// +required
 	// +listType=atomic
-	// +kubebuilder:validation:MaxItems=8
+	// +kubebuilder:validation:MaxItems=16
 	// +kubebuilder:validation:MinItems=1
 	caCertificateRefs: [...#ObjectReference] @go(CACertificateRefs,[]ObjectReference)
 
@@ -1057,7 +1065,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	// Support: Extended
 	//
 	// +optional
-	// +kubebuilder:validation:MaxProperties=8
+	// +kubebuilder:validation:MaxProperties=16
 	// +kubebuilder:validation:XValidation:message="Annotation keys must be in the form of an optional DNS subdomain prefix followed by a required name segment of up to 63 characters.",rule="self.all(key, key.matches(r\"\"\"^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?([A-Za-z0-9][-A-Za-z0-9_.]{0,61})?[A-Za-z0-9]$\"\"\"))"
 	// +kubebuilder:validation:XValidation:message="If specified, the annotation key's prefix must be a DNS subdomain not longer than 253 characters in total.",rule="self.all(key, key.split(\"/\")[0].size() < 253)"
 	annotations?: {[string]: #AnnotationValue} @go(Annotations,map[AnnotationKey]AnnotationValue)

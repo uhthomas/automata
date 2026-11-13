@@ -34,6 +34,15 @@ import (
 	// +optional
 	urlRewrite?: null | #HTTPURLRewriteFilter @go(URLRewrite,*HTTPURLRewriteFilter)
 
+	// DirectResponse returns a fixed response for matching requests.
+	//
+	// When this filter is referenced from a GRPCRoute, only a non-2xx status code
+	// is supported. gRPC signals success with a grpc-status trailer and a response
+	// message, which a direct response cannot produce, so a 2xx status code (which
+	// maps to the gRPC OK status) yields an invalid response for gRPC clients. Use a
+	// non-2xx status code to deny or block gRPC requests (e.g. 403 maps to
+	// PERMISSION_DENIED, 404 to UNIMPLEMENTED, 429/503 to UNAVAILABLE).
+	//
 	// +optional
 	directResponse?: null | #HTTPDirectResponseFilter @go(DirectResponse,*HTTPDirectResponseFilter)
 
@@ -85,6 +94,8 @@ import (
 
 	// Status Code of the HTTP response
 	// If unset, defaults to 200.
+	// Note: when this filter is referenced from a GRPCRoute, a 2xx status code
+	// (including the default 200) is rejected; a non-2xx status code must be set.
 	// +optional
 	statusCode?: null | int @go(StatusCode,*int)
 
@@ -110,7 +121,8 @@ import (
 
 #enumHTTPHostnameModifierType:
 	#HeaderHTTPHostnameModifier |
-	#BackendHTTPHostnameModifier
+	#BackendHTTPHostnameModifier |
+	#PathRegexHTTPHostnameModifier
 
 // HeaderHTTPHostnameModifier indicates that the Host header value would be replaced with the value of the header specified in header.
 // https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route_components.proto#envoy-v3-api-field-config-route-v3-routeaction-host-rewrite-header
@@ -120,6 +132,11 @@ import (
 // https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route_components.proto#envoy-v3-api-field-config-route-v3-routeaction-auto-host-rewrite
 #BackendHTTPHostnameModifier: #HTTPHostnameModifierType & "Backend"
 
+// PathRegexHTTPHostnameModifier indicates that the Host header value would be rewritten by applying a regex
+// match and substitution to the request path.
+// https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route_components.proto#envoy-v3-api-field-config-route-v3-routeaction-host-rewrite-path-regex
+#PathRegexHTTPHostnameModifier: #HTTPHostnameModifierType & "PathRegex"
+
 #ReplaceRegexMatch: {
 	// Pattern matches a regular expression against the value of the HTTP Path.The regex string must
 	// adhere to the syntax documented in https://github.com/google/re2/wiki/Syntax.
@@ -128,6 +145,27 @@ import (
 
 	// Substitution is an expression that replaces the matched portion.The expression may include numbered
 	// capture groups that adhere to syntax documented in https://github.com/google/re2/wiki/Syntax.
+	substitution: string @go(Substitution)
+}
+
+// HostnamePathRegexRewrite defines a hostname rewrite computed from the request path using regex.
+#HostnamePathRegexRewrite: {
+	// Pattern matches a regular expression against the value of the HTTP Path. The regex string must
+	// adhere to the syntax documented in https://github.com/google/re2/wiki/Syntax.
+	// +kubebuilder:validation:MinLength=1
+	pattern: string @go(Pattern)
+
+	// Substitution is an expression that replaces the matched portion. The expression may include numbered
+	// capture groups that adhere to syntax documented in https://github.com/google/re2/wiki/Syntax.
+	//
+	// The resulting value is used as the upstream Host header and should be constrained to a valid
+	// DNS hostname by using explicit regex capture groups in Pattern.
+	//
+	// The NUL, CR, and LF characters are not allowed: they are invalid in an HTTP header value and are
+	// rejected by the Envoy proto (well_known_regex HTTP_HEADER_VALUE), which would otherwise cause the
+	// generated configuration to be rejected by the data plane.
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:Pattern=`^[^\r\n\x00]*$`
 	substitution: string @go(Substitution)
 }
 
@@ -162,14 +200,28 @@ import (
 
 // +kubebuilder:validation:XValidation:message="header must be nil if the type is not Header",rule="!(has(self.header) && self.type != 'Header')"
 // +kubebuilder:validation:XValidation:message="header must be specified for Header type",rule="!(!has(self.header) && self.type == 'Header')"
+// +kubebuilder:validation:XValidation:message="pathRegex must be nil if the type is not PathRegex",rule="!(has(self.pathRegex) && self.type != 'PathRegex')"
+// +kubebuilder:validation:XValidation:message="pathRegex must be specified for PathRegex type",rule="!(!has(self.pathRegex) && self.type == 'PathRegex')"
 #HTTPHostnameModifier: {
-	// +kubebuilder:validation:Enum=Header;Backend
+	// +kubebuilder:validation:Enum=Header;Backend;PathRegex
 	// +kubebuilder:validation:Required
 	type: #HTTPHostnameModifierType @go(Type)
 
 	// Header is the name of the header whose value would be used to rewrite the Host header
 	// +optional
 	header?: null | string @go(Header,*string)
+
+	// PathRegex defines a regex match and substitution applied to the request path to compute
+	// the rewritten Host header.
+	// For example, with:
+	// pathRegex:
+	//   pattern: "^/tenant/([a-z0-9-]+)/.*"
+	//   substitution: "\\1.example.internal"
+	// a request to "http://foo.bar.com/tenant/tenant1/api/v1" has its upstream Host header rewritten
+	// to "tenant1.example.internal" (the request path "/tenant/tenant1/api/v1" is preserved).
+	//
+	// +optional
+	pathRegex?: null | #HostnamePathRegexRewrite @go(PathRegex,*HostnamePathRegexRewrite)
 }
 
 // HTTPCredentialInjectionFilter defines the configuration to inject credentials into the request.

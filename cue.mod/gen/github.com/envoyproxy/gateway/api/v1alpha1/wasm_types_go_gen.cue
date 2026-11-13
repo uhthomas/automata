@@ -129,6 +129,7 @@ import (
 	sha256?: null | string @go(SHA256,*string)
 
 	// TLS configuration when connecting to the Wasm code source.
+	// If unset, system trust store is used for HTTPS url.
 	// +optional
 	tls?: null | #WasmCodeSourceTLSConfig @go(TLS,*WasmCodeSourceTLSConfig)
 }
@@ -154,6 +155,7 @@ import (
 	pullSecretRef?: null | gwapiv1.#SecretObjectReference @go(PullSecretRef,*gwapiv1.SecretObjectReference)
 
 	// TLS configuration when connecting to the Wasm code source.
+	// If unset, system trust store is used.
 	// +optional
 	tls?: null | #WasmCodeSourceTLSConfig @go(TLS,*WasmCodeSourceTLSConfig)
 }

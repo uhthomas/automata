@@ -12,19 +12,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 }
 
 #CustomResourceDefinitionList: items: [{
+	apiVersion: "apiextensions.k8s.io/v1"
+	kind:       "CustomResourceDefinition"
 	metadata: name: "backends.gateway.envoyproxy.io"
 	spec: {
 		group: "gateway.envoyproxy.io"
 		names: {
-			categories: [
-				"envoy-gateway",
-			]
+			categories: ["envoy-gateway"]
 			kind:     "Backend"
 			listKind: "BackendList"
 			plural:   "backends"
-			shortNames: [
-				"be",
-			]
+			shortNames: ["be"]
 			singular: "backend"
 		}
 		scope: "Namespaced"
@@ -92,7 +90,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													description: "Hostname defines the FQDN hostname of the backend endpoint."
 													maxLength:   253
 													minLength:   1
-													pattern:     "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+													pattern:     "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*\\.?$"
 													type:        "string"
 												}
 												port: {
@@ -215,6 +213,18 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											type:        "string"
 										}
 										type: "array"
+									}
+									autoSNIFromEndpointHostname: {
+										description: """
+														AutoSNIFromEndpointHostname indicates whether the upstream endpoint's hostname should be used as the SNI value
+														when establishing a TLS connection to the backend.
+														This uses the resolved hostname of the upstream endpoint (e.g., from the Backend Endpoints list),
+														rather than a static value.
+
+														Mutually exclusive with SNI. When a BackendTLSPolicy is attached, its Hostname value takes
+														precedence and AutoSNIFromEndpointHostname is ignored.
+														"""
+										type: "boolean"
 									}
 									caCertificateRefs: {
 										description: """
@@ -440,14 +450,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									sni: {
 										description: """
-														SNI is specifies the SNI value used when establishing an upstream TLS connection to the backend.
+														SNI specifies the fixed SNI value used when establishing an upstream TLS connection to the backend.
 
 														Envoy Gateway will use the HTTP host header value for SNI, when all resources referenced in BackendRefs are:
 														1. Backend resources that do not set SNI, or
 														2. Service/ServiceImport resources that do not have a BackendTLSPolicy attached to them
 
-														When a BackendTLSPolicy attaches to a Backend resource, the BackendTLSPolicy's Hostname value takes precedence
-														over this value.
+														If a BackendTLSPolicy is attached to the Backend resource, the BackendTLSPolicy's validation.hostname
+														value takes precedence over this field.
+
+														If no BackendTLSPolicy validation.hostname applies and both this field and AutoSNIFromEndpointHostname
+														are unset, Envoy Gateway configures Envoy to set the upstream SNI from the downstream HTTP host/authority header.
 														"""
 										maxLength: 253
 										minLength: 1
@@ -477,6 +490,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									message: "must not contain either CACertificateRefs or WellKnownCACertificates when InsecureSkipVerify is enabled"
 									rule:    "!((has(self.insecureSkipVerify) && self.insecureSkipVerify) && ((has(self.caCertificateRefs) && size(self.caCertificateRefs) > 0) || (has(self.wellKnownCACertificates) && self.wellKnownCACertificates != \"\")))"
 								}, {
+									message: "sni and autoSNIFromEndpointHostname are mutually exclusive"
+									rule:    "!(has(self.sni) && has(self.autoSNIFromEndpointHostname) && self.autoSNIFromEndpointHostname)"
+								}, {
 									message: "setting ciphers has no effect if the minimum possible TLS version is 1.3"
 									rule:    "has(self.minVersion) && self.minVersion == '1.3' ? !has(self.ciphers) : true"
 								}, {
@@ -495,6 +511,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						"x-kubernetes-validations": [{
 							message: "DynamicResolver type cannot have endpoints specified"
 							rule:    "self.type != 'DynamicResolver' || !has(self.endpoints)"
+						}, {
+							message: "DynamicResolver type cannot use autoSNIFromEndpointHostname"
+							rule:    "self.type != 'DynamicResolver' || !has(self.tls) || !(has(self.tls.autoSNIFromEndpointHostname) && self.tls.autoSNIFromEndpointHostname)"
+						}, {
+							message: "when autoSNIFromEndpointHostname is enabled, IP and Unix endpoints must define a hostname"
+							rule:    "!has(self.tls) || !(has(self.tls.autoSNIFromEndpointHostname) && self.tls.autoSNIFromEndpointHostname) || self.endpoints.all(e, (!has(e.ip) && !has(e.unix)) || has(e.hostname))"
 						}]
 					}
 					status: {
@@ -566,9 +588,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						type: "object"
 					}
 				}
-				required: [
-					"spec",
-				]
+				required: ["spec"]
 				type: "object"
 			}
 			served:  true
@@ -577,19 +597,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 		}]
 	}
 }, {
+	apiVersion: "apiextensions.k8s.io/v1"
+	kind:       "CustomResourceDefinition"
 	metadata: name: "backendtrafficpolicies.gateway.envoyproxy.io"
 	spec: {
 		group: "gateway.envoyproxy.io"
 		names: {
-			categories: [
-				"envoy-gateway",
-			]
+			categories: ["envoy-gateway"]
 			kind:     "BackendTrafficPolicy"
 			listKind: "BackendTrafficPolicyList"
 			plural:   "backendtrafficpolicies"
-			shortNames: [
-				"btp",
-			]
+			shortNames: ["btp"]
 			singular: "backendtrafficpolicy"
 		}
 		scope: "Namespaced"
@@ -759,14 +777,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												value: {
 													allOf: [{
 														pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-													}, {
-														pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-													}]
-													anyOf: [{
-														type: "integer"
-													}, {
-														type: "string"
-													}]
+													}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+													anyOf: [{type: "integer"}, {type: "string"}]
 													description:                  "Value specifies the bandwidth limit."
 													"x-kubernetes-int-or-string": true
 												}
@@ -791,14 +803,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													value: {
 														allOf: [{
 															pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-														}, {
-															pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-														}]
-														anyOf: [{
-															type: "integer"
-														}, {
-															type: "string"
-														}]
+														}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+														anyOf: [{type: "integer"}, {type: "string"}]
 														description:                  "Value specifies the bandwidth limit."
 														"x-kubernetes-int-or-string": true
 													}
@@ -975,14 +981,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										minContentLength: {
 											allOf: [{
 												pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-											}, {
-												pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-											}]
-											anyOf: [{
-												type: "integer"
-											}, {
-												type: "string"
-											}]
+											}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+											anyOf: [{type: "integer"}, {type: "string"}]
 											description: """
 															MinContentLength defines the minimum response size in bytes to apply compression.
 															Responses smaller than this threshold will not be compressed.
@@ -1030,14 +1030,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										minContentLength: {
 											allOf: [{
 												pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-											}, {
-												pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-											}]
-											anyOf: [{
-												type: "integer"
-											}, {
-												type: "string"
-											}]
+											}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+											anyOf: [{type: "integer"}, {type: "string"}]
 											description: """
 															MinContentLength defines the minimum response size in bytes to apply compression.
 															Responses smaller than this threshold will not be compressed.
@@ -1068,14 +1062,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									bufferLimit: {
 										allOf: [{
 											pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-										}, {
-											pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-										}]
-										anyOf: [{
-											type: "integer"
-										}, {
-											type: "string"
-										}]
+										}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+										anyOf: [{type: "integer"}, {type: "string"}]
 										description: """
 														BufferLimit Soft limit on size of the cluster’s connections read and write buffers.
 														BufferLimit applies to connection streaming (maybe non-streaming) channel between processes, it's in user space.
@@ -1130,14 +1118,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									socketBufferLimit: {
 										allOf: [{
 											pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-										}, {
-											pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-										}]
-										anyOf: [{
-											type: "integer"
-										}, {
-											type: "string"
-										}]
+										}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+										anyOf: [{type: "integer"}, {type: "string"}]
 										description: """
 														SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
 														to backend.
@@ -1263,6 +1245,77 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												}
 												type: "object"
 											}
+											healthCheckLog: {
+												description: """
+																HealthCheckLog defines health check event logging configuration for this cluster.
+																When set, HC probe outcomes are logged to the configured sinks.
+																Takes precedence over the gateway-level EnvoyProxy.spec.telemetry.healthCheckLog.
+																"""
+												properties: {
+													matches: {
+														description: """
+																		Matches defines which health check probe outcomes produce a log entry.
+																		When omitted or empty, all events are logged.
+
+																		Each value must be unique. Multiple values are ORed. If any failure type is
+																		specified then a success type must also be specified, and vice versa.
+																		"""
+														items: {
+															description: "ProxyHealthCheckLogEventType specifies which health check probe outcomes produce a log entry."
+															enum: ["Failure", "FailureSeriesStart", "Success", "HealthyTransition"]
+															type: "string"
+														}
+														maxItems:                 4
+														type:                     "array"
+														"x-kubernetes-list-type": "set"
+														"x-kubernetes-validations": [{
+															message: "a failure type and a success type must both be specified together"
+															rule:    "self.exists(e, e == 'Failure' || e == 'FailureSeriesStart') == self.exists(e, e == 'Success' || e == 'HealthyTransition')"
+														}]
+													}
+													sinks: {
+														description: """
+																		Sinks defines where health check events are written.
+																		When omitted, events are written to /dev/stdout.
+																		"""
+														items: {
+															description: "ProxyHealthCheckLogSink defines a destination for health check event logs."
+															properties: {
+																file: {
+																	description: """
+																					File defines the file sink configuration.
+																					Required when type is File.
+																					"""
+																	properties: path: {
+																		description: """
+																							Path specifies the file path for health check event output.
+																							Use /dev/stdout to write to standard output.
+																							"""
+																		minLength: 1
+																		type:      "string"
+																	}
+																	required: ["path"]
+																	type: "object"
+																}
+																type: {
+																	description: "Type defines the type of sink."
+																	enum: ["File"]
+																	type: "string"
+																}
+															}
+															required: ["type"]
+															type: "object"
+															"x-kubernetes-validations": [{
+																message: "If ProxyHealthCheckLogSink type is File, file field needs to be set."
+																rule:    "self.type == 'File' ? has(self.file) : !has(self.file)"
+															}]
+														}
+														maxItems: 1
+														type:     "array"
+													}
+												}
+												type: "object"
+											}
 											healthyThreshold: {
 												default:     1
 												description: "HealthyThreshold defines the number of healthy health checks required before a backend host is marked healthy."
@@ -1289,11 +1342,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type:        "string"
 															}
 															type: {
-																allOf: [{
-																	enum: ["Text", "Binary"]
-																}, {
-																	enum: ["Text", "Binary"]
-																}]
+																allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																description: "Type defines the type of the payload."
 																type:        "string"
 															}
@@ -1337,13 +1386,42 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		Method defines the HTTP method used for health checking.
 																		Defaults to GET
 																		"""
-														type: "string"
+														maxLength: 16
+														type:      "string"
 													}
 													path: {
 														description: "Path defines the HTTP path that will be requested during health checking."
 														maxLength:   1024
 														minLength:   1
 														type:        "string"
+													}
+													requestBody: {
+														description: "RequestBody defines the HTTP request body payload sent during health checking."
+														properties: {
+															binary: {
+																description: "Binary payload base64 encoded."
+																format:      "byte"
+																type:        "string"
+															}
+															text: {
+																description: "Text payload in plain text."
+																type:        "string"
+															}
+															type: {
+																allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
+																description: "Type defines the type of the payload."
+																type:        "string"
+															}
+														}
+														required: ["type"]
+														type: "object"
+														"x-kubernetes-validations": [{
+															message: "If payload type is Text, text field needs to be set."
+															rule:    "self.type == 'Text' ? has(self.text) : !has(self.text)"
+														}, {
+															message: "If payload type is Binary, binary field needs to be set."
+															rule:    "self.type == 'Binary' ? has(self.binary) : !has(self.binary)"
+														}]
 													}
 													retriableStatuses: {
 														description: """
@@ -1363,6 +1441,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												}
 												required: ["path"]
 												type: "object"
+												"x-kubernetes-validations": [{
+													message: "The requestBody field can only be set when method is POST or PUT."
+													rule:    "!has(self.requestBody) || (has(self.method) && self.method.upperAscii() in ['POST','PUT'])"
+												}]
 											}
 											initialJitter: {
 												description: """
@@ -1417,11 +1499,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type:        "string"
 															}
 															type: {
-																allOf: [{
-																	enum: ["Text", "Binary"]
-																}, {
-																	enum: ["Text", "Binary"]
-																}]
+																allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																description: "Type defines the type of the payload."
 																type:        "string"
 															}
@@ -1449,11 +1527,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																type:        "string"
 															}
 															type: {
-																allOf: [{
-																	enum: ["Text", "Binary"]
-																}, {
-																	enum: ["Text", "Binary"]
-																}]
+																allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																description: "Type defines the type of the payload."
 																type:        "string"
 															}
@@ -1478,11 +1552,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "string"
 											}
 											type: {
-												allOf: [{
-													enum: ["HTTP", "TCP", "GRPC"]
-												}, {
-													enum: ["HTTP", "TCP", "GRPC"]
-												}]
+												allOf: [{enum: ["HTTP", "TCP", "GRPC"]}, {enum: ["HTTP", "TCP", "GRPC"]}]
 												description: "Type defines the type of health checker."
 												type:        "string"
 											}
@@ -1638,14 +1708,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									initialConnectionWindowSize: {
 										allOf: [{
 											pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-										}, {
-											pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-										}]
-										anyOf: [{
-											type: "integer"
-										}, {
-											type: "string"
-										}]
+										}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+										anyOf: [{type: "integer"}, {type: "string"}]
 										description: """
 														InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
 														If not set, the default value is 1 MiB.
@@ -1655,14 +1719,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									initialStreamWindowSize: {
 										allOf: [{
 											pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-										}, {
-											pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-										}]
-										anyOf: [{
-											type: "integer"
-										}, {
-											type: "string"
-										}]
+										}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+										anyOf: [{type: "integer"}, {type: "string"}]
 										description: """
 														InitialStreamWindowSize sets the initial window size for HTTP/2 streams.
 														If not set, the default value is 64 KiB(64*1024).
@@ -1780,6 +1838,53 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																"""
 												items: type: "string"
 												type: "array"
+											}
+											outOfBand: {
+												description: """
+																OutOfBand enables out-of-band ORCA load reporting. When set, Envoy opens a
+																server-streaming gRPC connection to each endpoint's
+																xds.service.orca.v3.OpenRcaService/StreamCoreMetrics and pulls load
+																reports periodically, instead of relying on in-band ORCA metrics
+																carried in response headers/trailers.
+
+																The backend must implement OpenRcaService for this to take effect.
+																"""
+												properties: {
+													authority: {
+														description: """
+																		Authority overrides the :authority header on the OutOfBand gRPC stream.
+																		If unset, Envoy uses the endpoint hostname, then the dialed address, then
+																		the cluster name.
+																		"""
+														maxLength: 259
+														minLength: 1
+														pattern:   "^[^\\x00\\n\\r]*$"
+														type:      "string"
+													}
+													port: {
+														description: """
+																		Port overrides the port used for the OutOfBand reporting connection, e.g. to
+																		reach a separate reporting sidecar. Defaults to the endpoint's port.
+																		"""
+														format:  "int32"
+														maximum: 65535
+														minimum: 1
+														type:    "integer"
+													}
+													reportingPeriod: {
+														description: """
+																		ReportingPeriod is how often Envoy requests load reports from the server.
+																		Must be greater than 0. Defaults to 10s.
+																		"""
+														pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+														type:    "string"
+														"x-kubernetes-validations": [{
+															message: "reportingPeriod must be greater than 0"
+															rule:    "duration(self) > duration('0s')"
+														}]
+													}
+												}
+												type: "object"
 											}
 											weightExpirationPeriod: {
 												description: "If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m."
@@ -2124,8 +2229,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								description: """
 												MergeType determines how this configuration is merged with existing BackendTrafficPolicy
 												configurations targeting a parent resource. When set, this configuration will be merged
-												into a parent BackendTrafficPolicy (i.e. the one targeting a Gateway or Listener).
-												This field cannot be set when targeting a parent resource (Gateway).
+												into the closest parent BackendTrafficPolicy in the route's attachment hierarchy (for
+												example, one targeting a Gateway, Gateway listener, ListenerSet, or ListenerSet listener).
+												Currently, this field can only be set when targeting xRoute resources.
 												If unset, no merging occurs, and only the most specific configuration takes effect.
 												"""
 								type: "string"
@@ -2243,7 +2349,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		required: ["name"]
 																		type: "object"
 																	}
-																	maxItems: 64
+																	maxItems: 128
 																	type:     "array"
 																}
 																methods: {
@@ -2501,6 +2607,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			the selected requests have reached the limit.
 																			"""
 														properties: {
+															fromMetadata: {
+																description: """
+																					FromMetadata sources the limit value from per-request dynamic metadata.
+																					When the referenced metadata value is present, it overrides Requests/Unit for that
+																					request; otherwise Requests/Unit are used as the default.
+
+																					The referenced metadata value must be a struct containing an integer "requests_per_unit"
+																					property and a "unit" property with a value parseable to a RateLimitUnit. An upstream
+																					filter (e.g. ext_proc) is responsible for writing this struct into dynamic metadata.
+
+																					Only supported for Global Rate Limits.
+																					"""
+																properties: {
+																	key: {
+																		description: "Key is the key to retrieve the limit value from within the namespaced filter metadata."
+																		minLength:   1
+																		type:        "string"
+																	}
+																	namespace: {
+																		description: "Namespace is the namespace of the dynamic metadata."
+																		minLength:   1
+																		type:        "string"
+																	}
+																}
+																required: ["key", "namespace"]
+																type: "object"
+															}
 															requests: {
 																description: """
 																					Requests is the number of requests (or cost units, when used with
@@ -2508,15 +2641,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					"""
 																format:  "int64"
 																maximum: 4294967295
-																minimum: 1
+																minimum: 0
 																type:    "integer"
 															}
 															unit: {
 																description: """
 																					RateLimitUnit specifies the intervals for setting rate limits.
-																					Valid RateLimitUnit values are "Second", "Minute", "Hour", "Day", "Month" and "Year".
+																					Valid RateLimitUnit values are "Second", "Minute", "Hour", "Day", "Week", "Month" and "Year".
 																					"""
-																enum: ["Second", "Minute", "Hour", "Day", "Month", "Year"]
+																enum: ["Second", "Minute", "Hour", "Day", "Week", "Month", "Year"]
 																type: "string"
 															}
 														}
@@ -2645,7 +2778,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		required: ["name"]
 																		type: "object"
 																	}
-																	maxItems: 64
+																	maxItems: 128
 																	type:     "array"
 																}
 																methods: {
@@ -2903,6 +3036,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																			the selected requests have reached the limit.
 																			"""
 														properties: {
+															fromMetadata: {
+																description: """
+																					FromMetadata sources the limit value from per-request dynamic metadata.
+																					When the referenced metadata value is present, it overrides Requests/Unit for that
+																					request; otherwise Requests/Unit are used as the default.
+
+																					The referenced metadata value must be a struct containing an integer "requests_per_unit"
+																					property and a "unit" property with a value parseable to a RateLimitUnit. An upstream
+																					filter (e.g. ext_proc) is responsible for writing this struct into dynamic metadata.
+
+																					Only supported for Global Rate Limits.
+																					"""
+																properties: {
+																	key: {
+																		description: "Key is the key to retrieve the limit value from within the namespaced filter metadata."
+																		minLength:   1
+																		type:        "string"
+																	}
+																	namespace: {
+																		description: "Namespace is the namespace of the dynamic metadata."
+																		minLength:   1
+																		type:        "string"
+																	}
+																}
+																required: ["key", "namespace"]
+																type: "object"
+															}
 															requests: {
 																description: """
 																					Requests is the number of requests (or cost units, when used with
@@ -2910,15 +3070,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					"""
 																format:  "int64"
 																maximum: 4294967295
-																minimum: 1
+																minimum: 0
 																type:    "integer"
 															}
 															unit: {
 																description: """
 																					RateLimitUnit specifies the intervals for setting rate limits.
-																					Valid RateLimitUnit values are "Second", "Minute", "Hour", "Day", "Month" and "Year".
+																					Valid RateLimitUnit values are "Second", "Minute", "Hour", "Day", "Week", "Month" and "Year".
 																					"""
-																enum: ["Second", "Minute", "Hour", "Day", "Month", "Year"]
+																enum: ["Second", "Minute", "Hour", "Day", "Week", "Month", "Year"]
 																type: "string"
 															}
 														}
@@ -2962,6 +3122,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											"x-kubernetes-validations": [{
 												message: "response cost is not supported for Local Rate Limits"
 												rule:    "self.all(r, !has(r.cost) || !has(r.cost.response))"
+											}, {
+												message: "limit fromMetadata is not supported for Local Rate Limits"
+												rule:    "self.all(r, !has(r.limit.fromMetadata))"
 											}]
 										}
 										type: "object"
@@ -2996,14 +3159,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								properties: limit: {
 									allOf: [{
 										pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-									}, {
-										pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-									}]
-									anyOf: [{
-										type: "integer"
-									}, {
-										type: "string"
-									}]
+									}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+									anyOf: [{type: "integer"}, {type: "string"}]
 									description: """
 														Limit specifies the maximum allowed size in bytes for each incoming request buffer.
 														If exceeded, the request will be rejected with HTTP 413 Content Too Large.
@@ -3024,64 +3181,108 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									properties: {
 										match: {
 											description: "Match configuration."
-											properties: statusCodes: {
-												description: "Status code to match on. The match evaluates to true if any of the matches are successful."
-												items: {
-													description: "StatusCodeMatch defines the configuration for matching a status code."
-													properties: {
-														range: {
-															description: "Range contains the range of status codes."
-															properties: {
-																end: {
-																	description: "End of the range, including the end value."
-																	type:        "integer"
-																}
-																start: {
-																	description: "Start of the range, including the start value."
-																	type:        "integer"
-																}
+											properties: {
+												responseHeaders: {
+													description: "Response headers to match on. The match evaluates to true if all matches are successful."
+													items: {
+														description: "ResponseOverrideHeaderMatch defines the configuration for matching a response header."
+														properties: {
+															name: {
+																description: """
+																				Name of the HTTP header.
+																				The header name is case-insensitive.
+																				For example, "Foo" and "foo" are considered the same header.
+																				"""
+																maxLength: 256
+																minLength: 1
+																pattern:   "^[A-Za-z0-9!#$%&'*+\\-.^_\\x60|~]+$"
+																type:      "string"
 															}
-															required: ["end", "start"]
-															type: "object"
-															"x-kubernetes-validations": [{
-																message: "end must be greater than start"
-																rule:    "self.end > self.start"
-															}]
+															value: {
+																description: "Value within the HTTP header to match against."
+																properties: {
+																	type: {
+																		default:     "Exact"
+																		description: "Type specifies how to match against a string."
+																		enum: ["Exact", "Prefix", "Suffix", "RegularExpression"]
+																		type: "string"
+																	}
+																	value: {
+																		description: "Value specifies the string value that the match must have."
+																		maxLength:   1024
+																		minLength:   1
+																		type:        "string"
+																	}
+																}
+																required: ["value"]
+																type: "object"
+															}
 														}
-														type: {
-															allOf: [{
-																enum: ["Value", "Range"]
-															}, {
-																enum: ["Value", "Range"]
-															}]
-															default: "Value"
-															description: """
+														required: ["name", "value"]
+														type: "object"
+													}
+													maxItems: 16
+													minItems: 1
+													type:     "array"
+												}
+												statusCodes: {
+													description: "Status code to match on. The match evaluates to true if any of the matches are successful."
+													items: {
+														description: "StatusCodeMatch defines the configuration for matching a status code."
+														properties: {
+															range: {
+																description: "Range contains the range of status codes."
+																properties: {
+																	end: {
+																		description: "End of the range, including the end value."
+																		type:        "integer"
+																	}
+																	start: {
+																		description: "Start of the range, including the start value."
+																		type:        "integer"
+																	}
+																}
+																required: ["end", "start"]
+																type: "object"
+																"x-kubernetes-validations": [{
+																	message: "end must be greater than start"
+																	rule:    "self.end > self.start"
+																}]
+															}
+															type: {
+																allOf: [{enum: ["Value", "Range"]}, {enum: ["Value", "Range"]}]
+																default: "Value"
+																description: """
 																				Type is the type of value.
 																				Valid values are Value and Range, default is Value.
 																				"""
-															type: "string"
+																type: "string"
+															}
+															value: {
+																description: "Value contains the value of the status code."
+																type:        "integer"
+															}
 														}
-														value: {
-															description: "Value contains the value of the status code."
-															type:        "integer"
-														}
+														required: ["type"]
+														type: "object"
+														"x-kubernetes-validations": [{
+															message: "value must be set for type Value"
+															rule:    "(!has(self.type) || self.type == 'Value')? has(self.value) : true"
+														}, {
+															message: "range must be set for type Range"
+															rule:    "(has(self.type) && self.type == 'Range')? has(self.range) : true"
+														}]
 													}
-													required: ["type"]
-													type: "object"
-													"x-kubernetes-validations": [{
-														message: "value must be set for type Value"
-														rule:    "(!has(self.type) || self.type == 'Value')? has(self.value) : true"
-													}, {
-														message: "range must be set for type Range"
-														rule:    "(has(self.type) && self.type == 'Range')? has(self.range) : true"
-													}]
+													maxItems: 50
+													minItems: 1
+													type:     "array"
 												}
-												maxItems: 50
-												minItems: 1
-												type:     "array"
 											}
-											required: ["statusCodes"]
 											type: "object"
+											"x-kubernetes-validations": [{
+												message: "at least one of statusCodes or responseHeaders must be specified"
+												rule:    "has(self.statusCodes) || has(self.responseHeaders)"
+											}]
 										}
 										redirect: {
 											description: "Redirect configuration"
@@ -3216,11 +3417,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type:        "string"
 														}
 														type: {
-															allOf: [{
-																enum: ["Inline", "ValueRef"]
-															}, {
-																enum: ["Inline", "ValueRef"]
-															}]
+															allOf: [{enum: ["Inline", "ValueRef"]}, {enum: ["Inline", "ValueRef"]}]
 															default: "Inline"
 															description: """
 																			Type is the type of method to use to read the body value.
@@ -3908,6 +4105,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														This takes precedence over EnvoyProxy tracing when set.
 														"""
 										properties: {
+											clientSamplingFraction: {
+												description: """
+																ClientSamplingFraction represents the fraction of requests that should be
+																selected for tracing when requested by the client.
+																If unspecified, client-forced tracing is disabled by default and users must
+																set this field to opt in.
+																"""
+												properties: {
+													denominator: {
+														default: 100
+														format:  "int32"
+														minimum: 1
+														type:    "integer"
+													}
+													numerator: {
+														format:  "int32"
+														minimum: 0
+														type:    "integer"
+													}
+												}
+												required: ["numerator"]
+												type: "object"
+												"x-kubernetes-validations": [{
+													message: "numerator must be less than or equal to denominator"
+													rule:    "self.numerator <= self.denominator"
+												}]
+											}
 											customTags: {
 												additionalProperties: {
 													properties: {
@@ -3976,6 +4200,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																Deprecated: Use Tags instead.
 																"""
 												type: "object"
+											}
+											overallSamplingFraction: {
+												description: """
+																OverallSamplingFraction represents the fraction of requests that should be
+																selected for tracing after all other sampling checks have been applied.
+																"""
+												properties: {
+													denominator: {
+														default: 100
+														format:  "int32"
+														minimum: 1
+														type:    "integer"
+													}
+													numerator: {
+														format:  "int32"
+														minimum: 0
+														type:    "integer"
+													}
+												}
+												required: ["numerator"]
+												type: "object"
+												"x-kubernetes-validations": [{
+													message: "numerator must be less than or equal to denominator"
+													rule:    "self.numerator <= self.denominator"
+												}]
 											}
 											samplingFraction: {
 												description: """
@@ -4123,14 +4372,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							message: "this policy can only have a targetRef.group of gateway.networking.k8s.io"
 							rule:    "has(self.targetRef) ? self.targetRef.group == 'gateway.networking.k8s.io' : true "
 						}, {
-							message: "this policy can only have a targetRef.kind of Gateway/HTTPRoute/GRPCRoute/TCPRoute/UDPRoute/TLSRoute"
-							rule:    "has(self.targetRef) ? self.targetRef.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute'] : true"
+							message: "this policy can only have a targetRef.kind of Gateway/ListenerSet/HTTPRoute/GRPCRoute/TCPRoute/UDPRoute/TLSRoute"
+							rule:    "has(self.targetRef) ? self.targetRef.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute'] : true"
 						}, {
 							message: "this policy can only have a targetRefs[*].group of gateway.networking.k8s.io"
 							rule:    "has(self.targetRefs) ? self.targetRefs.all(ref, ref.group == 'gateway.networking.k8s.io') : true "
 						}, {
-							message: "this policy can only have a targetRefs[*].kind of Gateway/HTTPRoute/GRPCRoute/TCPRoute/UDPRoute/TLSRoute"
-							rule:    "has(self.targetRefs) ? self.targetRefs.all(ref, ref.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute']) : true "
+							message: "this policy can only have a targetRefs[*].kind of Gateway/ListenerSet/HTTPRoute/GRPCRoute/TCPRoute/UDPRoute/TLSRoute"
+							rule:    "has(self.targetRefs) ? self.targetRefs.all(ref, ref.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute']) : true "
+						}, {
+							message: "mergeType can only be used with xRoute targets"
+							rule:    "!has(self.mergeType) || ((!has(self.targetRef) || self.targetRef.kind in ['HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute']) && (!has(self.targetRefs) || self.targetRefs.all(ref, ref.kind in ['HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute'])) && (!has(self.targetSelectors) || self.targetSelectors.all(sel, sel.kind in ['HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute'])))"
 						}, {
 							message: "either compression or compressor can be set, not both"
 							rule:    "!has(self.compression) || !has(self.compressor)"
@@ -4138,8 +4390,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							message: "requestBuffer cannot be used together with httpUpgrade"
 							rule:    "!has(self.requestBuffer) || !has(self.httpUpgrade) || self.httpUpgrade.size() == 0"
 						}, {
-							message: "admissionControl can only be used with HTTPRoute, GRPCRoute, or Gateway targets"
-							rule:    "!has(self.admissionControl) || ((!has(self.targetRef) || self.targetRef.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute']) && (!has(self.targetRefs) || self.targetRefs.all(ref, ref.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute'])) && (!has(self.targetSelectors) || self.targetSelectors.all(sel, sel.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute'])))"
+							message: "admissionControl can only be used with HTTPRoute, GRPCRoute, Gateway, or ListenerSet targets"
+							rule:    "!has(self.admissionControl) || ((!has(self.targetRef) || self.targetRef.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute']) && (!has(self.targetRefs) || self.targetRefs.all(ref, ref.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute'])) && (!has(self.targetSelectors) || self.targetSelectors.all(sel, sel.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute'])))"
 						}, {
 							message: "predictivePercent in preconnect policy only works with RoundRobin or Random load balancers"
 							rule:    "!((has(self.connection) && has(self.connection.preconnect) && has(self.connection.preconnect.predictivePercent)) && !(has(self.loadBalancer) && has(self.loadBalancer.type) && self.loadBalancer.type in ['Random', 'RoundRobin']))"
@@ -4494,9 +4746,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						type: "object"
 					}
 				}
-				required: [
-					"spec",
-				]
+				required: ["spec"]
 				type: "object"
 			}
 			served:  true
@@ -4505,19 +4755,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 		}]
 	}
 }, {
+	apiVersion: "apiextensions.k8s.io/v1"
+	kind:       "CustomResourceDefinition"
 	metadata: name: "clienttrafficpolicies.gateway.envoyproxy.io"
 	spec: {
 		group: "gateway.envoyproxy.io"
 		names: {
-			categories: [
-				"envoy-gateway",
-			]
+			categories: ["envoy-gateway"]
 			kind:     "ClientTrafficPolicy"
 			listKind: "ClientTrafficPolicyList"
 			plural:   "clienttrafficpolicies"
-			shortNames: [
-				"ctp",
-			]
+			shortNames: ["ctp"]
 			singular: "clienttrafficpolicy"
 		}
 		scope: "Namespaced"
@@ -4587,9 +4835,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										required: ["name"]
 										type: "object"
 									}
+									directSourceIP: {
+										description: """
+														DirectSourceIP configures the geoip filter to use the downstream connection
+														source address (the TCP peer of the connection terminated by Envoy) as the client IP.
+
+														Use this in L4-transparent topologies where a load balancer preserves the original
+														client source IP at TCP level and does not populate XFF or a custom header — for
+														example, AWS NLB with target-type=instance + externalTrafficPolicy=Local, or
+														Azure Standard Load Balancer.
+
+														Mutually exclusive with XForwardedFor and CustomHeader.
+														"""
+										type: "object"
+									}
 									xForwardedFor: {
 										description: "XForwardedForSettings provides configuration for using X-Forwarded-For headers for determining the client IP address."
 										properties: {
+											disableXForwardedForAppend: {
+												description: """
+																DisableXForwardedForAppend configures Envoy Proxy to stop appending the downstream address
+																to the X-Forwarded-For header.
+
+																This only disables the automatic append behavior. It does not remove or sanitize
+																an incoming X-Forwarded-For header.
+																"""
+												type: "boolean"
+											}
 											numTrustedHops: {
 												description: """
 																NumTrustedHops specifies how many trusted hops to count from the rightmost side of
@@ -4639,8 +4911,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								}
 								type: "object"
 								"x-kubernetes-validations": [{
-									message: "customHeader cannot be used in conjunction with xForwardedFor"
-									rule:    "!(has(self.xForwardedFor) && has(self.customHeader))"
+									message: "exactly one of xForwardedFor, customHeader, or directSourceIP must be set"
+									rule:    "[has(self.xForwardedFor), has(self.customHeader), has(self.directSourceIP)].filter(x, x).size() == 1"
 								}]
 							}
 							connection: {
@@ -4649,14 +4921,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									bufferLimit: {
 										allOf: [{
 											pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-										}, {
-											pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-										}]
-										anyOf: [{
-											type: "integer"
-										}, {
-											type: "string"
-										}]
+										}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+										anyOf: [{type: "integer"}, {type: "string"}]
 										description: """
 														BufferLimit provides configuration for the maximum buffer size in bytes for each incoming connection.
 														BufferLimit applies to connection streaming (maybe non-streaming) channel between processes, it's in user space.
@@ -4733,14 +4999,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									socketBufferLimit: {
 										allOf: [{
 											pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-										}, {
-											pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-										}]
-										anyOf: [{
-											type: "integer"
-										}, {
-											type: "string"
-										}]
+										}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+										anyOf: [{type: "integer"}, {type: "string"}]
 										description: """
 														SocketBufferLimit provides configuration for the maximum buffer size in bytes for each incoming socket.
 														SocketBufferLimit applies to socket streaming channel between TCP/IP stacks, it's in kernel space.
@@ -5048,6 +5308,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														and responses.
 														"""
 										type: "boolean"
+									}
+									host: {
+										description: "Host enables managing how the Host/Authority header set by clients can be normalized."
+										properties: stripTrailingHostDot: {
+											description: """
+																StripTrailingHostDot determines if the trailing dot of the host should be removed
+																from the Host/Authority header before any processing of the request.
+																This affects the upstream host header as well. Without this option, incoming requests
+																with host "example.com." will not match routes with domains set to "example.com".
+																When the host includes a port (for example "example.com.:443"), only the trailing dot
+																from the host section is stripped, leaving the port as-is ("example.com:443").
+																Defaults to false.
+																"""
+											type: "boolean"
+										}
+										type: "object"
 									}
 									lateResponseHeaders: {
 										description: "LateResponseHeaders defines settings for global response header modification."
@@ -5515,14 +5791,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									initialConnectionWindowSize: {
 										allOf: [{
 											pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-										}, {
-											pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-										}]
-										anyOf: [{
-											type: "integer"
-										}, {
-											type: "string"
-										}]
+										}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+										anyOf: [{type: "integer"}, {type: "string"}]
 										description: """
 														InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
 														If not set, the default value is 1 MiB.
@@ -5532,14 +5802,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									initialStreamWindowSize: {
 										allOf: [{
 											pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-										}, {
-											pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-										}]
-										anyOf: [{
-											type: "integer"
-										}, {
-											type: "string"
-										}]
+										}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+										anyOf: [{type: "integer"}, {type: "string"}]
 										description: """
 														InitialStreamWindowSize sets the initial window size for HTTP/2 streams.
 														If not set, the default value is 64 KiB(64*1024).
@@ -5951,6 +6215,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 												type:    "string"
 											}
+											requestHeadersReceivedTimeout: {
+												description: """
+																RequestHeadersReceivedTimeout is the duration envoy waits for the request headers to arrive.
+																The timer is activated when the first byte of the headers is received,
+																and is disarmed when the last byte of the headers has been received.
+																If not specified or set to 0, this timeout is disabled.
+																"""
+												pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+												type:    "string"
+											}
 											requestReceivedTimeout: {
 												description: """
 																RequestReceivedTimeout is the duration envoy waits for the complete request reception. This timer starts upon request
@@ -5972,14 +6246,35 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}
 									tcp: {
 										description: "Timeout settings for TCP."
-										properties: idleTimeout: {
-											description: """
+										properties: {
+											connectionInspectionTimeout: {
+												description: """
+																ConnectionInspectionTimeout is the maximum time to wait for initial inspection
+																(TLS / SNI and protocol detection, or HTTP protocol parsing) of an incoming connection on the listener socket.
+																If exceeded, the connection is dropped.
+																Default: 15 seconds.
+																"""
+												pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+												type:    "string"
+											}
+											idleTimeout: {
+												description: """
 																IdleTimeout for a TCP connection. Idle time is defined as a period in which there are no
 																bytes sent or received on either the upstream or downstream connection.
 																Default: 1 hour.
 																"""
-											pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
-											type:    "string"
+												pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+												type:    "string"
+											}
+											tlsHandshakeTimeout: {
+												description: """
+																TLSHandshakeTimeout for a TCP connection. The maximum time to complete transport level connection negotiation
+																(e.g. the TLS handshake) after a connection is accepted.
+																If this expires before the transport reports connection establishment, the connection is summarily closed.
+																"""
+												pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+												type:    "string"
+											}
 										}
 										type: "object"
 									}
@@ -6069,6 +6364,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														initiating the TLS connection to the Gateway listener.
 														"""
 										properties: {
+											allowExpiredCertificate: {
+												description: """
+																AllowExpiredCertificate permits client certificates that have expired
+																but are otherwise valid (CA chain, signature). When true, Envoy skips
+																the NotAfter check during client certificate validation.
+																Defaults to false.
+																"""
+												type: "boolean"
+											}
 											caCertificateRefs: {
 												description: """
 																CACertificateRefs contains one or more references to
@@ -6357,10 +6661,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														description: "Other names matchers"
 														items: {
 															properties: {
-																oid: {
-																	description: "OID Value"
-																	type:        "string"
-																}
+																oid: {description: "OID Value", type: "string"}
 																type: {
 																	default:     "Exact"
 																	description: "Type specifies how to match against a string."
@@ -6411,6 +6712,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 										}
 										type: "object"
+										"x-kubernetes-validations": [{
+											message: "allowExpiredCertificate can only be set when mode is VerifyIfGiven or RequireAndVerify"
+											rule:    "!has(self.allowExpiredCertificate) || !self.allowExpiredCertificate || !has(self.mode) || self.mode in ['VerifyIfGiven', 'RequireAndVerify']"
+										}]
 									}
 									ecdhCurves: {
 										description: """
@@ -6511,14 +6816,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							message: "this policy can only have a targetRef.group of gateway.networking.k8s.io"
 							rule:    "has(self.targetRef) ? self.targetRef.group == 'gateway.networking.k8s.io' : true"
 						}, {
-							message: "this policy can only have a targetRef.kind of Gateway"
-							rule:    "has(self.targetRef) ? self.targetRef.kind == 'Gateway' : true"
+							message: "this policy can only have a targetRef.kind of Gateway or ListenerSet"
+							rule:    "has(self.targetRef) ? self.targetRef.kind in ['Gateway', 'ListenerSet'] : true"
 						}, {
 							message: "this policy can only have a targetRefs[*].group of gateway.networking.k8s.io"
 							rule:    "has(self.targetRefs) ? self.targetRefs.all(ref, ref.group == 'gateway.networking.k8s.io') : true"
 						}, {
-							message: "this policy can only have a targetRefs[*].kind of Gateway"
-							rule:    "has(self.targetRefs) ? self.targetRefs.all(ref, ref.kind == 'Gateway') : true"
+							message: "this policy can only have a targetRefs[*].kind of Gateway or ListenerSet"
+							rule:    "has(self.targetRefs) ? self.targetRefs.all(ref, ref.kind in ['Gateway', 'ListenerSet']) : true"
 						}]
 					}
 					status: {
@@ -6870,9 +7175,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						type: "object"
 					}
 				}
-				required: [
-					"spec",
-				]
+				required: ["spec"]
 				type: "object"
 			}
 			served:  true
@@ -6881,6 +7184,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 		}]
 	}
 }, {
+	apiVersion: "apiextensions.k8s.io/v1"
+	kind:       "CustomResourceDefinition"
 	metadata: name: "envoyextensionpolicies.gateway.envoyproxy.io"
 	spec: {
 		group: "gateway.envoyproxy.io"
@@ -6888,9 +7193,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 			kind:     "EnvoyExtensionPolicy"
 			listKind: "EnvoyExtensionPolicyList"
 			plural:   "envoyextensionpolicies"
-			shortNames: [
-				"eep",
-			]
+			shortNames: ["eep"]
 			singular: "envoyextensionpolicy"
 		}
 		scope: "Namespaced"
@@ -7325,14 +7628,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														bufferLimit: {
 															allOf: [{
 																pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-															}, {
-																pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-															}]
-															anyOf: [{
-																type: "integer"
-															}, {
-																type: "string"
-															}]
+															}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+															anyOf: [{type: "integer"}, {type: "string"}]
 															description: """
 																			BufferLimit Soft limit on size of the cluster’s connections read and write buffers.
 																			BufferLimit applies to connection streaming (maybe non-streaming) channel between processes, it's in user space.
@@ -7387,14 +7684,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														socketBufferLimit: {
 															allOf: [{
 																pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-															}, {
-																pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-															}]
-															anyOf: [{
-																type: "integer"
-															}, {
-																type: "string"
-															}]
+															}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+															anyOf: [{type: "integer"}, {type: "string"}]
 															description: """
 																			SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
 																			to backend.
@@ -7458,6 +7749,77 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	}
 																	type: "object"
 																}
+																healthCheckLog: {
+																	description: """
+																					HealthCheckLog defines health check event logging configuration for this cluster.
+																					When set, HC probe outcomes are logged to the configured sinks.
+																					Takes precedence over the gateway-level EnvoyProxy.spec.telemetry.healthCheckLog.
+																					"""
+																	properties: {
+																		matches: {
+																			description: """
+																							Matches defines which health check probe outcomes produce a log entry.
+																							When omitted or empty, all events are logged.
+
+																							Each value must be unique. Multiple values are ORed. If any failure type is
+																							specified then a success type must also be specified, and vice versa.
+																							"""
+																			items: {
+																				description: "ProxyHealthCheckLogEventType specifies which health check probe outcomes produce a log entry."
+																				enum: ["Failure", "FailureSeriesStart", "Success", "HealthyTransition"]
+																				type: "string"
+																			}
+																			maxItems:                 4
+																			type:                     "array"
+																			"x-kubernetes-list-type": "set"
+																			"x-kubernetes-validations": [{
+																				message: "a failure type and a success type must both be specified together"
+																				rule:    "self.exists(e, e == 'Failure' || e == 'FailureSeriesStart') == self.exists(e, e == 'Success' || e == 'HealthyTransition')"
+																			}]
+																		}
+																		sinks: {
+																			description: """
+																							Sinks defines where health check events are written.
+																							When omitted, events are written to /dev/stdout.
+																							"""
+																			items: {
+																				description: "ProxyHealthCheckLogSink defines a destination for health check event logs."
+																				properties: {
+																					file: {
+																						description: """
+																										File defines the file sink configuration.
+																										Required when type is File.
+																										"""
+																						properties: path: {
+																							description: """
+																												Path specifies the file path for health check event output.
+																												Use /dev/stdout to write to standard output.
+																												"""
+																							minLength: 1
+																							type:      "string"
+																						}
+																						required: ["path"]
+																						type: "object"
+																					}
+																					type: {
+																						description: "Type defines the type of sink."
+																						enum: ["File"]
+																						type: "string"
+																					}
+																				}
+																				required: ["type"]
+																				type: "object"
+																				"x-kubernetes-validations": [{
+																					message: "If ProxyHealthCheckLogSink type is File, file field needs to be set."
+																					rule:    "self.type == 'File' ? has(self.file) : !has(self.file)"
+																				}]
+																			}
+																			maxItems: 1
+																			type:     "array"
+																		}
+																	}
+																	type: "object"
+																}
 																healthyThreshold: {
 																	default:     1
 																	description: "HealthyThreshold defines the number of healthy health checks required before a backend host is marked healthy."
@@ -7484,11 +7846,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:        "string"
 																				}
 																				type: {
-																					allOf: [{
-																						enum: ["Text", "Binary"]
-																					}, {
-																						enum: ["Text", "Binary"]
-																					}]
+																					allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																					description: "Type defines the type of the payload."
 																					type:        "string"
 																				}
@@ -7532,13 +7890,42 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							Method defines the HTTP method used for health checking.
 																							Defaults to GET
 																							"""
-																			type: "string"
+																			maxLength: 16
+																			type:      "string"
 																		}
 																		path: {
 																			description: "Path defines the HTTP path that will be requested during health checking."
 																			maxLength:   1024
 																			minLength:   1
 																			type:        "string"
+																		}
+																		requestBody: {
+																			description: "RequestBody defines the HTTP request body payload sent during health checking."
+																			properties: {
+																				binary: {
+																					description: "Binary payload base64 encoded."
+																					format:      "byte"
+																					type:        "string"
+																				}
+																				text: {
+																					description: "Text payload in plain text."
+																					type:        "string"
+																				}
+																				type: {
+																					allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
+																					description: "Type defines the type of the payload."
+																					type:        "string"
+																				}
+																			}
+																			required: ["type"]
+																			type: "object"
+																			"x-kubernetes-validations": [{
+																				message: "If payload type is Text, text field needs to be set."
+																				rule:    "self.type == 'Text' ? has(self.text) : !has(self.text)"
+																			}, {
+																				message: "If payload type is Binary, binary field needs to be set."
+																				rule:    "self.type == 'Binary' ? has(self.binary) : !has(self.binary)"
+																			}]
 																		}
 																		retriableStatuses: {
 																			description: """
@@ -7558,6 +7945,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	}
 																	required: ["path"]
 																	type: "object"
+																	"x-kubernetes-validations": [{
+																		message: "The requestBody field can only be set when method is POST or PUT."
+																		rule:    "!has(self.requestBody) || (has(self.method) && self.method.upperAscii() in ['POST','PUT'])"
+																	}]
 																}
 																initialJitter: {
 																	description: """
@@ -7612,11 +8003,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:        "string"
 																				}
 																				type: {
-																					allOf: [{
-																						enum: ["Text", "Binary"]
-																					}, {
-																						enum: ["Text", "Binary"]
-																					}]
+																					allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																					description: "Type defines the type of the payload."
 																					type:        "string"
 																				}
@@ -7644,11 +8031,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:        "string"
 																				}
 																				type: {
-																					allOf: [{
-																						enum: ["Text", "Binary"]
-																					}, {
-																						enum: ["Text", "Binary"]
-																					}]
+																					allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																					description: "Type defines the type of the payload."
 																					type:        "string"
 																				}
@@ -7673,11 +8056,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	type:        "string"
 																}
 																type: {
-																	allOf: [{
-																		enum: ["HTTP", "TCP", "GRPC"]
-																	}, {
-																		enum: ["HTTP", "TCP", "GRPC"]
-																	}]
+																	allOf: [{enum: ["HTTP", "TCP", "GRPC"]}, {enum: ["HTTP", "TCP", "GRPC"]}]
 																	description: "Type defines the type of health checker."
 																	type:        "string"
 																}
@@ -7833,14 +8212,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														initialConnectionWindowSize: {
 															allOf: [{
 																pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-															}, {
-																pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-															}]
-															anyOf: [{
-																type: "integer"
-															}, {
-																type: "string"
-															}]
+															}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+															anyOf: [{type: "integer"}, {type: "string"}]
 															description: """
 																			InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
 																			If not set, the default value is 1 MiB.
@@ -7850,14 +8223,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														initialStreamWindowSize: {
 															allOf: [{
 																pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-															}, {
-																pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-															}]
-															anyOf: [{
-																type: "integer"
-															}, {
-																type: "string"
-															}]
+															}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+															anyOf: [{type: "integer"}, {type: "string"}]
 															description: """
 																			InitialStreamWindowSize sets the initial window size for HTTP/2 streams.
 																			If not set, the default value is 64 KiB(64*1024).
@@ -7937,6 +8304,53 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					"""
 																	items: type: "string"
 																	type: "array"
+																}
+																outOfBand: {
+																	description: """
+																					OutOfBand enables out-of-band ORCA load reporting. When set, Envoy opens a
+																					server-streaming gRPC connection to each endpoint's
+																					xds.service.orca.v3.OpenRcaService/StreamCoreMetrics and pulls load
+																					reports periodically, instead of relying on in-band ORCA metrics
+																					carried in response headers/trailers.
+
+																					The backend must implement OpenRcaService for this to take effect.
+																					"""
+																	properties: {
+																		authority: {
+																			description: """
+																							Authority overrides the :authority header on the OutOfBand gRPC stream.
+																							If unset, Envoy uses the endpoint hostname, then the dialed address, then
+																							the cluster name.
+																							"""
+																			maxLength: 259
+																			minLength: 1
+																			pattern:   "^[^\\x00\\n\\r]*$"
+																			type:      "string"
+																		}
+																		port: {
+																			description: """
+																							Port overrides the port used for the OutOfBand reporting connection, e.g. to
+																							reach a separate reporting sidecar. Defaults to the endpoint's port.
+																							"""
+																			format:  "int32"
+																			maximum: 65535
+																			minimum: 1
+																			type:    "integer"
+																		}
+																		reportingPeriod: {
+																			description: """
+																							ReportingPeriod is how often Envoy requests load reports from the server.
+																							Must be greater than 0. Defaults to 10s.
+																							"""
+																			pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																			type:    "string"
+																			"x-kubernetes-validations": [{
+																				message: "reportingPeriod must be greater than 0"
+																				rule:    "duration(self) > duration('0s')"
+																			}]
+																		}
+																	}
+																	type: "object"
 																}
 																weightExpirationPeriod: {
 																	description: "If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m."
@@ -8609,6 +9023,26 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 											}
 											type: "object"
 										}
+										shadowMode: {
+											description: """
+															ShadowMode sets if envoy gateway should treat this external processor as "send and go".
+															When enabled, Envoy forwards request/response data to the external processor but does
+															not wait for or apply any response from it. This maps to Envoy's `observability_mode`
+															on the ext_proc filter.
+															Defaults to false.
+															"""
+											type: "boolean"
+										}
+										statusOnError: {
+											description: """
+															Sets the HTTP status that is returned to the client when the external processor returns an error
+															or cannot be reached. Defaults to 500 Internal Server Error.
+															Only 4xx and 5xx status codes are supported.
+															"""
+											enum: [400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 421, 422, 423, 424, 426, 428, 429, 431, 500, 501, 502, 503, 504, 505, 506, 507, 508, 510, 511]
+											format: "int32"
+											type:   "integer"
+										}
 									}
 									type: "object"
 									"x-kubernetes-validations": [{
@@ -8623,6 +9057,9 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 									}, {
 										message: "If FullDuplexStreamed body processing mode is used, FailOpen must be false."
 										rule:    "!(has(self.failOpen) && self.failOpen == true && has(self.processingMode) && ((has(self.processingMode.request) && has(self.processingMode.request.body) && self.processingMode.request.body == 'FullDuplexStreamed') || (has(self.processingMode.response) && has(self.processingMode.response.body) && self.processingMode.response.body == 'FullDuplexStreamed')))"
+									}, {
+										message: "If shadowMode is enabled, body processing mode must be Streamed or unset."
+										rule:    "!(has(self.shadowMode) && self.shadowMode == true && has(self.processingMode) && ((has(self.processingMode.request) && has(self.processingMode.request.body) && self.processingMode.request.body != 'Streamed') || (has(self.processingMode.response) && has(self.processingMode.response.body) && self.processingMode.response.body != 'Streamed')))"
 									}]
 								}
 								maxItems: 16
@@ -8639,6 +9076,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													Only one of Inline or ValueRef must be set
 													"""
 									properties: {
+										filterContext: {
+											description: """
+															FilterContext is the filter context configuration for the Lua script.
+															This must be a JSON object (key/value pairs). The values are made available
+															to the Lua script via request_handle:filterContext(). This allows a shared
+															script to be parameterized differently per EnvoyExtensionPolicy/route.
+															"""
+											"x-kubernetes-preserve-unknown-fields": true
+										}
 										inline: {
 											description: "Inline contains the source code as an inline string."
 											type:        "string"
@@ -8700,6 +9146,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								}
 								maxItems: 16
 								type:     "array"
+							}
+							mergeType: {
+								description: """
+												MergeType determines how this configuration is merged with existing EnvoyExtensionPolicy
+												configurations targeting a parent resource. When set, this configuration will be merged
+												into the closest parent EnvoyExtensionPolicy in the route's attachment hierarchy (for
+												example, one targeting a Gateway, Gateway listener, ListenerSet, or ListenerSet
+												listener).
+												Currently, this field can only be set when targeting xRoute resources.
+												If unset, no merging occurs, and only the most specific configuration takes effect.
+												"""
+								type: "string"
+								"x-kubernetes-validations": [{
+									message: "Replace is not a valid MergeType for EnvoyExtensionPolicy"
+									rule:    "self != 'Replace'"
+								}]
 							}
 							targetRef: {
 								description: """
@@ -9004,7 +9466,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type: "string"
 														}
 														tls: {
-															description: "TLS configuration when connecting to the Wasm code source."
+															description: """
+																			TLS configuration when connecting to the Wasm code source.
+																			If unset, system trust store is used for HTTPS url.
+																			"""
 															properties: caCertificateRef: {
 																description: """
 																					CACertificateRef contains a reference to
@@ -9143,7 +9608,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															type: "string"
 														}
 														tls: {
-															description: "TLS configuration when connecting to the Wasm code source."
+															description: """
+																			TLS configuration when connecting to the Wasm code source.
+																			If unset, system trust store is used.
+																			"""
 															properties: caCertificateRef: {
 																description: """
 																					CACertificateRef contains a reference to
@@ -9228,11 +9696,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													type: "string"
 												}
 												type: {
-													allOf: [{
-														enum: ["HTTP", "Image"]
-													}, {
-														enum: ["HTTP", "Image", "ConfigMap"]
-													}]
+													allOf: [{enum: ["HTTP", "Image"]}, {enum: ["HTTP", "Image", "ConfigMap"]}]
 													description: """
 																	Type is the type of the source of the Wasm code.
 																	Valid WasmCodeSourceType values are "HTTP" or "Image".
@@ -9319,14 +9783,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							message: "this policy can only have a targetRef.group of gateway.networking.k8s.io"
 							rule:    "has(self.targetRef) ? self.targetRef.group == 'gateway.networking.k8s.io' : true"
 						}, {
-							message: "this policy can only have a targetRef.kind of Gateway/HTTPRoute/GRPCRoute/TCPRoute/UDPRoute/TLSRoute"
-							rule:    "has(self.targetRef) ? self.targetRef.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute'] : true"
+							message: "this policy can only have a targetRef.kind of Gateway/ListenerSet/HTTPRoute/GRPCRoute/TCPRoute/UDPRoute/TLSRoute"
+							rule:    "has(self.targetRef) ? self.targetRef.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute'] : true"
 						}, {
 							message: "this policy can only have a targetRefs[*].group of gateway.networking.k8s.io"
 							rule:    "has(self.targetRefs) ? self.targetRefs.all(ref, ref.group == 'gateway.networking.k8s.io') : true "
 						}, {
-							message: "this policy can only have a targetRefs[*].kind of Gateway/HTTPRoute/GRPCRoute/TCPRoute/UDPRoute/TLSRoute"
-							rule:    "has(self.targetRefs) ? self.targetRefs.all(ref, ref.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute']) : true "
+							message: "this policy can only have a targetRefs[*].kind of Gateway/ListenerSet/HTTPRoute/GRPCRoute/TCPRoute/UDPRoute/TLSRoute"
+							rule:    "has(self.targetRefs) ? self.targetRefs.all(ref, ref.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute']) : true "
+						}, {
+							message: "mergeType can only be used with xRoute targets"
+							rule:    "!has(self.mergeType) || ((!has(self.targetRef) || self.targetRef.kind in ['HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute']) && (!has(self.targetRefs) || self.targetRefs.all(ref, ref.kind in ['HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute'])) && (!has(self.targetSelectors) || self.targetSelectors.all(sel, sel.kind in ['HTTPRoute', 'GRPCRoute', 'UDPRoute', 'TCPRoute', 'TLSRoute'])))"
 						}]
 					}
 					status: {
@@ -9678,9 +10145,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						type: "object"
 					}
 				}
-				required: [
-					"spec",
-				]
+				required: ["spec"]
 				type: "object"
 			}
 			served:  true
@@ -9689,19 +10154,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 		}]
 	}
 }, {
+	apiVersion: "apiextensions.k8s.io/v1"
+	kind:       "CustomResourceDefinition"
 	metadata: name: "envoypatchpolicies.gateway.envoyproxy.io"
 	spec: {
 		group: "gateway.envoyproxy.io"
 		names: {
-			categories: [
-				"envoy-gateway",
-			]
+			categories: ["envoy-gateway"]
 			kind:     "EnvoyPatchPolicy"
 			listKind: "EnvoyPatchPolicyList"
 			plural:   "envoypatchpolicies"
-			shortNames: [
-				"epp",
-			]
+			shortNames: ["epp"]
 			singular: "envoypatchpolicy"
 		}
 		scope: "Namespaced"
@@ -10224,9 +10687,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						type: "object"
 					}
 				}
-				required: [
-					"spec",
-				]
+				required: ["spec"]
 				type: "object"
 			}
 			served:  true
@@ -10235,19 +10696,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 		}]
 	}
 }, {
+	apiVersion: "apiextensions.k8s.io/v1"
+	kind:       "CustomResourceDefinition"
 	metadata: name: "envoyproxies.gateway.envoyproxy.io"
 	spec: {
 		group: "gateway.envoyproxy.io"
 		names: {
-			categories: [
-				"envoy-gateway",
-			]
+			categories: ["envoy-gateway"]
 			kind:     "EnvoyProxy"
 			listKind: "EnvoyProxyList"
 			plural:   "envoyproxies"
-			shortNames: [
-				"eproxy",
-			]
+			shortNames: ["eproxy"]
 			singular: "envoyproxy"
 		}
 		scope: "Namespaced"
@@ -10773,7 +11232,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															After defines the filter that should come after the filter.
 															Only one of Before or After must be set.
 															"""
-											enum: ["envoy.filters.http.custom_response", "envoy.filters.http.health_check", "envoy.filters.http.fault", "envoy.filters.http.cors", "envoy.filters.http.header_mutation", "envoy.filters.http.ext_authz", "envoy.filters.http.api_key_auth", "envoy.filters.http.basic_auth", "envoy.filters.http.oauth2", "envoy.filters.http.jwt_authn", "envoy.filters.http.stateful_session", "envoy.filters.http.buffer", "envoy.filters.http.lua", "envoy.filters.http.ext_proc", "envoy.filters.http.wasm", "envoy.filters.http.dynamic_modules", "envoy.filters.http.geoip", "envoy.filters.http.rbac", "envoy.filters.http.local_ratelimit", "envoy.filters.http.ratelimit", "envoy.filters.http.bandwidth_limit", "envoy.filters.http.grpc_web", "envoy.filters.http.grpc_stats", "envoy.filters.http.credential_injector", "envoy.filters.http.compressor", "envoy.filters.http.dynamic_forward_proxy"]
+											enum: ["envoy.filters.http.custom_response", "envoy.filters.http.health_check", "envoy.filters.http.fault", "envoy.filters.http.cors", "envoy.filters.http.csrf", "envoy.filters.http.header_mutation", "envoy.filters.http.ext_authz", "envoy.filters.http.api_key_auth", "envoy.filters.http.basic_auth", "envoy.filters.http.oauth2", "envoy.filters.http.jwt_authn", "envoy.filters.http.stateful_session", "envoy.filters.http.buffer", "envoy.filters.http.lua", "envoy.filters.http.ext_proc", "envoy.filters.http.wasm", "envoy.filters.http.dynamic_modules", "envoy.filters.http.geoip", "envoy.filters.http.rbac", "envoy.filters.http.local_ratelimit", "envoy.filters.http.ratelimit", "envoy.filters.http.bandwidth_limit", "envoy.filters.http.grpc_web", "envoy.filters.http.grpc_stats", "envoy.filters.http.credential_injector", "envoy.filters.http.compressor", "envoy.filters.http.dynamic_forward_proxy"]
 											type: "string"
 										}
 										before: {
@@ -10781,12 +11240,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															Before defines the filter that should come before the filter.
 															Only one of Before or After must be set.
 															"""
-											enum: ["envoy.filters.http.custom_response", "envoy.filters.http.health_check", "envoy.filters.http.fault", "envoy.filters.http.cors", "envoy.filters.http.header_mutation", "envoy.filters.http.ext_authz", "envoy.filters.http.api_key_auth", "envoy.filters.http.basic_auth", "envoy.filters.http.oauth2", "envoy.filters.http.jwt_authn", "envoy.filters.http.stateful_session", "envoy.filters.http.buffer", "envoy.filters.http.lua", "envoy.filters.http.ext_proc", "envoy.filters.http.wasm", "envoy.filters.http.dynamic_modules", "envoy.filters.http.geoip", "envoy.filters.http.rbac", "envoy.filters.http.local_ratelimit", "envoy.filters.http.ratelimit", "envoy.filters.http.bandwidth_limit", "envoy.filters.http.grpc_web", "envoy.filters.http.grpc_stats", "envoy.filters.http.credential_injector", "envoy.filters.http.compressor", "envoy.filters.http.dynamic_forward_proxy"]
+											enum: ["envoy.filters.http.custom_response", "envoy.filters.http.health_check", "envoy.filters.http.fault", "envoy.filters.http.cors", "envoy.filters.http.csrf", "envoy.filters.http.header_mutation", "envoy.filters.http.ext_authz", "envoy.filters.http.api_key_auth", "envoy.filters.http.basic_auth", "envoy.filters.http.oauth2", "envoy.filters.http.jwt_authn", "envoy.filters.http.stateful_session", "envoy.filters.http.buffer", "envoy.filters.http.lua", "envoy.filters.http.ext_proc", "envoy.filters.http.wasm", "envoy.filters.http.dynamic_modules", "envoy.filters.http.geoip", "envoy.filters.http.rbac", "envoy.filters.http.local_ratelimit", "envoy.filters.http.ratelimit", "envoy.filters.http.bandwidth_limit", "envoy.filters.http.grpc_web", "envoy.filters.http.grpc_stats", "envoy.filters.http.credential_injector", "envoy.filters.http.compressor", "envoy.filters.http.dynamic_forward_proxy"]
 											type: "string"
 										}
 										name: {
 											description: "Name of the filter."
-											enum: ["envoy.filters.http.custom_response", "envoy.filters.http.health_check", "envoy.filters.http.fault", "envoy.filters.http.cors", "envoy.filters.http.header_mutation", "envoy.filters.http.ext_authz", "envoy.filters.http.api_key_auth", "envoy.filters.http.basic_auth", "envoy.filters.http.oauth2", "envoy.filters.http.jwt_authn", "envoy.filters.http.stateful_session", "envoy.filters.http.buffer", "envoy.filters.http.lua", "envoy.filters.http.ext_proc", "envoy.filters.http.wasm", "envoy.filters.http.dynamic_modules", "envoy.filters.http.geoip", "envoy.filters.http.rbac", "envoy.filters.http.local_ratelimit", "envoy.filters.http.ratelimit", "envoy.filters.http.bandwidth_limit", "envoy.filters.http.grpc_web", "envoy.filters.http.grpc_stats", "envoy.filters.http.credential_injector", "envoy.filters.http.compressor", "envoy.filters.http.dynamic_forward_proxy"]
+											enum: ["envoy.filters.http.custom_response", "envoy.filters.http.health_check", "envoy.filters.http.fault", "envoy.filters.http.cors", "envoy.filters.http.csrf", "envoy.filters.http.header_mutation", "envoy.filters.http.ext_authz", "envoy.filters.http.api_key_auth", "envoy.filters.http.basic_auth", "envoy.filters.http.oauth2", "envoy.filters.http.jwt_authn", "envoy.filters.http.stateful_session", "envoy.filters.http.buffer", "envoy.filters.http.lua", "envoy.filters.http.ext_proc", "envoy.filters.http.wasm", "envoy.filters.http.dynamic_modules", "envoy.filters.http.geoip", "envoy.filters.http.rbac", "envoy.filters.http.local_ratelimit", "envoy.filters.http.ratelimit", "envoy.filters.http.bandwidth_limit", "envoy.filters.http.grpc_web", "envoy.filters.http.grpc_stats", "envoy.filters.http.credential_injector", "envoy.filters.http.compressor", "envoy.filters.http.dynamic_forward_proxy"]
 											type: "string"
 										}
 									}
@@ -10927,7 +11386,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								properties: level: {
 									additionalProperties: {
 										description: "LogLevel defines a log level for Envoy Gateway and EnvoyProxy system logs."
-										enum: ["trace", "debug", "info", "warn", "error"]
+										enum: ["trace", "debug", "info", "warn", "error", "off", "critical"]
 										type: "string"
 									}
 									default: default: "warn"
@@ -10947,12 +11406,84 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								enum: ["Strict", "InsecureSyntax", "Disabled"]
 								type: "string"
 							}
+							mergeBackends: {
+								description: """
+												MergeBackends configures cluster deduplication: routes that reference the same backend
+												share a single Envoy cluster instead of Envoy Gateway generating one cluster per route
+												rule. This reduces xDS size, active health-check traffic, and stats cardinality, and
+												improves upstream connection pooling.
+
+												Disabled when unset; specifying this field at all (even without further configuration)
+												enables it. Mutually exclusive with MergeGateways.
+												"""
+								properties: selector: {
+									description: """
+														Selector restricts cluster deduplication to backends whose target Service, ServiceImport,
+														or Backend resource matches this label selector. When unset, every otherwise-eligible
+														backend is merged. Use this to opt individual backends into deduplication gradually
+														instead of enabling it for every backend at once.
+														"""
+									properties: {
+										matchExpressions: {
+											description: "matchExpressions is a list of label selector requirements. The requirements are ANDed."
+											items: {
+												description: """
+																	A label selector requirement is a selector that contains values, a key, and an operator that
+																	relates the key and values.
+																	"""
+												properties: {
+													key: {
+														description: "key is the label key that the selector applies to."
+														type:        "string"
+													}
+													operator: {
+														description: """
+																			operator represents a key's relationship to a set of values.
+																			Valid operators are In, NotIn, Exists and DoesNotExist.
+																			"""
+														type: "string"
+													}
+													values: {
+														description: """
+																			values is an array of string values. If the operator is In or NotIn,
+																			the values array must be non-empty. If the operator is Exists or DoesNotExist,
+																			the values array must be empty. This array is replaced during a strategic
+																			merge patch.
+																			"""
+														items: type: "string"
+														type:                     "array"
+														"x-kubernetes-list-type": "atomic"
+													}
+												}
+												required: ["key", "operator"]
+												type: "object"
+											}
+											type:                     "array"
+											"x-kubernetes-list-type": "atomic"
+										}
+										matchLabels: {
+											additionalProperties: type: "string"
+											description: """
+																matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+																map is equivalent to an element of matchExpressions, whose key field is "key", the
+																operator is "In", and the values array contains only "value". The requirements are ANDed.
+																"""
+											type: "object"
+										}
+									}
+									type:                    "object"
+									"x-kubernetes-map-type": "atomic"
+								}
+								type: "object"
+							}
 							mergeGateways: {
 								description: """
 												MergeGateways defines if Gateway resources should be merged onto the same Envoy Proxy Infrastructure.
 												Setting this field to true would merge all Gateway Listeners under the parent Gateway Class.
 												This means that the port, protocol and hostname tuple must be unique for every listener.
 												If a duplicate listener is detected, the newer listener (based on timestamp) will be rejected and its status will be updated with a "Accepted=False" condition.
+
+												Mutually exclusive with MergeBackends.
 												"""
 								type: "boolean"
 							}
@@ -10969,7 +11500,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							preserveRouteOrder: {
 								description: """
 												PreserveRouteOrder determines if the order of matching for HTTPRoutes is determined by Gateway-API
-												specification (https://gateway-api.sigs.k8s.io/reference/1.4/spec/#httprouterule)
+												specification (https://gateway-api.sigs.k8s.io/reference/api-spec/main/spec/#httprouterule)
 												or preserves the order defined by users in the HTTPRoute's HTTPRouteRule list.
 												Default: False
 												"""
@@ -11048,8 +11579,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					description: "Selects a key of a ConfigMap."
 																					properties: {
 																						key: {
-																							description: "The key to select."
-																							type:        "string"
+																							description: """
+																											The key to select from the ConfigMap's Data field.
+																											Keys in the BinaryData field are not currently propagated to container env vars.
+																											"""
+																							type: "string"
 																						}
 																						name: {
 																							default: ""
@@ -11144,11 +11678,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							type:        "string"
 																						}
 																						divisor: {
-																							anyOf: [{
-																								type: "integer"
-																							}, {
-																								type: "string"
-																							}]
+																							anyOf: [{type: "integer"}, {type: "string"}]
 																							description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
 																							pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																							"x-kubernetes-int-or-string": true
@@ -11266,11 +11796,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	}
 																	limits: {
 																		additionalProperties: {
-																			anyOf: [{
-																				type: "integer"
-																			}, {
-																				type: "string"
-																			}]
+																			anyOf: [{type: "integer"}, {type: "string"}]
 																			pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																			"x-kubernetes-int-or-string": true
 																		}
@@ -11282,11 +11808,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	}
 																	requests: {
 																		additionalProperties: {
-																			anyOf: [{
-																				type: "integer"
-																			}, {
-																				type: "string"
-																			}]
+																			anyOf: [{type: "integer"}, {type: "string"}]
 																			pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																			"x-kubernetes-int-or-string": true
 																		}
@@ -11549,12 +12071,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																items: {
 																	description: "VolumeMount describes a mounting of a Volume within a container."
 																	properties: {
-																		mountPath: {
+																		bindMountOptions: {
 																			description: """
-																							Path within the container at which the volume should be mounted.  Must
-																							not contain ':'.
+																							bindMountOptions is the list of additional bind mount options to apply when
+																							mounting this volume into the container. Allowed values are noexec,
+																							nodev, and nosuid. These are Linux mount options and have no effect on
+																							Windows nodes.
+																							This field is not supported with image volumes.
+																							This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 																							"""
-																			type: "string"
+																			items: type: "string"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "set"
+																		}
+																		mountPath: {
+																			description: "Path within the container at which the volume should be mounted."
+																			type:        "string"
 																		}
 																		mountPropagation: {
 																			description: """
@@ -12864,11 +13396,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						Eligible volumes are in-tree FibreChannel and iSCSI volumes, and all CSI volumes
 																						whose CSI driver announces SELinux support by setting spec.seLinuxMount: true in their
 																						CSIDriver instance. Other volumes are always re-labelled recursively.
-																						"MountOption" value is allowed only when SELinuxMount feature gate is enabled.
 
-																						If not specified and SELinuxMount feature gate is enabled, "MountOption" is used.
-																						If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes
-																						and "Recursive" for all other volumes.
+																						If not specified, "MountOption" is used.
 
 																						This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
 
@@ -12948,10 +13477,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						supplementalGroupsPolicy field.
 																						Note that this field cannot be set when spec.os.name is windows.
 																						"""
-																		items: {
-																			format: "int64"
-																			type:   "integer"
-																		}
+																		items: {format: "int64", type: "integer"}
 																		type:                     "array"
 																		"x-kubernetes-list-type": "atomic"
 																	}
@@ -13544,6 +14070,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					format: "int32"
 																					type:   "integer"
 																				}
+																				defaultUser: {
+																					description: """
+																									defaultUser is Optional: The owner UID of the created files by default.
+																									The defaultUser field is only used as a fallback when the item-level user field is unset.
+																									(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																									"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																				items: {
 																					description: """
 																									items if unspecified, each key-value pair in the Data field of the referenced
@@ -13581,6 +14116,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																												May not start with the string '..'.
 																												"""
 																								type: "string"
+																							}
+																							user: {
+																								description: """
+																												user is Optional: The owner UID of the created file.
+																												If specified, the item-level user field takes precedence over defaultUser.
+																												(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																												"""
+																								format: "int64"
+																								type:   "integer"
 																							}
 																						}
 																						required: ["key", "path"]
@@ -13684,6 +14228,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					format: "int32"
 																					type:   "integer"
 																				}
+																				defaultUser: {
+																					description: """
+																									defaultUser is Optional: The owner UID of the created files by default.
+																									The defaultUser field is only used as a fallback when the item-level user field is unset.
+																									(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																									"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																				items: {
 																					description: "Items is a list of downward API volume file"
 																					items: {
@@ -13732,11 +14285,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										type:        "string"
 																									}
 																									divisor: {
-																										anyOf: [{
-																											type: "integer"
-																										}, {
-																											type: "string"
-																										}]
+																										anyOf: [{type: "integer"}, {type: "string"}]
 																										description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
 																										pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																										"x-kubernetes-int-or-string": true
@@ -13749,6 +14298,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								required: ["resource"]
 																								type:                    "object"
 																								"x-kubernetes-map-type": "atomic"
+																							}
+																							user: {
+																								description: """
+																												user is Optional: The owner UID of the created file.
+																												If specified, the item-level user field takes precedence over defaultUser.
+																												(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																												"""
+																								format: "int64"
+																								type:   "integer"
 																							}
 																						}
 																						required: ["path"]
@@ -13775,12 +14333,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									"""
 																					type: "string"
 																				}
+																				mode: {
+																					description: """
+																									mode specifies the permission bits for the emptyDir directory, in numeric
+																									notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+																									If not specified, defaults to 0777.
+																									This might be in conflict with other options that affect the file
+																									mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+																									will override the mode specified here.
+																									This field has no effect on Windows.
+																									This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
+																									"""
+																					format: "int32"
+																					type:   "integer"
+																				}
 																				sizeLimit: {
-																					anyOf: [{
-																						type: "integer"
-																					}, {
-																						type: "string"
-																					}]
+																					anyOf: [{type: "integer"}, {type: "string"}]
 																					description: """
 																									sizeLimit is the total amount of local storage required for this EmptyDir volume.
 																									The size limit is also applicable for memory medium.
@@ -13879,8 +14447,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																													* An existing PVC (PersistentVolumeClaim)
 																													If the provisioner or an external controller can support the specified data source,
 																													it will create a new volume based on the contents of the specified data source.
-																													When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-																													and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+																													dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+																													copied to dataSource when dataSourceRef.namespace is not specified.
 																													If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 																													"""
 																								properties: {
@@ -13928,7 +14496,6 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																													  specified.
 																													* While dataSource only allows local objects, dataSourceRef allows objects
 																													  in any namespaces.
-																													(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 																													(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 																													"""
 																								properties: {
@@ -13971,11 +14538,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								properties: {
 																									limits: {
 																										additionalProperties: {
-																											anyOf: [{
-																												type: "integer"
-																											}, {
-																												type: "string"
-																											}]
+																											anyOf: [{type: "integer"}, {type: "string"}]
 																											pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																											"x-kubernetes-int-or-string": true
 																										}
@@ -13987,11 +14550,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									}
 																									requests: {
 																										additionalProperties: {
-																											anyOf: [{
-																												type: "integer"
-																											}, {
-																												type: "string"
-																											}]
+																											anyOf: [{type: "integer"}, {type: "string"}]
 																											pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																											"x-kubernetes-int-or-string": true
 																										}
@@ -14620,6 +15179,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					format: "int32"
 																					type:   "integer"
 																				}
+																				defaultUser: {
+																					description: """
+																									defaultUser is Optional: The owner UID of the created files by default.
+																									The defaultUser field is only used as a fallback when the item-level user field is unset.
+																									(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																									"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																				sources: {
 																					description: """
 																									sources is the list of volume projections. Each entry in this list
@@ -14735,6 +15303,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																														"""
 																										type: "string"
 																									}
+																									user: {
+																										description: """
+																														user is Optional: The owner UID of the created file.
+																														If specified, the item-level user field takes precedence over defaultUser.
+																														(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																														"""
+																										format: "int64"
+																										type:   "integer"
+																									}
 																								}
 																								required: ["path"]
 																								type: "object"
@@ -14779,6 +15356,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																																	May not start with the string '..'.
 																																	"""
 																													type: "string"
+																												}
+																												user: {
+																													description: """
+																																	user is Optional: The owner UID of the created file.
+																																	If specified, the item-level user field takes precedence over defaultUser.
+																																	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																																	"""
+																													format: "int64"
+																													type:   "integer"
 																												}
 																											}
 																											required: ["key", "path"]
@@ -14856,11 +15442,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																														type:        "string"
 																													}
 																													divisor: {
-																														anyOf: [{
-																															type: "integer"
-																														}, {
-																															type: "string"
-																														}]
+																														anyOf: [{type: "integer"}, {type: "string"}]
 																														description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
 																														pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																														"x-kubernetes-int-or-string": true
@@ -14873,6 +15455,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																												required: ["resource"]
 																												type:                    "object"
 																												"x-kubernetes-map-type": "atomic"
+																											}
+																											user: {
+																												description: """
+																																	user is Optional: The owner UID of the created file.
+																																	If specified, the item-level user field takes precedence over defaultUser.
+																																	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																																	"""
+																												format: "int64"
+																												type:   "integer"
 																											}
 																										}
 																										required: ["path"]
@@ -14995,6 +15586,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										description: "Kubelet's generated CSRs will be addressed to this signer."
 																										type:        "string"
 																									}
+																									user: {
+																										description: """
+																														user is Optional: The owner UID of the created file.
+																														If specified, the item-level user field takes precedence over defaultUser.
+																														(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																														"""
+																										format: "int64"
+																										type:   "integer"
+																									}
 																									userAnnotations: {
 																										additionalProperties: type: "string"
 																										description: """
@@ -15059,6 +15659,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																																	"""
 																													type: "string"
 																												}
+																												user: {
+																													description: """
+																																	user is Optional: The owner UID of the created file.
+																																	If specified, the item-level user field takes precedence over defaultUser.
+																																	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																																	"""
+																													format: "int64"
+																													type:   "integer"
+																												}
 																											}
 																											required: ["key", "path"]
 																											type: "object"
@@ -15115,6 +15724,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																														token into.
 																														"""
 																										type: "string"
+																									}
+																									user: {
+																										description: """
+																														user is Optional: The owner UID of the created file.
+																														If specified, the item-level user field takes precedence over defaultUser.
+																														(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																														"""
+																										format: "int64"
+																										type:   "integer"
 																									}
 																								}
 																								required: ["path"]
@@ -15370,6 +15988,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					format: "int32"
 																					type:   "integer"
 																				}
+																				defaultUser: {
+																					description: """
+																									defaultUser is Optional: The owner UID of the created files by default.
+																									The defaultUser field is only used as a fallback when the item-level user field is unset.
+																									(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																									"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																				items: {
 																					description: """
 																									items If unspecified, each key-value pair in the Data field of the referenced
@@ -15407,6 +16034,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																												May not start with the string '..'.
 																												"""
 																								type: "string"
+																							}
+																							user: {
+																								description: """
+																												user is Optional: The owner UID of the created file.
+																												If specified, the item-level user field takes precedence over defaultUser.
+																												(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																												"""
+																								format: "int64"
+																								type:   "integer"
 																							}
 																						}
 																						required: ["key", "path"]
@@ -15537,11 +16173,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																description: "Rolling update config params. Present only if type = \"RollingUpdate\"."
 																properties: {
 																	maxSurge: {
-																		anyOf: [{
-																			type: "integer"
-																		}, {
-																			type: "string"
-																		}]
+																		anyOf: [{type: "integer"}, {type: "string"}]
 																		description: """
 																						The maximum number of nodes with an existing available DaemonSet pod that
 																						can have an updated DaemonSet pod during during an update.
@@ -15565,11 +16197,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		"x-kubernetes-int-or-string": true
 																	}
 																	maxUnavailable: {
-																		anyOf: [{
-																			type: "integer"
-																		}, {
-																			type: "string"
-																		}]
+																		anyOf: [{type: "integer"}, {type: "string"}]
 																		description: """
 																						The maximum number of DaemonSet pods that can be unavailable during the
 																						update. Value can be an absolute number (ex: 5) or a percentage of total
@@ -15644,8 +16272,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					description: "Selects a key of a ConfigMap."
 																					properties: {
 																						key: {
-																							description: "The key to select."
-																							type:        "string"
+																							description: """
+																											The key to select from the ConfigMap's Data field.
+																											Keys in the BinaryData field are not currently propagated to container env vars.
+																											"""
+																							type: "string"
 																						}
 																						name: {
 																							default: ""
@@ -15740,11 +16371,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							type:        "string"
 																						}
 																						divisor: {
-																							anyOf: [{
-																								type: "integer"
-																							}, {
-																								type: "string"
-																							}]
+																							anyOf: [{type: "integer"}, {type: "string"}]
 																							description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
 																							pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																							"x-kubernetes-int-or-string": true
@@ -15862,11 +16489,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	}
 																	limits: {
 																		additionalProperties: {
-																			anyOf: [{
-																				type: "integer"
-																			}, {
-																				type: "string"
-																			}]
+																			anyOf: [{type: "integer"}, {type: "string"}]
 																			pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																			"x-kubernetes-int-or-string": true
 																		}
@@ -15878,11 +16501,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	}
 																	requests: {
 																		additionalProperties: {
-																			anyOf: [{
-																				type: "integer"
-																			}, {
-																				type: "string"
-																			}]
+																			anyOf: [{type: "integer"}, {type: "string"}]
 																			pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																			"x-kubernetes-int-or-string": true
 																		}
@@ -16145,12 +16764,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																items: {
 																	description: "VolumeMount describes a mounting of a Volume within a container."
 																	properties: {
-																		mountPath: {
+																		bindMountOptions: {
 																			description: """
-																							Path within the container at which the volume should be mounted.  Must
-																							not contain ':'.
+																							bindMountOptions is the list of additional bind mount options to apply when
+																							mounting this volume into the container. Allowed values are noexec,
+																							nodev, and nosuid. These are Linux mount options and have no effect on
+																							Windows nodes.
+																							This field is not supported with image volumes.
+																							This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 																							"""
-																			type: "string"
+																			items: type: "string"
+																			type:                     "array"
+																			"x-kubernetes-list-type": "set"
+																		}
+																		mountPath: {
+																			description: "Path within the container at which the volume should be mounted."
+																			type:        "string"
 																		}
 																		mountPropagation: {
 																			description: """
@@ -16298,8 +16927,11 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						description: "Selects a key of a ConfigMap."
 																						properties: {
 																							key: {
-																								description: "The key to select."
-																								type:        "string"
+																								description: """
+																												The key to select from the ConfigMap's Data field.
+																												Keys in the BinaryData field are not currently propagated to container env vars.
+																												"""
+																								type: "string"
 																							}
 																							name: {
 																								default: ""
@@ -16394,11 +17026,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								type:        "string"
 																							}
 																							divisor: {
-																								anyOf: [{
-																									type: "integer"
-																								}, {
-																									type: "string"
-																								}]
+																								anyOf: [{type: "integer"}, {type: "string"}]
 																								description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
 																								pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																								"x-kubernetes-int-or-string": true
@@ -16606,17 +17234,20 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							type:        "string"
 																						}
 																						port: {
-																							anyOf: [{
-																								type: "integer"
-																							}, {
-																								type: "string"
-																							}]
+																							anyOf: [{type: "integer"}, {type: "string"}]
 																							description: """
 																											Name or number of the port to access on the container.
 																											Number must be in the range 1 to 65535.
 																											Name must be an IANA_SVC_NAME.
 																											"""
 																							"x-kubernetes-int-or-string": true
+																						}
+																						protocol: {
+																							description: """
+																											Protocol selects the wire protocol for the probe connection.
+																											Nil defaults to HTTP/1.1.
+																											"""
+																							type: "string"
 																						}
 																						scheme: {
 																							description: """
@@ -16651,11 +17282,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							type:        "string"
 																						}
 																						port: {
-																							anyOf: [{
-																								type: "integer"
-																							}, {
-																								type: "string"
-																							}]
+																							anyOf: [{type: "integer"}, {type: "string"}]
 																							description: """
 																											Number or name of the port to access on the container.
 																											Number must be in the range 1 to 65535.
@@ -16737,17 +17364,20 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							type:        "string"
 																						}
 																						port: {
-																							anyOf: [{
-																								type: "integer"
-																							}, {
-																								type: "string"
-																							}]
+																							anyOf: [{type: "integer"}, {type: "string"}]
 																							description: """
 																											Name or number of the port to access on the container.
 																											Number must be in the range 1 to 65535.
 																											Name must be an IANA_SVC_NAME.
 																											"""
 																							"x-kubernetes-int-or-string": true
+																						}
+																						protocol: {
+																							description: """
+																											Protocol selects the wire protocol for the probe connection.
+																											Nil defaults to HTTP/1.1.
+																											"""
+																							type: "string"
 																						}
 																						scheme: {
 																							description: """
@@ -16782,11 +17412,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							type:        "string"
 																						}
 																						port: {
-																							anyOf: [{
-																								type: "integer"
-																							}, {
-																								type: "string"
-																							}]
+																							anyOf: [{type: "integer"}, {type: "string"}]
 																							description: """
 																											Number or name of the port to access on the container.
 																											Number must be in the range 1 to 65535.
@@ -16847,6 +17473,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		grpc: {
 																			description: "GRPC specifies a GRPC HealthCheckRequest."
 																			properties: {
+																				mode: {
+																					description: """
+																									mode specifies the connection mode for the gRPC health probe.
+																									Set to "TLS" to use TLS without certificate verification.
+																									Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+																									If not specified, the probe uses a plaintext (insecure) connection.
+																									"""
+																					type: "string"
+																				}
 																				port: {
 																					description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 																					format:      "int32"
@@ -16904,17 +17539,20 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:        "string"
 																				}
 																				port: {
-																					anyOf: [{
-																						type: "integer"
-																					}, {
-																						type: "string"
-																					}]
+																					anyOf: [{type: "integer"}, {type: "string"}]
 																					description: """
 																									Name or number of the port to access on the container.
 																									Number must be in the range 1 to 65535.
 																									Name must be an IANA_SVC_NAME.
 																									"""
 																					"x-kubernetes-int-or-string": true
+																				}
+																				protocol: {
+																					description: """
+																									Protocol selects the wire protocol for the probe connection.
+																									Nil defaults to HTTP/1.1.
+																									"""
+																					type: "string"
 																				}
 																				scheme: {
 																					description: """
@@ -16959,11 +17597,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:        "string"
 																				}
 																				port: {
-																					anyOf: [{
-																						type: "integer"
-																					}, {
-																						type: "string"
-																					}]
+																					anyOf: [{type: "integer"}, {type: "string"}]
 																					description: """
 																									Number or name of the port to access on the container.
 																									Number must be in the range 1 to 65535.
@@ -17105,6 +17739,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		grpc: {
 																			description: "GRPC specifies a GRPC HealthCheckRequest."
 																			properties: {
+																				mode: {
+																					description: """
+																									mode specifies the connection mode for the gRPC health probe.
+																									Set to "TLS" to use TLS without certificate verification.
+																									Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+																									If not specified, the probe uses a plaintext (insecure) connection.
+																									"""
+																					type: "string"
+																				}
 																				port: {
 																					description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 																					format:      "int32"
@@ -17162,17 +17805,20 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:        "string"
 																				}
 																				port: {
-																					anyOf: [{
-																						type: "integer"
-																					}, {
-																						type: "string"
-																					}]
+																					anyOf: [{type: "integer"}, {type: "string"}]
 																					description: """
 																									Name or number of the port to access on the container.
 																									Number must be in the range 1 to 65535.
 																									Name must be an IANA_SVC_NAME.
 																									"""
 																					"x-kubernetes-int-or-string": true
+																				}
+																				protocol: {
+																					description: """
+																									Protocol selects the wire protocol for the probe connection.
+																									Nil defaults to HTTP/1.1.
+																									"""
+																					type: "string"
 																				}
 																				scheme: {
 																					description: """
@@ -17217,11 +17863,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:        "string"
 																				}
 																				port: {
-																					anyOf: [{
-																						type: "integer"
-																					}, {
-																						type: "string"
-																					}]
+																					anyOf: [{type: "integer"}, {type: "string"}]
 																					description: """
 																									Number or name of the port to access on the container.
 																									Number must be in the range 1 to 65535.
@@ -17336,11 +17978,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		}
 																		limits: {
 																			additionalProperties: {
-																				anyOf: [{
-																					type: "integer"
-																				}, {
-																					type: "string"
-																				}]
+																				anyOf: [{type: "integer"}, {type: "string"}]
 																				pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																				"x-kubernetes-int-or-string": true
 																			}
@@ -17352,11 +17990,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		}
 																		requests: {
 																			additionalProperties: {
-																				anyOf: [{
-																					type: "integer"
-																				}, {
-																					type: "string"
-																				}]
+																				anyOf: [{type: "integer"}, {type: "string"}]
 																				pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																				"x-kubernetes-int-or-string": true
 																			}
@@ -17435,10 +18069,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										Specifies the set of values to check for container exit codes.
 																										At most 255 elements are allowed.
 																										"""
-																						items: {
-																							format: "int32"
-																							type:   "integer"
-																						}
+																						items: {format: "int32", type: "integer"}
 																						type:                     "array"
 																						"x-kubernetes-list-type": "set"
 																					}
@@ -17731,6 +18362,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		grpc: {
 																			description: "GRPC specifies a GRPC HealthCheckRequest."
 																			properties: {
+																				mode: {
+																					description: """
+																									mode specifies the connection mode for the gRPC health probe.
+																									Set to "TLS" to use TLS without certificate verification.
+																									Set to "Plaintext" to use a plaintext (insecure) connection explicitly.
+																									If not specified, the probe uses a plaintext (insecure) connection.
+																									"""
+																					type: "string"
+																				}
 																				port: {
 																					description: "Port number of the gRPC service. Number must be in the range 1 to 65535."
 																					format:      "int32"
@@ -17788,17 +18428,20 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:        "string"
 																				}
 																				port: {
-																					anyOf: [{
-																						type: "integer"
-																					}, {
-																						type: "string"
-																					}]
+																					anyOf: [{type: "integer"}, {type: "string"}]
 																					description: """
 																									Name or number of the port to access on the container.
 																									Number must be in the range 1 to 65535.
 																									Name must be an IANA_SVC_NAME.
 																									"""
 																					"x-kubernetes-int-or-string": true
+																				}
+																				protocol: {
+																					description: """
+																									Protocol selects the wire protocol for the probe connection.
+																									Nil defaults to HTTP/1.1.
+																									"""
+																					type: "string"
 																				}
 																				scheme: {
 																					description: """
@@ -17843,11 +18486,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:        "string"
 																				}
 																				port: {
-																					anyOf: [{
-																						type: "integer"
-																					}, {
-																						type: "string"
-																					}]
+																					anyOf: [{type: "integer"}, {type: "string"}]
 																					description: """
 																									Number or name of the port to access on the container.
 																									Number must be in the range 1 to 65535.
@@ -17967,12 +18606,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	items: {
 																		description: "VolumeMount describes a mounting of a Volume within a container."
 																		properties: {
-																			mountPath: {
+																			bindMountOptions: {
 																				description: """
-																								Path within the container at which the volume should be mounted.  Must
-																								not contain ':'.
+																								bindMountOptions is the list of additional bind mount options to apply when
+																								mounting this volume into the container. Allowed values are noexec,
+																								nodev, and nosuid. These are Linux mount options and have no effect on
+																								Windows nodes.
+																								This field is not supported with image volumes.
+																								This is an alpha field and requires enabling the VolumeBindMountOptions feature gate.
 																								"""
-																				type: "string"
+																				items: type: "string"
+																				type:                     "array"
+																				"x-kubernetes-list-type": "set"
+																			}
+																			mountPath: {
+																				description: "Path within the container at which the volume should be mounted."
+																				type:        "string"
 																			}
 																			mountPropagation: {
 																				description: """
@@ -19292,11 +19941,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						Eligible volumes are in-tree FibreChannel and iSCSI volumes, and all CSI volumes
 																						whose CSI driver announces SELinux support by setting spec.seLinuxMount: true in their
 																						CSIDriver instance. Other volumes are always re-labelled recursively.
-																						"MountOption" value is allowed only when SELinuxMount feature gate is enabled.
 
-																						If not specified and SELinuxMount feature gate is enabled, "MountOption" is used.
-																						If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes
-																						and "Recursive" for all other volumes.
+																						If not specified, "MountOption" is used.
 
 																						This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
 
@@ -19376,10 +20022,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						supplementalGroupsPolicy field.
 																						Note that this field cannot be set when spec.os.name is windows.
 																						"""
-																		items: {
-																			format: "int64"
-																			type:   "integer"
-																		}
+																		items: {format: "int64", type: "integer"}
 																		type:                     "array"
 																		"x-kubernetes-list-type": "atomic"
 																	}
@@ -19972,6 +20615,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					format: "int32"
 																					type:   "integer"
 																				}
+																				defaultUser: {
+																					description: """
+																									defaultUser is Optional: The owner UID of the created files by default.
+																									The defaultUser field is only used as a fallback when the item-level user field is unset.
+																									(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																									"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																				items: {
 																					description: """
 																									items if unspecified, each key-value pair in the Data field of the referenced
@@ -20009,6 +20661,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																												May not start with the string '..'.
 																												"""
 																								type: "string"
+																							}
+																							user: {
+																								description: """
+																												user is Optional: The owner UID of the created file.
+																												If specified, the item-level user field takes precedence over defaultUser.
+																												(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																												"""
+																								format: "int64"
+																								type:   "integer"
 																							}
 																						}
 																						required: ["key", "path"]
@@ -20112,6 +20773,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					format: "int32"
 																					type:   "integer"
 																				}
+																				defaultUser: {
+																					description: """
+																									defaultUser is Optional: The owner UID of the created files by default.
+																									The defaultUser field is only used as a fallback when the item-level user field is unset.
+																									(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																									"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																				items: {
 																					description: "Items is a list of downward API volume file"
 																					items: {
@@ -20160,11 +20830,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										type:        "string"
 																									}
 																									divisor: {
-																										anyOf: [{
-																											type: "integer"
-																										}, {
-																											type: "string"
-																										}]
+																										anyOf: [{type: "integer"}, {type: "string"}]
 																										description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
 																										pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																										"x-kubernetes-int-or-string": true
@@ -20177,6 +20843,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								required: ["resource"]
 																								type:                    "object"
 																								"x-kubernetes-map-type": "atomic"
+																							}
+																							user: {
+																								description: """
+																												user is Optional: The owner UID of the created file.
+																												If specified, the item-level user field takes precedence over defaultUser.
+																												(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																												"""
+																								format: "int64"
+																								type:   "integer"
 																							}
 																						}
 																						required: ["path"]
@@ -20203,12 +20878,22 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									"""
 																					type: "string"
 																				}
+																				mode: {
+																					description: """
+																									mode specifies the permission bits for the emptyDir directory, in numeric
+																									notation (e.g., 0755, 01777). Must be a value between 0000 and 01777.
+																									If not specified, defaults to 0777.
+																									This might be in conflict with other options that affect the file
+																									mode, like fsGroup. If fsGroup is specified, the fsGroup permissions
+																									will override the mode specified here.
+																									This field has no effect on Windows.
+																									This field is alpha and requires EmptyDirVolumeMode featuregate to be enabled.
+																									"""
+																					format: "int32"
+																					type:   "integer"
+																				}
 																				sizeLimit: {
-																					anyOf: [{
-																						type: "integer"
-																					}, {
-																						type: "string"
-																					}]
+																					anyOf: [{type: "integer"}, {type: "string"}]
 																					description: """
 																									sizeLimit is the total amount of local storage required for this EmptyDir volume.
 																									The size limit is also applicable for memory medium.
@@ -20307,8 +20992,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																													* An existing PVC (PersistentVolumeClaim)
 																													If the provisioner or an external controller can support the specified data source,
 																													it will create a new volume based on the contents of the specified data source.
-																													When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
-																													and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+																													dataSource contents will be copied to dataSourceRef, and dataSourceRef contents will be
+																													copied to dataSource when dataSourceRef.namespace is not specified.
 																													If the namespace is specified, then dataSourceRef will not be copied to dataSource.
 																													"""
 																								properties: {
@@ -20356,7 +21041,6 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																													  specified.
 																													* While dataSource only allows local objects, dataSourceRef allows objects
 																													  in any namespaces.
-																													(Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
 																													(Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
 																													"""
 																								properties: {
@@ -20399,11 +21083,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								properties: {
 																									limits: {
 																										additionalProperties: {
-																											anyOf: [{
-																												type: "integer"
-																											}, {
-																												type: "string"
-																											}]
+																											anyOf: [{type: "integer"}, {type: "string"}]
 																											pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																											"x-kubernetes-int-or-string": true
 																										}
@@ -20415,11 +21095,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									}
 																									requests: {
 																										additionalProperties: {
-																											anyOf: [{
-																												type: "integer"
-																											}, {
-																												type: "string"
-																											}]
+																											anyOf: [{type: "integer"}, {type: "string"}]
 																											pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																											"x-kubernetes-int-or-string": true
 																										}
@@ -21048,6 +21724,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					format: "int32"
 																					type:   "integer"
 																				}
+																				defaultUser: {
+																					description: """
+																									defaultUser is Optional: The owner UID of the created files by default.
+																									The defaultUser field is only used as a fallback when the item-level user field is unset.
+																									(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																									"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																				sources: {
 																					description: """
 																									sources is the list of volume projections. Each entry in this list
@@ -21163,6 +21848,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																														"""
 																										type: "string"
 																									}
+																									user: {
+																										description: """
+																														user is Optional: The owner UID of the created file.
+																														If specified, the item-level user field takes precedence over defaultUser.
+																														(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																														"""
+																										format: "int64"
+																										type:   "integer"
+																									}
 																								}
 																								required: ["path"]
 																								type: "object"
@@ -21207,6 +21901,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																																	May not start with the string '..'.
 																																	"""
 																													type: "string"
+																												}
+																												user: {
+																													description: """
+																																	user is Optional: The owner UID of the created file.
+																																	If specified, the item-level user field takes precedence over defaultUser.
+																																	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																																	"""
+																													format: "int64"
+																													type:   "integer"
 																												}
 																											}
 																											required: ["key", "path"]
@@ -21284,11 +21987,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																														type:        "string"
 																													}
 																													divisor: {
-																														anyOf: [{
-																															type: "integer"
-																														}, {
-																															type: "string"
-																														}]
+																														anyOf: [{type: "integer"}, {type: "string"}]
 																														description:                  "Specifies the output format of the exposed resources, defaults to \"1\""
 																														pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																														"x-kubernetes-int-or-string": true
@@ -21301,6 +22000,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																												required: ["resource"]
 																												type:                    "object"
 																												"x-kubernetes-map-type": "atomic"
+																											}
+																											user: {
+																												description: """
+																																	user is Optional: The owner UID of the created file.
+																																	If specified, the item-level user field takes precedence over defaultUser.
+																																	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																																	"""
+																												format: "int64"
+																												type:   "integer"
 																											}
 																										}
 																										required: ["path"]
@@ -21423,6 +22131,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										description: "Kubelet's generated CSRs will be addressed to this signer."
 																										type:        "string"
 																									}
+																									user: {
+																										description: """
+																														user is Optional: The owner UID of the created file.
+																														If specified, the item-level user field takes precedence over defaultUser.
+																														(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																														"""
+																										format: "int64"
+																										type:   "integer"
+																									}
 																									userAnnotations: {
 																										additionalProperties: type: "string"
 																										description: """
@@ -21487,6 +22204,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																																	"""
 																													type: "string"
 																												}
+																												user: {
+																													description: """
+																																	user is Optional: The owner UID of the created file.
+																																	If specified, the item-level user field takes precedence over defaultUser.
+																																	(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																																	"""
+																													format: "int64"
+																													type:   "integer"
+																												}
 																											}
 																											required: ["key", "path"]
 																											type: "object"
@@ -21543,6 +22269,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																														token into.
 																														"""
 																										type: "string"
+																									}
+																									user: {
+																										description: """
+																														user is Optional: The owner UID of the created file.
+																														If specified, the item-level user field takes precedence over defaultUser.
+																														(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																														"""
+																										format: "int64"
+																										type:   "integer"
 																									}
 																								}
 																								required: ["path"]
@@ -21798,6 +22533,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					format: "int32"
 																					type:   "integer"
 																				}
+																				defaultUser: {
+																					description: """
+																									defaultUser is Optional: The owner UID of the created files by default.
+																									The defaultUser field is only used as a fallback when the item-level user field is unset.
+																									(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																									"""
+																					format: "int64"
+																					type:   "integer"
+																				}
 																				items: {
 																					description: """
 																									items If unspecified, each key-value pair in the Data field of the referenced
@@ -21835,6 +22579,15 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																												May not start with the string '..'.
 																												"""
 																								type: "string"
+																							}
+																							user: {
+																								description: """
+																												user is Optional: The owner UID of the created file.
+																												If specified, the item-level user field takes precedence over defaultUser.
+																												(Alpha) This field requires the AtomicWriteVolumeUserFields feature gate to be enabled.
+																												"""
+																								format: "int64"
+																								type:   "integer"
 																							}
 																						}
 																						required: ["key", "path"]
@@ -21973,11 +22726,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				"""
 																properties: {
 																	maxSurge: {
-																		anyOf: [{
-																			type: "integer"
-																		}, {
-																			type: "string"
-																		}]
+																		anyOf: [{type: "integer"}, {type: "string"}]
 																		description: """
 																						The maximum number of pods that can be scheduled above the desired number of
 																						pods.
@@ -21994,11 +22743,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		"x-kubernetes-int-or-string": true
 																	}
 																	maxUnavailable: {
-																		anyOf: [{
-																			type: "integer"
-																		}, {
-																			type: "string"
-																		}]
+																		anyOf: [{type: "integer"}, {type: "string"}]
 																		description: """
 																						The maximum number of pods that can be unavailable during the update.
 																						Value can be an absolute number (ex: 5) or a percentage of desired pods (ex: 10%).
@@ -22027,7 +22772,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type: "object"
 											}
 											envoyHpa: {
-												description: "EnvoyHpa defines the Horizontal Pod Autoscaler settings for Envoy Proxy Deployment."
+												description: """
+																EnvoyHpa defines the Horizontal Pod Autoscaler settings for Envoy Proxy Deployment.
+																If the HPA is set, the Replicas field from EnvoyDeployment will be ignored, and the
+																number of replicas is solely managed by the HPA. Use MinReplicas to control the
+																lower bound of the replica count instead.
+																"""
 												properties: {
 													behavior: {
 														description: """
@@ -22102,11 +22852,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:   "integer"
 																	}
 																	tolerance: {
-																		anyOf: [{
-																			type: "integer"
-																		}, {
-																			type: "string"
-																		}]
+																		anyOf: [{type: "integer"}, {type: "string"}]
 																		description: """
 																						tolerance is the tolerance on the ratio between the current and desired
 																						metric value under which no updates are made to the desired number of
@@ -22116,9 +22862,6 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						For example, if autoscaling is configured with a memory consumption target of 100Mi,
 																						and scale-down and scale-up tolerances of 5% and 1% respectively, scaling will be
 																						triggered when the actual consumption falls below 95Mi or exceeds 101Mi.
-
-																						This is an beta field and requires the HPAConfigurableTolerance feature
-																						gate to be enabled.
 																						"""
 																		pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																		"x-kubernetes-int-or-string": true
@@ -22192,11 +22935,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:   "integer"
 																	}
 																	tolerance: {
-																		anyOf: [{
-																			type: "integer"
-																		}, {
-																			type: "string"
-																		}]
+																		anyOf: [{type: "integer"}, {type: "string"}]
 																		description: """
 																						tolerance is the tolerance on the ratio between the current and desired
 																						metric value under which no updates are made to the desired number of
@@ -22206,9 +22945,6 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						For example, if autoscaling is configured with a memory consumption target of 100Mi,
 																						and scale-down and scale-up tolerances of 5% and 1% respectively, scaling will be
 																						triggered when the actual consumption falls below 95Mi or exceeds 101Mi.
-
-																						This is an beta field and requires the HPAConfigurableTolerance feature
-																						gate to be enabled.
 																						"""
 																		pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																		"x-kubernetes-int-or-string": true
@@ -22275,11 +23011,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:   "integer"
 																				}
 																				averageValue: {
-																					anyOf: [{
-																						type: "integer"
-																					}, {
-																						type: "string"
-																					}]
+																					anyOf: [{type: "integer"}, {type: "string"}]
 																					description: """
 																									averageValue is the target value of the average of the
 																									metric across all relevant pods (as a quantity)
@@ -22292,11 +23024,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:        "string"
 																				}
 																				value: {
-																					anyOf: [{
-																						type: "integer"
-																					}, {
-																						type: "string"
-																					}]
+																					anyOf: [{type: "integer"}, {type: "string"}]
 																					description:                  "value is the target value of the metric (as a quantity)."
 																					pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																					"x-kubernetes-int-or-string": true
@@ -22400,11 +23128,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:   "integer"
 																				}
 																				averageValue: {
-																					anyOf: [{
-																						type: "integer"
-																					}, {
-																						type: "string"
-																					}]
+																					anyOf: [{type: "integer"}, {type: "string"}]
 																					description: """
 																									averageValue is the target value of the average of the
 																									metric across all relevant pods (as a quantity)
@@ -22417,11 +23141,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:        "string"
 																				}
 																				value: {
-																					anyOf: [{
-																						type: "integer"
-																					}, {
-																						type: "string"
-																					}]
+																					anyOf: [{type: "integer"}, {type: "string"}]
 																					description:                  "value is the target value of the metric (as a quantity)."
 																					pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																					"x-kubernetes-int-or-string": true
@@ -22541,11 +23261,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:   "integer"
 																				}
 																				averageValue: {
-																					anyOf: [{
-																						type: "integer"
-																					}, {
-																						type: "string"
-																					}]
+																					anyOf: [{type: "integer"}, {type: "string"}]
 																					description: """
 																									averageValue is the target value of the average of the
 																									metric across all relevant pods (as a quantity)
@@ -22558,11 +23274,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:        "string"
 																				}
 																				value: {
-																					anyOf: [{
-																						type: "integer"
-																					}, {
-																						type: "string"
-																					}]
+																					anyOf: [{type: "integer"}, {type: "string"}]
 																					description:                  "value is the target value of the metric (as a quantity)."
 																					pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																					"x-kubernetes-int-or-string": true
@@ -22664,11 +23376,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:   "integer"
 																				}
 																				averageValue: {
-																					anyOf: [{
-																						type: "integer"
-																					}, {
-																						type: "string"
-																					}]
+																					anyOf: [{type: "integer"}, {type: "string"}]
 																					description: """
 																									averageValue is the target value of the average of the
 																									metric across all relevant pods (as a quantity)
@@ -22681,11 +23389,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:        "string"
 																				}
 																				value: {
-																					anyOf: [{
-																						type: "integer"
-																					}, {
-																						type: "string"
-																					}]
+																					anyOf: [{type: "integer"}, {type: "string"}]
 																					description:                  "value is the target value of the metric (as a quantity)."
 																					pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																					"x-kubernetes-int-or-string": true
@@ -22725,11 +23429,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:   "integer"
 																				}
 																				averageValue: {
-																					anyOf: [{
-																						type: "integer"
-																					}, {
-																						type: "string"
-																					}]
+																					anyOf: [{type: "integer"}, {type: "string"}]
 																					description: """
 																									averageValue is the target value of the average of the
 																									metric across all relevant pods (as a quantity)
@@ -22742,11 +23442,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:        "string"
 																				}
 																				value: {
-																					anyOf: [{
-																						type: "integer"
-																					}, {
-																						type: "string"
-																					}]
+																					anyOf: [{type: "integer"}, {type: "string"}]
 																					description:                  "value is the target value of the metric (as a quantity)."
 																					pattern:                      "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
 																					"x-kubernetes-int-or-string": true
@@ -22822,11 +23518,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												description: "EnvoyPDB allows to control the pod disruption budget of an Envoy Proxy."
 												properties: {
 													maxUnavailable: {
-														anyOf: [{
-															type: "integer"
-														}, {
-															type: "string"
-														}]
+														anyOf: [{type: "integer"}, {type: "string"}]
 														description: """
 																		MaxUnavailable specifies the maximum amount of pods (can be expressed as integers or as a percentage) that can be unavailable at all times during voluntary disruptions,
 																		such as node drains or updates. This setting ensures that your envoy proxy maintains a certain level of availability
@@ -22835,11 +23527,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														"x-kubernetes-int-or-string": true
 													}
 													minAvailable: {
-														anyOf: [{
-															type: "integer"
-														}, {
-															type: "string"
-														}]
+														anyOf: [{type: "integer"}, {type: "string"}]
 														description: """
 																		MinAvailable specifies the minimum amount of pods (can be expressed as integers or as a percentage) that must be available at all times during voluntary disruptions,
 																		such as node drains or updates. This setting ensures that your envoy proxy maintains a certain level of availability
@@ -23038,7 +23726,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										description: """
 														Type is the type of resource provider to use. A resource provider provides
 														infrastructure resources for running the data plane, e.g. Envoy proxy, and
-														optional auxiliary control planes. Supported types are "Kubernetes"and "Host".
+														optional auxiliary control planes. Supported types are "Kubernetes" and "Host".
 														"""
 										enum: ["Kubernetes", "Host"]
 										type: "string"
@@ -23061,6 +23749,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										description: """
 														DrainTimeout defines the graceful drain timeout. This should be less than the pod's terminationGracePeriodSeconds.
 														If unspecified, defaults to 60 seconds.
+														"""
+										pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+										type:    "string"
+									}
+									healthCheckFailureDelay: {
+										description: """
+														HealthCheckFailureDelay defines the delay before failing health checks during the graceful drain process.
+														If unspecified, defaults to 0 seconds.
 														"""
 										pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 										type:    "string"
@@ -23494,14 +24190,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							bufferLimit: {
 																								allOf: [{
 																									pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																								}, {
-																									pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																								}]
-																								anyOf: [{
-																									type: "integer"
-																								}, {
-																									type: "string"
-																								}]
+																								}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																								anyOf: [{type: "integer"}, {type: "string"}]
 																								description: """
 																												BufferLimit Soft limit on size of the cluster’s connections read and write buffers.
 																												BufferLimit applies to connection streaming (maybe non-streaming) channel between processes, it's in user space.
@@ -23556,14 +24246,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							socketBufferLimit: {
 																								allOf: [{
 																									pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																								}, {
-																									pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																								}]
-																								anyOf: [{
-																									type: "integer"
-																								}, {
-																									type: "string"
-																								}]
+																								}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																								anyOf: [{type: "integer"}, {type: "string"}]
 																								description: """
 																												SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
 																												to backend.
@@ -23627,6 +24311,77 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										}
 																										type: "object"
 																									}
+																									healthCheckLog: {
+																										description: """
+																														HealthCheckLog defines health check event logging configuration for this cluster.
+																														When set, HC probe outcomes are logged to the configured sinks.
+																														Takes precedence over the gateway-level EnvoyProxy.spec.telemetry.healthCheckLog.
+																														"""
+																										properties: {
+																											matches: {
+																												description: """
+																																Matches defines which health check probe outcomes produce a log entry.
+																																When omitted or empty, all events are logged.
+
+																																Each value must be unique. Multiple values are ORed. If any failure type is
+																																specified then a success type must also be specified, and vice versa.
+																																"""
+																												items: {
+																													description: "ProxyHealthCheckLogEventType specifies which health check probe outcomes produce a log entry."
+																													enum: ["Failure", "FailureSeriesStart", "Success", "HealthyTransition"]
+																													type: "string"
+																												}
+																												maxItems:                 4
+																												type:                     "array"
+																												"x-kubernetes-list-type": "set"
+																												"x-kubernetes-validations": [{
+																													message: "a failure type and a success type must both be specified together"
+																													rule:    "self.exists(e, e == 'Failure' || e == 'FailureSeriesStart') == self.exists(e, e == 'Success' || e == 'HealthyTransition')"
+																												}]
+																											}
+																											sinks: {
+																												description: """
+																																Sinks defines where health check events are written.
+																																When omitted, events are written to /dev/stdout.
+																																"""
+																												items: {
+																													description: "ProxyHealthCheckLogSink defines a destination for health check event logs."
+																													properties: {
+																														file: {
+																															description: """
+																																			File defines the file sink configuration.
+																																			Required when type is File.
+																																			"""
+																															properties: path: {
+																																description: """
+																																					Path specifies the file path for health check event output.
+																																					Use /dev/stdout to write to standard output.
+																																					"""
+																																minLength: 1
+																																type:      "string"
+																															}
+																															required: ["path"]
+																															type: "object"
+																														}
+																														type: {
+																															description: "Type defines the type of sink."
+																															enum: ["File"]
+																															type: "string"
+																														}
+																													}
+																													required: ["type"]
+																													type: "object"
+																													"x-kubernetes-validations": [{
+																														message: "If ProxyHealthCheckLogSink type is File, file field needs to be set."
+																														rule:    "self.type == 'File' ? has(self.file) : !has(self.file)"
+																													}]
+																												}
+																												maxItems: 1
+																												type:     "array"
+																											}
+																										}
+																										type: "object"
+																									}
 																									healthyThreshold: {
 																										default:     1
 																										description: "HealthyThreshold defines the number of healthy health checks required before a backend host is marked healthy."
@@ -23653,11 +24408,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																														type:        "string"
 																													}
 																													type: {
-																														allOf: [{
-																															enum: ["Text", "Binary"]
-																														}, {
-																															enum: ["Text", "Binary"]
-																														}]
+																														allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																														description: "Type defines the type of the payload."
 																														type:        "string"
 																													}
@@ -23701,13 +24452,42 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																																Method defines the HTTP method used for health checking.
 																																Defaults to GET
 																																"""
-																												type: "string"
+																												maxLength: 16
+																												type:      "string"
 																											}
 																											path: {
 																												description: "Path defines the HTTP path that will be requested during health checking."
 																												maxLength:   1024
 																												minLength:   1
 																												type:        "string"
+																											}
+																											requestBody: {
+																												description: "RequestBody defines the HTTP request body payload sent during health checking."
+																												properties: {
+																													binary: {
+																														description: "Binary payload base64 encoded."
+																														format:      "byte"
+																														type:        "string"
+																													}
+																													text: {
+																														description: "Text payload in plain text."
+																														type:        "string"
+																													}
+																													type: {
+																														allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
+																														description: "Type defines the type of the payload."
+																														type:        "string"
+																													}
+																												}
+																												required: ["type"]
+																												type: "object"
+																												"x-kubernetes-validations": [{
+																													message: "If payload type is Text, text field needs to be set."
+																													rule:    "self.type == 'Text' ? has(self.text) : !has(self.text)"
+																												}, {
+																													message: "If payload type is Binary, binary field needs to be set."
+																													rule:    "self.type == 'Binary' ? has(self.binary) : !has(self.binary)"
+																												}]
 																											}
 																											retriableStatuses: {
 																												description: """
@@ -23727,6 +24507,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										}
 																										required: ["path"]
 																										type: "object"
+																										"x-kubernetes-validations": [{
+																											message: "The requestBody field can only be set when method is POST or PUT."
+																											rule:    "!has(self.requestBody) || (has(self.method) && self.method.upperAscii() in ['POST','PUT'])"
+																										}]
 																									}
 																									initialJitter: {
 																										description: """
@@ -23781,11 +24565,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																														type:        "string"
 																													}
 																													type: {
-																														allOf: [{
-																															enum: ["Text", "Binary"]
-																														}, {
-																															enum: ["Text", "Binary"]
-																														}]
+																														allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																														description: "Type defines the type of the payload."
 																														type:        "string"
 																													}
@@ -23813,11 +24593,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																														type:        "string"
 																													}
 																													type: {
-																														allOf: [{
-																															enum: ["Text", "Binary"]
-																														}, {
-																															enum: ["Text", "Binary"]
-																														}]
+																														allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																														description: "Type defines the type of the payload."
 																														type:        "string"
 																													}
@@ -23842,11 +24618,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										type:        "string"
 																									}
 																									type: {
-																										allOf: [{
-																											enum: ["HTTP", "TCP", "GRPC"]
-																										}, {
-																											enum: ["HTTP", "TCP", "GRPC"]
-																										}]
+																										allOf: [{enum: ["HTTP", "TCP", "GRPC"]}, {enum: ["HTTP", "TCP", "GRPC"]}]
 																										description: "Type defines the type of health checker."
 																										type:        "string"
 																									}
@@ -24002,14 +24774,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							initialConnectionWindowSize: {
 																								allOf: [{
 																									pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																								}, {
-																									pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																								}]
-																								anyOf: [{
-																									type: "integer"
-																								}, {
-																									type: "string"
-																								}]
+																								}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																								anyOf: [{type: "integer"}, {type: "string"}]
 																								description: """
 																												InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
 																												If not set, the default value is 1 MiB.
@@ -24019,14 +24785,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							initialStreamWindowSize: {
 																								allOf: [{
 																									pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																								}, {
-																									pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																								}]
-																								anyOf: [{
-																									type: "integer"
-																								}, {
-																									type: "string"
-																								}]
+																								}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																								anyOf: [{type: "integer"}, {type: "string"}]
 																								description: """
 																												InitialStreamWindowSize sets the initial window size for HTTP/2 streams.
 																												If not set, the default value is 64 KiB(64*1024).
@@ -24106,6 +24866,53 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																														"""
 																										items: type: "string"
 																										type: "array"
+																									}
+																									outOfBand: {
+																										description: """
+																														OutOfBand enables out-of-band ORCA load reporting. When set, Envoy opens a
+																														server-streaming gRPC connection to each endpoint's
+																														xds.service.orca.v3.OpenRcaService/StreamCoreMetrics and pulls load
+																														reports periodically, instead of relying on in-band ORCA metrics
+																														carried in response headers/trailers.
+
+																														The backend must implement OpenRcaService for this to take effect.
+																														"""
+																										properties: {
+																											authority: {
+																												description: """
+																																Authority overrides the :authority header on the OutOfBand gRPC stream.
+																																If unset, Envoy uses the endpoint hostname, then the dialed address, then
+																																the cluster name.
+																																"""
+																												maxLength: 259
+																												minLength: 1
+																												pattern:   "^[^\\x00\\n\\r]*$"
+																												type:      "string"
+																											}
+																											port: {
+																												description: """
+																																Port overrides the port used for the OutOfBand reporting connection, e.g. to
+																																reach a separate reporting sidecar. Defaults to the endpoint's port.
+																																"""
+																												format:  "int32"
+																												maximum: 65535
+																												minimum: 1
+																												type:    "integer"
+																											}
+																											reportingPeriod: {
+																												description: """
+																																ReportingPeriod is how often Envoy requests load reports from the server.
+																																Must be greater than 0. Defaults to 10s.
+																																"""
+																												pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																												type:    "string"
+																												"x-kubernetes-validations": [{
+																													message: "reportingPeriod must be greater than 0"
+																													rule:    "duration(self) > duration('0s')"
+																												}]
+																											}
+																										}
+																										type: "object"
 																									}
 																									weightExpirationPeriod: {
 																										description: "If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m."
@@ -25053,14 +25860,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							bufferLimit: {
 																								allOf: [{
 																									pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																								}, {
-																									pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																								}]
-																								anyOf: [{
-																									type: "integer"
-																								}, {
-																									type: "string"
-																								}]
+																								}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																								anyOf: [{type: "integer"}, {type: "string"}]
 																								description: """
 																												BufferLimit Soft limit on size of the cluster’s connections read and write buffers.
 																												BufferLimit applies to connection streaming (maybe non-streaming) channel between processes, it's in user space.
@@ -25115,14 +25916,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							socketBufferLimit: {
 																								allOf: [{
 																									pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																								}, {
-																									pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																								}]
-																								anyOf: [{
-																									type: "integer"
-																								}, {
-																									type: "string"
-																								}]
+																								}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																								anyOf: [{type: "integer"}, {type: "string"}]
 																								description: """
 																												SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
 																												to backend.
@@ -25186,6 +25981,77 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										}
 																										type: "object"
 																									}
+																									healthCheckLog: {
+																										description: """
+																														HealthCheckLog defines health check event logging configuration for this cluster.
+																														When set, HC probe outcomes are logged to the configured sinks.
+																														Takes precedence over the gateway-level EnvoyProxy.spec.telemetry.healthCheckLog.
+																														"""
+																										properties: {
+																											matches: {
+																												description: """
+																																Matches defines which health check probe outcomes produce a log entry.
+																																When omitted or empty, all events are logged.
+
+																																Each value must be unique. Multiple values are ORed. If any failure type is
+																																specified then a success type must also be specified, and vice versa.
+																																"""
+																												items: {
+																													description: "ProxyHealthCheckLogEventType specifies which health check probe outcomes produce a log entry."
+																													enum: ["Failure", "FailureSeriesStart", "Success", "HealthyTransition"]
+																													type: "string"
+																												}
+																												maxItems:                 4
+																												type:                     "array"
+																												"x-kubernetes-list-type": "set"
+																												"x-kubernetes-validations": [{
+																													message: "a failure type and a success type must both be specified together"
+																													rule:    "self.exists(e, e == 'Failure' || e == 'FailureSeriesStart') == self.exists(e, e == 'Success' || e == 'HealthyTransition')"
+																												}]
+																											}
+																											sinks: {
+																												description: """
+																																Sinks defines where health check events are written.
+																																When omitted, events are written to /dev/stdout.
+																																"""
+																												items: {
+																													description: "ProxyHealthCheckLogSink defines a destination for health check event logs."
+																													properties: {
+																														file: {
+																															description: """
+																																			File defines the file sink configuration.
+																																			Required when type is File.
+																																			"""
+																															properties: path: {
+																																description: """
+																																					Path specifies the file path for health check event output.
+																																					Use /dev/stdout to write to standard output.
+																																					"""
+																																minLength: 1
+																																type:      "string"
+																															}
+																															required: ["path"]
+																															type: "object"
+																														}
+																														type: {
+																															description: "Type defines the type of sink."
+																															enum: ["File"]
+																															type: "string"
+																														}
+																													}
+																													required: ["type"]
+																													type: "object"
+																													"x-kubernetes-validations": [{
+																														message: "If ProxyHealthCheckLogSink type is File, file field needs to be set."
+																														rule:    "self.type == 'File' ? has(self.file) : !has(self.file)"
+																													}]
+																												}
+																												maxItems: 1
+																												type:     "array"
+																											}
+																										}
+																										type: "object"
+																									}
 																									healthyThreshold: {
 																										default:     1
 																										description: "HealthyThreshold defines the number of healthy health checks required before a backend host is marked healthy."
@@ -25212,11 +26078,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																														type:        "string"
 																													}
 																													type: {
-																														allOf: [{
-																															enum: ["Text", "Binary"]
-																														}, {
-																															enum: ["Text", "Binary"]
-																														}]
+																														allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																														description: "Type defines the type of the payload."
 																														type:        "string"
 																													}
@@ -25260,13 +26122,42 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																																Method defines the HTTP method used for health checking.
 																																Defaults to GET
 																																"""
-																												type: "string"
+																												maxLength: 16
+																												type:      "string"
 																											}
 																											path: {
 																												description: "Path defines the HTTP path that will be requested during health checking."
 																												maxLength:   1024
 																												minLength:   1
 																												type:        "string"
+																											}
+																											requestBody: {
+																												description: "RequestBody defines the HTTP request body payload sent during health checking."
+																												properties: {
+																													binary: {
+																														description: "Binary payload base64 encoded."
+																														format:      "byte"
+																														type:        "string"
+																													}
+																													text: {
+																														description: "Text payload in plain text."
+																														type:        "string"
+																													}
+																													type: {
+																														allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
+																														description: "Type defines the type of the payload."
+																														type:        "string"
+																													}
+																												}
+																												required: ["type"]
+																												type: "object"
+																												"x-kubernetes-validations": [{
+																													message: "If payload type is Text, text field needs to be set."
+																													rule:    "self.type == 'Text' ? has(self.text) : !has(self.text)"
+																												}, {
+																													message: "If payload type is Binary, binary field needs to be set."
+																													rule:    "self.type == 'Binary' ? has(self.binary) : !has(self.binary)"
+																												}]
 																											}
 																											retriableStatuses: {
 																												description: """
@@ -25286,6 +26177,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										}
 																										required: ["path"]
 																										type: "object"
+																										"x-kubernetes-validations": [{
+																											message: "The requestBody field can only be set when method is POST or PUT."
+																											rule:    "!has(self.requestBody) || (has(self.method) && self.method.upperAscii() in ['POST','PUT'])"
+																										}]
 																									}
 																									initialJitter: {
 																										description: """
@@ -25340,11 +26235,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																														type:        "string"
 																													}
 																													type: {
-																														allOf: [{
-																															enum: ["Text", "Binary"]
-																														}, {
-																															enum: ["Text", "Binary"]
-																														}]
+																														allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																														description: "Type defines the type of the payload."
 																														type:        "string"
 																													}
@@ -25372,11 +26263,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																														type:        "string"
 																													}
 																													type: {
-																														allOf: [{
-																															enum: ["Text", "Binary"]
-																														}, {
-																															enum: ["Text", "Binary"]
-																														}]
+																														allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																														description: "Type defines the type of the payload."
 																														type:        "string"
 																													}
@@ -25401,11 +26288,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										type:        "string"
 																									}
 																									type: {
-																										allOf: [{
-																											enum: ["HTTP", "TCP", "GRPC"]
-																										}, {
-																											enum: ["HTTP", "TCP", "GRPC"]
-																										}]
+																										allOf: [{enum: ["HTTP", "TCP", "GRPC"]}, {enum: ["HTTP", "TCP", "GRPC"]}]
 																										description: "Type defines the type of health checker."
 																										type:        "string"
 																									}
@@ -25561,14 +26444,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							initialConnectionWindowSize: {
 																								allOf: [{
 																									pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																								}, {
-																									pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																								}]
-																								anyOf: [{
-																									type: "integer"
-																								}, {
-																									type: "string"
-																								}]
+																								}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																								anyOf: [{type: "integer"}, {type: "string"}]
 																								description: """
 																												InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
 																												If not set, the default value is 1 MiB.
@@ -25578,14 +26455,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							initialStreamWindowSize: {
 																								allOf: [{
 																									pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																								}, {
-																									pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																								}]
-																								anyOf: [{
-																									type: "integer"
-																								}, {
-																									type: "string"
-																								}]
+																								}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																								anyOf: [{type: "integer"}, {type: "string"}]
 																								description: """
 																												InitialStreamWindowSize sets the initial window size for HTTP/2 streams.
 																												If not set, the default value is 64 KiB(64*1024).
@@ -25665,6 +26536,53 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																														"""
 																										items: type: "string"
 																										type: "array"
+																									}
+																									outOfBand: {
+																										description: """
+																														OutOfBand enables out-of-band ORCA load reporting. When set, Envoy opens a
+																														server-streaming gRPC connection to each endpoint's
+																														xds.service.orca.v3.OpenRcaService/StreamCoreMetrics and pulls load
+																														reports periodically, instead of relying on in-band ORCA metrics
+																														carried in response headers/trailers.
+
+																														The backend must implement OpenRcaService for this to take effect.
+																														"""
+																										properties: {
+																											authority: {
+																												description: """
+																																Authority overrides the :authority header on the OutOfBand gRPC stream.
+																																If unset, Envoy uses the endpoint hostname, then the dialed address, then
+																																the cluster name.
+																																"""
+																												maxLength: 259
+																												minLength: 1
+																												pattern:   "^[^\\x00\\n\\r]*$"
+																												type:      "string"
+																											}
+																											port: {
+																												description: """
+																																Port overrides the port used for the OutOfBand reporting connection, e.g. to
+																																reach a separate reporting sidecar. Defaults to the endpoint's port.
+																																"""
+																												format:  "int32"
+																												maximum: 65535
+																												minimum: 1
+																												type:    "integer"
+																											}
+																											reportingPeriod: {
+																												description: """
+																																ReportingPeriod is how often Envoy requests load reports from the server.
+																																Must be greater than 0. Defaults to 10s.
+																																"""
+																												pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																												type:    "string"
+																												"x-kubernetes-validations": [{
+																													message: "reportingPeriod must be greater than 0"
+																													rule:    "duration(self) > duration('0s')"
+																												}]
+																											}
+																										}
+																										type: "object"
 																									}
 																									weightExpirationPeriod: {
 																										description: "If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m."
@@ -26363,6 +27281,73 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										}
 										type: "object"
 									}
+									healthCheckLog: {
+										description: "HealthCheckLog defines health check event logging for xRoute-backed clusters."
+										properties: {
+											matches: {
+												description: """
+																Matches defines which health check probe outcomes produce a log entry.
+																When omitted or empty, all events are logged.
+
+																Each value must be unique. Multiple values are ORed. If any failure type is
+																specified then a success type must also be specified, and vice versa.
+																"""
+												items: {
+													description: "ProxyHealthCheckLogEventType specifies which health check probe outcomes produce a log entry."
+													enum: ["Failure", "FailureSeriesStart", "Success", "HealthyTransition"]
+													type: "string"
+												}
+												maxItems:                 4
+												type:                     "array"
+												"x-kubernetes-list-type": "set"
+												"x-kubernetes-validations": [{
+													message: "a failure type and a success type must both be specified together"
+													rule:    "self.exists(e, e == 'Failure' || e == 'FailureSeriesStart') == self.exists(e, e == 'Success' || e == 'HealthyTransition')"
+												}]
+											}
+											sinks: {
+												description: """
+																Sinks defines where health check events are written.
+																When omitted, events are written to /dev/stdout.
+																"""
+												items: {
+													description: "ProxyHealthCheckLogSink defines a destination for health check event logs."
+													properties: {
+														file: {
+															description: """
+																			File defines the file sink configuration.
+																			Required when type is File.
+																			"""
+															properties: path: {
+																description: """
+																					Path specifies the file path for health check event output.
+																					Use /dev/stdout to write to standard output.
+																					"""
+																minLength: 1
+																type:      "string"
+															}
+															required: ["path"]
+															type: "object"
+														}
+														type: {
+															description: "Type defines the type of sink."
+															enum: ["File"]
+															type: "string"
+														}
+													}
+													required: ["type"]
+													type: "object"
+													"x-kubernetes-validations": [{
+														message: "If ProxyHealthCheckLogSink type is File, file field needs to be set."
+														rule:    "self.type == 'File' ? has(self.file) : !has(self.file)"
+													}]
+												}
+												maxItems: 1
+												type:     "array"
+											}
+										}
+										type: "object"
+									}
 									metrics: {
 										description: "Metrics defines metrics configuration for managed proxies."
 										properties: {
@@ -26459,14 +27444,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															minContentLength: {
 																allOf: [{
 																	pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																}, {
-																	pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																}]
-																anyOf: [{
-																	type: "integer"
-																}, {
-																	type: "string"
-																}]
+																}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																anyOf: [{type: "integer"}, {type: "string"}]
 																description: """
 																				MinContentLength defines the minimum response size in bytes to apply compression.
 																				Responses smaller than this threshold will not be compressed.
@@ -26838,14 +27817,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				bufferLimit: {
 																					allOf: [{
 																						pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																					}, {
-																						pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																					}]
-																					anyOf: [{
-																						type: "integer"
-																					}, {
-																						type: "string"
-																					}]
+																					}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																					anyOf: [{type: "integer"}, {type: "string"}]
 																					description: """
 																									BufferLimit Soft limit on size of the cluster’s connections read and write buffers.
 																									BufferLimit applies to connection streaming (maybe non-streaming) channel between processes, it's in user space.
@@ -26900,14 +27873,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				socketBufferLimit: {
 																					allOf: [{
 																						pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																					}, {
-																						pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																					}]
-																					anyOf: [{
-																						type: "integer"
-																					}, {
-																						type: "string"
-																					}]
+																					}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																					anyOf: [{type: "integer"}, {type: "string"}]
 																					description: """
 																									SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
 																									to backend.
@@ -26971,6 +27938,77 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							}
 																							type: "object"
 																						}
+																						healthCheckLog: {
+																							description: """
+																											HealthCheckLog defines health check event logging configuration for this cluster.
+																											When set, HC probe outcomes are logged to the configured sinks.
+																											Takes precedence over the gateway-level EnvoyProxy.spec.telemetry.healthCheckLog.
+																											"""
+																							properties: {
+																								matches: {
+																									description: """
+																													Matches defines which health check probe outcomes produce a log entry.
+																													When omitted or empty, all events are logged.
+
+																													Each value must be unique. Multiple values are ORed. If any failure type is
+																													specified then a success type must also be specified, and vice versa.
+																													"""
+																									items: {
+																										description: "ProxyHealthCheckLogEventType specifies which health check probe outcomes produce a log entry."
+																										enum: ["Failure", "FailureSeriesStart", "Success", "HealthyTransition"]
+																										type: "string"
+																									}
+																									maxItems:                 4
+																									type:                     "array"
+																									"x-kubernetes-list-type": "set"
+																									"x-kubernetes-validations": [{
+																										message: "a failure type and a success type must both be specified together"
+																										rule:    "self.exists(e, e == 'Failure' || e == 'FailureSeriesStart') == self.exists(e, e == 'Success' || e == 'HealthyTransition')"
+																									}]
+																								}
+																								sinks: {
+																									description: """
+																													Sinks defines where health check events are written.
+																													When omitted, events are written to /dev/stdout.
+																													"""
+																									items: {
+																										description: "ProxyHealthCheckLogSink defines a destination for health check event logs."
+																										properties: {
+																											file: {
+																												description: """
+																																File defines the file sink configuration.
+																																Required when type is File.
+																																"""
+																												properties: path: {
+																													description: """
+																																		Path specifies the file path for health check event output.
+																																		Use /dev/stdout to write to standard output.
+																																		"""
+																													minLength: 1
+																													type:      "string"
+																												}
+																												required: ["path"]
+																												type: "object"
+																											}
+																											type: {
+																												description: "Type defines the type of sink."
+																												enum: ["File"]
+																												type: "string"
+																											}
+																										}
+																										required: ["type"]
+																										type: "object"
+																										"x-kubernetes-validations": [{
+																											message: "If ProxyHealthCheckLogSink type is File, file field needs to be set."
+																											rule:    "self.type == 'File' ? has(self.file) : !has(self.file)"
+																										}]
+																									}
+																									maxItems: 1
+																									type:     "array"
+																								}
+																							}
+																							type: "object"
+																						}
 																						healthyThreshold: {
 																							default:     1
 																							description: "HealthyThreshold defines the number of healthy health checks required before a backend host is marked healthy."
@@ -26997,11 +28035,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																											type:        "string"
 																										}
 																										type: {
-																											allOf: [{
-																												enum: ["Text", "Binary"]
-																											}, {
-																												enum: ["Text", "Binary"]
-																											}]
+																											allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																											description: "Type defines the type of the payload."
 																											type:        "string"
 																										}
@@ -27045,13 +28079,42 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																													Method defines the HTTP method used for health checking.
 																													Defaults to GET
 																													"""
-																									type: "string"
+																									maxLength: 16
+																									type:      "string"
 																								}
 																								path: {
 																									description: "Path defines the HTTP path that will be requested during health checking."
 																									maxLength:   1024
 																									minLength:   1
 																									type:        "string"
+																								}
+																								requestBody: {
+																									description: "RequestBody defines the HTTP request body payload sent during health checking."
+																									properties: {
+																										binary: {
+																											description: "Binary payload base64 encoded."
+																											format:      "byte"
+																											type:        "string"
+																										}
+																										text: {
+																											description: "Text payload in plain text."
+																											type:        "string"
+																										}
+																										type: {
+																											allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
+																											description: "Type defines the type of the payload."
+																											type:        "string"
+																										}
+																									}
+																									required: ["type"]
+																									type: "object"
+																									"x-kubernetes-validations": [{
+																										message: "If payload type is Text, text field needs to be set."
+																										rule:    "self.type == 'Text' ? has(self.text) : !has(self.text)"
+																									}, {
+																										message: "If payload type is Binary, binary field needs to be set."
+																										rule:    "self.type == 'Binary' ? has(self.binary) : !has(self.binary)"
+																									}]
 																								}
 																								retriableStatuses: {
 																									description: """
@@ -27071,6 +28134,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							}
 																							required: ["path"]
 																							type: "object"
+																							"x-kubernetes-validations": [{
+																								message: "The requestBody field can only be set when method is POST or PUT."
+																								rule:    "!has(self.requestBody) || (has(self.method) && self.method.upperAscii() in ['POST','PUT'])"
+																							}]
 																						}
 																						initialJitter: {
 																							description: """
@@ -27125,11 +28192,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																											type:        "string"
 																										}
 																										type: {
-																											allOf: [{
-																												enum: ["Text", "Binary"]
-																											}, {
-																												enum: ["Text", "Binary"]
-																											}]
+																											allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																											description: "Type defines the type of the payload."
 																											type:        "string"
 																										}
@@ -27157,11 +28220,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																											type:        "string"
 																										}
 																										type: {
-																											allOf: [{
-																												enum: ["Text", "Binary"]
-																											}, {
-																												enum: ["Text", "Binary"]
-																											}]
+																											allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																											description: "Type defines the type of the payload."
 																											type:        "string"
 																										}
@@ -27186,11 +28245,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																							type:        "string"
 																						}
 																						type: {
-																							allOf: [{
-																								enum: ["HTTP", "TCP", "GRPC"]
-																							}, {
-																								enum: ["HTTP", "TCP", "GRPC"]
-																							}]
+																							allOf: [{enum: ["HTTP", "TCP", "GRPC"]}, {enum: ["HTTP", "TCP", "GRPC"]}]
 																							description: "Type defines the type of health checker."
 																							type:        "string"
 																						}
@@ -27346,14 +28401,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				initialConnectionWindowSize: {
 																					allOf: [{
 																						pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																					}, {
-																						pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																					}]
-																					anyOf: [{
-																						type: "integer"
-																					}, {
-																						type: "string"
-																					}]
+																					}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																					anyOf: [{type: "integer"}, {type: "string"}]
 																					description: """
 																									InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
 																									If not set, the default value is 1 MiB.
@@ -27363,14 +28412,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				initialStreamWindowSize: {
 																					allOf: [{
 																						pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																					}, {
-																						pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																					}]
-																					anyOf: [{
-																						type: "integer"
-																					}, {
-																						type: "string"
-																					}]
+																					}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																					anyOf: [{type: "integer"}, {type: "string"}]
 																					description: """
 																									InitialStreamWindowSize sets the initial window size for HTTP/2 streams.
 																									If not set, the default value is 64 KiB(64*1024).
@@ -27450,6 +28493,53 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																											"""
 																							items: type: "string"
 																							type: "array"
+																						}
+																						outOfBand: {
+																							description: """
+																											OutOfBand enables out-of-band ORCA load reporting. When set, Envoy opens a
+																											server-streaming gRPC connection to each endpoint's
+																											xds.service.orca.v3.OpenRcaService/StreamCoreMetrics and pulls load
+																											reports periodically, instead of relying on in-band ORCA metrics
+																											carried in response headers/trailers.
+
+																											The backend must implement OpenRcaService for this to take effect.
+																											"""
+																							properties: {
+																								authority: {
+																									description: """
+																													Authority overrides the :authority header on the OutOfBand gRPC stream.
+																													If unset, Envoy uses the endpoint hostname, then the dialed address, then
+																													the cluster name.
+																													"""
+																									maxLength: 259
+																									minLength: 1
+																									pattern:   "^[^\\x00\\n\\r]*$"
+																									type:      "string"
+																								}
+																								port: {
+																									description: """
+																													Port overrides the port used for the OutOfBand reporting connection, e.g. to
+																													reach a separate reporting sidecar. Defaults to the endpoint's port.
+																													"""
+																									format:  "int32"
+																									maximum: 65535
+																									minimum: 1
+																									type:    "integer"
+																								}
+																								reportingPeriod: {
+																									description: """
+																													ReportingPeriod is how often Envoy requests load reports from the server.
+																													Must be greater than 0. Defaults to 10s.
+																													"""
+																									pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																									type:    "string"
+																									"x-kubernetes-validations": [{
+																										message: "reportingPeriod must be greater than 0"
+																										rule:    "duration(self) > duration('0s')"
+																									}]
+																								}
+																							}
+																							type: "object"
 																						}
 																						weightExpirationPeriod: {
 																							description: "If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m."
@@ -28153,6 +29243,33 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														If unspecified, will not send tracing data.
 														"""
 										properties: {
+											clientSamplingFraction: {
+												description: """
+																ClientSamplingFraction represents the fraction of requests that should be
+																selected for tracing when requested by the client.
+																If unspecified, client-forced tracing is disabled by default and users must
+																set this field to opt in.
+																"""
+												properties: {
+													denominator: {
+														default: 100
+														format:  "int32"
+														minimum: 1
+														type:    "integer"
+													}
+													numerator: {
+														format:  "int32"
+														minimum: 0
+														type:    "integer"
+													}
+												}
+												required: ["numerator"]
+												type: "object"
+												"x-kubernetes-validations": [{
+													message: "numerator must be less than or equal to denominator"
+													rule:    "self.numerator <= self.denominator"
+												}]
+											}
 											customTags: {
 												additionalProperties: {
 													properties: {
@@ -28221,6 +29338,31 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																Deprecated: Use Tags instead.
 																"""
 												type: "object"
+											}
+											overallSamplingFraction: {
+												description: """
+																OverallSamplingFraction represents the fraction of requests that should be
+																selected for tracing after all other sampling checks have been applied.
+																"""
+												properties: {
+													denominator: {
+														default: 100
+														format:  "int32"
+														minimum: 1
+														type:    "integer"
+													}
+													numerator: {
+														format:  "int32"
+														minimum: 0
+														type:    "integer"
+													}
+												}
+												required: ["numerator"]
+												type: "object"
+												"x-kubernetes-validations": [{
+													message: "numerator must be less than or equal to denominator"
+													rule:    "self.numerator <= self.denominator"
+												}]
 											}
 											provider: {
 												description: "Provider defines the tracing provider."
@@ -28553,14 +29695,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	bufferLimit: {
 																		allOf: [{
 																			pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																		}, {
-																			pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																		}]
-																		anyOf: [{
-																			type: "integer"
-																		}, {
-																			type: "string"
-																		}]
+																		}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																		anyOf: [{type: "integer"}, {type: "string"}]
 																		description: """
 																						BufferLimit Soft limit on size of the cluster’s connections read and write buffers.
 																						BufferLimit applies to connection streaming (maybe non-streaming) channel between processes, it's in user space.
@@ -28615,14 +29751,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	socketBufferLimit: {
 																		allOf: [{
 																			pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																		}, {
-																			pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																		}]
-																		anyOf: [{
-																			type: "integer"
-																		}, {
-																			type: "string"
-																		}]
+																		}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																		anyOf: [{type: "integer"}, {type: "string"}]
 																		description: """
 																						SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
 																						to backend.
@@ -28686,6 +29816,77 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				}
 																				type: "object"
 																			}
+																			healthCheckLog: {
+																				description: """
+																								HealthCheckLog defines health check event logging configuration for this cluster.
+																								When set, HC probe outcomes are logged to the configured sinks.
+																								Takes precedence over the gateway-level EnvoyProxy.spec.telemetry.healthCheckLog.
+																								"""
+																				properties: {
+																					matches: {
+																						description: """
+																										Matches defines which health check probe outcomes produce a log entry.
+																										When omitted or empty, all events are logged.
+
+																										Each value must be unique. Multiple values are ORed. If any failure type is
+																										specified then a success type must also be specified, and vice versa.
+																										"""
+																						items: {
+																							description: "ProxyHealthCheckLogEventType specifies which health check probe outcomes produce a log entry."
+																							enum: ["Failure", "FailureSeriesStart", "Success", "HealthyTransition"]
+																							type: "string"
+																						}
+																						maxItems:                 4
+																						type:                     "array"
+																						"x-kubernetes-list-type": "set"
+																						"x-kubernetes-validations": [{
+																							message: "a failure type and a success type must both be specified together"
+																							rule:    "self.exists(e, e == 'Failure' || e == 'FailureSeriesStart') == self.exists(e, e == 'Success' || e == 'HealthyTransition')"
+																						}]
+																					}
+																					sinks: {
+																						description: """
+																										Sinks defines where health check events are written.
+																										When omitted, events are written to /dev/stdout.
+																										"""
+																						items: {
+																							description: "ProxyHealthCheckLogSink defines a destination for health check event logs."
+																							properties: {
+																								file: {
+																									description: """
+																													File defines the file sink configuration.
+																													Required when type is File.
+																													"""
+																									properties: path: {
+																										description: """
+																															Path specifies the file path for health check event output.
+																															Use /dev/stdout to write to standard output.
+																															"""
+																										minLength: 1
+																										type:      "string"
+																									}
+																									required: ["path"]
+																									type: "object"
+																								}
+																								type: {
+																									description: "Type defines the type of sink."
+																									enum: ["File"]
+																									type: "string"
+																								}
+																							}
+																							required: ["type"]
+																							type: "object"
+																							"x-kubernetes-validations": [{
+																								message: "If ProxyHealthCheckLogSink type is File, file field needs to be set."
+																								rule:    "self.type == 'File' ? has(self.file) : !has(self.file)"
+																							}]
+																						}
+																						maxItems: 1
+																						type:     "array"
+																					}
+																				}
+																				type: "object"
+																			}
 																			healthyThreshold: {
 																				default:     1
 																				description: "HealthyThreshold defines the number of healthy health checks required before a backend host is marked healthy."
@@ -28712,11 +29913,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								type:        "string"
 																							}
 																							type: {
-																								allOf: [{
-																									enum: ["Text", "Binary"]
-																								}, {
-																									enum: ["Text", "Binary"]
-																								}]
+																								allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																								description: "Type defines the type of the payload."
 																								type:        "string"
 																							}
@@ -28760,13 +29957,42 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																										Method defines the HTTP method used for health checking.
 																										Defaults to GET
 																										"""
-																						type: "string"
+																						maxLength: 16
+																						type:      "string"
 																					}
 																					path: {
 																						description: "Path defines the HTTP path that will be requested during health checking."
 																						maxLength:   1024
 																						minLength:   1
 																						type:        "string"
+																					}
+																					requestBody: {
+																						description: "RequestBody defines the HTTP request body payload sent during health checking."
+																						properties: {
+																							binary: {
+																								description: "Binary payload base64 encoded."
+																								format:      "byte"
+																								type:        "string"
+																							}
+																							text: {
+																								description: "Text payload in plain text."
+																								type:        "string"
+																							}
+																							type: {
+																								allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
+																								description: "Type defines the type of the payload."
+																								type:        "string"
+																							}
+																						}
+																						required: ["type"]
+																						type: "object"
+																						"x-kubernetes-validations": [{
+																							message: "If payload type is Text, text field needs to be set."
+																							rule:    "self.type == 'Text' ? has(self.text) : !has(self.text)"
+																						}, {
+																							message: "If payload type is Binary, binary field needs to be set."
+																							rule:    "self.type == 'Binary' ? has(self.binary) : !has(self.binary)"
+																						}]
 																					}
 																					retriableStatuses: {
 																						description: """
@@ -28786,6 +30012,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				}
 																				required: ["path"]
 																				type: "object"
+																				"x-kubernetes-validations": [{
+																					message: "The requestBody field can only be set when method is POST or PUT."
+																					rule:    "!has(self.requestBody) || (has(self.method) && self.method.upperAscii() in ['POST','PUT'])"
+																				}]
 																			}
 																			initialJitter: {
 																				description: """
@@ -28840,11 +30070,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								type:        "string"
 																							}
 																							type: {
-																								allOf: [{
-																									enum: ["Text", "Binary"]
-																								}, {
-																									enum: ["Text", "Binary"]
-																								}]
+																								allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																								description: "Type defines the type of the payload."
 																								type:        "string"
 																							}
@@ -28872,11 +30098,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								type:        "string"
 																							}
 																							type: {
-																								allOf: [{
-																									enum: ["Text", "Binary"]
-																								}, {
-																									enum: ["Text", "Binary"]
-																								}]
+																								allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																								description: "Type defines the type of the payload."
 																								type:        "string"
 																							}
@@ -28901,11 +30123,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				type:        "string"
 																			}
 																			type: {
-																				allOf: [{
-																					enum: ["HTTP", "TCP", "GRPC"]
-																				}, {
-																					enum: ["HTTP", "TCP", "GRPC"]
-																				}]
+																				allOf: [{enum: ["HTTP", "TCP", "GRPC"]}, {enum: ["HTTP", "TCP", "GRPC"]}]
 																				description: "Type defines the type of health checker."
 																				type:        "string"
 																			}
@@ -29061,14 +30279,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	initialConnectionWindowSize: {
 																		allOf: [{
 																			pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																		}, {
-																			pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																		}]
-																		anyOf: [{
-																			type: "integer"
-																		}, {
-																			type: "string"
-																		}]
+																		}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																		anyOf: [{type: "integer"}, {type: "string"}]
 																		description: """
 																						InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
 																						If not set, the default value is 1 MiB.
@@ -29078,14 +30290,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	initialStreamWindowSize: {
 																		allOf: [{
 																			pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																		}, {
-																			pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																		}]
-																		anyOf: [{
-																			type: "integer"
-																		}, {
-																			type: "string"
-																		}]
+																		}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																		anyOf: [{type: "integer"}, {type: "string"}]
 																		description: """
 																						InitialStreamWindowSize sets the initial window size for HTTP/2 streams.
 																						If not set, the default value is 64 KiB(64*1024).
@@ -29165,6 +30371,53 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								"""
 																				items: type: "string"
 																				type: "array"
+																			}
+																			outOfBand: {
+																				description: """
+																								OutOfBand enables out-of-band ORCA load reporting. When set, Envoy opens a
+																								server-streaming gRPC connection to each endpoint's
+																								xds.service.orca.v3.OpenRcaService/StreamCoreMetrics and pulls load
+																								reports periodically, instead of relying on in-band ORCA metrics
+																								carried in response headers/trailers.
+
+																								The backend must implement OpenRcaService for this to take effect.
+																								"""
+																				properties: {
+																					authority: {
+																						description: """
+																										Authority overrides the :authority header on the OutOfBand gRPC stream.
+																										If unset, Envoy uses the endpoint hostname, then the dialed address, then
+																										the cluster name.
+																										"""
+																						maxLength: 259
+																						minLength: 1
+																						pattern:   "^[^\\x00\\n\\r]*$"
+																						type:      "string"
+																					}
+																					port: {
+																						description: """
+																										Port overrides the port used for the OutOfBand reporting connection, e.g. to
+																										reach a separate reporting sidecar. Defaults to the endpoint's port.
+																										"""
+																						format:  "int32"
+																						maximum: 65535
+																						minimum: 1
+																						type:    "integer"
+																					}
+																					reportingPeriod: {
+																						description: """
+																										ReportingPeriod is how often Envoy requests load reports from the server.
+																										Must be greater than 0. Defaults to 10s.
+																										"""
+																						pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																						type:    "string"
+																						"x-kubernetes-validations": [{
+																							message: "reportingPeriod must be greater than 0"
+																							rule:    "duration(self) > duration('0s')"
+																						}]
+																					}
+																				}
+																				type: "object"
 																			}
 																			weightExpirationPeriod: {
 																				description: "If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m."
@@ -29987,6 +31240,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							}
 						}
 						type: "object"
+						"x-kubernetes-validations": [{
+							message: "mergeGateways and mergeBackends cannot both be enabled"
+							rule:    "!(has(self.mergeGateways) && self.mergeGateways && has(self.mergeBackends))"
+						}]
 					}
 					status: {
 						description: "EnvoyProxyStatus defines the actual state of EnvoyProxy."
@@ -30217,9 +31474,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						type: "object"
 					}
 				}
-				required: [
-					"spec",
-				]
+				required: ["spec"]
 				type: "object"
 			}
 			served:  true
@@ -30228,19 +31483,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 		}]
 	}
 }, {
+	apiVersion: "apiextensions.k8s.io/v1"
+	kind:       "CustomResourceDefinition"
 	metadata: name: "httproutefilters.gateway.envoyproxy.io"
 	spec: {
 		group: "gateway.envoyproxy.io"
 		names: {
-			categories: [
-				"envoy-gateway",
-			]
+			categories: ["envoy-gateway"]
 			kind:     "HTTPRouteFilter"
 			listKind: "HTTPRouteFilterList"
 			plural:   "httproutefilters"
-			shortNames: [
-				"hrf",
-			]
+			shortNames: ["hrf"]
 			singular: "httproutefilter"
 		}
 		scope: "Namespaced"
@@ -30366,7 +31619,16 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								type: "object"
 							}
 							directResponse: {
-								description: "HTTPDirectResponseFilter defines the configuration to return a fixed response."
+								description: """
+												DirectResponse returns a fixed response for matching requests.
+
+												When this filter is referenced from a GRPCRoute, only a non-2xx status code
+												is supported. gRPC signals success with a grpc-status trailer and a response
+												message, which a direct response cannot produce, so a 2xx status code (which
+												maps to the gRPC OK status) yields an invalid response for gRPC clients. Use a
+												non-2xx status code to deny or block gRPC requests (e.g. 403 maps to
+												PERMISSION_DENIED, 404 to UNIMPLEMENTED, 429/503 to UNAVAILABLE).
+												"""
 								properties: {
 									body: {
 										description: """
@@ -30379,11 +31641,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												type:        "string"
 											}
 											type: {
-												allOf: [{
-													enum: ["Inline", "ValueRef"]
-												}, {
-													enum: ["Inline", "ValueRef"]
-												}]
+												allOf: [{enum: ["Inline", "ValueRef"]}, {enum: ["Inline", "ValueRef"]}]
 												default: "Inline"
 												description: """
 																Type is the type of method to use to read the body value.
@@ -30605,6 +31863,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										description: """
 														Status Code of the HTTP response
 														If unset, defaults to 200.
+														Note: when this filter is referenced from a GRPCRoute, a 2xx status code
+														(including the default 200) is rejected; a non-2xx status code must be set.
 														"""
 										type: "integer"
 									}
@@ -30684,9 +31944,49 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 												description: "Header is the name of the header whose value would be used to rewrite the Host header"
 												type:        "string"
 											}
+											pathRegex: {
+												description: """
+																PathRegex defines a regex match and substitution applied to the request path to compute
+																the rewritten Host header.
+																For example, with:
+																pathRegex:
+																  pattern: "^/tenant/([a-z0-9-]+)/.*"
+																  substitution: "\\\\1.example.internal"
+																a request to "http://foo.bar.com/tenant/tenant1/api/v1" has its upstream Host header rewritten
+																to "tenant1.example.internal" (the request path "/tenant/tenant1/api/v1" is preserved).
+																"""
+												properties: {
+													pattern: {
+														description: """
+																		Pattern matches a regular expression against the value of the HTTP Path. The regex string must
+																		adhere to the syntax documented in https://github.com/google/re2/wiki/Syntax.
+																		"""
+														minLength: 1
+														type:      "string"
+													}
+													substitution: {
+														description: """
+																		Substitution is an expression that replaces the matched portion. The expression may include numbered
+																		capture groups that adhere to syntax documented in https://github.com/google/re2/wiki/Syntax.
+
+																		The resulting value is used as the upstream Host header and should be constrained to a valid
+																		DNS hostname by using explicit regex capture groups in Pattern.
+
+																		The NUL, CR, and LF characters are not allowed: they are invalid in an HTTP header value and are
+																		rejected by the Envoy proto (well_known_regex HTTP_HEADER_VALUE), which would otherwise cause the
+																		generated configuration to be rejected by the data plane.
+																		"""
+														minLength: 1
+														pattern:   "^[^\\r\\n\\x00]*$"
+														type:      "string"
+													}
+												}
+												required: ["pattern", "substitution"]
+												type: "object"
+											}
 											type: {
 												description: "HTTPPathModifierType defines the type of Hostname rewrite."
-												enum: ["Header", "Backend"]
+												enum: ["Header", "Backend", "PathRegex"]
 												type: "string"
 											}
 										}
@@ -30698,6 +31998,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 										}, {
 											message: "header must be specified for Header type"
 											rule:    "!(!has(self.header) && self.type == 'Header')"
+										}, {
+											message: "pathRegex must be nil if the type is not PathRegex"
+											rule:    "!(has(self.pathRegex) && self.type != 'PathRegex')"
+										}, {
+											message: "pathRegex must be specified for PathRegex type"
+											rule:    "!(!has(self.pathRegex) && self.type == 'PathRegex')"
 										}]
 									}
 									path: {
@@ -30765,9 +32071,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						type: "object"
 					}
 				}
-				required: [
-					"spec",
-				]
+				required: ["spec"]
 				type: "object"
 			}
 			served:  true
@@ -30776,19 +32080,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 		}]
 	}
 }, {
+	apiVersion: "apiextensions.k8s.io/v1"
+	kind:       "CustomResourceDefinition"
 	metadata: name: "securitypolicies.gateway.envoyproxy.io"
 	spec: {
 		group: "gateway.envoyproxy.io"
 		names: {
-			categories: [
-				"envoy-gateway",
-			]
+			categories: ["envoy-gateway"]
 			kind:     "SecurityPolicy"
 			listKind: "SecurityPolicyList"
 			plural:   "securitypolicies"
-			shortNames: [
-				"sp",
-			]
+			shortNames: ["sp"]
 			singular: "securitypolicy"
 		}
 		scope: "Namespaced"
@@ -30915,10 +32217,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	If multiple cookies are specified, envoy will look for the api key in the order of the list.
 																	This field is optional, but only one of headers, params or cookies must be specified.
 																	"""
-													items: {
-														minLength: 1
-														type:      "string"
-													}
+													items: {minLength: 1, type: "string"}
 													minItems: 1
 													type:     "array"
 												}
@@ -30928,10 +32227,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	If multiple headers are specified, envoy will look for the api key in the order of the list.
 																	This field is optional, but only one of headers, params or cookies must be specified.
 																	"""
-													items: {
-														minLength: 1
-														type:      "string"
-													}
+													items: {minLength: 1, type: "string"}
 													minItems: 1
 													type:     "array"
 												}
@@ -30941,10 +32237,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	If multiple params are specified, envoy will look for the api key in the order of the list.
 																	This field is optional, but only one of headers, params or cookies must be specified.
 																	"""
-													items: {
-														minLength: 1
-														type:      "string"
-													}
+													items: {minLength: 1, type: "string"}
 													minItems: 1
 													type:     "array"
 												}
@@ -31001,6 +32294,37 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													enum: ["Allow", "Deny"]
 													type: "string"
 												}
+												cel: {
+													description: """
+																	CEL specifies a Common Expression Language expression to evaluate for the
+																	request. If specified, the expression must evaluate to true for the rule to match.
+
+																	The expression can use Envoy attributes exposed to the CEL runtime.
+																	Request attributes, such as request.path, request.url_path, request.host,
+																	request.scheme, request.method, request.headers, and request.query, are
+																	generally available during authorization. Connection attributes, such as
+																	source.address, source.port, destination.address, destination.port,
+																	connection.mtls, and connection.requested_server_name, may also be used.
+																	Dynamic metadata and filter state produced by earlier filters may also be
+																	available through attributes such as metadata and filter_state.
+																	Response attributes are only available after the request completes and
+																	should not be used for authorization decisions.
+
+																	For more details, see:
+																	https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/advanced/attributes
+
+																	The rule matches only when the expression evaluates to a boolean true.
+																	Non-boolean results, false, null, and CEL evaluation errors are treated as
+																	no match.
+
+																	Examples:
+																	`request.headers['x-tenant'] == 'team-a'`
+																	`request.method == 'POST' && request.path.startsWith('/admin')`
+																	"""
+													maxLength: 4096
+													minLength: 1
+													type:      "string"
+												}
 												name: {
 													description: """
 																	Name is a user-friendly name for the rule.
@@ -31015,13 +32339,14 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																	Operation specifies the operation of a request, such as HTTP methods.
 																	If not specified, all operations are matched on.
 																	"""
-													properties: methods: {
-														description: """
+													properties: {
+														methods: {
+															description: """
 																			Methods are the HTTP methods of the request.
 																			If multiple methods are specified, all specified methods are allowed or denied, based on the action of the rule.
 																			"""
-														items: {
-															description: """
+															items: {
+																description: """
 																				HTTPMethod describes how to select a HTTP route by matching the HTTP
 																				method as defined by
 																				[RFC 7231](https://datatracker.ietf.org/doc/html/rfc7231#section-4) and
@@ -31035,15 +32360,46 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																				Accepted Condition for the Route to `status: False`, with a
 																				Reason of `UnsupportedValue`.
 																				"""
-															enum: ["GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"]
-															type: "string"
+																enum: ["GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"]
+																type: "string"
+															}
+															maxItems: 16
+															minItems: 1
+															type:     "array"
 														}
-														maxItems: 16
-														minItems: 1
-														type:     "array"
+														path: {
+															description: """
+																			Path is the HTTP path of the request.
+																			Support Exact, PathPrefix and RegularExpression match types.
+																			"""
+															properties: {
+																invert: {
+																	default:     false
+																	description: "Invert specifies whether the value match result will be inverted."
+																	type:        "boolean"
+																}
+																type: {
+																	default:     "PathPrefix"
+																	description: "Type specifies how to match against the value of the path."
+																	enum: ["Exact", "PathPrefix", "RegularExpression"]
+																	type: "string"
+																}
+																value: {
+																	default:     "/"
+																	description: "Value specifies the HTTP path."
+																	maxLength:   1024
+																	type:        "string"
+																}
+															}
+															required: ["value"]
+															type: "object"
+														}
 													}
-													required: ["methods"]
 													type: "object"
+													"x-kubernetes-validations": [{
+														message: "at least one of methods or path must be specified"
+														rule:    "has(self.methods) || has(self.path)"
+													}]
 												}
 												principal: {
 													description: """
@@ -31094,7 +32450,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 
 																			If multiple entries are specified,  one of the ClientIPGeoLocation entries must match for the rule to match.
 
-																			The client IP is inferred from the X-Forwarded-For header or a custom header.
+																			The client IP is inferred from the X-Forwarded-For header, a custom header, or the
+																			direct downstream connection source address (the TCP peer of the connection terminated by Envoy).
 																			You can use the `ClientIPDetection` field in the `ClientTrafficPolicy` to configure the client IP detection.
 																			"""
 															items: {
@@ -31311,8 +32668,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 													}]
 												}
 											}
-											required: ["action", "principal"]
+											required: ["action"]
 											type: "object"
+											"x-kubernetes-validations": [{
+												message: "at least one of principal or cel must be specified"
+												rule:    "has(self.principal) || has(self.cel)"
+											}]
 										}
 										type: "array"
 									}
@@ -31444,10 +32805,12 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															- http://foo.example.com:8080
 															- http://*.example.com:8080
 															- https://*
+															- moz-extension://example.com
+															- foo://*.example.com:8080
 															"""
 											maxLength: 253
 											minLength: 1
-											pattern:   "^(\\*|https?:\\/\\/(\\*|(\\*\\.)?(([\\w-]+\\.?)+)?[\\w-]+)(:\\d{1,5})?)$"
+											pattern:   "^(\\*|[A-Za-z][A-Za-z0-9+.-]*:\\/\\/(\\*|(\\*\\.)?(([\\w-]+\\.?)+)?[\\w-]+)(:\\d{1,5})?)$"
 											type:      "string"
 										}
 										type: "array"
@@ -31469,6 +32832,87 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														"""
 										pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 										type:    "string"
+									}
+								}
+								type: "object"
+							}
+							csrf: {
+								description: """
+												CSRF defines the configuration for Cross-Site Request Forgery (CSRF) protection.
+												When enabled, the CSRF filter checks that the Origin header matches the destination
+												or one of the additional allowed origins on mutating requests (POST, PUT, DELETE, PATCH).
+												"""
+								properties: {
+									additionalOrigins: {
+										description: """
+														AdditionalOrigins specifies additional origins that are allowed to make mutating
+														requests, beyond the destination origin. A request whose Origin header matches one
+														of them is allowed. The value "*" allows any origin, which effectively disables
+														origin validation.
+
+														Note: Envoy's CSRF filter compares the host and port of the origin only, so the
+														scheme is ignored: "https://www.example.com" and "http://www.example.com" are
+														equivalent here, and both allow the request regardless of the scheme the client
+														used.
+														"""
+										items: {
+											description: """
+															Origin is defined by the scheme (protocol), hostname (domain), and port of
+															the URL used to access it. The hostname can be "precise" which is just the
+															domain name or "wildcard" which is a domain name prefixed with a single
+															wildcard label such as "*.example.com".
+															In addition to that a single wildcard (with or without scheme) can be
+															configured to match any origin.
+
+															For example, the following are valid origins:
+															- https://foo.example.com
+															- https://*.example.com
+															- http://foo.example.com:8080
+															- http://*.example.com:8080
+															- https://*
+															- moz-extension://example.com
+															- foo://*.example.com:8080
+															"""
+											maxLength: 253
+											minLength: 1
+											pattern:   "^(\\*|[A-Za-z][A-Za-z0-9+.-]*:\\/\\/(\\*|(\\*\\.)?(([\\w-]+\\.?)+)?[\\w-]+)(:\\d{1,5})?)$"
+											type:      "string"
+										}
+										maxItems: 16
+										type:     "array"
+									}
+									shadowFraction: {
+										description: """
+														ShadowFraction represents the fraction of requests for which the CSRF policy is
+														evaluated in shadow (dry-run) mode. For these requests, the filter records whether
+														the request would have been allowed or rejected in the `csrf.request_valid` and
+														`csrf.request_invalid` stats, but always lets the request through. The remaining
+														requests are enforced, i.e. a mutating request with a missing or non-matching
+														Origin header is rejected with a 403.
+
+														Defaults to 0% (all requests are enforced) if not specified. Set it to 100% to
+														dry run the filter, watch the stats to find origins that would be rejected, then
+														lower it to roll enforcement out gradually.
+														"""
+										properties: {
+											denominator: {
+												default: 100
+												format:  "int32"
+												minimum: 1
+												type:    "integer"
+											}
+											numerator: {
+												format:  "int32"
+												minimum: 0
+												type:    "integer"
+											}
+										}
+										required: ["numerator"]
+										type: "object"
+										"x-kubernetes-validations": [{
+											message: "numerator must be less than or equal to denominator"
+											rule:    "self.numerator <= self.denominator"
+										}]
 									}
 								}
 								type: "object"
@@ -31923,14 +33367,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															bufferLimit: {
 																allOf: [{
 																	pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																}, {
-																	pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																}]
-																anyOf: [{
-																	type: "integer"
-																}, {
-																	type: "string"
-																}]
+																}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																anyOf: [{type: "integer"}, {type: "string"}]
 																description: """
 																				BufferLimit Soft limit on size of the cluster’s connections read and write buffers.
 																				BufferLimit applies to connection streaming (maybe non-streaming) channel between processes, it's in user space.
@@ -31985,14 +33423,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															socketBufferLimit: {
 																allOf: [{
 																	pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																}, {
-																	pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																}]
-																anyOf: [{
-																	type: "integer"
-																}, {
-																	type: "string"
-																}]
+																}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																anyOf: [{type: "integer"}, {type: "string"}]
 																description: """
 																				SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
 																				to backend.
@@ -32056,6 +33488,77 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		}
 																		type: "object"
 																	}
+																	healthCheckLog: {
+																		description: """
+																						HealthCheckLog defines health check event logging configuration for this cluster.
+																						When set, HC probe outcomes are logged to the configured sinks.
+																						Takes precedence over the gateway-level EnvoyProxy.spec.telemetry.healthCheckLog.
+																						"""
+																		properties: {
+																			matches: {
+																				description: """
+																								Matches defines which health check probe outcomes produce a log entry.
+																								When omitted or empty, all events are logged.
+
+																								Each value must be unique. Multiple values are ORed. If any failure type is
+																								specified then a success type must also be specified, and vice versa.
+																								"""
+																				items: {
+																					description: "ProxyHealthCheckLogEventType specifies which health check probe outcomes produce a log entry."
+																					enum: ["Failure", "FailureSeriesStart", "Success", "HealthyTransition"]
+																					type: "string"
+																				}
+																				maxItems:                 4
+																				type:                     "array"
+																				"x-kubernetes-list-type": "set"
+																				"x-kubernetes-validations": [{
+																					message: "a failure type and a success type must both be specified together"
+																					rule:    "self.exists(e, e == 'Failure' || e == 'FailureSeriesStart') == self.exists(e, e == 'Success' || e == 'HealthyTransition')"
+																				}]
+																			}
+																			sinks: {
+																				description: """
+																								Sinks defines where health check events are written.
+																								When omitted, events are written to /dev/stdout.
+																								"""
+																				items: {
+																					description: "ProxyHealthCheckLogSink defines a destination for health check event logs."
+																					properties: {
+																						file: {
+																							description: """
+																											File defines the file sink configuration.
+																											Required when type is File.
+																											"""
+																							properties: path: {
+																								description: """
+																													Path specifies the file path for health check event output.
+																													Use /dev/stdout to write to standard output.
+																													"""
+																								minLength: 1
+																								type:      "string"
+																							}
+																							required: ["path"]
+																							type: "object"
+																						}
+																						type: {
+																							description: "Type defines the type of sink."
+																							enum: ["File"]
+																							type: "string"
+																						}
+																					}
+																					required: ["type"]
+																					type: "object"
+																					"x-kubernetes-validations": [{
+																						message: "If ProxyHealthCheckLogSink type is File, file field needs to be set."
+																						rule:    "self.type == 'File' ? has(self.file) : !has(self.file)"
+																					}]
+																				}
+																				maxItems: 1
+																				type:     "array"
+																			}
+																		}
+																		type: "object"
+																	}
 																	healthyThreshold: {
 																		default:     1
 																		description: "HealthyThreshold defines the number of healthy health checks required before a backend host is marked healthy."
@@ -32082,11 +33585,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						type:        "string"
 																					}
 																					type: {
-																						allOf: [{
-																							enum: ["Text", "Binary"]
-																						}, {
-																							enum: ["Text", "Binary"]
-																						}]
+																						allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																						description: "Type defines the type of the payload."
 																						type:        "string"
 																					}
@@ -32130,13 +33629,42 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								Method defines the HTTP method used for health checking.
 																								Defaults to GET
 																								"""
-																				type: "string"
+																				maxLength: 16
+																				type:      "string"
 																			}
 																			path: {
 																				description: "Path defines the HTTP path that will be requested during health checking."
 																				maxLength:   1024
 																				minLength:   1
 																				type:        "string"
+																			}
+																			requestBody: {
+																				description: "RequestBody defines the HTTP request body payload sent during health checking."
+																				properties: {
+																					binary: {
+																						description: "Binary payload base64 encoded."
+																						format:      "byte"
+																						type:        "string"
+																					}
+																					text: {
+																						description: "Text payload in plain text."
+																						type:        "string"
+																					}
+																					type: {
+																						allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
+																						description: "Type defines the type of the payload."
+																						type:        "string"
+																					}
+																				}
+																				required: ["type"]
+																				type: "object"
+																				"x-kubernetes-validations": [{
+																					message: "If payload type is Text, text field needs to be set."
+																					rule:    "self.type == 'Text' ? has(self.text) : !has(self.text)"
+																				}, {
+																					message: "If payload type is Binary, binary field needs to be set."
+																					rule:    "self.type == 'Binary' ? has(self.binary) : !has(self.binary)"
+																				}]
 																			}
 																			retriableStatuses: {
 																				description: """
@@ -32156,6 +33684,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		}
 																		required: ["path"]
 																		type: "object"
+																		"x-kubernetes-validations": [{
+																			message: "The requestBody field can only be set when method is POST or PUT."
+																			rule:    "!has(self.requestBody) || (has(self.method) && self.method.upperAscii() in ['POST','PUT'])"
+																		}]
 																	}
 																	initialJitter: {
 																		description: """
@@ -32210,11 +33742,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						type:        "string"
 																					}
 																					type: {
-																						allOf: [{
-																							enum: ["Text", "Binary"]
-																						}, {
-																							enum: ["Text", "Binary"]
-																						}]
+																						allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																						description: "Type defines the type of the payload."
 																						type:        "string"
 																					}
@@ -32242,11 +33770,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						type:        "string"
 																					}
 																					type: {
-																						allOf: [{
-																							enum: ["Text", "Binary"]
-																						}, {
-																							enum: ["Text", "Binary"]
-																						}]
+																						allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																						description: "Type defines the type of the payload."
 																						type:        "string"
 																					}
@@ -32271,11 +33795,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:        "string"
 																	}
 																	type: {
-																		allOf: [{
-																			enum: ["HTTP", "TCP", "GRPC"]
-																		}, {
-																			enum: ["HTTP", "TCP", "GRPC"]
-																		}]
+																		allOf: [{enum: ["HTTP", "TCP", "GRPC"]}, {enum: ["HTTP", "TCP", "GRPC"]}]
 																		description: "Type defines the type of health checker."
 																		type:        "string"
 																	}
@@ -32431,14 +33951,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															initialConnectionWindowSize: {
 																allOf: [{
 																	pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																}, {
-																	pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																}]
-																anyOf: [{
-																	type: "integer"
-																}, {
-																	type: "string"
-																}]
+																}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																anyOf: [{type: "integer"}, {type: "string"}]
 																description: """
 																				InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
 																				If not set, the default value is 1 MiB.
@@ -32448,14 +33962,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															initialStreamWindowSize: {
 																allOf: [{
 																	pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																}, {
-																	pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																}]
-																anyOf: [{
-																	type: "integer"
-																}, {
-																	type: "string"
-																}]
+																}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																anyOf: [{type: "integer"}, {type: "string"}]
 																description: """
 																				InitialStreamWindowSize sets the initial window size for HTTP/2 streams.
 																				If not set, the default value is 64 KiB(64*1024).
@@ -32535,6 +34043,53 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"""
 																		items: type: "string"
 																		type: "array"
+																	}
+																	outOfBand: {
+																		description: """
+																						OutOfBand enables out-of-band ORCA load reporting. When set, Envoy opens a
+																						server-streaming gRPC connection to each endpoint's
+																						xds.service.orca.v3.OpenRcaService/StreamCoreMetrics and pulls load
+																						reports periodically, instead of relying on in-band ORCA metrics
+																						carried in response headers/trailers.
+
+																						The backend must implement OpenRcaService for this to take effect.
+																						"""
+																		properties: {
+																			authority: {
+																				description: """
+																								Authority overrides the :authority header on the OutOfBand gRPC stream.
+																								If unset, Envoy uses the endpoint hostname, then the dialed address, then
+																								the cluster name.
+																								"""
+																				maxLength: 259
+																				minLength: 1
+																				pattern:   "^[^\\x00\\n\\r]*$"
+																				type:      "string"
+																			}
+																			port: {
+																				description: """
+																								Port overrides the port used for the OutOfBand reporting connection, e.g. to
+																								reach a separate reporting sidecar. Defaults to the endpoint's port.
+																								"""
+																				format:  "int32"
+																				maximum: 65535
+																				minimum: 1
+																				type:    "integer"
+																			}
+																			reportingPeriod: {
+																				description: """
+																								ReportingPeriod is how often Envoy requests load reports from the server.
+																								Must be greater than 0. Defaults to 10s.
+																								"""
+																				pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																				type:    "string"
+																				"x-kubernetes-validations": [{
+																					message: "reportingPeriod must be greater than 0"
+																					rule:    "duration(self) > duration('0s')"
+																				}]
+																			}
+																		}
+																		type: "object"
 																	}
 																	weightExpirationPeriod: {
 																		description: "If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m."
@@ -33451,14 +35006,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															bufferLimit: {
 																allOf: [{
 																	pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																}, {
-																	pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																}]
-																anyOf: [{
-																	type: "integer"
-																}, {
-																	type: "string"
-																}]
+																}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																anyOf: [{type: "integer"}, {type: "string"}]
 																description: """
 																				BufferLimit Soft limit on size of the cluster’s connections read and write buffers.
 																				BufferLimit applies to connection streaming (maybe non-streaming) channel between processes, it's in user space.
@@ -33513,14 +35062,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															socketBufferLimit: {
 																allOf: [{
 																	pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																}, {
-																	pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																}]
-																anyOf: [{
-																	type: "integer"
-																}, {
-																	type: "string"
-																}]
+																}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																anyOf: [{type: "integer"}, {type: "string"}]
 																description: """
 																				SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
 																				to backend.
@@ -33584,6 +35127,77 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		}
 																		type: "object"
 																	}
+																	healthCheckLog: {
+																		description: """
+																						HealthCheckLog defines health check event logging configuration for this cluster.
+																						When set, HC probe outcomes are logged to the configured sinks.
+																						Takes precedence over the gateway-level EnvoyProxy.spec.telemetry.healthCheckLog.
+																						"""
+																		properties: {
+																			matches: {
+																				description: """
+																								Matches defines which health check probe outcomes produce a log entry.
+																								When omitted or empty, all events are logged.
+
+																								Each value must be unique. Multiple values are ORed. If any failure type is
+																								specified then a success type must also be specified, and vice versa.
+																								"""
+																				items: {
+																					description: "ProxyHealthCheckLogEventType specifies which health check probe outcomes produce a log entry."
+																					enum: ["Failure", "FailureSeriesStart", "Success", "HealthyTransition"]
+																					type: "string"
+																				}
+																				maxItems:                 4
+																				type:                     "array"
+																				"x-kubernetes-list-type": "set"
+																				"x-kubernetes-validations": [{
+																					message: "a failure type and a success type must both be specified together"
+																					rule:    "self.exists(e, e == 'Failure' || e == 'FailureSeriesStart') == self.exists(e, e == 'Success' || e == 'HealthyTransition')"
+																				}]
+																			}
+																			sinks: {
+																				description: """
+																								Sinks defines where health check events are written.
+																								When omitted, events are written to /dev/stdout.
+																								"""
+																				items: {
+																					description: "ProxyHealthCheckLogSink defines a destination for health check event logs."
+																					properties: {
+																						file: {
+																							description: """
+																											File defines the file sink configuration.
+																											Required when type is File.
+																											"""
+																							properties: path: {
+																								description: """
+																													Path specifies the file path for health check event output.
+																													Use /dev/stdout to write to standard output.
+																													"""
+																								minLength: 1
+																								type:      "string"
+																							}
+																							required: ["path"]
+																							type: "object"
+																						}
+																						type: {
+																							description: "Type defines the type of sink."
+																							enum: ["File"]
+																							type: "string"
+																						}
+																					}
+																					required: ["type"]
+																					type: "object"
+																					"x-kubernetes-validations": [{
+																						message: "If ProxyHealthCheckLogSink type is File, file field needs to be set."
+																						rule:    "self.type == 'File' ? has(self.file) : !has(self.file)"
+																					}]
+																				}
+																				maxItems: 1
+																				type:     "array"
+																			}
+																		}
+																		type: "object"
+																	}
 																	healthyThreshold: {
 																		default:     1
 																		description: "HealthyThreshold defines the number of healthy health checks required before a backend host is marked healthy."
@@ -33610,11 +35224,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						type:        "string"
 																					}
 																					type: {
-																						allOf: [{
-																							enum: ["Text", "Binary"]
-																						}, {
-																							enum: ["Text", "Binary"]
-																						}]
+																						allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																						description: "Type defines the type of the payload."
 																						type:        "string"
 																					}
@@ -33658,13 +35268,42 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								Method defines the HTTP method used for health checking.
 																								Defaults to GET
 																								"""
-																				type: "string"
+																				maxLength: 16
+																				type:      "string"
 																			}
 																			path: {
 																				description: "Path defines the HTTP path that will be requested during health checking."
 																				maxLength:   1024
 																				minLength:   1
 																				type:        "string"
+																			}
+																			requestBody: {
+																				description: "RequestBody defines the HTTP request body payload sent during health checking."
+																				properties: {
+																					binary: {
+																						description: "Binary payload base64 encoded."
+																						format:      "byte"
+																						type:        "string"
+																					}
+																					text: {
+																						description: "Text payload in plain text."
+																						type:        "string"
+																					}
+																					type: {
+																						allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
+																						description: "Type defines the type of the payload."
+																						type:        "string"
+																					}
+																				}
+																				required: ["type"]
+																				type: "object"
+																				"x-kubernetes-validations": [{
+																					message: "If payload type is Text, text field needs to be set."
+																					rule:    "self.type == 'Text' ? has(self.text) : !has(self.text)"
+																				}, {
+																					message: "If payload type is Binary, binary field needs to be set."
+																					rule:    "self.type == 'Binary' ? has(self.binary) : !has(self.binary)"
+																				}]
 																			}
 																			retriableStatuses: {
 																				description: """
@@ -33684,6 +35323,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		}
 																		required: ["path"]
 																		type: "object"
+																		"x-kubernetes-validations": [{
+																			message: "The requestBody field can only be set when method is POST or PUT."
+																			rule:    "!has(self.requestBody) || (has(self.method) && self.method.upperAscii() in ['POST','PUT'])"
+																		}]
 																	}
 																	initialJitter: {
 																		description: """
@@ -33738,11 +35381,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						type:        "string"
 																					}
 																					type: {
-																						allOf: [{
-																							enum: ["Text", "Binary"]
-																						}, {
-																							enum: ["Text", "Binary"]
-																						}]
+																						allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																						description: "Type defines the type of the payload."
 																						type:        "string"
 																					}
@@ -33770,11 +35409,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						type:        "string"
 																					}
 																					type: {
-																						allOf: [{
-																							enum: ["Text", "Binary"]
-																						}, {
-																							enum: ["Text", "Binary"]
-																						}]
+																						allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																						description: "Type defines the type of the payload."
 																						type:        "string"
 																					}
@@ -33799,11 +35434,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:        "string"
 																	}
 																	type: {
-																		allOf: [{
-																			enum: ["HTTP", "TCP", "GRPC"]
-																		}, {
-																			enum: ["HTTP", "TCP", "GRPC"]
-																		}]
+																		allOf: [{enum: ["HTTP", "TCP", "GRPC"]}, {enum: ["HTTP", "TCP", "GRPC"]}]
 																		description: "Type defines the type of health checker."
 																		type:        "string"
 																	}
@@ -33959,14 +35590,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															initialConnectionWindowSize: {
 																allOf: [{
 																	pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																}, {
-																	pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																}]
-																anyOf: [{
-																	type: "integer"
-																}, {
-																	type: "string"
-																}]
+																}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																anyOf: [{type: "integer"}, {type: "string"}]
 																description: """
 																				InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
 																				If not set, the default value is 1 MiB.
@@ -33976,14 +35601,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															initialStreamWindowSize: {
 																allOf: [{
 																	pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																}, {
-																	pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																}]
-																anyOf: [{
-																	type: "integer"
-																}, {
-																	type: "string"
-																}]
+																}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																anyOf: [{type: "integer"}, {type: "string"}]
 																description: """
 																				InitialStreamWindowSize sets the initial window size for HTTP/2 streams.
 																				If not set, the default value is 64 KiB(64*1024).
@@ -34063,6 +35682,53 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"""
 																		items: type: "string"
 																		type: "array"
+																	}
+																	outOfBand: {
+																		description: """
+																						OutOfBand enables out-of-band ORCA load reporting. When set, Envoy opens a
+																						server-streaming gRPC connection to each endpoint's
+																						xds.service.orca.v3.OpenRcaService/StreamCoreMetrics and pulls load
+																						reports periodically, instead of relying on in-band ORCA metrics
+																						carried in response headers/trailers.
+
+																						The backend must implement OpenRcaService for this to take effect.
+																						"""
+																		properties: {
+																			authority: {
+																				description: """
+																								Authority overrides the :authority header on the OutOfBand gRPC stream.
+																								If unset, Envoy uses the endpoint hostname, then the dialed address, then
+																								the cluster name.
+																								"""
+																				maxLength: 259
+																				minLength: 1
+																				pattern:   "^[^\\x00\\n\\r]*$"
+																				type:      "string"
+																			}
+																			port: {
+																				description: """
+																								Port overrides the port used for the OutOfBand reporting connection, e.g. to
+																								reach a separate reporting sidecar. Defaults to the endpoint's port.
+																								"""
+																				format:  "int32"
+																				maximum: 65535
+																				minimum: 1
+																				type:    "integer"
+																			}
+																			reportingPeriod: {
+																				description: """
+																								ReportingPeriod is how often Envoy requests load reports from the server.
+																								Must be greater than 0. Defaults to 10s.
+																								"""
+																				pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																				type:    "string"
+																				"x-kubernetes-validations": [{
+																					message: "reportingPeriod must be greater than 0"
+																					rule:    "duration(self) > duration('0s')"
+																				}]
+																			}
+																		}
+																		type: "object"
 																	}
 																	weightExpirationPeriod: {
 																		description: "If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m."
@@ -34730,10 +36396,28 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							jwt: {
 								description: "JWT defines the configuration for JSON Web Token (JWT) authentication."
 								properties: {
+									failOpen: {
+										description: """
+														FailOpen lets a request pass JWT authentication even when its JWT is
+														missing or invalid, rather than being rejected. This helps when a header
+														that clients use to carry a JWT may also legitimately hold a non-JWT value
+														that the backend relies on.
+
+														A valid JWT is still verified and its claims forwarded as usual; only the
+														rejection of requests with a missing or invalid JWT is relaxed. Because this
+														does not enforce authentication on its own, pair it with an Authorization
+														policy when access needs to be restricted.
+
+														This is broader than Optional (which tolerates a missing JWT but still
+														rejects an invalid one) and takes precedence over it.
+														"""
+										type: "boolean"
+									}
 									optional: {
 										description: """
 														Optional determines whether a missing JWT is acceptable, defaulting to false if not specified.
-														Note: Even if optional is set to true, JWT authentication will still fail if an invalid JWT is presented.
+														Note: Even if optional is set to true, JWT authentication will still fail if an invalid JWT
+														is presented. See FailOpen if this is necessary for your use case.
 														"""
 										type: "boolean"
 									}
@@ -35247,14 +36931,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		bufferLimit: {
 																			allOf: [{
 																				pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																			}, {
-																				pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																			}]
-																			anyOf: [{
-																				type: "integer"
-																			}, {
-																				type: "string"
-																			}]
+																			}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																			anyOf: [{type: "integer"}, {type: "string"}]
 																			description: """
 																							BufferLimit Soft limit on size of the cluster’s connections read and write buffers.
 																							BufferLimit applies to connection streaming (maybe non-streaming) channel between processes, it's in user space.
@@ -35309,14 +36987,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		socketBufferLimit: {
 																			allOf: [{
 																				pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																			}, {
-																				pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																			}]
-																			anyOf: [{
-																				type: "integer"
-																			}, {
-																				type: "string"
-																			}]
+																			}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																			anyOf: [{type: "integer"}, {type: "string"}]
 																			description: """
 																							SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
 																							to backend.
@@ -35380,6 +37052,77 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					}
 																					type: "object"
 																				}
+																				healthCheckLog: {
+																					description: """
+																									HealthCheckLog defines health check event logging configuration for this cluster.
+																									When set, HC probe outcomes are logged to the configured sinks.
+																									Takes precedence over the gateway-level EnvoyProxy.spec.telemetry.healthCheckLog.
+																									"""
+																					properties: {
+																						matches: {
+																							description: """
+																											Matches defines which health check probe outcomes produce a log entry.
+																											When omitted or empty, all events are logged.
+
+																											Each value must be unique. Multiple values are ORed. If any failure type is
+																											specified then a success type must also be specified, and vice versa.
+																											"""
+																							items: {
+																								description: "ProxyHealthCheckLogEventType specifies which health check probe outcomes produce a log entry."
+																								enum: ["Failure", "FailureSeriesStart", "Success", "HealthyTransition"]
+																								type: "string"
+																							}
+																							maxItems:                 4
+																							type:                     "array"
+																							"x-kubernetes-list-type": "set"
+																							"x-kubernetes-validations": [{
+																								message: "a failure type and a success type must both be specified together"
+																								rule:    "self.exists(e, e == 'Failure' || e == 'FailureSeriesStart') == self.exists(e, e == 'Success' || e == 'HealthyTransition')"
+																							}]
+																						}
+																						sinks: {
+																							description: """
+																											Sinks defines where health check events are written.
+																											When omitted, events are written to /dev/stdout.
+																											"""
+																							items: {
+																								description: "ProxyHealthCheckLogSink defines a destination for health check event logs."
+																								properties: {
+																									file: {
+																										description: """
+																														File defines the file sink configuration.
+																														Required when type is File.
+																														"""
+																										properties: path: {
+																											description: """
+																																Path specifies the file path for health check event output.
+																																Use /dev/stdout to write to standard output.
+																																"""
+																											minLength: 1
+																											type:      "string"
+																										}
+																										required: ["path"]
+																										type: "object"
+																									}
+																									type: {
+																										description: "Type defines the type of sink."
+																										enum: ["File"]
+																										type: "string"
+																									}
+																								}
+																								required: ["type"]
+																								type: "object"
+																								"x-kubernetes-validations": [{
+																									message: "If ProxyHealthCheckLogSink type is File, file field needs to be set."
+																									rule:    "self.type == 'File' ? has(self.file) : !has(self.file)"
+																								}]
+																							}
+																							maxItems: 1
+																							type:     "array"
+																						}
+																					}
+																					type: "object"
+																				}
 																				healthyThreshold: {
 																					default:     1
 																					description: "HealthyThreshold defines the number of healthy health checks required before a backend host is marked healthy."
@@ -35406,11 +37149,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									type:        "string"
 																								}
 																								type: {
-																									allOf: [{
-																										enum: ["Text", "Binary"]
-																									}, {
-																										enum: ["Text", "Binary"]
-																									}]
+																									allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																									description: "Type defines the type of the payload."
 																									type:        "string"
 																								}
@@ -35454,13 +37193,42 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																											Method defines the HTTP method used for health checking.
 																											Defaults to GET
 																											"""
-																							type: "string"
+																							maxLength: 16
+																							type:      "string"
 																						}
 																						path: {
 																							description: "Path defines the HTTP path that will be requested during health checking."
 																							maxLength:   1024
 																							minLength:   1
 																							type:        "string"
+																						}
+																						requestBody: {
+																							description: "RequestBody defines the HTTP request body payload sent during health checking."
+																							properties: {
+																								binary: {
+																									description: "Binary payload base64 encoded."
+																									format:      "byte"
+																									type:        "string"
+																								}
+																								text: {
+																									description: "Text payload in plain text."
+																									type:        "string"
+																								}
+																								type: {
+																									allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
+																									description: "Type defines the type of the payload."
+																									type:        "string"
+																								}
+																							}
+																							required: ["type"]
+																							type: "object"
+																							"x-kubernetes-validations": [{
+																								message: "If payload type is Text, text field needs to be set."
+																								rule:    "self.type == 'Text' ? has(self.text) : !has(self.text)"
+																							}, {
+																								message: "If payload type is Binary, binary field needs to be set."
+																								rule:    "self.type == 'Binary' ? has(self.binary) : !has(self.binary)"
+																							}]
 																						}
 																						retriableStatuses: {
 																							description: """
@@ -35480,6 +37248,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					}
 																					required: ["path"]
 																					type: "object"
+																					"x-kubernetes-validations": [{
+																						message: "The requestBody field can only be set when method is POST or PUT."
+																						rule:    "!has(self.requestBody) || (has(self.method) && self.method.upperAscii() in ['POST','PUT'])"
+																					}]
 																				}
 																				initialJitter: {
 																					description: """
@@ -35534,11 +37306,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									type:        "string"
 																								}
 																								type: {
-																									allOf: [{
-																										enum: ["Text", "Binary"]
-																									}, {
-																										enum: ["Text", "Binary"]
-																									}]
+																									allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																									description: "Type defines the type of the payload."
 																									type:        "string"
 																								}
@@ -35566,11 +37334,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									type:        "string"
 																								}
 																								type: {
-																									allOf: [{
-																										enum: ["Text", "Binary"]
-																									}, {
-																										enum: ["Text", "Binary"]
-																									}]
+																									allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																									description: "Type defines the type of the payload."
 																									type:        "string"
 																								}
@@ -35595,11 +37359,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																					type:        "string"
 																				}
 																				type: {
-																					allOf: [{
-																						enum: ["HTTP", "TCP", "GRPC"]
-																					}, {
-																						enum: ["HTTP", "TCP", "GRPC"]
-																					}]
+																					allOf: [{enum: ["HTTP", "TCP", "GRPC"]}, {enum: ["HTTP", "TCP", "GRPC"]}]
 																					description: "Type defines the type of health checker."
 																					type:        "string"
 																				}
@@ -35755,14 +37515,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		initialConnectionWindowSize: {
 																			allOf: [{
 																				pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																			}, {
-																				pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																			}]
-																			anyOf: [{
-																				type: "integer"
-																			}, {
-																				type: "string"
-																			}]
+																			}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																			anyOf: [{type: "integer"}, {type: "string"}]
 																			description: """
 																							InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
 																							If not set, the default value is 1 MiB.
@@ -35772,14 +37526,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		initialStreamWindowSize: {
 																			allOf: [{
 																				pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																			}, {
-																				pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																			}]
-																			anyOf: [{
-																				type: "integer"
-																			}, {
-																				type: "string"
-																			}]
+																			}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																			anyOf: [{type: "integer"}, {type: "string"}]
 																			description: """
 																							InitialStreamWindowSize sets the initial window size for HTTP/2 streams.
 																							If not set, the default value is 64 KiB(64*1024).
@@ -35859,6 +37607,53 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																									"""
 																					items: type: "string"
 																					type: "array"
+																				}
+																				outOfBand: {
+																					description: """
+																									OutOfBand enables out-of-band ORCA load reporting. When set, Envoy opens a
+																									server-streaming gRPC connection to each endpoint's
+																									xds.service.orca.v3.OpenRcaService/StreamCoreMetrics and pulls load
+																									reports periodically, instead of relying on in-band ORCA metrics
+																									carried in response headers/trailers.
+
+																									The backend must implement OpenRcaService for this to take effect.
+																									"""
+																					properties: {
+																						authority: {
+																							description: """
+																											Authority overrides the :authority header on the OutOfBand gRPC stream.
+																											If unset, Envoy uses the endpoint hostname, then the dialed address, then
+																											the cluster name.
+																											"""
+																							maxLength: 259
+																							minLength: 1
+																							pattern:   "^[^\\x00\\n\\r]*$"
+																							type:      "string"
+																						}
+																						port: {
+																							description: """
+																											Port overrides the port used for the OutOfBand reporting connection, e.g. to
+																											reach a separate reporting sidecar. Defaults to the endpoint's port.
+																											"""
+																							format:  "int32"
+																							maximum: 65535
+																							minimum: 1
+																							type:    "integer"
+																						}
+																						reportingPeriod: {
+																							description: """
+																											ReportingPeriod is how often Envoy requests load reports from the server.
+																											Must be greater than 0. Defaults to 10s.
+																											"""
+																							pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																							type:    "string"
+																							"x-kubernetes-validations": [{
+																								message: "reportingPeriod must be greater than 0"
+																								rule:    "duration(self) > duration('0s')"
+																							}]
+																						}
+																					}
+																					type: "object"
 																				}
 																				weightExpirationPeriod: {
 																					description: "If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m."
@@ -36420,6 +38215,17 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
 															type:    "string"
 														}
+														failedRefetchDuration: {
+															description: """
+																			FailedRefetchDuration is the duration Envoy waits before re-fetching the JWKS
+																			after a failed fetch.
+																			This does not control retries within a single fetch attempt (see BackendSettings.Retry),
+																			only the interval between fetch attempts after a failure.
+																			If not specified, Envoy's default of 1 second is used.
+																			"""
+															pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+															type:    "string"
+														}
 														uri: {
 															description: """
 																			URI is the HTTPS URI to fetch the JWKS. Envoy's system trust bundle is used to validate the server certificate.
@@ -36464,13 +38270,19 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 								}
 								required: ["providers"]
 								type: "object"
+								"x-kubernetes-validations": [{
+									message: "optional and failOpen cannot both be set; failOpen already tolerates a missing JWT"
+									rule:    "!(has(self.optional) && has(self.failOpen))"
+								}]
 							}
 							mergeType: {
 								description: """
 												MergeType determines how this configuration is merged with existing SecurityPolicy
 												configurations targeting a parent resource. When set, this configuration will be merged
-												into a parent SecurityPolicy (i.e. the one targeting a Gateway or Listener).
-												This field cannot be set when targeting a parent resource (Gateway).
+												into the closest parent SecurityPolicy in the route's attachment hierarchy (for
+												example, one targeting a Gateway, Gateway listener, ListenerSet, or ListenerSet
+												listener).
+												Currently, this field can only be set when targeting xRoute resources.
 												If unset, no merging occurs, and only the most specific configuration takes effect.
 												"""
 								type: "string"
@@ -36619,7 +38431,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														If set, the cookies will be set on the specified domain and all subdomains.
 														This means that requests to any subdomain will not require reauthentication after users log in to the parent domain.
 														"""
-										pattern: "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9]))*$"
+										pattern: "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
 										type:    "string"
 									}
 									cookieNames: {
@@ -36747,11 +38559,26 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 														If the configured header is "Authorization", EG forwards the ID token using
 														the "Bearer " prefix. For any other header, EG forwards the raw token value.
 														If not specified, the ID token will not be forwarded.
+
+														Note: when passThroughAuthHeader is enabled, this header must not be the same
+														as a header a JWT provider extracts from (the "Authorization" header by
+														default). The forwarded ID token header is owned by Envoy, and Envoy rejects
+														an OAuth2 configuration whose pass-through matcher keys on it.
 														"""
 										properties: header: {
-											description: "Header is the upstream request header that will carry the ID token."
-											minLength:   1
-											type:        "string"
+											description: """
+																Header is the upstream request header that will carry the ID token.
+																It must be a valid HTTP header name. Pseudo-headers (names starting with ":")
+																and the "Host" header are not allowed.
+																"""
+											maxLength: 256
+											minLength: 1
+											pattern:   "^[A-Za-z0-9!#$%&'*+\\-.^_\\x60|~]+$"
+											type:      "string"
+											"x-kubernetes-validations": [{
+												message: "header cannot be the Host header"
+												rule:    "self.lowerAscii() != 'host'"
+											}]
 										}
 										required: ["header"]
 										type: "object"
@@ -37114,14 +38941,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															bufferLimit: {
 																allOf: [{
 																	pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																}, {
-																	pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																}]
-																anyOf: [{
-																	type: "integer"
-																}, {
-																	type: "string"
-																}]
+																}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																anyOf: [{type: "integer"}, {type: "string"}]
 																description: """
 																				BufferLimit Soft limit on size of the cluster’s connections read and write buffers.
 																				BufferLimit applies to connection streaming (maybe non-streaming) channel between processes, it's in user space.
@@ -37176,14 +38997,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															socketBufferLimit: {
 																allOf: [{
 																	pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																}, {
-																	pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																}]
-																anyOf: [{
-																	type: "integer"
-																}, {
-																	type: "string"
-																}]
+																}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																anyOf: [{type: "integer"}, {type: "string"}]
 																description: """
 																				SocketBufferLimit provides configuration for the maximum buffer size in bytes for each socket
 																				to backend.
@@ -37247,6 +39062,77 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		}
 																		type: "object"
 																	}
+																	healthCheckLog: {
+																		description: """
+																						HealthCheckLog defines health check event logging configuration for this cluster.
+																						When set, HC probe outcomes are logged to the configured sinks.
+																						Takes precedence over the gateway-level EnvoyProxy.spec.telemetry.healthCheckLog.
+																						"""
+																		properties: {
+																			matches: {
+																				description: """
+																								Matches defines which health check probe outcomes produce a log entry.
+																								When omitted or empty, all events are logged.
+
+																								Each value must be unique. Multiple values are ORed. If any failure type is
+																								specified then a success type must also be specified, and vice versa.
+																								"""
+																				items: {
+																					description: "ProxyHealthCheckLogEventType specifies which health check probe outcomes produce a log entry."
+																					enum: ["Failure", "FailureSeriesStart", "Success", "HealthyTransition"]
+																					type: "string"
+																				}
+																				maxItems:                 4
+																				type:                     "array"
+																				"x-kubernetes-list-type": "set"
+																				"x-kubernetes-validations": [{
+																					message: "a failure type and a success type must both be specified together"
+																					rule:    "self.exists(e, e == 'Failure' || e == 'FailureSeriesStart') == self.exists(e, e == 'Success' || e == 'HealthyTransition')"
+																				}]
+																			}
+																			sinks: {
+																				description: """
+																								Sinks defines where health check events are written.
+																								When omitted, events are written to /dev/stdout.
+																								"""
+																				items: {
+																					description: "ProxyHealthCheckLogSink defines a destination for health check event logs."
+																					properties: {
+																						file: {
+																							description: """
+																											File defines the file sink configuration.
+																											Required when type is File.
+																											"""
+																							properties: path: {
+																								description: """
+																													Path specifies the file path for health check event output.
+																													Use /dev/stdout to write to standard output.
+																													"""
+																								minLength: 1
+																								type:      "string"
+																							}
+																							required: ["path"]
+																							type: "object"
+																						}
+																						type: {
+																							description: "Type defines the type of sink."
+																							enum: ["File"]
+																							type: "string"
+																						}
+																					}
+																					required: ["type"]
+																					type: "object"
+																					"x-kubernetes-validations": [{
+																						message: "If ProxyHealthCheckLogSink type is File, file field needs to be set."
+																						rule:    "self.type == 'File' ? has(self.file) : !has(self.file)"
+																					}]
+																				}
+																				maxItems: 1
+																				type:     "array"
+																			}
+																		}
+																		type: "object"
+																	}
 																	healthyThreshold: {
 																		default:     1
 																		description: "HealthyThreshold defines the number of healthy health checks required before a backend host is marked healthy."
@@ -37273,11 +39159,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						type:        "string"
 																					}
 																					type: {
-																						allOf: [{
-																							enum: ["Text", "Binary"]
-																						}, {
-																							enum: ["Text", "Binary"]
-																						}]
+																						allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																						description: "Type defines the type of the payload."
 																						type:        "string"
 																					}
@@ -37321,13 +39203,42 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																								Method defines the HTTP method used for health checking.
 																								Defaults to GET
 																								"""
-																				type: "string"
+																				maxLength: 16
+																				type:      "string"
 																			}
 																			path: {
 																				description: "Path defines the HTTP path that will be requested during health checking."
 																				maxLength:   1024
 																				minLength:   1
 																				type:        "string"
+																			}
+																			requestBody: {
+																				description: "RequestBody defines the HTTP request body payload sent during health checking."
+																				properties: {
+																					binary: {
+																						description: "Binary payload base64 encoded."
+																						format:      "byte"
+																						type:        "string"
+																					}
+																					text: {
+																						description: "Text payload in plain text."
+																						type:        "string"
+																					}
+																					type: {
+																						allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
+																						description: "Type defines the type of the payload."
+																						type:        "string"
+																					}
+																				}
+																				required: ["type"]
+																				type: "object"
+																				"x-kubernetes-validations": [{
+																					message: "If payload type is Text, text field needs to be set."
+																					rule:    "self.type == 'Text' ? has(self.text) : !has(self.text)"
+																				}, {
+																					message: "If payload type is Binary, binary field needs to be set."
+																					rule:    "self.type == 'Binary' ? has(self.binary) : !has(self.binary)"
+																				}]
 																			}
 																			retriableStatuses: {
 																				description: """
@@ -37347,6 +39258,10 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		}
 																		required: ["path"]
 																		type: "object"
+																		"x-kubernetes-validations": [{
+																			message: "The requestBody field can only be set when method is POST or PUT."
+																			rule:    "!has(self.requestBody) || (has(self.method) && self.method.upperAscii() in ['POST','PUT'])"
+																		}]
 																	}
 																	initialJitter: {
 																		description: """
@@ -37401,11 +39316,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						type:        "string"
 																					}
 																					type: {
-																						allOf: [{
-																							enum: ["Text", "Binary"]
-																						}, {
-																							enum: ["Text", "Binary"]
-																						}]
+																						allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																						description: "Type defines the type of the payload."
 																						type:        "string"
 																					}
@@ -37433,11 +39344,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						type:        "string"
 																					}
 																					type: {
-																						allOf: [{
-																							enum: ["Text", "Binary"]
-																						}, {
-																							enum: ["Text", "Binary"]
-																						}]
+																						allOf: [{enum: ["Text", "Binary"]}, {enum: ["Text", "Binary"]}]
 																						description: "Type defines the type of the payload."
 																						type:        "string"
 																					}
@@ -37462,11 +39369,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																		type:        "string"
 																	}
 																	type: {
-																		allOf: [{
-																			enum: ["HTTP", "TCP", "GRPC"]
-																		}, {
-																			enum: ["HTTP", "TCP", "GRPC"]
-																		}]
+																		allOf: [{enum: ["HTTP", "TCP", "GRPC"]}, {enum: ["HTTP", "TCP", "GRPC"]}]
 																		description: "Type defines the type of health checker."
 																		type:        "string"
 																	}
@@ -37622,14 +39525,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															initialConnectionWindowSize: {
 																allOf: [{
 																	pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																}, {
-																	pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																}]
-																anyOf: [{
-																	type: "integer"
-																}, {
-																	type: "string"
-																}]
+																}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																anyOf: [{type: "integer"}, {type: "string"}]
 																description: """
 																				InitialConnectionWindowSize sets the initial window size for HTTP/2 connections.
 																				If not set, the default value is 1 MiB.
@@ -37639,14 +39536,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 															initialStreamWindowSize: {
 																allOf: [{
 																	pattern: "^(\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\\+|-)?(([0-9]+(\\.[0-9]*)?)|(\\.[0-9]+))))?$"
-																}, {
-																	pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"
-																}]
-																anyOf: [{
-																	type: "integer"
-																}, {
-																	type: "string"
-																}]
+																}, {pattern: "^[1-9]+[0-9]*([EPTGMK]i|[EPTGMk])?$"}]
+																anyOf: [{type: "integer"}, {type: "string"}]
 																description: """
 																				InitialStreamWindowSize sets the initial window size for HTTP/2 streams.
 																				If not set, the default value is 64 KiB(64*1024).
@@ -37726,6 +39617,53 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																						"""
 																		items: type: "string"
 																		type: "array"
+																	}
+																	outOfBand: {
+																		description: """
+																						OutOfBand enables out-of-band ORCA load reporting. When set, Envoy opens a
+																						server-streaming gRPC connection to each endpoint's
+																						xds.service.orca.v3.OpenRcaService/StreamCoreMetrics and pulls load
+																						reports periodically, instead of relying on in-band ORCA metrics
+																						carried in response headers/trailers.
+
+																						The backend must implement OpenRcaService for this to take effect.
+																						"""
+																		properties: {
+																			authority: {
+																				description: """
+																								Authority overrides the :authority header on the OutOfBand gRPC stream.
+																								If unset, Envoy uses the endpoint hostname, then the dialed address, then
+																								the cluster name.
+																								"""
+																				maxLength: 259
+																				minLength: 1
+																				pattern:   "^[^\\x00\\n\\r]*$"
+																				type:      "string"
+																			}
+																			port: {
+																				description: """
+																								Port overrides the port used for the OutOfBand reporting connection, e.g. to
+																								reach a separate reporting sidecar. Defaults to the endpoint's port.
+																								"""
+																				format:  "int32"
+																				maximum: 65535
+																				minimum: 1
+																				type:    "integer"
+																			}
+																			reportingPeriod: {
+																				description: """
+																								ReportingPeriod is how often Envoy requests load reports from the server.
+																								Must be greater than 0. Defaults to 10s.
+																								"""
+																				pattern: "^([0-9]{1,5}(h|m|s|ms)){1,4}$"
+																				type:    "string"
+																				"x-kubernetes-validations": [{
+																					message: "reportingPeriod must be greater than 0"
+																					rule:    "duration(self) > duration('0s')"
+																				}]
+																			}
+																		}
+																		type: "object"
 																	}
 																	weightExpirationPeriod: {
 																		description: "If a given endpoint has not reported load metrics in this long, stop using the reported weight. Defaults to 3m."
@@ -38294,8 +40232,8 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 																be https, a host component, and optionally, port and path components and
 																no query or fragment components.
 																"""
-												minLength: 1
-												type:      "string"
+												pattern: "^https://[^/?#@]+(/[^?#]*)?$"
+												type:    "string"
 											}
 											tokenEndpoint: {
 												description: """
@@ -38645,17 +40583,20 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 							message: "this policy can only have a targetRef.group of gateway.networking.k8s.io"
 							rule:    "has(self.targetRef) ? self.targetRef.group == 'gateway.networking.k8s.io' : true"
 						}, {
-							message: "this policy can only have a targetRef.kind of Gateway/HTTPRoute/GRPCRoute/TCPRoute"
-							rule:    "has(self.targetRef) ? self.targetRef.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute', 'TCPRoute'] : true"
+							message: "this policy can only have a targetRef.kind of Gateway/ListenerSet/HTTPRoute/GRPCRoute/TCPRoute"
+							rule:    "has(self.targetRef) ? self.targetRef.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute', 'TCPRoute'] : true"
 						}, {
 							message: "this policy can only have a targetRefs[*].group of gateway.networking.k8s.io"
 							rule:    "has(self.targetRefs) ? self.targetRefs.all(ref, ref.group == 'gateway.networking.k8s.io') : true "
 						}, {
-							message: "this policy can only have a targetRefs[*].kind of Gateway/HTTPRoute/GRPCRoute/TCPRoute"
-							rule:    "has(self.targetRefs) ? self.targetRefs.all(ref, ref.kind in ['Gateway', 'HTTPRoute', 'GRPCRoute', 'TCPRoute']) : true "
+							message: "this policy can only have a targetRefs[*].kind of Gateway/ListenerSet/HTTPRoute/GRPCRoute/TCPRoute"
+							rule:    "has(self.targetRefs) ? self.targetRefs.all(ref, ref.kind in ['Gateway', 'ListenerSet', 'HTTPRoute', 'GRPCRoute', 'TCPRoute']) : true "
+						}, {
+							message: "mergeType can only be used with xRoute targets"
+							rule:    "!has(self.mergeType) || ((!has(self.targetRef) || self.targetRef.kind in ['HTTPRoute', 'GRPCRoute', 'TCPRoute']) && (!has(self.targetRefs) || self.targetRefs.all(ref, ref.kind in ['HTTPRoute', 'GRPCRoute', 'TCPRoute'])) && (!has(self.targetSelectors) || self.targetSelectors.all(sel, sel.kind in ['HTTPRoute', 'GRPCRoute', 'TCPRoute'])))"
 						}, {
 							message: "if authorization.rules.principal.jwt is used, jwt must be defined"
-							rule:    "(has(self.authorization) && has(self.authorization.rules) && self.authorization.rules.exists(r, has(r.principal.jwt))) ? has(self.jwt) : true"
+							rule:    "(has(self.authorization) && has(self.authorization.rules) && self.authorization.rules.exists(r, has(r.principal) ? has(r.principal.jwt) : false)) ? has(self.jwt) : true"
 						}]
 					}
 					status: {
@@ -39007,9 +40948,7 @@ import apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 						type: "object"
 					}
 				}
-				required: [
-					"spec",
-				]
+				required: ["spec"]
 				type: "object"
 			}
 			served:  true

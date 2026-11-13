@@ -27,7 +27,8 @@ import (
 #DefaultDeploymentMemoryResourceRequests: "512Mi"
 
 // DefaultEnvoyProxyImage is the default image used by envoyproxy
-#DefaultEnvoyProxyImage: "docker.io/envoyproxy/envoy:distroless-v1.38.3"
+// pin to sha256 to avoid issues with image tags being mutable and changing over time.
+#DefaultEnvoyProxyImage: "docker.io/envoyproxy/envoy:distroless-v1.39.5@sha256:9d84a586119a27b50437dbb01eccd4722832741539b1ed53c8e9d6da6067a6e0"
 
 // DefaultShutdownManagerCPUResourceRequests for shutdown manager cpu resource
 #DefaultShutdownManagerCPUResourceRequests: "10m"
@@ -39,7 +40,7 @@ import (
 #DefaultShutdownManagerImage: "docker.io/envoyproxy/gateway-dev:latest"
 
 // DefaultRateLimitImage is the default image used by ratelimit.
-#DefaultRateLimitImage: "docker.io/envoyproxy/ratelimit:1e50889b"
+#DefaultRateLimitImage: "docker.io/envoyproxy/ratelimit:5ae0682e@sha256:b95206e32b1a5f824fb06062fbb85bbdfb7f5de54135e92afe8462f22c979681"
 
 // HTTPProtocol is the common-used http protocol.
 #HTTPProtocol: "http"
@@ -402,7 +403,7 @@ import (
 }
 
 // LogLevel defines a log level for Envoy Gateway and EnvoyProxy system logs.
-// +kubebuilder:validation:Enum=trace;debug;info;warn;error
+// +kubebuilder:validation:Enum=trace;debug;info;warn;error;off;critical
 #LogLevel: string // #enumLogLevel
 
 #enumLogLevel:
@@ -410,7 +411,9 @@ import (
 	#LogLevelDebug |
 	#LogLevelInfo |
 	#LogLevelWarn |
-	#LogLevelError
+	#LogLevelError |
+	#LogLevelOff |
+	#LogLevelCritical
 
 // LogLevelTrace defines the "Trace" logging level.
 #LogLevelTrace: #LogLevel & "trace"
@@ -426,6 +429,12 @@ import (
 
 // LogLevelError defines the "Error" logging level.
 #LogLevelError: #LogLevel & "error"
+
+// LogLevelOff disables logging.
+#LogLevelOff: #LogLevel & "off"
+
+// LogLevelCritical defines the "critical" logging level.
+#LogLevelCritical: #LogLevel & "critical"
 
 // XDSTranslatorHook defines the types of hooks that an Envoy Gateway extension may support
 // for the xds-translator
@@ -593,6 +602,14 @@ import (
 // KubernetesPatchSpec defines how to perform the patch operation.
 // Note that `value` can be an in-line YAML document, as can be seen in e.g. (the example of patching the Envoy proxy Deployment)[https://gateway.envoyproxy.io/docs/tasks/operations/customize-envoyproxy/#patching-deployment-for-envoyproxy].
 // Note also that, currently, strings containing literal JSON are _rejected_.
+//
+// Warning: this patch is merged directly onto the fully-computed Kubernetes resource with no
+// allowlist on which fields may be set. Whoever can author the EnvoyProxy resource that carries
+// this patch can therefore set arbitrary fields — including hostPath volumes, hostNetwork/hostPID,
+// privileged containers, or an arbitrary image/command — on a resource that Envoy Gateway's own,
+// more privileged, ServiceAccount applies. Because EnvoyProxy is commonly namespace-scoped and
+// tenant-authored, treat this field as untrusted input in multi-tenant clusters: restrict who may
+// set it via RBAC, or disable EnvoyGateway's `EnvoyProxyPatch` runtime flag.
 #KubernetesPatchSpec: {
 	// Type is the type of merge operation to perform
 	//
@@ -850,11 +867,33 @@ import (
 }
 
 // CustomResponseMatch defines the configuration for matching a user response to return a custom one.
+// When both statusCodes and responseHeaders are specified, both must match.
+// +kubebuilder:validation:XValidation:rule="has(self.statusCodes) || has(self.responseHeaders)",message="at least one of statusCodes or responseHeaders must be specified"
 #CustomResponseMatch: {
 	// Status code to match on. The match evaluates to true if any of the matches are successful.
+	//
+	// +optional
 	// +kubebuilder:validation:MinItems=1
 	// +kubebuilder:validation:MaxItems=50
-	statusCodes: [...#StatusCodeMatch] @go(StatusCodes,[]StatusCodeMatch)
+	statusCodes?: [...#StatusCodeMatch] @go(StatusCodes,[]StatusCodeMatch)
+
+	// Response headers to match on. The match evaluates to true if all matches are successful.
+	//
+	// +optional
+	// +kubebuilder:validation:MinItems=1
+	// +kubebuilder:validation:MaxItems=16
+	responseHeaders?: [...#ResponseOverrideHeaderMatch] @go(ResponseHeaders,[]ResponseOverrideHeaderMatch)
+}
+
+// ResponseOverrideHeaderMatch defines the configuration for matching a response header.
+#ResponseOverrideHeaderMatch: {
+	// Name of the HTTP header.
+	// The header name is case-insensitive.
+	// For example, "Foo" and "foo" are considered the same header.
+	name: gwapiv1.#HTTPHeaderName @go(Name)
+
+	// Value within the HTTP header to match against.
+	value: #StringMatch @go(Value)
 }
 
 // StatusCodeValueType defines the types of values for the status code match supported by Envoy Gateway.
@@ -983,6 +1022,20 @@ import (
 	//
 	// +optional
 	samplingFraction?: null | gwapiv1.#Fraction @go(SamplingFraction,*gwapiv1.Fraction)
+
+	// ClientSamplingFraction represents the fraction of requests that should be
+	// selected for tracing when requested by the client.
+	// If unspecified, client-forced tracing is disabled by default and users must
+	// set this field to opt in.
+	//
+	// +optional
+	clientSamplingFraction?: null | gwapiv1.#Fraction @go(ClientSamplingFraction,*gwapiv1.Fraction)
+
+	// OverallSamplingFraction represents the fraction of requests that should be
+	// selected for tracing after all other sampling checks have been applied.
+	//
+	// +optional
+	overallSamplingFraction?: null | gwapiv1.#Fraction @go(OverallSamplingFraction,*gwapiv1.Fraction)
 
 	// CustomTags defines the custom tags to add to each span.
 	// If provider is kubernetes, pod name and namespace are added by default.

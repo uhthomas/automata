@@ -196,6 +196,8 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 // ClientValidationContext holds configuration that can be used to validate the client initiating the TLS connection
 // to the Gateway.
 // By default, no client specific configuration is validated.
+//
+// +kubebuilder:validation:XValidation:rule="!has(self.allowExpiredCertificate) || !self.allowExpiredCertificate || !has(self.mode) || self.mode in ['VerifyIfGiven', 'RequireAndVerify']",message="allowExpiredCertificate can only be set when mode is VerifyIfGiven or RequireAndVerify"
 #ClientValidationContext: {
 	// Optional set to true accepts connections even when a client doesn't present a certificate.
 	// Defaults to false, which rejects connections without a valid client certificate.
@@ -247,6 +249,13 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	// Crl specifies the crl configuration that can be used to validate the client initiating the TLS connection
 	// +optional
 	crl?: null | #CrlContext @go(Crl,*CrlContext)
+
+	// AllowExpiredCertificate permits client certificates that have expired
+	// but are otherwise valid (CA chain, signature). When true, Envoy skips
+	// the NotAfter check during client certificate validation.
+	// Defaults to false.
+	// +optional
+	allowExpiredCertificate?: null | bool @go(AllowExpiredCertificate,*bool)
 }
 
 // ClientValidationModeType defines how a Gateway or Listener validates client certificates.

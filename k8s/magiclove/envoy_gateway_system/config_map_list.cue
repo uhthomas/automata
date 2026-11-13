@@ -27,7 +27,7 @@ import (
 			kubernetes: {
 				deploy: type: envoygatewayv1.#KubernetesDeployModeTypeGatewayNamespace
 				rateLimitDeployment: {
-					container: image: "docker.io/envoyproxy/ratelimit:1e50889b"
+					container: image: "docker.io/envoyproxy/ratelimit:5ae0682e"
 					patch: {
 						type: "StrategicMerge"
 						value: spec: template: spec: containers: [{

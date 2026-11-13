@@ -159,6 +159,12 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	// from the main service configuration.
 	// +optional
 	overrides?: null | #HealthCheckOverrides @go(Overrides,*HealthCheckOverrides)
+
+	// HealthCheckLog defines health check event logging configuration for this cluster.
+	// When set, HC probe outcomes are logged to the configured sinks.
+	// Takes precedence over the gateway-level EnvoyProxy.spec.telemetry.healthCheckLog.
+	// +optional
+	healthCheckLog?: null | #ProxyHealthCheckLog @go(HealthCheckLog,*ProxyHealthCheckLog)
 }
 
 // ActiveHealthCheckerType is the type of health checker.
@@ -180,6 +186,7 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 #ActiveHealthCheckerTypeGRPC: #ActiveHealthCheckerType & "GRPC"
 
 // HTTPActiveHealthChecker defines the settings of http health check.
+// +kubebuilder:validation:XValidation:rule="!has(self.requestBody) || (has(self.method) && self.method.upperAscii() in ['POST','PUT'])",message="The requestBody field can only be set when method is POST or PUT."
 #HTTPActiveHealthChecker: {
 	// Hostname defines the HTTP Host header used for active HTTP health checks.
 	// Host selection uses this order: this field, the associated Backend endpoint
@@ -198,6 +205,7 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 
 	// Method defines the HTTP method used for health checking.
 	// Defaults to GET
+	// +kubebuilder:validation:MaxLength=16
 	// +optional
 	method?: null | string @go(Method,*string)
 
@@ -216,6 +224,10 @@ import gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 	// ExpectedResponse defines a list of HTTP expected responses to match.
 	// +optional
 	expectedResponse?: null | #ActiveHealthCheckPayload @go(ExpectedResponse,*ActiveHealthCheckPayload)
+
+	// RequestBody defines the HTTP request body payload sent during health checking.
+	// +optional
+	requestBody?: null | #ActiveHealthCheckPayload @go(RequestBody,*ActiveHealthCheckPayload)
 }
 
 // TCPActiveHealthChecker defines the settings of tcp health check.

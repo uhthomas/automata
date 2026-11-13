@@ -242,6 +242,46 @@ import (
 	// +optional
 	// +kubebuilder:default=false
 	keepResponseHeaders?: null | bool @go(KeepResponseHeaders,*bool)
+
+	// OutOfBand enables out-of-band ORCA load reporting. When set, Envoy opens a
+	// server-streaming gRPC connection to each endpoint's
+	// xds.service.orca.v3.OpenRcaService/StreamCoreMetrics and pulls load
+	// reports periodically, instead of relying on in-band ORCA metrics
+	// carried in response headers/trailers.
+	//
+	// The backend must implement OpenRcaService for this to take effect.
+	//
+	// +optional
+	outOfBand?: null | #OutOfBandReporting @go(OutOfBand,*OutOfBandReporting)
+}
+
+// OutOfBandReporting configures out-of-band ORCA load reporting for the
+// BackendUtilization load balancer.
+#OutOfBandReporting: {
+	// ReportingPeriod is how often Envoy requests load reports from the server.
+	// Must be greater than 0. Defaults to 10s.
+	//
+	// +kubebuilder:validation:XValidation:rule="duration(self) > duration('0s')",message="reportingPeriod must be greater than 0"
+	// +optional
+	reportingPeriod?: null | gwapiv1.#Duration @go(ReportingPeriod,*gwapiv1.Duration)
+
+	// Port overrides the port used for the OutOfBand reporting connection, e.g. to
+	// reach a separate reporting sidecar. Defaults to the endpoint's port.
+	//
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=65535
+	// +optional
+	port?: null | int32 @go(Port,*int32)
+
+	// Authority overrides the :authority header on the OutOfBand gRPC stream.
+	// If unset, Envoy uses the endpoint hostname, then the dialed address, then
+	// the cluster name.
+	//
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=259
+	// +kubebuilder:validation:Pattern=`^[^\x00\n\r]*$`
+	// +optional
+	authority?: null | string @go(Authority,*string)
 }
 
 // DynamicModuleLBPolicy configures a custom load balancing algorithm

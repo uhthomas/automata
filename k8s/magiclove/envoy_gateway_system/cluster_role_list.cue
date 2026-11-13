@@ -46,7 +46,7 @@ import rbacv1 "k8s.io/api/rbac/v1"
 		verbs: ["get", "list", "watch"]
 	}, {
 		apiGroups: ["gateway.envoyproxy.io"]
-		resources: ["envoypatchpolicies/status", "clienttrafficpolicies/status", "backendtrafficpolicies/status", "securitypolicies/status", "envoyextensionpolicies/status", "backends/status"]
+		resources: ["envoyproxies/status", "envoypatchpolicies/status", "clienttrafficpolicies/status", "backendtrafficpolicies/status", "securitypolicies/status", "envoyextensionpolicies/status", "backends/status"]
 		verbs: ["update"]
 	}, {
 		apiGroups: ["gateway.networking.k8s.io"]
@@ -72,8 +72,12 @@ import rbacv1 "k8s.io/api/rbac/v1"
 		resources: ["deployments", "daemonsets"]
 		verbs: ["create", "get", "list", "delete", "deletecollection", "patch", "watch"]
 	}, {
-		apiGroups: ["autoscaling", "policy"]
-		resources: ["horizontalpodautoscalers", "poddisruptionbudgets"]
+		apiGroups: ["autoscaling"]
+		resources: ["horizontalpodautoscalers"]
+		verbs: ["create", "get", "list", "delete", "deletecollection", "patch", "watch"]
+	}, {
+		apiGroups: ["policy"]
+		resources: ["poddisruptionbudgets"]
 		verbs: ["create", "get", "list", "delete", "deletecollection", "patch", "watch"]
 	}, {
 		apiGroups: ["certificates.k8s.io"]
