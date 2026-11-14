@@ -1,6 +1,6 @@
 machine:
   install:
-    image: factory.talos.dev/metal-installer-secureboot/db2a3ef17dd9e0f81b486f517c01fd7a46c43ef0d9dcdd20a70f851fbefa00da:v1.14.1
+    image: factory.talos.dev/metal-installer-secureboot/db2a3ef17dd9e0f81b486f517c01fd7a46c43ef0d9dcdd20a70f851fbefa00da:v1.14.5
   udev:
     rules:
       # Reduce max discard size to prevent stalls.
