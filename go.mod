@@ -3,7 +3,7 @@ module github.com/uhthomas/automata
 go 1.26.10
 
 require (
-	cuelang.org/go v0.7.0
+	cuelang.org/go v0.11.0
 	github.com/1Password/onepassword-operator v1.8.0
 	github.com/NVIDIA/gpu-operator v1.11.1
 	github.com/VictoriaMetrics/operator/api v0.66.1
@@ -15,7 +15,7 @@ require (
 	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
 	github.com/envoyproxy/gateway v1.9.3
 	github.com/external-secrets/external-secrets v0.9.11
-	github.com/grafana/grafana-operator/v5 v5.22.2
+	github.com/grafana/grafana-operator/v5 v5.24.0
 	github.com/jodevsa/wireguard-operator v1.2.21-0.20240509203524-1d1bef4d0d82
 	github.com/kubernetes-csi/external-snapshotter/client/v8 v8.2.0
 	github.com/prometheus/prometheus v0.303.1
@@ -31,8 +31,9 @@ require (
 
 require (
 	github.com/KimMachineGun/automemlimit v0.7.5 // indirect
-	github.com/alecthomas/kong v1.14.0 // indirect
+	github.com/alecthomas/kong v1.15.0 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
+	github.com/go-openapi/runtime/server-middleware v0.33.2 // indirect
 	github.com/go-openapi/swag/cmdutils v0.29.2 // indirect
 	github.com/go-openapi/swag/conv v0.29.2 // indirect
 	github.com/go-openapi/swag/fileutils v0.29.2 // indirect
@@ -41,20 +42,29 @@ require (
 	github.com/go-openapi/swag/loading v0.29.2 // indirect
 	github.com/go-openapi/swag/mangling v0.29.2 // indirect
 	github.com/go-openapi/swag/netutils v0.29.2 // indirect
+	github.com/go-openapi/swag/pools v0.29.2 // indirect
 	github.com/go-openapi/swag/stringutils v0.29.2 // indirect
 	github.com/go-openapi/swag/typeutils v0.29.2 // indirect
 	github.com/go-openapi/swag/yamlutils v0.29.2 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
-	github.com/itchyny/gojq v0.12.18 // indirect
-	github.com/itchyny/timefmt-go v0.1.7 // indirect
+	github.com/grafana/grafana-app-sdk v0.54.1 // indirect
+	github.com/grafana/grafana/apps/folder v0.0.0-20260511051340-90bed70d199c // indirect
+	github.com/grafana/grafana/pkg/apimachinery v0.0.0-20260511053550-5c87510b9bf6 // indirect
+	github.com/itchyny/gojq v0.12.19 // indirect
+	github.com/itchyny/timefmt-go v0.1.8 // indirect
 	github.com/oklog/ulid/v2 v2.1.2 // indirect
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
+	github.com/rogpeppe/go-internal v1.16.0 // indirect
 	github.com/spyzhov/ajson v0.9.6 // indirect
+	github.com/stretchr/objx v0.5.3 // indirect
+	github.com/stretchr/testify v1.12.1 // indirect
+	go.opentelemetry.io/otel/log v1.47.0 // indirect
+	oras.land/oras-go/v2 v2.6.2 // indirect
 )
 
 require (
 	cel.dev/expr v0.25.3 // indirect
-	cuelabs.dev/go/oci/ociregistry v0.0.0-20231103182354-93e78c079a13 // indirect
+	cuelabs.dev/go/oci/ociregistry v0.0.0-20251212221603-3adeb8663819 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20250102033503-faa5f7b0171c // indirect
 	github.com/MakeNowJust/heredoc v1.0.0 // indirect
 	github.com/NYTimes/gziphandler v1.1.1 // indirect
@@ -88,7 +98,7 @@ require (
 	github.com/distribution/reference v0.6.0 // indirect
 	github.com/edsrzf/mmap-go v1.2.0 // indirect
 	github.com/emicklei/go-restful/v3 v3.13.0 // indirect
-	github.com/emicklei/proto v1.11.2 // indirect
+	github.com/emicklei/proto v1.14.2 // indirect
 	github.com/evanphx/json-patch v5.9.11+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.9.11 // indirect
 	github.com/exponent-io/jsonpath v0.0.0-20210407135951-1de76d718b3f // indirect
@@ -121,10 +131,10 @@ require (
 	github.com/google/cel-go v0.30.0 // indirect
 	github.com/google/gnostic-models v0.7.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
-	github.com/google/go-jsonnet v0.21.0 // indirect
+	github.com/google/go-jsonnet v0.22.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674 // indirect
-	github.com/grafana/grafana-openapi-client-go v0.0.0-20251202103709-7ef691d4df1d // indirect
+	github.com/grafana/grafana-openapi-client-go v0.0.0-20260430175825-547a3b5a00a5 // indirect
 	github.com/grafana/regexp v0.0.0-20250905093917-f7b3be9d1853 // indirect
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79 // indirect
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect
@@ -185,7 +195,7 @@ require (
 	github.com/prometheus/common v0.72.0 // indirect
 	github.com/prometheus/common/sigv4 v0.1.0 // indirect
 	github.com/prometheus/procfs v0.22.0 // indirect
-	github.com/protocolbuffers/txtpbfmt v0.0.0-20230412060525-fa9f017c0ded // indirect
+	github.com/protocolbuffers/txtpbfmt v0.0.0-20251124094003-fcb97cc64c7b // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/sagikazarmark/locafero v0.12.0 // indirect
@@ -258,7 +268,7 @@ require (
 	k8s.io/component-base v0.37.1 // indirect
 	k8s.io/component-helpers v0.34.0 // indirect
 	k8s.io/klog/v2 v2.140.0 // indirect
-	k8s.io/kms v0.35.2 // indirect
+	k8s.io/kms v0.36.0 // indirect
 	k8s.io/kube-openapi v0.30.0 // indirect
 	k8s.io/kubectl v0.37.1 // indirect
 	k8s.io/metrics v0.37.1 // indirect
