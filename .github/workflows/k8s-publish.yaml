@@ -32,7 +32,7 @@ jobs:
       - name: Set up CUE
         uses: cue-lang/setup-cue@v1.0.1
         with:
-          version: v0.16.1
+          version: v0.17.1
 
       - name: Render delivery artifact
         run: cue export k8s/magiclove/list.cue --expression '#List' --out json >/dev/null
@@ -50,7 +50,7 @@ jobs:
       - name: Set up CUE
         uses: cue-lang/setup-cue@v1.0.1
         with:
-          version: v0.16.1
+          version: v0.17.1
 
       - name: Set up Flux
         uses: fluxcd/flux2/action@v2.9.3
