@@ -33,6 +33,7 @@ require (
 	github.com/KimMachineGun/automemlimit v0.7.5 // indirect
 	github.com/alecthomas/kong v1.14.0 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
+	github.com/go-openapi/runtime/server-middleware v0.33.2 // indirect
 	github.com/go-openapi/swag/cmdutils v0.29.2 // indirect
 	github.com/go-openapi/swag/conv v0.29.2 // indirect
 	github.com/go-openapi/swag/fileutils v0.29.2 // indirect
@@ -41,6 +42,7 @@ require (
 	github.com/go-openapi/swag/loading v0.29.2 // indirect
 	github.com/go-openapi/swag/mangling v0.29.2 // indirect
 	github.com/go-openapi/swag/netutils v0.29.2 // indirect
+	github.com/go-openapi/swag/pools v0.29.2 // indirect
 	github.com/go-openapi/swag/stringutils v0.29.2 // indirect
 	github.com/go-openapi/swag/typeutils v0.29.2 // indirect
 	github.com/go-openapi/swag/yamlutils v0.29.2 // indirect
@@ -50,6 +52,7 @@ require (
 	github.com/oklog/ulid/v2 v2.1.2 // indirect
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
 	github.com/spyzhov/ajson v0.9.6 // indirect
+	go.opentelemetry.io/otel/log v1.47.0 // indirect
 )
 
 require (
@@ -322,4 +325,4 @@ exclude github.com/kubernetes-incubator/external-storage v0.20.4-openstorage-rc2
 
 replace github.com/crunchydata/postgres-operator => github.com/crunchydata/postgres-operator v1.3.3-0.20230629151007-94ebcf2df74d
 
-replace github.com/openshift/api => github.com/openshift/api v0.0.0-20240401200911-ab1b479a063f
+replace github.com/openshift/api => github.com/openshift/api v0.0.0-20261113224656-2662c7aa27ef
