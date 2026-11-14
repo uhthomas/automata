@@ -12,7 +12,7 @@ jobs:
           ref: ${{ github.event.pull_request.base.sha }}
       - uses: cue-lang/setup-cue@v1.0.1
         with:
-          version: v0.16.1
+          version: v0.17.1
       - run: cue export ./k8s/magiclove/list.cue --expression '#List' --out json > list.json
       - uses: actions/upload-artifact@v4
         with:
@@ -28,7 +28,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - uses: cue-lang/setup-cue@v1.0.1
         with:
-          version: v0.16.1
+          version: v0.17.1
       - run: cue export ./k8s/magiclove/list.cue --expression '#List' --out json > list.json
       - uses: actions/upload-artifact@v4
         with:
