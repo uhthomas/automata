@@ -32,6 +32,7 @@ import (
 	"github.com/uhthomas/automata/k8s/magiclove/kube_state_metrics"
 	"github.com/uhthomas/automata/k8s/magiclove/kube_system"
 	"github.com/uhthomas/automata/k8s/magiclove/linkding"
+	"github.com/uhthomas/automata/k8s/magiclove/livesync"
 	"github.com/uhthomas/automata/k8s/magiclove/media"
 	"github.com/uhthomas/automata/k8s/magiclove/metrics_server"
 	// "github.com/uhthomas/automata/k8s/magiclove/minecraft"
@@ -117,6 +118,7 @@ _items: [
 	kube_state_metrics.#List.items,
 	kube_system.#List.items,
 	linkding.#List.items,
+	livesync.#List.items,
 	media.#List.items,
 	metrics_server.#List.items,
 	// minecraft.#List.items,
