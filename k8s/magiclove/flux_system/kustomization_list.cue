@@ -16,7 +16,7 @@ import kustomizev1 "github.com/fluxcd/kustomize-controller/api/v1"
 	spec: {
 		interval:       "10m"
 		retryInterval:  "1m"
-		prune:          true
+		prune:          false
 		deletionPolicy: "Orphan"
 		sourceRef: {
 			kind: "OCIRepository"

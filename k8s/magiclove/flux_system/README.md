@@ -30,20 +30,16 @@ The OCI package is public, so the cluster pulls it anonymously. The
 `OCIRepository` deliberately has no `secretRef`, and no registry credential is
 stored in the cluster or Akeyless.
 
-The root delivery list defaults every rendered object to
-`kustomize.toolkit.fluxcd.io/prune: disabled`. This prevents an object omitted
-by accident from being garbage-collected. Flux v1.9.4 treats this skip as
-settled and removes the omitted object from its inventory, however, so use the
-annotation as a deletion guard rather than an inventory or cleanup ledger. The
-Flux bootstrap package also requires the annotation directly, so it remains
-protected if the root composition changes.
+The Kustomization disables garbage collection with `spec.prune: false`.
+Resources removed from the delivery graph remain in the cluster and must be
+deleted explicitly. It also uses `spec.deletionPolicy: Orphan`, so deleting
+the Kustomization itself does not delete the cluster.
 
-Intentional deletion is a two-revision operation. First override the object's
-annotation to `enabled` while it is still present and deploy that revision.
-Only remove the object from the graph in a later revision. This makes deletion
-an explicit, reviewable state transition instead of a side effect of omission.
-The Kustomization uses `spec.deletionPolicy: Orphan`, so deleting the
-Kustomization itself does not delete the cluster.
+The root delivery list defaults every rendered object to
+`kustomize.toolkit.fluxcd.io/prune: disabled`, and the Flux bootstrap package
+requires the annotation directly. These annotations provide additional
+protection if pruning is re-enabled; setting an object's annotation to
+`enabled` does not override `spec.prune: false`.
 
 ## Publishing
 
