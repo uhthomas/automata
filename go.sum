@@ -1342,8 +1342,12 @@ cloud.google.com/go/workflows v1.12.3/go.mod h1:fmOUeeqEwPzIU81foMjTRQIdwQHADi/v
 cloud.google.com/go/workflows v1.12.4/go.mod h1:yQ7HUqOkdJK4duVtMeBCAOPiN1ZF1E9pAMX51vpwB/w=
 cuelabs.dev/go/oci/ociregistry v0.0.0-20231103182354-93e78c079a13 h1:zkiIe8AxZ/kDjqQN+mDKc5BxoVJOqioSdqApjc+eB1I=
 cuelabs.dev/go/oci/ociregistry v0.0.0-20231103182354-93e78c079a13/go.mod h1:XGKYSMtsJWfqQYPwq51ZygxAPqpEUj/9bdg16iDPTAA=
+cuelabs.dev/go/oci/ociregistry v0.0.0-20260601085548-328ff8e2c943 h1:XUtzi/yWlmuy8V6kkmVbbmirmUqcFe9Ce3gmEaHXf1Q=
+cuelabs.dev/go/oci/ociregistry v0.0.0-20260601085548-328ff8e2c943/go.mod h1:WjmQxb+W6nVNCgj8nXrF24lIz95AHwnSl36tpjDZSU8=
 cuelang.org/go v0.7.0 h1:gMztinxuKfJwMIxtboFsNc6s8AxwJGgsJV+3CuLffHI=
 cuelang.org/go v0.7.0/go.mod h1:ix+3dM/bSpdG9xg6qpCgnJnpeLtciZu+O/rDbywoMII=
+cuelang.org/go v0.17.1 h1:liOkxZDqTHrzq0USJX+6bMYOZ5PSf+wzvQr15AHpDCQ=
+cuelang.org/go v0.17.1/go.mod h1:xlly/o1wSLvxOsi5vkQGieU0rLOt7TvUIizOFtnxHRU=
 dario.cat/mergo v1.0.2 h1:85+piFYR1tMbRrLcDwR18y4UKJ3aH1Tbzi24VRW1TK8=
 dario.cat/mergo v1.0.2/go.mod h1:E/hbnu0NxMFBjpMIE34DRGLWqDy0g5FuKDhCb31ngxA=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
@@ -1610,7 +1614,11 @@ github.com/cncf/xds/go v0.0.0-20260202195803-dba9d589def2 h1:aBangftG7EVZoUb69Os
 github.com/cncf/xds/go v0.0.0-20260202195803-dba9d589def2/go.mod h1:qwXFYgsP6T7XnJtbKlf1HP8AjxZZyzxMmc+Lq5GjlU4=
 github.com/cockroachdb/apd/v3 v3.2.1 h1:U+8j7t0axsIgvQUqthuNm82HIrYXodOV2iWLWtEaIwg=
 github.com/cockroachdb/apd/v3 v3.2.1/go.mod h1:klXJcjp+FffLTHlhIG69tezTDvdP065naDsHzKhYSqc=
+github.com/cockroachdb/apd/v3 v3.2.3 h1:4Zx+I3R35bFXMnltzmjP79i2cravE4jTRL6ps9Aux80=
+github.com/cockroachdb/apd/v3 v3.2.3/go.mod h1:klXJcjp+FffLTHlhIG69tezTDvdP065naDsHzKhYSqc=
 github.com/cockroachdb/datadriven v1.0.2/go.mod h1:a9RdTaap04u637JoCzcUoIcDmvwSUtcUFtT/C3kJlTU=
+github.com/coder/websocket v1.8.14 h1:9L0p0iKiNOibykf283eHkKUHHrpG7f65OE3BhhO7v9g=
+github.com/coder/websocket v1.8.14/go.mod h1:NX3SzP+inril6yawo5CQXx8+fk145lPDC6pumgx0mVg=
 github.com/container-storage-interface/spec v1.1.0/go.mod h1:6URME8mwIBbpVyZV93Ce5St17xBiQJQY67NDsuohiy4=
 github.com/container-storage-interface/spec v1.2.0/go.mod h1:6URME8mwIBbpVyZV93Ce5St17xBiQJQY67NDsuohiy4=
 github.com/containerd/errdefs v1.0.0 h1:tg5yIfIlQIrxYtu9ajqY42W3lpS19XqdxRQeEwYG8PI=
@@ -1675,6 +1683,8 @@ github.com/emicklei/go-restful/v3 v3.13.0 h1:C4Bl2xDndpU6nJ4bc1jXd+uTmYPVUwkD6bF
 github.com/emicklei/go-restful/v3 v3.13.0/go.mod h1:6n3XBCmQQb25CM2LCACGz8ukIrRry+4bhvbpWn3mrbc=
 github.com/emicklei/proto v1.11.2 h1:DiIeyTJ+gPSyJI+RIAqvuTeKb0tLUmaGXbYg6aFKsnE=
 github.com/emicklei/proto v1.11.2/go.mod h1:rn1FgRS/FANiZdD2djyH7TMA9jdRDcYQ9IEN9yvjX0A=
+github.com/emicklei/proto v1.14.3 h1:zEhlzNkpP8kN6utonKMzlPfIvy82t5Kb9mufaJxSe1Q=
+github.com/emicklei/proto v1.14.3/go.mod h1:rn1FgRS/FANiZdD2djyH7TMA9jdRDcYQ9IEN9yvjX0A=
 github.com/envoyproxy/gateway v1.8.2 h1:d742/gq9RkWXH1t6NBtQlRi9AVvheOC2GPwqfzSZH9c=
 github.com/envoyproxy/gateway v1.8.2/go.mod h1:3xA31iuvxcu8DKlfIqhIxfk+FdYyrGIQ0giy4XG6j4Q=
 github.com/envoyproxy/gateway v1.9.3 h1:fVmVO3R6Ngb7DOzXvG5hFai68906zseHz0K+DjYwl4Q=
@@ -1832,6 +1842,8 @@ github.com/go-openapi/runtime v0.29.3 h1:h5twGaEqxtQg40ePiYm9vFFH1q06Czd7Ot6ufdK
 github.com/go-openapi/runtime v0.29.3/go.mod h1:8A1W0/L5eyNJvKciqZtvIVQvYO66NlB7INMSZ9bw/oI=
 github.com/go-openapi/runtime v0.33.2 h1:HSxskMs0WmpCdQvBWVxHt2t2mXMwn8DDav3VtVidwig=
 github.com/go-openapi/runtime v0.33.2/go.mod h1:NQpSLiIsEAIpZDEs6xUrhjm6ZiQh85X8bHKlqLPgNP8=
+github.com/go-openapi/runtime/server-middleware v0.33.2 h1:BVFjAaW4Jh/kZ4QSsgDrGzLuSuaKzSiyvappUFKxgUk=
+github.com/go-openapi/runtime/server-middleware v0.33.2/go.mod h1:E3mWY61/UgBJ5EUmKh+h6A1oQQdD1U4raowVMmPmQug=
 github.com/go-openapi/spec v0.22.6 h1:Tyy1pLaNCM8GBCFLoGYLonjJi6zykqyLCjXLc19ZPic=
 github.com/go-openapi/spec v0.22.6/go.mod h1:HZvTHat+iH0PALQRWhrqIHtU/PEqxqd89fu0MxGlMeM=
 github.com/go-openapi/spec v1.0.1 h1:lj2vdGpNDcVgwRc6qXdw6qt/KQpCtSa9tnUH6vpDPDk=
@@ -2611,6 +2623,8 @@ github.com/prometheus/sigv4 v0.2.1 h1:hl8D3+QEzU9rRmbKIRwMKRwaFGyLkbPdH5ZerglRHY
 github.com/prometheus/sigv4 v0.2.1/go.mod h1:ySk6TahIlsR2sxADuHy4IBFhwEjRGGsfbbLGhFYFj6Q=
 github.com/protocolbuffers/txtpbfmt v0.0.0-20230412060525-fa9f017c0ded h1:XHLAvwaTYM0PxS/HO7E0PfBaY/y0jGM5NM7g05lCb0k=
 github.com/protocolbuffers/txtpbfmt v0.0.0-20230412060525-fa9f017c0ded/go.mod h1:jgxiZysxFPM+iWKwQwPR+y+Jvo54ARd4EisXxKYpB5c=
+github.com/protocolbuffers/txtpbfmt v0.0.0-20260420112717-c39628bde8b5 h1:Mckui8l+Wqz2Ve7XQvsE8SbHNmDWu8NA7Xce5NFJ/kM=
+github.com/protocolbuffers/txtpbfmt v0.0.0-20260420112717-c39628bde8b5/go.mod h1:JSbkp0BviKovYYt9XunS95M3mLPibE9bGg+Y95DsEEY=
 github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
 github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
 github.com/robfig/cron/v3 v3.0.1/go.mod h1:eQICP3HwyT7UooqI/z+Ov+PtYAWygg1TEWWzGIFLtro=
@@ -2626,6 +2640,7 @@ github.com/rogpeppe/go-internal v1.13.1/go.mod h1:uMEvuHeurkdAXX61udpOXGD/AzZDWN
 github.com/rogpeppe/go-internal v1.14.1 h1:UQB4HGPB6osV0SQTLymcB4TgvyWu6ZyliaW0tI/otEQ=
 github.com/rogpeppe/go-internal v1.14.1/go.mod h1:MaRKkUm5W0goXpeCfT7UZI6fk/L7L7so1lCWt35ZSgc=
 github.com/rogpeppe/go-internal v1.16.0 h1:O9DK+vNMDVGLr2BeZqmpLeMjiMNkuXfcqntWbZV6S5g=
+github.com/rogpeppe/go-internal v1.16.0/go.mod h1:DrUVZyrJU+txYW5/1kwtXQSMFio52ZOxX7yM1VHvnxs=
 github.com/rook/rook/pkg/apis v0.0.0-20250829210302-107bb8176eeb h1:o8+Zu8rUeoDxL1ceoTRBiaNe/4b0UV5pF6IfgEb56Hs=
 github.com/rook/rook/pkg/apis v0.0.0-20250829210302-107bb8176eeb/go.mod h1:z2t6fx8bMx0Kh44OzIauAyFWAtPS/rHAA4z+t7WAkp0=
 github.com/rook/secrets v0.0.0-20240315053144-3195f6906937 h1:1TpdIqF9mtQfhNfwOpXdpJTMhx66PonVCCvYcGWvu/I=
@@ -2721,6 +2736,8 @@ github.com/testcontainers/testcontainers-go v0.41.0 h1:mfpsD0D36YgkxGj2LrIyxuwQ9
 github.com/testcontainers/testcontainers-go v0.41.0/go.mod h1:pdFrEIfaPl24zmBjerWTTYaY0M6UHsqA1YSvsoU40MI=
 github.com/tetratelabs/wazero v1.8.2 h1:yIgLR/b2bN31bjxwXHD8a3d+BogigR952csSDdLYEv4=
 github.com/tetratelabs/wazero v1.8.2/go.mod h1:yAI0XTsMBhREkM/YDAK/zNou3GoiAce1P6+rp/wQhjs=
+github.com/tetratelabs/wazero v1.12.0 h1:DuWcpNu/FzgEXgGBDp8J1Spc+CWOvvtvVyjKlaZopYU=
+github.com/tetratelabs/wazero v1.12.0/go.mod h1:LvKtzl2RqO4gyF27BiXU+nKAjcV8f38U+kP/q2vgxh0=
 github.com/thoas/go-funk v0.9.3 h1:7+nAEx3kn5ZJcnDm2Bh23N2yOtweO14bi//dvRtgLpw=
 github.com/thoas/go-funk v0.9.3/go.mod h1:+IWnUfUmFO1+WVYQWQtIJHeRRdaIyyYglZN7xzUPe4Q=
 github.com/tklauser/go-sysconf v0.3.16 h1:frioLaCQSsF5Cy1jgRBrzr6t502KIIwQ0MArYICU0nA=
@@ -2853,6 +2870,8 @@ go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.44.0 h1:qazEJ
 go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.44.0/go.mod h1:fOD2Yefuxixkx3ahVNf0O/PERb6r4OlbxfATVnYvzCo=
 go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.47.0 h1:UFpxOpYPmMNUtOWhdb+nC1WELIgVf8z9higURrbzYU4=
 go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.47.0/go.mod h1:YBGjxe3lt0jtXoEXxGrGhv/jM7oUBUDVK7zhAvNyEjc=
+go.opentelemetry.io/otel/log v1.47.0 h1:cOTS1CcLbSQeZKanGJ+0JpF/+t4PELi3O3bbl2lqCcI=
+go.opentelemetry.io/otel/log v1.47.0/go.mod h1:9byitSQ5pLC6PpqwGXjqdMKya6ZTswHRZh2vvXT33nw=
 go.opentelemetry.io/otel/metric v1.19.0/go.mod h1:L5rUsV9kM1IxCj1MmSdS+JQAcVm319EUrDVLrt7jqt8=
 go.opentelemetry.io/otel/metric v1.21.0/go.mod h1:o1p3CA8nNHW8j5yuQLdc1eeqEaPfzug24uvsyIEJRWM=
 go.opentelemetry.io/otel/metric v1.22.0/go.mod h1:evJGjVpZv0mQ5QBRJoBF64yMuOf4xCWdXjK8pzFvliY=
