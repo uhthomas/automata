@@ -1564,6 +1564,8 @@ github.com/chzyer/test v0.0.0-20210722231415-061457976a23/go.mod h1:Q3SI9o4m/ZMn
 github.com/chzyer/test v1.0.0/go.mod h1:2JlltgoNkt4TW/z9V/IzDdFaMTM2JPIi26O1pF38GC8=
 github.com/cilium/cilium v1.18.1 h1:RQiDhd3eqjxWjnsdzMeS80rScwBKiZ+rMd/1OnBtoOI=
 github.com/cilium/cilium v1.18.1/go.mod h1:UWJgzCYJBywOcnvQNn9N07ZZikkVS2Pk2M40jAASEzw=
+github.com/cilium/cilium v1.18.9 h1:fHtTd7VyTUINGG/pz2Zrp+8f5cvesdtypyv3eHkvAlE=
+github.com/cilium/cilium v1.18.9/go.mod h1:H2zUDdHE9SRRzDLz3GZGVlSbY9OOOwVu+Rl8LRCXtDE=
 github.com/cilium/ebpf v0.21.0 h1:4dpx1J/B/1apeTmWBH5BkVLayHTkFrMovVPnHEk+l3k=
 github.com/cilium/ebpf v0.21.0/go.mod h1:1kHKv6Kvh5a6TePP5vvvoMa1bclRyzUXELSs272fmIQ=
 github.com/cilium/ebpf v0.22.0 h1:v2ktp0roffpMOj2MMf3idtCQZOsAoC4BJbAJN+ke2bY=
@@ -1574,6 +1576,8 @@ github.com/cilium/proxy v0.0.0-20250623105955-2136f59a4ea1 h1:SOOtIfQmW/pF1iW1I4
 github.com/cilium/proxy v0.0.0-20250623105955-2136f59a4ea1/go.mod h1:Kwyyx+cC2H67Aj1sDuqBLvPn6TEmEJRPvULIrJ/kBRo=
 github.com/cilium/statedb v0.4.5 h1:WP1xbkAdDup0wOkhRZUJG/Wh4+ZLAOgl7yIIxJ3vIEo=
 github.com/cilium/statedb v0.4.5/go.mod h1:DlxX9OQi/nM8oumUuz8VjxXUtVRiEfbfo8Ri1YWNCGI=
+github.com/cilium/statedb v0.4.6 h1:pundFmW0Dhinsv0ZINdFsxzlb6d3ZQkQM7aJW9eMtD8=
+github.com/cilium/statedb v0.4.6/go.mod h1:DlxX9OQi/nM8oumUuz8VjxXUtVRiEfbfo8Ri1YWNCGI=
 github.com/cilium/stream v0.0.1 h1:82zuM/WwkLiac2Jg5FrzPxZHvIBbxXTi4VY7M+EYLs0=
 github.com/cilium/stream v0.0.1/go.mod h1:/e83AwqvNKpyg4n3C41qmnmj1x2G9DwzI+jb7GkF4lI=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
@@ -1832,6 +1836,8 @@ github.com/go-openapi/runtime v0.29.3 h1:h5twGaEqxtQg40ePiYm9vFFH1q06Czd7Ot6ufdK
 github.com/go-openapi/runtime v0.29.3/go.mod h1:8A1W0/L5eyNJvKciqZtvIVQvYO66NlB7INMSZ9bw/oI=
 github.com/go-openapi/runtime v0.33.2 h1:HSxskMs0WmpCdQvBWVxHt2t2mXMwn8DDav3VtVidwig=
 github.com/go-openapi/runtime v0.33.2/go.mod h1:NQpSLiIsEAIpZDEs6xUrhjm6ZiQh85X8bHKlqLPgNP8=
+github.com/go-openapi/runtime/server-middleware v0.33.2 h1:BVFjAaW4Jh/kZ4QSsgDrGzLuSuaKzSiyvappUFKxgUk=
+github.com/go-openapi/runtime/server-middleware v0.33.2/go.mod h1:E3mWY61/UgBJ5EUmKh+h6A1oQQdD1U4raowVMmPmQug=
 github.com/go-openapi/spec v0.22.6 h1:Tyy1pLaNCM8GBCFLoGYLonjJi6zykqyLCjXLc19ZPic=
 github.com/go-openapi/spec v0.22.6/go.mod h1:HZvTHat+iH0PALQRWhrqIHtU/PEqxqd89fu0MxGlMeM=
 github.com/go-openapi/spec v1.0.1 h1:lj2vdGpNDcVgwRc6qXdw6qt/KQpCtSa9tnUH6vpDPDk=
@@ -2748,6 +2754,8 @@ github.com/valyala/quicktemplate v1.8.0 h1:zU0tjbIqTRgKQzFY1L42zq0qR3eh4WoQQdIdq
 github.com/valyala/quicktemplate v1.8.0/go.mod h1:qIqW8/igXt8fdrUln5kOSb+KWMaJ4Y8QUsfd1k6L2jM=
 github.com/vishvananda/netlink v1.3.1 h1:3AEMt62VKqz90r0tmNhog0r/PpWKmrEShJU0wJW6bV0=
 github.com/vishvananda/netlink v1.3.1/go.mod h1:ARtKouGSTGchR8aMwmkzC0qiNPrrWO5JS/XMVl45+b4=
+github.com/vishvananda/netlink v1.3.2-0.20250926155043-cd3cb2e12c97 h1:fLr9AqDqfl9FLLOlPPPs9QujTXDvehe9fH1hR7JY0jY=
+github.com/vishvananda/netlink v1.3.2-0.20250926155043-cd3cb2e12c97/go.mod h1:lEui7SPMd9fgxzHVGRAvTxsBGCF6PRH81o2kLWLWHgw=
 github.com/vishvananda/netns v0.0.5 h1:DfiHV+j8bA32MFM7bfEunvT8IAqQ/NzSJHtcmW5zdEY=
 github.com/vishvananda/netns v0.0.5/go.mod h1:SpkAiCQRtJ6TvvxPnOSyH3BMl6unz3xZlaprSwhNNJM=
 github.com/x448/float16 v0.8.4 h1:qLwI1I70+NjRFUR3zs1JPUCgaCXSh3SW62uAKT1mSBM=
@@ -2853,6 +2861,8 @@ go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.44.0 h1:qazEJ
 go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.44.0/go.mod h1:fOD2Yefuxixkx3ahVNf0O/PERb6r4OlbxfATVnYvzCo=
 go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.47.0 h1:UFpxOpYPmMNUtOWhdb+nC1WELIgVf8z9higURrbzYU4=
 go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.47.0/go.mod h1:YBGjxe3lt0jtXoEXxGrGhv/jM7oUBUDVK7zhAvNyEjc=
+go.opentelemetry.io/otel/log v1.47.0 h1:cOTS1CcLbSQeZKanGJ+0JpF/+t4PELi3O3bbl2lqCcI=
+go.opentelemetry.io/otel/log v1.47.0/go.mod h1:9byitSQ5pLC6PpqwGXjqdMKya6ZTswHRZh2vvXT33nw=
 go.opentelemetry.io/otel/metric v1.19.0/go.mod h1:L5rUsV9kM1IxCj1MmSdS+JQAcVm319EUrDVLrt7jqt8=
 go.opentelemetry.io/otel/metric v1.21.0/go.mod h1:o1p3CA8nNHW8j5yuQLdc1eeqEaPfzug24uvsyIEJRWM=
 go.opentelemetry.io/otel/metric v1.22.0/go.mod h1:evJGjVpZv0mQ5QBRJoBF64yMuOf4xCWdXjK8pzFvliY=
