@@ -147,9 +147,9 @@ import (
 						name: "POD_NAMESPACE"
 						valueFrom: fieldRef: fieldPath: "metadata.namespace"
 					}]
-					resources: limits: {
-						(v1.#ResourceCPU):    "600m"
-						(v1.#ResourceMemory): "256Mi"
+					resources: {
+						requests: (v1.#ResourceCPU):  "200m"
+						limits: (v1.#ResourceMemory): "256Mi"
 					}
 					volumeMounts: [{
 						mountPath: "/var/lib/rook"
