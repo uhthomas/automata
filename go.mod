@@ -9,7 +9,7 @@ require (
 	github.com/VictoriaMetrics/operator/api v0.66.1
 	github.com/backube/snapscheduler v1.2.0
 	github.com/backube/volsync v0.8.0
-	github.com/cert-manager/cert-manager v1.20.1
+	github.com/cert-manager/cert-manager v1.20.3
 	github.com/cilium/cilium v1.18.1
 	github.com/cloudnative-pg/cloudnative-pg v1.25.1
 	github.com/crunchydata/postgres-operator v0.0.0-00010101000000-000000000000
@@ -33,6 +33,7 @@ require (
 	github.com/KimMachineGun/automemlimit v0.7.5 // indirect
 	github.com/alecthomas/kong v1.14.0 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
+	github.com/go-openapi/runtime/server-middleware v0.33.2 // indirect
 	github.com/go-openapi/swag/cmdutils v0.29.2 // indirect
 	github.com/go-openapi/swag/conv v0.29.2 // indirect
 	github.com/go-openapi/swag/fileutils v0.29.2 // indirect
@@ -41,6 +42,7 @@ require (
 	github.com/go-openapi/swag/loading v0.29.2 // indirect
 	github.com/go-openapi/swag/mangling v0.29.2 // indirect
 	github.com/go-openapi/swag/netutils v0.29.2 // indirect
+	github.com/go-openapi/swag/pools v0.29.2 // indirect
 	github.com/go-openapi/swag/stringutils v0.29.2 // indirect
 	github.com/go-openapi/swag/typeutils v0.29.2 // indirect
 	github.com/go-openapi/swag/yamlutils v0.29.2 // indirect
@@ -50,6 +52,7 @@ require (
 	github.com/oklog/ulid/v2 v2.1.2 // indirect
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
 	github.com/spyzhov/ajson v0.9.6 // indirect
+	go.opentelemetry.io/otel/log v1.47.0 // indirect
 )
 
 require (
