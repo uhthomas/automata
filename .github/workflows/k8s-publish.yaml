@@ -53,7 +53,7 @@ jobs:
           version: v0.16.1
 
       - name: Set up Flux
-        uses: fluxcd/flux2/action@v2.9.3
+        uses: fluxcd/flux2/action@23dcfe98fe672acdf44ecd9c60cbac41b57f5de8 # v2.10.1
         with:
           version: 2.9.3
 
