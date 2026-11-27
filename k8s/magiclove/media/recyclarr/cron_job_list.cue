@@ -40,7 +40,7 @@ import (
 			initContainers: [{
 				let initConfigPath = "/config-init/recyclarr.yml"
 				name:  "copy-config"
-				image: "alpine:3.17.2@sha256:e2e16842c9b54d985bf1ef9242a313f36b856181f188de21313820e177002501"
+				image: "alpine:3.24.4@sha256:0f49f331d9212aff11b932863be4eb01cdf962969aa86dab7d1ee21ac6f5f52b"
 				command: ["cp"]
 				args: [initConfigPath, configPath]
 				volumeMounts: [{
